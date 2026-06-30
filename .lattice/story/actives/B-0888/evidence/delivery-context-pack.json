@@ -1,0 +1,86 @@
+{
+  "storyId": "B-0888",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/dev-memory/experience.jsonl",
+      ".lattice/story/actives/B-0888/checklist.json",
+      ".lattice/story/actives/B-0888/decision.json",
+      ".lattice/story/actives/B-0888/findings.json",
+      ".lattice/story/actives/B-0888/index.json",
+      ".lattice/story/actives/B-0888/intent-collision.json",
+      ".lattice/story/actives/B-0888/milestone-ledger.json",
+      ".lattice/story/actives/B-0888/original-intent-snapshot.json",
+      ".lattice/story/actives/B-0888/plan.md",
+      ".lattice/story/actives/B-0888/process-events.jsonl",
+      ".lattice/story/actives/B-0888/process-metrics.json",
+      ".lattice/story/actives/B-0888/proofstory.json",
+      ".lattice/story/actives/B-0888/review-passes.json",
+      ".lattice/story/actives/B-0888/review-runs.json",
+      ".lattice/story/actives/B-0888/review.json",
+      ".lattice/story/actives/B-0888/scope-check.json",
+      ".lattice/story/actives/B-0888/scope-contract.json",
+      ".lattice/story/actives/B-0888/test-evidence.json",
+      ".lattice/story/actives/B-0888/understanding.json",
+      "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+    ],
+    "summary": " .lattice/dev-memory/experience.jsonl               |  10 +-\n .lattice/story/actives/B-0888/checklist.json       | 289 +++++++++-\n .lattice/story/actives/B-0888/decision.json        |  60 ++\n .lattice/story/actives/B-0888/findings.json        |  28 +\n .lattice/story/actives/B-0888/index.json           |  59 +-\n .../story/actives/B-0888/intent-collision.json     |  14 +\n .../story/actives/B-0888/milestone-ledger.json     | 114 ++++\n .../actives/B-0888/original-intent-snapshot.json   |  15 +\n .lattice/story/actives/B-0888/plan.md              |  66 +++\n .lattice/story/actives/B-0888/process-events.jsonl |  16 +\n .lattice/story/actives/B-0888/process-metrics.json | 359 ++++++++++++\n .lattice/story/actives/B-0888/proofstory.json      | 127 ++++\n .lattice/story/actives/B-0888/review-passes.json   |  49 ++\n .lattice/story/actives/B-0888/review-runs.json     | 368 ++++++++++++\n .lattice/story/actives/B-0888/review.json          | 413 +++++++++++++\n .lattice/story/actives/B-0888/scope-check.json     |  66 +++\n .lattice/story/actives/B-0888/scope-contract.json  |  56 ++\n .lattice/story/actives/B-0888/test-evidence.json   | 257 +++++++++\n .lattice/story/actives/B-0888/understanding.json   |  22 +\n .../src/tasks/dev-memory-supersession-smoke.ts     | 640 ++++++---------------\n 20 files changed, 2544 insertions(+), 484 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees global dev-memory search/list no longer returning old Koala memory rows."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees build, smoke, residue, and memory scans pass after physical cleanup."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+      "lattice dev_memory_list --scope=global --limit=20",
+      "lattice dev_memory_search --query=koala --global --limit=20",
+      "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-supersession-smoke.js && env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+      "npm run test:lattice-residue",
+      "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+      "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+      "rg -n -i \"koala|\\\\.koala|legacy-koala\" /Users/jek/.lattice/dev-memory/experience.jsonl || true"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-30T22:38:51.089Z",
+    "headHash": "d97e247979e606f5b5d85e6427e4053d04d2970c",
+    "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+    "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d"
+  },
+  "reviewRound": "2026-06-30T22:27:30.093Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

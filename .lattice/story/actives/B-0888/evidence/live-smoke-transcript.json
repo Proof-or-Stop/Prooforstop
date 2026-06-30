@@ -1,0 +1,21 @@
+{
+  "storyId": "B-0888",
+  "expected": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup.",
+  "actual": {
+    "command": "lattice dev_memory_search --query=koala --global --limit=20",
+    "exitCode": 0,
+    "stdout": "No dev-memory experience entries found for query: \"koala\"\n",
+    "stderr": "[0.0s] running dev_memory_search...\n[0.0s] dev_memory_search done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-30T22:39:10.868Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "d97e247979e606f5b5d85e6427e4053d04d2970c",
+  "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc"
+}
