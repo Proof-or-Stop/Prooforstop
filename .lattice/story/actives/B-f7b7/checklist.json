@@ -584,9 +584,9 @@
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
       "userSees": "Spike evidence can be recorded, resolved, discarded, or promoted without being mistaken for passing verificationEvidence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T00:00:55.695Z",
-      "endTime": null,
+      "endTime": "2026-06-30T00:00:56.306Z",
       "files": {
         "modify": [
           "packages/main/src/core/types.ts",
@@ -622,7 +622,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "The smoke covered spike_start, spike_result_set, spike_discard, spike_promote, and spike_get. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "b2c4fd51df94be2baa8e55fb75080c1b61631e6b",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:56.594Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "The smoke covered unresolved spike diagnostics and resolved/discarded/promoted states. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "b2c4fd51df94be2baa8e55fb75080c1b61631e6b",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:56.936Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Spike promotion is audit metadata only and does not auto-create verification or red evidence. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "b2c4fd51df94be2baa8e55fb75080c1b61631e6b",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:57.288Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
