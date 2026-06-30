@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-30T01:54:22.594Z",
       "reviewRunId": "B-5082:RR-018",
       "_hash": "63c6df9de2457a8f3abd3c28a80b96188ea33cd39c89e84f38a00cba8a34873b"
+    },
+    {
+      "id": "B-5082:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "No quality blocker found. Reviewed proofstory core, smoke coverage, command policy/config, process-fact registry/contract, and execution-plan docs after F-006/F-007. Fresh npm --prefix packages/main run build, isolated proofstory-intent-hardening-smoke rerun, node scripts/verify-process-fact-contract.mjs, and git diff --check pass; red evidence, spike, shrinkage, DONE equivalence, and high-assurance policy align.",
+      "createdAt": "2026-06-30T01:59:24.199Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-021",
+      "_hash": "7e3f520358de319a3e169132f42df0bc4c620ef0e63d684edd9a647da54511e2"
     }
   ]
 }
