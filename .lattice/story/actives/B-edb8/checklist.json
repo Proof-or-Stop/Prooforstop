@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees a failing/negative parent-roadmap totality smoke listed and then turned green before runtime implementation proceeds.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A red/repro smoke exists before runtime model/evaluator implementation and covers the parent-roadmap overclaim failure class.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke includes allRowsClosed=false, partial_parent_done, child-story-needed, stale evidence, missing child story, invalid deferred-with-human-approval, summary overclaim, and B-43de-shaped cases.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story cannot mark M1 done if tests are added only after runtime implementation or if the smoke lacks an expected-red/negative-control proof.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

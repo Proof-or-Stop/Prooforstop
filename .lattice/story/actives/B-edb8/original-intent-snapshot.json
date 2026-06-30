@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-edb8",
+  "sourceText": "User asked to start concrete execution of B-9fc5 until everything is DONE, with the first milestone explicitly being test cases before the full implementation story.",
+  "normalizedOutcome": "Parent roadmap totality gate implemented end-to-end: red/repro tests first, model, evaluator, claim consumer, ProofStory binding, CLI/lifecycle projection, rollout, and certification all complete.",
+  "acceptanceClaim": "Parent roadmap status / DONE checks cannot claim full roadmap completion when child rows remain open, and can honestly report partial_parent_done with next actions.",
+  "keyRequirementIds": [
+    "REQ-M1-RED-REPRO-FIRST",
+    "REQ-M2-STATE-MODEL",
+    "REQ-M3-ROLLUP-EVALUATOR",
+    "REQ-M4-CLAIM-CONSUMER",
+    "REQ-M5-B5082-BINDING",
+    "REQ-M6-CLI-LIFECYCLE",
+    "REQ-M7-MIGRATION-ROLLOUT",
+    "REQ-M8-CERTIFICATION"
+  ],
+  "requestHash": "sha256:50c573309cd3114a71504e5c74132f5749a3dac4880f74473d420e5a403b3d81",
+  "createdAt": "2026-06-30T13:28:56.979Z",
+  "updatedAt": "2026-06-30T13:28:56.979Z"
+}
