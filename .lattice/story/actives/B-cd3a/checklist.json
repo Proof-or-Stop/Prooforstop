@@ -357,15 +357,48 @@
       "userSees": "User sees high-risk proof consumers reject stale, legacy, unbound, or inadmissible proof while local CLI output does not claim productionDone.",
       "verificationEvidence": [
         {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:proof-admissibility && npm --prefix packages/main run test:proof-admissibility-hardening && node bin/lattice.js admissibility_waterline --storyId=B-cd3a --format=json",
+          "result": "pass",
+          "note": "Proof admissibility smokes passed and current-worktree waterline renders AUTHORITY_GATE_DECISION, DONE_REQUIRED, REVIEW, HANDOFF, and legacy rows as diagnostic-only with productionDoneEligible=false.",
+          "headHash": "8a9db29c86bbf2d2553d2a2a923b68923dc90bf2",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:13.717Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-catalog-smoke",
+          "result": "pass",
+          "note": "Process fact registry/levels include runtime:proof_admissibility_gate_diagnostic semantics and command catalog accepts both AUTHORITY_GATE_DECISION and legacy compatibility waterline consumers while keeping the waterline read-only.",
+          "headHash": "8a9db29c86bbf2d2553d2a2a923b68923dc90bf2",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:14.624Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers configured enforce blocking for DONE_REQUIRED, REVIEW, HANDOFF proof refs, and AUTHORITY_GATE_DECISION; stale/plain/legacy/unbound proof is rejected, checker_error stays warning-only, and local CLI never mints productionDone.",
+          "headHash": "8a9db29c86bbf2d2553d2a2a923b68923dc90bf2",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:15.246Z"
+        },
+        {
           "intentRef": "CHK-006:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
-          "note": "Status corrected after review: proof-admissibility core high-risk enforcement is implemented and evidenced, but handoff command policy propagation remains documented as partial, so CHK-006 should not be marked done by this subagent.",
-          "headHash": "b97a24b90a2ae3d5bf2d5aeda80f141225d7372a",
+          "note": "Status deliberately remains in_progress: proof-admissibility core high-risk enforcement is implemented and evidenced, but handoff command policy propagation remains documented as partial.",
+          "headHash": "8a9db29c86bbf2d2553d2a2a923b68923dc90bf2",
           "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
           "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
-          "timestamp": "2026-06-30T09:57:50.826Z"
+          "timestamp": "2026-06-30T09:58:15.910Z"
         }
       ]
     },
