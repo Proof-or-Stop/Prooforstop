@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-30T17:23:09.482Z",
       "reviewRunId": "B-c004:RR-027",
       "_hash": "37d6818b4d208f1c7344a5a6c21ebda85e1f55a5e4f9fb53ce4a75d2c0cfdd94"
+    },
+    {
+      "id": "B-c004:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: coverage review after F-002 fix found no blocker. Verified DONE_REQUIRED CommandSpec generation and tamper/missing handling via done-required-validation-smoke; freshness via done-required-freshness-smoke, done-required-head-drift-proof, and fresh lattice validate; Authority Server regression guard via retired-authority-vocabulary-guard-smoke and validate command[1]; delivery_check_freshness smoke covers F-002 waiver re-sign and storyFilesHash freshness; delivery_context_pack confirms delivery-check present for seven docs promises; summary_get avoids hard-coded review-assurance overclaim.",
+      "createdAt": "2026-06-30T17:30:02.446Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-022",
+      "_hash": "806494460c408b8aa110803634af8da67de66f74ae169711f627dae33e6fa630"
     }
   ]
 }
