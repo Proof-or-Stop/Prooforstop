@@ -50,10 +50,10 @@
           "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
           "result": "pass",
           "note": "The docs check asserted the corrected lifecycle order, the five-rule wording, and the pre-DEV intentCoverageCheck boundary in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
           "result": "pass",
           "note": "The decision document keeps milestone ledgers candidate before accepted intent interpretation and only consumes confirmed ledgers for later gate checks.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
           "result": "pass",
           "note": "The document explicitly says intentCoverageCheck is pre-DEV and must not require verificationEvidence or delivery-check evidence.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -133,10 +133,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke exercised original intent snapshot and milestone ledger persistence with candidate/confirmed semantics. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,10 +144,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered candidate ledger diagnostics before accepted intent confirmation. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The snapshot immutability path is covered by the ProofStory smoke and TypeScript build. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -214,10 +214,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered proofstory_gate_check diagnostics including hardening, triggers, ledger sizing, and missing artifacts. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -225,10 +225,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered oversized ledger diagnostics and slice suggestions. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,10 +236,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The implementation emits suggested slices only and the smoke/process registry show no child-story scheduler command was introduced. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -297,10 +297,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered intent_collision_set/get pass outcomes and accepted interpretation recording. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -308,10 +308,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered candidate-to-confirmed ledger promotion only after pass collision. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -319,10 +319,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The diagnostics keep non-pass collision decisions as gaps for triggered stories. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -380,10 +380,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered proofstory_contract_set/get and gate check modes. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -391,10 +391,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Build and smoke covered enforce-mode blocking behavior for missing ProofStory artifacts. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -402,10 +402,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The implementation wires ProofStory into existing machine/phase gates and does not replace story_review. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -464,10 +464,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered scope_shrinkage_decision_set/get and done_intent_equivalence_check. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -475,10 +475,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered confirmed shrinkage behavior preserving audit semantics. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -486,10 +486,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "DONE equivalence reports uncovered required milestones rather than relying on checklist completion alone. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -547,10 +547,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered red_evidence_create/get for triggered pre-fix failures. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -558,10 +558,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Risk-triggered diagnostics exempt ordinary new-feature/docs-only paths by trigger classification. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -569,10 +569,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Red evidence requires observed failing-before data and is distinct from green verification evidence. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -630,10 +630,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered spike_start, spike_result_set, spike_discard, spike_promote, and spike_get. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -641,10 +641,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered unresolved spike diagnostics and resolved/discarded/promoted states. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -652,10 +652,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Spike promotion is audit metadata only and does not auto-create verification or red evidence. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -713,10 +713,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The smoke covered proofstory_review_completeness_check. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -724,10 +724,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The REVIEW preflight integration surfaces completeness gaps when configured beyond observe mode. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -735,10 +735,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Review completeness consumes confirmed ledger and acceptance bindings, so a generic reviewer pass cannot hide missing ProofStory coverage. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     },
@@ -804,10 +804,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "The command catalog, command policy, process fact levels, registry, and config all include ProofStory observe/warn/enforce surfaces. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -815,10 +815,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Risk-adaptive defaults keep low-risk Intent MVP light while enforce mode exists for high-assurance or oversized-ledger cases. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
@@ -826,10 +826,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact verification confirms advisory commands and gate evidence are classified explicitly. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
-          "headHash": "388871eafb2797ef8833b7049079d771e7d57b6b",
-          "materialHash": "4e10bb4a1df2be551364cb8763974c6398f108cc45e59b30b87fd6bcf80da220",
-          "storyFilesHash": "d54df922e8817f1927133fa981945de518f43b6a7ce50c43de4cdf0078d39223",
-          "timestamp": "2026-06-30T00:17:32.091Z"
+          "headHash": "1ff0f71f10bb677cb77955bab7b97c13ab6b2517",
+          "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+          "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+          "timestamp": "2026-06-30T00:30:21.571Z"
         }
       ]
     }
