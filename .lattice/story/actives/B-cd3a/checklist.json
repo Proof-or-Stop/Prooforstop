@@ -204,6 +204,26 @@
           "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
           "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run queue governance status and lifecycle orchestration smoke to prove duplicate or superseded queue mutations require reviewable mutation evidence before they can change queue state.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify valid experiment batches and their evidence are preserved when the guard reports duplicate, superseded, or malformed records, and that malformed experiment records remain visible for cleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if the mutation guard destroys experiment evidence, silently rewrites duplicate or superseded records, or treats queue governance success as lifecycle completion readiness.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
