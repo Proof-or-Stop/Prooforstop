@@ -4,65 +4,767 @@
       "id": "CHK-001",
       "title": "Add ProofStory guidance to active reviewer prompts and story_review advisory rendering",
       "context": "Covers M0/M3/M8 gaps: active prompts must name ProofStory review responsibilities, and story_review should show ProofStory advisory diagnostics before DEV.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:31.356Z",
+      "endTime": "2026-06-30T01:25:26.259Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration"
+      ],
+      "userSees": "User sees ProofStory advisory rows in story_review output and reviewer prompt text tells active reviewers how to audit ProofStory obligations.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "packages/main/src/handlers/story-review.ts",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-test-coverage.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review reports ProofStory advisory diagnostics for a story with missing triggered ProofStory artifacts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reviewer prompt updates remain English and do not claim prompt-only evidence can satisfy gates",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If prompts promise a ProofStory review obligation, process-fact contract proves corresponding CLI/gate support exists",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M8 lines 1263-1279. Prompts: .lattice-codex/agents/lattice-review-concept.md:88 and mirrored active Claude/Codex reviewer prompts. Impl: handlers/story-review.ts ProofStory advisory rows/prompt section; contract verifier asserts story_review support. Smoke: proofstory-intent-hardening-smoke.ts:192 validates advisory diagnostics and prompt-only non-evidence wording.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": ".claude/agents/lattice-review-quality.md",
+          "command": "node -e Han-script scan over .claude/agents/lattice-review-* and .lattice-codex/agents/lattice-review-*",
+          "result": "pass",
+          "note": "Han-script scan passed, proving active reviewer prompt updates remain English-only for open-source docs and prompt surfaces.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract passed and confirms ProofStory prompt obligations have matching CLI, handler, registry, and gate-consumed evidence support.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add ledger assignment fields for parent and child story slicing",
       "context": "Covers M1 gap: milestone ledger rows need optional parent ledger / assigned story fields without forcing one milestone to become one story.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:32.016Z",
+      "endTime": "2026-06-30T01:25:56.004Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
+      ],
+      "userSees": "User sees milestone ledger rows expose optional parent/assigned-story fields without auto-splitting the story.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "milestone_ledger_set/add accept optional parentLedgerId and assignedStory fields and preserve them in get output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "milestones without assignedStory remain valid and do not force one milestone to become one story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "invalid parent/assigned-story fields fail validation before corrupting milestone-ledger.json",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M1 lines 1120-1147. Impl: types.ts MilestoneLedgerItem parentLedgerId/assignedStory; proofstory.ts normalizeMilestone validates optional parent/assignedStory; handlers/proofstory.ts milestone_ledger_add preserves fields; command-catalog.ts schema rejects invalid assignedStory. Smoke: proofstory-intent-hardening-smoke.ts validates persistence and invalid assignedStory failure.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies milestone rows can remain unassigned without forcing one milestone to become one child story.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and covers invalid assignedStory validation before milestone-ledger corruption.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Implement slice-plan artifact and oversized ledger exception semantics",
       "context": "Covers M4/M9 gaps: oversized ledgers need an auditable slice plan or child-story assignment path before DEV in enforce mode.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:32.753Z",
+      "endTime": "2026-06-30T01:26:04.015Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
+      ],
+      "userSees": "User sees oversized ledger diagnostics accept an explicit slice plan or child-story assignment instead of always blocking enforce mode.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "slice-plan artifact covers oversized ledger rows and clears enforce-mode oversized ledger blocking when complete",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "too_broad diagnostics still produce suggested slices and do not auto-create child stories",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "incomplete or stale slice plan does not bypass the oversized ledger gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md command/storage lines 975-1015 and M4 lines 1182-1201. Impl: types/store/proofstory add slice-plan artifact; handlers/proofstory.ts slice_plan_set/get; proofstory.ts slicePlanCoversCurrentLedger and oversizedClearedBy; config/command-policy/catalog/register process facts. Smoke: incomplete slice fails, complete slice clears oversizedLedger without child auto-creation.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies too_broad diagnostics include suggested slices while not auto-creating child stories.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies incomplete slice plans fail before clearing oversized ledger enforcement.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Implement parent ledger roll-up checks for child-story coverage",
       "context": "Covers M5 gap: parent stories must be able to verify child stories and ledger rows before DONE once slice plans exist.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:33.450Z",
+      "endTime": "2026-06-30T01:26:10.211Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
+      ],
+      "userSees": "User sees parent ledger roll-up diagnostics prove required child stories and ledger rows are covered before parent DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parent roll-up artifact with all required child stories and milestones covered passes DONE equivalence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parent roll-up is optional when no slice plan or parent ledger exists",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "missing required child story coverage keeps parent DONE equivalence blocking in enforce mode",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M5 lines 1204-1223. Impl: types/store/proofstory add parent-ledger-rollup artifact; handlers/proofstory.ts parent_ledger_rollup_set/get; proofstory.ts parentRollupCoversSlicePlan consumed by DONE equivalence; phase-gates/machine read artifact. Smoke: missing roll-up creates DONE gap; complete child roll-up clears it.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies parent roll-up is optional when no slice plan or parent ledger path exists.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies missing required child-story coverage keeps parent DONE equivalence blocking.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Implement lightweight single-outcome DONE equivalence",
       "context": "Covers M5 gap: ordinary single-outcome stories should compare summary/delivery against the original snapshot instead of requiring a confirmed milestone ledger.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:34.103Z",
+      "endTime": "2026-06-30T01:26:17.695Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
+      ],
+      "userSees": "User sees ordinary single-outcome DONE equivalence pass through a lightweight snapshot-to-summary check without needing a milestone ledger.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "single-outcome story with original snapshot and delivery summary passes lightweight DONE equivalence without confirmed ledger",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "milestone or high-assurance story still uses strict ledger-based DONE equivalence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary that is narrower than the snapshot remains blocked unless user-confirmed shrinkage exists",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M5 lines 1204-1223. Impl: proofstory.ts evaluateDoneIntentEquivalence emits lightweight_single_outcome vs strict_milestone, consumes summary, and blocks narrow/partial claims; handlers/proofstory.ts renders equivalence mode; machine/phase-gates pass summary. Smoke: low-risk single outcome passes without confirmed ledger and partial/narrow summary reports shrinkage gap.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies milestone or slice-plan stories use strict_milestone DONE equivalence.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies narrower DONE summaries remain blocked unless confirmed shrinkage exists.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Bind red evidence to baseline head/material and green relation",
       "context": "Covers M6 gap: red evidence must carry baseline freshness and the transition relation to current green evidence.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:34.820Z",
+      "endTime": "2026-06-30T01:26:25.032Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M6-Red-Evidence"
+      ],
+      "userSees": "User sees red evidence records include baseline head/material binding and an explicit relation to current green evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_create stores baseline head/material and green relation fields and diagnostics consume them",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs-only stories still do not require red evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red evidence for the wrong acceptance criterion or stale baseline cannot satisfy triggered red evidence diagnostics",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M6 lines 1226-1241. Impl: types.ts RedEvidenceRecord adds acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, greenRelation; handlers/proofstory.ts captures baseline hashes; proofstory.ts redEvidenceRecordSatisfied rejects wrong target and stale green relation. Smoke: wrong-target and stale red rows remain diagnostic; target-bound row clears missing_red_evidence.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies docs-only stories avoid unnecessary red evidence requirements.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies wrong-target or stale red-to-green relations do not satisfy red evidence diagnostics.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
       "title": "Add spike disposable-code policy checks",
       "context": "Covers M7 gap: spike evidence must not silently carry disposable code into implementation; promotion remains explicit and auditable.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:35.697Z",
+      "endTime": "2026-06-30T01:28:19.809Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M7-Spike-Evidence"
+      ],
+      "userSees": "User sees spike diagnostics flag disposable spike code until it is discarded or explicitly promoted through auditable semantics.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "spike records can mark disposable code paths and resolved/discarded/promoted status is audited",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolved investigation evidence still does not automatically count as red or verification evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "active disposable spike code blocks ProofStory gate in enforce mode until discarded or explicitly promoted",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M7 lines 1243-1261 require spike_start/result/discard/promote and disposable-code checks. Impl: core/proofstory.ts disposableSpikeGaps emits active_disposable_spike_code until discarded/promoted and keeps spike evidence separate from red/verification evidence; handlers/proofstory.ts spike_promote says promotion is audit metadata only; command-catalog.ts exposes disposableCodePaths/promotedAs. Verification: build, ProofStory smoke, process-fact contract, and diff check passed; smoke covers resolved disposable spike still blocking until spike_promote and wrong/stale red evidence still not satisfied by spike evidence.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies resolved spike investigation evidence does not automatically count as red or verification evidence.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies active disposable spike code blocks enforce mode until discarded or explicitly promoted.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
       "title": "Close risk-adaptive high-assurance review policy behavior",
       "context": "Covers M8/M9 gap: high-assurance ProofStory must expose stronger review/completeness policy diagnostics while keeping existing reviewer evidence fresh and reviewRunId-bound.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T01:13:36.359Z",
+      "endTime": "2026-06-30T01:28:26.933Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
+      ],
+      "userSees": "User sees high-assurance ProofStory diagnostics require stronger completeness review while low-risk stories remain lightweight.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "high-assurance stories report stronger review/completeness diagnostics and enforce-mode blockers",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "standard stories require intent collision only when ambiguity, user impact, behavior change, or multi-path interpretation triggers it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "low-risk docs-only stories avoid red/spike overhead while high-assurance stories cannot bypass required evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M8/M9 lines 1263-1300 require review completeness diagnostics, reviewRunId/freshness preservation, risk-adaptive levels, low-risk docs-only restraint, and high-assurance collision/red/spike/stronger REVIEW behavior. Impl: core/proofstory.ts classifyTriggers selects high_assurance for high-risk/gate work while low-risk remains intent_mvp; evaluateReviewCompleteness adds collision/red/spike/scope/oversized gaps only for high_assurance and requires passing verification evidence for bound refs; phase-gates.ts runs ProofStory REVIEW completeness before REVIEW->TEST when reviewGateMode is warn/enforce; config.ts exposes reviewGateMode. Verification: build, ProofStory smoke, process-fact contract, and diff check passed; smoke covers high-assurance review completeness failure/pass and lightweight single-outcome path, while contract asserts docs-only markdown is not overblocked and review assurance tokens remain registered.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies standard stories trigger intent collision only for ambiguity, user impact, behavior change, or multi-path interpretation.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke test passed and verifies low-risk docs-only paths avoid red/spike overhead while high-assurance paths cannot bypass required evidence.",
+          "headHash": "2ee87a762ee5e6b2f51dedad366f31eb5cf45412",
+          "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+          "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+          "timestamp": "2026-06-30T01:55:29.242Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T01:13:31.356Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:32.016Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:32.753Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:33.450Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:34.103Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:34.820Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:35.697Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:36.359Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
     }
   ]
 }

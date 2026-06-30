@@ -136,12 +136,15 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofSto
     checklist,
     originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
     milestoneLedger: store.readMilestoneLedger(storyId),
+    slicePlan: store.readProofStorySlicePlan(storyId),
+    parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
     proofStoryContract: store.readProofStoryContract(storyId),
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),
     scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
+    summary: store.readSummary(storyId),
   };
 }
 

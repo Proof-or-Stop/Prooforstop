@@ -1,0 +1,73 @@
+{
+  "storyId": "B-5082",
+  "checkedAt": "2026-06-30T01:12:16.786Z",
+  "features": [
+    {
+      "feature": "CHK-001 ProofStory reviewer prompt guidance and story_review advisory rendering",
+      "covered_by": "CHK-001 checklist files + plan.md CHK-001 + scope-contract allowedModify for proofstory doc, story-review handler, Codex/Claude concept/quality/docs/test-coverage reviewer prompts, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding touchpoints, checklist files, plan.md, and scope-contract.json align for reviewer prompt/advisory work"
+    },
+    {
+      "feature": "CHK-002 ledger assignment fields for parent/child slicing",
+      "covered_by": "CHK-002 checklist files + plan.md CHK-002 + scope-contract allowedModify for core types, proofstory core, proofstory handler, command catalog, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers optional parentLedgerId/assignedStory fields and validation, matching checklist and scope contract"
+    },
+    {
+      "feature": "CHK-003 slice-plan artifact and oversized ledger exception semantics",
+      "covered_by": "CHK-003 checklist files + plan.md CHK-003 + scope-contract allowedModify for types, store, proofstory core/handler, command catalog, process-fact levels/registry, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers durable slice-plan/gate semantics, stale/incomplete checks, and no auto child-story creation"
+    },
+    {
+      "feature": "CHK-004 parent ledger roll-up checks for child-story coverage",
+      "covered_by": "CHK-004 checklist files + plan.md CHK-004 + scope-contract allowedModify for types, store, proofstory core/handler, phase-gates, command catalog, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers parent roll-up artifact/equivalence and missing child coverage blocker"
+    },
+    {
+      "feature": "CHK-005 lightweight single-outcome DONE equivalence",
+      "covered_by": "CHK-005 checklist files + plan.md CHK-005 + scope-contract allowedModify for proofstory core, proofstory handler, phase-gates, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers summary-to-snapshot lightweight path plus strict path for milestone/shrinkage/high-assurance stories"
+    },
+    {
+      "feature": "CHK-006 red evidence baseline/material and green relation binding",
+      "covered_by": "CHK-006 checklist files + plan.md CHK-006 + scope-contract allowedModify for types, proofstory core, proofstory handler, command catalog, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers baseline head/material fields, acceptance/green relation matching, docs-only exclusion, and stale/wrong-target rejection"
+    },
+    {
+      "feature": "CHK-007 spike disposable-code policy checks",
+      "covered_by": "CHK-007 checklist files + plan.md CHK-007 + scope-contract allowedModify for types, proofstory core, proofstory handler, command catalog, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers disposable code paths, discard/promote audit semantics, and no automatic red/verification evidence credit"
+    },
+    {
+      "feature": "CHK-008 risk-adaptive high-assurance review policy behavior",
+      "covered_by": "CHK-008 checklist files + plan.md CHK-008 + scope-contract allowedModify for proofstory core, machine, phase-gates, config, smoke test, and process-fact contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan covers high-assurance diagnostics/enforce blockers, standard trigger semantics, low-risk docs-only avoidance, and reviewer freshness/reviewRunId authority"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 8,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "73cc803da6ecc16029c544c04243e99f73786cde75322d7f382616dec731876b",
+  "openQuestions": []
+}

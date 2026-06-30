@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5082",
+  "changes": "Implemented the remaining ProofStory M0-M9 commitments: active reviewer prompt/advisory integration, parent/assigned ledger fields, slice-plan and parent roll-up artifacts, lightweight and strict DONE equivalence, stronger red evidence binding, spike disposable-code policy, and risk-adaptive high-assurance review behavior. Follow-up review fixes also aligned high-assurance, red/spike, and shrinkage semantics across docs and code.",
+  "usage": "Use the ProofStory commands through lattice: original_intent_snapshot_set, milestone_ledger_set/add/get, slice_plan_set/get, parent_ledger_rollup_set/get, proofstory_gate_check, intent_coverage_check, red_evidence_create, spike_start/result/discard/promote, done_intent_equivalence_check, and proofstory_review_completeness_check. Existing story flows now consume these diagnostics and gates.",
+  "expectedOutcome": "The user expected every M0-M9 document milestone to be implemented, checked against the document before completion, reviewed through Lattice, validated, and made ready for DONE without over-forcing red/spike or milestone ledger work when triggers do not apply.",
+  "actualTranscript": "Real-machine transcript: npm --prefix packages/main run build passed; ProofStory intent hardening smoke passed; process fact contract verified; git diff --check passed; lattice validate --story=B-5082 --json passed with allPass true across 31 configured commands; done_required_validate passed; delivery_check_set passed with 14 docs promises and 6 real-machine tests.",
+  "outcomeDiff": "No remaining difference: all requested M0-M9 implementation, review, validation, delivery, and degraded 3x1 assurance gates passed. Earlier REVIEW findings F-001 through F-007 were fixed and resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by reviewer lanes, validation, done-required validation, delivery check, and degraded 3x1 review assurance",
+  "pitfalls": "The main pitfall was semantic drift in docs around high-assurance, red/spike, and shrinkage DONE equivalence. Future changes should re-check Risk-Adaptive Assurance wording against proofstory.ts gate behavior before marking docs done.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95184
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 31244
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 338834
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1632646
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1305697
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 569800
+    }
+  },
+  "totalDurationMs": 3973405,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-30T02:11:20.452Z",
+  "updatedAt": "2026-06-30T02:11:20.452Z"
+}

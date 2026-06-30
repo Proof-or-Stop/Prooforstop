@@ -31,6 +31,7 @@ import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
+import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -196,6 +197,50 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           type: 'risk_signals_dismissed',
           severity: 'advisory',
           message: `${dismissedCats.size} risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): ${Array.from(dismissedCats).join(', ')}`,
+        });
+      }
+
+      try {
+        const proofStoryReport = evaluateProofStoryDiagnostics({
+          story,
+          checklist: cl,
+          originalIntentSnapshot: store.readOriginalIntentSnapshot(args.storyId),
+          milestoneLedger: store.readMilestoneLedger(args.storyId),
+          slicePlan: store.readProofStorySlicePlan(args.storyId),
+          parentLedgerRollup: store.readProofStoryParentLedgerRollup(args.storyId),
+          proofStoryContract: store.readProofStoryContract(args.storyId),
+          intentCollision: store.readIntentCollision(args.storyId),
+          scopeContract: store.readScopeContract(args.storyId),
+          scopeShrinkageDecision: store.readScopeShrinkageDecision(args.storyId),
+          redEvidence: store.readRedEvidence(args.storyId),
+          spikeEvidence: store.readProofStorySpikes(args.storyId),
+          summary: store.readSummary(args.storyId),
+        }, 'observe');
+        for (const proofGap of proofStoryReport.gaps) {
+          issues.push({
+            type: 'proofstory_advisory',
+            severity: 'advisory',
+            message: `${proofGap.code}: ${proofGap.message} This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text.`,
+          });
+        }
+        for (const proofGap of proofStoryReport.missingParentRollup) {
+          issues.push({
+            type: 'proofstory_advisory',
+            severity: 'advisory',
+            message: `${proofGap.code}: ${proofGap.message} Parent roll-up is checked by DONE equivalence when slice plans exist.`,
+          });
+        }
+        if (proofStoryReport.gaps.length === 0 && proofStoryReport.missingParentRollup.length === 0) {
+          info.push({
+            type: 'proofstory_diagnostics_info',
+            message: `ProofStory diagnostics pass in observe mode (${proofStoryReport.hardeningLevel}).`,
+          });
+        }
+      } catch (e) {
+        issues.push({
+          type: 'proofstory_advisory',
+          severity: 'advisory',
+          message: `ProofStory advisory diagnostics could not be evaluated: ${(e as Error).message}`,
         });
       }
 
@@ -676,18 +721,42 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const truthSection = truthDocs.length > 0
             ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
             : '';
+          const proofStorySection = (() => {
+            try {
+              const report = evaluateProofStoryDiagnostics({
+                story,
+                checklist: cl,
+                originalIntentSnapshot: store.readOriginalIntentSnapshot(args.storyId),
+                milestoneLedger: store.readMilestoneLedger(args.storyId),
+                slicePlan: store.readProofStorySlicePlan(args.storyId),
+                parentLedgerRollup: store.readProofStoryParentLedgerRollup(args.storyId),
+                proofStoryContract: store.readProofStoryContract(args.storyId),
+                intentCollision: store.readIntentCollision(args.storyId),
+                scopeContract: store.readScopeContract(args.storyId),
+                scopeShrinkageDecision: store.readScopeShrinkageDecision(args.storyId),
+                redEvidence: store.readRedEvidence(args.storyId),
+                spikeEvidence: store.readProofStorySpikes(args.storyId),
+                summary: store.readSummary(args.storyId),
+              }, 'observe');
+              return `\n---\nProofStory Diagnostics (advisory only):\n${renderProofStoryDiagnosticReport(report)}\nReviewer note: prompt text and this advisory section do not satisfy gates; only CLI-written artifacts and signed review evidence do.`;
+            } catch (e) {
+              return `\n---\nProofStory Diagnostics (advisory only): unavailable (${(e as Error).message})`;
+            }
+          })();
           // When there are no truth docs + no understanding + no decision + no
-          // grill + no rendered experience hints, still return undefined (prompt absent).
+          // grill + no rendered experience hints, ProofStory diagnostics still keep
+          // the advisory prompt present because they are part of PLAN review.
           // renderedHintsSection alone keeps the advisory prompt present so the
           // hints are surfaced even in a bare PLAN. It is '' when no hints exist OR
           // when the A/B arm is OFF (B-06b3), so in both of those cases the prompt is
           // byte-unchanged from the prior no-hints behavior.
-          if (truthDocs.length === 0 && !understanding && !decision && !grill && renderedHintsSection === '') return undefined;
+          if (truthDocs.length === 0 && !understanding && !decision && !grill && renderedHintsSection === '' && proofStorySection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
             `  3. Whether the checklist covers all scenarios in description + truth docs\n` +
-            `  4. Whether preMortem lists real failure modes (not filler)\n\n` +
+            `  4. Whether preMortem lists real failure modes (not filler)\n` +
+            `  5. Whether ProofStory diagnostics identify missing machine artifacts; do not treat prompt-only statements as gate evidence\n\n` +
             `---\nStory: ${story.title}\nDescription: ${story.description}\nPriority: ${story.priority}` +
             (story.riskSignals && story.riskSignals.length > 0
               ? ` (riskSignals: ${story.riskSignals.map((r: any) => r.category).join(', ')})`
@@ -696,7 +765,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             // placed right after it. It is the A/B render-gated value (B-06b3): the
             // full section on the ON arm, '' on the OFF arm. ADVISORY-ONLY: never fed
             // to resolveReviewPromptHash.
-            understandingSection + decisionSection + grillSection + renderedHintsSection + checklistSection + truthSection;
+            understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection + truthSection;
         })(),
       };
     },

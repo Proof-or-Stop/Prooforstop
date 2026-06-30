@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-5082:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 24 happy/edge/adversarial verificationIntent refs have passing checklist evidence. Reviewer reran npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check during this review; no blocking test/evidence coverage issue found.",
+      "createdAt": "2026-06-30T01:35:56.547Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-006",
+      "_hash": "1f3fdad6c9a1efeb1646bdfdd1a2e167991ab5ba7c9542dbcee60fe46d9d17c9"
+    },
+    {
+      "id": "B-5082:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-fix test/evidence coverage review passed. evidence_plan reports 24/24 verificationIntent refs fresh with missing=0 rerun=0 refresh-only=0. Re-ran npm --prefix packages/main run build, ProofStory intent hardening smoke, process-fact contract verifier, and git diff --check; all passed. Smoke/evidence coverage includes high-assurance single-outcome DONE equivalence plus stricter red evidence wrong-target/stale negative cases and target-bound positive clearing behavior.",
+      "createdAt": "2026-06-30T01:44:26.999Z",
+      "reviewRound": "2026-06-30T01:40:20.802Z",
+      "reviewRunId": "B-5082:RR-012",
+      "_hash": "ed43ae4ff583f7ba3621521a75b551a6bdc31f49e88188403194116bace05917"
+    },
+    {
+      "id": "B-5082:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Post-fix quality review passed: core redEvidenceRecordSatisfied now requires observed failure, expected target, baseline head/material, failingCommand or failureReceiptHash, and current same-target green command/hash relation; equal green/baseline hashes are rejected when provided. Handler/types/catalog/command-policy expose the new proof boundary. Verified node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:proofstory-intent-hardening-smoke.",
+      "createdAt": "2026-06-30T01:45:07.272Z",
+      "reviewRound": "2026-06-30T01:40:20.802Z",
+      "reviewRunId": "B-5082:RR-008",
+      "_hash": "988460c73ae2f79ef6b0ffb15cf34730b9afde7b18b3f4dbe6f9a9049681ae77"
+    },
+    {
+      "id": "B-5082:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Confirmed 24/24 verificationIntent refs are present, result=pass, and fresh via evidence_inspect; reran npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check with all passing. proofstory_review_completeness_check reported observe-mode warnings only and Blocking: no.",
+      "createdAt": "2026-06-30T01:50:30.643Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-013",
+      "_hash": "ab048e68729e29216b654a6f14edffacade3d4f5da17ddff754bf539ce470de5"
+    },
+    {
+      "id": "B-5082:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed after final docs/red-evidence fixes. Verified no open findings; reran npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check. Reviewed redEvidenceRecordSatisfied proof requirements, high-assurance DONE equivalence predicate, REVIEW/DONE ProofStory phase-gate wiring, command-policy entries, and process-fact registry/contract coverage; found no blocker.",
+      "createdAt": "2026-06-30T01:50:47.945Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-016",
+      "_hash": "fc02b5bce8453bbf005abc8e22f8c1005e23c62364e2e6809f49922ab51a83ba"
+    },
+    {
+      "id": "B-5082:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: Risk-Adaptive Assurance no longer makes high-assurance red/spike blanket required; DONE equivalence wording matches implementation by keeping milestone/slice/confirmed-shrinkage paths strict and high-assurance single-outcome lightweight unless one of those paths exists; changed docs and prompt surfaces remain English OSS-facing.",
+      "createdAt": "2026-06-30T01:57:44.124Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-019",
+      "_hash": "8abdc245edfb6f570d662cec4528cdbca57963e1397a77f5bfb4794a90449e02"
+    },
+    {
+      "id": "B-5082:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: confirmed high-assurance alone stays lightweight DONE unless a milestone, slice, or confirmed shrinkage path is present; confirmed user scope shrinkage selects strict_milestone equivalence without inventing a milestone-ledger requirement; docs and implementation agree that red evidence and spike are required only when their policy triggers apply; M0-M9 remains coherent after the F-006/F-007 fixes. Verified npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "createdAt": "2026-06-30T01:58:00.074Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-018",
+      "_hash": "63c6df9de2457a8f3abd3c28a80b96188ea33cd39c89e84f38a00cba8a34873b"
+    },
+    {
+      "id": "B-5082:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "No quality blocker found. Reviewed proofstory core, smoke coverage, command policy/config, process-fact registry/contract, and execution-plan docs after F-006/F-007. Fresh npm --prefix packages/main run build, isolated proofstory-intent-hardening-smoke rerun, node scripts/verify-process-fact-contract.mjs, and git diff --check pass; red evidence, spike, shrinkage, DONE equivalence, and high-assurance policy align.",
+      "createdAt": "2026-06-30T01:59:24.199Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-021",
+      "_hash": "7e3f520358de319a3e169132f42df0bc4c620ef0e63d684edd9a647da54511e2"
+    },
+    {
+      "id": "B-5082:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocker. Confirmed 24/24 verificationIntent refs are covered with passing evidence; validate --story=B-5082 --json returned allPass=true. Re-ran npm --prefix packages/main run build, ProofStory intent hardening smoke, process-fact contract, and git diff --check at current worktree head; all passed. Smoke coverage includes strict_milestone DONE pass for confirmed user shrinkage and lightweight_single_outcome DONE pass for high-assurance single-outcome without shrinkage. ProofStory completeness diagnostics remain warn-mode nonblocking for B-5082 itself.",
+      "createdAt": "2026-06-30T02:01:07.409Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-022",
+      "_hash": "c051cbe1e1ddf4c64704de64a5fa496b84085105cd23994e6f1c44b564f8ae75"
+    }
+  ]
+}

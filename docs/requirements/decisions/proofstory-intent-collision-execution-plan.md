@@ -92,7 +92,7 @@ turning intent validation into ceremony.
 | Ledger Sizing | Milestone ledger exceeds the single-story capacity threshold | Too-broad diagnostic, suggested slicing groups, and a slice plan before DEV |
 | Collision Intent | Ambiguous, consequential, high-risk, scope-changing, or user-impactful interpretation | Intent collision with `pass`, `revise_intent`, `human_gate`, or `stop` |
 | ProofStory Intent | Bug fix, regression fix, behavior change, security/auth/session change, lifecycle gate, benchmark claim, or unclear ownership | Acceptance contract, verificationIntent binding, risk policy, and red/spike policy when triggered |
-| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required confirmed milestone ledger, if one exists |
+| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, slice, or shrinkage paths get a strict gate | Actual delivery compared with the original snapshot and required confirmed milestone ledger, if one exists |
 
 This progressive model has five rules:
 
@@ -230,6 +230,8 @@ MVP persists split gate-consumed artifacts alongside that envelope:
 .lattice/story/actives/<storyId>/proofstory.json
 .lattice/story/actives/<storyId>/original-intent-snapshot.json
 .lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/slice-plan.json
+.lattice/story/actives/<storyId>/parent-ledger-rollup.json
 .lattice/story/actives/<storyId>/intent-collision.json
 .lattice/story/actives/<storyId>/scope-shrinkage-decision.json
 .lattice/story/actives/<storyId>/red-evidence.json
@@ -414,7 +416,8 @@ must be dependency-safe, resource-aware, and bounded by a concurrency cap.
 Automatic parallel child-story dispatch belongs to a dedicated Scheduler,
 Unattended, or Autopilot development story, not to the ProofStory M0-M2 MVP.
 
-The initial MVP therefore keeps the command surface small:
+The bounded MVP therefore keeps the scheduler surface small while persisting the
+proof artifacts needed to make an oversized ledger auditable:
 
 ```text
 proofstory_gate_check --dryRun
@@ -422,11 +425,19 @@ proofstory_gate_check --dryRun
   -> reports maxMilestonesPerStory and hardSplitThreshold
   -> reports too_broad when applicable
   -> reports suggestedSlicingGroups
+
+slice_plan_set
+  -> persists slice-plan.json against the current milestone-ledger hash
+
+parent_ledger_rollup_set
+  -> persists parent-ledger-rollup.json child coverage for the slice plan
 ```
 
-Future parent-child orchestration can add a durable slice plan after the
-diagnostics prove useful. Until then, a too-broad ledger is a proof-stop signal,
-not an automatic scheduler.
+Those durable slice artifacts are bounded proof records, not an automatic
+scheduler. A too-broad ledger remains a proof-stop signal until a complete slice
+plan and, when child stories are used, a parent roll-up prove coverage. Automatic
+child-story creation and parent DONE orchestration remain future Scheduler,
+Unattended, or Autopilot work.
 
 ### Parent Story And Child Story Responsibilities
 
@@ -506,9 +517,11 @@ Reviewer or agent judgment is not enough to shrink the user's stated intent.
 
 DONE requires more than checklist completion, but the check must remain
 proportional. Every story gets a lightweight equivalence check that verifies the
-summary covers the original snapshot. Stories with milestone ledgers, scope
-shrinkage, or high-assurance classification get a strict equivalence gate that
-compares the actual delivered result against the frozen original intent:
+summary covers the original snapshot. Stories on milestone, slice, or confirmed
+scope-shrinkage paths get a strict equivalence gate that compares the actual
+delivered result against the frozen original intent. High-assurance
+single-outcome stories stay on the lightweight DONE check unless one of those
+strict-gate paths is also present:
 
 ```text
 actual delivery is DONE
@@ -814,11 +827,14 @@ Red evidence is not required by default for:
 Valid red evidence must include:
 
 - command;
+- or a comparable reproducible failure receipt/transcript digest;
 - baseline head or material snapshot;
 - expected-before result;
 - observed-before result;
 - reason this red maps to the accepted intent;
-- receipt or transcript digest.
+- target acceptance reference;
+- current green relation through an expected green command and/or green
+  head/material that differs from the baseline where hashes are present.
 
 ### Invalid Red Evidence
 
@@ -955,7 +971,7 @@ Not every story should pay the same cost.
 |---|---|---|---|---|---|
 | Fast | docs-only, copy, low-risk small edits | Intent MVP | usually no | usually no | baseline REVIEW or none by policy |
 | Standard | normal bug, feature, small refactor | Intent MVP plus triggered collision when ambiguity, user impact, behavior change, or multi-path interpretation exists | required when bug/regression/behavior-change | required when code path unclear | baseline REVIEW |
-| High-assurance | auth, security, payment, migration, lifecycle gates, proof gates | independent intent collision required | required | required | completeness critic + escalation policy |
+| High-assurance | auth, security, payment, migration, lifecycle gates, proof gates | independent intent collision required | required when the red-evidence policy triggers | required when the spike policy triggers | completeness critic + applicable escalation policy |
 
 High-assurance stories should also be eligible for existing 3x2 / degraded 3x1
 review escalation when the review-escalation policy triggers.
@@ -970,6 +986,10 @@ original_intent_snapshot_get
 milestone_ledger_set
 milestone_ledger_add
 milestone_ledger_get
+slice_plan_set
+slice_plan_get
+parent_ledger_rollup_set
+parent_ledger_rollup_get
 intent_coverage_check
 scope_shrinkage_decision_set
 scope_shrinkage_decision_get
@@ -1001,11 +1021,12 @@ be derived by `proofstory_gate_check --dryRun`, stored in
 implementation needs an explicit command, it should be introduced only after the
 observe/warn rollout proves the extra surface is useful.
 
-The MVP should also not add a standalone slicing command. Ledger sizing should
-be reported first through `proofstory_gate_check --dryRun` and
-`intent_coverage_check --dryRun`. Future commands such as `slice_plan_set` or
-parent-child orchestration should be added only after diagnostics show that
-manual slice planning is not enough.
+The MVP includes a bounded slicing surface but still does not create child
+Stories automatically. Ledger sizing is reported through
+`proofstory_gate_check --dryRun` and `intent_coverage_check --dryRun`; when a
+ledger is oversized, `slice_plan_set` can bind a complete slice plan to the
+current ledger hash, and `parent_ledger_rollup_set` can later bind child-story
+coverage for DONE equivalence.
 
 The MVP also avoids standalone acceptance-contract, risk, assurance, and
 minimality commands. Acceptance criteria and binding are represented by
@@ -1055,6 +1076,8 @@ Implemented MVP gate-consumed artifacts:
 .lattice/story/actives/<storyId>/proofstory.json
 .lattice/story/actives/<storyId>/original-intent-snapshot.json
 .lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/slice-plan.json
+.lattice/story/actives/<storyId>/parent-ledger-rollup.json
 .lattice/story/actives/<storyId>/scope-shrinkage-decision.json
 .lattice/story/actives/<storyId>/red-evidence.json
 .lattice/story/actives/<storyId>/spike.json
@@ -1066,16 +1089,9 @@ Read-only diagnostics such as `intent_coverage_check`,
 the MVP. Their results are command output; durable acceptance binding lives in
 `proofstory.json`.
 
-Future parent-child orchestration may add:
-
-```text
-.lattice/story/actives/<storyId>/slice-plan.json
-.lattice/story/actives/<storyId>/parent-ledger-rollup.json
-```
-
-Those files are deliberately future artifacts. The M0-M2 and first enforcement
-MVP should report ledger sizing through dry-run diagnostics before adding a
-durable parent-child orchestration surface.
+`slice-plan.json` and `parent-ledger-rollup.json` are durable ProofStory
+artifacts, not schedulers. They record human/agent slice decisions and
+child-story coverage; they never create child Stories automatically.
 
 Every artifact consumed by a phase gate must be registered as a process fact and
 covered by the process-fact contract tests. Prompt-only rules are not enough.
@@ -1214,7 +1230,7 @@ Acceptance:
 
 - narrowing a requirement requires explicit user confirmation;
 - ordinary single-outcome DONE uses lightweight summary-to-snapshot equivalence;
-- milestone, shrinkage, and high-assurance DONE use strict equivalence gating;
+- milestone, slice, and shrinkage DONE paths use strict equivalence gating;
 - a story cannot reach DONE when any required milestone lacks evidence;
 - a parent Story cannot reach DONE while required child Stories or ledger rows
   remain uncovered;
@@ -1228,14 +1244,16 @@ Deliver:
 - `red_evidence_create`;
 - red-evidence validation through ProofStory diagnostics and gate checks;
 - baseline head/material binding;
-- transition relation to current green evidence.
+- transition relation to current green evidence and target acceptance ref.
 
 Acceptance:
 
 - bug-fix stories without required red evidence cannot enter DEV in enforce mode;
 - docs-only stories are not forced to create red evidence;
 - red evidence is required by risk/behavior claim, not by milestone count alone;
-- red evidence for the wrong acceptance criterion is rejected.
+- red evidence for the wrong acceptance criterion, missing command/receipt proof,
+  missing current green relation, or stale green hashes is rejected;
+- docs-only stories are not forced to create red evidence by this stricter gate.
 
 ### M7: Spike Evidence
 
@@ -1251,6 +1269,8 @@ Acceptance:
 
 - unresolved required spike blocks DEV in enforce mode;
 - spike code cannot be silently carried into implementation;
+- active disposable spike code paths block enforce mode until discarded or
+  explicitly promoted;
 - spike evidence is required by uncertainty and risk, not by every milestone in
   a parent ledger;
 - promoted spike findings update scope and are auditable.
@@ -1291,8 +1311,9 @@ Acceptance:
 - standard bug/regression/behavior-change stories still require red evidence;
 - oversized ledgers require slice-plan enforcement before DEV, but do not force
   full ProofStory overhead onto every milestone;
-- high-assurance stories require intent collision, red evidence, spike,
-  stronger REVIEW critic, and applicable escalation policy.
+- high-assurance stories require intent collision, stronger REVIEW critic, and
+  applicable escalation policy; red evidence and spike are required only when
+  their corresponding red/spike policy triggers apply.
 
 ## Verification Matrix
 

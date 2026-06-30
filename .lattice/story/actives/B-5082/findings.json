@@ -1,0 +1,168 @@
+{
+  "findings": [
+    {
+      "id": "B-5082:F-001",
+      "desc": "doc-code-drift: proofstory slicing surface is internally inconsistent. docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 419-431 still say the initial MVP only reports proofstory_gate_check --dryRun and that durable slice plans are future parent-child orchestration, but lines 967-1080 list slice_plan_set, parent_ledger_rollup_set, slice-plan.json, and parent-ledger-rollup.json as implemented MVP artifacts. Align the earlier slicing section with the bounded implemented slicing surface while preserving the no-auto-child-story claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T01:35:16.051Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-003",
+      "_hash": "e62733a7ee1fb7d6df539e9d1165f243ac2753dac9b5c5e71a71e707d10c71f6",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|code-drift-proofstory",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Aligned the early slicing section with the implemented bounded MVP: proofstory_gate_check diagnostics plus slice_plan_set/slice-plan.json and parent_ledger_rollup_set/parent-ledger-rollup.json, while preserving no automatic child-story creation or parent DONE orchestration. Verified with npm --prefix packages/main run build, proofstory-intent-hardening-smoke, verify-process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:40:34.477Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-002",
+      "desc": "High-assurance DONE equivalence currently treats high_assurance itself as a milestone path: packages/main/src/core/proofstory.ts:1267-1270 includes hardeningLevel === high_assurance in hasMilestonePath, and packages/main/src/core/proofstory.ts:1321-1328 then fails missing_confirmed_milestone_ledger when no confirmed ledger exists. That violates the progressive model in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:90-95, where the confirmed milestone ledger is only required if one exists, and M9 at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1293-1300 lists high-assurance requirements as intent collision/red/spike/review escalation, not a milestone ledger. The smoke coverage only proves low-risk single-outcome lightweight DONE at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:617-619, so a single-outcome high-assurance story can be incorrectly blocked at DONE for missing milestone-ledger.json even though milestone intent was never triggered.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T01:35:40.310Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-001",
+      "_hash": "4d59ea96256e778768d448438c0125d10c4943d21d1b623f5ac4f2ad3006e557",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|high-assurance-equivalence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed high_assurance as a standalone milestone-path trigger in evaluateDoneIntentEquivalence. Added smoke coverage proving a high-assurance single-outcome story without milestone ledger/slice/shrinkage uses lightweight_single_outcome and passes DONE equivalence with original snapshot plus accepted summary. Verified with npm --prefix packages/main run build, proofstory-intent-hardening-smoke, verify-process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:40:39.847Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-003",
+      "desc": "red_evidence_create can satisfy the ProofStory red-evidence gate without command or green/current evidence: command-catalog.ts makes failingCommand/expectedGreenCommand/greenHeadHash/greenMaterialHash optional, handlers/proofstory.ts auto-fills baseline hashes from the current tree, and proofstory.ts redEvidenceRecordSatisfied returns true once observedFailure, target, baseline hashes, and a same-target greenRelation exist. For a bug/regression story in proofStory.devGateMode=enforce, a natural-language observedFailure row with no failing command, no receipt/transcript, and no green hash/command can clear missing_red_evidence even though the requirement says valid red evidence must include command, baseline, expected/observed-before result, intent mapping, and receipt/digest. This weakens an L4 gate-evidence producer consumed by DEV/REVIEW/DONE ProofStory gates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T01:36:18.052Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-007",
+      "_hash": "42e2a206b5daa1c45060ec31ce0c2b90abb8fa0dc024184cbb7dcc3d305ac223",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|evidence-create-satisfy",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Strengthened redEvidenceRecordSatisfied so gate satisfaction requires observed failure, target ref, baseline head/material, failing command or failureReceiptHash, and current green command/hash relation; green hashes must differ from baseline when present. Exposed failureReceiptHash in CLI/handler/types, updated command policy/docs/process contract, and added smoke cases for missing red proof and missing green proof. Verified with npm --prefix packages/main run build, proofstory-intent-hardening-smoke, verify-process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:40:47.047Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-004",
+      "desc": "Post-fix doc-code drift: the implementation correctly removed high_assurance as a standalone milestone-path/DONE-equivalence trigger in packages/main/src/core/proofstory.ts:1271-1276, and the smoke now proves a high-assurance single-outcome story uses lightweight_single_outcome at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:670-674. However the M0-M9 source text still preserves the old conceptual rule in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:95, docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:519-522, and docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1229-1232 by saying high-assurance DONE uses strict equivalence gating. That conflicts with the resolved B-5082:F-002 model and M9 lines 1306-1313, where high-assurance adds collision/red/spike/review/escalation pressure without forcing a milestone ledger for a single-outcome story. The doc should say strict milestone DONE is triggered by milestone/slice/shrinkage paths, while high-assurance single-outcome remains lightweight unless one of those paths is present.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T01:44:13.000Z",
+      "reviewRound": "2026-06-30T01:40:20.802Z",
+      "reviewRunId": "B-5082:RR-009",
+      "_hash": "4a281509a9c53999b880016b1805a629928b930451862673c6f973fc6676ff61",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|proofstory-high-assurance-done-equivalence",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Updated ProofStory execution plan to state strict DONE equivalence is triggered by milestone, slice, or scope-shrinkage paths; high-assurance single-outcome stories remain on lightweight DONE unless one of those paths is present. Verified with git diff --check, node scripts/verify-process-fact-contract.mjs, and grep for old high-assurance strict-DONE wording.",
+      "resolvedAt": "2026-06-30T01:47:18.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-005",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1312-1313 says high-assurance stories require intent collision, red evidence, spike, stronger REVIEW critic, and applicable escalation policy. That overclaims red/spike requirements: the same doc says red/spike are trigger-based at lines 99-101 and 1249-1269, and packages/main/src/core/proofstory.ts:831-832/972-990 only emits missing_red_evidence or missing_spike_evidence when redTriggers/spikeTriggers are present. High-assurance itself only pushes high-assurance/collision triggers in packages/main/src/core/proofstory.ts:596-604, so a high-assurance story without behavior-change/security red risk or unclear-code-path spike risk is not mechanically required to provide red/spike evidence. Align M9 wording to say high-assurance requires those artifacts only when the corresponding red/spike policy triggers apply, while preserving stronger REVIEW completeness.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T01:45:03.343Z",
+      "reviewRound": "2026-06-30T01:40:20.802Z",
+      "reviewRunId": "B-5082:RR-011",
+      "_hash": "b018bf131916e70d2a57e0e2993c7d6a420a289049e3592bfd311b23fc5d2205",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "doc-code-drift-red-spike-high-assurance",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Updated M9 acceptance wording so high-assurance still requires intent collision, stronger REVIEW critic, and applicable escalation, while red evidence and spike are required only when their respective policy triggers apply. Verified with git diff --check, node scripts/verify-process-fact-contract.mjs, and grep for red/spike overclaims.",
+      "resolvedAt": "2026-06-30T01:46:59.021Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-006",
+      "desc": "docs policy overclaim: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md Risk-Adaptive Assurance table still says High-assurance red evidence is required and spike is required, which conflicts with the later M9 trigger-based policy that red evidence and spike apply only when their corresponding policy triggers apply.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T01:50:39.783Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-017",
+      "_hash": "0fd61eb21b4d449c2044f8b54263e945439d9c67763de355eecbb40330fd10bc",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-policy-overclaim",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the Risk-Adaptive Assurance table so high-assurance always requires independent intent collision, stronger REVIEW critic, and applicable escalation, while red evidence and spike are required only when their corresponding red/spike policy triggers apply. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:54:33.781Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-007",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:520 says milestone, slice, or confirmed scope-shrinkage paths get strict equivalence, but packages/main/src/core/proofstory.ts:1271 only selects strict_milestone for milestone triggers, an existing ledger, or slicePlan and omits scopeShrinkageDecision. A confirmed shrinkage decision without an accompanying ledger/slice therefore stays lightweight, so docs and implementation still disagree on the shrinkage strict-DONE trigger.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T01:50:42.753Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-015",
+      "_hash": "e2788d31d0b3cf6285cc400d466272586ded398ad7f43b71cfd83613a5b15665",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated evaluateDoneIntentEquivalence so a user-confirmed scope-shrinkage decision selects strict_milestone DONE equivalence even without a ledger or slice, while high-assurance single-outcome stories without shrinkage remain lightweight. Added proofstory-intent-hardening smoke coverage for both the preserved lightweight high-assurance case and a confirmed single-outcome shrinkage case that passes strict_milestone without inventing a milestone-ledger requirement. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:54:39.582Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
