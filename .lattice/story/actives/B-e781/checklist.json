@@ -288,7 +288,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "parallel-wave smoke passes and parent_roadmap_status shows M10 closed with advisory claim boundaries.",
+      "userSees": "\"M10\" row shows \"closed\": true and \"lattice-parallel-wave-smoke\" is listed as evidence.",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
@@ -297,7 +297,7 @@
         "create": [],
         "test": [
           "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
-          "packages/main/src/core/parallel-wave.ts"
+          "packages/main/src/core/lattice-parallel-wave.ts"
         ]
       },
       "verificationIntent": {
