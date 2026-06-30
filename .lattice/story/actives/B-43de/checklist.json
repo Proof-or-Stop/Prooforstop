@@ -38,9 +38,22 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T10:02:03.722Z",
-      "endTime": null
+      "endTime": "2026-06-30T10:02:11.314Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true}",
+          "result": "pass",
+          "note": "ProofStory enforce gate passed with original intent snapshot, confirmed milestone ledger, parent rollup, slice plan, and no gaps; anchors roadmap parent intent to B-43de.",
+          "headHash": "8b83e27cebfca7e0ff835ea71a9115c7d685b283",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:02:11.613Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -225,6 +238,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Owner implementer session closed; main session is taking over to record verified checklist evidence."
+    },
+    {
+      "timestamp": "2026-06-30T10:02:11.314Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Parent intent freeze is covered by ProofStory enforce gate output."
     }
   ]
 }
