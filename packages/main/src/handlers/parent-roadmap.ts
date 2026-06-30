@@ -14,6 +14,7 @@ interface ParentRoadmapEvalArgs extends JsonFlag {
   ledger?: unknown;
   case?: string;
   storyId?: string;
+  proofstoryContract?: unknown;
   summaryText?: string;
   mode?: ParentRoadmapMode;
   currentHeadHash?: string;
@@ -35,12 +36,44 @@ function resolveLedger(args: ParentRoadmapEvalArgs): unknown {
   return buildParentRoadmapSampleCase('migration');
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values)];
+}
+
+function milestoneInventory(proofstoryContract: unknown): string[] {
+  if (!isRecord(proofstoryContract)) return [];
+  const bindings = Array.isArray(proofstoryContract.acceptanceBindings) ? proofstoryContract.acceptanceBindings : [];
+  const ids: string[] = [];
+  for (const binding of bindings) {
+    if (!isRecord(binding) || !Array.isArray(binding.milestoneIds)) continue;
+    for (const id of binding.milestoneIds) {
+      if (typeof id === 'string' && id.trim().length > 0) ids.push(id.trim());
+    }
+  }
+  return unique(ids);
+}
+
+function embeddedProofstoryContract(ledger: unknown): unknown {
+  return isRecord(ledger) ? ledger.proofstoryContract : undefined;
+}
+
+function bindingProofstoryContract(args: ParentRoadmapEvalArgs, ledger: unknown, rollup: ReturnType<typeof evaluateParentRoadmapLedger>): unknown {
+  if (args.proofstoryContract !== undefined) return args.proofstoryContract;
+  if (milestoneInventory(embeddedProofstoryContract(ledger)).length > 0) return undefined;
+  return { acceptanceBindings: [{ id: 'parent-roadmap-status', milestoneIds: rollup.rowResults.map((row) => row.rowId) }] };
+}
+
 function evaluate(args: ParentRoadmapEvalArgs) {
   const ledger = resolveLedger(args);
   const rollup = evaluateParentRoadmapLedger(ledger, {
     currentHeadHash: args.currentHeadHash,
     currentMaterialHash: args.currentMaterialHash,
     currentStoryFilesHash: args.currentStoryFilesHash,
+    requiredRowIds: milestoneInventory(args.proofstoryContract),
   });
   const claim = args.summaryText
     ? evaluateParentRoadmapClaim({ rollup, summaryText: args.summaryText, mode: args.mode })
@@ -53,7 +86,7 @@ function evaluate(args: ParentRoadmapEvalArgs) {
         requestHash: 'sha256:parent-roadmap-status',
         sourceText: 'Parent-roadmap status CLI binds summary wording to row-totality rollup.',
       },
-      proofstoryContract: { acceptanceBindings: [{ id: 'parent-roadmap-status', milestoneIds: rollup.rowResults.map((row) => row.rowId) }] },
+      proofstoryContract: bindingProofstoryContract(args, ledger, rollup),
       summaryText: args.summaryText,
       mode: args.mode,
     })

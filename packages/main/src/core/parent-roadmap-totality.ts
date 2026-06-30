@@ -140,6 +140,7 @@ export interface ParentRoadmapEvaluationOptions {
   currentHeadHash?: string;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
+  requiredRowIds?: string[];
 }
 
 export interface ParentRoadmapClaimDecision {
@@ -466,10 +467,12 @@ function acceptanceBindingMilestoneIds(value: unknown): string[] {
   return unique(ids);
 }
 
-function requiredInventoryRowIds(ledger: ParentRoadmapLedger): string[] {
+function requiredInventoryRowIds(ledger: ParentRoadmapLedger, options: ParentRoadmapEvaluationOptions = {}): string[] {
+  const optionRequiredRowIds = options.requiredRowIds == null ? [] : stringArray(options.requiredRowIds, 'options.requiredRowIds');
   return unique([
     ...(ledger.requiredRowIds ?? []),
     ...acceptanceBindingMilestoneIds(ledger.proofstoryContract),
+    ...optionRequiredRowIds,
   ]);
 }
 
@@ -486,9 +489,13 @@ function missingRequiredRowResult(rowId: string): ParentRowRollupResult {
   };
 }
 
-function appendMissingRequiredRows(ledger: ParentRoadmapLedger, rowResults: ParentRowRollupResult[]): ParentRowRollupResult[] {
+function appendMissingRequiredRows(
+  ledger: ParentRoadmapLedger,
+  rowResults: ParentRowRollupResult[],
+  options: ParentRoadmapEvaluationOptions,
+): ParentRowRollupResult[] {
   const presentRows = new Set(rowResults.map((row) => row.rowId));
-  const missingRows = requiredInventoryRowIds(ledger)
+  const missingRows = requiredInventoryRowIds(ledger, options)
     .filter((rowId) => !presentRows.has(rowId))
     .map((rowId) => missingRequiredRowResult(rowId));
   return missingRows.length > 0 ? [...rowResults, ...missingRows] : rowResults;
@@ -556,7 +563,7 @@ function summarize(
 export function evaluateParentRoadmapLedger(rawLedger: unknown, options: ParentRoadmapEvaluationOptions = {}): ParentRollupResult {
   const ledger = parseParentRoadmapLedger(rawLedger);
   // Caller-provided ledger.parentLedgerRollup allRowsClosed/claimType values are audit context only; row facts below recompute the rollup.
-  const rowResults = appendMissingRequiredRows(ledger, ledger.rows.map((row) => evaluateRow(row, options)));
+  const rowResults = appendMissingRequiredRows(ledger, ledger.rows.map((row) => evaluateRow(row, options)), options);
   const openRows = rowResults.filter((row) => !row.closed).map((row) => row.rowId);
   const blockedRows = rowResults.filter((row) => row.reasonCodes.includes('blocked')).map((row) => row.rowId);
   const invalidRows = rowResults
@@ -701,7 +708,14 @@ export function evaluateParentRoadmapProofStoryBinding(args: {
   mode?: 'observe' | 'warn' | 'enforce' | string;
 }): ParentRoadmapProofStoryBindingReport {
   const ledger = parseParentRoadmapLedger(args.ledger);
-  const rollup = (args.rollup as ParentRollupResult | undefined) ?? evaluateParentRoadmapLedger(ledger);
+  const suppliedRollup = args.rollup as ParentRollupResult | undefined;
+  const externalRequiredRowIds = acceptanceBindingMilestoneIds(args.proofstoryContract);
+  const rollup = evaluateParentRoadmapLedger(ledger, {
+    currentHeadHash: suppliedRollup?.headHash,
+    currentMaterialHash: suppliedRollup?.materialHash,
+    currentStoryFilesHash: suppliedRollup?.storyFilesHash,
+    requiredRowIds: externalRequiredRowIds,
+  });
   const mode = args.mode === 'enforce' || args.mode === 'warn' ? args.mode : 'observe';
   const gaps: ParentRoadmapProofStoryBindingReport['gaps'] = [];
   const snapshot = optionalRecord(args.originalIntentSnapshot);

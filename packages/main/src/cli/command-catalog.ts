@@ -103,6 +103,11 @@ const proofStoryAcceptanceBindingSchema = z.object({
   note: z.string().optional().describe('Reviewer-visible note.'),
 });
 
+const proofStoryContractEnvelopeSchema = z.object({
+  acceptanceBindings: z.array(proofStoryAcceptanceBindingSchema).optional().describe('Acceptance-to-checklist/verificationIntent bindings consumed by diagnostics and opt-in gate enforcement.'),
+  note: z.string().optional().describe('Contract envelope note.'),
+}).passthrough();
+
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 const proofStoryIntentCollisionDecisionSchema = z.enum(['pass', 'revise_intent', 'human_gate', 'stop']);
 const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evidence', 'scope_decision', 'implementation_note']);
@@ -2213,6 +2218,7 @@ Behavior:
     case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
     storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
     ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
+    proofstoryContract: proofStoryContractEnvelopeSchema.optional().describe('External ProofStory contract inventory whose acceptance milestoneIds must bind into proofstoryBinding evaluation.'),
     summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),
     mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode for claim wording.'),
     currentHeadHash: z.string().optional().describe('Current HEAD hash for stale evidence checks.'),
@@ -2225,6 +2231,7 @@ Behavior:
     case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
     storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
     ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
+    proofstoryContract: proofStoryContractEnvelopeSchema.optional().describe('External ProofStory contract inventory whose acceptance milestoneIds must bind into proofstoryBinding evaluation.'),
     summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),
     mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode for claim wording.'),
     currentHeadHash: z.string().optional().describe('Current HEAD hash for stale evidence checks.'),

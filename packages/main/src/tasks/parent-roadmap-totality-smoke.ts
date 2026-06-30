@@ -243,6 +243,31 @@ function shrunkenRequiredInventoryLedger(): Record<string, unknown> {
   });
 }
 
+function externalProofStoryContractOnlyLedger(): Record<string, unknown> {
+  return baseLedger({
+    ledgerId: 'PR-external-proofstory-only',
+    parentStoryId: 'B-parent-external-proofstory',
+    createdByStoryId: 'B-parent-external-proofstory',
+    updatedByStoryIds: ['B-parent-external-proofstory'],
+    proofstoryContract: undefined,
+    rows: [
+      {
+        rowId: 'M4',
+        title: 'M4 closed implementation',
+        intentText: 'M4 is closed but the external ProofStory inventory remains M4-M12.',
+        status: 'closed-by-implementation',
+        childStoryId: 'B-child-m4',
+        closureEvidence: [{ kind: 'logic_test', ref: 'm4-closed', result: 'pass' }],
+        materialRefs: ['packages/main/src/core/parent-roadmap-totality.ts'],
+      },
+    ],
+  });
+}
+
+function externalM4M12ProofStoryContract(): Record<string, unknown> {
+  return { acceptanceBindings: [{ id: 'm4-m12-roadmap', milestoneIds: M4_M12_ROW_IDS }] };
+}
+
 function missingClosureEvidenceLedger(): Record<string, unknown> {
   return baseLedger({
     ledgerId: 'PR-missing-closure-evidence',
@@ -526,6 +551,35 @@ async function runProofStoryBinding(mod: RuntimeModule): Promise<void> {
     mode: 'enforce',
   });
   assert.equal(honest.status, 'pass');
+
+  const externalContractLedger = externalProofStoryContractOnlyLedger();
+  const shrunkenRollup = mod.evaluateParentRoadmapLedger(externalContractLedger);
+  assert.equal(shrunkenRollup.summaryClass, 'full_roadmap_complete', 'the shrunken one-row ledger is unsafe without external inventory');
+
+  const externalInventoryRollup = mod.evaluateParentRoadmapLedger(externalContractLedger, { requiredRowIds: M4_M12_ROW_IDS });
+  assert.equal(externalInventoryRollup.summaryClass, 'invalid_parent_rollup');
+  assert.ok(externalInventoryRollup.invalidRows.includes('M5'));
+  assert.ok(externalInventoryRollup.rowResults.some((row: any) => row.rowId === 'M5' && row.reasonCodes.includes('missing_required_row')));
+
+  const externalBinding = mod.evaluateParentRoadmapProofStoryBinding({
+    ledger: externalContractLedger,
+    rollup: shrunkenRollup,
+    originalIntentSnapshot: {
+      requestHash: 'sha256:parent-external',
+      sourceText: 'Deliver all parent roadmap rows M4-M12.',
+      normalizedOutcome: 'Full roadmap completion requires M4-M12 to be represented and closed.',
+      acceptanceClaim: 'External ProofStory inventory M4-M12 must bind into the parent roadmap rollup.',
+    },
+    proofstoryContract: externalM4M12ProofStoryContract(),
+    summaryText: 'Full roadmap complete.',
+    mode: 'enforce',
+  });
+  assert.equal(externalBinding.status, 'fail', 'external ProofStory inventory blocks shrunken full-roadmap binding');
+  assert.equal(externalBinding.blocking, true);
+  assert.equal(externalBinding.consumedRollup.summaryClass, 'invalid_parent_rollup');
+  assert.equal(externalBinding.consumedRollup.claimType, 'no-full-roadmap-claim');
+  assert.ok(externalBinding.consumedRollup.invalidRows.includes('M5'));
+  assert.ok(externalBinding.gaps.some((gap: any) => gap.code === 'parent_roadmap_summary_overclaim'));
 }
 
 async function runCliCase(mod: RuntimeModule): Promise<void> {
@@ -555,6 +609,30 @@ async function runCliCase(mod: RuntimeModule): Promise<void> {
     }, true);
     assert.match(enforceFailure, /parent-roadmap enforce failed/i, 'enforce mode must fail closed for full-roadmap overclaims');
     assert.match(enforceFailure, /parent_roadmap_summary_overclaim|no-full-roadmap/i);
+
+    const externalContractStatus = JSON.parse(runCli(root, 'parent_roadmap_evaluate', {
+      ledger: externalProofStoryContractOnlyLedger(),
+      proofstoryContract: externalM4M12ProofStoryContract(),
+      summaryText: 'Full roadmap complete.',
+      mode: 'warn',
+      json: true,
+    }));
+    assert.equal(externalContractStatus.rollup.summaryClass, 'invalid_parent_rollup', 'handler rollup binds external ProofStory inventory');
+    assert.equal(externalContractStatus.rollup.claimType, 'no-full-roadmap-claim');
+    assert.ok(externalContractStatus.rollup.invalidRows.includes('M5'));
+    assert.equal(externalContractStatus.proofstoryBinding.consumedRollup.summaryClass, 'invalid_parent_rollup');
+    assert.equal(externalContractStatus.proofstoryBinding.consumedRollup.claimType, 'no-full-roadmap-claim');
+    assert.ok(externalContractStatus.proofstoryBinding.consumedRollup.invalidRows.includes('M5'));
+
+    const externalContractFailure = runCli(root, 'parent_roadmap_evaluate', {
+      ledger: externalProofStoryContractOnlyLedger(),
+      proofstoryContract: externalM4M12ProofStoryContract(),
+      summaryText: 'Full roadmap complete.',
+      mode: 'enforce',
+      json: true,
+    }, true);
+    assert.match(externalContractFailure, /parent-roadmap enforce failed/i, 'external ProofStory inventory must fail closed in enforce mode');
+    assert.match(externalContractFailure, /parent_roadmap_summary_overclaim|Invalid rows: M5|M5/i);
 
     const sample = mod.evaluateParentRoadmapLedger(mod.buildParentRoadmapSampleCase('migration'));
     assert.equal(sample.summaryClass, 'migration_needed');
