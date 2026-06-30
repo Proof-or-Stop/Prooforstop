@@ -94,8 +94,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T10:02:18.540Z",
       "endTime": null
     },
     {
@@ -247,6 +247,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Parent intent freeze is covered by ProofStory enforce gate output."
+    },
+    {
+      "timestamp": "2026-06-30T10:02:18.540Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Recording M4-M12 ledger and slice-plan evidence."
     }
   ]
 }
