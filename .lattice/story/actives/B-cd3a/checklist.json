@@ -51,10 +51,10 @@
           "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
           "result": "pass",
           "note": "Frozen capability audit table classifies lifecycle-control capabilities as implemented, partial, future, or unavailable/missing with source/status evidence.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
           "result": "pass",
           "note": "Capability status reports proofM7Enforcement=partial, queueCleanupEnforcement=partial, tierCCleanup=future while legacy booleans remain false.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Smoke asserts command existence is insufficient: capability rows carry statuses/evidence and enforcement booleans stay false.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     },
@@ -134,10 +134,10 @@
           "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
           "result": "pass",
           "note": "global_control_status exposes implemented/partial/future capability rows and capabilityStatus fields for proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,10 +145,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Smoke proves status reconciliation remains reporting-only: proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup booleans are not enabled by projection.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,10 +156,10 @@
           "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
           "result": "pass",
           "note": "Output keeps future/unavailable work visible instead of hiding documented gaps or overclaiming runtime/proof/queue implementation.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     },
@@ -213,10 +213,10 @@
           "command": "node bin/lattice.js queue_governance_status --format=json",
           "result": "pass",
           "note": "queue_governance_status groups 23 Tier-C provider-execution receipt verification stories as experiment-batch-exception with migration-title-prefix source.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -224,10 +224,10 @@
           "command": "node bin/lattice.js queue_governance_status --format=json",
           "result": "pass",
           "note": "Malformed Tier-C records B-cb7e and B-dbdc remain cleanup-required and separate from the preserved experiment batch.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -235,10 +235,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Smoke asserts experiment-batch exceptions preserve evidence only and do not waive lifecycle readiness or set readyForNextSafeAction.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     },
@@ -297,10 +297,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Smoke proves enforce mode blocks wrong authoritative cwd, direct main mirror/worktree authority drift, stale active locks, and treats dirty phase-advance state as material when configured.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -308,10 +308,10 @@
           "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
           "result": "pass",
           "note": "Runtime enforcement rollout documents lifecycleControl.runtimeEnforcement warn/enforce/unavailable modes, observable status, and rollback to warn mode.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -319,10 +319,10 @@
           "command": "node bin/lattice.js runtime_closure_status --storyId=B-cd3a --format=json && node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Story-scoped runtime_closure_status is observable for B-cd3a, and smoke rejects unsafe enforce-mode closure cases instead of leaving them advisory-only.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     },
@@ -379,10 +379,10 @@
           "command": "node bin/lattice.js queue_governance_status --format=json",
           "result": "pass",
           "note": "Queue governance reports duplicateCandidate=0 for preserved Tier-C experiment stories while still surfacing active worktrees and cleanup-required rows for review.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -390,10 +390,10 @@
           "command": "node bin/lattice.js queue_governance_status --format=json",
           "result": "pass",
           "note": "Valid experiment batches keep cleanupPolicy=preserve and malformed experiment records remain visible as cleanup-required without deleting evidence.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -401,10 +401,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Smoke asserts queue exception success cannot grant readyForNextSafeAction or lifecycle completion readiness.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -478,10 +478,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Build passes and hardening smoke now covers command-level HANDOFF policy propagation for create/read/accept/resume/receipt-submit with explicit admissibleProofRefs and project enforce mode.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -489,10 +489,10 @@
           "command": "npm --prefix packages/main run test:command-catalog-smoke && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Command catalog exposes admissibleProofRefs on handoff command paths and process-fact contract remains consistent; diagnostic waterline/read-only process facts are unchanged.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -500,10 +500,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Smoke proves legacy warn-mode handoff packs/accept projections/receipts are reclassified under project HANDOFF enforce mode, blocked reasons surface in text/JSON, and local CLI outputs keep productionDone/authorityDone/fullAuthorityDone unclaimed.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     },
@@ -564,10 +564,10 @@
           "command": "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json && lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json && lattice done_required_validate --storyId=B-cd3a --json",
           "result": "pass",
           "note": "Final gate input bundle passed: ProofStory DEV gate and intent coverage reported status=pass with no blocking gaps, and done_required_validate produced PASS evidence after running packages/main build plus the root npm test suite.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -575,10 +575,10 @@
           "command": "lattice parent_ledger_rollup_set --storyId=B-cd3a --children=<B-cd3a covers M1-M7 done> --json",
           "result": "pass",
           "note": "Parent ledger roll-up was persisted for the internal slice plan: B-cd3a covers all seven required milestones M1-M7 with CHK-001 through CHK-006 verification evidence plus final ProofStory and done-required evidence refs; no shrinkage decision was used.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -586,10 +586,10 @@
           "command": "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json && lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
           "result": "pass",
           "note": "Adversarial final gate path is covered by first observing enforced gates block missing CHK-007/M7 evidence, then adding CHK-007 evidence and parent roll-up before rerunning the gates; any remaining missing milestone or missing evidence would keep these gates blocking.",
-          "headHash": "1650e5aa0088712fae0bb1d8921957394da615d0",
-          "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2",
-          "storyFilesHash": "918ecd3ae45246874aec801cc25c25010e5bc64434119d3d1e954d51cdfdb45d",
-          "timestamp": "2026-06-30T10:39:44.330Z"
+          "headHash": "642575bb3198381115b1c19baa4747789c30d0ec",
+          "materialHash": "23187693d0291b65e0b2b02184b973138841610205e19bc72fe2756de8a31545",
+          "storyFilesHash": "d558d53cf15668f646f7acfeb32bc09d75583cb0ee592157f71a6d99f432e83f",
+          "timestamp": "2026-06-30T10:49:04.037Z"
         }
       ]
     }
