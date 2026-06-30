@@ -144,6 +144,18 @@
           "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
           "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
           "timestamp": "2026-06-30T10:05:40.034Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"M7 .*child-story-needed|M10 .*child-story-needed|M12 .*child-story-needed\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Child-story status map keeps M7, M10, and M12 explicit as child-story-needed rows, so missing rows cannot silently disappear from parent governance.",
+          "headHash": "473d8fba081c3f6eae968b9bce14e6e7e6194df6",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:05:45.993Z"
         }
       ]
     },
