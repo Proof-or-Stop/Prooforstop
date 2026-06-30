@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-a9e7:F-001",
+      "desc": "dev-memory-supersession-smoke covers the core projection/display happy path, but it does not cover the full CHK-001..CHK-004 must intent matrix recorded for this story. The smoke seeds one synthetic legacy/current pair where the current entry contains both tags:[supersedes-legacy1] and evidenceRefs:[dev-memory:legacy1] (packages/main/src/tasks/dev-memory-supersession-smoke.ts:51-60), so a regression in either standalone supersession mechanism would still pass even though CHK-002:happy promises both tag and evidenceRef inputs. It also does not exercise CHK-001 happy actual global/project Koala inventory across the recorded legacy ids, CHK-001 edge unmatched legacy readability, CHK-001 adversarial no rewrite/delete of historical evidenceRefs, or CHK-003 happy/edge actual superseding memories for reviewer/delivery/CLI/preflight lessons. The assertions at packages/main/src/tasks/dev-memory-supersession-smoke.ts:82-129 do cover search/preflight ordering, visible superseded/supersedes annotations, legacy readability for a matched superseded row, non_authoritative/gateEvidence=false fixture fields, and one Proofbound/Lattice mapping, but the missing cases mean the smoke is not sufficient coverage for the stated CHK-001..CHK-004 happy/edge/adversarial verification intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T16:07:44.370Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-003",
+      "_hash": "eb8ea669a4ef32f28d8248683b5bca53b72e5cd8f81a55e90b6239f1643828b9",
+      "files": [
+        "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+        "packages/main/src/core/dev-memory.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "signatureTag": "missing|ts|memory-supersession-smoke",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

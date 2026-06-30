@@ -191,6 +191,54 @@
         "bindingHash": "d8189ce204b9d3f272cd9ba18e2ca995ecfa8b30a15c05f6d896abfcedb7c2d8"
       },
       "_hash": "384a209b79853d75eda566693ea8362097bd1b64fcd8f4f2479c5b7cefa076c4"
+    },
+    {
+      "reviewRunId": "B-a9e7:RR-005",
+      "storyId": "B-a9e7",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "startedAt": "2026-06-30T16:07:33.622Z",
+      "headHash": "e971c1686c704b3083a024f7dc308f6c96452dfc",
+      "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+      "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "81ea7fb99903a9e0bf75fcb543bf0b6e7bb290c0993a575a37f93fe91e356594",
+        "diffPackHash": "ae4d7a46e865e37c387ce8646305f4b6123078e00611996cc85f3b751e94e195",
+        "reviewedChangedFiles": [
+          ".lattice/dev-memory/experience.jsonl",
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "021425a3321036fd0d1d76b86888b1653a21b34cffabea4cafafc7ad929dba2d",
+          "5e8df92d62a0ee9f13bcd23d1403cbabb2d50d14dcd90911f616e691ed3dc8ae",
+          "6059228d6a0242413a40d5ff581b261d0f39be217e66e3a534c50deaf30aa8de",
+          "67ef9b2765e800c9901fda76780027fae5b8c9723374fccf365ac31d6d094259",
+          "7095eabc81bed373f1d33faceec6f1cbf66c14f73ae77c01c981791b71478d03",
+          "7cf86ee4680878e4e3f4c07107021ffb919a414a9a67985d4d52303aaeb64a86",
+          "8c06057e5eba1b10365ac0f29e5c5741b149b58312cf13f2deff179f5d135b10",
+          "ad9a2dae3802f28b60f9490c89feea067a0e851a2ca0fe4d5a32397959614cea"
+        ],
+        "bindingHash": "976d8a9d587fdf301da64497716b3ba61b734367334e57b3114c469b9e540aa6"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a9e7",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a9e7",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a9e7",
+        "workspaceMode": "story-worktree",
+        "headHash": "e971c1686c704b3083a024f7dc308f6c96452dfc",
+        "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+        "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+        "bindingHash": "a28d3fff3c143460eca88b0bbd7b4ba013234e2bd97c8b5e38b00e483f18393c"
+      },
+      "_hash": "91e578cca7c1dea812992b44c60e395792fab034b08290d71ee58f82bcdddb2a"
     }
   ]
 }
