@@ -86,9 +86,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T16:02:11.097Z",
       "userSees": "dev_memory_preflight/search/list shows current Proofbound/Lattice superseding guidance before legacy Koala entries and annotates superseded ids.",
       "files": {
         "modify": [
@@ -122,7 +122,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves tags supersedes-<id> and evidenceRefs dev-memory:<id> compute a projection and rank current entries before superseded legacy entries in search and preflight.",
+          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:11.507Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js dev_memory_list --scope=project --limit=5",
+          "result": "pass",
+          "note": "List remains newest-first for project entries while annotating each superseding status and preserving readable entry formatting.",
+          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:11.884Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
+          "result": "pass",
+          "note": "Search output shows current Proofbound/Lattice superseding entries before their legacy Koala counterparts and marks old entries superseded / legacy-readable.",
+          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:12.243Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
