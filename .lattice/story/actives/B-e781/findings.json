@@ -20,6 +20,25 @@
       ],
       "signatureTag": "missing|md|docs-lane-blocker",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e781:F-002",
+      "desc": "packages/main/src/cli/command-catalog.ts:2219 and packages/main/src/cli/command-catalog.ts:2232 still describe storyId B-43de as mapping to the migration diagnostic sample, but packages/main/src/handlers/parent-roadmap.ts:33 now routes B-43de to buildParentRoadmapSampleCase(\"b-43de\"). Runtime check with node bin/lattice.js parent_roadmap_status storyId=B-43de returns full_roadmap_complete, while case=migration remains migration_needed. The stale help/schema wording undermines the scope acknowledgement and claim-boundary update by telling operators the old behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T22:36:47.483Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-001",
+      "_hash": "ee1a74402bfd387e33f54a6a40744451b8dae45bd8d1f1e456e78388d799e18a",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|packages-main-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
