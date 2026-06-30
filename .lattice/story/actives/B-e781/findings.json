@@ -47,6 +47,25 @@
       "resolvedAt": "2026-06-30T22:43:38.707Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e781:F-003",
+      "desc": "packages/main/src/tasks/review-assurance-floor-smoke.ts:363 sets proofAdmissibility enforce and proves the degraded 3x1 success path at lines 404-420, but the negative cases still rely on broader ok=false checks or a separate non-enforce storyFilesHash smoke. Missing fallback/evidence, stale fallback/material, and invalid fallback shape are not asserted under enforce with proofAdmissibility.blocking/proof_admissibility_blocked, so a regression in the proof-admissibility enforce contract could pass the current smokes while the required invalid/stale/missing evidence blocking remains unproven. Add enforce-mode negative assertions for missing fallback, stale fallback/material, and invalid fallback shape.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T23:27:50.446Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-016",
+      "_hash": "15f5f33d950265152648744aa9d7814663352ac8530773c19c257e55022c691d",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
