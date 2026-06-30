@@ -705,8 +705,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T22:29:51.983Z",
       "endTime": null,
       "userSees": "\"M12\" row shows \"closed\": true and \"parent-roadmap-totality-smoke\" plus \"lattice-handoff-smoke\" are listed.",
       "files": {
@@ -889,6 +889,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M11 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:51.983Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M12 final evidence recording after implementation commit."
     }
   ]
 }
