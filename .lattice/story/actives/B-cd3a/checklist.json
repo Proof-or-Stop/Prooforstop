@@ -135,7 +135,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/proof-admissibility-binding.ts",
+          "packages/main/src/core/proof-admissibility-legacy.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "lattice admissibility_waterline --storyId=B-cd3a --format=json"
+        ]
+      }
     },
     {
       "id": "CHK-007",
