@@ -94,9 +94,23 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T10:02:18.540Z",
-      "endTime": null
+      "endTime": "2026-06-30T10:02:27.126Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"ProofStory Governance Ledger|B-43de governs M4-M12|child-story-needed\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Roadmap document now has a B-43de parent governance section and explicit M4-M12 child-story-needed map; ProofStory gate also confirmed ledger, parent rollup, and slice-plan coverage.",
+          "headHash": "3edfc45b3cfc6ffc8e2ae0f5385a99febb055af4",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:02:27.826Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -256,6 +270,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording M4-M12 ledger and slice-plan evidence."
+    },
+    {
+      "timestamp": "2026-06-30T10:02:27.126Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Ledger and slice plan are published in the roadmap document and accepted by ProofStory checks."
     }
   ]
 }
