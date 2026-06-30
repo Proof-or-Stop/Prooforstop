@@ -461,6 +461,13 @@ async function runCliCase(mod: RuntimeModule): Promise<void> {
 
     const sample = mod.evaluateParentRoadmapLedger(mod.buildParentRoadmapSampleCase('migration'));
     assert.equal(sample.summaryClass, 'migration_needed');
+
+    const unrelated = runCli(root, 'parent_roadmap_status', { storyId: 'B-unrelated', json: true }, true);
+    assert.match(
+      unrelated,
+      /No parent roadmap ledger is registered for storyId B-unrelated/,
+      'unrelated single-story work must not be auto-classified as a parent roadmap',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
