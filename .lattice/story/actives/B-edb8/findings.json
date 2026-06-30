@@ -37,6 +37,26 @@
       ],
       "signatureTag": "missing|ts|enforce-mode-parent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-edb8:F-003",
+      "desc": "Parent-roadmap totality can still be proven against a shrunken caller-supplied ledger instead of the original B-5082 milestone inventory. B-9fc5 requires ProofStory controls such as originalIntentSnapshot/milestoneLedger/slicePlan to keep the child-row inventory from shrinking (docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:168-190), but evaluateParentRoadmapLedger derives allRowsClosed solely from ledger.rows (packages/main/src/core/parent-roadmap-totality.ts:511-528) and evaluateParentRoadmapProofStoryBinding only requires a snapshot plus some acceptanceBindings, without proving those bindings cover every parent row or the original milestone ledger (packages/main/src/core/parent-roadmap-totality.ts:615-645). A ledger that omits M5-M12 but closes its supplied rows can therefore receive full_roadmap_complete/full-roadmap-claim, which defeats the intent-totality gate boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T14:03:33.913Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-001",
+      "_hash": "9473e84c3bfa33e2fbf74745c3a5146799fb93330b72c9ee3e3b0b8527792fa7",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|parent-roadmap-totality",
+      "signatureTagSource": "auto"
     }
   ]
 }
