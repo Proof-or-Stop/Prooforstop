@@ -1,0 +1,86 @@
+{
+  "storyId": "B-e781",
+  "checkedAt": "2026-06-30T23:12:32.313Z",
+  "headHash": "a54f17ecf63c35bbfa043b6ef22cb3f9aa2f01f8",
+  "materialHash": "6f5b11ab1a00c8d1aaea05b14605a51d63a586c806f58de67632e15b48f0ba77",
+  "storyFilesHash": "3401a697b41a29a0c1e8fb006985161dbaa56e3fbd0209e236946cd314198c5a",
+  "reviewRound": "2026-06-30T22:59:20.887Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "B-e781 closes the B-43de M4-M12 parent ledger with local machine evidence, row status, and claim boundaries rather than prose only.",
+      "status": "verified",
+      "verifiedBy": "manual diff inspection plus parent_roadmap_status plus focused smokes",
+      "evidence": "Closure ledger lists M4-M12 as closed with commands and claim boundaries; B-43de status returned allRowsClosed true, summaryClass full_roadmap_complete, openRows empty; totality smoke passed."
+    },
+    {
+      "docPath": "docs/guide-scope-guard.md",
+      "promise": "The scope guard guide no longer presents M4-M12 as future roadmap work and keeps B-997b guard behavior scoped to its shipped surfaces.",
+      "status": "verified",
+      "verifiedBy": "manual inspection plus rg",
+      "evidence": "Top section names B-e781 closure, local evidence, row-level boundaries, and says local evidence must not imply broader unlocks; old future-work wording was not present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "The lifecycle artifact policy no longer treats M4-M12 as unfinished and preserves the boundary between story metadata, evidence receipts, and product source scope.",
+      "status": "verified",
+      "verifiedBy": "manual inspection plus rg",
+      "evidence": "Top policy section names B-e781 closure and explicitly says lifecycle artifacts are not evidence receipts or product source scope weakening."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts",
+      "promise": "parent_roadmap_status help matches runtime behavior for B-43de and keeps migration as an explicit negative diagnostic case.",
+      "status": "verified",
+      "verifiedBy": "help output plus live CLI",
+      "evidence": "Help says storyId B-43de maps to the closed B-e781 ledger and case=migration remains the legacy negative sample; live commands matched both."
+    },
+    {
+      "docPath": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+      "promise": "Roadmap totality checks require row evidence, claim boundaries, closed B-43de output, and an open migration negative control.",
+      "status": "verified",
+      "verifiedBy": "focused smoke",
+      "evidence": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-e781/evidence/transcript-diff.md",
+      "promise": "User-visible transcript records expected and actual outcomes for positive, negative, validation, and claim-boundary checks.",
+      "status": "verified",
+      "verifiedBy": "manual inspection",
+      "evidence": "Transcript lists expected outcomes and actual command summaries with 9 closed rows for B-43de, migration_needed for migration, and validation pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-e781:parent-roadmap-positive",
+      "transcript": "node bin/lattice.js parent_roadmap_status --storyId=B-43de --json exited 0; rollup allRowsClosed=true, summaryClass=full_roadmap_complete, openRows=[], staleEvidenceRows=[], and rows M4-M12 closed with evidence refs."
+    },
+    {
+      "featureId": "B-e781:parent-roadmap-negative",
+      "transcript": "node bin/lattice.js parent_roadmap_status --case=migration --json exited 0; rollup allRowsClosed=false, summaryClass=migration_needed, openRows=M4-M12, and claimType=no-full-roadmap-claim."
+    },
+    {
+      "featureId": "B-e781:totality-smoke",
+      "transcript": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js exited 0 with parent-roadmap totality smoke passed all."
+    },
+    {
+      "featureId": "B-e781:vocabulary-boundary-smoke",
+      "transcript": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exited 0 with vocabulary guard PASS."
+    },
+    {
+      "featureId": "B-e781:routine-validate",
+      "transcript": "node bin/lattice.js validate --story=B-e781 --json exited 0; status=pass, allPass=true, summary=Project validation commands passed, 31 configured commands ran."
+    },
+    {
+      "featureId": "B-e781:diff-hygiene",
+      "transcript": "git diff --check exited 0 with no output."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer verified doc promises, live positive and negative status paths, focused smokes, and routine validation. B-e781 is signed as local parent-ledger closure for B-43de M4-M12 only; broader external conformance and formal unlock claims remain out of scope."
+  },
+  "_hash": "d82c61e809980bf4b3a8a8cc97137d19bf880b908fce2991e7ed1203dace478c"
+}
