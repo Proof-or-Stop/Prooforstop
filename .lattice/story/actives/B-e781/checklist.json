@@ -51,12 +51,46 @@
       "title": "Close M5 verification context pack and evidence envelope standardization",
       "context": "Verify context pack and evidence manifest/envelope behavior covers changed refs, digests, expansion, stale/missing cases, and reviewer/validator consumption boundaries.",
       "relatedDocs": [
-        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-        "docs/requirements/decisions/verification-context-pack.md"
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "verification-context-pack smoke passes and parent_roadmap_status shows M5 closed with evidence refs.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "packages/main/src/core/verification-context-pack.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verification context pack and evidence envelope standardization closes only when context pack create/expand evidence is runnable and bound to the roadmap row.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M5 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M5 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
