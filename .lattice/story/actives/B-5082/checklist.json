@@ -350,8 +350,8 @@
       "id": "CHK-008",
       "title": "Close risk-adaptive high-assurance review policy behavior",
       "context": "Covers M8/M9 gap: high-assurance ProofStory must expose stronger review/completeness policy diagnostics while keeping existing reviewer evidence fresh and reviewRunId-bound.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:36.359Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
@@ -456,6 +456,15 @@
       "timestamp": "2026-06-30T01:13:35.697Z",
       "phase": "DEV",
       "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:36.359Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
