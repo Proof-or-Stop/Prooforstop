@@ -52,6 +52,18 @@
           "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
           "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
           "timestamp": "2026-06-30T10:02:11.613Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"B-cd3a|B-43de governs\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Roadmap relationship table explicitly separates B-43de parent ledger governance from B-cd3a control-plane/proof-admissibility gap closure.",
+          "headHash": "0d680b325603ca76900cb65f09bd9692fa8294e9",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:05:24.661Z"
         }
       ]
     },
