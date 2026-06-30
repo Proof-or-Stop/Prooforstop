@@ -4,9 +4,11 @@
   "id": "IC-20260630220157",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Physical cleanup means deleting old-brand memory rows from global dev-memory and removing old-brand prose/tags/refs from project dev-memory, rather than preserving legacy-readable supersession behavior.",
-  "acceptedInterpretationHash": "sha256:64c6a467decf9108d5527d2201db572194c25ecde7c13b6243a7d3636f877f25",
-  "notes": "This accepts the user intent as physical removal because the user explicitly rejected legacy-koala tags and compatibility retention.",
+  "acceptedInterpretation": "The five milestone rows M1-M5 are the accepted interpretation of the user request: physically remove old brand memory terms and legacy tags from project and global dev-memory, preserve current Proofbound/Lattice memories, update smoke coverage, and verify with memory scans/build/smoke/residue/validate.",
+  "acceptedInterpretationHash": "sha256:1527bda43ac4fd3934a6d5b18dca3d22f4c54a4e73af5bd02b7acc2492d0a8a9",
+  "notes": "Confirms the current milestone ledger after scope contract and scope_check closed the global dev-memory coverage ambiguity.",
+  "ledgerHashBeforeDecision": "sha256:462575ea613f03b84e2e0751c1607b918017339f896f90559bec2de42f42b758",
+  "confirmedLedgerHash": "sha256:462575ea613f03b84e2e0751c1607b918017339f896f90559bec2de42f42b758",
   "createdAt": "2026-06-30T22:01:57.868Z",
-  "updatedAt": "2026-06-30T22:01:57.868Z"
+  "updatedAt": "2026-06-30T22:09:50.070Z"
 }
