@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "dev_memory_search/list output identifies legacy Koala memory ids and shows which current Proofbound/Lattice memory supersedes them.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inventory finds global dev-memory entries containing Koala/.koala/koala-* and maps each to current Proofbound/Lattice terminology without editing old rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy entries without a matching superseding entry remain readable and are marked legacy-readable rather than silently hidden.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A cleanup attempt must not rewrite or delete historical evidenceRefs from old dev-memory rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
