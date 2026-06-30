@@ -33,7 +33,29 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Necessary ProofStory command lifecycle policy update for newly implemented slice_plan_set, parent_ledger_rollup_set, and related gate-consumed commands; document anchors are ProofStory M4 lines 1182-1201, M5 lines 1204-1223, and M9 lines 1279-1295.",
+      "timestamp": "2026-06-30T01:29:27.127Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7feb9499d7bf1b4655736e6ce2347b5f145ea481",
+      "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+      "anchors": [
+        "ProofStory.M4",
+        "ProofStory.M5",
+        "ProofStory.M9"
+      ]
+    }
+  ],
   "createdAt": "2026-06-30T01:09:22.643Z",
-  "updatedAt": "2026-06-30T01:10:35.489Z"
+  "updatedAt": "2026-06-30T01:29:27.127Z"
 }
