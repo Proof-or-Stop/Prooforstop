@@ -104,9 +104,9 @@
           "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:36:25.883Z",
-      "endTime": "2026-06-30T22:25:37.285Z",
+      "endTime": "2026-06-30T22:41:51.872Z",
       "verificationIntent": {
         "happy": [
           {
@@ -137,33 +137,33 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
-          "note": "Smoke built a DONE checklist with a reusable supplied EvidenceHashSnapshot and printed DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>.",
-          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:37.483Z"
+          "note": "Freshness smoke now pairs the existing runtime reuse check with static production call-site assertions proving runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check capture and pass evidenceHashSnapshot.",
+          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:41:52.126Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:review-escalation-freshness-root",
           "result": "pass",
-          "note": "Existing DONE/review escalation freshness-root smoke passed without supplying the new snapshot option, preserving fallback behavior.",
-          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:37.665Z"
+          "note": "Review-escalation freshness-root smoke passed after threading snapshots, confirming fallback/recomputation behavior remains valid where no supplied snapshot is available.",
+          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:41:52.332Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js && node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
-          "note": "Smoke changed a material file after capture and checkEvidenceHashSnapshotReuse rejected the stale supplied snapshot instead of accepting it as current.",
-          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:37.841Z"
+          "note": "Freshness smoke rejected a stale supplied snapshot after dirty material drift, and delivery-check freshness smoke still proves story-owned drift remains stale across DONE consumers.",
+          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:41:52.532Z"
         }
       ]
     },

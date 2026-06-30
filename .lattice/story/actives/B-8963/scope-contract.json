@@ -11,6 +11,8 @@
     "packages/main/src/core/done-oracle.ts",
     "packages/main/src/core/review-assurance-floor.ts",
     "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/session.ts",
     "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
   ],
   "allowedCreate": [],
@@ -26,7 +28,7 @@
     "global persistent hash cache",
     "autopilot parallel execution changes"
   ],
-  "scopeChangeReason": "Initialize enforce scope from PLAN checklist after story_review found the own scope contract unreadable advisory.",
+  "scopeChangeReason": "Expand scope for verified finding B-8963:F-001: production DONE/session/lifecycle buildDoneChecklist call sites must supply the command-local evidence hash snapshot.",
   "acknowledgements": [
     {
       "actor": "codex",
@@ -57,5 +59,5 @@
     }
   ],
   "createdAt": "2026-06-30T22:11:49.717Z",
-  "updatedAt": "2026-06-30T22:28:43.648Z"
+  "updatedAt": "2026-06-30T22:36:36.892Z"
 }
