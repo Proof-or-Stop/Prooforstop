@@ -291,33 +291,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
-          "note": "MVP2 smoke proves done_closure surfaces advisory memory with memoryCompletionProof=false.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "MVP2 smoke now covers done_prepare directly: DONE prepare output includes Advisory memory considered, memoryAuthority non_authoritative, memoryGateEvidence false, and memoryCompletionProof false.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:01.291Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
-          "note": "MVP2 smoke proves final_response_check reports gateEvidence=false and does not claim completion from memory.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "MVP2 smoke proves final_response_check remains advisory-only even under runtime policy evaluation and completionClaimSource stays ParentRollupResult/current-structured-facts.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:01.647Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
-          "note": "MVP2 smoke proves completionClaimSource remains ParentRollupResult/current-structured-facts, not memory.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "MVP2 smoke verifies DONE/final-response memory output never becomes proof: memoryCompletionProof is false and gateEvidence remains false.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:01.998Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         }
       ]
     },
@@ -457,33 +457,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Full baseline verifier passed correctness on 1,000,000 records.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Full baseline verifier generated and verified exactly 1000000 records through the real MemoryFreshnessPack runtime path, with expectedIdsFoundRate=1 and current-over-superseded preference=1.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:05.177Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Full baseline verifier reported elapsedMs and peakRssBytes for report-first performance tracking.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Full baseline reports performance without enforcing the p95 target yet; observed elapsedMs about 6577 and peakRssBytes about 845447168 in this run.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:05.539Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js",
           "result": "pass",
-          "note": "Full baseline verifier rejects incomplete/non-exact profiles by requiring fullProfileExactMillion=true for the full profile.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Baseline smoke includes negative controls: candidate false-surface and superseded false-surface mutations are rejected instead of passing as manifest-only checks.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:05.884Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         }
       ]
     },
@@ -703,33 +703,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
-          "note": "Health smoke passes with configured required runtime memory classes present.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Health smoke passes on configured host-policy required runtime memory and confirms playbook_runtime_health remains readOnly and non-authoritative.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:11.419Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
-          "note": "Health smoke covers drift/staleness classification without hard-coding global required memories.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Health smoke fails when the project-configured required runtime memory class is missing, proving required memories are config-driven rather than globally hard-coded.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:11.770Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
-          "note": "MVP1 regression proves source mutation of surfaced memory marks old packs stale-relevant while unrelated churn stays stale-irrelevant.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Health smoke now includes a fake source tree with weak handler tokens only; consumer wiring drift fails unless real MemoryFreshnessPack entrypoint wiring remains present.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:12.192Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         }
       ]
     },
@@ -784,36 +784,37 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-010:happy:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "kind": "docs_check",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "MVP2 smoke verifies Codex/Claude primary and agy fallback-only policy in handoff/resume/dispatch paths.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Process and runtime fact contracts pass after final_response_check stays advisory-only and playbook runtime memory commands remain non-gate evidence.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:13.527Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
-          "kind": "manual_transcript",
-          "command": "lattice proofstory_gate_check --storyId=B-4eea --mode=warn --json",
+          "kind": "docs_check",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
-          "note": "ProofStory gate check confirms all 10 milestones are ledger-covered and no missing parent rollup remains.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "MVP2 smoke proves agy-cli remains fallback-only and requires a concrete primaryHostFailure signal before handoff_resume or host_dispatch accepts it.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:13.888Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "command": "rg -n \"programmatic primary-host probing is an adapter source\" docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
           "result": "pass",
-          "note": "Combined MVP2 plus 1M baseline proves rollout runbook can rely on small consumer fixtures and full-scale baseline before enforce claims.",
-          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "note": "Execution plan now scopes agy fallback to explicit structured host-runtime/operator/wrapper failure signals and treats programmatic probing as an adapter source, not an MVP claim.",
+          "headHash": "4c4ac3544c1d8520fa742ed2765ab9670571992a",
           "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
           "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
-          "timestamp": "2026-07-01T04:27:14.235Z"
+          "timestamp": "2026-07-01T04:47:10.430Z"
         }
       ]
     }
