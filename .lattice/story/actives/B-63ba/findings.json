@@ -5,7 +5,7 @@
       "desc": "experiments/recovery-runner/run-driver.mjs:419 and experiments/recovery-runner/parameterized-fault-profile.mjs:81-88: a dangling explicit --scenarioProfile flag fail-opens to the fixed default instead of exiting 2. Repro: tmp=$(mktemp -d) && node experiments/recovery-runner/run-driver.mjs --record \"$tmp/missing.jsonl\" --tasks foo --k 1 --scenarioProfile; observed exit 0, 77 cells enumerated, and an exclusions sidecar written. Because arg() returns undefined for a missing flag value and parseScenarioProfile treats null/undefined profile+params as no flags, malformed profile input is accepted silently, violating the storys fail-closed profile validation contract and potentially running the wrong campaign if --engine is also supplied.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T00:34:30.423Z",
@@ -18,7 +18,11 @@
         "experiments/recovery-runner/run-driver-selfcheck.mjs"
       ],
       "signatureTag": "adversarial|mjs|experiments-recovery-runner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 90de58a81af05f444d6fa8c27330f226fd0ca8d5. run-driver now detects present flags with missing values before profile parsing, so dangling --scenarioProfile exits 2 before records/sidecars. Verified original repro exits 2 with no sidecars, dangling --scenarioParams exits 2 with no sidecars, --scenarioProfile weighted without params exits 2 with no sidecars, valid weighted profile still prints B1,B1,B2, git diff --check passes, and run-driver-selfcheck reports 167 assertions passed.",
+      "resolvedAt": "2026-07-01T00:41:10.321Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
