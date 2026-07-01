@@ -37,6 +37,25 @@
       ],
       "signatureTag": "missing|ts|baseline-test-execute",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4eea:F-003",
+      "desc": "playbook_runtime_health consumer wiring checks use weak self-matching tokens for story/DONE consumers and would not catch removal of MemoryFreshnessPack wiring.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T04:35:09.246Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-003",
+      "_hash": "4fb18d9895104d776404d8f33991125aea762d3549b722ca39599b3aca3e585a",
+      "files": [
+        "packages/main/src/handlers/playbook-runtime-memory.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|playbook-runtime-health",
+      "signatureTagSource": "auto"
     }
   ]
 }
