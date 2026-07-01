@@ -1,0 +1,80 @@
+{
+  "storyId": "B-3b99",
+  "checkedAt": "2026-07-01T17:32:38.877Z",
+  "features": [
+    {
+      "feature": "Current 9 high gap_analyze mappings are the entire implementation target",
+      "covered_by": "understanding task/outcome scope current nine high-priority convergence gaps; gap_analyze observed exactly 9 high uncovered_requirement gaps; CHK-001/CHK-002/CHK-003 map the 9 high gaps and CHK-004 verifies zero high gaps.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get; checklist_get; plan_get; gap_analyze --json"
+    },
+    {
+      "feature": "Autopilot health pause/resume high gap mapping",
+      "covered_by": "CHK-001 plus plan.md CHK-001 include exact tokens health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume/health_recovered/resumed; verificationIntent covers scanner match and anti-overclaim checks.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md line 294"
+    },
+    {
+      "feature": "Done-closure authorityImpact high gap mapping to local assurance only",
+      "covered_by": "CHK-002 plus plan.md CHK-002 map old none/localOnly/requiresAuthorityReceipt vocabulary to current local assurance values; adversarial verification forbids requiresAuthorityReceipt/authorityDone/fullAuthorityDone/server-backed Authority path.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "done-closure-runbook-assistant-execution-plan.md line 238"
+    },
+    {
+      "feature": "ProofStory keyRequirements/sourceRequirementId high gap mappings",
+      "covered_by": "CHK-003 plus plan.md CHK-003 cover keyRequirements/originalIntentSnapshot.keyRequirements/sourceRequirementId; verificationIntent requires valid sourceRequirementId binding and rejects unbound milestones.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proofstory-intent-collision-execution-plan.md lines 297,328,476,503,560,573,602"
+    },
+    {
+      "feature": "End-to-end proof that high gaps are closed",
+      "covered_by": "CHK-004 plus plan.md CHK-004 require build, relevant smokes, gap_analyze, and convergence_check; verificationIntent requires zero high-priority gaps and no reliance on excluded sources.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get"
+    },
+    {
+      "feature": "Retired Authority Server revival",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding facts/constraints say Authority Server production receipt semantics are retired; decision principle preserves the boundary; CHK-002 and plan.md non-goals forbid Authority clients, receipts, productionDone claims, and server-backed paths.",
+      "source": "understanding_get; decision_get; checklist_get; plan_get"
+    },
+    {
+      "feature": "Stale B-fbb6 branch merge or Antigravity provider migration spillover",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraint says do not merge stale B-fbb6 branch contents; decision preMortem names B-fbb6 leakage and mitigation; CHK-004 adversarial intent and plan.md non-goal forbid reliance on B-fbb6.",
+      "source": "understanding_get; decision_get; checklist_get; plan_get"
+    },
+    {
+      "feature": "OMX/.omx usage",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraint says No OMX or .omx usage; plan.md CHK-004 non-goal says Do not use OMX or .omx; review performed without omx or .omx commands/reads.",
+      "source": "understanding_get; plan_get"
+    },
+    {
+      "feature": "Current medium no_test gap",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story title/description/task/outcome limit this story to current high-priority convergence gaps; gap_analyze observed the medium tests/fixtures/current-done-material-binding.json gap separately from the 9 high gaps; no checklist item proposes fixture work for the medium no_test gap.",
+      "source": "story_get; understanding_get; checklist_get; gap_analyze --json"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e9a1d4ff392a4c373c8e9a98973eea73aacac683026ad4bd6b4ec17715d304b7",
+  "openQuestions": []
+}
