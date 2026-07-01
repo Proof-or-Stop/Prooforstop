@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mr1jjulp-nb58yf, Review: rr-mr1jk20o-bqqxy9",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:26:54.083Z",
-      "endTime": null,
+      "endTime": "2026-07-01T04:26:54.563Z",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
         "docs/requirements/decisions/repro-first-story-intake-experiment.md"
@@ -39,7 +39,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"<red/probe helper checking baseline commands and memory-pack help visibility>\"",
+          "result": "pass",
+          "note": "Original red probe now passes on current HEAD: commands exist and handoff_create/done_prepare/story_advance help expose Memory Runtime Preflight or packDigest.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:54.949Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-4eea --mode=warn --json",
+          "result": "pass",
+          "note": "ProofStory gate check reports no missing MVP artifacts, no missing milestone coverage, and wouldBlockFutureDevAdmission=false.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:55.305Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-4eea --json",
+          "result": "pass",
+          "note": "Scope contract check passes with 41 changed files and 0 unacknowledged violations after explicit M5-M12 scope alignment.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:55.689Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -567,6 +602,15 @@
       "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
       "addedTitle": "M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only",
       "addedContext": "Document/operator rollout must show advisory -> warn -> registered blocking stages, Codex+Claude primary 3x2 digest parity, and agy fallback only when primary host unavailable/quota-limited."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:54.563Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
     }
   ]
 }
