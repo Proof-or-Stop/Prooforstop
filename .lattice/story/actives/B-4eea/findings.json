@@ -157,6 +157,25 @@
       ],
       "signatureTag": "missing|ts|mutating-command-readonly",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-4eea:F-008",
+      "desc": "verifyPlaybookRuntimeBaseline parses gold-queries.json but does not compare it with manifest.goldDigest, so tampered easier gold queries can still produce status pass.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T04:56:28.987Z",
+      "reviewRound": "2026-07-01T04:47:47.850Z",
+      "reviewRunId": "B-4eea:RR-009",
+      "_hash": "86b876aa07fb99689df3945510b5a3cf20fbdb896f89e6910e9621da5914083c",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|baseline-gold-digest",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
