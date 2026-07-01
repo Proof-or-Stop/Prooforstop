@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-01T02:31:20.795Z",
       "reviewRunId": "B-0b76:RR-007",
       "_hash": "43ce917286279c93b3dbe72ee57cfe49dcbcd97c2f994c8feb08eec0431ea45a"
+    },
+    {
+      "id": "B-0b76:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-attest @ f17c76f0: reviewed make-fig-gate-ablation.mjs (readRecordsWithStats + readRecords thin wrapper + conflict-guard) and make-fig-gate-ablation-selfcheck.mjs (self-spawn exit-1 test). No dead code, no unused imports, no new deps. Conflict guard correctly uses !== on adjudicatedOutcome (null-safe per data contract). Self-spawn uses FORCE_FAIL guard to prevent grandchild recursion. All 43 selfcheck assertions pass; FIG_SELFCHECK_FORCE_FAIL=1 exits 1; run-selfchecks 8/8 pass.",
+      "createdAt": "2026-07-01T02:33:54.296Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-006",
+      "_hash": "9c56b15680150c0187bc720a8ff68af8ca674cacc53ba13f1b37b1330b9703e4"
     }
   ]
 }
