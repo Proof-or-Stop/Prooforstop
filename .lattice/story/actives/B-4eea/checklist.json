@@ -367,9 +367,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:27:02.438Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:27:02.873Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke generated/verified exactly 1,000,000 deterministic records.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:03.231Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke reports fullProfileExactMillion=true and deterministic verification success.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:03.577Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke exercises large corpus shape without relying on gateEvidence or mutable runtime memory proof claims.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:03.931Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -739,6 +774,15 @@
       "timestamp": "2026-07-01T04:27:00.900Z",
       "phase": "DEV",
       "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:02.873Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
       "action": "update",
       "from": "in_progress",
       "to": "done",
