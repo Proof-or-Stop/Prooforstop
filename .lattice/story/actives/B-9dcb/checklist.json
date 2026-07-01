@@ -41,7 +41,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "In a wrapper-root project with a custom storyDir, review_run_start signs material/story hashes that exclude the storyDir; plain repos unchanged.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureReviewRunSnapshot(root, metadataRoot) excludes the custom storyDir from materialHash/storyFilesHash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default metadataRoot=projectRoot keeps plain-repo snapshot byte-identical",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "diagnoseReviewRunSnapshot also threaded so diagnostic materialHash matches capture",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
