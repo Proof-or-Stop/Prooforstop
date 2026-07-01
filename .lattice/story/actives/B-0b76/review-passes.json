@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-01T04:59:40.978Z",
       "reviewRunId": "B-0b76:RR-011",
       "_hash": "fd284599b4cd8098730bfbdb0edaec9da8e5870031ddd56d3853985f670b91ac"
+    },
+    {
+      "id": "B-0b76:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 re-attest. Diff is metadata + new generator files only (make-fig-gate-ablation.mjs, make-fig-gate-ablation-selfcheck.mjs, run-selfchecks.mjs +1 line, README.md update). No concept deletion or replacement detected. Generator counts adjudicatedOutcome only (confirmed in source + selfcheck assertions). Conflict guard hard-throws on same-cell differing adjudicatedOutcome (confirmed). Dedup keep-first on agreeing duplicates does not throw (confirmed). Zero concept residue to check. No blocker.",
+      "createdAt": "2026-07-01T05:16:35.739Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-013",
+      "_hash": "a73dfad2817fb92a55294829c469b61a36ef29abaa4d50ec9558cd574cbf3173"
     }
   ]
 }
