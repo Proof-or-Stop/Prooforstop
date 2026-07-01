@@ -4,7 +4,7 @@
  * @task B-3b99
  * @checklist CHK-002
  * @title Smoke canonical story local assurance export
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Smoke-backed evidence that canonical story export keeps local DONE separate

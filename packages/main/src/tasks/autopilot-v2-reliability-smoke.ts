@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
  * @task B-3b99
  * @checklist CHK-001
  * @title Smoke provider health pause and resume event mapping
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Smoke-backed evidence for Autopilot event tokens health_probe,

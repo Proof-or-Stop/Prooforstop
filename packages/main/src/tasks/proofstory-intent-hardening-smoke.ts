@@ -5,7 +5,7 @@
  * @task B-3b99
  * @checklist CHK-003
  * @title Smoke ProofStory key requirement and source requirement binding
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Smoke-backed evidence for legacy spellings keyRequirements,

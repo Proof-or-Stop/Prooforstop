@@ -4,7 +4,7 @@
  * @task B-3b99
  * @checklist CHK-002
  * @title Smoke local assurance authorityImpact degradation mapping
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Smoke-backed evidence that the retired authorityImpact:
