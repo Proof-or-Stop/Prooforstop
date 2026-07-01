@@ -1,0 +1,23 @@
+{
+  "storyId": "B-2b08",
+  "name": "clarify-done-version-bump-skip-runtime-scope",
+  "title": "Clarify DONE version-bump skip reason for non-runtime code changes",
+  "description": "Fix the misleading DONE post-merge version-bump skip wording exposed by B-63ba. The current behavior correctly limits CLI package version bumps to watched CLI/runtime inputs, but the visible skip line says no material code change even when non-runtime experiment code changed. Clarify the runtime-input boundary in code, tests, and lifecycle docs without expanding the CLI version policy arbitrarily.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-07-01T02:37:35.853Z",
+  "startedAt": "2026-07-01T02:37:35.853Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-01T02:37:35.853Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}
