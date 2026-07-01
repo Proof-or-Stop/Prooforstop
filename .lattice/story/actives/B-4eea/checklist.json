@@ -6,7 +6,567 @@
       "context": "Probe: rp-mr1jjulp-nb58yf, Review: rr-mr1jk20o-bqqxy9",
       "status": "pending",
       "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "The story transcript shows pre-story red/repro/spike evidence and a full M5-M12 milestone ledger before DEV begins.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pre-story repro review and confirmed spike are recorded before development starts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The story retains all M5-M12 derived checklist refs and does not collapse to one generic fix item.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Candidate evidence remains evidence-candidate and is not treated as verificationEvidence or DONE proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "M5 wire handoff and host entry runtime memory consumers",
+      "context": "Handoff and host dispatch must consume the shared MemoryFreshnessPack, show packDigest/top IDs, surface Codex+Claude primary host policy, and keep agy-cli fallback-only with concrete fallback reasons.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "handoff_create / handoff_resume output includes Memory Runtime Preflight with packDigest, host policy hits, and agy fallback status only when a primary host failure is present.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex/Claude primary host policy surfaces in handoff output with packDigest and top hit IDs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "agy fallback is rendered only with unavailable/quota/timed-out/substituted primary-host status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "handoff output never treats memory pack as gate evidence or release readiness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M6 wire story intake and lifecycle runtime memory consumers",
+      "context": "story_create/repro-first intake and story_advance must surface phase-appropriate active playbooks without letting unregistered memory content create blocking policy rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "story_create and story_advance show advisory Memory Runtime Preflight for relevant code-verifiable/repro-first/lifecycle lessons while non-code stories avoid irrelevant blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/core/transition-orchestrator.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Code-verifiable story surfaces repro-first playbook guidance in story intake/lifecycle output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document-only story does not receive irrelevant blocking memory guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unregistered active playbook content cannot set or escalate blocking lifecycle policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M7 wire DONE closure and final-response advisory memory consumers",
+      "context": "done_prepare/done_closure/final response check must show active intent-totality and delivery lessons, but full-completion claims must be checked against ParentRollupResult/current structured facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "done_prepare / done_closure output says advisory memory considered and points full-roadmap claims to ParentRollupResult instead of claiming memory proved DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE closure surfaces parent-roadmap totality lesson and delivery lesson when relevant.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial parent rollup cannot be rendered as full-roadmap complete.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE closure still relies on structured DONE/ParentRollup evidence, not memory pack text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M9 add deterministic million-record playbook memory baseline generator",
+      "context": "Add small and full profile generator with seeded manifest, stable digest, gold queries, corrupt-row fixtures, gitignored runtime output, and materialHash-safe defaults.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "memory_playbook_baseline_generate reports exactly 1,000,000 records in full profile, stable manifest digest, and project-local output safety.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          ".gitignore"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-memory-baseline.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full profile generates exactly 1,000,000 deterministic records and a manifest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Same seed yields same digest; corrupt rows are included for reader skip tests.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated payloads do not dirty materialHash or story evidence by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M10 add million-record correctness and performance verifier",
+      "context": "Verifier must check recall@10, current-over-superseded preference, false-surface rates, stale detection, line cap, peak memory budget, and report-first performance metrics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "memory_playbook_baseline_verify passes correctness thresholds and prints latency/RSS/index timing without enforcing premature performance budget failure.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-memory-baseline.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Correctness thresholds pass for small and full profiles.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Performance is recorded but report-first unless rollout config requires enforcement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Line cap and stale detection still hold under generated large corpus.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "P3-enforce add registered warn/enforce rollout policy after baseline correctness",
+      "context": "Warn/enforce behavior must only activate for registered critical consumers after 1M correctness baseline passes; advisory remains default and memory stays non-authoritative.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "Rollout config can show advisory, warn, or registered blocking state; default output stays advisory and says gateEvidence:false.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registered critical consumer can warn/enforce only after baseline correctness evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default mode remains advisory and non-authoritative.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Memory/playbook content alone cannot self-register as blocking policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M8 add capture-or-noop end-of-work memory decision",
+      "context": "Add a lightweight command/reminder that records captured, no-reusable-lesson, or defer-with-reason without auto-promoting story candidates to project/global memory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "At end of work, playbook memory decision output shows captured/no-reusable-lesson/deferred state and keeps candidates non-authoritative.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Captured decision creates a story-scoped candidate/reminder without gate authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No-op decision is accepted only with a reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No automatic promotion to project/global active memory occurs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "M11 add project-configurable playbook runtime health and drift scanner",
+      "context": "Add playbook_runtime_health or dev_memory_health checking configured required memory classes, active playbooks, deprecated current brand guidance, consumer wiring, and baseline availability.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "playbook_runtime_health reports PASS on clean repo and explains missing configured runtime memory, consumer drift, or deprecated guidance failures.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Health passes with configured host-policy/truth-first/parent-roadmap memory classes present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Configured required memory classes are project-local config, not global hard-coded requirements.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Health fails if session/handoff/story/DONE consumers stop including runtime pack.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only",
+      "context": "Document/operator rollout must show advisory -> warn -> registered blocking stages, Codex+Claude primary 3x2 digest parity, and agy fallback only when primary host unavailable/quota-limited.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "Final verification table shows M5-M12 complete, Codex/Claude digest parity or stale classification, agy fallback-only semantics, and no memory-as-evidence confusion.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex CLI and Claude Code CLI agree on pack digest/top hit IDs or report explicit stale drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "agy-cli fallback path reports the concrete primary-host failure signal.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No rollout or verification text treats memory as proof evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T03:59:16.385Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M5 wire handoff and host entry runtime memory consumers",
+      "addedContext": "Handoff and host dispatch must consume the shared MemoryFreshnessPack, show packDigest/top IDs, surface Codex+Claude primary host policy, and keep agy-cli fallback-only with concrete fallback reasons."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:16.690Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M6 wire story intake and lifecycle runtime memory consumers",
+      "addedContext": "story_create/repro-first intake and story_advance must surface phase-appropriate active playbooks without letting unregistered memory content create blocking policy rows."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:16.981Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M7 wire DONE closure and final-response advisory memory consumers",
+      "addedContext": "done_prepare/done_closure/final response check must show active intent-totality and delivery lessons, but full-completion claims must be checked against ParentRollupResult/current structured facts."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.270Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M9 add deterministic million-record playbook memory baseline generator",
+      "addedContext": "Add small and full profile generator with seeded manifest, stable digest, gold queries, corrupt-row fixtures, gitignored runtime output, and materialHash-safe defaults."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.599Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M10 add million-record correctness and performance verifier",
+      "addedContext": "Verifier must check recall@10, current-over-superseded preference, false-surface rates, stale detection, line cap, peak memory budget, and report-first performance metrics."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.901Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "P3-enforce add registered warn/enforce rollout policy after baseline correctness",
+      "addedContext": "Warn/enforce behavior must only activate for registered critical consumers after 1M correctness baseline passes; advisory remains default and memory stays non-authoritative."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.189Z",
+      "phase": "PLAN",
+      "itemId": "CHK-008",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M8 add capture-or-noop end-of-work memory decision",
+      "addedContext": "Add a lightweight command/reminder that records captured, no-reusable-lesson, or defer-with-reason without auto-promoting story candidates to project/global memory."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.479Z",
+      "phase": "PLAN",
+      "itemId": "CHK-009",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M11 add project-configurable playbook runtime health and drift scanner",
+      "addedContext": "Add playbook_runtime_health or dev_memory_health checking configured required memory classes, active playbooks, deprecated current brand guidance, consumer wiring, and baseline availability."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.772Z",
+      "phase": "PLAN",
+      "itemId": "CHK-010",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only",
+      "addedContext": "Document/operator rollout must show advisory -> warn -> registered blocking stages, Codex+Claude primary 3x2 digest parity, and agy fallback only when primary host unavailable/quota-limited."
     }
   ]
 }
