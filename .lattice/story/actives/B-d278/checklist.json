@@ -88,9 +88,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:08.797Z",
       "userSees": "parent-roadmap large-ledger G05 baseline smoke PASS",
       "files": {
         "modify": [
@@ -127,7 +127,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js",
+          "result": "pass",
+          "note": "G05 smoke passed; it asserts 15 required rows, 12 evidence-closed rows, 3 visible deferredRows, partial_parent_done, and no-full-roadmap-claim.",
+          "headHash": "70d55896e6a0b88ba1c432002481fbc071947904",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:09.142Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "G05 and totality smokes assert valid deferrals carry human approval, revisit conditions, non-runtime statements, and remain visible in deferredRows.",
+          "headHash": "70d55896e6a0b88ba1c432002481fbc071947904",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:09.468Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "Smokes assert human-approved deferrals do not count as implemented runtime delivery and full-roadmap wording is blocked while deferrals remain.",
+          "headHash": "70d55896e6a0b88ba1c432002481fbc071947904",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:09.887Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
