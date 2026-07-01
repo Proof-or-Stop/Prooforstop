@@ -1,0 +1,49 @@
+{
+  "storyId": "B-b596",
+  "checkedAt": "2026-07-01T01:06:17.261Z",
+  "headHash": "29fb41b2fe173addbd63fb12bd63e1d110caeabe",
+  "materialHash": "6fda9715b936cb4d4cb7f939725934eafe09d4f89e412b6601e9f08ed81a9643",
+  "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+  "reviewRound": "2026-07-01T01:00:35.411Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "promise": "G01 smoke command is documented and runnable.",
+      "status": "verified",
+      "verifiedBy": "manual doc grep plus real command execution",
+      "evidence": "Doc lines 76-85 document the G01-only implemented slice and command node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js. Fresh delivery review run of that command exited 0 and printed parent-roadmap large-ledger G01 baseline smoke PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "promise": "G01-only scope is documented; G02-G10 and the full 10x15 baseline remain future work.",
+      "status": "verified",
+      "verifiedBy": "manual doc grep",
+      "evidence": "Doc line 76 says Current implemented slice: G01 only and the full 10x15 baseline is not complete. Lines 99 and 107 mark G02 and G10 as Future / not implemented; lines 252-256 state B-b596 implements G01 only and makes no full-baseline completion claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "promise": "Local G01 proof does not claim Authority, fullAuthority, production, or independent two-host completion.",
+      "status": "verified",
+      "verifiedBy": "manual doc grep plus vocabulary guard smoke",
+      "evidence": "Doc lines 89-90 say the G01 smoke guards that local proof does not become Authority, fullAuthority, production, or independent two-host completion evidence. Lines 258-261 state the baseline does not require or claim remote hosts, Authority receipts, fullAuthority receipts, production execution, or independent two-host evidence. node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exited 0 with retired authority vocabulary guard PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh delivery review command: node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js. Exit code 0. Stdout: parent-roadmap large-ledger G01 baseline smoke PASS. Source assertions cover exactly 15 generated G01 rows, exactly 15 evaluated rows, exactly 15 closed rows, summaryClass full_roadmap_complete, zero open/stale/deferred/invalid/migration rows, and no elevated claim terms in the ledger, rollup, or claim decision."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh delivery review checks: node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js exited 0 with parent-roadmap large-ledger G01 baseline smoke PASS; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exited 0 with retired authority vocabulary guard PASS. Docs grep confirmed command documentation, G01-only scope, G02-G10 future status, no full-baseline completion claim, and no Authority/fullAuthority/production/two-host overclaim. Edge coverage exists in the G01 smoke through the 14-generated-row negative guard, which verifies a missing required row remains open/invalid and blocks full completion wording."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: real-machine test exists via the documented G01 smoke command and the authority vocabulary guard; edge coverage exists via the 14-row negative guard for missing milestone coverage; unresolved todos=false for G01. Limitations are explicit: G02-G10 and the full 10x15 baseline remain future work."
+  },
+  "_hash": "1d740c12a678dfbd16eabb5782b59e20a8800cd86effbf6f23069e3150ec6891"
+}

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-b596",
+  "state": "confirmed",
+  "ledgerHash": "sha256:324b44c12e76cd2ebeed2fae26a1cee464ace6ec02537ab90d8136c64e3133ce",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-G01",
+      "claim": "Create a deterministic G01 positive-control ledger with exactly 15 generated milestone rows.",
+      "doneMeans": "The smoke constructs exactly 15 G01 rows and fails if the count changes.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-G01",
+      "claim": "Prove the all-closed positive control reaches full_roadmap_complete.",
+      "doneMeans": "Running the G01 smoke reports 15 total rows, 15 closed rows, zero open/stale/deferred/invalid/migration rows, and full_roadmap_complete.",
+      "requiredEvidence": [
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-G01",
+      "claim": "Guard against false positive completion when the ledger is not exactly 15 rows.",
+      "doneMeans": "The smoke contains a negative assertion that the baseline cannot pass with fewer than exactly 15 generated rows.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-G01",
+      "claim": "Prevent local G01 proof from becoming an Authority, production, fullAuthority, or two-host claim.",
+      "doneMeans": "Smoke and documentation explicitly reject Authority, production, fullAuthority, and independent two-host completion claims.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_review"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-G01",
+      "claim": "Bind G01 to a deterministic validation/documentation path while keeping G02-G10 future.",
+      "doneMeans": "The baseline document names G01 as implemented, provides the runnable command, and keeps G02-G10 marked future without claiming the full 10x15 baseline is complete.",
+      "requiredEvidence": [
+        "docs_review",
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-01T00:32:51.578Z",
+  "updatedAt": "2026-07-01T00:32:59.179Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-G01",
+    "acceptedInterpretationHash": "sha256:e03a9155f876108f6b815727648a10c79bd9ea4e15658c47005ca50a969526c0",
+    "acceptedAt": "2026-07-01T00:32:59.179Z"
+  }
+}

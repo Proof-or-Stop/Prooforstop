@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-b596",
+  "id": "IC-G01",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement only G01, the first positive-control group of the 10x15 UDM no-false-DONE baseline. G01 must prove one 15-row ledger can close honestly, but it must not claim G02-G10, the full 10x15 baseline, Authority/fullAuthority, production readiness, or independent two-host completion.",
+  "acceptedInterpretationHash": "sha256:e03a9155f876108f6b815727648a10c79bd9ea4e15658c47005ca50a969526c0",
+  "notes": "Potential ambiguity in \"first group\" is resolved as G01 only. This story intentionally stays narrow so it can validate ProofStory gates before later groups are implemented.",
+  "ledgerHashBeforeDecision": "sha256:324b44c12e76cd2ebeed2fae26a1cee464ace6ec02537ab90d8136c64e3133ce",
+  "confirmedLedgerHash": "sha256:324b44c12e76cd2ebeed2fae26a1cee464ace6ec02537ab90d8136c64e3133ce",
+  "createdAt": "2026-07-01T00:32:59.178Z",
+  "updatedAt": "2026-07-01T00:32:59.178Z"
+}

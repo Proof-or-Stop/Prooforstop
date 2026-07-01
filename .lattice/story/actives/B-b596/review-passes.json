@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-b596:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md states G01 implemented only and G02-G10 future (lines 4, 76, 98-107), states the full 10x15 baseline is not complete (line 76), gives a direct runnable command after build (lines 78-82), and uses production/Authority/fullAuthority/two-host only as overclaim boundaries or non-goals rather than completion claims (lines 89-90, 120, 142, 160, 207, 226, 257-259).",
+      "createdAt": "2026-07-01T00:41:05.996Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-003",
+      "_hash": "391f8c2cdd416c48e7547b457d157985c822649f581b45cee40000108a2beab2"
+    },
+    {
+      "id": "B-b596:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: frozen intent is explicitly G01 only; milestone ledger M1-M5 covers exactly the G01 15-row positive control, negative row-count guard, claim boundary, and docs/validation boundary; ProofStory contract AC-G01 binds only CHK-001/CHK-002 and M1-M5 and says G02-G10/full 10x15 remain out of scope. Implementation/doc lines match that boundary: the smoke generates exactly 15 G01 rows, asserts full_roadmap_complete only for the local G01 ledger, rejects 14 generated rows, and guards elevated Authority/fullAuthority/production/two-host claim terms; the doc marks G01 implemented, G02-G10 future, and the full 10x15 baseline incomplete. No concept overclaim found.",
+      "createdAt": "2026-07-01T00:41:22.816Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-001",
+      "_hash": "af6c5cc65b7c992e0a27682b928734e96f7ccc934147b97fadadf911f709fa1d"
+    },
+    {
+      "id": "B-b596:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001 and CHK-002 verificationEvidence against current files. npm --prefix packages/main run build passed; G01 smoke passed and asserts 15-row positive control, 14-row missing_required_row negative guard, no elevated Authority/fullAuthority/production/two-host claims; retired vocabulary guard passed; docs keep G01 only with G02-G10 future and no full 10x15 completion claim. No test-coverage blocker.",
+      "createdAt": "2026-07-01T00:42:24.489Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-004",
+      "_hash": "e6f7e27b277aa1bbeba1e62e315a4fde10d0c3b7d9159b309db6e9b5b100d34e"
+    },
+    {
+      "id": "B-b596:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts and the updated baseline decision doc for code quality and maintainability. The smoke is deterministic, focused, and claim-bounded; the only issue found is low-severity stale Non-Goals wording in the doc, with no blocking implementation concern.",
+      "createdAt": "2026-07-01T00:42:31.219Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-002",
+      "_hash": "1546548c9a92f7c75e18e92e1e7e60fdafa1c22ddd27a097f5973878a0b4ccb1"
+    },
+    {
+      "id": "B-b596:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs boundary PASS. Reviewed docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:4,76-94,98-107,183-207,254-261. The document now states B-b596 implements G01 only, keeps the full 10x15/G02-G10 baseline as future work, and frames Authority/fullAuthority/production/two-host language only as blocked overclaim or non-goal, so no docs overclaim remains after F-001.",
+      "createdAt": "2026-07-01T00:47:07.230Z",
+      "reviewRound": "2026-07-01T00:45:13.779Z",
+      "reviewRunId": "B-b596:RR-006",
+      "_hash": "a37f9599731289abdc24ef50e6ee4396505afdb2a66fa979da1a6362ac0ea38a"
+    },
+    {
+      "id": "B-b596:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001 and CHK-002 coverage after B-b596:F-001 doc fix. npm --prefix packages/main run build passed; G01 smoke passed and its source asserts exactly 15 closed/fresh rows, a 14-row missing_required_row negative guard, and no elevated Authority/fullAuthority/production/two-host claim terms. retired-authority-vocabulary guard passed. Doc boundary evidence keeps G01 only, names the runnable smoke command, says the full 10x15 baseline is not complete, and keeps G02-G10 future. No test-coverage blocker.",
+      "createdAt": "2026-07-01T00:47:44.219Z",
+      "reviewRound": "2026-07-01T00:45:13.779Z",
+      "reviewRunId": "B-b596:RR-005",
+      "_hash": "71ad41780e4b8e4dc2bb27434ec70ff27f9f52e6ad092a66c2a68f86524db52c"
+    },
+    {
+      "id": "B-b596:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass after B-b596:F-001 fix. docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:76 states G01 only and full 10x15 not complete; lines 98-107 keep G02-G10 future; lines 254-260 deny full-baseline, Authority, fullAuthority, production, and independent two-host claims. packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts:12-20 scopes the task to local G01; lines 98-115 build exactly 15 G01 rows; lines 190-218 reject a 14-row ledger. Verified command: node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js -> PASS. No concept findings.",
+      "createdAt": "2026-07-01T00:47:48.811Z",
+      "reviewRound": "2026-07-01T00:45:13.779Z",
+      "reviewRunId": "B-b596:RR-008",
+      "_hash": "c1b63f33322a85d253856b7e72a2ab107d5f54078d742869094e14446efc3132"
+    },
+    {
+      "id": "B-b596:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed after inspecting the G01 smoke and baseline doc. F-001 Non-Goals contradiction is resolved: docs now state B-b596 implements G01 only, G02-G10/full 10x15 remain future, and no Authority/fullAuthority/production/two-host claim is made. Focused smoke passed, TypeScript noEmit passed, retired vocabulary guard passed, and diff whitespace check passed.",
+      "createdAt": "2026-07-01T00:48:19.142Z",
+      "reviewRound": "2026-07-01T00:45:13.779Z",
+      "reviewRunId": "B-b596:RR-007",
+      "_hash": "fa3ebb3c73b9cb81d7d6cfd8a6164868bf150f891728ca879d30f7fbbab07f8d"
+    },
+    {
+      "id": "B-b596:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS after main merge. B-b596 doc explicitly scopes implementation to G01 only and leaves G02-G10/full 10x15 future work: docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:4,76,98-106,254-260. It also states the G01 smoke guards against Authority/fullAuthority/production/independent two-host overclaim: docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:86-90,207,226. Merged parent-roadmap plan remains local/read-only/claim-bounded and not production/Authority/global gate: docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:9-13,32-33,615-640. Merged proof-admissibility plan keeps production/Authority projection external/future and local CLI productionDone=false: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:47-53,228-236,567-570,815-818. No docs blocker found.",
+      "createdAt": "2026-07-01T01:02:17.343Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-010",
+      "_hash": "d38a55ab3bf36cd31cbaa648bb2b296aa7ede0526131106fc89c53092d2a6148"
+    },
+    {
+      "id": "B-b596:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current HEAD 5579e6c is metadata-only since validation material 6fda9715/storyFiles dbec133; lifecycle_check reports latest validate PASS at 2026-07-01T00:56:40.676 with 6/6 verification intent coverage, evidence freshness PASS, and DONE-required validation PASS at 2026-07-01T00:57:36.603. G01 smoke command node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js was rerun and printed parent-roadmap large-ledger G01 baseline smoke PASS. live_smoke_transcript reports an evidence/live-smoke-transcript.json artifact present, delivery_context_pack reports evidence/delivery-context-pack.json context with validation PASS, and the merged parent-roadmap/proof-admissibility docs only restate bounded local closure/non-production semantics; they do not add a new B-b596 G01 verification requirement or invalidate the recorded G01 evidence.",
+      "createdAt": "2026-07-01T01:03:11.477Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-009",
+      "_hash": "2d9ba9b4a41fb21b47f80f4dbfce8aa354735fc2ffe49d4455ef33bae293a88f"
+    },
+    {
+      "id": "B-b596:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Concept re-review confirms the main merge and delivery-context-pack scope acknowledgement preserve B-b596 scope. The B-b596 baseline doc states G01 only and full 10x15 not complete at docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:76 and :254-260, keeps G02-G10 future at :99-107, and rejects Authority/fullAuthority/production/two-host evidence at :89-90 and :259-260. The scope acknowledgement says delivery-context-pack evidence does not expand product scope beyond the G01 baseline smoke at .lattice/story/actives/B-b596/scope-contract.json:25 and :29. Main-merged docs remain bounded local CLI/diagnostic claims, not production, retired Authority, external runtime, or global hard-gate claims at parent-roadmap-intent-totality-gate-execution-plan.md:10-13, :33, :639-640 and proof-admissibility-hardening-execution-plan.md:49-50, :815. The smoke source remains G01-only with exactly 15 rows, local claim boundary, disallowed elevated claim vocabulary, positive 15-row full_roadmap_complete control, and 14-row negative guard at packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts:12-20, :46-53, :159-173, :190-204.",
+      "createdAt": "2026-07-01T01:03:19.753Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-012",
+      "_hash": "b57ed89b3534fc4a33d34c2aa0da1ea6f4b1abd9339db9091f965fe5efbe85e9"
+    },
+    {
+      "id": "B-b596:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Re-review after main merge and delivery-context-pack scope acknowledgement. No business-code drift: main...HEAD changes no packages/main/src files except packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts, and packages/main/src/core/parent-roadmap-totality.ts has no diff. G01 smoke remains focused: deterministic local G01-only 15-row positive control, 14-row negative guard, and no Authority/fullAuthority/production/two-host overclaim; node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js passed; npm --prefix packages/main exec -- tsc -p packages/main/tsconfig.json --noEmit passed; retired-authority vocabulary guard passed. Scope acknowledgement is understandable and non-expanding: it only acknowledges .lattice/story/actives/B-b596/evidence/delivery-context-pack.json as TEST/DONE delivery-review context and states it does not expand beyond the G01 baseline smoke. Merged docs do not contradict B-b596: parent-roadmap and proof-admissibility docs keep local/read-only/non-production/non-Authority boundaries, while the baseline doc states G01 only and G02-G10/full 10x15 remain future.",
+      "createdAt": "2026-07-01T01:04:04.493Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-011",
+      "_hash": "4447c3f08c036c6250f260acda43752f4c1869e9d4f18c6f76bcca656c0ced76"
+    }
+  ]
+}

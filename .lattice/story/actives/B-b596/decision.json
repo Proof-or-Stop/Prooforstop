@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Implement the smallest useful baseline slice first.",
+    "Keep positive-control evidence deterministic and local.",
+    "Never overclaim local proof as Authority, production, fullAuthority, or independent two-host proof.",
+    "Leave G02-G10 explicitly future until each has its own negative-control implementation."
+  ],
+  "drivers": [
+    "The user asked to start the first group, not all ten groups.",
+    "UDM no-false-DONE baselines need stable machine tests rather than prose-only claims.",
+    "The repository already has parent-roadmap evaluator primitives that should be reused."
+  ],
+  "options": [
+    {
+      "name": "A: Implement only G01 positive-control smoke now",
+      "pros": [
+        "Matches the user request to start the first group",
+        "Keeps scope reviewable and avoids false completion of G02-G10",
+        "Creates a reusable structure for later groups"
+      ],
+      "cons": [
+        "Does not yet prove negative controls G02-G10",
+        "Requires clear documentation that full 10x15 is not complete"
+      ]
+    },
+    {
+      "name": "B: Implement all G01-G10 groups now",
+      "pros": [
+        "Would complete the whole baseline sooner",
+        "Would provide stronger regression coverage immediately"
+      ],
+      "cons": [
+        "Too broad for the current first-group request",
+        "Higher risk of mixing positive and negative controls without focused review",
+        "Could recreate the false-DONE problem by claiming all groups at once"
+      ]
+    },
+    {
+      "name": "C: Keep only the Markdown spec without code",
+      "pros": [
+        "Lowest implementation risk",
+        "Preserves the design for later"
+      ],
+      "cons": [
+        "Does not give UDM a runnable baseline starting point",
+        "Does not prove the positive-control parent rollup path"
+      ]
+    }
+  ],
+  "chosen": "A: Implement only G01 positive-control smoke now",
+  "rationale": "G01 is the correct first implementation slice because it proves the happy positive-control path while preserving clear future work boundaries for G02-G10.",
+  "preMortem": [
+    {
+      "scenario": "The story accidentally claims the full 10x15 baseline is complete.",
+      "trigger": "Documentation or summary says baseline complete instead of G01 complete.",
+      "consequence": "The user may believe G02-G10 negative controls exist when they do not.",
+      "mitigation": "Update docs and summary to say only G01 is implemented and G02-G10 remain future groups."
+    },
+    {
+      "scenario": "The smoke passes with fewer than 15 rows.",
+      "trigger": "Generator or assertion only checks rollup class and misses row count.",
+      "consequence": "Large-ledger omission remains untested.",
+      "mitigation": "Assert exactly 15 rows, 15 closed rows, and zero open/stale/deferred/invalid/migration rows."
+    },
+    {
+      "scenario": "The positive-control smoke overclaims local proof as production or Authority completion.",
+      "trigger": "The synthetic ledger includes broad claim fields or unchecked completion flags.",
+      "consequence": "The baseline weakens claim-boundary discipline.",
+      "mitigation": "Assert authorityDone, fullAuthorityDone, productionDone, and independent two-host claims remain false or absent."
+    }
+  ],
+  "timestamp": "2026-07-01T00:27:18.914Z"
+}

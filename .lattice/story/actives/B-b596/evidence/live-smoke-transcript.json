@@ -1,0 +1,20 @@
+{
+  "storyId": "B-b596",
+  "expected": "Terminal shows parent-roadmap-large-ledger G01 baseline passed: 15 total rows, 15 closed rows, full_roadmap_complete, and no Authority or production overclaim.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+    "exitCode": 0,
+    "stdout": "parent-roadmap large-ledger G01 baseline smoke PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-01T00:53:53.285Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "2c1b8b6cf3ba2612dfebb037950aa8bec76ae521",
+  "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67"
+}
