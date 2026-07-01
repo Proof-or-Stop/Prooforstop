@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Make G02 an independent executable baseline group, not a comment on G01.",
+    "Preserve no-false-DONE boundaries: one missing required row must remain visible and block full completion.",
+    "Keep the slice narrow: add one smoke and update only the baseline document.",
+    "Separate local synthetic evidence from rollout, Authority, production, or multi-host claims."
+  ],
+  "drivers": [
+    "User wants the second group of the 10x15 baseline to continue after G01.",
+    "The baseline must become a reliable UDM regression guard against fake DONE claims.",
+    "Existing evaluator behavior should be validated, not broadened, for this slice."
+  ],
+  "options": [
+    {
+      "name": "A: standalone G02 missing-row smoke plus doc boundary update",
+      "pros": [
+        "Provides independent G02 executable evidence.",
+        "Keeps implementation narrow and reviewable.",
+        "Matches the documented G02 row in the baseline matrix."
+      ],
+      "cons": [
+        "Does not complete G03-G10 yet.",
+        "Adds one more task-level smoke to maintain."
+      ]
+    },
+    {
+      "name": "B: treat G01 truncated-row guard as G02 coverage",
+      "pros": [
+        "No new code would be needed.",
+        "Fastest short-term path."
+      ],
+      "cons": [
+        "Would falsely count G02 as implemented without a G02 ledger identity.",
+        "Does not create a runnable G02 command or documentation boundary."
+      ]
+    },
+    {
+      "name": "C: implement all remaining G02-G10 groups now",
+      "pros": [
+        "Moves the full baseline further in one large slice.",
+        "Could reduce future orchestration steps."
+      ],
+      "cons": [
+        "Too broad for this story and increases false-DONE risk.",
+        "Would violate the current request to continue the second group only."
+      ]
+    }
+  ],
+  "chosen": "A: standalone G02 missing-row smoke plus doc boundary update",
+  "rationale": "Choose the standalone G02 smoke because it creates fresh machine evidence for the exact second baseline group while keeping the scope small enough to audit.",
+  "preMortem": [
+    {
+      "scenario": "G02 is marked implemented by reusing G01 negative guard only.",
+      "trigger": "Reviewer accepts same-code evidence without a G02 ledger identity.",
+      "consequence": "The 10x15 progress table overstates delivered baseline coverage.",
+      "mitigation": "Create a separate G02 smoke file, command, ledger id, row ids, and doc row."
+    },
+    {
+      "scenario": "The document claims full 10x15 completion after G02.",
+      "trigger": "Progress wording is broadened from G01-G02 implemented to all groups implemented.",
+      "consequence": "UDM baseline evidence becomes a false DONE example itself.",
+      "mitigation": "Assert and grep that G03-G10 remain future and full 10x15 remains incomplete."
+    },
+    {
+      "scenario": "Local synthetic proof is worded as production or Authority readiness.",
+      "trigger": "Doc or smoke claim boundary uses elevated rollout vocabulary.",
+      "consequence": "Users could mistake a local baseline for external conformance or two-host assurance.",
+      "mitigation": "Keep no-elevated-claim assertions in the smoke and run the retired-authority vocabulary guard."
+    }
+  ],
+  "timestamp": "2026-07-01T01:40:23.347Z"
+}

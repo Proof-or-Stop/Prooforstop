@@ -4,7 +4,7 @@
   "title": "Implement G02 missing-row negative-control milestone ledger baseline",
   "description": "Implement the second group of the UDM no-false-DONE 10x15 baseline. G02 is the missing-row negative control: exactly 15 required row IDs exist in the parent inventory, 14 rows are closed with fresh evidence, 1 required row is absent, and the evaluator must refuse any full roadmap completion claim. This story must update documentation to mark G02 implemented only, while keeping G03-G10 and the full 10x15 baseline as future work. It must not claim Authority, fullAuthority, production, or independent two-host completion.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -40,6 +40,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-81968d64d47412a0",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-01T01:38:53.164Z",
+      "branch": "story/B-e891",
+      "user": "Harmonygo",
+      "sessionId": "sess-127b7f9d0a70780c",
       "agent": "main"
     }
   ],
