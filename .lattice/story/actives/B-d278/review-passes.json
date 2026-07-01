@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-01T03:29:10.846Z",
       "reviewRunId": "B-d278:RR-005",
       "_hash": "cf0ba884841a4364a8bc4bfbbac5f046ed38e0875324e60d8620e4660201cd4b"
+    },
+    {
+      "id": "B-d278:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Second-round docs review PASS for resolved finding B-d278:F-001. docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md now states Status: full local deterministic baseline implemented, describes rows as the implemented local deterministic baseline, states Current implemented slice: G01-G10 plus aggregate, makes the matrix normative for the implemented local aggregate smoke, and limits future wording to live execution outside the local deterministic baseline scope. Verification commands: node bin/lattice.js finding_list {storyId:B-d278}; rg -n future implementation|future smoke test|Status:|Current implemented slice|G04|G10|Authority|production|independent-host docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js => PASS.",
+      "createdAt": "2026-07-01T03:31:11.895Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-006",
+      "_hash": "d87ab20eeba66e03a9180798bf1c127505e15ab986ba8d526e1656ac7e0293c6"
     }
   ]
 }
