@@ -9,26 +9,523 @@
         "editing the paper / main.tex",
         "recomputing the bootstrap confidence interval"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T02:03:06.210Z",
+      "endTime": "2026-07-01T02:12:47.561Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run make-fig-gate-ablation.mjs on the real powered/ directory → prints per-arm summary lines matching analyze.mjs counts (A4 2/1920, A2prime 31/1920, A3 14/1920, A2 18/1920, A1 13/1560, dedup total 9240) and writes fig-gate-ablation.svg + fig-gate-ablation.csv; WHY: validates end-to-end correctness against the canonical source of truth",
+            "type": "cli"
+          },
+          {
+            "desc": "CSV output has correct header row (arm,n,amplified,rate_pct,per_1000,mean_tokens,gate) and one data row per arm with numeric fields; WHY: verifies the tidy-CSV contract downstream consumers depend on",
+            "type": "cli"
+          },
+          {
+            "desc": "SVG output is a valid standalone SVG (starts with <svg, ends with </svg>, contains one bar per arm); WHY: ensures the figure is renderable without external dependencies",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Duplicate records with the same arm|taskId|scenarioId|repeat key → only the first is kept (dedup keep-first); feed two records with identical keys but different adjudicatedOutcome, assert the first outcome wins; WHY: the dedup contract is keep-first not keep-last, wrong order silently corrupts rates",
+            "type": "cli"
+          },
+          {
+            "desc": "*.voids.jsonl sidecar files in powered/ are excluded from reading → feed a directory containing both records.jsonl and records.voids.jsonl, assert voids file records are not counted; WHY: voids are infra-void re-run logs not results, including them inflates denominators",
+            "type": "cli"
+          },
+          {
+            "desc": "scenarioId=null in a record → dedup key uses literal string null (arm|taskId|null|repeat); WHY: null scenarioId is the null-ablation cell; if coerced to empty string, dedup keys collide across scenarios",
+            "type": "cli"
+          },
+          {
+            "desc": "per1000 rounding: rate 0.005208333 (1/192) → per1000 rounds to 5.2 (one decimal); WHY: rounding to integer loses precision for low-rate arms; rounding to >1 decimal is false precision",
+            "type": "cli"
+          },
+          {
+            "desc": "Empty arm (zero records for one arm) → script does not crash, arm appears in output with n=0/amplified=0/rate=0; WHY: a partial campaign or filtered dataset may have missing arms",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed JSON line in a .jsonl file → skipped without crashing, other valid records still processed; WHY: real campaign files may have truncated writes from crash/interrupt",
+            "type": "cli"
+          },
+          {
+            "desc": "Completely empty powered/ directory (no .jsonl files) → script exits gracefully with a zero-record message, does not write corrupt SVG/CSV; WHY: running before any campaign data exists should not produce misleading artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "Record missing required field adjudicatedOutcome → record is skipped or treated as non-amplified, not counted as amplified; WHY: a missing field must never silently inflate the amplification rate",
+            "type": "cli"
+          },
+          {
+            "desc": "All records are duplicates of the same key → dedup collapses to n=1 per arm; WHY: a corrupted append-only log could repeat the same record thousands of times",
+            "type": "cli"
+          },
+          {
+            "desc": "poweredDir argument points to a non-existent directory → script exits with a clear error, not an unhandled ENOENT stack trace; WHY: user typo in path should give actionable feedback",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation.mjs /Users/jek/Documents/Work/proofbound/experiments/recovery-runner/powered /tmp/b0b76-verify",
+          "result": "pass",
+          "note": "Real powered/ run reproduces analyze counts (A4 2/1920, A2prime 31/1920, A3 14/1920, A2 18/1920, A1 13/1560, dedup total 9240) and writes fig-gate-ablation.svg + .csv",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck OUTPUT-contract group asserts toCSV header arm,n,amplified,rate_pct,per_1000,mean_tokens,gate + one data row per arm in ARMS order",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts renderSVG returns a non-empty string starting <svg and ending </svg>",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck readRecords group: two same-key records different outcome collapse keep-first (K to 1, first amplified survives)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts a *.voids.jsonl sidecar record (tvoid) is excluded and does not inflate A4",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts a scenarioId=null record is read and its key uses the literal null segment (null-ablation cell preserved)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts rate 1/192 -> per1000 one-decimal 5.2 and CSV per_1000 field renders 5.21",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck empty-arm group: an arm with zero records yields n=0/amplified=0/rate=0 and renderSVG does not throw",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck readRecords fixture includes a malformed JSON line + a blank line, asserted skipped without crashing while valid records still parse",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "robustness fix 170a925: selfcheck asserts run(empty dir) returns wrote:false/recordCount:0 and writes NO .svg/.csv (no misleading artifacts on empty dataset)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts a record missing adjudicatedOutcome is NOT counted as amplified (fail-closed)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "dedup keep-first collapses same-key records to one per key (same code path as an all-duplicate log); selfcheck asserts K collapses to a single kept record",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "robustness fix 170a925: selfcheck asserts readRecords(nonexistent dir) throws an Error whose message contains 'not found' (clear error, not a raw ENOENT stack)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Offline selfcheck wired into run-selfchecks",
       "context": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs: feed synthetic in-memory records, assert per-arm amplified counts + rate + per1000 rounding + CSV columns + that an SVG is emitted + graceful handling of an empty arm; wire it into run-selfchecks.mjs. Fully offline, no live LLM, no dependency on the large campaign data.",
       "userSees": "run-selfchecks.mjs runs the new selfcheck and reports it passing offline.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T02:04:10.278Z",
+      "endTime": "2026-07-01T02:05:39.293Z",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run make-fig-gate-ablation-selfcheck.mjs standalone → exits 0 and prints final line matching pattern make-fig-gate-ablation selfcheck: N assertions passed where N >= 1; WHY: confirms the selfcheck passes offline with synthetic data and emits the aggregator-compatible summary line",
+            "type": "cli"
+          },
+          {
+            "desc": "run-selfchecks.mjs includes the new selfcheck and reports all 8 passed → output contains all 8 recovery-runner selfchecks passed; WHY: confirms the wiring into the aggregator array is correct and the count updated from 7 to 8",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck asserts per-arm amplified counts match expected values for synthetic records with known outcomes; WHY: the selfcheck must verify the aggregation math, not just that it does not crash",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Selfcheck feeds duplicate same-key records and asserts dedup keep-first collapses them → the assertion specifically tests that n after dedup equals the unique key count, not the raw record count; WHY: the selfcheck must cover the dedup contract, not just pass-through counting",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck feeds a voids-like sidecar record and asserts it is excluded → the assertion verifies the *.voids.jsonl exclusion filter; WHY: without this, the selfcheck would not guard against a regression that reads voids files",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes an empty arm (zero records for one arm) and asserts no crash + arm appears with n=0; WHY: an empty arm is a real edge case in partial campaigns and must not throw",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck verifies per1000 rounding precision for a known rate → asserts exact one-decimal result; WHY: rounding bugs are silent and only caught by exact numeric assertion",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Selfcheck exits non-zero when an assertion fails (simulate by checking the selfcheck code path for assertion failure) → exit code is 1 and stderr/stdout indicates which assertion failed; WHY: a selfcheck that always exits 0 is worthless as a regression guard",
+            "type": "cli"
+          },
+          {
+            "desc": "SELFCHECKS array in run-selfchecks.mjs has exactly 8 entries and includes make-fig-gate-ablation-selfcheck.mjs → grep the array; WHY: if the wiring is accidentally omitted or the count is wrong, the aggregator silently under-tests",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck produces both SVG string and CSV output from synthetic data and asserts both are non-empty; WHY: a selfcheck that only tests aggregation math but not output generation misses rendering regressions",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "running the selfcheck exits 0 and prints 'make-fig-gate-ablation selfcheck: 38 assertions passed' (aggregator-compatible summary line)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks.mjs prints 'all 8 recovery-runner selfchecks passed' — the new selfcheck is wired into the SELFCHECKS array and the count is 8",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts aggregate() per-arm amplified counts + rates on synthetic records with known outcomes (A4 rate 0.25, A2prime 0.5)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts dedup keep-first: n after dedup equals the unique-key count, not the raw record count",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts the *.voids.jsonl exclusion filter (void record not counted)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck empty-arm assertion: an arm with zero records -> n=0 with no crash",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts exact one-decimal per1000 rounding (1/192 -> 5.2)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck process.exit(1) on any failed assertion (implementer-verified by breaking an assertion -> exit 1); the NEGATIVE CONTROL group proves the assertions are non-vacuous (keep-first genuinely keeps amplified, not 0)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks 'all 8' output proves the SELFCHECKS array holds 8 entries and make-fig-gate-ablation-selfcheck.mjs is among them (it ran)",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts both renderSVG (non-empty, <svg..</svg>) and toCSV (header+rows) output are produced from synthetic data",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "README note for the generator",
       "context": "experiments/recovery-runner/README.md: document make-fig-gate-ablation.mjs (input powered/*.jsonl to fig-gate-ablation.svg + .csv; the committed-generator norm) and update the selfcheck count.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T02:05:39.846Z",
+      "endTime": "2026-07-01T02:06:13.714Z",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/README.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README.md contains a section documenting make-fig-gate-ablation.mjs (grep finds the script name + its input powered/*.jsonl and outputs fig-gate-ablation.svg/.csv); WHY: the committed-generator norm requires the generator be discoverable/documented",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "README selfcheck count is updated from 7 to 8 exactly — grep shows the recovery-runner selfcheck count reads 8, with no stale 7 left behind; WHY: a stale count is the classic doc-code drift the docs reviewer flags",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "README does NOT over-claim: it must not state the generator edits the paper/main.tex or computes the bootstrap CI (those are the declared excludes), and the documented inputs/outputs match the actual generator (powered/*.jsonl → fig-gate-ablation.svg + .csv); WHY: doc-promise-undelivered / over-claim is the primary docs-review failure mode",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -n 'make-fig-gate-ablation.mjs' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README has a '## Figure generator (make-fig-gate-ablation.mjs)' section naming the script, its input powered/*.jsonl (excluding voids), and outputs fig-gate-ablation.svg/.csv",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -n 'selfchecks (8)' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README selfcheck count reads 8 (bumped 7->8, make-fig-gate-ablation listed); grep for '7 selfcheck' finds no stale count",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -niE 'does .*not.*(edit the paper|compute the bootstrap)' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README line 228-230 explicitly states the generator does NOT compute the bootstrap CI and does NOT edit the paper (analyze.mjs owns the CI; inserting into main.tex is a separate manual step) — no over-claim; documented I/O matches the generator",
+          "headHash": "56a8b40445b029db543226651c91ad0b7b7627f9",
+          "materialHash": "47b5acc80863754219ed34ecea9abb5f5e8b7e425726bb8eaa0424df8ed341d7",
+          "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+          "timestamp": "2026-07-01T02:56:53.530Z"
+        }
+      ]
     }
   ]
 }
