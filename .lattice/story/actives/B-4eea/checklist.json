@@ -4,9 +4,1065 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mr1jjulp-nb58yf, Review: rr-mr1jk20o-bqqxy9",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T04:26:54.083Z",
+      "endTime": "2026-07-01T04:26:54.563Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "The story transcript shows pre-story red/repro/spike evidence and a full M5-M12 milestone ledger before DEV begins.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pre-story repro review and confirmed spike are recorded before development starts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The story retains all M5-M12 derived checklist refs and does not collapse to one generic fix item.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Candidate evidence remains evidence-candidate and is not treated as verificationEvidence or DONE proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"<red/probe helper checking baseline commands and memory-pack help visibility>\"",
+          "result": "pass",
+          "note": "Original red probe now passes on current HEAD: commands exist and handoff_create/done_prepare/story_advance help expose Memory Runtime Preflight or packDigest.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-4eea --mode=warn --json",
+          "result": "pass",
+          "note": "ProofStory gate check reports no missing MVP artifacts, no missing milestone coverage, and wouldBlockFutureDevAdmission=false.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-4eea --json",
+          "result": "pass",
+          "note": "Scope contract check passes with 41 changed files and 0 unacknowledged violations after explicit M5-M12 scope alignment.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "M5 wire handoff and host entry runtime memory consumers",
+      "context": "Handoff and host dispatch must consume the shared MemoryFreshnessPack, show packDigest/top IDs, surface Codex+Claude primary host policy, and keep agy-cli fallback-only with concrete fallback reasons.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "handoff_create / handoff_resume output includes Memory Runtime Preflight with packDigest, host policy hits, and agy fallback status only when a primary host failure is present.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex/Claude primary host policy surfaces in handoff output with packDigest and top hit IDs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "agy fallback is rendered only with unavailable/quota/timed-out/substituted primary-host status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "handoff output never treats memory pack as gate evidence or release readiness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:26:56.163Z",
+      "endTime": "2026-07-01T04:26:56.711Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves handoff_create text includes Memory Runtime Preflight, host-policy hits, and excludes candidate playbooks.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves handoff_resume carries the pack and permits agy only with a concrete primary failure signal.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves host_dispatch exposes memoryPackDigest/gateEvidence=false and rejects agy fallback without primary failure evidence.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-002:review:F-010",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "Covers handoff_create/handoff_resume/host_dispatch host alias normalization: claude-cli maps to claude-code, agy-cli requires primaryHostFailure and maps to antigravity, and unknown primary target normalizes to codex capability id without leaking raw host.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "M6 wire story intake and lifecycle runtime memory consumers",
+      "context": "story_create/repro-first intake and story_advance must surface phase-appropriate active playbooks without letting unregistered memory content create blocking policy rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "story_create and story_advance show advisory Memory Runtime Preflight for relevant code-verifiable/repro-first/lifecycle lessons while non-code stories avoid irrelevant blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/core/transition-orchestrator.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Code-verifiable story surfaces repro-first playbook guidance in story intake/lifecycle output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document-only story does not receive irrelevant blocking memory guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unregistered active playbook content cannot set or escalate blocking lifecycle policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:26:58.352Z",
+      "endTime": "2026-07-01T04:26:58.833Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves story_create STORY_INTAKE surfaces the advisory memory pack through the CLI-visible stderr channel.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves transition rendering includes runtime memory advisory without treating it as gate evidence.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 regression proves corrupt advisory memory/playbooks do not crash session_brief and candidates stay suppressed.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "M7 wire DONE closure and final-response advisory memory consumers",
+      "context": "done_prepare/done_closure/final response check must show active intent-totality and delivery lessons, but full-completion claims must be checked against ParentRollupResult/current structured facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "done_prepare / done_closure output says advisory memory considered and points full-roadmap claims to ParentRollupResult instead of claiming memory proved DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE closure surfaces parent-roadmap totality lesson and delivery lesson when relevant.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial parent rollup cannot be rendered as full-roadmap complete.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE closure still relies on structured DONE/ParentRollup evidence, not memory pack text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:00.420Z",
+      "endTime": "2026-07-01T04:27:00.900Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke now covers done_prepare directly: DONE prepare output includes Advisory memory considered, memoryAuthority non_authoritative, memoryGateEvidence false, and memoryCompletionProof false.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves final_response_check remains advisory-only even under runtime policy evaluation and completionClaimSource stays ParentRollupResult/current-structured-facts.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke verifies DONE/final-response memory output never becomes proof: memoryCompletionProof is false and gateEvidence remains false.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "M9 add deterministic million-record playbook memory baseline generator",
+      "context": "Add small and full profile generator with seeded manifest, stable digest, gold queries, corrupt-row fixtures, gitignored runtime output, and materialHash-safe defaults.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "memory_playbook_baseline_generate reports exactly 1,000,000 records in full profile, stable manifest digest, and project-local output safety.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          ".gitignore"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-memory-baseline.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full profile generates exactly 1,000,000 deterministic records and a manifest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Same seed yields same digest; corrupt rows are included for reader skip tests.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated payloads do not dirty materialHash or story evidence by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:02.438Z",
+      "endTime": "2026-07-01T04:27:02.873Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke generated/verified exactly 1,000,000 deterministic records.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke reports fullProfileExactMillion=true and deterministic verification success.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke exercises large corpus shape without relying on gateEvidence or mutable runtime memory proof claims.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-005:review:F-012",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Baseline generator now refuses non-empty existing outputDir without force; smoke covers unrelated files and target records.jsonl overwrite prevention, plus full 1,000,000-row generation.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "M10 add million-record correctness and performance verifier",
+      "context": "Verifier must check recall@10, current-over-superseded preference, false-surface rates, stale detection, line cap, peak memory budget, and report-first performance metrics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "memory_playbook_baseline_verify passes correctness thresholds and prints latency/RSS/index timing without enforcing premature performance budget failure.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-memory-baseline.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Correctness thresholds pass for small and full profiles.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Performance is recorded but report-first unless rollout config requires enforcement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Line cap and stale detection still hold under generated large corpus.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:04.370Z",
+      "endTime": "2026-07-01T04:27:04.823Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline verifier generated and verified exactly 1000000 records through the real MemoryFreshnessPack runtime path, with expectedIdsFoundRate=1 and current-over-superseded preference=1.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline reports performance without enforcing the p95 target yet; observed elapsedMs about 6577 and peakRssBytes about 845447168 in this run.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Build plus small/full baseline smoke passed at HEAD 33c1cf5db. The smoke now verifies recordsDigestStable/goldDigestStable and includes a gold-queries tamper negative control that fails when manifest goldDigest is not matched.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-006:review:F-011",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Baseline verifier now enforces requestedProfileMatches, PROFILE_COUNTS record count, and fullProfileExactMillion semantics; smoke rejects truncated self-consistent manifest and verifies full profile recordCount=1000000.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "P3-enforce add registered warn/enforce rollout policy after baseline correctness",
+      "context": "Warn/enforce behavior must only activate for registered critical consumers after 1M correctness baseline passes; advisory remains default and memory stays non-authoritative.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "Rollout config can show advisory, warn, or registered blocking state; default output stays advisory and says gateEvidence:false.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registered critical consumer can warn/enforce only after baseline correctness evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default mode remains advisory and non-authoritative.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Memory/playbook content alone cannot self-register as blocking policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:06.493Z",
+      "endTime": "2026-07-01T04:27:06.961Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke proves project-configurable required memory classes are evaluated by playbook_runtime_health.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves registered consumers keep memory gateEvidence=false during rollout wiring.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process/runtime fact contracts verify runtime-memory commands are registered with correct non-gate/gate boundaries.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-008",
+      "title": "M8 add capture-or-noop end-of-work memory decision",
+      "context": "Add a lightweight command/reminder that records captured, no-reusable-lesson, or defer-with-reason without auto-promoting story candidates to project/global memory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "At end of work, playbook memory decision output shows captured/no-reusable-lesson/deferred state and keeps candidates non-authoritative.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Captured decision creates a story-scoped candidate/reminder without gate authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No-op decision is accepted only with a reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No automatic promotion to project/global active memory occurs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:08.517Z",
+      "endTime": "2026-07-01T04:27:08.991Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke confirms dev_memory_finish_decision is registered as a runtime-memory command and not gate evidence.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 regression proves rendered packs preserve authority=non_authoritative and gateEvidence=false for finish-time reuse decisions.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies dev_memory_finish_decision remains a process fact entry, not a DONE proof surface.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-009",
+      "title": "M11 add project-configurable playbook runtime health and drift scanner",
+      "context": "Add playbook_runtime_health or dev_memory_health checking configured required memory classes, active playbooks, deprecated current brand guidance, consumer wiring, and baseline availability.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "playbook_runtime_health reports PASS on clean repo and explains missing configured runtime memory, consumer drift, or deprecated guidance failures.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Health passes with configured host-policy/truth-first/parent-roadmap memory classes present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Configured required memory classes are project-local config, not global hard-coded requirements.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Health fails if session/handoff/story/DONE consumers stop including runtime pack.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:10.576Z",
+      "endTime": "2026-07-01T04:27:11.037Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke passes on configured host-policy required runtime memory and confirms playbook_runtime_health remains readOnly and non-authoritative.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke fails when the project-configured required runtime memory class is missing, proving required memories are config-driven rather than globally hard-coded.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Build plus health smoke passed at HEAD 33c1cf5db. The smoke now rejects non-canonical dev_memory_finish_decision storyIds before path derivation and confirms no outside decision file is written.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-009:review:F-013",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "verifyPlaybookRuntimeBaseline cleans generated temp baseline directories by default, supports keepGenerated for explicit retention, and health smoke remains green with implicit generated baseline cleanup.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-010",
+      "title": "M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only",
+      "context": "Document/operator rollout must show advisory -> warn -> registered blocking stages, Codex+Claude primary 3x2 digest parity, and agy fallback only when primary host unavailable/quota-limited.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "Final verification table shows M5-M12 complete, Codex/Claude digest parity or stale classification, agy fallback-only semantics, and no memory-as-evidence confusion.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex CLI and Claude Code CLI agree on pack digest/top hit IDs or report explicit stale drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "agy-cli fallback path reports the concrete primary-host failure signal.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No rollout or verification text treats memory as proof evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-01T04:27:12.680Z",
+      "endTime": "2026-07-01T04:27:13.162Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "docs_check",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process and runtime fact contracts pass after final_response_check stays advisory-only and playbook runtime memory commands remain non-gate evidence.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime-memory command metadata and process/runtime registries passed at HEAD 33c1cf5db. baseline_generate is now classified as mutating/destructive non-gate output while verify/health/final_response remain read-only advisory consumers.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "command": "rg -n \"programmatic primary-host probing is an adapter source\" docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan now scopes agy fallback to explicit structured host-runtime/operator/wrapper failure signals and treats programmatic probing as an adapter source, not an MVP claim.",
+          "headHash": "464c58a1108ba689f6fa7223097f34fb157a8d23",
+          "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+          "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+          "timestamp": "2026-07-01T06:16:18.372Z"
+        },
+        {
+          "intentRef": "CHK-010:review:2host",
+          "kind": "manual_transcript",
+          "command": "Claude CLI review PASS for F-007..F-009; Codex CLI review found F-010..F-013; agy CLI used only as fallback sanity check, not primary host evidence.",
+          "result": "pass",
+          "note": "Host priority corrected: Codex CLI plus Claude CLI are primary hosts; agy-cli is fallback only. New F-010..F-013 were found by Codex review, fixed, and locally verified by build, MVP1/MVP2, baseline small/full, health, command catalog, process fact, runtime fact, and diff check.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T03:59:16.385Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M5 wire handoff and host entry runtime memory consumers",
+      "addedContext": "Handoff and host dispatch must consume the shared MemoryFreshnessPack, show packDigest/top IDs, surface Codex+Claude primary host policy, and keep agy-cli fallback-only with concrete fallback reasons."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:16.690Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M6 wire story intake and lifecycle runtime memory consumers",
+      "addedContext": "story_create/repro-first intake and story_advance must surface phase-appropriate active playbooks without letting unregistered memory content create blocking policy rows."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:16.981Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M7 wire DONE closure and final-response advisory memory consumers",
+      "addedContext": "done_prepare/done_closure/final response check must show active intent-totality and delivery lessons, but full-completion claims must be checked against ParentRollupResult/current structured facts."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.270Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M9 add deterministic million-record playbook memory baseline generator",
+      "addedContext": "Add small and full profile generator with seeded manifest, stable digest, gold queries, corrupt-row fixtures, gitignored runtime output, and materialHash-safe defaults."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.599Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M10 add million-record correctness and performance verifier",
+      "addedContext": "Verifier must check recall@10, current-over-superseded preference, false-surface rates, stale detection, line cap, peak memory budget, and report-first performance metrics."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:17.901Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "P3-enforce add registered warn/enforce rollout policy after baseline correctness",
+      "addedContext": "Warn/enforce behavior must only activate for registered critical consumers after 1M correctness baseline passes; advisory remains default and memory stays non-authoritative."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.189Z",
+      "phase": "PLAN",
+      "itemId": "CHK-008",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M8 add capture-or-noop end-of-work memory decision",
+      "addedContext": "Add a lightweight command/reminder that records captured, no-reusable-lesson, or defer-with-reason without auto-promoting story candidates to project/global memory."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.479Z",
+      "phase": "PLAN",
+      "itemId": "CHK-009",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M11 add project-configurable playbook runtime health and drift scanner",
+      "addedContext": "Add playbook_runtime_health or dev_memory_health checking configured required memory classes, active playbooks, deprecated current brand guidance, consumer wiring, and baseline availability."
+    },
+    {
+      "timestamp": "2026-07-01T03:59:18.772Z",
+      "phase": "PLAN",
+      "itemId": "CHK-010",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope.",
+      "addedTitle": "M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only",
+      "addedContext": "Document/operator rollout must show advisory -> warn -> registered blocking stages, Codex+Claude primary 3x2 digest parity, and agy fallback only when primary host unavailable/quota-limited."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:54.563Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:56.711Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:58.833Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:00.900Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:02.873Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:04.823Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:06.961Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:08.991Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:11.037Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:13.162Z",
+      "phase": "DEV",
+      "itemId": "CHK-010",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
     }
   ]
 }

@@ -399,15 +399,19 @@ Deliverables:
   but upgraded with freshness digest, playbook hits, and digest parity.
 - Pack records canonical host label and display label:
   `codex-cli`, `claude-cli`, or `antigravity` / `agy-cli`.
-- `agy-cli` surfaces as fallback only after programmatic primary-host status
-  reports unavailable, quota-limited, timed out, or explicitly substituted.
+- `agy-cli` surfaces as fallback only after the host runtime, operator, or
+  wrapper adapter supplies a concrete structured primary-host failure signal
+  (`unavailable`, `quota-limited`, `timed-out`, or `explicitly-substituted`).
+  Programmatic primary-host probing is an adapter source for that signal, not an
+  MVP requirement of this memory-consumption layer.
 - Host output includes pack digest and top hit IDs.
 
 Tests:
 
 - Codex/Claude primary host policy surfaces;
 - agy fallback rule surfaces but is not primary;
-- fallback status includes the concrete primary-host failure signal;
+- fallback status includes the concrete primary-host failure signal and its
+  declared source;
 - stale-doc truth-first playbook appears before "task missing" claims.
 
 ### M6. Story Intake And Lifecycle Consumers
@@ -701,3 +705,32 @@ This plan is complete only when:
    active memory/playbook guidance; agy-cli remains fallback only.
 7. Documentation and command help state clearly that memory/playbooks are
    advisory context, not proof evidence.
+
+## 11. Runtime Runbook
+
+Operational commands:
+
+- `lattice memory_playbook_baseline_generate '{"profile":"small"}'` creates a
+  quick deterministic corpus; `profile:"full"` creates exactly 1,000,000
+  records. Output is benchmark/runtime material only.
+- `lattice memory_playbook_baseline_verify '{"profile":"full"}'` generates and
+  verifies the full million-record profile when `inputDir` is omitted. It
+  reports correctness thresholds, stale detection, false-surface rates, elapsed
+  time, RSS, and heap before any rollout claim.
+- `lattice playbook_runtime_health` checks configured required memory classes
+  and consumer wiring drift. It is advisory; missing memory cannot create a DONE
+  blocker by itself.
+- `lattice dev_memory_finish_decision '{"decision":"captured"}'` or
+  `no-reusable-lesson` / `defer-with-reason` records the end-of-work memory
+  decision. It never promotes project/global memory automatically.
+
+Host policy:
+
+- Codex CLI and Claude Code CLI are the primary independent hosts for pack
+  comparison and handoff/runtime-memory verification.
+- `agy-cli` / Antigravity is fallback only. Handoff and dispatch surfaces require
+  a concrete primary failure signal such as `unavailable`, `quota-limited`,
+  `timed-out`, or `explicitly-substituted` before accepting that fallback.
+- Every `MemoryFreshnessPack` stays `authority=non_authoritative` and
+  `gateEvidence=false`; completion claims must cite ParentRollupResult/current
+  structured facts, validation, review, and DONE oracle rows rather than memory.

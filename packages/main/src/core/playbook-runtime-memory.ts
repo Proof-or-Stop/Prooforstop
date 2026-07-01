@@ -36,6 +36,15 @@ export type RuntimeConsumer =
   | 'final_response_check';
 
 export type MemoryFreshnessClass = 'fresh' | 'stale-relevant' | 'stale-irrelevant';
+export type RuntimeHostCanonicalLabel = 'codex-cli' | 'claude-cli' | 'antigravity';
+export type RuntimeCapabilityHostId = 'codex' | 'claude-code' | 'antigravity';
+export type RuntimeHostRole = 'primary' | 'fallback';
+export type RuntimeMemoryRolloutMode = 'advisory' | 'warn' | 'enforce';
+export type RuntimePrimaryFailureSignal =
+  | 'unavailable'
+  | 'quota-limited'
+  | 'timed-out'
+  | 'explicitly-substituted';
 
 export interface MemoryFreshnessPack {
   schemaVersion: 'proofbound.memory-pack.v1';
@@ -100,6 +109,37 @@ export interface MemoryFreshnessPack {
   };
 }
 
+export interface RuntimeMemoryTopHits {
+  ids: string[];
+  playbookIds: string[];
+  devMemoryEntryIds: string[];
+}
+
+export interface RuntimeHostPolicyDecision {
+  requestedHost: string;
+  canonicalHost: RuntimeHostCanonicalLabel;
+  capabilityHostId: RuntimeCapabilityHostId;
+  displayHost: string;
+  role: RuntimeHostRole;
+  primaryHosts: readonly ['codex-cli', 'claude-cli'];
+  allowed: boolean;
+  primaryFailureSignal?: RuntimePrimaryFailureSignal;
+  primaryFailureRaw?: string;
+  reason: string;
+}
+
+export interface RuntimeMemoryConsumerPolicyDecision {
+  consumer: RuntimeConsumer;
+  rolloutMode: RuntimeMemoryRolloutMode;
+  severity: RuntimeSeverity;
+  registeredCriticalConsumer: boolean;
+  baselineRequired: 'full-1m-correctness';
+  baselinePassed: boolean;
+  memoryAuthoritative: false;
+  gateEvidence: false;
+  reason: string;
+}
+
 export interface BuildMemoryFreshnessPackOptions {
   projectRoot: string;
   query?: string;
@@ -135,6 +175,18 @@ const TRIGGER_CLASSES = [
   'review',
   'deprecated-term',
 ] as const;
+
+export const RUNTIME_MEMORY_PRIMARY_HOSTS = ['codex-cli', 'claude-cli'] as const;
+const RUNTIME_MEMORY_FALLBACK_HOST = 'antigravity' as const;
+
+const REGISTERED_CRITICAL_RUNTIME_CONSUMERS = new Set<RuntimeConsumer>([
+  'done_prepare',
+  'done_closure',
+]);
+
+const ADVISORY_ONLY_RUNTIME_CONSUMERS = new Set<RuntimeConsumer>([
+  'final_response_check',
+]);
 
 function uniqueSorted(values: Iterable<string>): string[] {
   return [...new Set([...values].filter((v) => v.trim().length > 0))].sort();
@@ -350,15 +402,155 @@ function collectDeprecatedTermHits(projectRoot: string, query: string): { hits: 
 }
 
 function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
-  const { packDigest: _packDigest, ...domain } = pack;
+  const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
   return digestCanonicalJson(domain);
 }
 
+export function runtimeMemoryTopHits(pack: MemoryFreshnessPack, limit = 8): RuntimeMemoryTopHits {
+  const playbookIds = pack.results.playbookIds.slice(0, Math.max(0, limit));
+  const devMemoryEntryIds = pack.results.devMemoryEntryIds.slice(0, Math.max(0, limit));
+  return {
+    ids: [...playbookIds, ...devMemoryEntryIds].slice(0, Math.max(0, limit)),
+    playbookIds,
+    devMemoryEntryIds,
+  };
+}
+
+export function renderMemoryFreshnessPackSummary(pack: MemoryFreshnessPack): string {
+  const hits = runtimeMemoryTopHits(pack);
+  return [
+    `memoryPackDigest: ${pack.packDigest}`,
+    `memoryTopHitIds: ${hits.ids.join(', ') || 'none'}`,
+    `memoryAuthority: ${pack.authority}`,
+    `memoryGateEvidence: ${pack.gateEvidence}`,
+  ].join('\n');
+}
+
+export function normalizeRuntimeHostLabel(host: string | undefined): RuntimeHostCanonicalLabel {
+  const value = (host ?? '').trim().toLowerCase().replace(/_/g, '-');
+  if (!value || value === 'codex' || value === 'codex-cli' || value === 'openai-codex') return 'codex-cli';
+  if (value === 'claude' || value === 'claude-code' || value === 'claude-cli' || value === 'claude-code-cli') return 'claude-cli';
+  if (value === 'agy' || value === 'agy-cli' || value === 'antigravity' || value === 'antigravity-cli') return RUNTIME_MEMORY_FALLBACK_HOST;
+  return value.includes('claude') ? 'claude-cli'
+    : value.includes('agy') || value.includes('antigravity') ? RUNTIME_MEMORY_FALLBACK_HOST
+      : 'codex-cli';
+}
+
+export function runtimeHostLabelToCapabilityHostId(host: RuntimeHostCanonicalLabel): RuntimeCapabilityHostId {
+  switch (host) {
+    case 'codex-cli': return 'codex';
+    case 'claude-cli': return 'claude-code';
+    case 'antigravity': return 'antigravity';
+  }
+}
+
+export function normalizeRuntimeHostAliasForCapabilityRegistry(host: string | undefined): string {
+  const raw = host?.trim() ?? '';
+  const value = raw.toLowerCase().replace(/_/g, '-');
+  if (!value || value === 'codex' || value === 'codex-cli' || value === 'openai-codex') return 'codex';
+  if (value === 'claude' || value === 'claude-code' || value === 'claude-cli' || value === 'claude-code-cli') return 'claude-code';
+  if (value === 'agy' || value === 'agy-cli' || value === 'antigravity' || value === 'antigravity-cli') return RUNTIME_MEMORY_FALLBACK_HOST;
+  return raw;
+}
+
+function displayRuntimeHost(host: RuntimeHostCanonicalLabel): string {
+  switch (host) {
+    case 'codex-cli': return 'Codex CLI';
+    case 'claude-cli': return 'Claude Code CLI';
+    case 'antigravity': return 'Antigravity (agy-cli)';
+  }
+}
+
+function parsePrimaryFailureSignal(raw: string | undefined): RuntimePrimaryFailureSignal | undefined {
+  const value = (raw ?? '').trim().toLowerCase();
+  if (!value) return undefined;
+  if (/\b(unavailable|not available|missing|not found|cannot spawn|spawn failed)\b/.test(value)) return 'unavailable';
+  if (/\b(quota[- ]?limited|quota|rate[- ]?limited|429)\b/.test(value)) return 'quota-limited';
+  if (/\b(timed[- ]?out|timeout|deadline)\b/.test(value)) return 'timed-out';
+  if (/\b(explicitly[- ]?substituted|substitute|standby|fallback requested)\b/.test(value)) return 'explicitly-substituted';
+  return undefined;
+}
+
+export function evaluateRuntimeHostPolicy(args: {
+  requestedHost?: string;
+  primaryHostFailure?: string;
+}): RuntimeHostPolicyDecision {
+  const requestedHost = args.requestedHost?.trim() || 'codex-cli';
+  const canonicalHost = normalizeRuntimeHostLabel(requestedHost);
+  const capabilityHostId = runtimeHostLabelToCapabilityHostId(canonicalHost);
+  const failureSignal = parsePrimaryFailureSignal(args.primaryHostFailure);
+  if (canonicalHost !== RUNTIME_MEMORY_FALLBACK_HOST) {
+    return {
+      requestedHost,
+      canonicalHost,
+      capabilityHostId,
+      displayHost: displayRuntimeHost(canonicalHost),
+      role: 'primary',
+      primaryHosts: RUNTIME_MEMORY_PRIMARY_HOSTS,
+      allowed: true,
+      ...(failureSignal ? { primaryFailureSignal: failureSignal, primaryFailureRaw: args.primaryHostFailure } : {}),
+      reason: 'Codex CLI and Claude Code CLI are primary hosts for runtime-memory handoff and verification.',
+    };
+  }
+  const allowed = Boolean(failureSignal);
+  return {
+    requestedHost,
+    canonicalHost,
+    capabilityHostId,
+    displayHost: displayRuntimeHost(canonicalHost),
+    role: 'fallback',
+    primaryHosts: RUNTIME_MEMORY_PRIMARY_HOSTS,
+    allowed,
+    ...(failureSignal ? { primaryFailureSignal: failureSignal, primaryFailureRaw: args.primaryHostFailure } : {}),
+    reason: allowed
+      ? `agy-cli fallback accepted after concrete primary failure signal: ${failureSignal}.`
+      : 'agy-cli/Antigravity is fallback-only; provide primaryHostFailure=unavailable|quota-limited|timed-out|explicitly-substituted after Codex CLI or Claude Code CLI cannot be used.',
+  };
+}
+
+export function assertRuntimeHostPolicyAllowed(decision: RuntimeHostPolicyDecision, commandName: string): void {
+  if (decision.allowed) return;
+  throw new Error(`${commandName}: ${decision.reason}`);
+}
+
+export function evaluateRuntimeMemoryConsumerPolicy(args: {
+  consumer: RuntimeConsumer;
+  rolloutMode?: RuntimeMemoryRolloutMode;
+  fullBaselinePassed?: boolean;
+}): RuntimeMemoryConsumerPolicyDecision {
+  const rolloutMode = args.rolloutMode ?? 'advisory';
+  const advisoryOnlyConsumer = ADVISORY_ONLY_RUNTIME_CONSUMERS.has(args.consumer);
+  const registeredCriticalConsumer = !advisoryOnlyConsumer && REGISTERED_CRITICAL_RUNTIME_CONSUMERS.has(args.consumer);
+  const fullBaselinePassed = args.fullBaselinePassed === true;
+  const canEscalate = registeredCriticalConsumer && fullBaselinePassed;
+  const severity: RuntimeSeverity = rolloutMode === 'advisory'
+    ? 'advisory'
+    : canEscalate ? (rolloutMode === 'enforce' ? 'blocking' : 'warn')
+      : 'advisory';
+  return {
+    consumer: args.consumer,
+    rolloutMode,
+    severity,
+    registeredCriticalConsumer,
+    baselineRequired: 'full-1m-correctness',
+    baselinePassed: fullBaselinePassed,
+    memoryAuthoritative: false,
+    gateEvidence: false,
+    reason: advisoryOnlyConsumer
+      ? `${args.consumer} is advisory-only and cannot become blocking even when rollout enforcement and the full 1M baseline are enabled.`
+      : severity === 'advisory'
+      ? 'Runtime memory remains advisory unless the consumer is registered critical and the full 1M correctness baseline has passed.'
+      : `Registered critical consumer ${args.consumer} may surface ${severity} runtime-memory diagnostics after the full 1M correctness baseline passed; memory still cannot satisfy gates.`,
+  };
+}
+
 function buildRenderLines(pack: MemoryFreshnessPack): string[] {
+  const hits = runtimeMemoryTopHits(pack);
   const lines: string[] = [
     '## Memory Runtime Preflight',
     `  authority=${pack.authority} gateEvidence=${pack.gateEvidence}`,
     `  packDigest: ${pack.packDigest}`,
+    `  topHitIds: ${hits.ids.join(', ') || 'none'}`,
     `  freshness: ${pack.freshness.class}${pack.freshness.reason ? ` (${pack.freshness.reason})` : ''}`,
     `  sourceDigests: project=${pack.sourceDigests.projectDevMemoryDigest ?? 'none'} global=${pack.sourceDigests.globalDevMemoryDigest ?? 'none'} playbooks=${pack.sourceDigests.playbookDigest ?? 'none'} signatures=${pack.sourceDigests.signatureRegistryDigest ?? 'none'}`,
   ];

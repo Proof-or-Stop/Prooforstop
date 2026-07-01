@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-4eea",
+  "records": [
+    {
+      "id": "B-4eea-playbook-runtime-m5-m12-red",
+      "trigger": "Playbook Runtime Memory M5-M12 command and consumer surfaces are missing after B-cc94 MVP1.",
+      "acceptanceTargetRef": "playbook-runtime-memory-m5-m12-complete",
+      "baselineHeadHash": "a84ffb22727cba0d790f61a36f143aeda33f290d",
+      "baselineMaterialHash": "b92490a25471624afed1fbc176dbe6784d38d8f24a977accb473b12603382dee",
+      "observedFailure": "Red command exits nonzero with missing runtime memory consumers/baseline: memory_playbook_baseline_generate, memory_playbook_baseline_verify, playbook_runtime_health, handoff_create:memory-pack, done_prepare:memory-pack, story_advance:memory-pack.",
+      "failingCommand": "node -e \"const {spawnSync}=require('child_process'); const cwd=process.cwd(); function run(args){return spawnSync('node',['packages/main/dist/cli.js',...args],{cwd,encoding:'utf8'});} const help=run(['help']).stdout+run(['help']).stderr; const missing=[]; for (const cmd of ['memory_playbook_baseline_generate','memory_playbook_baseline_verify','playbook_runtime_health']) if (!help.includes(cmd)) missing.push(cmd); for (const cmd of ['handoff_create','done_prepare','story_advance']) { const out=run([cmd,'--help']).stdout+run([cmd,'--help']).stderr; if (!/(Memory Runtime Preflight|MemoryFreshnessPack|packDigest|memory\\\\/playbook pack)/.test(out)) missing.push(cmd+':memory-pack'); } if (missing.length) { console.error('missing runtime memory consumers/baseline: '+missing.join(', ')); process.exit(1); } console.log('red passed unexpectedly');\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+      "greenRelation": {
+        "targetRef": "playbook-runtime-memory-m5-m12-complete",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js"
+      },
+      "note": "This records the pre-story repro_probe failure into ProofStory red-evidence so future enforce-mode diagnostics are not satisfied by prose alone.",
+      "createdAt": "2026-07-01T04:01:34.304Z"
+    }
+  ],
+  "createdAt": "2026-07-01T04:01:34.304Z",
+  "updatedAt": "2026-07-01T04:01:34.304Z"
+}

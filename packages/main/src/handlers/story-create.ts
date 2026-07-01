@@ -25,6 +25,7 @@ import {
   classifyReproFirstRequirement,
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
+import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -134,6 +135,40 @@ function renderReproFirstStoryCreatePreflight(args: {
   ].join('\n');
   if (mode === 'enforce') throw new Error(message);
   return `⚠ ${message}`;
+}
+
+function renderStoryCreateMemoryRuntimeAdvisory(args: {
+  projectRoot: string;
+  storyId: string;
+  title: string;
+  description: string;
+  phase: StoryPhase;
+  checklist: ChecklistData;
+}): string {
+  try {
+    const checklistText = args.checklist.items.map((item) => `${item.id} ${item.title} ${item.context ?? ''}`).join('\n');
+    const pack = buildMemoryFreshnessPack({
+      projectRoot: args.projectRoot,
+      consumer: 'story_create',
+      storyPhase: args.phase,
+      query: [
+        `story:${args.storyId}`,
+        args.title,
+        args.description,
+        checklistText,
+        'story intake repro-first stale-doc truth-first playbook runtime memory non-authoritative',
+      ].filter(Boolean).join('\n'),
+      maxEntries: 5,
+      maxPlaybooks: 5,
+      maxLines: 60,
+    });
+    return [
+      '⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.',
+      renderMemoryFreshnessPack(pack),
+    ].join('\n');
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -568,6 +603,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           checklist: draftChecklist as ChecklistData,
           bypassReason: args.reproFirstBypassReason,
         });
+        const draftMemoryHint = renderStoryCreateMemoryRuntimeAdvisory({
+          projectRoot: ctx.root,
+          storyId,
+          title: draftIndex.title,
+          description: draftIndex.description,
+          phase: 'INIT',
+          checklist: draftChecklist as ChecklistData,
+        });
 
         // Write story to actives
         const story: StoryInfo = {
@@ -610,6 +653,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const draftStoryDirNote = storyDirOutsideGitRootAdvisory(ctx.root);
         if (draftReproFirstHint.trim().length > 0) {
           process.stderr.write(draftReproFirstHint.trim() + '\n');
+        }
+        if (draftMemoryHint.trim().length > 0) {
+          process.stderr.write(draftMemoryHint.trim() + '\n');
         }
         if (draftStoryDirNote.length > 0) {
           process.stderr.write(draftStoryDirNote + '\n');
@@ -889,6 +935,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             overlaps.map(o => `  - ${o.id} [${o.phase}] ${o.title} (common keywords: ${o.common.join(', ')})`).join('\n');
         }
       }
+      const storyCreateMemoryHint = renderStoryCreateMemoryRuntimeAdvisory({
+        projectRoot: ctx.root,
+        storyId,
+        title: args.title,
+        description: args.description,
+        phase: args.phase ?? (hasChecklist ? 'INIT' : 'IDEA'),
+        checklist: preflightChecklist,
+      });
 
       /**
        * B-6812 CHK-003 (G3 + G4) + F-004: emit all advisory text to STDERR
@@ -904,6 +958,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const blocks: string[] = [];
         if (riskHint.trim().length > 0) blocks.push(riskHint.trim());
         if (reproFirstHint.trim().length > 0) blocks.push(reproFirstHint.trim());
+        if (storyCreateMemoryHint.trim().length > 0) blocks.push(storyCreateMemoryHint.trim());
         if (dupWarning.trim().length > 0) blocks.push(dupWarning.trim());
         const concurrentNote = recentConcurrentStoriesNote(store, storyId, Date.parse(now));
         if (concurrentNote.length > 0) blocks.push(concurrentNote);

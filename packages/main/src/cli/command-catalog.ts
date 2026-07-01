@@ -909,7 +909,7 @@ Behavior:
     fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
-  { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
+  { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; prints Memory Runtime Preflight packDigest/gateEvidence=false and never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
     storyId: z.string().describe('Story ID'),
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
@@ -1063,6 +1063,32 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
+  { name: 'memory_playbook_baseline_generate', description: 'Write deterministic playbook runtime memory baseline artifacts (small or full 1,000,000 records); force may replace outputDir; non-authoritative benchmark only', schema: {
+    profile: z.enum(['small', 'full']).optional().describe('Baseline profile. full writes exactly 1,000,000 records. Default small.'),
+    outputDir: z.string().optional().describe('Output directory; omit for temp output. Refuses to overwrite unless force is true.'),
+    seed: z.number().optional().describe('Deterministic seed metadata (default 42).'),
+    force: z.boolean().optional().describe('Remove existing outputDir first.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'memory_playbook_baseline_verify', description: 'Verify deterministic playbook runtime memory baseline correctness, stale detection, false-surface rates, and perf/memory report; non-authoritative benchmark only', schema: {
+    profile: z.enum(['small', 'full']).optional().describe('Generated profile when inputDir is omitted. full verifies exactly 1,000,000 generated records.'),
+    inputDir: z.string().optional().describe('Existing baseline directory with manifest.json, records.jsonl, and gold-queries.json. Omit to generate then verify.'),
+    seed: z.number().optional().describe('Deterministic seed metadata when generating.'),
+    keepGenerated: z.boolean().optional().describe('When inputDir is omitted, keep the generated temp baseline directory instead of deleting it after verification.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'playbook_runtime_health', description: 'Check advisory runtime memory required classes and consumer wiring drift; memory remains non-authoritative', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'final_response_check', description: 'Advisory final response memory check; completion claims must rely on ParentRollupResult/current structured facts, not memory', schema: {
+    storyId: z.string().optional().describe('Optional story id for final response context'),
+    claim: z.string().optional().describe('Optional proposed final claim wording'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'host_list', description: 'List Proofbound host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
@@ -1192,7 +1218,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another without manufacturing release readiness. Alias: lattice handoff create', schema: {
+  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another; includes a memory/playbook packDigest with gateEvidence=false without manufacturing release readiness. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),
@@ -1207,6 +1233,7 @@ Behavior:
     authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary carried into the pack'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions for the overflow worker'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Explicit proof refs to evaluate for HANDOFF admissibility under project proofAdmissibility policy'),
+    primaryHostFailure: z.string().optional().describe('Required only when toHost is agy/antigravity fallback: concrete Codex/Claude failure signal such as unavailable, quota-limited, timed-out, or explicitly-substituted'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for handoff-pack JSON'),
@@ -1229,6 +1256,7 @@ Behavior:
     file: z.string().describe('Handoff pack JSON file or handoff_accept projection JSON file'),
     resumeHost: z.string().optional().describe('Resume host profile id; defaults to acceptedByHost or target host'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility while resuming'),
+    primaryHostFailure: z.string().optional().describe('Required only when resumeHost is agy/antigravity fallback: concrete Codex/Claude failure signal'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for resume projection JSON; refuses to overwrite'),
@@ -1251,6 +1279,7 @@ Behavior:
     file: z.string().describe('Handoff pack JSON file'),
     mode: z.enum(['supervised']).optional().describe('Dispatch mode; only supervised projection is supported'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility during dispatch preflight'),
+    primaryHostFailure: z.string().optional().describe('Required only when host is agy/antigravity fallback: concrete Codex/Claude failure signal'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch projection JSON; refuses to overwrite'),
@@ -2487,6 +2516,14 @@ Behavior:
     storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
+  }},
+  { name: 'dev_memory_finish_decision', description: 'Record end-of-work memory decision: captured, no reusable lesson, or defer with reason (no automatic promotion; not gate evidence)', schema: {
+    storyId: z.string().optional().describe('Optional story id for the finish decision.'),
+    decision: z.enum(['captured', 'no-reusable-lesson', 'defer-with-reason']).describe('End-of-work memory decision.'),
+    reason: z.string().optional().describe('Required for no-reusable-lesson and defer-with-reason.'),
+    capturedEntryIds: z.union([z.string(), z.array(z.string())]).optional().describe('Captured dev-memory entry ids, comma-separated or array.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'dev_memory_start', description: 'Start a dev-memory session wrapper', schema: {
     agent: z.string().optional().describe('Agent name, such as claude/codex; display only, does not start an external process.'),

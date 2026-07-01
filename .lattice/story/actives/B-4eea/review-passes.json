@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-4eea:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review pass for F-010..F-013: target host normalization now uses hostPolicy capability ids, baseline verifier enforces profile counts/full flag/requested profile, generator refuses non-empty outputDir without force, generated verify temp dirs clean by default. Verified by Codex CLI review findings resolved, Claude CLI primary review PASS for earlier fixes, and local build/MVP1/MVP2/health/baseline small+full/command catalog/process fact/runtime fact/diff-check matrix.",
+      "createdAt": "2026-07-01T05:31:08.820Z",
+      "reviewRound": "2026-07-01T05:27:26.508Z",
+      "reviewRunId": "B-4eea:RR-011",
+      "_hash": "c64bdd2596ae00f45774111b9a4d1d0be80be97b87b08ec1d91a0bd31d49323d"
+    },
+    {
+      "id": "B-4eea:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-014 targeted re-review pass: docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md §5.2/§5.3 requires candidate-only, source-digest mutation matrix, superseded-default, and deprecated brand residue gold query coverage. packages/main/src/core/playbook-runtime-baseline.ts defines matching GOLD_QUERIES/GOLD_RECORDS ids and verifier thresholds requiring goldQueryPresenceRate=1, goldRecordPresenceRate=1, expected/suppressed/deprecated rates=1, false-surface rates=0, and sourceDigestMutationMatrix.pass. packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts includes negative assertions for broken candidate, supersession, missing candidate class, deprecated brand residue, broken source-digest gold, and missing gold query class. Ran node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile small: pass.",
+      "createdAt": "2026-07-01T06:06:39.020Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-013",
+      "_hash": "5226118c89f673b2f7371f3753c097e10e9e5549be92247ebedc57739dc1d8ea"
+    },
+    {
+      "id": "B-4eea:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review pass after F-014: baseline now covers all documented gold query classes and partition contract; memory remains advisory non-authoritative, host policy stays Codex/Claude primary with agy fallback only, and DONE claims still depend on structured facts rather than memory text.",
+      "createdAt": "2026-07-01T06:08:07.011Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-014",
+      "_hash": "55794fb47e3e8b91641199eef563a2f9297d546427ae26043668898f2beb6d58"
+    },
+    {
+      "id": "B-4eea:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review pass after F-010..F-014: target host ids flow through policy capabilityHostId, baseline generator refuses unsafe overwrites, verifier enforces profile/gold/partition contracts, generated temp dirs clean by default, and smoke/contract matrix passes locally.",
+      "createdAt": "2026-07-01T06:08:17.331Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-015",
+      "_hash": "a31440318f21b8a22ce25a8f65d963c250a044becb0e46a28ece48997e9fded3"
+    },
+    {
+      "id": "B-4eea:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage re-review pass: baseline smoke now has negative controls for candidate-only class removal, deprecated brand residue suppression breakage, source-digest gold breakage, missing gold query class, gold tamper, truncation, profile mismatch, unsafe outputDir, and generated cleanup; full 1,000,000-row profile passed.",
+      "createdAt": "2026-07-01T06:08:30.620Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-016",
+      "_hash": "f3311434fcd36b96581e8d1d0741b5e0839dd74470b93b81f4d47eaf86b247c1"
+    },
+    {
+      "id": "B-4eea:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review pass: implementation now matches playbook-runtime-memory-consumption execution plan section 5.2/5.3 dataset shape and gold query classes, including source digest mutation matrix, candidate-only inertness, superseded defaults, deprecated brand residue, and report-first performance boundaries.",
+      "createdAt": "2026-07-01T06:08:41.091Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-017",
+      "_hash": "cc7aa68fafc197e3454b19747703d4a0a622b2dab4fdaad2e66a61b5ceb5d99d"
+    },
+    {
+      "id": "B-4eea:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass after residue fix: deprecated brand residue baseline now uses a generic retired marker without old product terms, preserving the conceptual test while satisfying zero-residue policy; memory remains advisory and non-authoritative.",
+      "createdAt": "2026-07-01T06:16:34.616Z",
+      "reviewRound": "2026-07-01T06:15:46.427Z",
+      "reviewRunId": "B-4eea:RR-018",
+      "_hash": "085e2d75b6f885d9516e25443a309b90e147dd95786a418b8c4b4881e034e97b"
+    },
+    {
+      "id": "B-4eea:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass after residue fix: forbidden old brand markers are removed from baseline source, npm run test:lattice-residue passes, build passes, and small/full baseline still validate the generic deprecated-brand residue semantics.",
+      "createdAt": "2026-07-01T06:16:47.155Z",
+      "reviewRound": "2026-07-01T06:15:46.427Z",
+      "reviewRunId": "B-4eea:RR-019",
+      "_hash": "16e3d30ae32e96d8bfa8dfa3dfbaac3497168cb7062ae1314cb122843de2b816"
+    },
+    {
+      "id": "B-4eea:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage pass after residue fix: rg confirms no old-brand residue in baseline files, residue gate passes, build passes, small baseline passes, full 1,000,000-row baseline passes, and MVP2 smoke remains green.",
+      "createdAt": "2026-07-01T06:17:03.622Z",
+      "reviewRound": "2026-07-01T06:15:46.427Z",
+      "reviewRunId": "B-4eea:RR-020",
+      "_hash": "363064bf41c9c511e3ffd67f0027546ec099d12e1cd792ce39a2defe226c2ef8"
+    },
+    {
+      "id": "B-4eea:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass after residue fix: implementation still satisfies execution plan section 5.3 deprecated brand residue requirement using a generic retired brand marker, while respecting project zero-tolerance removal of old product terms.",
+      "createdAt": "2026-07-01T06:17:17.280Z",
+      "reviewRound": "2026-07-01T06:15:46.427Z",
+      "reviewRunId": "B-4eea:RR-021",
+      "_hash": "d42af4058a344e498e372dde00ab1445a46f5919db3fae85ddae4c9c1e27680a"
+    }
+  ]
+}

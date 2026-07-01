@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-4eea",
+  "ledgerHash": "sha256:8c48a961d35bcb69785326912b17f6b1b3ee34c41b7c2b24c2ab3564b01d8b07",
+  "slicePlanHash": "sha256:faf64a3e39706934978d396a4b19f13fee42175d39b93ef8d20e44a23a0f5ba0",
+  "children": [
+    {
+      "storyId": "B-4eea",
+      "milestoneIds": [
+        "M0",
+        "M5",
+        "M6",
+        "M7",
+        "M9",
+        "M10",
+        "P3",
+        "M8",
+        "M11",
+        "M12"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "checklist:CHK-001..CHK-010",
+        "proofstory:playbook-runtime-memory-m5-m12-complete",
+        "slice-plan:slice-mvp2-consumers-and-generator-red",
+        "slice-plan:slice-scale-rollout-health-and-verification"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:610390478e72a2cb69b57420b95eea1f1bca38348dc2863ff8854be0dff98bc1",
+  "createdAt": "2026-07-01T04:01:57.309Z",
+  "updatedAt": "2026-07-01T04:01:57.309Z"
+}

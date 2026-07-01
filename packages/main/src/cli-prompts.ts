@@ -84,6 +84,12 @@ PHASE GATES
   TEST → DONE          : lattice validate PASS + all bugs fixed
                          + lattice summary_set complete + DONE Final Checklist passes
 
+MEMORY RUNTIME PREFLIGHT
+  story_advance renders the bounded memory/playbook pack at lifecycle entrypoints
+  where forgetting prior lessons would change behavior. The pack reports
+  packDigest, freshness, and gateEvidence=false; it is advisory context only and
+  never replaces validation, review, delivery, or DONE evidence.
+
 ROLLBACK PATHS
   TEST → DEV           (validate fail → fix code)
   DEV → PLAN           (re-plan needed)

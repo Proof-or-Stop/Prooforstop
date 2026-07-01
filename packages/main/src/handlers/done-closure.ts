@@ -5,6 +5,7 @@ import {
   type CompletedReviewEscalationSnapshot,
 } from '../core/review-escalation.js';
 import type { StoryInfo } from '../core/types.js';
+import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary, type MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import type { HandlerContext } from './context.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
@@ -47,6 +48,8 @@ export interface DoneClosureRunbook {
     receiptBundleRequired: boolean;
     quorumRequired: boolean;
   };
+  memoryFreshnessPack: MemoryFreshnessPack;
+  completionClaimSource: 'ParentRollupResult/current-structured-facts';
   historicalSnapshot?: CompletedReviewEscalationSnapshot;
   readOnly: true;
   note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence';
@@ -180,6 +183,20 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
   const evidenceRefs = [...new Set(rows
     .filter((row) => row.status === 'pass' && row.source)
     .map((row) => row.source))];
+  const memoryFreshnessPack = buildMemoryFreshnessPack({
+    projectRoot: ctx.root,
+    consumer: 'done_closure',
+    storyPhase: story.phase,
+    query: [
+      `story:${storyId}`,
+      story.title,
+      story.description,
+      'done closure intent-totality delivery parent roadmap ParentRollupResult current structured facts memory non-authoritative',
+    ].join('\n'),
+    maxEntries: 5,
+    maxPlaybooks: 5,
+    maxLines: 60,
+  });
 
   return {
     schemaVersion: 'lattice.done_closure.v1',
@@ -200,6 +217,8 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
       receiptBundleRequired: false,
       quorumRequired: false,
     },
+    memoryFreshnessPack,
+    completionClaimSource: 'ParentRollupResult/current-structured-facts',
     ...(story.phase === 'DONE' && historicalSnapshot ? { historicalSnapshot } : {}),
     readOnly: true,
     note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence',
@@ -239,6 +258,13 @@ function renderDoneClosure(runbook: DoneClosureRunbook): string {
     lines.push(`        source: ${row.source}; blocking=${row.blocking}; assuranceImpact=${row.assuranceImpact}`);
     if (row.nextCommand) lines.push(`        next: ${row.nextCommand}`);
   }
+  lines.push(
+    '',
+    'Advisory memory considered:',
+    ...renderMemoryFreshnessPackSummary(runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
+    `  completionClaimSource: ${runbook.completionClaimSource}`,
+    '  memoryCompletionProof: false',
+  );
   return lines.join('\n');
 }
 

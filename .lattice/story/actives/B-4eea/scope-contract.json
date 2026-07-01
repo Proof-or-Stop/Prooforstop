@@ -1,0 +1,64 @@
+{
+  "storyId": "B-4eea",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    ".gitignore",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "package-lock.json",
+    "packages/main/package-lock.json",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts",
+    ".lattice/story/actives/B-4eea/intent-collision.json",
+    ".lattice/story/actives/B-4eea/milestone-ledger.json",
+    ".lattice/story/actives/B-4eea/original-intent-snapshot.json",
+    ".lattice/story/actives/B-4eea/parent-ledger-rollup.json",
+    ".lattice/story/actives/B-4eea/proofstory.json",
+    ".lattice/story/actives/B-4eea/red-evidence.json",
+    ".lattice/story/actives/B-4eea/slice-plan.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".lattice/artifacts/authority/**"
+  ],
+  "scopeChangeReason": "Align enforce scope with implemented B-4eea M5-M12 runtime memory surfaces, red-test help visibility, lockfile version sync, and ProofStory lifecycle artifacts.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T04:01:34.762Z",
+  "updatedAt": "2026-07-01T04:22:05.649Z"
+}

@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reuse one MemoryFreshnessPack core across all consumers instead of creating parallel memory systems.",
+    "Keep memory non-authoritative: useful context, never proof evidence.",
+    "Make each M5-M12 row machine-verifiable before claiming full completion.",
+    "Prefer deterministic generated baselines and small routine smokes before full release-scale checks."
+  ],
+  "drivers": [
+    "User explicitly requested all remaining milestones in documented order until fully complete.",
+    "Past failures came from partial parent completion and stale/forgotten memory lessons.",
+    "The 1M baseline is required before runtime consumption can be called complete or warn/enforce rollout enabled."
+  ],
+  "options": [
+    {
+      "name": "A: Extend MemoryFreshnessPack consumers plus baseline/health commands in one full-scope story",
+      "pros": [
+        "Single shared pack semantics",
+        "Full M5-M12 ledger can close atomically",
+        "Avoids another partial MVP-only completion"
+      ],
+      "cons": [
+        "Large story; needs careful checklist and staged tests"
+      ]
+    },
+    {
+      "name": "B: Split M5-M12 into child stories immediately",
+      "pros": [
+        "Smaller coding chunks",
+        "Lower per-story blast radius"
+      ],
+      "cons": [
+        "High risk of repeating partial completion unless parent totality gate is actively maintained",
+        "User asked this run to complete all remaining milestones"
+      ]
+    },
+    {
+      "name": "C: Only document rollout and defer code",
+      "pros": [
+        "Fast",
+        "Low code risk"
+      ],
+      "cons": [
+        "Does not satisfy user request or red repro",
+        "Would leave consumers/baseline/health missing"
+      ]
+    }
+  ],
+  "chosen": "A: Extend MemoryFreshnessPack consumers plus baseline/health commands in one full-scope story",
+  "rationale": "The user asked to continue in the documented order until all remaining milestones are done. Option A best preserves one shared runtime memory contract and lets the DONE gate compare implementation evidence against the full M5-M12 ledger.",
+  "preMortem": [
+    {
+      "scenario": "Story claims complete after wiring only handoff/story/DONE consumers but skips 1M baseline.",
+      "trigger": "MVP2 smokes pass and operator wants DONE early.",
+      "consequence": "Repeats partial completion failure; runtime memory consumption is overclaimed.",
+      "mitigation": "Milestone ledger includes M9/M10 and DONE requires baseline smoke plus full-profile verifier evidence."
+    },
+    {
+      "scenario": "Memory pack text gets consumed as gate evidence.",
+      "trigger": "A developer uses playbook hit as proof of parent roadmap completion or DONE readiness.",
+      "consequence": "False proof boundary and evidence confusion.",
+      "mitigation": "All renderers state authority=non_authoritative gateEvidence=false; tests assert DONE/ParentRollup structured evidence remains source of truth."
+    },
+    {
+      "scenario": "1M baseline pollutes repo or material hash.",
+      "trigger": "Generator defaults to project-local tracked output.",
+      "consequence": "Huge dirty worktree and stale evidence churn.",
+      "mitigation": "Default temp/gitignored runtime output; registry/gitignore/materialHash smoke covers project-local opt-in."
+    },
+    {
+      "scenario": "agy becomes primary host in rollout wording.",
+      "trigger": "Host taxonomy drift or quota workaround becomes default.",
+      "consequence": "Violates current host policy and weakens 3x2 expectation.",
+      "mitigation": "M12 smoke asserts Codex+Claude primary and agy fallback only with concrete primary failure signal."
+    }
+  ],
+  "timestamp": "2026-07-01T04:00:35.758Z"
+}
