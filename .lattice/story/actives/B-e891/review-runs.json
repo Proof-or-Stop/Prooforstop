@@ -1,0 +1,214 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-e891:RR-001",
+      "storyId": "B-e891",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T01:52:06.097Z",
+      "startedAt": "2026-07-01T01:52:46.969Z",
+      "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+      "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+      "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b69b481ec27d21da451fa4c62b36de16d62e1f2e9843256f336c5dc48fa4905",
+        "diffPackHash": "556fe261e683d081b7a0d5c92fbd33133e75f3e410d1aa391cad4a763b1dcc9a",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b72601671637c128859e71c148cb2e90b492ab1a7a54bf3909cd75a20686b05",
+          "84db6fdfd679707e0a6cd76f49808b80ef4024ec22ecadd0ebed533f1d8a7fa6",
+          "b8b7abfa3bcba50ba1ac0171db7d6003c98684047b7d67ab14dd725e97449f19",
+          "d1146d19838ad120754afe66ca204e912a31e567ecac1c6d46663afc3a5cf811",
+          "e7ddf7e8f10e2f599acf434a7220fa78a1d23ae9dc2a5d351b66a5d39b89acdb"
+        ],
+        "bindingHash": "65dd31d78f348a9715123abe019bcb089ab91f136761ed0da9d524f3bd75e638"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "workspaceMode": "story-worktree",
+        "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+        "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+        "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+        "bindingHash": "fa6d9e5599e27f13c958d3883e2540ccfa1adea95df9050472c17adb3ea83e35"
+      },
+      "_hash": "b0b68b27067c19d221b12fe03f39b93d8872b0a611d07456d8d6e8455ee73fd9"
+    },
+    {
+      "reviewRunId": "B-e891:RR-002",
+      "storyId": "B-e891",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-01T01:52:06.097Z",
+      "startedAt": "2026-07-01T01:53:03.583Z",
+      "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+      "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+      "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+      "promptHash": "e814ba961e24e5917ff2852e8ca42ed89d537a73127ac46d80c97535f5198a8c",
+      "scopeBinding": {
+        "scopeContractHash": "2b69b481ec27d21da451fa4c62b36de16d62e1f2e9843256f336c5dc48fa4905",
+        "diffPackHash": "556fe261e683d081b7a0d5c92fbd33133e75f3e410d1aa391cad4a763b1dcc9a",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b72601671637c128859e71c148cb2e90b492ab1a7a54bf3909cd75a20686b05",
+          "84db6fdfd679707e0a6cd76f49808b80ef4024ec22ecadd0ebed533f1d8a7fa6",
+          "b8b7abfa3bcba50ba1ac0171db7d6003c98684047b7d67ab14dd725e97449f19",
+          "d1146d19838ad120754afe66ca204e912a31e567ecac1c6d46663afc3a5cf811",
+          "e7ddf7e8f10e2f599acf434a7220fa78a1d23ae9dc2a5d351b66a5d39b89acdb"
+        ],
+        "bindingHash": "65dd31d78f348a9715123abe019bcb089ab91f136761ed0da9d524f3bd75e638"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "workspaceMode": "story-worktree",
+        "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+        "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+        "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+        "bindingHash": "fa6d9e5599e27f13c958d3883e2540ccfa1adea95df9050472c17adb3ea83e35"
+      },
+      "_hash": "1028d075c584948a82e487b7af01b008c8295bb75ab3bf06c5bdf3dc5c3db8d2"
+    },
+    {
+      "reviewRunId": "B-e891:RR-003",
+      "storyId": "B-e891",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T01:52:06.097Z",
+      "startedAt": "2026-07-01T01:53:17.418Z",
+      "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+      "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+      "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b69b481ec27d21da451fa4c62b36de16d62e1f2e9843256f336c5dc48fa4905",
+        "diffPackHash": "556fe261e683d081b7a0d5c92fbd33133e75f3e410d1aa391cad4a763b1dcc9a",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b72601671637c128859e71c148cb2e90b492ab1a7a54bf3909cd75a20686b05",
+          "84db6fdfd679707e0a6cd76f49808b80ef4024ec22ecadd0ebed533f1d8a7fa6",
+          "b8b7abfa3bcba50ba1ac0171db7d6003c98684047b7d67ab14dd725e97449f19",
+          "d1146d19838ad120754afe66ca204e912a31e567ecac1c6d46663afc3a5cf811",
+          "e7ddf7e8f10e2f599acf434a7220fa78a1d23ae9dc2a5d351b66a5d39b89acdb"
+        ],
+        "bindingHash": "65dd31d78f348a9715123abe019bcb089ab91f136761ed0da9d524f3bd75e638"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "workspaceMode": "story-worktree",
+        "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+        "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+        "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+        "bindingHash": "fa6d9e5599e27f13c958d3883e2540ccfa1adea95df9050472c17adb3ea83e35"
+      },
+      "_hash": "cc138a221449ee9e5036d675cfa16d3bc249b5652fcc6512d20d1868d22dff57"
+    },
+    {
+      "reviewRunId": "B-e891:RR-004",
+      "storyId": "B-e891",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T01:52:06.097Z",
+      "startedAt": "2026-07-01T01:53:23.417Z",
+      "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+      "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+      "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b69b481ec27d21da451fa4c62b36de16d62e1f2e9843256f336c5dc48fa4905",
+        "diffPackHash": "556fe261e683d081b7a0d5c92fbd33133e75f3e410d1aa391cad4a763b1dcc9a",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b72601671637c128859e71c148cb2e90b492ab1a7a54bf3909cd75a20686b05",
+          "84db6fdfd679707e0a6cd76f49808b80ef4024ec22ecadd0ebed533f1d8a7fa6",
+          "b8b7abfa3bcba50ba1ac0171db7d6003c98684047b7d67ab14dd725e97449f19",
+          "d1146d19838ad120754afe66ca204e912a31e567ecac1c6d46663afc3a5cf811",
+          "e7ddf7e8f10e2f599acf434a7220fa78a1d23ae9dc2a5d351b66a5d39b89acdb"
+        ],
+        "bindingHash": "65dd31d78f348a9715123abe019bcb089ab91f136761ed0da9d524f3bd75e638"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "workspaceMode": "story-worktree",
+        "headHash": "b26cdaf21db4cff14ab5805282242470458f159c",
+        "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+        "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+        "bindingHash": "fa6d9e5599e27f13c958d3883e2540ccfa1adea95df9050472c17adb3ea83e35"
+      },
+      "_hash": "a115ee20d126b59af61351aa063a148a75c2a3b1fb6996363566e7bd95b37dac"
+    },
+    {
+      "reviewRunId": "B-e891:RR-005",
+      "storyId": "B-e891",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T01:52:06.097Z",
+      "startedAt": "2026-07-01T01:54:32.745Z",
+      "headHash": "e2d304ec32a7f7da6adede74fc8579446bb1ec63",
+      "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+      "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b69b481ec27d21da451fa4c62b36de16d62e1f2e9843256f336c5dc48fa4905",
+        "diffPackHash": "556fe261e683d081b7a0d5c92fbd33133e75f3e410d1aa391cad4a763b1dcc9a",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b72601671637c128859e71c148cb2e90b492ab1a7a54bf3909cd75a20686b05",
+          "84db6fdfd679707e0a6cd76f49808b80ef4024ec22ecadd0ebed533f1d8a7fa6",
+          "b8b7abfa3bcba50ba1ac0171db7d6003c98684047b7d67ab14dd725e97449f19",
+          "d1146d19838ad120754afe66ca204e912a31e567ecac1c6d46663afc3a5cf811",
+          "e7ddf7e8f10e2f599acf434a7220fa78a1d23ae9dc2a5d351b66a5d39b89acdb"
+        ],
+        "bindingHash": "65dd31d78f348a9715123abe019bcb089ab91f136761ed0da9d524f3bd75e638"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e891",
+        "workspaceMode": "story-worktree",
+        "headHash": "e2d304ec32a7f7da6adede74fc8579446bb1ec63",
+        "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+        "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+        "bindingHash": "9dce1ae3c6fa2c0eda7bd650146b5353edcab7120d60035e5cc42ec59db7e6df"
+      },
+      "_hash": "286de59920153a096ed16812d5858ba120988dd4ea9df0acfcfc17b088762dfa"
+    }
+  ]
+}

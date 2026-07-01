@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9dcb",
+  "mode": "custom",
+  "allowed": [
+    "Add a durable red/regression test for the wrapper-root + custom-storyDir metadata-only-commit false-stale path",
+    "Regression guard proving plain-repo / default-storyDir snapshot + freshness stay byte-identical",
+    "Thread metadataRoot through captureReviewRunSnapshot + diagnoseReviewRunSnapshot (production snapshot side), passing workspace.metadataRoot || ctx.root from the review_run_start handler",
+    "Thread run.workspaceBinding?.metadataRoot ?? projectRoot into the two consumer freshness checks (assertCurrentReviewRunForEvidence, validateEvidenceRunBinding)"
+  ],
+  "excluded": [
+    "Any new reviewer-run capability beyond fixing the false-stale",
+    "Building Authority, Layer4, customerKeyRef, or repair-UX future capabilities",
+    "Changing storyDir resolution or loadConfig semantics",
+    "Changing the signReviewRun or workspace-binding signing algorithm or field order",
+    "Modifying other freshness consumers (done-oracle, done-prepare, verifier) which already thread metadataRoot",
+    "Refactoring the broader evidence-freshness or materialHash system beyond metadataRoot threading"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "correctness_fix mode intended, but its default keyword exclusion Authority false-positives on the auto-generated repro-first background boilerplate (which says it avoids pretending to be Authority proof). Using custom mode with explicit excludedScope that still forbids Authority/Layer4/customerKeyRef/repair-UX future capabilities. Scope bound to repro rp-mr1fmmur-clkpwd / spike sr-mr1fp8ob-6k3tki.",
+  "createdAt": "2026-07-01T02:16:02.719Z",
+  "updatedAt": "2026-07-01T02:16:02.719Z",
+  "_hash": "5b98d9d0e76cdd24833832d03248918fac15a02b9a08418a7b3fab7800e68552"
+}

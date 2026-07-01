@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cc94",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice checklist_*",
+    "lattice done_required_validate",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice validate",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/",
+    "docs/story/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "MVP1 implementation is limited to Proofbound CLI source, focused smoke tasks, and the approved plan document.",
+  "createdAt": "2026-07-01T02:27:03.283Z",
+  "updatedAt": "2026-07-01T02:27:03.283Z",
+  "_hash": "0b2b48e5cc99c61075eaff30dc188c248c13ddbc63ddac5ca7ceec421993182f"
+}

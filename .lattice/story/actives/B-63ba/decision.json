@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Preserve the fixed B1-B15 protocol as the default truth source.",
+    "Make exploratory parameterization explicit and deterministic.",
+    "Only fix the real harness capability gap; avoid arbitrary performance or gate changes.",
+    "Keep lifecycle/evidence semantics host-neutral and untouched."
+  ],
+  "drivers": [
+    "Existing enumerateCells already accepts a scenarios list, so the missing piece is validated profile construction and CLI exposure.",
+    "Offline selfchecks must prove fixed defaults, seeded determinism, and invalid parameter rejection.",
+    "The feature is a research harness capability, not a production/DONE gate shortcut."
+  ],
+  "options": [
+    {
+      "name": "A: Add an explicit profile parser/helper and wire only the run-driver CLI",
+      "pros": [
+        "Smallest change that exposes parameterized scenario distributions",
+        "Preserves existing runDriver and record assembly semantics",
+        "Easy to cover with offline selfchecks"
+      ],
+      "cons": [
+        "Only parameterizes scenario selection/repetition, not arbitrary task mutation probabilities"
+      ]
+    },
+    {
+      "name": "B: Rewrite recovery-runner around a generalized fault-injection engine",
+      "pros": [
+        "Could express richer future distributions"
+      ],
+      "cons": [
+        "Large blast radius",
+        "Risks breaking pre-registered protocol defaults",
+        "Would optimize beyond current evidence"
+      ]
+    },
+    {
+      "name": "C: Documentation-only follow-up",
+      "pros": [
+        "Very low risk"
+      ],
+      "cons": [
+        "Does not add the agreed M2 capability or executable proof path"
+      ]
+    }
+  ],
+  "chosen": "A: Add an explicit profile parser/helper and wire only the run-driver CLI",
+  "rationale": "Choose the explicit profile parser/helper because it fixes the real gap with minimal blast radius: parameterized exploratory scenario sets become reproducible, while default B1-B15 behavior and gate semantics remain unchanged.",
+  "preMortem": [
+    {
+      "scenario": "Default fixed protocol changes accidentally",
+      "trigger": "Profile code becomes the default scenario source without an explicit flag",
+      "consequence": "Existing experiment denominators drift and prior records become hard to compare",
+      "mitigation": "Selfcheck asserts default enumerate/CLI counts remain unchanged without profile flags"
+    },
+    {
+      "scenario": "Parameterized profile becomes non-deterministic",
+      "trigger": "Weighted selection uses Math.random or unordered object iteration",
+      "consequence": "Runs cannot be reproduced or audited",
+      "mitigation": "Use seededShuffle/seeded deterministic expansion and assert byte-identical scenario lists for same seed"
+    },
+    {
+      "scenario": "Invalid profile silently shrinks the matrix",
+      "trigger": "Unknown scenario ids or zero/negative weights are ignored",
+      "consequence": "Exploratory results get biased denominators",
+      "mitigation": "Fail closed with exit code 2 and explicit validation errors"
+    }
+  ],
+  "timestamp": "2026-07-01T00:08:54.917Z"
+}

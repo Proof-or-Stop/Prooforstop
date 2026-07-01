@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-63ba",
+  "sourceText": "Open small story: hash snapshot reuse / syndrome preflight for DONE and review gates. Follow-up story: parameterized fault injection for recovery-runner. Execute through current Lattice flow and report milestones.",
+  "normalizedOutcome": "B-63ba adds an explicit offline recovery-runner parameterized fault profile capability while preserving the fixed B1-B15 default protocol and leaving lifecycle/evidence gate semantics unchanged.",
+  "acceptanceClaim": "The recovery-runner selfcheck and focused CLI profile runs prove default fixed scenarios remain unchanged, explicit weighted/list profiles are deterministic and fail closed on invalid input, and docs mark the feature as exploratory offline harness work.",
+  "keyRequirementIds": [
+    "REQ-B63BA-DEFAULT-B1-B15",
+    "REQ-B63BA-EXPLICIT-PROFILE",
+    "REQ-B63BA-FAIL-CLOSED",
+    "REQ-B63BA-NON-GATE"
+  ],
+  "requestHash": "sha256:71db5b4460f5afe7d1bdbf1874f70ae3eccc8504292c3bff7922ce1117e5fe73",
+  "createdAt": "2026-07-01T00:15:04.177Z",
+  "updatedAt": "2026-07-01T00:15:04.177Z"
+}

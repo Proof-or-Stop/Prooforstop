@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-63ba",
+  "id": "IC-20260701001512",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement only an explicit offline recovery-runner scenario profile path for exploratory weighted/list fault-injection runs; do not change fixed B1-B15 defaults, lifecycle gates, review/DONE behavior, evidence hashes, live provider campaigns, or production readiness claims.",
+  "acceptedInterpretationHash": "sha256:15cab7659441ddf4edd47be063669a6c868cdffdfa3c21f7e94d202e80e61d68",
+  "notes": "This resolves the potential ambiguity between DNAcoder-style redundancy ideas and Proofbound evidence semantics: only the parameterized fault-injection harness idea is accepted, fountain/lossy recovery and gate shortcuts are out of scope.",
+  "createdAt": "2026-07-01T00:15:12.841Z",
+  "updatedAt": "2026-07-01T00:15:12.841Z"
+}

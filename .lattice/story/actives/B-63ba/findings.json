@@ -1,0 +1,51 @@
+{
+  "findings": [
+    {
+      "id": "B-63ba:F-001",
+      "desc": "experiments/recovery-runner/run-driver.mjs:419 and experiments/recovery-runner/parameterized-fault-profile.mjs:81-88: a dangling explicit --scenarioProfile flag fail-opens to the fixed default instead of exiting 2. Repro: tmp=$(mktemp -d) && node experiments/recovery-runner/run-driver.mjs --record \"$tmp/missing.jsonl\" --tasks foo --k 1 --scenarioProfile; observed exit 0, 77 cells enumerated, and an exclusions sidecar written. Because arg() returns undefined for a missing flag value and parseScenarioProfile treats null/undefined profile+params as no flags, malformed profile input is accepted silently, violating the storys fail-closed profile validation contract and potentially running the wrong campaign if --engine is also supplied.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T00:34:30.423Z",
+      "reviewRound": "2026-07-01T00:30:41.407Z",
+      "reviewRunId": "B-63ba:RR-002",
+      "_hash": "87314a919ec67fae3ee94c55101de15bab0f482abc182617ac2cb6179eda699a",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/parameterized-fault-profile.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|experiments-recovery-runner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 90de58a81af05f444d6fa8c27330f226fd0ca8d5. run-driver now detects present flags with missing values before profile parsing, so dangling --scenarioProfile exits 2 before records/sidecars. Verified original repro exits 2 with no sidecars, dangling --scenarioParams exits 2 with no sidecars, --scenarioProfile weighted without params exits 2 with no sidecars, valid weighted profile still prints B1,B1,B2, git diff --check passes, and run-driver-selfcheck reports 167 assertions passed.",
+      "resolvedAt": "2026-07-01T00:41:10.321Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-63ba:F-002",
+      "desc": "experiments/recovery-runner/run-driver.mjs:419-452 still parses non-profile CLI flags with arg(), which accepts a missing value or the next flag token as a value. Repro from a temp cwd: node experiments/recovery-runner/run-driver.mjs --record --tasks foo exits 0 and writes --tasks.exclusions.jsonl; node experiments/recovery-runner/run-driver.mjs --record /tmp/engine-next.jsonl --engine --k 1 exits 1 only after writing /tmp/engine-next.jsonl.exclusions.jsonl; node experiments/recovery-runner/run-driver.mjs --tasks exits via TypeError at line 441. This means the current runner is only fail-closed for the new --scenarioProfile/--scenarioParams path, while dangling --record/--engine/--tasks/--seed can still produce misleading sidecars or unstructured crashes before input is rejected, violating the fresh review focus on dangling flags and no sidecars on invalid input.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T01:09:22.615Z",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "reviewRunId": "B-63ba:RR-009",
+      "_hash": "2dbb37debbce1dc6c8c321a86bccb7e68b236de63bcad65a71648ff2ec52e274",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|experiments-recovery-runner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 419d6641b73c5eac4c67cd18badaada51223b51d. run-driver now rejects dangling shared CLI flags before enumeration or sidecar writes. Verified repros from temporary directories: --record --tasks foo exits 2 with no generated sidecars, --record <tmp>/engine-next.jsonl --engine --k 1 exits 2 with no generated sidecars, --tasks exits 2 with no generated sidecars, and --seed exits 2 with no generated sidecars. Also verified valid weighted profile still enumerates 15 cells/no-engine refusal, default --tasks foo --seed fixed --k 1 still enumerates 77 applicable cells/3 exclusions, weighted B1:2,B2:1 produces 15 unique canonical runIds, docs boundary phrases remain present, and run-driver-selfcheck reports 174 assertions passed, 0 failed.",
+      "resolvedAt": "2026-07-01T01:26:07.522Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

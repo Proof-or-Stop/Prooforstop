@@ -1,0 +1,47 @@
+{
+  "storyId": "B-9dcb",
+  "checkedAt": "2026-07-01T02:12:01.252Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 cites assertCurrentReviewRunForEvidence at core/review-run.ts:686, but line 686 is the checkEvidenceFreshnessForGit call site inside that function; the function definition is at line 639. The fix target (the call at 686) is still correctly identified, so this is a line-reference imprecision, not a wrong file or wrong fix."
+    },
+    {
+      "severity": "low",
+      "desc": "Background does not describe the bug mechanism (why a metadata-only commit to a custom storyDir causes false-stale with signedProjectRoot as metadataRoot arg). The auto-generated repro-first template is acceptable here, but a standalone reader needs to infer the mechanism from checklist context rather than the background."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-01T02:11:09.310Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Background focuses on engineering mechanics (repro-first intake, binding artifacts) rather than stating the user-facing problem plainly: a wrapper-root user with custom storyDir gets false-stale reviewer runs after metadata-only commits, blocking their workflow. Consider adding one sentence of plain-language problem statement."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 and CHK-003 describe internal parameter threading (the how) but do not state user-observable outcomes. The user sees: reviewer runs in wrapper-root+custom-storyDir layouts no longer falsely report stale after metadata-only commits. Consider adding userSees fields to make this explicit."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-01T02:12:01.252Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 cites assertCurrentReviewRunForEvidence at core/review-run.ts:686, but line 686 is the checkEvidenceFreshnessForGit call site inside that function; the function definition is at line 639. The fix target (the call at 686) is still correctly identified, so this is a line-reference imprecision, not a wrong file or wrong fix."
+        },
+        {
+          "severity": "low",
+          "desc": "Background does not describe the bug mechanism (why a metadata-only commit to a custom storyDir causes false-stale with signedProjectRoot as metadataRoot arg). The auto-generated repro-first template is acceptable here, but a standalone reader needs to infer the mechanism from checklist context rather than the background."
+        }
+      ]
+    }
+  ],
+  "_hash": "77f362529e18f464f551f638eefa709f50ea3346ecb708b94db83518a720daee"
+}

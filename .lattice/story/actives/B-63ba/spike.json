@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.spike.v1",
+  "storyId": "B-63ba",
+  "spikes": [
+    {
+      "id": "SPK-001",
+      "question": "Can recovery-runner support explicit parameterized exploratory scenario profiles with a small deterministic helper and CLI wiring while preserving fixed B1-B15 defaults and avoiding lifecycle gate changes?",
+      "status": "resolved",
+      "disposableCodePaths": [],
+      "note": "run-driver.mjs already exports RECOVERY_SCENARIOS and accepts a scenarios list in enumerateCells; therefore the viable fix is a small validated parameterized-fault-profile helper, explicit --scenarioProfile/--scenarioParams CLI parsing, offline selfcheck coverage, and docs. No lifecycle/review/DONE/evidence hash code path needs to change.",
+      "createdAt": "2026-07-01T00:15:20.108Z",
+      "updatedAt": "2026-07-01T00:15:25.702Z",
+      "result": "viable_small_scope"
+    }
+  ],
+  "createdAt": "2026-07-01T00:15:20.108Z",
+  "updatedAt": "2026-07-01T00:15:25.702Z"
+}

@@ -20,6 +20,7 @@ import {
   scenarioAppliesToArm, denominatorSetsFor, enumerateCells, seededShuffle,
   validateRecord, isInfraVoid, runDriver,
 } from './run-driver.mjs';
+import { parseScenarioProfile, formatScenarioProfileLine } from './parameterized-fault-profile.mjs';
 
 let passed = 0, failed = 0;
 const fails = [];
@@ -100,6 +101,44 @@ group('enumeration: §3 applicability + exact cell/exclusion counts');
   // note that said "×2 repeats = 18" double-counted — excluded cells are pre-repeat).
   eq(enumerateCells({ tasks: ['t1', 't2', 't3'], k: 2 }).excluded.length, 9, 'enumeration: 3 tasks N/A = 9 (per arm,task,scenario, NOT ×k) (CHK-001:happy:1)');
   eq(enumerateCells({ tasks: ['t1', 't2', 't3'], k: 1 }).cells.length, 231, 'enumeration: 3 tasks k=1 = 231 cells (CHK-001:edge:0 intent params)');
+}
+
+// =========================================================================================
+group('scenario profiles: explicit offline list/weighted parsing');
+{
+  const fixed = parseScenarioProfile({ validScenarios: RECOVERY_SCENARIOS });
+  ok(fixed.explicit === false && fixed.profile === 'fixed' && fixed.scenarios === null, 'profiles: no flags keep the fixed default owned by run-driver');
+  const listed = parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B1,B2,B3', validScenarios: RECOVERY_SCENARIOS });
+  eq(listed.scenarios, ['B1', 'B2', 'B3'], 'profiles: list preserves requested scenario order');
+  eq(formatScenarioProfileLine(listed), '[run-driver] scenario profile list: B1,B2,B3', 'profiles: list line is explicit');
+  const weighted = parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:2,B2:1', validScenarios: RECOVERY_SCENARIOS });
+  eq(weighted.scenarios, ['B1', 'B1', 'B2'], 'profiles: weighted expands deterministically');
+  eq(formatScenarioProfileLine(weighted), '[run-driver] scenario profile weighted: B1,B1,B2', 'profiles: weighted line is explicit');
+  const weightedCells = enumerateCells({ tasks: ['foo'], scenarios: weighted.scenarios, k: 1, allowDuplicateScenarios: true }).cells;
+  eq(weightedCells.length, 15, 'profiles: weighted duplicate scenario slots enumerate when explicitly allowed');
+  const weightedRecords = (await runDriver({ cells: weightedCells, engine: async () => engineResult() })).records;
+  eq(weightedRecords.length, new Set(weightedRecords.map((r) => r.runId)).size, 'profiles: weighted duplicate scenario slots produce unique default runIds');
+  const b1RepeatsK1 = weightedCells
+    .filter((c) => c.arm === 'A4' && c.taskId === 'foo' && c.scenarioId === 'B1')
+    .map((c) => c.repeat)
+    .sort((a, b) => a - b);
+  eq(b1RepeatsK1, [1, 2], 'profiles: weighted duplicate B1 with k=1 offsets repeats');
+  const weightedCellsK2 = enumerateCells({ tasks: ['foo'], scenarios: weighted.scenarios, k: 2, allowDuplicateScenarios: true }).cells;
+  const b1RepeatsK2 = weightedCellsK2
+    .filter((c) => c.arm === 'A4' && c.taskId === 'foo' && c.scenarioId === 'B1')
+    .map((c) => c.repeat)
+    .sort((a, b) => a - b);
+  eq(b1RepeatsK2, [1, 2, 3, 4], 'profiles: weighted duplicate B1 with k=2 second slot starts at repeat 3');
+
+  let threw = false; try { parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B1,B1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: duplicate list entries throw');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B99', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: unknown scenario throws');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B1,,B2', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: empty CSV entry throws');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:0', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: zero weight throws');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:-1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: negative weight throws');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:1.5', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: non-integer weight throws');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: malformed weighted params throw');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: explicit weighted profile requires params');
+  threw = false; try { parseScenarioProfile({ scenarioParams: 'B1:2', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: params without profile throw');
 }
 
 // =========================================================================================
@@ -292,6 +331,9 @@ group('NEGATIVE CONTROL: validateRecord must REJECT a broken record');
 group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F-004/F-006)');
 {
   const driverPath = fileURLToPath(new URL('./run-driver.mjs', import.meta.url));
+  const outputText = (r) => `${r.stdout}${r.stderr}`;
+  const noRunArtifacts = (base) =>
+    !existsSync(base) && !existsSync(`${base}.exclusions.jsonl`) && !existsSync(`${base}.voids.jsonl`);
   // (1) enumerate-only (no engine) durably logs the N/A exclusions sidecar + exits 0
   const REC0 = join(TMP, 'enum-only.jsonl');
   const r0 = spawnSync(process.execPath, [driverPath, '--record', REC0, '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
@@ -327,6 +369,47 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   // host-2 INFO: duplicate --tasks exits 2 cleanly (was an uncaught exit-1 throw)
   const rDupTasks = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'dt.jsonl'), '--tasks', 'foo,foo', '--k', '1'], { encoding: 'utf8' });
   ok(rDupTasks.status === 2 && /duplicate task/.test(`${rDupTasks.stdout}${rDupTasks.stderr}`), 'CLI: duplicate --tasks exits 2 cleanly (host-2 INFO)');
+  // B-63ba:F-002: dangling value flags must fail before matrix enumeration or sidecar writes.
+  const rDanglingRecord = spawnSync(process.execPath, [driverPath, '--record', '--tasks', 'foo'], { encoding: 'utf8', cwd: TMP });
+  ok(rDanglingRecord.status === 2 && /invalid --record: requires a following non-flag value/.test(outputText(rDanglingRecord)), 'CLI: F-002 repro --record --tasks foo exits 2 with clear diagnostic');
+  ok(!existsSync(join(TMP, '--tasks.exclusions.jsonl')) && !existsSync(join(TMP, '--tasks.voids.jsonl')), 'CLI: F-002 repro --record --tasks foo writes no accidental --tasks sidecars');
+  const REC_DANGLING_ENGINE = join(TMP, 'engine-next.jsonl');
+  const rDanglingEngine = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_ENGINE, '--engine', '--k', '1'], { encoding: 'utf8' });
+  ok(rDanglingEngine.status === 2 && /invalid --engine: requires a following non-flag value/.test(outputText(rDanglingEngine)), 'CLI: F-002 repro --engine --k 1 exits 2 with clear diagnostic');
+  ok(noRunArtifacts(REC_DANGLING_ENGINE), 'CLI: F-002 repro --engine --k 1 writes no records or sidecars');
+  const rDanglingTasks = spawnSync(process.execPath, [driverPath, '--tasks'], { encoding: 'utf8', cwd: TMP });
+  ok(rDanglingTasks.status === 2 && /invalid --tasks: requires a following non-flag value/.test(outputText(rDanglingTasks)) && !/TypeError/.test(outputText(rDanglingTasks)), 'CLI: F-002 repro --tasks exits 2 without TypeError');
+  const REC_DANGLING_TASKS = join(TMP, 'dangling-tasks.jsonl');
+  const rDanglingTasksRecord = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_TASKS, '--tasks'], { encoding: 'utf8' });
+  ok(rDanglingTasksRecord.status === 2 && /invalid --tasks: requires a following non-flag value/.test(outputText(rDanglingTasksRecord)), 'CLI: dangling --tasks with record exits 2 with clear diagnostic');
+  ok(noRunArtifacts(REC_DANGLING_TASKS), 'CLI: dangling --tasks writes no records or sidecars');
+  // B-63ba: explicit offline weighted profile enumerates the requested scenario slots and
+  // still refuses a live campaign when no engine is supplied.
+  const REC_PROFILE = join(TMP, 'weighted-profile.jsonl');
+  const rProfile = spawnSync(process.execPath, [driverPath, '--record', REC_PROFILE, '--scenarioProfile', 'weighted', '--scenarioParams', 'B1:2,B2:1', '--tasks', 'foo', '--seed', 'fixed', '--k', '1'], { encoding: 'utf8' });
+  ok(rProfile.status === 0, 'CLI: weighted scenario profile enumerate-only exits 0');
+  ok(/\[run-driver\] scenario profile weighted: B1,B1,B2/.test(`${rProfile.stdout}${rProfile.stderr}`), 'CLI: weighted scenario profile line printed');
+  ok(/no --engine provided: refusing to run a live campaign/.test(`${rProfile.stdout}${rProfile.stderr}`), 'CLI: weighted enumerate-only keeps no-engine refusal');
+  const REC_BAD_PROFILE = join(TMP, 'bad-profile.jsonl');
+  const rBadProfile = spawnSync(process.execPath, [driverPath, '--record', REC_BAD_PROFILE, '--scenarioProfile', 'weighted', '--scenarioParams', 'B1:0', '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
+  ok(rBadProfile.status === 2 && /invalid scenario profile/.test(`${rBadProfile.stdout}${rBadProfile.stderr}`), 'CLI: invalid scenario profile exits 2 with clear error');
+  ok(!existsSync(REC_BAD_PROFILE) && !existsSync(`${REC_BAD_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_BAD_PROFILE}.voids.jsonl`), 'CLI: invalid scenario profile writes no records or sidecars');
+  const REC_DANGLING_PROFILE = join(TMP, 'dangling-profile.jsonl');
+  const rDanglingProfile = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PROFILE, '--tasks', 'foo', '--k', '1', '--scenarioProfile'], { encoding: 'utf8' });
+  ok(rDanglingProfile.status === 2 && /invalid --scenarioProfile: requires a following non-flag value/.test(outputText(rDanglingProfile)), 'CLI: dangling --scenarioProfile exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(noRunArtifacts(REC_DANGLING_PROFILE), 'CLI: dangling --scenarioProfile writes no records or sidecars (B-63ba:F-001)');
+  const REC_DANGLING_PARAMS = join(TMP, 'dangling-params.jsonl');
+  const rDanglingParams = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioParams'], { encoding: 'utf8' });
+  ok(rDanglingParams.status === 2 && /invalid --scenarioParams: requires a following non-flag value/.test(outputText(rDanglingParams)), 'CLI: dangling --scenarioParams exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(noRunArtifacts(REC_DANGLING_PARAMS), 'CLI: dangling --scenarioParams writes no records or sidecars (B-63ba:F-001)');
+  const REC_WEIGHTED_NO_PARAMS = join(TMP, 'weighted-no-params.jsonl');
+  const rWeightedNoParams = spawnSync(process.execPath, [driverPath, '--record', REC_WEIGHTED_NO_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioProfile', 'weighted'], { encoding: 'utf8' });
+  ok(rWeightedNoParams.status === 2 && /--scenarioProfile weighted requires --scenarioParams/.test(`${rWeightedNoParams.stdout}${rWeightedNoParams.stderr}`), 'CLI: weighted profile without params exits 2');
+  ok(!existsSync(REC_WEIGHTED_NO_PARAMS) && !existsSync(`${REC_WEIGHTED_NO_PARAMS}.exclusions.jsonl`) && !existsSync(`${REC_WEIGHTED_NO_PARAMS}.voids.jsonl`), 'CLI: weighted profile without params writes no records or sidecars');
+  const REC_PARAMS_NO_PROFILE = join(TMP, 'params-no-profile.jsonl');
+  const rParamsNoProfile = spawnSync(process.execPath, [driverPath, '--record', REC_PARAMS_NO_PROFILE, '--tasks', 'foo', '--k', '1', '--scenarioParams', 'B1:2'], { encoding: 'utf8' });
+  ok(rParamsNoProfile.status === 2 && /--scenarioParams requires --scenarioProfile/.test(`${rParamsNoProfile.stdout}${rParamsNoProfile.stderr}`), 'CLI: scenario params without profile exits 2');
+  ok(!existsSync(REC_PARAMS_NO_PROFILE) && !existsSync(`${REC_PARAMS_NO_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_PARAMS_NO_PROFILE}.voids.jsonl`), 'CLI: scenario params without profile writes no records or sidecars');
   // host-2 INFO: k<3 warns (under-powered) but still runs (enumerate-only exit 0)
   const rKlow = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'klow.jsonl'), '--tasks', 'foo', '--k', '2'], { encoding: 'utf8' });
   ok(rKlow.status === 0 && /below the pre-reg minimum/.test(`${rKlow.stdout}${rKlow.stderr}`), 'CLI: --k 2 warns under-powered but runs (host-2 INFO)');

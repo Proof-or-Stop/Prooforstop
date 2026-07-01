@@ -5,44 +5,384 @@
       "title": "Define the parameterized injection contract",
       "context": "Map the existing fixed recovery-runner scenario model to a conservative parameter schema for probability, distribution seed, and composition without changing the existing frozen B1-B15 protocol.",
       "relatedDocs": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T00:28:52.128Z",
+      "userSees": "Terminal includes \"profile default: scenarios=null,B1..B15\" and \"profile weighted: scenarios=B1,B1,B2\" in the selfcheck output.",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/parameterized-fault-profile.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "default fixed protocol still expands to null+B1-B15 with existing counts when no profile flag is supplied",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "a weighted profile such as B1:2,B2:1 expands deterministically to the expected scenario list for a fixed seed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "subset/list profile can select a valid explicit scenario subset without touching the canonical default constants",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "unknown scenario ids, duplicate malformed weights, and zero or negative weights fail closed with clear validation errors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "F-002 refresh: selfcheck proves no-profile parseScenarioProfile returns the fixed/default selection and default B1-B15 enumeration remains unchanged; output ended with 174 assertions passed, 0 failed.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node --input-type=module weighted unique-runId probe",
+          "result": "pass",
+          "note": "Weighted B1:2,B2:1 expands as B1,B1,B2 and canonical buildCanonicalRecord runIds remain unique: 15 cells, 15 unique runIds, duplicateRunIds empty.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck covers list profile B1,B2,B3 preserving explicit order and validating against RECOVERY_SCENARIOS without changing fixed defaults.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "zero-weight profile plus dangling --record/--engine/--tasks/--seed probes",
+          "result": "pass",
+          "note": "Invalid zero weight exits 2 with a clear profile diagnostic; dangling profile and shared CLI flags now fail closed before recovery-runner sidecar writes.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Implement recovery-runner parameter parsing behind an explicit mode",
       "context": "Add the smallest code path needed for exploratory parameterized runs, keeping default behavior identical and avoiding changes to lifecycle gate semantics.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T00:29:04.392Z",
+      "userSees": "Terminal includes \"[run-driver] scenario profile weighted: B1,B1,B2\" and then \"no --engine provided: refusing to run a live campaign\".",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/parameterized-fault-profile.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-driver CLI accepts an explicit exploratory weighted profile and enumerates the profile-derived cells without requiring a live engine",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "without profile flags, existing --tasks/--k/--seed behavior remains byte-compatible for applicable and N/A counts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "profile flags cannot override record assembly, denominator computation, adjudication, or live-engine refusal behavior",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:2,B2:1 --tasks foo --seed fixed --k 1",
+          "result": "pass",
+          "note": "Focused CLI run prints [run-driver] scenario profile weighted: B1,B1,B2, enumerates 15 applicable cells, and preserves no-engine live campaign refusal.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver.mjs --tasks foo --seed fixed --k 1",
+          "result": "pass",
+          "note": "No profile flags keeps existing behavior: command enumerates 77 applicable cells and 3 N/A exclusions for one task at k=1, then refuses live campaign without --engine.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module weighted unique-runId probe plus F-002 dangling flag probes",
+          "result": "pass",
+          "note": "Profile parsing only changes the explicit scenarios list passed to enumerateCells; record assembly, adjudication, denominator logic, no-engine refusal, and fail-closed CLI parsing remain on existing paths.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add regression coverage for fixed and parameterized runs",
       "context": "Prove default fixed scenarios remain unchanged, seeded parameterized runs are deterministic, and invalid parameter combinations fail closed with clear diagnostics.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T00:29:16.391Z",
+      "userSees": "Terminal ends with \"run-driver-selfcheck: <N> assertions passed, 0 failed (no live LLM)\".",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/parameterized-fault-profile.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-driver-selfcheck covers default fixed B1-B15 counts and the new profile expansion path in the same offline command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "same seed and same profile produce byte-identical scenario expansion and JSONL enumeration metadata",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "malformed profile CLI inputs exit non-zero before writing misleading records or sidecar logs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck covers fixed B1-B15 defaults, list/weighted profile parsing, CLI integration, invalid profile rejection, F-002 dangling shared flag rejection, and ended with 174 assertions passed, 0 failed.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module weighted unique-runId probe",
+          "result": "pass",
+          "note": "Same weighted profile and seed produce deterministic cells with no duplicate canonical runIds; duplicate B1 weighted slots are represented by offset repeat values.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "dangling --record/--engine/--tasks/--seed probes from temporary directories",
+          "result": "pass",
+          "note": "Malformed and dangling CLI inputs exit 2 before sidecar writes; repros for --record --tasks foo, --record <file> --engine --k 1, --tasks, and --seed generated no recovery-runner sidecars.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Document non-goals and safe usage boundary",
       "context": "Document that this is an offline robustness harness for exploratory red-team studies, not lossy evidence recovery, not a gate shortcut, and not a claim of unattended production readiness.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T00:29:28.501Z",
+      "userSees": "Docs contain the exact phrases \"exploratory offline profile\", \"fixed B1-B15 remains the default\", and \"not lifecycle gate evidence\".",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/README.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/lattice-experiment-protocol.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README and decision docs describe the explicit profile flags and safe offline use",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs say fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs explicitly reject fountain/erasure recovery, lifecycle gate shortcuts, and production-readiness claims for this feature",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"exploratory offline profile|fixed B1-B15 remains the default|not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "README and decision docs describe explicit scenario profile flags and safe offline use.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"fixed B1-B15 remains the default\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly state fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly reject lifecycle gate evidence claims for parameterized profile output; this feature does not claim lossy recovery or gate shortcut semantics.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T00:28:52.128Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:04.392Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:16.391Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:28.501Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
     }
   ]
 }

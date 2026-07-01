@@ -1,0 +1,42 @@
+{
+  "storyId": "B-e891",
+  "checkedAt": "2026-07-01T02:02:47.619Z",
+  "headHash": "eb97c1edfe402b8afd6942a64f115eb1b3cfba9a",
+  "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+  "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+  "reviewRound": "2026-07-01T01:52:06.097Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-e891/checklist.json#CHK-001",
+      "promise": "Terminal/user command shows parent-roadmap large-ledger G02 baseline smoke PASS and confirms one missing required row blocks full_roadmap_complete.",
+      "status": "verified",
+      "verifiedBy": "source-read plus live node smoke",
+      "evidence": "Read the G02 smoke source and ran node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js, which printed parent-roadmap large-ledger G02 baseline smoke PASS. The smoke asserts exactly 15 required row ids, 14 generated closed rows, G02-M15 omitted, G02-M15 open and invalid with missing_required_row, allRowsClosed false, no-full-roadmap-claim, and enforce-mode full completion wording blocked."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "promise": "Documentation states G01 and G02 are implemented while G03-G10 remain future groups, the full 10x15 baseline remains not complete/incomplete, and G02 is the missing-row negative control.",
+      "status": "verified",
+      "verifiedBy": "document read plus rg boundary check",
+      "evidence": "Read the baseline doc and ran the transcript boundary rg. Lines 4 and 76 state G01-G02 implemented only and the full 10x15 baseline is not complete; lines 82 and 94 name the G02 smoke; lines 108-116 keep G02 implemented and G03-G10 future; lines 164 and 182 record G02 as 14 closed, 1 open, 1 invalid, full claim allowed no; lines 263-270 state B-e891 implements only G02 and the full smoke remains future/incomplete with no elevated rollout, Authority, fullAuthority, production, or independent two-host evidence claim."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Read .lattice/story/actives/B-e891/evidence/transcript-diff.md and reran node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js -> parent-roadmap large-ledger G02 baseline smoke PASS. Source assertions cover the happy path and edge/adversarial controls: 15 required rows, 14 generated rows, exactly G02-M15 missing, openRows=[G02-M15], invalidRows=[G02-M15], reasonCodes includes missing_required_row, no-full-roadmap-claim, allRowsClosed=false, and enforce-mode Full roadmap complete blocked."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Read the baseline doc and reran rg -n \"Status:|Current implemented slice|parent-roadmap-large-ledger-g02|G02 \\||G03 \\||G10 \\||full 10x15 baseline is not complete|full 10x15|B-b596|B-e891\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md, confirming G01-G02 only, G03-G10 future, G02 missing-row negative control, and full 10x15 not complete/incomplete. Also ran node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js -> retired authority vocabulary guard PASS, and rg TODO/FIXME/XXX over the changed doc and smoke returned no matches."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer verified both user-visible promises from source, docs, transcript-diff, and live commands. Edge/adversarial coverage is present through G02 missing-row assertions, enforce-mode full-completion blocking, retired vocabulary guard smoke, and doc boundary grep. No unresolved TODO/FIXME/XXX markers were found; elevated rollout/Authority/fullAuthority/production/two-host terms appear only as denied or guarded boundary language, not as new completion claims."
+  },
+  "_hash": "5ae36defb67cf90749ab8cb66966b5c2cb0885e35b98df741bc3691a41838f57"
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-e891",
+  "state": "confirmed",
+  "ledgerHash": "sha256:29c1cc57bbe9e82ee59c128d2b6b1f98265897175eb7fec2a1b73bb47d05e217",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "G02 has an independent 15-required-row parent roadmap ledger inventory with row ids G02-M01 through G02-M15.",
+      "doneMeans": "The G02 smoke builds a requiredRowIds inventory of exactly 15 G02 row ids and evaluates exactly 15 row results.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "G02 generates 14 fresh closed rows and leaves exactly one required row missing.",
+      "doneMeans": "The G02 smoke asserts 14 generated ledger rows, 14 closed rows, one open row, and one invalid row.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-002",
+      "claim": "The missing G02 row is not silently ignored.",
+      "doneMeans": "The G02 smoke asserts the missing row appears in openRows and invalidRows with reason code missing_required_row.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-003",
+      "claim": "G02 blocks full roadmap completion wording.",
+      "doneMeans": "The G02 smoke asserts summaryClass is not full_roadmap_complete, allRowsClosed is false, and an enforce-mode full completion claim is blocking.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-004",
+      "claim": "The baseline document records G02 as implemented while keeping G03-G10 and the full 10x15 baseline future/incomplete.",
+      "doneMeans": "The document includes the G02 runnable command and preserves the no Authority, production, fullAuthority, or independent two-host overclaim boundary.",
+      "requiredEvidence": [
+        "docs_grep",
+        "retired_authority_guard"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-01T01:40:43.472Z",
+  "updatedAt": "2026-07-01T01:40:49.118Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-G02-missing-row-negative-control",
+    "acceptedInterpretationHash": "sha256:a918bd6192b8d28bae16f18a27f2bf4fd3b7582e05863a3672067de3b966d2a7",
+    "acceptedAt": "2026-07-01T01:40:49.118Z"
+  }
+}

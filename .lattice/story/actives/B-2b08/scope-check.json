@@ -1,0 +1,45 @@
+{
+  "storyId": "B-2b08",
+  "checkedAt": "2026-07-01T02:48:08.858Z",
+  "features": [
+    {
+      "feature": "PLAN scope is limited to clarifying the DONE version-bump skip reason, focused expectations, and lifecycle documentation.",
+      "covered_by": "story description + CHK-001/CHK-002/CHK-003 + scope-boundary.allowed",
+      "status": "covered",
+      "excluded_by": "scope-boundary.excluded prevents release/publish policy changes, experiment/product ledger work, unrelated stories, and broad version-policy expansion",
+      "source": "lattice story_get --storyId=B-2b08; scope-boundary.json"
+    },
+    {
+      "feature": "experiments/** must not be added to CLI package version bump policy.",
+      "covered_by": "scope-boundary.excluded explicitly says not to expand CLI package version bumping to every repository code artifact or experiments/**; execution allowedPaths omits experiments/**; done-effects predicate watches packages/main/src/** plus package/version inputs only",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded: Do not expand CLI package version bumping to every repository code artifact or experiments/** in this story",
+      "source": "sed -n 132,154p packages/main/src/handlers/done-effects.ts; execution-boundary.json"
+    },
+    {
+      "feature": "Allowed paths are sufficient and not materially over-broad for the planned wording/test/doc change.",
+      "covered_by": "execution-boundary allows .lattice story evidence, story-lifecycle.md, core/version-bump.ts, handlers/done-effects.ts, and the two focused smoke tasks where the searched skip-line/runtime-input expectations live",
+      "status": "covered",
+      "excluded_by": "execution-boundary excludes .omx/**, docs/story/**, tests/fixtures/** and does not allow experiments/**",
+      "source": "execution-boundary.allowedPaths; rg VERSION_BUMP_SKIPPED_LINE/no material code/watched runtime inputs"
+    },
+    {
+      "feature": "Allowed commands are enough for focused verification and do not permit remote publish or destructive reset/clean flows.",
+      "covered_by": "execution-boundary allows build plus node packages/main/dist/tasks/version-bump-smoke.js and node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js, with git diff/show/status and Lattice lifecycle/evidence commands",
+      "status": "covered",
+      "excluded_by": "execution-boundary blocks git push*, git reset --hard*, git checkout -- *, rm -rf *, omx, and .omx",
+      "source": "execution-boundary.allowedCommands and excludedCommands"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "78ab576d44e6105dbc63ec2289c75edf69b9739db7ca157a56b620d099e022ee",
+  "openQuestions": []
+}

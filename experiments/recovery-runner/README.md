@@ -98,6 +98,10 @@ a stream of canonical §7 run-records. It:
   the §3 applicability table (B4/B5/B10 do **not** apply to A1; the other 12 + the null
   ablation cell apply to every arm). N/A cells are excluded **and logged**, never counted as
   failures.
+- supports an explicit `--scenarioProfile` / `--scenarioParams` exploratory offline profile
+  for scenario-subset dry runs. `list` accepts `B1,B2,B3`; `weighted` accepts
+  `B1:2,B2:1` and expands deterministically to `B1,B1,B2`. The fixed B1-B15 remains the
+  default; profile runs are not lifecycle gate evidence.
 - assigns a seeded, deterministic, reproducible run order (`runOrderSeed`).
 - invokes a **pluggable per-cell engine** (injected via `--engine`), so the driver core is
   fully offline-testable; the real campaign plugs **`live-engine.mjs`** as the engine adapter
@@ -142,6 +146,7 @@ a stream of canonical §7 run-records. It:
 # enumerate the matrix only (NO LLM): prints applicable + N/A cell counts and writes the
 # N/A exclusions sidecar (<record>.exclusions.jsonl); no records (no engine ran)
 node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5
+node run-driver.mjs --scenarioProfile weighted --scenarioParams B1:2,B2:1 --tasks eval-expr --seed fixed --k 1
 
 # run for real: supply an engine module exporting `default async (cell, attempt) => result`.
 # Without --engine the driver refuses to launch a live campaign (that is a separate task).
