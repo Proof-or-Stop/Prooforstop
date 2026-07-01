@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-2b08",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:68028e357c546ed2ce6d54bef893efe543251e837f2684250dcad9dd87ab6221",
+  "acceptanceBindings": [
+    {
+      "id": "B-2b08:acceptance:version-bump-skip-runtime-scope",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Binds the user-visible DONE skip wording and CLI/runtime version-boundary docs to all B-2b08 checklist verification intents."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-2b08 acceptance binding maps the original user acceptance claim to the checklist and verificationIntent refs that prove the misleading no material code change wording is gone while runtime-scope version policy remains unchanged.",
+  "createdAt": "2026-07-01T02:51:22.151Z",
+  "updatedAt": "2026-07-01T02:51:22.151Z"
+}
