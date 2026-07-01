@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-01T03:05:44.403Z",
       "reviewRunId": "B-9dcb:RR-012",
       "_hash": "89ad4d2bc860d0cb3981155a3ae1c5cb733dcee68ce0d0145485f54baad22054"
+    },
+    {
+      "id": "B-9dcb:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion false positive confirmed. Both captureReviewRunSnapshot and diagnoseReviewRunSnapshot remain exported and defined in packages/main/src/core/review-run.ts (lines 326 and 273 respectively). The concept gate flagged them because the old-signature `-` lines look like deletions to a line-diff heuristic — in reality, both functions had a trailing `metadataRoot: string = projectRoot` parameter appended (signature modification, not deletion). All 34 caller references outside the definition file are legitimate call sites in the newly added smoke test task file review-run-metadataroot-wrapper-root-smoke.ts, which is part of this story. No dangling references exist. No concept deletion incompleteness.",
+      "createdAt": "2026-07-01T03:09:57.517Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-013",
+      "_hash": "98bd1d74e6abaeee768c25762350439edf2b4b46734b92b1e0fc13c1b9f56052"
     }
   ]
 }
