@@ -23,7 +23,24 @@
     "packages/main/src/core/parent-roadmap-totality.ts"
   ],
   "scopeChangeReason": "B-b596 implements only the G01 baseline smoke and documentation/validation binding; the listed ProofStory files are required DEV-gate artifacts created by this story and must be in scope. It must not change the parent-roadmap evaluator or other roadmap documents.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Delivery context pack is TEST/DONE evidence required for lattice-review-delivery; it does not expand product scope beyond the G01 baseline smoke.",
+      "timestamp": "2026-07-01T01:00:13.107Z",
+      "paths": [
+        ".lattice/story/actives/B-b596/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-b596/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1ced3dd32a7f4204d01b58326de64789797b3879",
+      "materialHash": "6fda9715b936cb4d4cb7f939725934eafe09d4f89e412b6601e9f08ed81a9643"
+    }
+  ],
   "createdAt": "2026-07-01T00:33:06.133Z",
-  "updatedAt": "2026-07-01T00:38:13.123Z"
+  "updatedAt": "2026-07-01T01:00:13.107Z"
 }
