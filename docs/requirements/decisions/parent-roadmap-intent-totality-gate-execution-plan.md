@@ -4,38 +4,42 @@ Status: implemented local read-only diagnostic/evaluator surface for the
 parent-roadmap totality contract. The shipped boundary covers CLI status and
 evaluation commands, a pure rollup evaluator, claim wording consumer,
 ProofStory-binding diagnostics, process-fact registration, and focused smoke
-coverage. It does not make parent-roadmap status a global lifecycle hard gate,
-does not mark all M4-M12 runtime roadmap work complete, and does not mint
-server-backed or production completion proof.
+coverage. B-e781 also closes the B-43de M4-M12 parent roadmap rows with local
+machine evidence and row-level claim boundaries: `parent_roadmap_status
+--storyId=B-43de --json` reports `allRowsClosed=true` and
+`summaryClass=full_roadmap_complete`. This remains a local Proofbound CLI
+closure claim only. It does not make parent-roadmap status a global lifecycle
+hard gate, does not mint server-backed or production completion proof, and does
+not revive retired Authority completion semantics.
 
 ## Current Implementation Status
 
 This table is the current status boundary for the document. ✅ means the local
 CLI/read-only implementation exists in source and is covered by smoke or
 process-fact contract checks. Partial/future rows remain explicit because the
-runtime automation and original roadmap closure are broader than this local
-diagnostic surface.
+runtime automation and rollout/repair tooling are broader than this local
+diagnostic surface and are not required for B-43de M4-M12 parent-row closure.
 
 | Capability | Status | Source / evidence | Boundary |
 |---|---|---|---|
-| Red/repro and negative-control smoke coverage | Implemented ✅ | `packages/main/src/tasks/parent-roadmap-totality-smoke.ts` covers partial, blocked, invalid, stale, migration, B-43de, overclaim, and enforce-mode samples. | Smoke proves the local contract; it does not certify every original M4-M12 runtime milestone complete. |
+| Red/repro and negative-control smoke coverage | Implemented ✅ | `packages/main/src/tasks/parent-roadmap-totality-smoke.ts` covers partial, blocked, invalid, stale, migration, B-43de, overclaim, and enforce-mode samples. | Smoke proves the local contract; B-e781 separately binds B-43de M4-M12 closure to row-level local evidence and boundaries. |
 | Parent roadmap ledger vocabulary and row-state model | Implemented ✅ | `packages/main/src/core/parent-roadmap-totality.ts` defines `ParentRoadmapLedger`, row statuses, closure effects, stale/missing/invalid evidence states, and schema versions. | It evaluates supplied or sample ledgers; it does not migrate every historical roadmap automatically. |
 | Parent rollup evaluator | Implemented ✅ | `evaluateParentRoadmapLedger` computes `allRowsClosed`, `summaryClass`, `claimType`, row reasons, and next actions while ignoring caller-written rollup conclusions. | Pure local evaluator only; it is not a second lifecycle state machine. |
 | Claim consumer / overclaim detector | Implemented ✅ | `evaluateParentRoadmapClaim` detects full-roadmap wording when the rollup requires `no-full-roadmap-claim`; `runtime:parent_roadmap_totality_claim_consumer` is registered as a process fact. | Blocks/throws only inside the local parent-roadmap evaluator surface or consumers that explicitly call it; it is not a global DONE hard gate. |
 | ProofStory binding diagnostic | Implemented ✅ | `evaluateParentRoadmapProofStoryBinding` checks original intent snapshot, acceptance bindings, required row inventory, and summary overclaim gaps. | Diagnostic binding for parent totality; it does not replace ProofStory lifecycle gates or external receipt proof. |
 | Read-only CLI commands | Implemented ✅ | `parent_roadmap_status` and `parent_roadmap_evaluate` are registered read-only commands in `command-policy.ts`, `command-catalog.ts`, `config.ts`, and `handlers/parent-roadmap.ts`. | Commands do not write story metadata, evidence, lifecycle phase, queue state, or production receipts. |
 | Process-fact / registry drift checks | Implemented ✅ | `process-fact-levels.ts`, `process-fact-registry.ts`, and `scripts/verify-process-fact-contract.mjs` register command and claim-consumer semantics. | Registry coverage is a contract check, not proof that unrelated roadmap children are done. |
-| Migration / rollout / repair automation | Partial / future | Built-in `migration` and `B-43de` samples expose partial parent governance and needed rows. | No bulk migration, repair command, or global enforce rollout is claimed here. |
-| Cross-track certification for the original roadmap | Partial / future | Local smoke covers representative ledgers and B-43de-style regression behavior. | All M4-M12 runtime roadmap rows remain individually provable only by their own child implementation evidence. |
+| Migration / rollout / repair automation | Partial / future | Built-in `migration` samples expose migration-needed or incomplete parent governance rows; the `B-43de` sample/evidence now represents bounded local M4-M12 closure. | Optional follow-up only. No bulk migration, repair command, or global enforce rollout is required for the B-e781 M4-M12 parent-row closure claim. |
+| Cross-track certification for the original roadmap | Implemented / closed ✅ | B-e781 closes B-43de M4-M12 parent rows with local machine evidence; `parent_roadmap_status --storyId=B-43de --json` reports `allRowsClosed=true` and `summaryClass=full_roadmap_complete`. | Closure is bounded to local Proofbound CLI evidence and per-row claim boundaries; it is not a global lifecycle hard gate, production claim, retired Authority completion claim, or external runtime conformance claim. |
 
 ## Problem Statement
 
 B-5082 protected story-local intent for B-43de: the scoped ProofStory parent
 ledger work could not silently shrink away from the story it had agreed to do.
-That was necessary, but it did not prove that every child roadmap milestone in
-the original strengthening request was complete. B-43de could reach DONE with a
-valid parent governance ledger while M4 was still partial and M5-M12 still
-needed child implementation stories.
+That was necessary, but before B-e781 it did not prove that every child roadmap
+milestone in the original strengthening request was represented, closed, and
+claim-bounded. B-e781 closes that gap for the B-43de M4-M12 parent ledger with
+local machine evidence and row-level boundaries.
 
 This is a cross-story parent-child totality gap, not a local story gate
 failure. The missing product behavior is an operator-visible and
@@ -55,9 +59,12 @@ valid closure evidence.
   global lifecycle hard gate or automatic DONE gate.
 - This document/status update does not edit the old strengthening roadmap
   document.
-- This document/status update does not claim M4-M12 runtime completion.
-- This plan does not mark B-43de, B-5082, or any child roadmap story
-  as sufficient proof of full roadmap completion.
+- This document/status update does not expand B-e781's local B-43de M4-M12
+  parent-row closure into production, retired Authority, or external runtime
+  conformance completion.
+- This plan does not make B-43de, B-5082, or any child roadmap story sufficient
+  proof for claims outside the row-level evidence and claim boundaries recorded
+  in the parent roadmap ledger.
 - This plan does not let prose, dispatch transcripts, reviewer summaries, or
   local confidence substitute for structured child-row closure evidence.
 
@@ -519,7 +526,9 @@ Tests:
 
 - Existing parent story without a ledger is reported as migration-needed, not
   silently complete.
-- B-43de migrates to partial parent governance with open child rows.
+- B-43de remains recognized as bounded local M4-M12 closure; migration-needed or
+  partial/open-row expectations apply only to genuinely incomplete historical
+  parent ledgers.
 - Invalid deferral repair requires human approval.
 - Rollback from enforce to warn preserves evidence and audit trail.
 
@@ -582,9 +591,10 @@ Rollback and compatibility notes:
 
 ## Execution Order
 
-The original B-9fc5 slice was plan-only. Subsequent local CLI work has now
-implemented M1-M6 as a read-only diagnostic/evaluator surface with smoke and
-process-fact coverage:
+The original B-9fc5 slice was plan-only. Subsequent local CLI work implemented
+M1-M6 as a read-only diagnostic/evaluator surface with smoke and process-fact
+coverage, and B-e781 closed the B-43de M4-M12 parent rows with local machine
+evidence and explicit claim boundaries:
 
 1. ✅ M1 proves the bug and target behavior through focused smoke and negative
    controls.
@@ -594,22 +604,24 @@ process-fact coverage:
    evaluator/diagnostic surface.
 5. ✅ M5 binds the result to ProofStory intent and acceptance-binding checks.
 6. ✅ M6 exposes the behavior through read-only CLI diagnostics.
-7. Partial / future M7 work is migration, repair automation, and any wider
-   rollout beyond the read-only samples.
-8. Partial / future M8 work is cross-track certification that every original
-   roadmap child row has its own fresh closure evidence.
+7. Optional / future migration, repair automation, and wider rollout remain
+   outside the B-e781 closure requirement.
+8. ✅ B-e781 cross-track certification closes B-43de M4-M12 parent rows:
+   `parent_roadmap_status --storyId=B-43de --json` reports
+   `allRowsClosed=true` and `summaryClass=full_roadmap_complete`.
 
 The current implementation therefore gives operators a trustworthy local answer
 to "is this parent roadmap complete or only partially governed?" It deliberately
-does not claim all M4-M12 runtime work complete and does not install a global
-lifecycle hard gate.
+does not install a global lifecycle hard gate, does not claim production or
+retired Authority completion, and keeps any optional migration/repair rollout
+separate from the B-43de M4-M12 local closure claim.
 
 ## Machine Verification Table
 
 | Check | Purpose | Command |
 |---|---|---|
 | Marker sweep | Proves the plan contains the required contract markers. | `rg -n "M1\\. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim|ParentRoadmapLedger|ParentRollupResult|child-story-needed|deferred-with-human-approval|B-5082" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md` |
-| Read-only boundary | Proves the current status still names read-only diagnostic scope rather than a global lifecycle hard gate. | `rg -n "read-only diagnostic|not a global lifecycle hard gate|does not claim M4-M12 runtime completion|Partial / future" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md` |
+| Read-only boundary | Proves the current status still names read-only diagnostic scope rather than a global lifecycle hard gate. | `rg -n "read-only diagnostic|not a global lifecycle hard gate|retired Authority completion|Partial / future" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md` |
 | Implementation marker sweep | Proves the status table names the shipped evaluator, claim consumer, ProofStory binding, CLI, process-fact, and smoke surfaces. | `rg -n "Implemented ✅|evaluateParentRoadmapLedger|evaluateParentRoadmapClaim|evaluateParentRoadmapProofStoryBinding|parent_roadmap_status|process-fact|parent-roadmap-totality-smoke" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md` |
 | Runtime non-touch check | Proves this document-only status update did not require package runtime edits. | `git diff --name-only -- packages/main/src packages/main/tests` |
 | Old roadmap non-touch check | Proves the old strengthening roadmap doc was not edited by this story. | `git diff --name-only -- docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md` |
@@ -621,7 +633,8 @@ The honest user-facing claim is:
 
 "The parent roadmap intent-totality contract has a local read-only CLI
 diagnostic/evaluator implementation with claim-consumer, ProofStory-binding,
-process-fact, and smoke coverage. It tells operators when parent governance is
-only partial and prevents local parent-roadmap overclaim wording in the
-diagnostic surface. It is not a global lifecycle hard gate, and it does not
-claim the original M4-M12 runtime roadmap complete."
+process-fact, and smoke coverage. B-e781 closes the B-43de M4-M12 parent rows
+with local machine evidence and row-level claim boundaries; the status command
+reports `allRowsClosed=true` and `summaryClass=full_roadmap_complete`. This is
+not a global lifecycle hard gate, production claim, retired Authority
+completion claim, or external runtime conformance claim."

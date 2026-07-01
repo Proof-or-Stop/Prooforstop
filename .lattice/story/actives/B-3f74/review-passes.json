@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-3f74:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed. Verified parent roadmap wording at docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:7, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:32, and docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:607 matches lattice parent_roadmap_status --storyId=B-43de --json allRowsClosed=true and summaryClass=full_roadmap_complete. Optional migration/repair remains outside the B-e781 closure requirement, and Proof Admissibility Authority-facing wording at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:50 preserves external/retired compatibility with productionDone=false. No blocker found.",
+      "createdAt": "2026-07-01T00:25:34.319Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-001",
+      "_hash": "8096ae3a52f056f743950279af7c7fb015c2826cedd3b3212d59ce64df749a35"
+    },
+    {
+      "id": "B-3f74:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed. Checklist evidence covers B-e781/B-43de M4-M12 closure via parent_roadmap_status allRowsClosed=true and summaryClass=full_roadmap_complete, preserves migration/repair as optional future work, marks Authority-facing proof as external/retired compatibility boundary, and keeps productionDone/Authority/external runtime claims bounded to local CLI evidence.",
+      "createdAt": "2026-07-01T00:26:25.055Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-003",
+      "_hash": "96760579e42873951bb6617439da630992a56e8b239d9d648e24945d14f15d0d"
+    },
+    {
+      "id": "B-3f74:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Verified B-3f74:F-002 remains fixed. parent-roadmap-intent-totality-gate-execution-plan.md now states B-e781 closes B-43de M4-M12 with allRowsClosed=true/full_roadmap_complete, while partial/open wording is limited to target-contract examples, red/regression fixtures, migration samples, or genuinely incomplete historical ledgers. No current-looking B-43de partial/open contradiction found. Authority/production boundaries remain explicit: local Proofbound CLI only; no global lifecycle hard gate, production claim, retired Authority completion, or external runtime conformance claim.",
+      "createdAt": "2026-07-01T00:31:28.139Z",
+      "reviewRound": "2026-07-01T00:29:41.296Z",
+      "reviewRunId": "B-3f74:RR-006",
+      "_hash": "9e52d3aa8ab1249a4c93da75de6fb61de8e19fd722295858a725a6377467de88"
+    },
+    {
+      "id": "B-3f74:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs second-round review passed. Verified B-3f74:F-001 is fixed: docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:32 now separates migration samples from B-43de, stating B-43de sample/evidence represents bounded local M4-M12 closure; docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:29-38 likewise states B-e781 closes the B-43de M4-M12 parent ledger with local command-backed evidence and bounded non-Authority/non-production claims. M7 no longer contradicts full_roadmap_complete: docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:527-531 says migration-needed or partial/open-row expectations apply only to genuinely incomplete historical parent ledgers, while B-43de remains recognized as bounded local M4-M12 closure. `lattice parent_roadmap_status --storyId=B-43de --json` reports allRowsClosed=true, openRows=[], and summaryClass=full_roadmap_complete. No blocker found.",
+      "createdAt": "2026-07-01T00:31:38.394Z",
+      "reviewRound": "2026-07-01T00:29:41.296Z",
+      "reviewRunId": "B-3f74:RR-008",
+      "_hash": "5a39305d0cf5e8e9c70040e041daabc0e790b0fd23ba60cac8f257b0373151ad"
+    },
+    {
+      "id": "B-3f74:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Second-round test-coverage review replayed checklist evidence over final doc state after 0b5e775. B-43de parent_roadmap_status reports allRowsClosed=true and summaryClass=full_roadmap_complete; parent roadmap doc keeps migration/repair optional/future and bounds B-e781 closure to local CLI evidence; Proof Admissibility doc keeps Authority-facing proof consumer as external/retired compatibility boundary with productionDoneEligible=false/productionDone=false; targeted overclaim sweep found only explicit denial/boundary wording, not production or Authority completion claims.",
+      "createdAt": "2026-07-01T00:31:39.404Z",
+      "reviewRound": "2026-07-01T00:29:41.296Z",
+      "reviewRunId": "B-3f74:RR-007",
+      "_hash": "fccc06bdf69f58eefcb3d1c49fef1426962f2a7b7399180aabe81473a3f10a3e"
+    },
+    {
+      "id": "B-3f74:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: verified post-0b5e775 boundary wording is internally consistent. B-e781/B-43de M4-M12 closure is stated as local Proofbound CLI row-level closure with parent_roadmap_status allRowsClosed=true/full_roadmap_complete; optional migration/repair remains future/legacy/incomplete-ledger scoped; Authority/production language remains non-overclaiming with productionDone=false/local compatibility boundaries.",
+      "createdAt": "2026-07-01T00:32:01.672Z",
+      "reviewRound": "2026-07-01T00:29:41.296Z",
+      "reviewRunId": "B-3f74:RR-005",
+      "_hash": "43a1ad16e6a032df4f94071affd9358183e18d50ad61dba43a0de0ea3ba6f224"
+    }
+  ]
+}

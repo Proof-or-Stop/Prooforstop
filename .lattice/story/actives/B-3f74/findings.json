@@ -1,0 +1,48 @@
+{
+  "findings": [
+    {
+      "id": "B-3f74:F-001",
+      "desc": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:32 still says the built-in `migration` and `B-43de` samples expose partial parent governance and needed rows. That conflicts with the B-e781 closure claim and the read-only status check `lattice parent_roadmap_status --storyId=B-43de --json`, which reports `allRowsClosed=true`, `openRows=[]`, and `summaryClass=full_roadmap_complete` for B-43de. This leaves the scoped Parent Roadmap doc internally inconsistent about whether B-43de M4-M12 is closed or still partial/open.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-01T00:26:29.064Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-004",
+      "_hash": "4dd1a1dccf6fb3b9fd0cabc7c4ee8cfd0710aae322c8a390a6f1ec8804fc2f9d",
+      "files": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 0b5e7752181c1d5715f5e079f76d9db8b43a6d87: line 32 now separates migration samples from B-43de closure evidence, stating B-43de now represents bounded local M4-M12 closure; verified with rg for allRowsClosed=true/full_roadmap_complete and no stale B-43de partial sample wording.",
+      "resolvedAt": "2026-07-01T00:29:51.378Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f74:F-002",
+      "desc": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md still has a current-looking M7 test expectation at lines 525-530 that says B-43de migrates to partial parent governance with open child rows, while the current status and execution-order sections at lines 32-33 and 592-609 say B-e781 closed B-43de M4-M12 and parent_roadmap_status now reports allRowsClosed=true/full_roadmap_complete. Because B-3f74 is specifically syncing boundary status after B-e781, this leaves contradictory B-43de boundary wording in the same document.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T00:26:40.535Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-002",
+      "_hash": "4af2118b7e003839de6140a593d48b3a1f9b07663d24757ec4b56ed7097ff15c",
+      "files": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 0b5e7752181c1d5715f5e079f76d9db8b43a6d87: the M7 test expectation no longer describes B-43de as partial/open; it names legacy migration samples for partial behavior and B-43de as full_roadmap_complete closure. Verified by targeted rg and git diff --check.",
+      "resolvedAt": "2026-07-01T00:29:51.489Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

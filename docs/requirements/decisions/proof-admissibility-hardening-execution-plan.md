@@ -7,7 +7,7 @@
 > and configured high-risk local enforce consumers. External/server-backed
 > production proof parity, append-only admissibility ledger storage, and
 > cross-runtime conformance remain retired, non-goals, future integration, or
-> partial as explicitly marked below.
+> external compatibility boundaries as explicitly marked below.
 > Date: 2026-06-23.
 > Scope: Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
@@ -31,10 +31,11 @@ gates or create storage outside `.lattice/evidence/`.
 
 This table freezes the current capability audit for the proof-admissibility
 slice. It is the status contract for this document: implemented means present in
-source and covered by a focused smoke or registry check; partial means the local
-CLI side exists but broader ledger, cross-runtime, or external production
-semantics are not complete; future means intentionally outside the local CLI
-core; missing means described by the plan but not currently implemented.
+source and covered by a focused smoke or registry check; external compatibility
+means the local CLI preserves the boundary for retired/server-backed consumers
+without implementing a production adapter; future means intentionally outside
+the local CLI core; missing means described by the plan but not currently
+implemented.
 
 | Capability | Status | Source / evidence | Boundary |
 |---|---|---|---|
@@ -46,7 +47,7 @@ core; missing means described by the plan but not currently implemented.
 | DONE_REQUIRED hard-fail rollout | Implemented for configured local CLI high-risk consumer ✅ | `done-required-validation.ts`; `lattice.config.json` `proofAdmissibility.enforcedConsumers`; hardening smoke | Blocks inadmissible DONE-required evidence in enforce mode; does not claim production completion. |
 | REVIEW review-assurance / quorum hard-fail rollout | Implemented for configured high-risk REVIEW consumer ✅ | `review-assurance-floor.ts`; `review-escalation.ts`; hardening smoke | REVIEW proof diagnostics can block high-risk review-assurance/quorum paths; local host verdicts remain non-authority. |
 | HANDOFF proof-ref hard-fail capability | Implemented for configured local CLI handoff consumers ✅ | `proof-admissibility-handoff.ts`; `lattice-handoff.ts`; handoff command schemas; hardening smoke | Handoff create/read/accept/resume/receipt-submit projections resolve project `proofAdmissibility` policy, carry explicit `admissibleProofRefs`, and surface blocked reasons in JSON/text. They remain local/diagnostic and keep `productionDone=false`. |
-| Authority-facing proof consumer | Partial | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | A matching Authority-facing gate decision can be admissible evidence input with `productionDoneEligible=false`; external Authority adapter production projection is future work. Plain receipts and legacy refs cannot replace the gate decision. |
+| Authority-facing proof consumer | External / retired compatibility boundary ✅ | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | Local CLI compatibility preserves the gate-decision vocabulary and admissibility boundary while keeping `productionDoneEligible=false` / `productionDone=false`. It does not implement an external Authority production adapter; plain receipts and legacy refs cannot replace the gate decision. |
 | Legacy classification | Implemented for read-time local CLI diagnostics ✅ | `packages/main/src/core/proof-admissibility-legacy.ts`; hardening smoke | Legacy evidence is audit-readable only and cannot satisfy new strong proof gates. |
 | Admissibility waterline | Implemented as read-only diagnostic projection ✅ | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `lattice admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
 | Append-only admissibility ledger under `.lattice/evidence/` | Retired/non-goal for the local CLI | Appendix C reference schema only; `proof-admissibility-hardening-smoke.ts` ledger-retirement assertion | Current local CLI implementation evaluates directly and renders a diagnostic waterline; it does not claim durable ledger rows or expose a ledger writer. |
