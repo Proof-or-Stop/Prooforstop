@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-01T02:51:12.598Z",
       "reviewRunId": "B-9dcb:RR-006",
       "_hash": "31799487516b3d2b8dc16345ceeb35bd22eaa70e3860a48441aaf7944284cff4"
+    },
+    {
+      "id": "B-9dcb:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001..CHK-004 behavior claims verified against code. (1) metadataRoot is correctly threaded through captureReviewRunSnapshot (3rd positional arg, default=projectRoot), diagnoseReviewRunSnapshot (2nd positional arg, default=projectRoot), and both consumer freshness checks via run.workspaceBinding?.metadataRoot ?? projectRoot. (2) No undefined can leak into loadConfig: workspaceBinding.metadataRoot is required (requireBindingText at handler:116/build:181), and the ?? projectRoot fallback handles legacy no-binding runs. (3) Plain-repo byte-identity confirmed: Proof D in smoke asserts captureReviewRunSnapshot and checkEvidenceFreshnessForGit are byte-identical when metadataRoot defaults vs equals gitRoot. (4) No positional-arg breakage: the only non-test production caller of captureReviewRunSnapshot is the review-run handler which now passes the 3rd arg; all other callers pass <=2 args and are unaffected. (5) Pre-fix legacy stored runs: workspaceBinding.metadataRoot was set to gitRoot; consumer reads gitRoot back and recomputes with same root as capture -- no new false-stale. (6) No false-fresh attack vector: the fix sources metadataRoot from the signed+verified workspaceBinding (verifyReviewRunWorkspaceBinding called at line 625 before freshness); tampering breaks the bindingHash. (7) diagnoseReviewRunSnapshot at line 638 intentionally omits metadataRoot threading -- it is a workspace-usability probe (not a freshness recompute) whose EMPTY_MATERIAL_HASH check defaults to gitRoot which is conservative and correct. (8) Smoke test covers all four proofs (A snapshot exclusion, B consumer freshness + assertCurrentReviewRunForEvidence e2e, C legacy fallback, D plain-repo byte-identity) and is registered in smoke-manifest.json.",
+      "createdAt": "2026-07-01T02:57:11.892Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-007",
+      "_hash": "b07ab242811f91fe45507e9a191ffb789b9740df1f61fa2265944fe44af9b2e7"
     }
   ]
 }
