@@ -51,7 +51,7 @@
       "desc": "playbook_runtime_health consumer wiring checks use weak self-matching tokens for story/DONE consumers and would not catch removal of MemoryFreshnessPack wiring.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-01T04:35:09.246Z",
@@ -63,7 +63,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
       ],
       "signatureTag": "missing|ts|playbook-runtime-health",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "playbook_runtime_health now checks concrete MemoryFreshnessPack wiring patterns per consumer, and health smoke includes a fake source tree that has weak legacy tokens but no real wiring and must fail.",
+      "resolvedAt": "2026-07-01T04:48:16.944Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-004",
