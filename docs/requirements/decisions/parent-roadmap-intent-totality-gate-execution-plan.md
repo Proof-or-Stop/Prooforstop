@@ -29,7 +29,7 @@ diagnostic surface and are not required for B-43de M4-M12 parent-row closure.
 | ProofStory binding diagnostic | Implemented ✅ | `evaluateParentRoadmapProofStoryBinding` checks original intent snapshot, acceptance bindings, required row inventory, and summary overclaim gaps. | Diagnostic binding for parent totality; it does not replace ProofStory lifecycle gates or external receipt proof. |
 | Read-only CLI commands | Implemented ✅ | `parent_roadmap_status` and `parent_roadmap_evaluate` are registered read-only commands in `command-policy.ts`, `command-catalog.ts`, `config.ts`, and `handlers/parent-roadmap.ts`. | Commands do not write story metadata, evidence, lifecycle phase, queue state, or production receipts. |
 | Process-fact / registry drift checks | Implemented ✅ | `process-fact-levels.ts`, `process-fact-registry.ts`, and `scripts/verify-process-fact-contract.mjs` register command and claim-consumer semantics. | Registry coverage is a contract check, not proof that unrelated roadmap children are done. |
-| Migration / rollout / repair automation | Partial / future | Built-in `migration` and `B-43de` samples expose partial parent governance and needed rows. | Optional follow-up only. No bulk migration, repair command, or global enforce rollout is required for the B-e781 M4-M12 parent-row closure claim. |
+| Migration / rollout / repair automation | Partial / future | Built-in `migration` samples expose migration-needed or incomplete parent governance rows; the `B-43de` sample/evidence now represents bounded local M4-M12 closure. | Optional follow-up only. No bulk migration, repair command, or global enforce rollout is required for the B-e781 M4-M12 parent-row closure claim. |
 | Cross-track certification for the original roadmap | Implemented / closed ✅ | B-e781 closes B-43de M4-M12 parent rows with local machine evidence; `parent_roadmap_status --storyId=B-43de --json` reports `allRowsClosed=true` and `summaryClass=full_roadmap_complete`. | Closure is bounded to local Proofbound CLI evidence and per-row claim boundaries; it is not a global lifecycle hard gate, production claim, retired Authority completion claim, or external runtime conformance claim. |
 
 ## Problem Statement
@@ -526,7 +526,9 @@ Tests:
 
 - Existing parent story without a ledger is reported as migration-needed, not
   silently complete.
-- B-43de migrates to partial parent governance with open child rows.
+- B-43de remains recognized as bounded local M4-M12 closure; migration-needed or
+  partial/open-row expectations apply only to genuinely incomplete historical
+  parent ledgers.
 - Invalid deferral repair requires human approval.
 - Rollback from enforce to warn preserves evidence and audit trail.
 
