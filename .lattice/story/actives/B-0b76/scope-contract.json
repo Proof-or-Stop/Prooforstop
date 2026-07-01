@@ -1,0 +1,24 @@
+{
+  "storyId": "B-0b76",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-selfchecks.mjs",
+    "experiments/recovery-runner/README.md"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+    "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/recovery-runner/adjudicate.mjs",
+    "experiments/recovery-runner/analyze.mjs"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Figure generator + offline selfcheck + README only; adjudicate.mjs/analyze.mjs are the locked classification/statistics modules and must not change; the paper repo and the bootstrap CI are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T01:58:05.179Z",
+  "updatedAt": "2026-07-01T01:58:05.179Z"
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-0b76",
+  "records": [
+    {
+      "id": "RED-20260701020006",
+      "trigger": "high-assurance red_evidence_required: the new figure-generator selfcheck must pass",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "37b906fa6",
+      "baselineMaterialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+      "observedFailure": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs exits 1 with 'Cannot find module ...make-fig-gate-ablation-selfcheck.mjs' and run-selfchecks.mjs reports 'all 7 recovery-runner selfchecks passed' — the generator + its selfcheck do not exist yet, so the acceptance target (generator reproduces analyze counts; selfchecks 8/8) is unmet.",
+      "failingCommand": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/recovery-runner/run-selfchecks.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/recovery-runner/run-selfchecks.mjs"
+      },
+      "note": "Red captured pre-implementation at HEAD 37b906fa6; green = generator + selfcheck added, run-selfchecks reports 8/8.",
+      "createdAt": "2026-07-01T02:00:06.092Z"
+    },
+    {
+      "id": "RED-001",
+      "trigger": "high-assurance red_evidence_required: new figure-generator selfcheck must pass (CHK-002:happy:1)",
+      "acceptanceTargetRef": "CHK-002:happy:1",
+      "baselineHeadHash": "37b906fa6",
+      "baselineMaterialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+      "observedFailure": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs exits 1 (Cannot find module ...make-fig-gate-ablation-selfcheck.mjs); node run-selfchecks.mjs reports 'all 7 recovery-runner selfchecks passed', not the target 8 — generator + selfcheck do not exist yet.",
+      "failingCommand": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/recovery-runner/run-selfchecks.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:1",
+        "relation": "same_acceptance",
+        "command": "node experiments/recovery-runner/run-selfchecks.mjs"
+      },
+      "note": "Red captured pre-implementation at HEAD 37b906fa6; green = generator + selfcheck added and run-selfchecks reports 8/8 (CHK-002:happy:1).",
+      "createdAt": "2026-07-01T02:01:17.002Z"
+    }
+  ],
+  "createdAt": "2026-07-01T02:00:06.092Z",
+  "updatedAt": "2026-07-01T02:01:17.002Z"
+}

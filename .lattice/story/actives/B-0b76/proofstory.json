@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-0b76",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:496c64ccd6c1cd744ebd292674a37784cb61bc34649f0614434b923a9ea3087c",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:1"
+      ],
+      "milestoneIds": [],
+      "note": "CHK-001:happy:0 (generator reproduces analyze counts + writes fig) and CHK-002:happy:1 (run-selfchecks reports 8/8) prove the acceptanceClaim."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Acceptance bound to the end-to-end generator intent + the run-selfchecks 8/8 intent.",
+  "createdAt": "2026-07-01T02:00:05.788Z",
+  "updatedAt": "2026-07-01T02:01:16.723Z"
+}
