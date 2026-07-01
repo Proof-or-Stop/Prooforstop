@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9dcb:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round. The change is purely additive: captureReviewRunSnapshot and diagnoseReviewRunSnapshot gain an optional metadataRoot param (default=projectRoot), and two call sites inside assertCurrentReviewRunForEvidence/validateEvidenceRunBinding swap a positional signedProjectRoot arg for run.workspaceBinding?.metadataRoot ?? projectRoot. All function names remain exported and unchanged. All call sites in packages/main are accounted for. Doc/JSON references are descriptive only (fix explanations), not dangling code. No residual single-arg usages of the fixed internal calls in the consumer freshness path. Concept residue check complete, no blocker.",
+      "createdAt": "2026-07-01T02:52:48.512Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-001",
+      "_hash": "4ddcf77e779dcc5e08f41bfa81ba3f13bcc87107ce5ea259f999153af5188f96"
+    }
+  ]
+}
