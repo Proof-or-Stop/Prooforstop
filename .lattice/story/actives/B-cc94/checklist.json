@@ -367,9 +367,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:53:21.602Z",
       "userSees": "Build and focused smoke evidence show MVP1 is complete, while the remaining parent milestones M5-M12 stay explicitly open for later stories.",
       "verificationIntent": {
         "happy": [
@@ -390,7 +390,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js && node packages/main/dist/tasks/command-ownership-contract.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Build, focused MVP1 smoke, command ownership, and process fact contract pass for the implemented runtime pack/session scope.",
+          "headHash": "3f7c75b273815fe1fe2f17efa0c9c1815f5219a8",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:22.068Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "lattice scope_contract_check --storyId=B-cc94",
+          "result": "pass",
+          "note": "Scope contract passes while explicit excludes keep handoff/story/DONE/1M baseline paths out of MVP1.",
+          "headHash": "3f7c75b273815fe1fe2f17efa0c9c1815f5219a8",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:22.467Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "lattice milestone_ledger_get --storyId=B-cc94 --json",
+          "result": "pass",
+          "note": "Milestone ledger is five MVP1 rows M0-M4 only; M5-M12 are intentionally not claimed complete by this story.",
+          "headHash": "3f7c75b273815fe1fe2f17efa0c9c1815f5219a8",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:22.839Z"
+        }
+      ]
     }
   ]
 }
