@@ -126,7 +126,22 @@
           }
         ]
       },
-      "userSees": "Documentation states G01 is implemented while G02-G10 remain future groups, and validation can run the G01 smoke by command."
+      "userSees": "Documentation states G01 is implemented while G02-G10 remain future groups, and validation can run the G01 smoke by command.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"Current implemented slice: \\*\\*G01 only\\*\\*|parent-roadmap-large-ledger-g01-baseline-smoke\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md && node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "Docs name G01 as the only implemented slice and provide the runnable smoke command; the command passes after packages/main build.",
+          "headHash": "aa39d4996807838fa452b2d915bace03d3c8cbac",
+          "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
+          "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
+          "timestamp": "2026-07-01T00:39:16.263Z"
+        }
+      ]
     }
   ]
 }
