@@ -1,63 +1,62 @@
 {
   "storyId": "B-0b76",
-  "checkedAt": "2026-07-01T03:03:34.275Z",
-  "headHash": "442e31a9c985c7cb4a6124349fa3b88184b7803a",
-  "materialHash": "76c215b3a2a44568cdc97e5355505df6b5afa2692d8d640ed7cfa79a74093d4a",
+  "checkedAt": "2026-07-01T05:06:58.168Z",
+  "headHash": "5e96b12ff27524974e2330bce9d2d921181ac1ed",
+  "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
   "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
-  "reviewRound": "2026-07-01T02:31:20.795Z",
-  "agentId": "claude-sonnet-4-6",
+  "reviewRound": "2026-07-01T04:59:40.978Z",
+  "agentId": "",
   "docsPromises": [
     {
-      "docPath": "experiments/recovery-runner/README.md",
-      "promise": "make-fig-gate-ablation.mjs ships and is documented",
-      "status": "verified",
-      "verifiedBy": "file-existence + node run",
-      "evidence": "git diff --stat main shows file added; make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed"
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+      "promise": "Reproducible figure generator committed",
+      "verifiedBy": "git diff --stat main shows 248 insertions in make-fig-gate-ablation.mjs",
+      "evidence": "File present with run(), readRecords(), toCSV(), renderSVG(); 248 lines added vs main"
+    },
+    {
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+      "promise": "Offline selfcheck for the figure generator committed",
+      "verifiedBy": "git diff --stat main shows 270 insertions; node run exits 0 with 43 assertions passed",
+      "evidence": "make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed, 0 failed (no live LLM)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-selfchecks.mjs",
+      "promise": "Selfcheck wired into run-selfchecks.mjs suite",
+      "verifiedBy": "git diff --stat main shows +1 line in run-selfchecks.mjs; run-selfchecks exits 0 with 8/8",
+      "evidence": "all 8 recovery-runner selfchecks passed (offline, no live LLM)"
     },
     {
       "docPath": "experiments/recovery-runner/README.md",
-      "promise": "make-fig-gate-ablation-selfcheck.mjs ships with >= 40 assertions",
-      "status": "verified",
-      "verifiedBy": "node execution",
-      "evidence": "node make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed, 0 failed"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md",
-      "promise": "run-selfchecks.mjs orchestrates all selfchecks (8/8)",
-      "status": "verified",
-      "verifiedBy": "node execution",
-      "evidence": "node run-selfchecks.mjs: all 8 recovery-runner selfchecks passed"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md",
-      "promise": "README updated with gate-ablation usage instructions",
-      "status": "verified",
-      "verifiedBy": "git diff",
-      "evidence": "git diff --stat main shows README.md +37/-1"
+      "promise": "README documents the figure generator (how to run, outputs)",
+      "verifiedBy": "git diff --stat main shows 37 net lines added to README.md with generator section",
+      "evidence": "37-line README section added explaining make-fig-gate-ablation.mjs usage and outputs"
     },
     {
       "docPath": "experiments/recovery-runner/make-fig-gate-ablation.mjs",
-      "promise": "Gate-ablation figure generator runs offline without live LLM",
-      "status": "verified",
-      "verifiedBy": "selfcheck transcript",
-      "evidence": "make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed, 0 failed (no live LLM)"
+      "promise": "Generator requires no live LLM (pure data transformation, reproducible offline)",
+      "verifiedBy": "selfcheck output confirms no live LLM invoked; node run-selfchecks.mjs 8/8 offline",
+      "evidence": "make-fig-gate-ablation selfcheck: 43 assertions passed, 0 failed (no live LLM)"
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-selfcheck",
-      "transcript": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed, 0 failed (no live LLM). Exit code 0."
+      "featureId": "CHK-001",
+      "transcript": "node make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed covering happy path (real records wrote:true + SVG+CSV), edge (empty dataset wrote:false), dedup, per-arm aggregation, rounding, CSV header, SVG non-empty, conflict guard (F-002), self-test non-vacuous (F-001)"
     },
     {
-      "featureId": "CHK-run-selfchecks",
-      "transcript": "node experiments/recovery-runner/run-selfchecks.mjs: all 8 recovery-runner selfchecks passed (offline, no live LLM). Exit code 0."
+      "featureId": "CHK-002",
+      "transcript": "node run-selfchecks.mjs: 8/8 selfchecks passed including make-fig-gate-ablation-selfcheck.mjs as the 8th entry, all offline"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "git diff --stat main -- experiments/recovery-runner/README.md shows 37 net lines; README section verified present with generator usage and output description"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "5/5 docs promises verified. Real-machine selfchecks ran on local Node.js: 43 assertions + 8/8 orchestrator. Edge cases covered: conflict guard F-002 (same-key different outcome throws), exit-nonzero F-001 (selfcheck is self-testing). No unresolved TODOs. Code byte-identical to prior verified round; re-attest triggered only by main merge changing materialHash."
+    "summary": "All 5 docsPromises verified: make-fig-gate-ablation.mjs (248 lines), selfcheck (270 lines, 43 assertions), run-selfchecks wired (+1 line, 8/8), README (37 lines). Edge cases covered: empty dataset, dedup, conflict guard (F-002), self-test non-vacuous (F-001). No TODOs in diff. Re-attestation after main merge; deliverable bytes unchanged."
   },
-  "_hash": "994828d103dd99f577b595cb4dec2cd8a416b171d1fc76bd20ee2da0540e2428"
+  "_hash": "94174257b5293ba276ceeec51d5072406a832a46b44cb31a3938e89295463183"
 }
