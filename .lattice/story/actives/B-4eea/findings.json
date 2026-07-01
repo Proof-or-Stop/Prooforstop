@@ -306,7 +306,7 @@
       "desc": "The 1M baseline generator/verifier still does not implement the plan-required dataset/gold-query contract: plan §5.2/§5.3 requires partitioned records plus gold classes for candidate-only, stale digest/source-digest matrix, superseded defaults, and deprecated brand residue, but GOLD_QUERIES only contains host-policy/truth-first/intent-totality/repro-first and noiseRecord emits generic memory noise. A full-profile pass can therefore overclaim baseline correctness.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-01T05:48:58.771Z",
@@ -318,7 +318,11 @@
         "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
       ],
       "signatureTag": "missing|ts|baseline-gold-contract",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 34cd0b3c: baseline generator now implements the documented partition contract and all required gold query classes, including candidate-only, source-digest mutation matrix, superseded-default suppression, and deprecated brand residue. Verifier checks gold query presence, required gold record presence, partition counts, expected suppression/deprecated term hits, false-surface rates, and source digest mutation matrix. Baseline smoke adds negative controls for missing candidate-only class, broken deprecated residue suppression, broken source-digest gold, and missing gold query class. Verified by build, small baseline, full 1,000,000-row baseline, MVP1/MVP2, health, command catalog, process fact, runtime fact, and diff check.",
+      "resolvedAt": "2026-07-01T06:04:11.298Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
