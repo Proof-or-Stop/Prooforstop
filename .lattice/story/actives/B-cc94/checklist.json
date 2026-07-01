@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:53:12.296Z",
       "userSees": "A focused smoke first demonstrates the session memory/playbook non-consumption gap before the implementation path is claimed fixed.",
       "verificationIntent": {
         "happy": [
@@ -30,7 +30,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "lattice red_evidence_get --storyId=B-cc94 --json",
+          "result": "pass",
+          "note": "ProofStory red evidence B-cc94-red-session-memory-pack-bound records the pre-fix session_brief non-consumption failure and binds it to the green MVP1 smoke.",
+          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:12.701Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 smoke asserts candidate playbook PB-candidate does not surface while active playbook PB-active does.",
+          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:13.017Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 smoke covers pack/source digest creation and stale-relevant mutation detection; pre-fix red evidence recorded that no digest pack existed in session_brief.",
+          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:13.428Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
