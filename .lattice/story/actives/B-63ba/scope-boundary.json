@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-63ba",
+  "mode": "feature",
+  "allowed": [
+    "Documentation in proof-admissibility decision docs describing safe usage, non-goals, and research-harness boundary",
+    "Recovery-runner offline robustness harness parameter schema and explicit exploratory mode",
+    "Regression tests proving default fixed B1-B15 behavior remains unchanged and seeded parameterized runs are deterministic"
+  ],
+  "excluded": [
+    "Evidence hash freshness or receipt verification semantics",
+    "Fountain-code or erasure-code evidence recovery semantics",
+    "Lifecycle DONE/review/delivery gate semantics",
+    "Persistent global caches or performance optimization unrelated to recovery-runner",
+    "Unattended production-readiness claims"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved M2 as a follow-up story after B-8963; analysis classified parameterized fault injection as offline recovery-runner robustness work, not gate or evidence semantics.",
+  "createdAt": "2026-07-01T00:04:45.567Z",
+  "updatedAt": "2026-07-01T00:04:45.567Z",
+  "_hash": "b40993a01e78696433308b6924e354fd85b842786d480c5f7157637e57d61312"
+}
