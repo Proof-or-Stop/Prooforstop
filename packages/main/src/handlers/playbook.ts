@@ -228,6 +228,9 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...candidate.verification.map((v) => `    - ${v}`),
         `  lineage: story=${candidate.lineage.sourceStoryId} finding=${candidate.lineage.sourceFindingId}${candidate.lineage.sourceSignature ? ` signature=${candidate.lineage.sourceSignature}` : ''}`,
         `  proposalDigest: ${proposal.proposalDigest}`,
+        `  candidatePlaybookDigest: ${computePlaybookDigest(candidate)}`,
+        `  authority: non_authoritative`,
+        `  gateEvidence: false`,
       ].join('\n');
     },
 
@@ -265,7 +268,8 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         appendPlaybook(ctx.root, candidate);
         deleteProposal(ctx.root, proposal.id);
         const after = readPlaybooks(ctx.root);
-        if (!after.some((p) => p.id === candidate.id && p.status === 'candidate')) {
+        const persistedCandidate = after.find((p) => p.id === candidate.id && p.status === 'candidate');
+        if (!persistedCandidate) {
           throw new Error(`playbook_approve: write verification failed for ${candidate.id}; candidate was not persisted`);
         }
         for (const prior of before) {
@@ -277,6 +281,9 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         return [
           `Playbook ${candidate.id} approved as candidate`,
           `status: ${candidate.status} (active requires an explicit human promotion; not auto-set)`,
+          `candidatePlaybookDigest: ${computePlaybookDigest(persistedCandidate)}`,
+          `authority: non_authoritative`,
+          `gateEvidence: false`,
           `lineage: story=${candidate.lineage.sourceStoryId} finding=${candidate.lineage.sourceFindingId}${candidate.lineage.sourceSignature ? ` signature=${candidate.lineage.sourceSignature}` : ''}`,
           `proposal ${proposal.id} cleared`,
         ].join('\n');

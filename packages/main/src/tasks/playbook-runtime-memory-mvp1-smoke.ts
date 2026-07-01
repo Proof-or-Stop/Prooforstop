@@ -15,9 +15,11 @@ import {
   renderMemoryFreshnessPack,
 } from '../core/playbook-runtime-memory.js';
 import {
+  computePlaybookProposalDigest,
   computePlaybookDigest,
   readPlaybooks,
   resolvePlaybooksPath,
+  writeProposal,
   writePlaybooks,
 } from '../core/learning-store.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
@@ -28,7 +30,7 @@ import {
 } from '../core/dev-memory.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
-import type { Playbook } from '../core/experience-layer-types.js';
+import type { Playbook, PlaybookProposal } from '../core/experience-layer-types.js';
 import { createPlaybookHandlers } from '../handlers/playbook.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -231,6 +233,40 @@ async function run(): Promise<void> {
       assert.ok(after.some((p) => p.id === sibling.id), 'sibling row was preserved');
     });
 
+    check('usability: diff and approve output expose candidatePlaybookDigest as non-authoritative', () => {
+      const root = mkRoot(); roots.push(root);
+      const ctx = mkCtx(root);
+      const handlers = createPlaybookHandlers(ctx);
+      const candidate = playbook('PB-digest', 'candidate');
+      const proposal: PlaybookProposal = {
+        id: candidate.id,
+        title: candidate.title,
+        trigger: candidate.trigger,
+        check: candidate.check,
+        pitfalls: candidate.pitfalls,
+        verification: candidate.verification,
+        lineage: candidate.lineage,
+        status: 'proposed',
+        proposalDigest: '',
+      };
+      proposal.proposalDigest = computePlaybookProposalDigest(proposal);
+      writeProposal(root, proposal);
+      const digest = computePlaybookDigest(candidate);
+
+      const diff = handlers.playbook_diff({ proposalId: proposal.id });
+      assert.match(diff, new RegExp(`candidatePlaybookDigest: ${digest}`));
+      assert.match(diff, /authority: non_authoritative/);
+      assert.match(diff, /gateEvidence: false/);
+
+      const approved = handlers.playbook_approve({
+        proposalId: proposal.id,
+        expectedProposalDigest: proposal.proposalDigest,
+      });
+      assert.match(approved, new RegExp(`candidatePlaybookDigest: ${digest}`));
+      assert.match(approved, /authority: non_authoritative/);
+      assert.match(approved, /gateEvidence: false/);
+    });
+
     check('runtime pack: active playbook appears, candidate does not, pack/source digests and authority flags are present', () => {
       const root = mkRoot(); roots.push(root);
       const active = playbook('PB-active', 'active');
@@ -286,6 +322,40 @@ async function run(): Promise<void> {
       const checked = classifyMemoryFreshnessPack(pack);
       assert.equal(checked.freshness.stale, true);
       assert.equal(checked.freshness.class, 'stale-relevant');
+    });
+
+    check('freshness: unrelated append-only churn is stale-irrelevant with unchanged surfaced ids', () => {
+      const root = mkRoot(); roots.push(root);
+      const entry = memoryEntry('mem0200', {
+        summary: 'Relevant source mutation row',
+        trigger: 'source mutation',
+        lesson: 'Original relevant source lesson',
+        reusePrompt: 'source mutation',
+      });
+      writeEntries(resolveProjectMemoryPath(root), [entry]);
+      const pack = buildMemoryFreshnessPack({ projectRoot: root, query: 'source mutation', consumer: 'session_brief' });
+
+      const unrelated = memoryEntry('mem0201', {
+        summary: 'Completely separate garden note',
+        trigger: 'banana orchard reminder',
+        lesson: 'This row is intentionally unrelated to the active query',
+        reusePrompt: 'remember banana orchard',
+      });
+      writeEntries(resolveProjectMemoryPath(root), [entry, unrelated]);
+      const current = buildMemoryFreshnessPack({ projectRoot: root, query: 'source mutation', consumer: 'session_brief' });
+      assert.notEqual(
+        current.sourceDigests.projectDevMemoryDigest,
+        pack.sourceDigests.projectDevMemoryDigest,
+        'broad project dev-memory source digest changed',
+      );
+      assert.deepEqual(current.results.devMemoryEntryIds, pack.results.devMemoryEntryIds, 'surfaced ids unchanged');
+      assert.deepEqual(current.results.suppressedSupersededIds, pack.results.suppressedSupersededIds, 'suppressed ids unchanged');
+
+      const checked = classifyMemoryFreshnessPack(pack);
+      assert.equal(checked.freshness.stale, true);
+      assert.equal(checked.freshness.class, 'stale-irrelevant');
+      assert.equal(checked.gateEvidence, false);
+      assert.equal(checked.authority, 'non_authoritative');
     });
 
     check('rendering: MemoryFreshnessPack output is capped at 60 lines and records omittedCount', () => {
