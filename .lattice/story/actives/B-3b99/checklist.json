@@ -22,7 +22,39 @@
       "context": "gap_analyze lines 297/328/476/503/560/573/602 in proofstory-intent-collision-execution-plan.md are examples/contract tokens. core/proofstory.ts already uses keyRequirementIds and validates sourceRequirementId against frozen original intent. Add explicit mapping text and tests so scanner closes these without weakening the schema.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze can match ProofStory keyRequirements, originalIntentSnapshot.keyRequirements, and sourceRequirementId contract tokens to implementation coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ProofStory smoke proves a milestone sourceRequirementId must be present in the frozen original intent keyRequirementIds set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A milestone with an unbound sourceRequirementId remains blocked by proofstory diagnostics rather than being accepted by annotation text alone.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
