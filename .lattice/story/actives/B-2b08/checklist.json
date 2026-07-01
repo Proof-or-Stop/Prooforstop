@@ -33,7 +33,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg old/new skip phrase in version-bump.ts, version-bump-smoke.ts, story-lifecycle.md",
+          "result": "pass",
+          "note": "Old user-facing skip phrase no material code change has no matches in the scoped source/smoke/docs, and VERSION_BUMP_SKIPPED_LINE now says version bump skipped (no watched CLI/runtime inputs changed).",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "version-bump smoke passed 68 assertions, including the updated skip-line expectation and existing patch-bump behavior.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "! rg -n \"version bump skipped \\(no material code change\\)\" packages/main/src/core/version-bump.ts packages/main/src/tasks/version-bump-smoke.ts docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Focused negative check fails the story if the misleading no material code change phrase remains in the exercised skip-line path.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -69,7 +104,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "The smoke now proves the skip line for non-runtime/non-watched changes is phrased as no watched CLI/runtime inputs changed, matching the actual version policy boundary.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Existing version-bump assertions still prove watched CLI/runtime version sync files bump together; the wording change did not weaken runtime-input bump behavior.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "TypeScript build passed and the targeted smoke passed, proving text correctness and version-bump semantics compile and run together.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -103,7 +173,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"CLI patch version tracks watched Proofbound CLI/runtime inputs|not every repository code artifact\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md now explains that CLI patch versioning tracks watched Proofbound CLI/runtime inputs rather than every repository code artifact.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"packages/main/src/|package.json|lattice --version|watched Proofbound CLI/runtime inputs\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Documentation preserves the existing watched runtime input list and version/build verification duties for real CLI runtime changes.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"experiments/|experiment/product ledger|watched Proofbound CLI/runtime inputs\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Docs clarify that offline experiment harnesses are not automatically part of the CLI package version bump policy and do not introduce a new experiment/product ledger policy.",
+          "headHash": "4e0a93f5a5b982d5cf9771042f95aa4b71129feb",
+          "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+          "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+          "timestamp": "2026-07-01T02:56:36.293Z"
+        }
+      ]
     }
   ]
 }
