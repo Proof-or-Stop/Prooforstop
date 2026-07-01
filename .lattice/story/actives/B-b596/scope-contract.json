@@ -6,7 +6,11 @@
     "lattice.config.json"
   ],
   "allowedCreate": [
-    "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts"
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+    ".lattice/story/actives/B-b596/original-intent-snapshot.json",
+    ".lattice/story/actives/B-b596/milestone-ledger.json",
+    ".lattice/story/actives/B-b596/intent-collision.json",
+    ".lattice/story/actives/B-b596/proofstory.json"
   ],
   "allowedTest": [],
   "protectedFiles": [
@@ -18,8 +22,8 @@
     "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
     "packages/main/src/core/parent-roadmap-totality.ts"
   ],
-  "scopeChangeReason": "B-b596 implements only the G01 baseline smoke and documentation/validation binding; it must not change the parent-roadmap evaluator or other roadmap documents.",
+  "scopeChangeReason": "B-b596 implements only the G01 baseline smoke and documentation/validation binding; the listed ProofStory files are required DEV-gate artifacts created by this story and must be in scope. It must not change the parent-roadmap evaluator or other roadmap documents.",
   "acknowledgements": [],
   "createdAt": "2026-07-01T00:33:06.133Z",
-  "updatedAt": "2026-07-01T00:33:06.133Z"
+  "updatedAt": "2026-07-01T00:38:13.123Z"
 }
