@@ -144,7 +144,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-01T02:53:15.504Z",
+      "endTime": "2026-07-01T02:56:11.041Z",
       "userSees": "Runtime memory core can build a non-authoritative freshness pack with active-only playbook matches, source digests, superseded suppression, and stale classification.",
       "verificationIntent": {
         "happy": [
@@ -189,10 +189,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies matcher records active playbook IDs and dev-memory IDs from small fixtures.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:15.980Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:11.428Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -200,10 +200,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies MemoryFreshnessPack has packDigest and sourceDigests including playbook digest.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:16.407Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:11.850Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,10 +211,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies superseded dev-memory mem0001 is suppressed and listed in suppressedSupersededIds.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:16.735Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:12.192Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -222,10 +222,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies rendered MemoryFreshnessPack output stays within the 60-line cap and records omittedCount.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:17.058Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:12.523Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -233,21 +233,21 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies candidate runtime playbooks do not surface; matcher code also validates active-only status.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:17.383Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:12.814Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
-          "note": "MVP1 smoke mutates a surfaced memory source and classifies the old pack as stale-relevant.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:17.706Z"
+          "note": "MVP1 smoke verifies both stale-relevant surfaced mutation and stale-irrelevant unrelated append-only churn classification.",
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:13.105Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -255,10 +255,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke verifies pack schema/render retains authority=non_authoritative and gateEvidence=false.",
-          "headHash": "4f2e843b2b271921f1090501d182540c8e4f0913",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:18.050Z"
+          "headHash": "e638daea23c98284463a2c79fa73bf2e0c8d131f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:13.405Z"
         }
       ]
     },
