@@ -155,7 +155,7 @@ Every harness module has a deterministic, no-LLM self-check. The aggregator runs
 them and is wired into the root `npm test` via `npm run test:experiments`:
 
 ```sh
-node run-selfchecks.mjs           # adjudicate + checks + spend-accounting + run-driver + analyze + corpus + live-engine selfchecks (7)
+node run-selfchecks.mjs           # adjudicate + checks + spend-accounting + run-driver + analyze + corpus + live-engine + make-fig-gate-ablation selfchecks (8)
 node run-driver-selfcheck.mjs     # the driver alone (enumeration, schema, denominators, validity, …)
 node corpus-selfcheck.mjs         # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
 node live-engine-selfcheck.mjs    # the live-engine adapter alone (5 arms × {ablation+scenarios} via a stub: outcome derivation, unsafe detectors, A2prime budgets, infra-void; no claude -p)
@@ -212,6 +212,31 @@ The analysis script turns the driver's §7 run-records JSONL into the pre-regist
 node analyze.mjs <records.jsonl> --seed pre-reg --B 2000 --out analysis-out
 node analyze-selfcheck.mjs   # offline assertions over synthetic fixtures of known rates/contrasts (no live LLM)
 ```
+
+## Figure generator (`make-fig-gate-ablation.mjs`)
+
+The committed, reproducible generator for the §5/§6 evidence-gate ablation **figure** — the
+committed-generator norm applied to the paper figure (every published number/figure ships a
+runnable generator). It reads the powered campaign records (`powered/*.jsonl`, **excluding** the
+`*.voids.jsonl` infra-void sidecars), dedups by cell key
+(`arm|taskId|scenarioId|repeat`, **keep-first**), **counts** the `adjudicatedOutcome` already
+stamped on each record, and writes a standalone paper figure `fig-gate-ablation.svg` plus a tidy
+`fig-gate-ablation.csv` (per-arm `n / amplified / rate_pct / per_1000 / mean_tokens / gate`).
+
+Bar length = amplification per 1,000 tasks (shorter is better); color = gate intensity
+(none → review-only → gated). It is deterministic and offline (no new npm deps). It only
+**counts** — it does **not** re-classify runs, does **not** compute the bootstrap confidence
+interval, and does **not** edit the paper; the bootstrap CI and the pre-registered analysis are
+`analyze.mjs`'s job, and inserting the figure into `main.tex` is a separate, manual step.
+
+```sh
+# write the SVG + CSV next to the records (defaults to ./powered and ./fig-gate-ablation):
+node make-fig-gate-ablation.mjs [poweredDir] [outPrefix]
+node make-fig-gate-ablation-selfcheck.mjs   # offline assertions over synthetic fixtures (no live LLM)
+```
+
+The generator's pure functions (`readRecords`/`aggregate`/`toCSV`/`renderSVG`) are exported so the
+selfcheck drives them offline on tiny synthetic records without the large campaign data.
 
 ## Data lives elsewhere
 
