@@ -226,6 +226,25 @@
       ],
       "signatureTag": "missing|ts|host-alias-normalization",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-4eea:F-011",
+      "desc": "Baseline verification trusts manifest.recordCount and does not enforce PROFILE_COUNTS or fullProfileExactMillion. A truncated corpus with a self-consistent refreshed manifest can pass without containing the promised 1,000,000 full-profile rows.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T05:15:50.529Z",
+      "reviewRound": "2026-07-01T05:03:10.485Z",
+      "reviewRunId": "B-4eea:RR-010",
+      "_hash": "e3738c7cf06fd38542e11ae528a74e4b2cedcd888615885b40ffc2ccedd08a7d",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|baseline-profile-count",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
