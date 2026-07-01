@@ -4,7 +4,7 @@
   "title": "Add parameterized fault injection to recovery-runner",
   "description": "Milestone 2 follow-up from the DNAcoder idea transfer analysis. Add a scoped recovery-runner capability for parameterized and composable fault injection distributions so Proofbound can explore gate robustness beyond the fixed B1-B15 scenario list. This is an offline research harness improvement, not a change to DONE, review, delivery, or evidence hash semantics. It must preserve the existing frozen scenario protocol and avoid optimizing without measured need.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-01T00:02:19.557Z",
   "startedAt": "2026-07-01T00:02:19.557Z",
-  "endedAt": null,
+  "endedAt": "2026-07-01T01:49:30.528Z",
   "events": [
     {
       "phase": "INIT",
@@ -132,6 +132,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-ec5e29c6c20f6783",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-01T01:49:30.528Z",
+      "branch": "story/B-63ba",
+      "user": "Harmonygo",
+      "sessionId": "sess-ec5e29c6c20f6783",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -141,10 +150,5 @@
       "at": "2026-07-01T00:02:29.781Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-63ba",
-    "branch": "story/B-63ba",
-    "createdAt": "2026-07-01T00:05:37.717Z"
-  },
   "currentReviewRound": "2026-07-01T01:25:45.045Z"
 }
