@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-01T03:05:44.403Z",
       "reviewRunId": "B-9dcb:RR-008",
       "_hash": "f372d2f1eba2e887750677ca6be6d5c6538d7d99834a58e1eba1c0043b0f29a7"
+    },
+    {
+      "id": "B-9dcb:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 12 intents across CHK-001..004 have valid non-tautological evidence. CHK-001:edge:0 + CHK-003:edge:0 now backed by strengthened Proof C (real legacy no-workspaceBinding path through assertCurrentReviewRunForEvidence, non-tautological metadataRoot vs gitRoot divergence). CHK-004:edge:0 now backed by Proof E (direct byte-identity assert on buildReviewRunWorkspaceBinding().bindingHash and signReviewRun()._hash for plain-repo defaulted-vs-explicit case). Round 1 F-002 gap fully resolved. No blockers.",
+      "createdAt": "2026-07-01T03:08:09.758Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-012",
+      "_hash": "89ad4d2bc860d0cb3981155a3ae1c5cb733dcee68ce0d0145485f54baad22054"
     }
   ]
 }
