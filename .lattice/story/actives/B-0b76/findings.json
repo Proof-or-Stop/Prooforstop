@@ -28,14 +28,18 @@
       "desc": "codex host-2 (cross-vendor): make-fig-gate-ablation.mjs dedups keep-first by arm|taskId|scenarioId|repeat; analyze.mjs keeps every valid non-void row (no cell-key dedup). On the SAME raw powered/*.jsonl the generator reports 9240 cells (A4 2/1920) while analyze-style counting sees 18557 rows (A4 4/3855). INVESTIGATION: raw set = 18557 records = 9240 unique cells each run ~2x (max 3x) across session-limit re-runs; 0 duplicated cells have conflicting outcomes, so the deduped 9240 figure is unambiguous and CORRECT (matches the paper analysis run on deduped input per the known analyze-needs-dedup-first requirement). Real cross-tool CONSISTENCY HAZARD + missing dedup transparency, not a wrong figure. Fix in scope: generator prints dedup transparency (raw->unique->dropped + conflict count) + a conflict guard (error if any duplicated cell has conflicting outcomes); README documents figure and analyze both operate on the deduped cell matrix and analyze must dedup raw input first. analyze.mjs itself is out of scope (locked).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-01T02:24:10.582Z",
       "reviewRound": "2026-07-01T02:16:39.502Z",
       "_hash": "c7aac988ee32706a422bc6c4afc87788a9441ca85aa493cf07cd4cfea191c54c",
       "signatureTag": "adversarial|unknown|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Dedup transparency + conflict guard added (commit f17c76f0): readRecordsWithStats exposes rawCount/uniqueCount/droppedCount; run() prints 'dedup: 18557 raw records -> 9240 unique cells (9317 duplicate re-runs dropped)'; a hard conflict guard throws if any duplicated cell has conflicting adjudicatedOutcome (0 in the real data -> 9240 unambiguous+correct, matches the paper's deduped analysis). README documents figure & analyze both operate on the deduped cell matrix and analyze must dedup raw input first. analyze.mjs (no dedup) is out of scope/locked; flagged for the analysis/paper workstream.",
+      "resolvedAt": "2026-07-01T02:31:42.010Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
