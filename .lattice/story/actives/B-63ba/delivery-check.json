@@ -1,0 +1,65 @@
+{
+  "storyId": "B-63ba",
+  "checkedAt": "2026-07-01T00:57:00.355Z",
+  "headHash": "548e53e08433a2aed1004c8579a2d25be14e78cc",
+  "materialHash": "373fd6deaf91cc456e7ac8ff7b976c365bfa46ef35f3ad0d703d4264571c7b01",
+  "storyFilesHash": "1e7c7a8b18f23b2107169377def83d0bfb1df2f0553e533c0a5d19d9e0dca410",
+  "reviewRound": "2026-07-01T00:40:58.772Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md",
+      "promise": "The recovery-runner documents an explicit --scenarioProfile/--scenarioParams exploratory offline profile with list and weighted modes, while keeping fixed B1-B15 as the default and profile output outside lifecycle gate evidence.",
+      "status": "verified",
+      "verifiedBy": "rg plus real CLI probes",
+      "evidence": "README lines 101-104 describe exploratory offline profile/list/weighted and not lifecycle gate evidence; list and weighted CLI probes enumerated 15 cells without a live engine."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "promise": "The pre-registered protocol remains fixed B1-B15 by default; scenario profile runs are local exploratory offline runs and not lifecycle gate evidence.",
+      "status": "verified",
+      "verifiedBy": "rg plus default CLI probe",
+      "evidence": "Protocol lines 87-89 state exploratory offline profile, fixed B1-B15 remains the default, and profile runs are not lifecycle gate evidence; default CLI probe enumerated 77 applicable cells and 3 N/A cells for one task at k=1."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "The proof-admissibility plan keeps recovery-runner profile output experiment-only and not lifecycle gate evidence.",
+      "status": "verified",
+      "verifiedBy": "rg and delivery review",
+      "evidence": "Plan lines 393-394 state exploratory offline profile is experiment-only, fixed B1-B15 remains the default, and profile output is not lifecycle gate evidence."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs -> run-driver-selfcheck: 167 assertions passed, 0 failed; covers fixed default B1-B15, list profile, weighted profile, invalid profile rejection, unique runIds, and repeat offsets."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "Default CLI probe with temp --record and no profile: enumerated 77 applicable cells and 3 N/A cells for --tasks foo --k 1, preserving fixed B1-B15 default behavior."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Weighted CLI probe with temp --record: --scenarioProfile weighted --scenarioParams B1:2,B2:1 printed [run-driver] scenario profile weighted: B1,B1,B2, enumerated 15 applicable cells, and refused live campaign without --engine."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Dangling profile repro with temp --record: --scenarioProfile exited 2 with invalid scenario profile diagnostic and tmp_files empty, so no record, exclusions sidecar, or voids sidecar was written."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Weighted duplicate identity probe: scenarios [B1,B1,B2], 15 cells, 15 records, 15 unique runIds, and A4/B1 repeats [1,2]."
+    },
+    {
+      "featureId": "TEST",
+      "transcript": "Recorded TEST evidence .lattice/story/actives/B-63ba/test-evidence.json: lattice validate --story=B-63ba --json result PASS, status pass, allPass true, 31 configured validate.commands passed, verification coverage 13/13 required intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "lattice-review-delivery reverse-scanned main...HEAD, checklist evidence, docs promises, TEST evidence, and transcript-diff.md. Delivery criteria are met: fixed B1-B15 remains default, explicit list/weighted exploratory offline profiles exist, invalid/dangling flags fail closed before sidecars, duplicate weighted scenarios preserve unique runIds/repeats, docs keep the safe boundary phrases, and real-machine evidence covers selfcheck 167 assertions, focused weighted CLI, dangling profile/no-sidecar repro, and lattice validate 31/31. Older checklist wording still mentions 157 assertions, but current transcript, selfcheck, finding resolution, and TEST evidence establish the final 167-assertion run."
+  },
+  "_hash": "162c61e44ca6e201f57d12765119a47aafee1d2cc79c2c0ed664dd4bdfbdec9d"
+}
