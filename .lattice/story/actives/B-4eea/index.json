@@ -4,7 +4,7 @@
   "title": "Complete Playbook Runtime Memory M5-M12 consumption and baseline",
   "description": "Implement the remaining Playbook Runtime Memory Consumption execution plan after B-cc94 MVP1. This story must close M5 handoff/host entry consumers, M6 story intake/lifecycle consumers, M7 DONE/final-response advisory consumption, M9 million-record generator, M10 verifier/reporting, P3-enforce warn/enforce rollout after correctness baseline, M8 capture-or-noop, M11 health/drift scanner, and M12 rollout plus Codex/Claude 3x2 verification with agy-cli fallback only. DONE must not claim full completion while any M5-M12 row remains open, child-story-needed, or unverified.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -123,6 +123,24 @@
       "user": "Harmonygo",
       "sessionId": "sess-b4eea-codex",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-01T05:44:54.686Z",
+      "branch": "story/B-4eea",
+      "user": "Harmonygo",
+      "sessionId": "sess-b4eea-codex",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-01T05:45:00.820Z",
+      "branch": "story/B-4eea",
+      "user": "Harmonygo",
+      "sessionId": "sess-b4eea-codex",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -130,5 +148,5 @@
     "branch": "story/B-4eea",
     "createdAt": "2026-07-01T03:55:37.263Z"
   },
-  "currentReviewRound": "2026-07-01T05:27:26.508Z"
+  "currentReviewRound": "2026-07-01T05:45:00.820Z"
 }
