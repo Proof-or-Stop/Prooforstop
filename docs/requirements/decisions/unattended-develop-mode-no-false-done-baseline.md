@@ -251,12 +251,14 @@ benchmark for unattended completion:
 
 ## Non-Goals
 
-This document does not implement the smoke test. It defines the baseline that a
-future implementation story must build.
+Story B-b596 implements the G01 positive-control smoke only. The full 10x15
+smoke remains future work: G02-G10 are not implemented here, and this story
+makes no full-baseline completion claim.
 
-This baseline also does not require 150 real Lattice stories, remote hosts,
-Authority receipts, or production execution. It should use synthetic local
-fixtures unless a future unlock story explicitly requires live execution.
+This baseline also does not require or claim 150 real Lattice stories, remote
+hosts, Authority receipts, fullAuthority receipts, production execution, or
+independent two-host evidence. It should use synthetic local fixtures unless a
+future unlock story explicitly requires live execution.
 
 ## Summary
 
