@@ -300,6 +300,25 @@
       "resolvedAt": "2026-07-01T05:27:58.316Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4eea:F-014",
+      "desc": "The 1M baseline generator/verifier still does not implement the plan-required dataset/gold-query contract: plan §5.2/§5.3 requires partitioned records plus gold classes for candidate-only, stale digest/source-digest matrix, superseded defaults, and deprecated brand residue, but GOLD_QUERIES only contains host-policy/truth-first/intent-totality/repro-first and noiseRecord emits generic memory noise. A full-profile pass can therefore overclaim baseline correctness.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-01T05:48:58.771Z",
+      "reviewRound": "2026-07-01T05:45:00.820Z",
+      "reviewRunId": "B-4eea:RR-012",
+      "_hash": "0eb8814613d355a3c923c7125b6ad32e7aef2891b70e555b0659ae1e9a1bad74",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|baseline-gold-contract",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
