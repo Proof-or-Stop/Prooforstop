@@ -69,6 +69,19 @@
           "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
           "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
           "timestamp": "2026-07-01T00:38:49.635Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "G01 smoke passed and asserts the synthetic ledger, rollup, and claim decision do not contain elevated Authority/fullAuthority/production/two-host completion claim terms.",
+          "headHash": "130faa2f3c5b2360445737381c9091fc3938c3bb",
+          "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
+          "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
+          "timestamp": "2026-07-01T00:38:54.936Z"
         }
       ]
     },
