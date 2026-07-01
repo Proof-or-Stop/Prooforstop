@@ -57,11 +57,47 @@
       "title": "Implement recovery-runner parameter parsing behind an explicit mode",
       "context": "Add the smallest code path needed for exploratory parameterized runs, keeping default behavior identical and avoiding changes to lifecycle gate semantics.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The run-driver accepts explicit exploratory profile flags, prints the selected profile in enumerate-only mode, and leaves the no-profile CLI behavior unchanged.",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/parameterized-fault-profile.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-driver CLI accepts an explicit exploratory weighted profile and enumerates the profile-derived cells without requiring a live engine",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "without profile flags, existing --tasks/--k/--seed behavior remains byte-compatible for applicable and N/A counts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "profile flags cannot override record assembly, denominator computation, adjudication, or live-engine refusal behavior",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
