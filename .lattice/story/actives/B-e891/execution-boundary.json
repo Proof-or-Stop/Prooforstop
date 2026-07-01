@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e891",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+    "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg * docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/core/parent-roadmap-totality.ts"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Only focused G02 smoke, documentation, and Lattice evidence commands are needed.",
+  "createdAt": "2026-07-01T01:34:38.262Z",
+  "updatedAt": "2026-07-01T01:34:38.262Z",
+  "_hash": "b7be2b016b5f7f0d2bd3fd24a792c98542260d96d1f56a900a62ddf09f869980"
+}

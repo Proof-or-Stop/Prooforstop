@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add the G02 missing-row negative-control baseline smoke",
+      "context": "Create a deterministic smoke for one 15-required-row parent roadmap ledger where 14 rows are fresh and closed but one required row is missing; the evaluator must report the missing row and block full completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "userSees": "Terminal shows parent-roadmap large-ledger G02 baseline smoke PASS and confirms one missing required row blocks full_roadmap_complete.",
+      "excludes": [
+        "Do not modify parent-roadmap evaluator core logic",
+        "Do not implement G03-G10"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G02 smoke reports 15 required rows, 14 generated closed rows, exactly 1 missing required row, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts the missing row is represented by missing_required_row and appears in openRows and invalidRows rather than being silently ignored.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts a full completion summary is blocked for G02 and local G02 proof does not set Authority, fullAuthority, production, or independent two-host completion claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind G02 baseline to documentation boundaries",
+      "context": "Update the 10x15 baseline document so G01 and G02 are implemented, G03-G10 remain future, and the full 10x15 baseline is still not complete.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "userSees": "Documentation states G01 and G02 are implemented while G03-G10 remain future groups, and G02 is a missing-row negative control that blocks full completion.",
+      "excludes": [
+        "Do not state that the full 10x15 baseline is complete",
+        "Do not claim Authority/fullAuthority/production/two-host completion"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The baseline document names G02 as implemented and includes the runnable G02 smoke command.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document keeps G03-G10 marked as future groups and explicitly states the full 10x15 baseline is not complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation wording does not convert local G02 proof into Authority, production, fullAuthority, or independent two-host claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "storyId": "B-b596",
+  "checkedAt": "2026-07-01T00:30:10.198Z",
+  "features": [
+    {
+      "feature": "G01 positive-control group: one deterministic 15-row synthetic parent-roadmap ledger where all rows have fresh machine evidence and roll up to full_roadmap_complete",
+      "covered_by": "CHK-001; CHK-002; understanding.task; decision.chosen",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request + PLAN artifacts"
+    },
+    {
+      "feature": "G01 validation/documentation boundary showing the smoke is runnable and naming only G01 as implemented",
+      "covered_by": "CHK-002; CHK-002.happy; understanding.outcome",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN checklist and understanding"
+    },
+    {
+      "feature": "G02-G10 negative/recovery groups",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints says implement only G01, not G02-G10; CHK-002.edge keeps G02-G10 future; decision.chosen rejects implementing all G01-G10",
+      "source": "user request + PLAN exclusions"
+    },
+    {
+      "feature": "Full 10x15 baseline completion claim",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.facts says this story must not claim G02-G10 or full 10x15 completion; decision.preMortem covers full-baseline overclaim; CHK-002.edge",
+      "source": "user request + PLAN exclusions"
+    },
+    {
+      "feature": "Authority, fullAuthority, production, or independent two-host completion claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints; CHK-001.adversarial; CHK-002.adversarial; decision.preMortem claim-boundary mitigation",
+      "source": "user request + PLAN exclusions"
+    },
+    {
+      "feature": "150 real Lattice stories, remote hosts, or production execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints requires deterministic local synthetic fixtures and forbids 150 real Lattice stories; baseline document excludes 150 real stories and remote/production execution",
+      "source": "user request + baseline source"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 2,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d280ddfe87d66e8f517d1872fa35cf07dcbf555334946a5d7b8ec34e1139c2e5",
+  "openQuestions": []
+}

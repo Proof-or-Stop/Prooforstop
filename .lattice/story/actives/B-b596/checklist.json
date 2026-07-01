@@ -16,9 +16,74 @@
         ],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T00:33:47.340Z",
+      "endTime": "2026-07-01T00:38:59.370Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G01 smoke reports 15 total rows, 15 closed rows, no open/stale/deferred/invalid/migration rows, and full_roadmap_complete.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts the positive control cannot pass with fewer than exactly 15 generated milestone rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts local G01 proof does not set Authority, fullAuthority, production, or independent two-host completion claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Terminal shows parent-roadmap-large-ledger G01 baseline passed: 15 total rows, 15 closed rows, full_roadmap_complete, and no Authority or production overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "G01 smoke passed and asserts exactly 15 rollup rows, 15 closed rows, zero open/stale/deferred/invalid/migration rows, allRowsClosed=true, and summaryClass=full_roadmap_complete.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "G01 smoke passed and includes a negative guard where a 14-generated-row ledger throws the exact-count invariant, then evaluator reports missing_required_row and blocks full completion.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "G01 smoke passed and asserts the synthetic ledger, rollup, and claim decision do not contain elevated Authority/fullAuthority/production/two-host completion claim terms.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -35,9 +100,74 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T00:39:08.473Z",
+      "endTime": "2026-07-01T00:39:33.931Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The G01 smoke is reachable through the deterministic validation path or documented command, and the baseline document names G01 as implemented.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document keeps G02-G10 marked as future groups and does not state the full 10x15 baseline is complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation and documentation wording do not convert local G01 proof into Authority, production, fullAuthority, or independent two-host claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Documentation states G01 is implemented while G02-G10 remain future groups, and validation can run the G01 smoke by command.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"Current implemented slice: \\*\\*G01 only\\*\\*|parent-roadmap-large-ledger-g01-baseline-smoke\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md && node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "Docs name G01 as the only implemented slice and provide the runnable smoke command; the command passes after packages/main build.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"full 10x15 baseline is not complete|G02 \\| Future / not implemented|G10 \\| Future / not implemented\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Docs explicitly say the full 10x15 baseline is not complete and keep future groups G02 through G10 out of the G01 completion claim.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && rg -n \"guards that local proof does not become Authority, fullAuthority, production, or\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Retired-authority vocabulary guard passes, and the baseline doc states the G01 proof is claim-bounded rather than Authority, production, fullAuthority, or two-host evidence.",
+          "headHash": "bc744e6e9282ccf93a5669fbe59cb488b9497baf",
+          "materialHash": "32f66609e0cb60f7c5d343dd4a5fee76855ad53bf0555647eb157c4c2adead67",
+          "storyFilesHash": "dbec133a2f808ccc0746293e8693028cbcf1122a884136783316acd44b71e8b5",
+          "timestamp": "2026-07-01T00:45:30.165Z"
+        }
+      ]
     }
   ]
 }
