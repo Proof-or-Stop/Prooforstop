@@ -10,7 +10,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE version-bump skip output for a non-runtime change says the skip happened because no watched CLI/runtime inputs changed, and the user-facing line no longer says no material code change; WHY: the wording matches the real runtime-scope condition.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All dependent expectations for the skip reason are updated consistently to the watched CLI/runtime inputs wording; WHY: no smoke snapshot or assertion preserves the old misleading phrase.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A focused negative check fails if the user-facing DONE/version-bump skip reason still contains no material code change anywhere in the exercised output path; WHY: a partial rename cannot leave the misleading phrase visible.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
