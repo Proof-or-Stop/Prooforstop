@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d278",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "Lattice CLI",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-d278",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+  ],
+  "excludedCommands": [
+    "curl *production*",
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard*",
+    "lattice release_approve_push *",
+    "node *authority*production*",
+    "npm publish *",
+    "omx *"
+  ],
+  "excludedTools": [
+    ".omx",
+    "external Authority production runner",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".lattice/story/actives/B-2b08",
+    ".lattice/story/actives/B-9dcb",
+    ".lattice/story/actives/B-cc94",
+    ".omx",
+    "lattice.config.json",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Execute only local deterministic baseline smokes and standard Lattice lifecycle validation. No OMX, destructive git, remote push, npm publish, external Authority production runner, or production deployment commands are in scope.",
+  "createdAt": "2026-07-01T03:01:23.900Z",
+  "updatedAt": "2026-07-01T03:01:23.900Z",
+  "_hash": "1eff4f9332d3a760982f6ade56411340ad5c2637996f98d19acd1ea1297dca81"
+}
