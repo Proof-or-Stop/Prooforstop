@@ -1,0 +1,23 @@
+{
+  "storyId": "B-3b99",
+  "name": "close-convergence-high-gap-mappings",
+  "title": "Close current convergence high gaps with explicit implementation mappings",
+  "description": "Current gap_analyze reports 9 high uncovered_requirement gaps even though the relevant Autopilot health events, ProofStory key requirement/sourceRequirementId checks, and local done-closure assurance projections exist. Add narrow machine-visible implementation mappings and smoke coverage so convergence_check can prove high gaps are closed without expanding product scope.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-07-01T17:27:16.400Z",
+  "startedAt": "2026-07-01T17:27:16.400Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-01T17:27:16.481Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-gap-codex",
+      "agent": "main"
+    }
+  ]
+}

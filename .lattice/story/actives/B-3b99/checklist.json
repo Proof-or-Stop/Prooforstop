@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Map Autopilot health pause/resume event requirements to implementation",
+      "context": "gap_analyze line 294 in autopilot-v2-reliability-execution-plan.md reports health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume uncovered. core/autopilot-reliability.ts and autopilot-v2-reliability-smoke already assert these; add explicit @task mapping where the scanner can see all requirement tokens.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Map done-closure local assurance impact vocabulary to implementation",
+      "context": "gap_analyze line 238 in done-closure-runbook-assistant-execution-plan.md reports old authorityImpact enum uncovered. Current design retired Authority Server; map this requirement to local-assurance authorityImpact/projection implementation without reintroducing server-backed authority semantics.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Map ProofStory keyRequirements/sourceRequirementId requirements to implementation",
+      "context": "gap_analyze lines 297/328/476/503/560/573/602 in proofstory-intent-collision-execution-plan.md are examples/contract tokens. core/proofstory.ts already uses keyRequirementIds and validates sourceRequirementId against frozen original intent. Add explicit mapping text and tests so scanner closes these without weakening the schema.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify convergence high gaps are zero",
+      "context": "Run build, relevant smokes, gap_analyze, and convergence_check. DONE requires No high-priority gaps pass and no unfinished business stories except parked Tier-C advisory backlog.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
