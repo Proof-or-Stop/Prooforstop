@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-9dcb",
+  "id": "IC-20260701023143",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix BOTH sides of the metadataRoot defect: the production snapshot signing (captureReviewRunSnapshot/diagnoseReviewRunSnapshot threaded with workspace.metadataRoot||ctx.root) AND the consumer freshness recompute (run.workspaceBinding?.metadataRoot ?? projectRoot). The consumer-only or storyFilesHash-only interpretations are rejected because materialHash has no fallback, so the signed snapshot would stay wrong and the false-stale would persist. Confirmed by repro-first red evidence (rp-mr1fmmur-clkpwd, red-reviewed target-bug) and a confirmed spike (sr-mr1fp8ob-6k3tki).",
+  "acceptedInterpretationHash": "sha256:8e75e668300ddc0378b62498739203f260eb1cb6a3f06b2788f91b5656e5a777",
+  "notes": "High-assurance lifecycle-gate fix; interpretation independently grounded by the confirmed spike review sr-mr1frrtv-uxv41j.",
+  "createdAt": "2026-07-01T02:31:43.417Z",
+  "updatedAt": "2026-07-01T02:31:43.417Z"
+}

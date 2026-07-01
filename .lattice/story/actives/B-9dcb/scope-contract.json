@@ -1,0 +1,27 @@
+{
+  "storyId": "B-9dcb",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/smoke-manifest.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "scopeChangeReason": "Two-sided review-run metadataRoot fix: edit core/review-run.ts + handlers/review-run.ts, add the wrapper-root smoke, register it; other freshness consumers already correct and are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T02:33:42.109Z",
+  "updatedAt": "2026-07-01T02:33:42.109Z"
+}

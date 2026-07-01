@@ -4,9 +4,71 @@
       "id": "CHK-001",
       "title": "Port the confirmed-failing repro into a durable red test (wrapper-root + custom storyDir metadata-only commit)",
       "context": "Repro-first evidence: probe rp-mr1fmmur-clkpwd, review rr-mr1forp4-nbl96r (red-reviewed/target-bug), spike sr-mr1fp8ob-6k3tki. Turn the scratchpad repro into a permanent test driving captureReviewRunSnapshot + checkEvidenceFreshnessForGit: control (correct metadataRoot) fresh, production path stale after a metadata-only commit to the custom storyDir. Test MUST fail before the fix.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T02:41:57.706Z",
+      "userSees": "Running the test prints \"review-run metadataRoot wrapper-root smoke passed\"; before the fix it aborts with \"false stale reproduced\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Test reproduces control=fresh and production-path=stale on the wrapper-root+custom-storyDir metadata-only-commit before the fix, and fresh after",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy review run without workspaceBinding stays fresh (projectRoot fallback) in the test",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plain-repo/default-storyDir case in the test is byte-identical (no behavior change)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD b376dacd4",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 031c65a4b",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD bfb27bd64",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -15,9 +77,71 @@
       "relatedDocs": [
         ".lattice/story/actives/B-9dcb/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T02:41:58.386Z",
+      "userSees": "In a wrapper-root project with a custom storyDir, review_run_start prints \"Review run B-xxx:RR-001 started ... story <hash>\" whose signed material/story hashes exclude the custom storyDir; plain repos byte-identical.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureReviewRunSnapshot(root, metadataRoot) excludes the custom storyDir from materialHash/storyFilesHash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default metadataRoot=projectRoot keeps plain-repo snapshot byte-identical",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "diagnoseReviewRunSnapshot also threaded so diagnostic materialHash matches capture",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 939b28520",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 0812f043d",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD c4456cfd3",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -26,9 +150,71 @@
       "relatedDocs": [
         ".lattice/story/actives/B-9dcb/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T02:41:58.931Z",
+      "userSees": "After a metadata-only commit to the custom storyDir, finding_add/review_pass_set no longer errors \"is stale: evidence storyFilesHash does not match current story-owned file state\" and returns success.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertCurrentReviewRunForEvidence/validateEvidenceRunBinding use workspaceBinding.metadataRoot so a clean tree stays fresh after a metadata-only commit",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy run without workspaceBinding falls back to projectRoot (unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Consumer metadataRoot matches the signed snapshot metadataRoot (no new false stale)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 5ad0006ee",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 8cc75f242",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 48dd465d2",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -37,9 +223,71 @@
       "relatedDocs": [
         ".lattice/story/actives/B-9dcb/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T02:41:59.610Z",
+      "userSees": "lattice validate prints \"PASS\" (all green) and the new smoke prints \"review-run metadataRoot wrapper-root smoke passed\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate all green; the durable red test now passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "signReviewRun + workspaceBinding signatures byte-identical for the default/plain-repo case (guard asserts)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrapper-root+custom-storyDir metadata-only-commit path locked green in the guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "green at merged HEAD 3ca782c11",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 32ae6d613",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "green at merged HEAD 9175d6ac0",
+          "headHash": "31a9f21f3ff0ecb6a044e42a6cafc18f0b06576d",
+          "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+          "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+          "timestamp": "2026-07-01T17:18:25.966Z"
+        }
+      ]
     }
   ]
 }

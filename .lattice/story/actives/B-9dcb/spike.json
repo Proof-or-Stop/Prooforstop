@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.spike.v1",
+  "storyId": "B-9dcb",
+  "spikes": [
+    {
+      "id": "SPIKE-20260701023155",
+      "question": "Which code path owns the review-run false-stale, how broad is the blast radius (only wrapper-root + custom storyDir?), and is a clean, backward-compatible two-sided metadataRoot fix feasible?",
+      "status": "resolved",
+      "disposableCodePaths": [],
+      "note": "Owned by core/review-run.ts + handlers/review-run.ts; no in-repo disposable code carried forward.",
+      "createdAt": "2026-07-01T02:31:55.492Z",
+      "updatedAt": "2026-07-01T02:32:05.755Z",
+      "result": "Root cause: review-run computes AND re-checks material/story hashes from signedWorkspaceRoot instead of the resolved metadataRoot; loadConfig(metadataRoot) is what knows the custom storyDir, so on a wrapper-root layout the storyDir metadata is wrongly folded into both hashes. The buildReviewRunWorkspaceBinding fallback is dead because the handler always passes a precomputed storyFilesHash. Scope: strictly wrapper-root (metadataRoot != gitRoot) + non-default storyDir; plain repos and default storyDir unaffected (metadataRoot defaults to gitCwd; default metadata prefixes hardcoded). Fix (clean, backward-compatible): (1) thread metadataRoot into captureReviewRunSnapshot + diagnoseReviewRunSnapshot, pass workspace.metadataRoot||ctx.root from the handler with metadataRoot defaulting to projectRoot for byte-identical plain repos; (2) thread run.workspaceBinding?.metadataRoot ?? projectRoot into the two consumer freshness calls (binding already persists metadataRoot; legacy runs fall back to projectRoot). done-oracle/done-prepare/verifier already thread a distinct metadataRoot, so review-run is the lone outlier. Regression guard mandatory: prove plain/default byte-identical and lock the wrapper-root + custom-storyDir path."
+    }
+  ],
+  "createdAt": "2026-07-01T02:31:55.492Z",
+  "updatedAt": "2026-07-01T02:32:05.755Z"
+}

@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Fix at the source: correct where the hash is first computed (snapshot) so both the run fields and the workspaceBinding are right, rather than patching one downstream field.",
+    "Backward compatibility by defaulting: metadataRoot defaults to projectRoot so plain repos and existing positional callers stay byte-identical.",
+    "Single authoritative metadataRoot: the persisted workspaceBinding.metadataRoot is the source of truth for consumer-side recompute.",
+    "Symmetry with existing correct consumers: match how done-oracle/done-prepare/verifier already thread metadataRoot.",
+    "Evidence over assertion: a durable red test must fail pre-fix and pass post-fix, plus a byte-identical guard for the default case."
+  ],
+  "drivers": [
+    "Correctness of the REVIEW->TEST freshness gate on wrapper-root + custom-storyDir layouts.",
+    "Consistency of review-run hash semantics with the DONE gate / quorum / validation.",
+    "Zero regression for the overwhelmingly common plain-repo / default-storyDir case.",
+    "Minimal, auditable diff that a reviewer can verify against the confirmed spike."
+  ],
+  "options": [
+    {
+      "name": "A: two-sided metadataRoot threading (snapshot + consumers)",
+      "pros": [
+        "Fixes both the wrong signed snapshot AND the wrong freshness recompute; the two sides stay consistent.",
+        "Defaulting metadataRoot=projectRoot keeps plain repos byte-identical.",
+        "Uses the already-persisted workspaceBinding.metadataRoot; matches done-gate precedent.",
+        "Small, localized diff in three files."
+      ],
+      "cons": [
+        "Signatures of any pre-existing wrapper-root+custom-storyDir runs change (they were wrong before) — requires an explicit regression guard.",
+        "Touches a signing path, so needs careful byte-identical verification."
+      ]
+    },
+    {
+      "name": "B: rely on the existing buildReviewRunWorkspaceBinding fallback (stop passing storyFilesHash)",
+      "pros": [
+        "Smaller change to the binding builder alone."
+      ],
+      "cons": [
+        "Only fixes storyFilesHash, not materialHash (which has no fallback).",
+        "Leaves the run's own materialHash/storyFilesHash wrong and the two consumer freshness sites wrong.",
+        "Does not restore consistency with the DONE gate; the false-stale persists on the material path."
+      ]
+    },
+    {
+      "name": "C: consumer-only fix (thread metadataRoot into the two freshness checks, leave snapshot as-is)",
+      "pros": [
+        "Even smaller diff; no signing-path change."
+      ],
+      "cons": [
+        "The signed snapshot remains wrong, so run.materialHash/storyFilesHash still fold in custom-storyDir metadata; freshness would compare a correct recompute against a wrong stored value -> still stale.",
+        "Does not fix the production-side defect at all."
+      ]
+    }
+  ],
+  "chosen": "A: two-sided metadataRoot threading (snapshot + consumers)",
+  "rationale": "Only option A fixes both the production snapshot (materialHash has no fallback, so B/C leave it wrong) and the consumer recompute, restoring consistency with the DONE gate while defaulting metadataRoot=projectRoot for byte-identical plain-repo behavior. The spike independently confirmed A is minimal, backward-compatible, and uses the already-persisted workspaceBinding.metadataRoot.",
+  "preMortem": [
+    {
+      "scenario": "A plain-repo review run's signature changes, breaking existing DONE/quorum evidence.",
+      "trigger": "metadataRoot not defaulted to projectRoot, or the signing payload reordered.",
+      "consequence": "Every existing review run verifies as tampered; REVIEW->TEST gate blocks everywhere.",
+      "mitigation": "Default metadataRoot=projectRoot in captureReviewRunSnapshot/diagnoseReviewRunSnapshot; regression guard asserts default-case snapshot + signReviewRun byte-identical to pre-change output."
+    },
+    {
+      "scenario": "Consumer recompute uses a metadataRoot inconsistent with what the snapshot was signed under.",
+      "trigger": "Consumer sources metadataRoot from something other than run.workspaceBinding.metadataRoot (e.g. re-resolving live), diverging from the signed value.",
+      "consequence": "materialHash recompute won't match the stored hash even for a clean tree -> new false stale.",
+      "mitigation": "Consumer uses run.workspaceBinding?.metadataRoot ?? projectRoot (the persisted, signed value); test asserts clean-tree freshness on the exact wrapper-root layout."
+    },
+    {
+      "scenario": "Legacy runs without a workspaceBinding regress.",
+      "trigger": "Consumer unconditionally reads run.workspaceBinding.metadataRoot and it is undefined.",
+      "consequence": "metadataRoot becomes undefined -> loadConfig(undefined) resolves from cwd -> wrong exclusion -> stale for legacy runs.",
+      "mitigation": "Use `?? projectRoot` fallback; add a legacy-run (no binding) test asserting unchanged behavior."
+    },
+    {
+      "scenario": "diagnoseReviewRunSnapshot left un-threaded diverges from captureReviewRunSnapshot.",
+      "trigger": "Only captureReviewRunSnapshot gets metadataRoot; the diagnostic EMPTY_MATERIAL_HASH check still computes from projectRoot.",
+      "consequence": "Inconsistent materialHash interpretation between diagnosis and capture on wrapper-root; confusing false 'missing_material_hash' or masked errors.",
+      "mitigation": "Thread metadataRoot into diagnoseReviewRunSnapshot too (spike caveat), even though it only affects the diagnostic path."
+    }
+  ],
+  "timestamp": "2026-07-01T02:18:50.654Z"
+}

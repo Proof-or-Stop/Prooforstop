@@ -99,13 +99,19 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
+      // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
+      // storyDir-aware material/story hash exclusion loads lattice.config.json
+      // from the metadataRoot (where a CUSTOM storyDir is declared), NOT the
+      // gitRoot. This matches buildReviewRunWorkspaceBinding.metadataRoot below,
+      // so the persisted binding is authoritative and consumers recompute
+      // freshness against the same root (no false-stale on wrapper-root layouts).
       const { headHash, materialHash, storyFilesHash } = captureReviewRunSnapshot(signedWorkspaceRoot, {
         storyId: args.storyId,
         storyPhase: preflightStory.phase,
         currentReviewRound: preflightStory.currentReviewRound,
         workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
         expectedWorktreeRoot: workspace.expectedWorktreeRoot,
-      });
+      }, workspace.metadataRoot || ctx.root);
       const workspaceBinding = buildReviewRunWorkspaceBinding({
         metadataRoot: workspace.metadataRoot || ctx.root,
         invocationCwd: workspace.cwd || process.cwd(),

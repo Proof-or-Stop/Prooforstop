@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-9dcb:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round. The change is purely additive: captureReviewRunSnapshot and diagnoseReviewRunSnapshot gain an optional metadataRoot param (default=projectRoot), and two call sites inside assertCurrentReviewRunForEvidence/validateEvidenceRunBinding swap a positional signedProjectRoot arg for run.workspaceBinding?.metadataRoot ?? projectRoot. All function names remain exported and unchanged. All call sites in packages/main are accounted for. Doc/JSON references are descriptive only (fix explanations), not dangling code. No residual single-arg usages of the fixed internal calls in the consumer freshness path. Concept residue check complete, no blocker.",
+      "createdAt": "2026-07-01T02:52:48.512Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-001",
+      "_hash": "4ddcf77e779dcc5e08f41bfa81ba3f13bcc87107ce5ea259f999153af5188f96"
+    },
+    {
+      "id": "B-9dcb:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review: 11/12 must intents have valid evidence pointing at the correct Proof in the smoke (Proofs A/B/C/D each exercise the claimed behavior with direct assertions). One medium finding F-002 raised for CHK-004:edge:0 mislabeled evidence pointer (signReviewRun/workspaceBinding not exercised in Proof D). No must-gap on coverage substance; CHK-002:adversarial:0 is priority=should (not must). Overall coverage is adequate for the intent claims.",
+      "createdAt": "2026-07-01T02:54:10.248Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-006",
+      "_hash": "31799487516b3d2b8dc16345ceeb35bd22eaa70e3860a48441aaf7944284cff4"
+    },
+    {
+      "id": "B-9dcb:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001..CHK-004 behavior claims verified against code. (1) metadataRoot is correctly threaded through captureReviewRunSnapshot (3rd positional arg, default=projectRoot), diagnoseReviewRunSnapshot (2nd positional arg, default=projectRoot), and both consumer freshness checks via run.workspaceBinding?.metadataRoot ?? projectRoot. (2) No undefined can leak into loadConfig: workspaceBinding.metadataRoot is required (requireBindingText at handler:116/build:181), and the ?? projectRoot fallback handles legacy no-binding runs. (3) Plain-repo byte-identity confirmed: Proof D in smoke asserts captureReviewRunSnapshot and checkEvidenceFreshnessForGit are byte-identical when metadataRoot defaults vs equals gitRoot. (4) No positional-arg breakage: the only non-test production caller of captureReviewRunSnapshot is the review-run handler which now passes the 3rd arg; all other callers pass <=2 args and are unaffected. (5) Pre-fix legacy stored runs: workspaceBinding.metadataRoot was set to gitRoot; consumer reads gitRoot back and recomputes with same root as capture -- no new false-stale. (6) No false-fresh attack vector: the fix sources metadataRoot from the signed+verified workspaceBinding (verifyReviewRunWorkspaceBinding called at line 625 before freshness); tampering breaks the bindingHash. (7) diagnoseReviewRunSnapshot at line 638 intentionally omits metadataRoot threading -- it is a workspace-usability probe (not a freshness recompute) whose EMPTY_MATERIAL_HASH check defaults to gitRoot which is conservative and correct. (8) Smoke test covers all four proofs (A snapshot exclusion, B consumer freshness + assertCurrentReviewRunForEvidence e2e, C legacy fallback, D plain-repo byte-identity) and is registered in smoke-manifest.json.",
+      "createdAt": "2026-07-01T02:57:11.892Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-007",
+      "_hash": "b07ab242811f91fe45507e9a191ffb789b9740df1f61fa2265944fe44af9b2e7"
+    },
+    {
+      "id": "B-9dcb:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review: Proof C is now genuinely non-tautological. The bindingless legacy run is signed with the real snapshot (metadataRoot-excluded hashes), a metadata-only churn commit is applied to the custom storyDir, fallback selection asserts fallbackRoot==metadataRoot!=gitRoot (structural non-identity on the wrapper-root fixture), and the two checkEvidenceFreshnessForGit calls (with fallbackRoot vs gitRoot as 4th arg) produce FRESH vs FALSE-STALE verdicts respectively. Mutation-verified divergence is present. The end-to-end assertCurrentReviewRunForEvidence call proves the wiring. Proof E is a determinism/stability assertion for buildReviewRunWorkspaceBinding.bindingHash and signReviewRun._hash under plain-repo default == explicit case — transparent about its scope, not a tautology in the defective sense. No dead code, no type safety issues, no I/O shell violations. Zero findings.",
+      "createdAt": "2026-07-01T03:07:24.947Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-008",
+      "_hash": "f372d2f1eba2e887750677ca6be6d5c6538d7d99834a58e1eba1c0043b0f29a7"
+    },
+    {
+      "id": "B-9dcb:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 12 intents across CHK-001..004 have valid non-tautological evidence. CHK-001:edge:0 + CHK-003:edge:0 now backed by strengthened Proof C (real legacy no-workspaceBinding path through assertCurrentReviewRunForEvidence, non-tautological metadataRoot vs gitRoot divergence). CHK-004:edge:0 now backed by Proof E (direct byte-identity assert on buildReviewRunWorkspaceBinding().bindingHash and signReviewRun()._hash for plain-repo defaulted-vs-explicit case). Round 1 F-002 gap fully resolved. No blockers.",
+      "createdAt": "2026-07-01T03:08:09.758Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-012",
+      "_hash": "89ad4d2bc860d0cb3981155a3ae1c5cb733dcee68ce0d0145485f54baad22054"
+    },
+    {
+      "id": "B-9dcb:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion false positive confirmed. Both captureReviewRunSnapshot and diagnoseReviewRunSnapshot remain exported and defined in packages/main/src/core/review-run.ts (lines 326 and 273 respectively). The concept gate flagged them because the old-signature `-` lines look like deletions to a line-diff heuristic — in reality, both functions had a trailing `metadataRoot: string = projectRoot` parameter appended (signature modification, not deletion). All 34 caller references outside the definition file are legitimate call sites in the newly added smoke test task file review-run-metadataroot-wrapper-root-smoke.ts, which is part of this story. No dangling references exist. No concept deletion incompleteness.",
+      "createdAt": "2026-07-01T03:09:57.517Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-013",
+      "_hash": "98bd1d74e6abaeee768c25762350439edf2b4b46734b92b1e0fc13c1b9f56052"
+    },
+    {
+      "id": "B-9dcb:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed for packages/main/src/core/review-run.ts and packages/main/src/handlers/review-run.ts metadataRoot threading, plus package script and smoke manifest wiring. Verified build and targeted wrapper-root smoke; no blocker found.",
+      "createdAt": "2026-07-01T17:07:31.057Z",
+      "reviewRound": "2026-07-01T17:05:26.088Z",
+      "reviewRunId": "B-9dcb:RR-016",
+      "_hash": "c7673de5d5326b2e08abfb3a919a835e026ca9d3c557835bbb5347fe77e5379f"
+    },
+    {
+      "id": "B-9dcb:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: concept review found metadataRoot/workspaceBinding semantics coherent. captureReviewRunSnapshot now hashes signedWorkspaceRoot with metadataRoot as config/exclusion root; review_run_start persists the same metadataRoot in workspaceBinding; evidence consumers recompute freshness with run.workspaceBinding.metadataRoot while keeping gitCwd as signedWorkspaceRoot. Verified with temp source compile and wrapper-root/custom-storyDir smoke.",
+      "createdAt": "2026-07-01T17:08:34.221Z",
+      "reviewRound": "2026-07-01T17:05:26.088Z",
+      "reviewRunId": "B-9dcb:RR-014",
+      "_hash": "743577841e955f4b96d819e07fc97a630009efe4fabea84406c08ba8c2c5f7ca"
+    },
+    {
+      "id": "B-9dcb:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS after F-003 fix. The added smoke coverage now persists a signed review run plus signed pass and calls collectReviewerEvidenceState over the wrapper-root custom-storyDir metadata-only churn fixture, which reaches validateEvidenceRunBinding through the real reviewer evidence path. Source checked: packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts lines 334-412 and packages/main/src/core/review-run.ts lines 960-966. Focused verification passed: npm --prefix packages/main run build; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root. No concept/design blocker.",
+      "createdAt": "2026-07-01T17:15:22.427Z",
+      "reviewRound": "2026-07-01T17:12:06.070Z",
+      "reviewRunId": "B-9dcb:RR-017",
+      "_hash": "13c354e6303ab4ee17ee81491163faac7307b7c3ddac85814ccca927808d8705"
+    },
+    {
+      "id": "B-9dcb:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review after F-003 fix: reviewed review-run metadataRoot threading, handler snapshot binding, and the new wrapper-root smoke. The smoke now exercises capture/diagnose divergence, assertCurrentReviewRunForEvidence, collectReviewerEvidenceState via a signed pass reaching validateEvidenceRunBinding, legacy fallback, and plain-repo byte identity. Targeted smoke passed with npm --prefix packages/main run test:review-run-metadataroot-wrapper-root. No blocker found.",
+      "createdAt": "2026-07-01T17:15:31.380Z",
+      "reviewRound": "2026-07-01T17:12:06.070Z",
+      "reviewRunId": "B-9dcb:RR-018",
+      "_hash": "58b1fc994ea828865342ca2cff7d52081c3c020f814347b880bfbf02cdad382c"
+    },
+    {
+      "id": "B-9dcb:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-003 fixed: smoke now exercises validateEvidenceRunBinding via collectReviewerEvidenceState over wrapper-root custom-storyDir metadata-only churn; build and targeted smoke passed.",
+      "createdAt": "2026-07-01T17:15:43.281Z",
+      "reviewRound": "2026-07-01T17:12:06.070Z",
+      "reviewRunId": "B-9dcb:RR-019",
+      "_hash": "c1aa9b1e2257b8217a2cb73768e91abd83d5639c3b9654a2ff669d7fa9589726"
+    }
+  ]
+}

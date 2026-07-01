@@ -1,0 +1,35 @@
+{
+  "storyId": "B-9dcb",
+  "checkedAt": "2026-07-01T17:21:58.397Z",
+  "headHash": "60450c516b69389a96bb229727de780283433792",
+  "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+  "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+  "reviewRound": "2026-07-01T17:12:06.070Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-9dcb/background.md",
+      "promise": "Fix review-run metadataRoot snapshot/freshness so wrapper-root custom storyDir metadata-only commits do not false-stale reviewer runs.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:review-run-metadataroot-wrapper-root",
+      "evidence": "The smoke passes after F-003 and covers captureReviewRunSnapshot, assertCurrentReviewRunForEvidence, and collectReviewerEvidenceState/validateEvidenceRunBinding over wrapper-root custom-storyDir metadata-only churn."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001-CHK-004",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root passed; lattice validate --story=B-9dcb --json passed 31 configured commands; lattice done_required_validate passed packages/main build and root npm test."
+    },
+    {
+      "featureId": "F-003",
+      "transcript": "Reviewer lanes confirmed the smoke now writes signed reviewer evidence and calls collectReviewerEvidenceState, reaching validateEvidenceRunBinding for the wrapper-root custom-storyDir metadata-only churn case."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-9dcb delivery is current after F-003. The wrapper-root custom storyDir path, legacy fallback, default projectRoot behavior, and reviewer evidence consumer path are covered by real smoke tests and full validation."
+  },
+  "_hash": "9e4c8283fb410cdd7ff44bdc1ad5cc705093626bb9cb2cca56312a184b5bde54"
+}
