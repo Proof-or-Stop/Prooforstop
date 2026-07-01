@@ -144,7 +144,7 @@
       "desc": "memory_playbook_baseline_generate is classified readOnly/destructiveRisk none even though it writes to caller-selected outputDir and force=true recursively removes that directory.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T04:56:22.804Z",
@@ -156,7 +156,11 @@
         "packages/main/src/handlers/playbook-runtime-memory.ts"
       ],
       "signatureTag": "missing|ts|mutating-command-readonly",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 33c1cf5db: memory_playbook_baseline_generate is no longer readOnly/destructiveRisk none. It is classified as dangerousMutating/workspace-destructive in command-policy, L2 memory-runtime-write in process-fact-levels, and command catalog text now states force may replace outputDir. Verified by npm build, playbook-runtime-memory-mvp2-smoke, command-catalog-smoke, and process/runtime fact contracts.",
+      "resolvedAt": "2026-07-01T05:04:13.177Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-008",
