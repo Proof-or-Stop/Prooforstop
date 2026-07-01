@@ -262,7 +262,15 @@ function isGitRepository(gitCwd: string): boolean {
   }
 }
 
-export function diagnoseReviewRunSnapshot(projectRoot: string): ReviewRunSnapshotFailure | null {
+// B-9dcb CHK-002: metadataRoot — NOT projectRoot — drives the storyDir-aware
+// metadata-path exclusion inside currentMaterialHash (isMaterialExcludedPath ->
+// isStoryMetadataPath -> loadConfig). On a wrapper-root layout (metadataRoot !=
+// gitRoot) with a CUSTOM storyDir, loading config from the gitRoot silently
+// misses the custom storyDir and WRONGLY includes story-metadata paths in the
+// EMPTY_MATERIAL_HASH diagnostic. Threading metadataRoot keeps the diagnostic
+// consistent with the real captured snapshot. Defaults to projectRoot so plain
+// repos and every existing positional caller stay byte-identical.
+export function diagnoseReviewRunSnapshot(projectRoot: string, metadataRoot: string = projectRoot): ReviewRunSnapshotFailure | null {
   if (!isGitRepository(projectRoot)) {
     return {
       code: 'not_git_repo',
@@ -277,7 +285,7 @@ export function diagnoseReviewRunSnapshot(projectRoot: string): ReviewRunSnapsho
       nextAction: 'Create at least one commit in the signed workspace before starting a reviewer run.',
     };
   }
-  const materialHash = currentMaterialHash(projectRoot);
+  const materialHash = currentMaterialHash(projectRoot, 'HEAD', metadataRoot);
   if (!materialHash || materialHash === EMPTY_MATERIAL_HASH) {
     return {
       code: 'missing_material_hash',
@@ -307,15 +315,23 @@ function formatSnapshotFailure(failure: ReviewRunSnapshotFailure, context?: Revi
   ].join('\n');
 }
 
-export function captureReviewRunSnapshot(projectRoot: string, context?: ReviewRunSnapshotContext): { headHash: string; materialHash: string; storyFilesHash?: string } {
-  const failure = diagnoseReviewRunSnapshot(projectRoot);
+// B-9dcb CHK-002: metadataRoot is the storyDir-aware config-load root threaded
+// into the material/story hash computation (see currentMaterialHash /
+// currentStoryFilesHash). On a wrapper-root layout (metadataRoot != gitRoot) with
+// a CUSTOM storyDir the config lives at the metadataRoot, so passing the gitRoot
+// as metadataRoot (the old behavior) wrongly INCLUDES custom-storyDir metadata in
+// the material/story hashes and produces a false-stale evidence binding.
+// metadataRoot defaults to projectRoot so plain repos and every existing
+// positional caller stay byte-identical.
+export function captureReviewRunSnapshot(projectRoot: string, context?: ReviewRunSnapshotContext, metadataRoot: string = projectRoot): { headHash: string; materialHash: string; storyFilesHash?: string } {
+  const failure = diagnoseReviewRunSnapshot(projectRoot, metadataRoot);
   if (failure) {
     throw new Error(formatSnapshotFailure(failure, context));
   }
-  const storyFilesHash = currentStoryFilesHash(projectRoot);
+  const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', metadataRoot);
   return {
     headHash: currentGitHead(projectRoot)!,
-    materialHash: currentMaterialHash(projectRoot)!,
+    materialHash: currentMaterialHash(projectRoot, 'HEAD', metadataRoot)!,
     ...(storyFilesHash ? { storyFilesHash } : {}),
   };
 }
@@ -683,11 +699,18 @@ export function assertCurrentReviewRunForEvidence(
   // with the EMPTY-set no-signal guard) and the scope-binding check are the real
   // staleness authorities; id-recency carries no material/scope information.
   const signedProjectRoot = workspaceValidation.projectRoot;
+  // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
+  // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
+  // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
+  // metadataRoot wrongly INCLUDES custom-storyDir metadata in the recomputed
+  // material/story hashes → false-stale. Legacy runs without workspaceBinding
+  // fall back to projectRoot (unchanged behavior). gitCwd (arg1) stays
+  // signedProjectRoot.
   const freshness = checkEvidenceFreshnessForGit(
     signedProjectRoot,
     run.headHash,
     run.materialHash,
-    signedProjectRoot,
+    run.workspaceBinding?.metadataRoot ?? projectRoot,
     run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
   );
   if (!freshness.fresh) {
@@ -823,11 +846,18 @@ function validateEvidenceRunBinding(
     };
   }
   const signedProjectRoot = workspaceValidation.projectRoot;
+  // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
+  // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
+  // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
+  // metadataRoot wrongly INCLUDES custom-storyDir metadata in the recomputed
+  // material/story hashes → false-stale. Legacy runs without workspaceBinding
+  // fall back to projectRoot (unchanged behavior). gitCwd (arg1) stays
+  // signedProjectRoot.
   const freshness = checkEvidenceFreshnessForGit(
     signedProjectRoot,
     run.headHash,
     run.materialHash,
-    signedProjectRoot,
+    run.workspaceBinding?.metadataRoot ?? projectRoot,
     run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
   );
   if (!freshness.fresh) {
