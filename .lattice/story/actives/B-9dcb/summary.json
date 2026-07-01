@@ -1,10 +1,10 @@
 {
   "storyId": "B-9dcb",
-  "changes": "Threaded metadataRoot through review-run snapshot and reviewer evidence freshness so wrapper-root custom storyDir metadata-only commits no longer false-stale reviewer runs. Added smoke coverage for capture, assertCurrentReviewRunForEvidence, validateEvidenceRunBinding via collectReviewerEvidenceState, legacy fallback, and default projectRoot identity.",
-  "usage": "Use the existing review_run_start, review_pass_set, reviewer evidence checks, and review escalation gates normally. In wrapper-root or custom storyDir setups, review-run freshness now evaluates material/story files against the signed workspaceBinding metadataRoot instead of accidentally treating metadata-only storyDir churn as production material drift.",
-  "expectedOutcome": "Reviewer runs and passes should remain fresh after metadata-only commits in a wrapper-root custom storyDir setup, while real material drift still invalidates stale evidence. Existing plain-repo and legacy no-workspaceBinding cases should behave exactly as before.",
-  "actualTranscript": "Final verification passed: npm --prefix packages/main run build; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root; lattice validate --story=B-9dcb --json with 31 configured commands; lattice done_required_validate with packages/main build and root npm test. Review lanes concept, quality, and test-coverage all passed after F-003; 3 rounds x 2 hosts were submitted with claude-cli and codex-cli only.",
-  "outcomeDiff": "Expected and actual match. The test-coverage reviewer found F-003 before DONE because validateEvidenceRunBinding was not covered; the fix added the collector-path smoke coverage and reviewers confirmed it.",
+  "changes": "Verified the two Codex-reported review-run metadataRoot defect classes and completed the fix: captureReviewRunSnapshot and diagnoseReviewRunSnapshot now carry metadataRoot correctly, and both consumer freshness checks stay fresh for wrapper-root custom storyDir metadata-only commits. Added durable red/green smoke coverage for wrapper-root custom storyDir, legacy no-workspaceBinding fallback, default projectRoot/plain-repo byte identity, assertCurrentReviewRunForEvidence, and validateEvidenceRunBinding through collectReviewerEvidenceState.",
+  "usage": "Use review_run_start, review_pass_set, reviewer evidence checks, and review escalation gates normally. In wrapper-root projects with a custom storyDir, metadata-only commits under that storyDir no longer false-stale reviewer runs because freshness recompute uses the signed workspaceBinding metadataRoot. Plain-repo/default-storyDir and legacy no-workspaceBinding behavior remain unchanged.",
+  "expectedOutcome": "In a wrapper-root project with custom storyDir, a metadata-only commit to the storyDir should not false-stale reviewer runs; review-run material/story hash semantics should match DONE freshness semantics; plain-repo/default-storyDir behavior should remain byte-identical; lattice validate should be all green.",
+  "actualTranscript": "Final verification passed: npm --prefix packages/main run build; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root; lattice validate --story=B-9dcb --json with 31 configured commands; lattice done_required_validate with packages/main build and root npm test. Review lanes concept, quality, and test-coverage all passed after F-003; 3 rounds x 2 hosts were submitted with claude-cli and codex-cli only. F-003 was caught before DONE and fixed by adding collectReviewerEvidenceState coverage that reaches validateEvidenceRunBinding.",
+  "outcomeDiff": "Expected and actual match the original intent. The only mid-flight difference was a review-discovered coverage gap: validateEvidenceRunBinding was initially not exercised by the smoke; the gap was fixed and re-reviewed before DONE.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
@@ -35,10 +35,10 @@
     },
     "TEST": {
       "count": 2,
-      "durationMs": 49495203
+      "durationMs": 49544013
     }
   },
-  "totalDurationMs": 54817331,
+  "totalDurationMs": 54866141,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-01T17:22:21.681Z",
-  "updatedAt": "2026-07-01T17:22:21.681Z"
+  "updatedAt": "2026-07-01T17:23:10.491Z"
 }
