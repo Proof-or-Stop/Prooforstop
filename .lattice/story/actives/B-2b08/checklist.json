@@ -80,7 +80,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/story-lifecycle.md explains that the CLI patch version tracks watched Proofbound CLI/runtime inputs, not every repository code artifact such as offline experiment harnesses; WHY: the version boundary is clear to future DONE operators.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The documentation preserves the existing rule that when watched CLI/runtime inputs change, the CLI patch version, package metadata or lockfile as applicable, build, and lattice --version verification are still required; WHY: the clarification cannot be read as a skip-all-code policy.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The documentation does not add experiments/** or offline experiment harnesses to the watched CLI/runtime policy and does not create a broader experiment/product ledger policy in this story; WHY: the fix clarifies the boundary without expanding scope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
