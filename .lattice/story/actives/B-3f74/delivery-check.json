@@ -1,0 +1,57 @@
+{
+  "storyId": "B-3f74",
+  "checkedAt": "2026-07-01T00:44:41.798Z",
+  "headHash": "741a74fba06d931205aac12c1864c5b86c83e7c4",
+  "materialHash": "e44a62de0c1547bc6f35d79e9caee4d5beff6b5fbb80a2d33d670d9e1b8c8326",
+  "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+  "reviewRound": "2026-07-01T00:29:41.296Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Reflect B-e781/B-43de M4-M12 closure while keeping migration/rollout/repair automation optional or future and not required for closure.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus targeted rg",
+      "evidence": "Parent Roadmap lines 7-13, 32-33, 609-617, and 636-640 state B-e781/B-43de M4-M12 local closure, allRowsClosed=true/full_roadmap_complete, optional migration/repair, and no global lifecycle/production/retired Authority/external conformance claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Treat Authority-facing proof consumer as an external/retired compatibility boundary without claiming local Authority or production completion.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus targeted rg",
+      "evidence": "Proof Admissibility line 50 marks Authority-facing proof consumer as External / retired compatibility boundary, keeps productionDoneEligible=false / productionDone=false, and says no external Authority production adapter is implemented."
+    },
+    {
+      "docPath": "delivery evidence",
+      "promise": "Final delivery remains documentation-only with no runtime code changes.",
+      "status": "verified",
+      "verifiedBy": "git diff name/status and runtime path diff",
+      "evidence": "git diff --name-status main...HEAD lists only two docs plus .lattice story/evidence artifacts; git diff --name-only main...HEAD -- packages/main/src packages/main/tests bin scripts package files produced no runtime code paths."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-3f74-validation",
+      "transcript": "lattice test_list shows latest lattice validate --story=B-3f74 --json result PASS at 2026-07-01T00:40:56.769Z with configured validate.commands[0] through [30] passing and 9/9 verification intents covered."
+    },
+    {
+      "featureId": "B-3f74-quorum",
+      "transcript": "lattice review_escalation_status reports ok=true, assuranceLevel=full-3x2, fullQuorum=3/3 rounds x 2 hosts, countableProblems=2/2, and local-review-satisfied."
+    },
+    {
+      "featureId": "B-3f74-transcript-diff",
+      "transcript": "delivery_context_pack reports transcript-diff.md present=true; git ls-tree confirms .lattice/story/actives/B-3f74/evidence/transcript-diff.md is committed in HEAD."
+    },
+    {
+      "featureId": "B-3f74-findings-review",
+      "transcript": "lattice finding_list reports B-3f74:F-001 and B-3f74:F-002 resolved with strong fixed evidence; lifecycle_check --target=DONE reports Round 2 has 4 valid reviewer evidence records and no open blocking findings."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts B-3f74: docs promises are met, Authority/production overclaim boundaries are preserved, findings F-001/F-002 are resolved, validation/quorum/transcript evidence exists, and no runtime code changed. Remaining DONE blockers after this lane are host-owned summary/done_prepare, not delivery correctness blockers."
+  },
+  "_hash": "8cf82682127a97769fdf9f8f0090afce8203850363b7420c028381b212a7ac35"
+}
