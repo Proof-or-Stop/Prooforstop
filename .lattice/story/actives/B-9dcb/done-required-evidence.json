@@ -1,0 +1,83 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-9dcb",
+  "status": "PASS",
+  "startedAt": "2026-07-01T17:04:07.143Z",
+  "endedAt": "2026-07-01T17:05:02.829Z",
+  "durationMs": 55686,
+  "headHash": "42fb82522f23232247bfbfaca2cef2e982afdc8a",
+  "materialHash": "d5711965154c72e2298257c50d8084eaed7ea674ce59f0568e42977e024b86e8",
+  "storyFilesHash": "6b281f65701c8e24996a6c1d0928d379fbe9df5470de6179d3028fbbc5457502",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "dd78ab5151422a823b044ee0d5c366b01a625c723c151de67eb1416e8c3c7283",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9dcb",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9dcb",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 7626,
+      "outputDigest": "3921f855a453005ea70818c86b3b840febab41b004ed098c3c027328611d5d2f",
+      "outputTail": "\n> @lattice/core@0.3.128 build\n> tsc\n\n",
+      "startedAt": "2026-07-01T17:04:07.143Z",
+      "endedAt": "2026-07-01T17:04:14.769Z",
+      "headHash": "42fb82522f23232247bfbfaca2cef2e982afdc8a",
+      "materialHash": "d5711965154c72e2298257c50d8084eaed7ea674ce59f0568e42977e024b86e8",
+      "storyFilesHash": "6b281f65701c8e24996a6c1d0928d379fbe9df5470de6179d3028fbbc5457502"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "69cdf30501369461d690bcfc6decf7534dd072a8d13b4c6af7e803d2aa8ba6dc",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9dcb",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 1200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9dcb",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 47706,
+      "outputDigest": "3850e7129738a1afb12843aa2713f56815a666bea768356d7f211bf0ae6311c0",
+      "outputTail": "s-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.128 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.128 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.128 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n✓ repo scan clean: 647 .ts files inspected, 0 bare-cwd violations\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\n\n✓ gitroot-cwd-contract smoke passed\n\n> lattice@0.3.128 test:process-fact-contract\n> node scripts/verify-process-fact-contract.mjs\n\nProcess Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 357 (291 CLI, 16 runtime, 10 reviewer lanes, 33 artifacts)\n- levels: L0=138, L1=39, L2=55, L3=4, L4=121\n- kinds: artifact=21, command=230, execution-status=5, finding=3, flow-policy=7, gate-evidence=47, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=16, signed-artifact=12, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\n- registry entries:\n- admissibility_waterline [L0/command] producer=handlers/lifecycle-control\n- agent_prompt [L0/command] producer=handlers/agent-prompt\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\n- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate\n...[truncated 49425 chars]",
+      "startedAt": "2026-07-01T17:04:14.941Z",
+      "endedAt": "2026-07-01T17:05:02.647Z",
+      "headHash": "42fb82522f23232247bfbfaca2cef2e982afdc8a",
+      "materialHash": "d5711965154c72e2298257c50d8084eaed7ea674ce59f0568e42977e024b86e8",
+      "storyFilesHash": "6b281f65701c8e24996a6c1d0928d379fbe9df5470de6179d3028fbbc5457502"
+    }
+  ],
+  "reasons": []
+}
