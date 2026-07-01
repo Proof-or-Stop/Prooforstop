@@ -47,6 +47,7 @@ import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
+import { buildMemoryFreshnessPack, renderMemoryFreshnessPack, type RuntimeConsumer } from '../core/playbook-runtime-memory.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -574,6 +575,45 @@ function normalizeSessionCommandHints(text: string): string {
     .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
 }
 
+function renderMemoryRuntimePreflight(
+  projectRoot: string,
+  args: { query: string; consumer: RuntimeConsumer; storyPhase?: string; touchedPaths?: string[]; host?: string },
+): string[] {
+  try {
+    const pack = buildMemoryFreshnessPack({
+      projectRoot,
+      query: args.query,
+      consumer: args.consumer,
+      storyPhase: args.storyPhase,
+      touchedPaths: args.touchedPaths,
+      host: args.host,
+      maxLines: 60,
+    });
+    return renderMemoryFreshnessPack(pack).split('\n');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message.replace(/\s+/g, ' ').slice(0, 160) : String(err).slice(0, 160);
+    return [
+      '## Memory Runtime Preflight',
+      '  unavailable: advisory memory runtime failed to render; session_brief continues',
+      `  reason: ${msg || 'unknown'}`,
+      '  authority=non_authoritative gateEvidence=false',
+    ];
+  }
+}
+
+function buildStoryMemoryQuery(story: StoryInfo, checklist: ChecklistSummary | null): string {
+  const parts = [
+    story.storyId,
+    story.title,
+    story.description,
+    story.phase,
+    ...(checklist?.inProgress.map((item) => item.title) ?? []),
+    ...(checklist?.pending.slice(0, 3).map((item) => item.title) ?? []),
+    'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+  ];
+  return parts.filter((part) => part && part.trim().length > 0).join(' ');
+}
+
 export function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   if (isMetaContainer(sid, c.phase)) return metaContainerNextStep(sid);
@@ -887,6 +927,19 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('  → Use `lattice audit` / `lattice finding_list` to handle, do not run `lattice story_advance` or create worktree');
         }
 
+        if (!concise) {
+          const query = [
+            ...activeStories.slice(0, 5).flatMap((s) => [s.storyId, s.phase, s.title]),
+            'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+          ].filter((part) => part && part.trim().length > 0).join(' ');
+          lines.push('');
+          for (const l of renderMemoryRuntimePreflight(ctx.root, {
+            query,
+            consumer: 'session_brief',
+            storyPhase: activeStories[0]?.phase,
+          })) lines.push(l);
+        }
+
         // Cross-story open bugs sample (concise mode skips this).
         if (!concise && totalBugsOpen > 0) {
           const bugSample: Array<{ storyId: string; id: string; title: string }> = [];
@@ -1068,6 +1121,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('## Repro-first intake');
           lines.push(reproLine);
         }
+      }
+
+      if (!concise) {
+        lines.push('');
+        for (const l of renderMemoryRuntimePreflight(ctx.root, {
+          query: buildStoryMemoryQuery(story, checklistSummary),
+          consumer: 'session_brief',
+          storyPhase: story.phase,
+        })) lines.push(l);
       }
 
       if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {

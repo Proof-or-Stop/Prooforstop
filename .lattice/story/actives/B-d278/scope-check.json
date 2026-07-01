@@ -1,0 +1,52 @@
+{
+  "storyId": "B-d278",
+  "checkedAt": "2026-07-01T03:08:01.031Z",
+  "features": [
+    {
+      "feature": "G04-G10 group smoke creation",
+      "covered_by": "scope-contract.json allows creation of parent-roadmap-large-ledger-g04..g10-baseline-smoke.ts; plan.md CHK-001..CHK-007 and checklist.json verificationIntent cover each group.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-d278 PLAN artifacts"
+    },
+    {
+      "feature": "Full aggregate 10x15 smoke creation",
+      "covered_by": "scope-contract.json allows packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts; plan.md CHK-008 and the baseline doc Future Full Smoke Test Contract require exactly 150 evaluated rows and the group matrix.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-d278 PLAN artifacts"
+    },
+    {
+      "feature": "Baseline document update",
+      "covered_by": "scope-contract.json allows modifying docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md; CHK-008 requires docs binding after group and aggregate PASS evidence.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-d278 PLAN artifacts"
+    },
+    {
+      "feature": "parent-roadmap-totality.ts narrow G05 deferral rollup correction",
+      "covered_by": "scope-contract.json scopeChangeReason, decision.json option A/preMortem, and plan.md CHK-002 limit the core edit to deferred rows remaining visible and blocking full roadmap DONE.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-d278 PLAN artifacts"
+    },
+    {
+      "feature": "ProofStory core, handlers, lattice.config.json, external Authority/production/fullAuthority/remote-host semantics, .omx, unrelated active stories",
+      "covered_by": "scope-contract.json protectedFiles/explicitExcludes plus plan.md and baseline doc Non-Goals exclude these areas and elevated completion semantics.",
+      "status": "excluded",
+      "excluded_by": "packages/main/src/core/proofstory.ts; packages/main/src/handlers/proofstory.ts; lattice.config.json; .omx/**; .lattice/story/actives/B-2b08/**; .lattice/story/actives/B-cc94/**; .lattice/story/actives/B-9dcb/**; Authority/fullAuthority/production/remote-host completion claims.",
+      "source": "B-d278 PLAN artifacts"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f0ebc5f406e0c5acff9e05bbfbe1ba4af61f591509e28d3faece644080886c2c",
+  "openQuestions": []
+}

@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-cc94:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review covered runtime memory smoke, session_brief rendering, advisory non-gate flags, stale/superseded cases, corrupt input, and command/process registry checks; no blocker found.",
+      "createdAt": "2026-07-01T02:59:53.574Z",
+      "reviewRound": "2026-07-01T02:56:24.127Z",
+      "reviewRunId": "B-cc94:RR-003",
+      "_hash": "dc87e9df76fc1e21cc0ed259af01f3f68d43bd5d0b25318ce903bd19246417fc"
+    },
+    {
+      "id": "B-cc94:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review covered runtime memory core, Playbook activation/storage boundaries, session/dev-memory consumption, command registration, process-fact registry, version bump, and focused smoke/type/contract checks; no blocking correctness, gate, or compatibility issue found.",
+      "createdAt": "2026-07-01T03:01:21.835Z",
+      "reviewRound": "2026-07-01T02:56:24.127Z",
+      "reviewRunId": "B-cc94:RR-001",
+      "_hash": "42119c6efe036330109244374a6ed247b0766a8b51f787fcb7c21c2fb7546a44"
+    },
+    {
+      "id": "B-cc94:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: MVP1 scope is bounded to M0-M4 session/default preflight consumption; future handoff/story/DONE/1M/health/rollout items remain documented as later work and no gate evidence claim is introduced.",
+      "createdAt": "2026-07-01T03:01:44.539Z",
+      "reviewRound": "2026-07-01T02:56:24.127Z",
+      "reviewRunId": "B-cc94:RR-002",
+      "_hash": "b43a573102475d96314cdb9e34de1a1b121f4a038d101d91bc3f7d14bbdb33e8"
+    },
+    {
+      "id": "B-cc94:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed current material HEAD d1420af/materialHash 901d66a/storyFilesHash a24ab18 after main merge, refreshed verification evidence, validation, done-required PASS, and implementation/docs. Concept pass: MVP1 claim is bounded to M0-M4 runtime pack plus session_brief/dev_memory_start advisory consumption; M5-M12 handoff/story/DONE/final-response/1M/health/rollout remain unclaimed and not wired. Memory pack stays authority=non_authoritative gateEvidence=false.",
+      "createdAt": "2026-07-01T03:15:44.131Z",
+      "reviewRound": "2026-07-01T03:12:54.029Z",
+      "reviewRunId": "B-cc94:RR-005",
+      "_hash": "18f84fc04ada5e916779f989f9fba49bb0243a008d0832ba1f51205ac35011d3"
+    },
+    {
+      "id": "B-cc94:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage on current material: HEAD d1420af59ab259c5b61227e4df2aa665d7de3df3, materialHash 901d66a85dc7163d46908f54bb8ff3da6927121b787652ae3d270f5ee5146381, storyFilesHash a24ab18980093e82fc010da27bc84dadcc7e4c682a938a07c5370ceed76d5392. Re-ran npm --prefix packages/main run build, playbook-runtime-memory-mvp1-smoke, command-ownership-contract, and verify-process-fact-contract: all PASS. evidence_plan/evidence_inspect report 21/21 required verification refs fresh by material hash; test_list/lifecycle_check show validate PASS at 2026-07-01T03:10:45.342Z; done_closure shows DONE-required validation PASS at 2026-07-01T03:12:04.699Z. Milestone ledger is confirmed and maps only M0-M4, with no M5-M12 completion claim. No coverage blocker found; downstream DONE delivery/assurance/summary blockers are outside this test-coverage lane.",
+      "createdAt": "2026-07-01T03:16:07.142Z",
+      "reviewRound": "2026-07-01T03:12:54.029Z",
+      "reviewRunId": "B-cc94:RR-006",
+      "_hash": "09d713272da7cfecd8b20e931f4b218c06215ea88438c8a8f56b2b6a85b20d0b"
+    },
+    {
+      "id": "B-cc94:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS for B-cc94 current quality review at HEAD b46716c8e. Reviewed runtime MemoryFreshnessPack, active-only playbook matching, playbook_activate digest guard, session_brief/dev_memory_start rendering, command/process registry entries, version metadata, and refreshed evidence posture. Checks passed: tsc noEmit, MVP smoke, process/runtime contracts, runtime health, and targeted dist CLI command checks. No blocking implementation-quality findings. Main has advanced to 98a55f361/version 0.3.124, so merge-main/version refresh remains owner work before TEST/DONE.",
+      "createdAt": "2026-07-01T03:17:22.554Z",
+      "reviewRound": "2026-07-01T03:12:54.029Z",
+      "reviewRunId": "B-cc94:RR-007",
+      "_hash": "de0d8d877ed32144e67de209c6c99ef129330afce406c060f8f8a27095cd858a"
+    },
+    {
+      "id": "B-cc94:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review current-material pass for 0.3.125 MVP1. Summary is accepted and explicitly limits completion to session-entry Playbook Runtime Memory MVP1; milestone ledger is confirmed with covered M0-M4 rows only; delivery context reports delivery-check present/PASS and transcript-diff present; session_brief and dev_memory_start render bounded Memory Runtime Preflight with authority=non_authoritative gateEvidence=false; focused MVP1 smoke passes 11/11 and process/command contracts pass. Conceptual claim boundary is correct: completed only M0-M4 session/dev-memory consumption; M5-M12 handoff, story intake/advance, DONE/final response, capture loop, 1M baseline, health/rollout, and multi-host enforcement remain limitations/deferred work. No blocker.",
+      "createdAt": "2026-07-01T03:33:45.001Z",
+      "reviewRound": "2026-07-01T03:31:14.832Z",
+      "reviewRunId": "B-cc94:RR-008",
+      "_hash": "28842143c6115c8dcf24f6ccc2ea96591166184f2e3fd1cbdd23215b9be1cbe4"
+    },
+    {
+      "id": "B-cc94:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-material test coverage pass at HEAD 7e5d2554944b9dec15cad38e9b6b8a3a68bed884, CLI 0.3.125, materialHash b1f63e6f88369a3684a3a9d7ef8f2391fc7e4bcf8a7d7ed886c6861d79c67bd7, storyFilesHash 30dcdfce7fa4d93b9c7b9b28063b4bafd24d0b9e3793cc36a10ec311cc054feb. Reviewed checklist/lifecycle/done_closure/summary/delivery/transcript/milestone evidence plus live MVP1 smoke: 11/11 PASS. validate PASS, DONE-required PASS, verification intent coverage 21/21, evidence freshness PASS, delivery-check PASS. Milestone ledger and transcript/summary claim M0-M4 MVP1 only; M5-M12 are explicitly deferred/not claimed. No test-coverage blocker.",
+      "createdAt": "2026-07-01T03:33:55.440Z",
+      "reviewRound": "2026-07-01T03:31:14.832Z",
+      "reviewRunId": "B-cc94:RR-010",
+      "_hash": "8c5985f89cb41a8fff0bba9f26ac51b7f43add2dd22d57700477b6e5b9222223"
+    },
+    {
+      "id": "B-cc94:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review for B-cc94 0.3.125 current material passed. Reviewed runtime memory implementation, activation digest guard, session/dev-memory/playbook handlers, command/process/runtime registry impact, summary/delivery context, version bump, main-merge integration, and focused validation commands; no blocking quality finding found on current material.",
+      "createdAt": "2026-07-01T03:35:16.743Z",
+      "reviewRound": "2026-07-01T03:31:14.832Z",
+      "reviewRunId": "B-cc94:RR-009",
+      "_hash": "e4a62f8a06c7d5f26ae470cf6641d3777b47d3b531272bd612e29fb2010368b2"
+    }
+  ]
+}

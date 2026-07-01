@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Memory and playbooks are advisory context, never gate evidence",
+    "Prove the current failure before implementing the fix",
+    "Surface only active playbooks; candidates remain inert",
+    "Keep MVP1 session-scoped and defer broader consumers"
+  ],
+  "drivers": [
+    "The user wants hosts to stop relying on manual memory search",
+    "MVP1 must be observable through session_brief",
+    "Existing playbook lifecycle is candidate-only and must stay safe by default"
+  ],
+  "options": [
+    {
+      "name": "A: Session-first advisory runtime pack",
+      "pros": [
+        "Smallest useful slice",
+        "Directly addresses normal session forgetting",
+        "Avoids premature handoff/DONE enforcement"
+      ],
+      "cons": [
+        "Does not yet cover handoff/story/DONE consumers",
+        "Requires later MVPs for full runtime consumption"
+      ]
+    },
+    {
+      "name": "B: Implement all consumers before baseline",
+      "pros": [
+        "Closer to final architecture"
+      ],
+      "cons": [
+        "Too broad for one story",
+        "Hard to verify root cause and output shape separately",
+        "Risks turning memory into pseudo-gate behavior too early"
+      ]
+    },
+    {
+      "name": "C: Build 1M baseline first",
+      "pros": [
+        "Strong scale proof early"
+      ],
+      "cons": [
+        "Tests matcher/storage before real consumer wiring",
+        "Delays the user-visible session_brief improvement"
+      ]
+    }
+  ],
+  "chosen": "A: Session-first advisory runtime pack",
+  "rationale": "Choose the session-first advisory runtime pack because it delivers the smallest observable improvement while preserving non-authoritative boundaries and leaving handoff/story/DONE plus 1M scale proof for later MVPs.",
+  "preMortem": [
+    {
+      "scenario": "Memory pack is mistaken for proof evidence",
+      "trigger": "session_brief wording sounds authoritative",
+      "consequence": "Hosts may claim DONE or review assurance from memory",
+      "mitigation": "Hardcode gateEvidence:false and non_authoritative in pack/render text and tests"
+    },
+    {
+      "scenario": "Red test proves only candidate inertness, not runtime non-consumption",
+      "trigger": "M0 seeds only candidate playbooks",
+      "consequence": "Implementation may miss active playbook consumption gap",
+      "mitigation": "Seed an explicit active playbook fixture and assert session_brief currently misses it"
+    },
+    {
+      "scenario": "Output floods session_brief",
+      "trigger": "Too many memory/playbook hits",
+      "consequence": "Session startup becomes noisy and unusable",
+      "mitigation": "Use maxLines <=60, top-N hits, omitted count, and focused smoke"
+    }
+  ],
+  "timestamp": "2026-07-01T02:30:55.306Z"
+}

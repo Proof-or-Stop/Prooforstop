@@ -222,21 +222,21 @@ export type BumpGitRunner = (args: string[], cwd: string) => string;
 export interface BumpOnDoneMergeOptions {
   /** The main checkout root where the bump commit lands. */
   mainMergeRoot: string;
-  /** True only when the DONE merge changed material code (done-effects computes this). */
+  /** True only when the DONE merge changed watched CLI/runtime inputs. */
   shouldBump: boolean;
   /** Git runner (done-effects passes its runGitArgs; tests inject a spy). */
   runGit: BumpGitRunner;
 }
 
 /** Report line when a merge does not qualify for a version bump. */
-export const VERSION_BUMP_SKIPPED_LINE = '✓ version bump skipped (no material code change)';
+export const VERSION_BUMP_SKIPPED_LINE = '✓ version bump skipped (no watched CLI/runtime inputs changed)';
 
 /**
  * DONE post-merge effect: patch-bump the three sync points and commit the bump on main,
- * but only when the merge changed material code. Returns the human-readable report line
- * that done-effects pushes into the merge log. Throws a loud, actionable error on failure
- * (matching runDoneMainPackageBuildAfterMerge's style) — never leaves the version files
- * written-but-uncommitted silently.
+ * but only when the merge changed watched CLI/runtime inputs. Returns the human-readable
+ * report line that done-effects pushes into the merge log. Throws a loud, actionable error
+ * on failure (matching runDoneMainPackageBuildAfterMerge's style) — never leaves the
+ * version files written-but-uncommitted silently.
  */
 export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
   if (!opts.shouldBump) return VERSION_BUMP_SKIPPED_LINE;

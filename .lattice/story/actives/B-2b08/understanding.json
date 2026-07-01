@@ -1,0 +1,25 @@
+{
+  "task": "Clarify misleading DONE version-bump skip wording for non-runtime code changes.",
+  "outcome": "When a DONE merge skips the CLI patch bump for changes outside watched CLI/runtime inputs, the terminal says: version bump skipped (no watched CLI/runtime inputs changed), and story-lifecycle docs explain that CLI versioning tracks runtime inputs rather than every repository code artifact.",
+  "facts": [
+    "B-63ba changed executable experiment harness files but DONE printed version bump skipped (no material code change).",
+    "Current version bump/build policy is scoped to watched CLI/runtime inputs, not experiments/**.",
+    "The misleading text is defined by VERSION_BUMP_SKIPPED_LINE in packages/main/src/core/version-bump.ts.",
+    "rg found the old skip string only in version-bump.ts; done-merge experience smoke already asserts runtime wording for packages/main build skip.",
+    "story-lifecycle.md documents watched runtime inputs but should explicitly distinguish CLI package versioning from non-runtime repository code artifacts."
+  ],
+  "constraints": [
+    "Do not broaden CLI package version policy to experiments/** in this story.",
+    "Only fix real correctness/UX confusion in wording, focused smoke expectations, and lifecycle docs.",
+    "Keep host-neutral workflow semantics; no Codex/Claude-specific behavior.",
+    "Do not touch unrelated active stories or remote release policy."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-07-01T02:43:39.211Z"
+}

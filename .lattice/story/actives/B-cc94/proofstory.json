@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-cc94",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:58ac6b88c4a6db4b5932481c62df47ff9895cbc24727b2c8330dc1912751fec8",
+  "confirmedMilestoneLedgerHash": "sha256:a38fec2b311e2d58d2387f03d3326a63dfbae241c07c63c579f64425a60a4f23",
+  "acceptanceBindings": [
+    {
+      "id": "B-cc94-acceptance-mvp1",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "acceptanceClaim": "MVP1 is complete when build and focused smoke prove active appears, candidate does not appear, digest/non-authoritative fields exist, 60-line cap holds, relevant source mutation is stale-relevant, and session_brief renders the pack without claiming gate evidence.",
+      "note": "MVP1 acceptance binding only; parent milestones M5-M12 are not part of this story claim."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "MVP1 acceptance binding. Memory/playbook pack is advisory and remains gateEvidence:false.",
+  "createdAt": "2026-07-01T02:37:21.412Z",
+  "updatedAt": "2026-07-01T02:37:21.412Z"
+}

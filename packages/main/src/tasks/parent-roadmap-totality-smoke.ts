@@ -366,6 +366,45 @@ function invalidLedger(): Record<string, unknown> {
   });
 }
 
+function deferredLedger(): Record<string, unknown> {
+  return baseLedger({
+    ledgerId: 'PR-deferred',
+    parentStoryId: 'B-parent-deferred',
+    createdByStoryId: 'B-parent-deferred',
+    updatedByStoryIds: ['B-parent-deferred'],
+    requiredRowIds: ['M10', 'M11'],
+    proofstoryContract: { acceptanceBindings: [{ id: 'deferred-roadmap', milestoneIds: ['M10', 'M11'] }] },
+    rows: [
+      {
+        rowId: 'M10',
+        title: 'Closed implementation',
+        intentText: 'Implementation evidence closes only this row.',
+        status: 'closed-by-implementation',
+        childStoryId: 'B-child-closed',
+        closureEvidence: [{ kind: 'logic_test', ref: 'closed-row', result: 'pass' }],
+        materialRefs: ['packages/main/src/core/parent-roadmap-totality.ts'],
+        claimBoundary: 'local implementation evidence only',
+      },
+      {
+        rowId: 'M11',
+        title: 'Human-approved deferral',
+        intentText: 'A valid deferral stays visible and does not close runtime work.',
+        status: 'deferred-with-human-approval',
+        deferral: {
+          approvedBy: 'human-reviewer',
+          approvedAt: '2026-07-01T00:00:00.000Z',
+          reason: 'Explicitly excluded from this local runtime baseline.',
+          revisitTrigger: 'Revisit when the parent roadmap expands beyond the local baseline.',
+          nonRuntimeBehaviorStatement: 'This does not implement runtime behavior.',
+        },
+        closureEvidence: [],
+        materialRefs: ['docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md'],
+        claimBoundary: 'human deferral is visible; no runtime closure is claimed',
+      },
+    ],
+  });
+}
+
 function staleLedger(): Record<string, unknown> {
   return baseLedger({
     ledgerId: 'PR-stale',
@@ -517,6 +556,16 @@ async function runEvaluator(mod: RuntimeModule): Promise<void> {
   assert.equal(invalid.summaryClass, 'invalid_parent_rollup');
   assert.deepEqual(invalid.invalidRows, ['M7']);
   assert.equal(invalid.allRowsClosed, false);
+
+  const deferred = mod.evaluateParentRoadmapLedger(deferredLedger());
+  assert.equal(deferred.summaryClass, 'partial_parent_done');
+  assert.equal(deferred.claimType, 'no-full-roadmap-claim');
+  assert.equal(deferred.allRowsClosed, false);
+  assert.deepEqual(deferred.deferredRows, ['M11']);
+  assert.ok(deferred.openRows.includes('M11'), 'valid human-approved deferral remains open and visible');
+  const deferredRow = deferred.rowResults.find((row: any) => row.rowId === 'M11');
+  assert.equal(deferredRow.closed, false, 'valid deferral does not count as closed runtime work');
+  assert.ok(deferredRow.reasonCodes.includes('human_approved_deferral'));
 
   const stale = mod.evaluateParentRoadmapLedger(staleLedger(), { currentHeadHash: 'NEW', currentMaterialHash: 'NEW', currentStoryFilesHash: 'NEW' });
   assert.equal(stale.summaryClass, 'stale_parent_rollup');

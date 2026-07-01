@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-d278",
+  "sourceText": "Continue until all remaining 10x15 no-false-DONE baseline groups are completed: G04 stale evidence, G05 deferred rows, G06 migration/sample rows, G07 overclaim boundary, G08 duplicate/malformed rows, G09 child assignment without delivery, G10 stale-then-refreshed recovery, plus the full aggregate baseline and documentation.",
+  "normalizedOutcome": "After B-d278, G04-G10 each have runnable local deterministic smoke commands, the aggregate 10x15 smoke evaluates exactly 150 rows and passes, and the baseline document marks the full local baseline implemented without claiming Authority, production, fullAuthority, or remote-host completion.",
+  "acceptanceClaim": "The story is accepted only when all seven remaining group smokes and the aggregate 150-row smoke pass, documentation reflects G01-G10 implemented, and all overclaim boundaries remain explicit.",
+  "keyRequirementIds": [
+    "REQ-AGG-DOCS",
+    "REQ-G04",
+    "REQ-G05",
+    "REQ-G06",
+    "REQ-G07",
+    "REQ-G08",
+    "REQ-G09",
+    "REQ-G10"
+  ],
+  "requestHash": "sha256:6de4e80621c534a6c6cdfe1c1a2f644aabaca3a2a1c980fde78b1acb48fbf274",
+  "createdAt": "2026-07-01T03:06:24.226Z",
+  "updatedAt": "2026-07-01T03:06:24.226Z"
+}

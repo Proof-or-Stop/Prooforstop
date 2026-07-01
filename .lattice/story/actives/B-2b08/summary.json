@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2b08",
+  "changes": "Clarified the DONE version-bump skip reason in the CLI runtime path, updated the focused version-bump smoke expectation, and documented that CLI patch versions track watched Proofbound CLI/runtime inputs rather than every repository artifact.",
+  "usage": "Run lattice DONE/version-bump flow or inspect the built constant with node -e; non-watched changes now report: version bump skipped (no watched CLI/runtime inputs changed).",
+  "expectedOutcome": "A non-watched/non-runtime change no longer reports no material code change; the visible skip line says no watched CLI/runtime inputs changed, while watched CLI/runtime changes still require version bump/build verification.",
+  "actualTranscript": "node -e read packages/main/dist/core/version-bump.js and printed: version bump skipped (no watched CLI/runtime inputs changed). lattice --version printed Proofbound CLI 0.3.123. version-bump smoke passed: 68 assertions. lattice validate passed 31 configured commands. done_required_validate passed build plus npm test.",
+  "outcomeDiff": "No difference: the actual transcript matches the expected user-visible skip wording and the runtime/build validation passed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story intentionally does not expand CLI patch bump policy to experiments/** or add a separate experiment/product ledger; it only clarifies the current watched CLI/runtime boundary.",
+  "pitfalls": "scope_check_save wrote scope-check.json under canonical main rather than the story worktree and required merging main back into the worktree; done_required_validate --help executed the validation path instead of showing help, but it passed and produced usable evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 314699
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9217
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 508003
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 384872
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 363726
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 256920
+    }
+  },
+  "totalDurationMs": 1837437,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T03:08:13.290Z",
+  "updatedAt": "2026-07-01T03:08:13.290Z"
+}

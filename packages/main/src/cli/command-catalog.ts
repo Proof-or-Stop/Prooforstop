@@ -1779,7 +1779,9 @@ Behavior:
   // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
   // resolved finding into a human-approved candidate playbook. NEVER files findings
   // or touches gates; writes only under .lattice/learning/. Approve fails closed on
-  // a stale --expectedProposalDigest (decision-doc pattern); status is candidate, NOT active.
+  // a stale --expectedProposalDigest (decision-doc pattern); status is candidate,
+  // NOT active. Activate is the explicit active-runtime boundary and fails closed
+  // on --expectedPlaybookDigest.
   { name: 'playbook_propose', description: 'Stage a Playbook proposal distilled from a resolved finding (audit-only; never files a finding)', schema: {
     finding: z.string().describe('Source finding id (e.g. B-xxx:F-001) to distil into a playbook proposal.'),
     storyId: z.string().optional().describe('Optional story id; defaults to the prefix parsed from the finding id.'),
@@ -1790,6 +1792,10 @@ Behavior:
   { name: 'playbook_approve', description: 'Approve a staged proposal into a candidate Playbook (fails closed on a stale digest; never active)', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to approve.'),
     expectedProposalDigest: z.string().describe('Must byte-match the stored proposalDigest; a stale/missing digest fails closed.'),
+  }},
+  { name: 'playbook_activate', description: 'Explicitly activate a candidate Playbook for advisory runtime matching (fails closed on a stale digest)', schema: {
+    playbookId: z.string().describe('Approved playbook id (PBP-NNN/PB-NNN) to activate.'),
+    expectedPlaybookDigest: z.string().describe('Must byte-match computePlaybookDigest for the stored candidate; a stale/missing digest fails closed.'),
   }},
   { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
