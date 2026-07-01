@@ -46,10 +46,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "autopilot smoke passed and asserts health_probe/provider_unhealthy/paused_requires_resume plus waiting_for_provider_health and recovery event behavior.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -57,10 +57,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding machine-visible @task mappings to Autopilot reliability implementation and smoke files.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,10 +68,10 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "Final gap_analyze reports 0 high gaps; Autopilot provider-health requirement phrase is covered by B-3b99 @task annotations.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         }
       ]
     },
@@ -124,10 +124,10 @@
           "command": "node packages/main/dist/tasks/capability-list-smoke.js",
           "result": "pass",
           "note": "capability list smoke passed and asserts local-only proofAdmissibility, signed-offline-local receipt verification, local-assurance-required degradations, and no productionDone claim from capability discovery.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -135,10 +135,10 @@
           "command": "node packages/main/dist/tasks/canonical-story-export-smoke.js",
           "result": "pass",
           "note": "canonical story export smoke passed and asserts local DONE keeps productionDone=false while exporting local-assurance-incomplete with authorityImpact blocks-production-done.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,10 +146,10 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "Final gap_analyze reports 0 high gaps; retired authorityImpact none/localOnly/requiresAuthorityReceipt phrase is covered by local assurance @task mappings without Authority Server behavior.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         }
       ]
     },
@@ -199,10 +199,10 @@
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
           "note": "ProofStory intent hardening smoke passed and asserts keyRequirementIds participate in request hashing plus milestone sourceRequirementId rows bind to the original intent requirement set.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -210,10 +210,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding ProofStory @task mappings for keyRequirements, originalIntentSnapshot.keyRequirements, and sourceRequirementId spellings.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,10 +221,10 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "Final gap_analyze reports 0 high gaps; all ProofStory keyRequirements/sourceRequirementId uncovered_requirement gaps are covered by B-3b99 @task mappings.",
-          "headHash": "48a70eea5bd7490e554239d85d3a99aec77e9134",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:45:11.856Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         }
       ]
     },
@@ -280,10 +280,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after B-3b99 mapping annotation fixes.",
-          "headHash": "560fca795456c57ad8c069b6d525690313861956",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:44:56.410Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -291,10 +291,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node packages/main/dist/tasks/capability-list-smoke.js && node packages/main/dist/tasks/canonical-story-export-smoke.js",
           "result": "pass",
           "note": "All four targeted smokes passed: autopilot reliability, ProofStory intent hardening, capability list, and canonical story export.",
-          "headHash": "560fca795456c57ad8c069b6d525690313861956",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:44:56.574Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -302,10 +302,10 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "gap_analyze reports healthy=true with Gaps: 0 high / 1 medium; the remaining medium is an existing missing fixture outside this high-gap closure story.",
-          "headHash": "560fca795456c57ad8c069b6d525690313861956",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:44:56.744Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -313,10 +313,10 @@
           "command": "lattice convergence_check --json",
           "result": "pass",
           "note": "No high-priority gaps, flow chain, code annotations, parked backlog, audit backlog, and requirements coverage all pass. The only failing row is expected pre-DONE: All Stories completed reports B-3b99 unfinished.",
-          "headHash": "560fca795456c57ad8c069b6d525690313861956",
-          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
-          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
-          "timestamp": "2026-07-01T17:44:56.911Z"
+          "headHash": "bb53e642f53db4769229104eeddab62a4366c283",
+          "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+          "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+          "timestamp": "2026-07-01T17:51:49.459Z"
         }
       ]
     }
