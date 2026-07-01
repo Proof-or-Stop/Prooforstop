@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-cc94",
+  "state": "candidate",
+  "ledgerHash": "sha256:1b5bf997fbf4359cb6b3f2f04df0607d970914f0314cf5e2fd33240e324656a8",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-MVP1-M0",
+      "claim": "Red/repro demonstrates current runtime non-consumption before fix",
+      "doneMeans": "Focused smoke or red evidence shows session_brief lacks Memory Runtime Preflight/active playbook hit pre-fix while candidate remains inert",
+      "requiredEvidence": [
+        "red_evidence",
+        "logic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-MVP1-M1",
+      "claim": "Candidate to active activation boundary is explicit and digest-guarded",
+      "doneMeans": "playbook_activate accepts current digest and rejects stale/malformed/write-drift cases",
+      "requiredEvidence": [
+        "logic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-MVP1-M2",
+      "claim": "Runtime matcher surfaces active-only playbook/dev-memory hits",
+      "doneMeans": "Small noisy fixture proves active hits and candidate/stale/archived exclusions",
+      "requiredEvidence": [
+        "logic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-MVP1-M3",
+      "claim": "MemoryFreshnessPack has source digests, stale classification, superseded suppression, and non-authoritative boundary",
+      "doneMeans": "Smoke proves fresh, stale-relevant, stale-irrelevant/non-blocking, suppressedSupersededIds, line cap, gateEvidence:false, authority:non_authoritative",
+      "requiredEvidence": [
+        "logic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-MVP1-M4",
+      "claim": "session_brief consumes and renders bounded runtime pack",
+      "doneMeans": "CLI smoke proves session_brief includes Memory Runtime Preflight and survives empty/corrupt advisory input",
+      "requiredEvidence": [
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M5-M12",
+      "sourceRequirementId": "REQ-PARENT-REMAINDER",
+      "claim": "Broader parent milestones are intentionally outside MVP1",
+      "doneMeans": "Final validation and summary state handoff/story/DONE/1M/health/rollout remain open for later stories",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-01T02:35:28.080Z",
+  "updatedAt": "2026-07-01T02:35:28.080Z"
+}
