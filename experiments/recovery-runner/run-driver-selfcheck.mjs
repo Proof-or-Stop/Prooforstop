@@ -137,6 +137,8 @@ group('scenario profiles: explicit offline list/weighted parsing');
   threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:-1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: negative weight throws');
   threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:1.5', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: non-integer weight throws');
   threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: malformed weighted params throw');
+  threw = false; try { parseScenarioProfile({ scenarioProfile: 'weighted', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: explicit weighted profile requires params');
+  threw = false; try { parseScenarioProfile({ scenarioParams: 'B1:2', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: params without profile throw');
 }
 
 // =========================================================================================
@@ -374,7 +376,23 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   const REC_BAD_PROFILE = join(TMP, 'bad-profile.jsonl');
   const rBadProfile = spawnSync(process.execPath, [driverPath, '--record', REC_BAD_PROFILE, '--scenarioProfile', 'weighted', '--scenarioParams', 'B1:0', '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
   ok(rBadProfile.status === 2 && /invalid scenario profile/.test(`${rBadProfile.stdout}${rBadProfile.stderr}`), 'CLI: invalid scenario profile exits 2 with clear error');
-  ok(!existsSync(`${REC_BAD_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_BAD_PROFILE}.voids.jsonl`), 'CLI: invalid scenario profile writes no sidecars');
+  ok(!existsSync(REC_BAD_PROFILE) && !existsSync(`${REC_BAD_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_BAD_PROFILE}.voids.jsonl`), 'CLI: invalid scenario profile writes no records or sidecars');
+  const REC_DANGLING_PROFILE = join(TMP, 'dangling-profile.jsonl');
+  const rDanglingProfile = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PROFILE, '--tasks', 'foo', '--k', '1', '--scenarioProfile'], { encoding: 'utf8' });
+  ok(rDanglingProfile.status === 2 && /invalid scenario profile: --scenarioProfile requires a value/.test(`${rDanglingProfile.stdout}${rDanglingProfile.stderr}`), 'CLI: dangling --scenarioProfile exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(!existsSync(REC_DANGLING_PROFILE) && !existsSync(`${REC_DANGLING_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_DANGLING_PROFILE}.voids.jsonl`), 'CLI: dangling --scenarioProfile writes no records or sidecars (B-63ba:F-001)');
+  const REC_DANGLING_PARAMS = join(TMP, 'dangling-params.jsonl');
+  const rDanglingParams = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioParams'], { encoding: 'utf8' });
+  ok(rDanglingParams.status === 2 && /invalid scenario profile: --scenarioParams requires a value/.test(`${rDanglingParams.stdout}${rDanglingParams.stderr}`), 'CLI: dangling --scenarioParams exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(!existsSync(REC_DANGLING_PARAMS) && !existsSync(`${REC_DANGLING_PARAMS}.exclusions.jsonl`) && !existsSync(`${REC_DANGLING_PARAMS}.voids.jsonl`), 'CLI: dangling --scenarioParams writes no records or sidecars (B-63ba:F-001)');
+  const REC_WEIGHTED_NO_PARAMS = join(TMP, 'weighted-no-params.jsonl');
+  const rWeightedNoParams = spawnSync(process.execPath, [driverPath, '--record', REC_WEIGHTED_NO_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioProfile', 'weighted'], { encoding: 'utf8' });
+  ok(rWeightedNoParams.status === 2 && /--scenarioProfile weighted requires --scenarioParams/.test(`${rWeightedNoParams.stdout}${rWeightedNoParams.stderr}`), 'CLI: weighted profile without params exits 2');
+  ok(!existsSync(REC_WEIGHTED_NO_PARAMS) && !existsSync(`${REC_WEIGHTED_NO_PARAMS}.exclusions.jsonl`) && !existsSync(`${REC_WEIGHTED_NO_PARAMS}.voids.jsonl`), 'CLI: weighted profile without params writes no records or sidecars');
+  const REC_PARAMS_NO_PROFILE = join(TMP, 'params-no-profile.jsonl');
+  const rParamsNoProfile = spawnSync(process.execPath, [driverPath, '--record', REC_PARAMS_NO_PROFILE, '--tasks', 'foo', '--k', '1', '--scenarioParams', 'B1:2'], { encoding: 'utf8' });
+  ok(rParamsNoProfile.status === 2 && /--scenarioParams requires --scenarioProfile/.test(`${rParamsNoProfile.stdout}${rParamsNoProfile.stderr}`), 'CLI: scenario params without profile exits 2');
+  ok(!existsSync(REC_PARAMS_NO_PROFILE) && !existsSync(`${REC_PARAMS_NO_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_PARAMS_NO_PROFILE}.voids.jsonl`), 'CLI: scenario params without profile writes no records or sidecars');
   // host-2 INFO: k<3 warns (under-powered) but still runs (enumerate-only exit 0)
   const rKlow = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'klow.jsonl'), '--tasks', 'foo', '--k', '2'], { encoding: 'utf8' });
   ok(rKlow.status === 0 && /below the pre-reg minimum/.test(`${rKlow.stdout}${rKlow.stderr}`), 'CLI: --k 2 warns under-powered but runs (host-2 INFO)');

@@ -417,6 +417,15 @@ import { appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 function arg(f, d) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : d; }
+function optionValue(f) {
+  const i = process.argv.indexOf(f);
+  if (i < 0) return { present: false, value: null };
+  const value = process.argv[i + 1];
+  if (value == null || value.startsWith('--') || value.trim() === '') {
+    return { present: true, value: null, error: `${f} requires a value` };
+  }
+  return { present: true, value };
+}
 // Strict non-negative-integer CLI parse: rejects "1.5"/"1e2"/"abc" (parseInt would silently
 // truncate them). Returns NaN for a malformed value so the caller can fail loudly.
 function intArg(f, d) { const raw = String(arg(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
@@ -438,25 +447,35 @@ async function main() {
   }
   const k = intArg('--k', 5);
   if (!Number.isInteger(k) || k < 1) { console.error('[run-driver] invalid --k: must be a positive integer (>= 1).'); process.exit(2); }
-  // Pre-reg §5 sets min k=3 (k=5 default); a smaller k is an operational knob (MVP halves k),
-  // not an error — warn so an under-powered run is never silent (host-2 INFO).
-  if (k < 3) console.warn(`[run-driver] note: --k=${k} is below the pre-reg minimum of 3 (k=5 default); per-cell estimates will be under-powered.`);
   const seed = arg('--seed', 'pre-reg');
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
   const maxReruns = intArg('--maxReruns', 3);
   requireNonNegInt('--maxReruns', maxReruns);
+  const scenarioProfileOpt = optionValue('--scenarioProfile');
+  const scenarioParamsOpt = optionValue('--scenarioParams');
+  for (const opt of [scenarioProfileOpt, scenarioParamsOpt]) {
+    if (opt.error) {
+      console.error(`[run-driver] invalid scenario profile: ${opt.error}.`);
+      process.exit(2);
+    }
+  }
   let scenarioSelection;
   try {
     scenarioSelection = parseScenarioProfile({
-      scenarioProfile: arg('--scenarioProfile', null),
-      scenarioParams: arg('--scenarioParams', null),
+      scenarioProfile: scenarioProfileOpt.present ? scenarioProfileOpt.value : null,
+      scenarioParams: scenarioParamsOpt.present ? scenarioParamsOpt.value : null,
       validScenarios: RECOVERY_SCENARIOS,
     });
   } catch (e) {
     console.error(`[run-driver] invalid scenario profile: ${e && e.message ? e.message : e}`);
     process.exit(2);
   }
+  // Pre-reg §5 sets min k=3 (k=5 default); a smaller k is an operational knob (MVP halves k),
+  // not an error — warn so an under-powered run is never silent (host-2 INFO). Emit it only
+  // after scenario-profile validation so malformed profile input gets a clean fail-closed
+  // diagnostic before any matrix/sidecar work.
+  if (k < 3) console.warn(`[run-driver] note: --k=${k} is below the pre-reg minimum of 3 (k=5 default); per-cell estimates will be under-powered.`);
   const scenarios = scenarioSelection.explicit
     ? scenarioSelection.scenarios
     : [ABLATION_SCENARIO, ...RECOVERY_SCENARIOS];
