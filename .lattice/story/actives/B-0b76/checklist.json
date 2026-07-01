@@ -157,6 +157,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:26.002Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts rate 1/192 -> per1000 one-decimal 5.2 and CSV per_1000 field renders 5.21",
+          "headHash": "ecd261cb55babb802ca889ef3a97a1fa4be777bb",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:26.546Z"
         }
       ]
     },
