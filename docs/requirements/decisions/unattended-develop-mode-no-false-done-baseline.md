@@ -1,7 +1,7 @@
 # Unattended Develop Mode No-False-DONE 10x15 Milestone Baseline
 
 Date: 2026-07-01
-Status: baseline design / future implementation spec
+Status: baseline design / G01 implemented only; G02-G10 future implementation
 Related docs:
 
 - `docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`
@@ -70,6 +70,41 @@ G10-M01 ... G10-M15
 Each group must instantiate all 15 milestone rows. The rollup must explicitly
 report row count, closed rows, open rows, stale rows, invalid rows, deferred
 rows, migration rows, and claim boundary status.
+
+## Implementation Progress
+
+Current implemented slice: **G01 only**. The full 10x15 baseline is not complete.
+
+Runnable command after building `packages/main`:
+
+```bash
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js
+```
+
+The G01 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts`.
+It generates exactly 15 `G01-M01` ... `G01-M15` rows, evaluates them with the
+existing parent-roadmap rollup API, asserts the positive-control
+`full_roadmap_complete` result, rejects a 14-generated-row negative control, and
+guards that local proof does not become Authority, fullAuthority, production, or
+independent two-host completion evidence.
+
+The project validation config is not changed by this G01 slice. Until a later
+story binds the full baseline into routine validation, run the command above
+directly.
+
+| Group | Implementation status |
+|---|---|
+| G01 | Implemented as the positive-control 15-row baseline smoke. |
+| G02 | Future / not implemented. |
+| G03 | Future / not implemented. |
+| G04 | Future / not implemented. |
+| G05 | Future / not implemented. |
+| G06 | Future / not implemented. |
+| G07 | Future / not implemented. |
+| G08 | Future / not implemented. |
+| G09 | Future / not implemented. |
+| G10 | Future / not implemented. |
 
 ## Common Milestone Template
 
@@ -145,21 +180,21 @@ helpers to generate the 150 rows, but the observed rollup must match this table.
 | G09 | 15 | <15 | >0 | 0 | 0 | 0 | 0 | no |
 | G10 | 15 | 15 after refresh | 0 after refresh | 15 before refresh | 0 | 0 | 0 | yes after refresh only |
 
-## Future Smoke Test Contract
+## Future Full Smoke Test Contract
 
-A future implementation should add a smoke test similar to:
+The full 10x15 implementation should add or extend a smoke test similar to:
 
 ```text
 node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js
 ```
 
-Suggested source file:
+Suggested source file for the full baseline:
 
 ```text
 packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts
 ```
 
-The smoke test should:
+The full smoke test should:
 
 1. Generate the 10 synthetic parent ledgers.
 2. Generate exactly 150 milestone rows.
