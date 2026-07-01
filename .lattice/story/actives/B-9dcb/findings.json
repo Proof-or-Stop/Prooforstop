@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-9dcb:F-001",
+      "desc": "quality-tautology: review-run-metadataroot-wrapper-root-smoke.ts:394-400 Proof C is tautological — both `fallback` and `explicit` call checkEvidenceFreshnessForGit with identical arguments (root, root), so deepEqual always passes and the assertion does not actually exercise the legacy-fallback path through the consumer code (run.workspaceBinding?.metadataRoot ?? projectRoot). The test is supposed to verify that a ReviewRun with no workspaceBinding falls back to projectRoot, but it never constructs such a run or calls assertCurrentReviewRunForEvidence; it only compares a function with itself.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T02:53:49.806Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-002",
+      "_hash": "6c504d856a2ad89e88a0ed43a57a622cede0adb144a72443b3c4c8d1a0820bfb",
+      "files": [
+        "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-tautology-review",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
