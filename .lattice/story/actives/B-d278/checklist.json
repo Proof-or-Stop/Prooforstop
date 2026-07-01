@@ -252,9 +252,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:23.726Z",
       "userSees": "parent-roadmap large-ledger G07 baseline smoke PASS",
       "files": {
         "modify": [
@@ -289,7 +289,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke passed; it asserts 15 local closed rows and rejects full-roadmap, Authority, fullAuthority, production, and independent-host completion wording through the boundary guard.",
+          "headHash": "659d8761f1d64cdb3c15e2cfc6bc6954be146e25",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:24.041Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke asserts safe local boundary wording is allowed while unbounded full-roadmap and elevated claim text are rejected.",
+          "headHash": "659d8761f1d64cdb3c15e2cfc6bc6954be146e25",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:24.341Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke asserts local deterministic proof cannot be converted into Authority, production, fullAuthority, or independent-host completion claims.",
+          "headHash": "659d8761f1d64cdb3c15e2cfc6bc6954be146e25",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:24.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
