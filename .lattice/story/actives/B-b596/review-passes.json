@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-01T01:00:35.411Z",
       "reviewRunId": "B-b596:RR-012",
       "_hash": "b57ed89b3534fc4a33d34c2aa0da1ea6f4b1abd9339db9091f965fe5efbe85e9"
+    },
+    {
+      "id": "B-b596:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Re-review after main merge and delivery-context-pack scope acknowledgement. No business-code drift: main...HEAD changes no packages/main/src files except packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts, and packages/main/src/core/parent-roadmap-totality.ts has no diff. G01 smoke remains focused: deterministic local G01-only 15-row positive control, 14-row negative guard, and no Authority/fullAuthority/production/two-host overclaim; node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js passed; npm --prefix packages/main exec -- tsc -p packages/main/tsconfig.json --noEmit passed; retired-authority vocabulary guard passed. Scope acknowledgement is understandable and non-expanding: it only acknowledges .lattice/story/actives/B-b596/evidence/delivery-context-pack.json as TEST/DONE delivery-review context and states it does not expand beyond the G01 baseline smoke. Merged docs do not contradict B-b596: parent-roadmap and proof-admissibility docs keep local/read-only/non-production/non-Authority boundaries, while the baseline doc states G01 only and G02-G10/full 10x15 remain future.",
+      "createdAt": "2026-07-01T01:04:04.493Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-011",
+      "_hash": "4447c3f08c036c6250f260acda43752f4c1869e9d4f18c6f76bcca656c0ced76"
     }
   ]
 }
