@@ -118,9 +118,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:26:56.163Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:26:56.711Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves handoff_create text includes Memory Runtime Preflight, host-policy hits, and excludes candidate playbooks.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:57.107Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves handoff_resume carries the pack and permits agy only with a concrete primary failure signal.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:57.479Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves host_dispatch exposes memoryPackDigest/gateEvidence=false and rejects agy fallback without primary failure evidence.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:57.836Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -607,6 +642,15 @@
       "timestamp": "2026-07-01T04:26:54.563Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:56.711Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "in_progress",
       "to": "done",
