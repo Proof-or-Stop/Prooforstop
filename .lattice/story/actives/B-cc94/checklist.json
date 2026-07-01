@@ -74,7 +74,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Runtime memory core can build a non-authoritative freshness pack with active-only playbook matches, source digests, superseded suppression, and stale classification.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Matcher finds an active playbook and relevant dev-memory entry from a small noisy fixture and records their IDs in MemoryFreshnessPack.",
+            "type": "logic"
+          },
+          {
+            "desc": "Freshness pack includes project/global/playbook/signature source digest fields and immediately verifies as fresh.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Superseded dev-memory entries are suppressed by default and their IDs appear in suppressedSupersededIds.",
+            "type": "logic"
+          },
+          {
+            "desc": "Rendered pack respects the 60-line cap and reports omittedCount instead of flooding output.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Candidate/stale/archived playbooks never match runtime consumers.",
+            "type": "logic"
+          },
+          {
+            "desc": "Relevant source mutation is detected as stale-relevant, while unrelated append-only churn is classified stale-irrelevant or non-blocking.",
+            "type": "logic"
+          },
+          {
+            "desc": "Pack remains gateEvidence:false and authority:non_authoritative in schema and render output.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
