@@ -6,7 +6,39 @@
       "context": "gap_analyze line 294 in autopilot-v2-reliability-execution-plan.md reports health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume uncovered. core/autopilot-reliability.ts and autopilot-v2-reliability-smoke already assert these; add explicit @task mapping where the scanner can see all requirement tokens.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze can match the Autopilot requirement tokens health_probe, provider_unhealthy, waiting_for_provider_health, paused_requires_resume, health_recovered, and resumed to implementation coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Autopilot smoke proves non-transient auth/quota/policy/terminal errors are not misclassified as retryable provider health pauses.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The mapping must not claim local dispatch timeout or retired legacy Gemini compatibility as current third-host baseline evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
