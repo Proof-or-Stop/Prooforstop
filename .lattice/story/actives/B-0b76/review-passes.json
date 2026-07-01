@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-01T04:59:40.978Z",
       "reviewRunId": "B-0b76:RR-009",
       "_hash": "9c98ae07b69609f0218f3a59a7a7d7413e9f2331c2485d03b194d350055d6620"
+    },
+    {
+      "id": "B-0b76:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-attest. Deliverable byte-identical to prior PASS (f17c76f0); only main merged in. Checked make-fig-gate-ablation.mjs + selfcheck + run-selfchecks.mjs + README. (1) Dead code: none — all imports used, all exports consumed by selfcheck or CLI. (2) Type safety: pure JS .mjs, no as-any, one intentional empty-catch for malformed JSONL lines is documented design (defensive skip of truncated writes). (3) I/O isolation: N/A — experiments script, no bridge.ts boundary. (4) Doc-promise-undelivered: README promises readRecordsWithStats, readRecords, conflict guard (F-002), and exit-1 self-test (F-001) — all confirmed implemented in code. Selfchecks: 43/43 (make-fig-gate-ablation) + 8/8 (run-selfchecks). 0 findings.",
+      "createdAt": "2026-07-01T05:01:09.904Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-010",
+      "_hash": "08079bf75333cef569c8000d447ba3c6b66e7f99c7d4ba89123e8bfe0be95654"
     }
   ]
 }
