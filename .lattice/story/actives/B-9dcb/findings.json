@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|ts|quality-tautology-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9dcb:F-002",
+      "desc": "CHK-004:edge:0 intent says signReviewRun + workspaceBinding signatures byte-identical for the default/plain-repo case (guard asserts), but Proof D only exercises captureReviewRunSnapshot and checkEvidenceFreshnessForGit byte-identity. signReviewRun and buildReviewRunWorkspaceBinding are not called in Proof D. The property holds transitively but the smoke does not directly guard-assert signing byte-identity as the intent claims. Evidence pointer is mislabeled for this specific claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T02:54:00.080Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-006",
+      "_hash": "39de3ffcf130970b550501e8e76fb1d41dca4f9aca6dfc1de7a84b34b0f814b7",
+      "files": [
+        "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-says",
+      "signatureTagSource": "auto"
     }
   ]
 }
