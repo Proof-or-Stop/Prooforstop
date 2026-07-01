@@ -268,6 +268,7 @@ export type { ToolDef };
  * name: 'planner_run'
  * name: 'planner_source_manifest'
  * name: 'planner_status'
+ * name: 'playbook_activate'
  * name: 'playbook_approve'
  * name: 'playbook_diff'
  * name: 'playbook_propose'

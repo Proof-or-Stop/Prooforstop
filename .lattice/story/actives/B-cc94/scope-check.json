@@ -1,0 +1,59 @@
+{
+  "storyId": "B-cc94",
+  "checkedAt": "2026-07-01T02:35:57.261Z",
+  "features": [
+    {
+      "feature": "M0 red/repro current session non-consumption",
+      "covered_by": "CHK-001; plan.md#CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M0"
+    },
+    {
+      "feature": "M1 explicit candidate-to-active playbook activation boundary",
+      "covered_by": "CHK-002; plan.md#CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M1"
+    },
+    {
+      "feature": "M2 active-only runtime matcher",
+      "covered_by": "CHK-003; plan.md#CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M2"
+    },
+    {
+      "feature": "M3 MemoryFreshnessPack and non-authoritative boundary",
+      "covered_by": "CHK-003; plan.md#CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M3"
+    },
+    {
+      "feature": "M4 session_brief runtime memory consumption",
+      "covered_by": "CHK-004; plan.md#CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M4"
+    },
+    {
+      "feature": "M5-M12 handoff/story/DONE/capture/baseline/health/rollout parent remainder",
+      "covered_by": "CHK-005; plan.md#Scope Boundary",
+      "status": "excluded",
+      "excluded_by": "MVP1 scope boundary and CHK-005 explicit deferred/open parent milestones",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#MVP-2-and-MVP-3"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6b7e630a859bff904ffae13e70d04c5998c29db59bef7b85acec0178dd9fa4ac",
+  "openQuestions": []
+}

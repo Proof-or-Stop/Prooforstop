@@ -133,6 +133,11 @@ function resolveLearningRoot(searchOrigin: string): string {
   }
 }
 
+/** The repository root that owns the shared `.lattice/learning/` store. */
+export function resolveLearningOwnerRoot(searchOrigin: string): string {
+  return resolveLearningRoot(searchOrigin);
+}
+
 /**
  * Absolute learning directory under a project root. The root is first resolved to
  * the canonical main-repo root (see {@link resolveLearningRoot}) so a linked
@@ -522,6 +527,58 @@ function proposalDigestDomain(proposal: PlaybookProposal): Omit<PlaybookProposal
 /** Stable sha256 over the canonical proposal domain (excluding proposalDigest). */
 export function computePlaybookProposalDigest(proposal: PlaybookProposal): string {
   return digestCanonicalJson(proposalDigestDomain(proposal));
+}
+
+/** Stable sha256 over one approved playbook row as persisted in playbooks.json. */
+export function computePlaybookDigest(playbook: Playbook): string {
+  return digestCanonicalJson(playbook);
+}
+
+const PLAYBOOK_STATUSES = new Set(['proposed', 'candidate', 'active', 'stale', 'archived']);
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isNonNegativeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+/** Runtime shape check for persisted playbook rows. */
+export function validatePlaybook(raw: unknown): { ok: true; playbook: Playbook } | { ok: false; error: string } {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { ok: false, error: 'expected object' };
+  }
+  const obj = raw as Record<string, unknown>;
+  const id = typeof obj.id === 'string' ? obj.id.trim() : '';
+  if (!id) return { ok: false, error: 'id must be a non-empty string' };
+  if (typeof obj.title !== 'string' || !obj.title.trim()) return { ok: false, error: `playbook ${id}: title must be a non-empty string` };
+  if (typeof obj.check !== 'string' || !obj.check.trim()) return { ok: false, error: `playbook ${id}: check must be a non-empty string` };
+  if (!isStringArray(obj.pitfalls)) return { ok: false, error: `playbook ${id}: pitfalls must be a string array` };
+  if (!isStringArray(obj.verification)) return { ok: false, error: `playbook ${id}: verification must be a string array` };
+  if (typeof obj.status !== 'string' || !PLAYBOOK_STATUSES.has(obj.status)) {
+    return { ok: false, error: `playbook ${id}: status must be proposed|candidate|active|stale|archived` };
+  }
+
+  const trigger = obj.trigger as Record<string, unknown> | null;
+  if (!trigger || typeof trigger !== 'object' || Array.isArray(trigger)) return { ok: false, error: `playbook ${id}: trigger must be an object` };
+  if (!isStringArray(trigger.keywords)) return { ok: false, error: `playbook ${id}: trigger.keywords must be a string array` };
+  if (!isStringArray(trigger.fileKinds)) return { ok: false, error: `playbook ${id}: trigger.fileKinds must be a string array` };
+  if (!isStringArray(trigger.storyPhases)) return { ok: false, error: `playbook ${id}: trigger.storyPhases must be a string array` };
+
+  const lineage = obj.lineage as Record<string, unknown> | null;
+  if (!lineage || typeof lineage !== 'object' || Array.isArray(lineage)) return { ok: false, error: `playbook ${id}: lineage must be an object` };
+  if (typeof lineage.sourceStoryId !== 'string' || !lineage.sourceStoryId.trim()) return { ok: false, error: `playbook ${id}: lineage.sourceStoryId must be a non-empty string` };
+  if (typeof lineage.sourceFindingId !== 'string' || !lineage.sourceFindingId.trim()) return { ok: false, error: `playbook ${id}: lineage.sourceFindingId must be a non-empty string` };
+  if (lineage.sourceSignature !== undefined && typeof lineage.sourceSignature !== 'string') return { ok: false, error: `playbook ${id}: lineage.sourceSignature must be a string when present` };
+
+  const usage = obj.usage as Record<string, unknown> | null;
+  if (!usage || typeof usage !== 'object' || Array.isArray(usage)) return { ok: false, error: `playbook ${id}: usage must be an object` };
+  if (!isNonNegativeNumber(usage.surfacedCount)) return { ok: false, error: `playbook ${id}: usage.surfacedCount must be a non-negative number` };
+  if (!isNonNegativeNumber(usage.resolvedHits)) return { ok: false, error: `playbook ${id}: usage.resolvedHits must be a non-negative number` };
+  if (!isNonNegativeNumber(usage.dismissedHits)) return { ok: false, error: `playbook ${id}: usage.dismissedHits must be a non-negative number` };
+
+  return { ok: true, playbook: raw as Playbook };
 }
 
 /**
