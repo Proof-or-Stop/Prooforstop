@@ -511,6 +511,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:36.677Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -niE 'does .*not.*(edit the paper|compute the bootstrap)' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README line 228-230 explicitly states the generator does NOT compute the bootstrap CI and does NOT edit the paper (analyze.mjs owns the CI; inserting into main.tex is a separate manual step) — no over-claim; documented I/O matches the generator",
+          "headHash": "4176aa4b934e454f424496249a757818ddcfed9e",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:37.234Z"
         }
       ]
     }
