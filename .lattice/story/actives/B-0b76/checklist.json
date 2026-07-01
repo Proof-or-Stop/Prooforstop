@@ -161,6 +161,16 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README.md contains a section documenting make-fig-gate-ablation.mjs (input powered/*.jsonl → fig-gate-ablation.svg + .csv) and selfcheck count reads 8; WHY: pure documentation item, verified by manual inspection of README content",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
       }
     }
   ]
