@@ -154,6 +154,17 @@
           "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
           "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
           "timestamp": "2026-07-01T05:03:34.936Z"
+        },
+        {
+          "intentRef": "CHK-002:review:F-010",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "Covers handoff_create/handoff_resume/host_dispatch host alias normalization: claude-cli maps to claude-code, agy-cli requires primaryHostFailure and maps to antigravity, and unknown primary target normalizes to codex capability id without leaking raw host.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
         }
       ]
     },
@@ -403,6 +414,17 @@
           "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
           "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
           "timestamp": "2026-07-01T05:03:34.936Z"
+        },
+        {
+          "intentRef": "CHK-005:review:F-012",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Baseline generator now refuses non-empty existing outputDir without force; smoke covers unrelated files and target records.jsonl overwrite prevention, plus full 1,000,000-row generation.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
         }
       ]
     },
@@ -484,6 +506,17 @@
           "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
           "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
           "timestamp": "2026-07-01T05:03:01.337Z"
+        },
+        {
+          "intentRef": "CHK-006:review:F-011",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Baseline verifier now enforces requestedProfileMatches, PROFILE_COUNTS record count, and fullProfileExactMillion semantics; smoke rejects truncated self-consistent manifest and verifies full profile recordCount=1000000.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
         }
       ]
     },
@@ -730,6 +763,17 @@
           "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
           "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
           "timestamp": "2026-07-01T05:03:01.337Z"
+        },
+        {
+          "intentRef": "CHK-009:review:F-013",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "verifyPlaybookRuntimeBaseline cleans generated temp baseline directories by default, supports keepGenerated for explicit retention, and health smoke remains green with implicit generated baseline cleanup.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
         }
       ]
     },
@@ -815,6 +859,17 @@
           "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
           "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
           "timestamp": "2026-07-01T05:03:34.937Z"
+        },
+        {
+          "intentRef": "CHK-010:review:2host",
+          "kind": "manual_transcript",
+          "command": "Claude CLI review PASS for F-007..F-009; Codex CLI review found F-010..F-013; agy CLI used only as fallback sanity check, not primary host evidence.",
+          "result": "pass",
+          "note": "Host priority corrected: Codex CLI plus Claude CLI are primary hosts; agy-cli is fallback only. New F-010..F-013 were found by Codex review, fixed, and locally verified by build, MVP1/MVP2, baseline small/full, health, command catalog, process fact, runtime fact, and diff check.",
+          "headHash": "72989e45dd9210c082c07a99c0c7ed1c05579935",
+          "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+          "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+          "timestamp": "2026-07-01T05:27:02.790Z"
         }
       ]
     }
