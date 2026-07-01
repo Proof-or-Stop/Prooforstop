@@ -778,9 +778,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:27:12.680Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:27:13.162Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke verifies Codex/Claude primary and agy fallback-only policy in handoff/resume/dispatch paths.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:13.527Z"
+        },
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-4eea --mode=warn --json",
+          "result": "pass",
+          "note": "ProofStory gate check confirms all 10 milestones are ledger-covered and no missing parent rollup remains.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:13.888Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Combined MVP2 plus 1M baseline proves rollout runbook can rely on small consumer fixtures and full-scale baseline before enforce claims.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:14.235Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -959,6 +994,15 @@
       "timestamp": "2026-07-01T04:27:11.037Z",
       "phase": "DEV",
       "itemId": "CHK-009",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:13.162Z",
+      "phase": "DEV",
+      "itemId": "CHK-010",
       "action": "update",
       "from": "in_progress",
       "to": "done",
