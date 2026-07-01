@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-4eea:F-001",
+      "desc": "M9/M10 million-record baseline verifier scans corpus membership but does not execute runtime matcher/ranking path, so scale correctness can pass even if retrieval is broken.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-01T04:35:07.225Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-001",
+      "_hash": "77699d2a28663b3a74c2272a33a89df0f79c9708ecd30b75636d49fc37235c00",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|million-record-baseline",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
