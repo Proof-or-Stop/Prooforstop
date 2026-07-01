@@ -18,7 +18,44 @@
   ],
   "explicitExcludes": [],
   "scopeChangeReason": "Figure generator + offline selfcheck + README only; adjudicate.mjs/analyze.mjs are the locked classification/statistics modules and must not change; the paper repo and the bootstrap CI are out of scope.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice-generated high-assurance ProofStory metadata (proofstory.json from proofstory_contract_set; red-evidence.json from red_evidence_create) — command-generated lifecycle artifacts required by the high-assurance DEV gate, not source-code scope changes; they are not yet in the scope classifier's lifecycle-artifact registry so they fail-closed and must be acknowledged.",
+      "timestamp": "2026-07-01T02:16:14.338Z",
+      "paths": [
+        ".lattice/story/actives/B-0b76/proofstory.json",
+        ".lattice/story/actives/B-0b76/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-0b76/proofstory.json",
+        ".lattice/story/actives/B-0b76/red-evidence.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "71528732909d2d9a93fbabdce481557eef4ed47a",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice-generated high-assurance ProofStory metadata (intent-collision.json from intent_collision_set; original-intent-snapshot.json from original_intent_snapshot_set) — command-generated lifecycle artifacts required by the high-assurance DEV gate, not source-code scope changes; not yet in the scope classifier's lifecycle-artifact registry so they fail-closed and must be acknowledged.",
+      "timestamp": "2026-07-01T02:16:38.860Z",
+      "paths": [
+        ".lattice/story/actives/B-0b76/intent-collision.json",
+        ".lattice/story/actives/B-0b76/original-intent-snapshot.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-0b76/intent-collision.json",
+        ".lattice/story/actives/B-0b76/original-intent-snapshot.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "71528732909d2d9a93fbabdce481557eef4ed47a",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559"
+    }
+  ],
   "createdAt": "2026-07-01T01:58:05.179Z",
-  "updatedAt": "2026-07-01T01:58:05.179Z"
+  "updatedAt": "2026-07-01T02:16:38.860Z"
 }
