@@ -571,6 +571,58 @@
         "bindingHash": "d29223c0869a999365412da389d44a25c688af68f53238819cea595c6dceabf0"
       },
       "_hash": "13c63b4b05b18d31196a271c50bfddd53efbd9b9a2a3f1494ff448743ffed428"
+    },
+    {
+      "reviewRunId": "B-63ba:RR-012",
+      "storyId": "B-63ba",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "startedAt": "2026-07-01T01:09:56.441Z",
+      "headHash": "362118219b94840c13053876994bce099adf1baa",
+      "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
+      "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "281f20a6178c2184cc315ca7c46f8a91f0248bd33b07af5a65934b368f142f51",
+        "diffPackHash": "a2b5847b0340b7f13ef711a7eb90e41d482e3a202b35a0daea84fd2652394d62",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/parameterized-fault-profile.mjs",
+          "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1d14e5ed0408642b4e503797d23a63eabd487dd653b7d87c0693322d5781eaf6",
+          "36d0c2f8beed1a183ca42bf56525ecf44947ab65f9b02e5748e27e1f5ad0b9b0",
+          "468f591fe8452ba9a72332c8b8c056a089c135fbce12efaff273412e7050823c",
+          "5c635cca77b64c764193c514937a528d03fd7e3435ac13f36e4a3516b009ca73",
+          "769db3ff07d708e68191b493508c5dd5ee9f95835966fcdda426891ada7a95a8",
+          "7cb628fa81cb8ba3731fee81a8889c4bb26b3f5926ef299e61d7fa07243408fe",
+          "8ae5df69566a541876b29d0cfb48e3b84e39f14a29faf8f93f99272da6076c6f",
+          "96b20df607d67defffb6f8690a710e44f9c3f371beef82c0863d03a7175251ce",
+          "96f476c4d2d90fe63afabd95b524c9bf66d714c68021c40f79ccf79b4f175817",
+          "9e3e897141ed1aff8d97c6525b66ad62572fa50eadebd51290257f7887ca3c32",
+          "fcfd214ff4cd1140488bd42bed5f9fe9f1ebeac2d7a29b72ec69ed8b1db688a9"
+        ],
+        "bindingHash": "c1e741ec4d952cae51940a77f7b3569a81165ae3a49a0276ba2059a4426e64e8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-63ba",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-63ba",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-63ba",
+        "workspaceMode": "story-worktree",
+        "headHash": "362118219b94840c13053876994bce099adf1baa",
+        "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
+        "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
+        "bindingHash": "2fa90130d9f0610b98297f72164f3f44f95c3bdaed1963bcee9bb05fda61b015"
+      },
+      "_hash": "b4ff2da812c92fcdbef112f87742853fc559d3b82ce34c573297d96d4b7dfdda"
     }
   ]
 }

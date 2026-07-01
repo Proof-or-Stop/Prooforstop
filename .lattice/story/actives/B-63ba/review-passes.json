@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-01T01:04:34.884Z",
       "reviewRunId": "B-63ba:RR-008",
       "_hash": "fccdfb52331cb741768e21861a8977b1a32de452f87781a955c844b64d43d55b"
+    },
+    {
+      "id": "B-63ba:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-current-material coverage review after main merge: Lattice validate passed with verification intent coverage 13/13; run-driver selfcheck reports 167 assertions; focused weighted CLI prints B1,B1,B2 and preserves no-engine refusal; invalid/dangling profile probes exit 2 with no record/exclusions/void sidecars; weighted unique-runId probe reports 15 cells, 15 records, 15 unique runIds, duplicateRunIds empty; docs phrase check finds exploratory offline profile, fixed B1-B15 remains the default, and not lifecycle gate evidence. Separate existing quality finding B-63ba:F-002 remains outside this coverage-pass verdict.",
+      "createdAt": "2026-07-01T01:11:13.193Z",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "reviewRunId": "B-63ba:RR-012",
+      "_hash": "bdb99428c13533356efa9f53f4760e2d6c813142b40c3f6d24c202a970ab9bc5"
     }
   ]
 }
