@@ -2,8 +2,41 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-mr1fmmur-clkpwd, Review: rr-mr1forp4-nbl96r",
+      "title": "Port the confirmed-failing repro into a durable red test (wrapper-root + custom storyDir metadata-only commit)",
+      "context": "Repro-first evidence: probe rp-mr1fmmur-clkpwd, review rr-mr1forp4-nbl96r (red-reviewed/target-bug), spike sr-mr1fp8ob-6k3tki. Turn the scratchpad repro into a permanent test driving captureReviewRunSnapshot + checkEvidenceFreshnessForGit: control (correct metadataRoot) fresh, production path stale after a metadata-only commit to the custom storyDir. Test MUST fail before the fix.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Production fix: thread metadataRoot through captureReviewRunSnapshot + diagnoseReviewRunSnapshot",
+      "context": "handlers/review-run.ts:102 passes signedWorkspaceRoot only. Add a metadataRoot param to captureReviewRunSnapshot AND diagnoseReviewRunSnapshot (core/review-run.ts:310,265) and pass workspace.metadataRoot || ctx.root so run.materialHash/storyFilesHash + workspaceBinding sign with the storyDir-aware exclusion set. Default metadataRoot=projectRoot keeps plain repos byte-identical. Spike caveat: diagnoseReviewRunSnapshot only uses it for the EMPTY_MATERIAL_HASH diagnostic but thread it for consistency.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9dcb/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Consumer fix: thread run.workspaceBinding?.metadataRoot ?? projectRoot into the two freshness checks",
+      "context": "assertCurrentReviewRunForEvidence (core/review-run.ts:686) and validateEvidenceRunBinding (core/review-run.ts:826) pass signedProjectRoot as the metadataRoot arg. Change arg4 to run.workspaceBinding?.metadataRoot ?? projectRoot while keeping gitCwd=signedProjectRoot. Binding already persists metadataRoot (types.ts:1752, handler:110). Legacy runs without workspaceBinding fall back to projectRoot (behavior unchanged).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9dcb/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression guard: prove plain/default byte-identical + lock wrapper-root custom-storyDir path; turn red test green; lattice validate",
+      "context": "Spike mandate: signatures of pre-existing wrapper-root+custom-storyDir runs WILL change (were wrong before). Guard must prove (a) plain/default-storyDir snapshot+freshness stay byte-identical (no divergence vs DONE gate semantics) AND (b) the wrapper-root+custom-storyDir metadata-only-commit path stays fresh. Confirm CHK-001 red test now passes. lattice validate all green.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9dcb/background.md"
+      ],
       "status": "pending",
       "startTime": null,
       "endTime": null

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9dcb",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "npx",
+    "tsc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main"
+  ],
+  "excludedCommands": [
+    "git push",
+    "lattice release_approve_push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Two-sided review-run metadataRoot fix + durable red/regression test; all work under packages/main (src handlers/core + tasks/tests). No remote push (local worktree -> local main only).",
+  "createdAt": "2026-07-01T02:13:36.508Z",
+  "updatedAt": "2026-07-01T02:13:36.508Z",
+  "_hash": "3033f0f20944035e118f1c9fcf181e5d0acd131d96b96a15f4a13048c9b95a09"
+}

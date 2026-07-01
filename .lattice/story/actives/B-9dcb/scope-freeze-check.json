@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9dcb",
+  "checkedAt": "2026-07-01T02:16:18.508Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "5b98d9d0e76cdd24833832d03248918fac15a02b9a08418a7b3fab7800e68552",
+  "executionBoundaryHash": "3033f0f20944035e118f1c9fcf181e5d0acd131d96b96a15f4a13048c9b95a09",
+  "freshnessHash": "6eb87e8d9ace1d64327d7c98ee35b75148e306c2533a15ea14906824c18f03aa",
+  "effectiveExcludedKeywords": [
+    "Any new reviewer-run capability beyond fixing the false-stale",
+    "Building Authority, Layer4, customerKeyRef, or repair-UX future capabilities",
+    "Changing storyDir resolution or loadConfig semantics",
+    "Changing the signReviewRun or workspace-binding signing algorithm or field order",
+    "Modifying other freshness consumers (done-oracle, done-prepare, verifier) which already thread metadataRoot",
+    "Refactoring the broader evidence-freshness or materialHash system beyond metadataRoot threading"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any new reviewer-run capability beyond fixing the false-stale",
+      "source": "scopeBoundary.excluded",
+      "text": "Any new reviewer-run capability beyond fixing the false-stale",
+      "excluded": true
+    },
+    {
+      "keyword": "Building Authority, Layer4, customerKeyRef, or repair-UX future capabilities",
+      "source": "scopeBoundary.excluded",
+      "text": "Building Authority, Layer4, customerKeyRef, or repair-UX future capabilities",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing storyDir resolution or loadConfig semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing storyDir resolution or loadConfig semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the signReviewRun or workspace-binding signing algorithm or field order",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the signReviewRun or workspace-binding signing algorithm or field order",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying other freshness consumers (done-oracle, done-prepare, verifier) which already thread metadataRoot",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying other freshness consumers (done-oracle, done-prepare, verifier) which already thread metadataRoot",
+      "excluded": true
+    },
+    {
+      "keyword": "Refactoring the broader evidence-freshness or materialHash system beyond metadataRoot threading",
+      "source": "scopeBoundary.excluded",
+      "text": "Refactoring the broader evidence-freshness or materialHash system beyond metadataRoot threading",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ad453f6dfc8caa4fb370718083dc0668bc986d7973ab1f3294b7248feb3588a4"
+}
