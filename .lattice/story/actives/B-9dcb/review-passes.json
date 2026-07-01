@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-01T02:51:12.598Z",
       "reviewRunId": "B-9dcb:RR-007",
       "_hash": "b07ab242811f91fe45507e9a191ffb789b9740df1f61fa2265944fe44af9b2e7"
+    },
+    {
+      "id": "B-9dcb:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review: Proof C is now genuinely non-tautological. The bindingless legacy run is signed with the real snapshot (metadataRoot-excluded hashes), a metadata-only churn commit is applied to the custom storyDir, fallback selection asserts fallbackRoot==metadataRoot!=gitRoot (structural non-identity on the wrapper-root fixture), and the two checkEvidenceFreshnessForGit calls (with fallbackRoot vs gitRoot as 4th arg) produce FRESH vs FALSE-STALE verdicts respectively. Mutation-verified divergence is present. The end-to-end assertCurrentReviewRunForEvidence call proves the wiring. Proof E is a determinism/stability assertion for buildReviewRunWorkspaceBinding.bindingHash and signReviewRun._hash under plain-repo default == explicit case — transparent about its scope, not a tautology in the defective sense. No dead code, no type safety issues, no I/O shell violations. Zero findings.",
+      "createdAt": "2026-07-01T03:07:24.947Z",
+      "reviewRound": "2026-07-01T03:05:44.403Z",
+      "reviewRunId": "B-9dcb:RR-008",
+      "_hash": "f372d2f1eba2e887750677ca6be6d5c6538d7d99834a58e1eba1c0043b0f29a7"
     }
   ]
 }
