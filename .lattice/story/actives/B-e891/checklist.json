@@ -44,9 +44,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T01:48:49.764Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "G02 smoke printed parent-roadmap large-ledger G02 baseline smoke PASS after asserting 15 required rows, 14 generated closed rows, no-full-roadmap-claim, and allRowsClosed false.",
+          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:48:49.889Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "G02 smoke asserts G02-M15 is the only open row and only invalid row, and that its reasonCodes include missing_required_row.",
+          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:48:50.006Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "G02 smoke asserts Full roadmap complete is blocked in enforce mode and serialized ledger, rollup, and claim decision contain no elevated claim terms.",
+          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:48:50.119Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -93,6 +131,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T01:48:49.764Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified G02 missing-row negative-control smoke."
     }
   ]
 }
