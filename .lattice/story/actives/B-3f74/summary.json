@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3f74",
+  "changes": "Synchronized Parent Roadmap and Proof Admissibility decision-doc boundary status after B-e781 closed B-43de M4-M12.",
+  "usage": "Read the two decision docs to see B-43de M4-M12 closure, optional migration/repair boundary, and retired/external Authority proof boundary.",
+  "expectedOutcome": "Parent Roadmap shows B-e781/B-43de M4-M12 as locally closed, keeps migration/repair optional, and Proof Admissibility does not treat Authority-facing proof consumer as active local work.",
+  "actualTranscript": "parent_roadmap_status reports allRowsClosed=true and summaryClass=full_roadmap_complete; validate passed all 31 configured commands; second-round concept, quality, test-coverage, and docs reviewers passed; quorum_submit recorded 3 rounds x 2 hosts with authorityDone=false and productionDone=false; delivery reviewer accepted.",
+  "outcomeDiff": "Actual matches expected. First-round reviewers found stale B-43de partial/open wording; commit 0b5e7752181c1d5715f5e079f76d9db8b43a6d87 fixed it and second-round reviewers confirmed consistency.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No runtime behavior, production completion, global lifecycle hard gate, or Authority Server completion is claimed; this is local documentation/status boundary cleanup.",
+  "pitfalls": "Do not read optional migration/repair or retired Authority compatibility rows as active implementation requirements.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 179687
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7439
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 263494
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 539339
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 549736
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 596550
+    }
+  },
+  "totalDurationMs": 2136246,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T00:46:03.355Z",
+  "updatedAt": "2026-07-01T00:46:03.355Z"
+}

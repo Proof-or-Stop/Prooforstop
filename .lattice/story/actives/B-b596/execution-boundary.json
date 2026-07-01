@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b596",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "lattice.config.json",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts"
+  ],
+  "excludedCommands": [
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implement only the first positive-control group locally.",
+  "createdAt": "2026-07-01T00:23:25.356Z",
+  "updatedAt": "2026-07-01T00:23:25.356Z",
+  "_hash": "34e2239051a14bcb7237a7e59ed0c112351e46c73f0d74a229773fab4711d4ca"
+}
