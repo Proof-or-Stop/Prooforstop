@@ -92,6 +92,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:23.185Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck OUTPUT-contract group asserts toCSV header arm,n,amplified,rate_pct,per_1000,mean_tokens,gate + one data row per arm in ARMS order",
+          "headHash": "cf61567b015636b03daf6046a8939990b5d6869d",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:23.774Z"
         }
       ]
     },
