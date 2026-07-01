@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0b76",
+  "mode": "maintenance",
+  "allowed": [
+    "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs (new offline selfcheck)",
+    "experiments/recovery-runner/make-fig-gate-ablation.mjs (new figure generator)",
+    "experiments/recovery-runner/README.md (document the generator + selfcheck count)",
+    "experiments/recovery-runner/run-selfchecks.mjs (wire in the new selfcheck)"
+  ],
+  "excluded": [
+    "committing generated figure assets (PDF/PNG) into the repo",
+    "editing the paper or main.tex (owned by another workstream)",
+    "modifying adjudicate.mjs / analyze.mjs / the campaign data",
+    "recomputing the cluster-bootstrap CI (stays in analyze.mjs)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator: commit the figure generator into proofbound/experiments/recovery-runner; keep figure insertion into the paper out of scope (another session owns main.tex).",
+  "createdAt": "2026-07-01T01:47:49.471Z",
+  "updatedAt": "2026-07-01T01:47:49.471Z",
+  "_hash": "646fbbbebae76255d7824b2adc9fa9319eb6b85c93b8e39d21690461d28a8bcc"
+}
