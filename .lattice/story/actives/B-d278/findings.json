@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:57 still says this completed baseline is a future implementation and line 255 says the group matrix is normative for a future smoke test, even though the same doc now states G01-G10 plus the aggregate smoke are implemented. This violates the docs review goal to remove stale TODO/future wording for completed G04-G10 and aggregate 10x15 baseline coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-01T03:25:55.083Z",
@@ -16,7 +16,11 @@
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md to state that the local deterministic baseline is implemented with synthetic ledgers/rollup fixtures and that the expected group matrix is normative for the implemented local aggregate smoke, preserving future/non-goal wording only outside this completed local baseline scope. Source refs: docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:57, docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:255. Verification commands: rg -n \"future implementation|future smoke test\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md (no matches); node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js (PASS); git diff --check (PASS).",
+      "resolvedAt": "2026-07-01T03:29:23.099Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
