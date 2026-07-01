@@ -163,7 +163,7 @@
       "desc": "verifyPlaybookRuntimeBaseline parses gold-queries.json but does not compare it with manifest.goldDigest, so tampered easier gold queries can still produce status pass.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T04:56:28.987Z",
@@ -175,14 +175,18 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|baseline-gold-digest",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 33c1cf5db: verifyPlaybookRuntimeBaseline now computes recordsDigestStable and goldDigestStable, includes both in pass criteria, exposes them in JSON/text output, and baseline smoke includes a gold-queries tamper negative control. Verified by build plus small and full 1,000,000-record baseline smokes.",
+      "resolvedAt": "2026-07-01T05:03:56.567Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-009",
       "desc": "dev_memory_finish_decision interpolates storyId directly into a filename, allowing storyId values with path separators to write outside the finish-decisions directory.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T04:56:34.774Z",
@@ -194,7 +198,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|path-segment-validation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 33c1cf5db: dev_memory_finish_decision now validates storyId with canonical Proofbound story-id rules before path derivation and uses only the safe path segment for finish-decisions storage. Health smoke rejects path traversal/storyId separator inputs and asserts no outside files are written.",
+      "resolvedAt": "2026-07-01T05:03:56.584Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
