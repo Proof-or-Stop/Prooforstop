@@ -245,6 +245,25 @@
       ],
       "signatureTag": "missing|ts|baseline-profile-count",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-4eea:F-012",
+      "desc": "Baseline generation only refuses outputDir when manifest.json exists. If outputDir already exists without a manifest, records.jsonl can be overwritten even when force is false, contradicting the command safety contract.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T05:15:55.274Z",
+      "reviewRound": "2026-07-01T05:03:10.485Z",
+      "reviewRunId": "B-4eea:RR-010",
+      "_hash": "f9105fd19f61ff4cc45c860560b6383e8c36b81aaaf738f833f45b232c8a17fa",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|baseline-output-overwrite",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
