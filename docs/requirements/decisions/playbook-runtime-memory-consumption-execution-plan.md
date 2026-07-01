@@ -399,15 +399,19 @@ Deliverables:
   but upgraded with freshness digest, playbook hits, and digest parity.
 - Pack records canonical host label and display label:
   `codex-cli`, `claude-cli`, or `antigravity` / `agy-cli`.
-- `agy-cli` surfaces as fallback only after programmatic primary-host status
-  reports unavailable, quota-limited, timed out, or explicitly substituted.
+- `agy-cli` surfaces as fallback only after the host runtime, operator, or
+  wrapper adapter supplies a concrete structured primary-host failure signal
+  (`unavailable`, `quota-limited`, `timed-out`, or `explicitly-substituted`).
+  Programmatic primary-host probing is an adapter source for that signal, not an
+  MVP requirement of this memory-consumption layer.
 - Host output includes pack digest and top hit IDs.
 
 Tests:
 
 - Codex/Claude primary host policy surfaces;
 - agy fallback rule surfaces but is not primary;
-- fallback status includes the concrete primary-host failure signal;
+- fallback status includes the concrete primary-host failure signal and its
+  declared source;
 - stale-doc truth-first playbook appears before "task missing" claims.
 
 ### M6. Story Intake And Lifecycle Consumers

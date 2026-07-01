@@ -50,6 +50,7 @@ function renderBaselineVerify(result: ReturnType<typeof verifyPlaybookRuntimeBas
     `expectedIdsFoundRate: ${result.correctness.expectedIdsFoundRate}`,
     `currentOverSupersededPreferenceRate: ${result.correctness.currentOverSupersededPreferenceRate}`,
     `candidateFalseSurfaceRate: ${result.correctness.candidateFalseSurfaceRate}`,
+    `supersededFalseSurfaceRate: ${result.correctness.supersededFalseSurfaceRate}`,
     `deprecatedFalseSurfaceRate: ${result.correctness.deprecatedFalseSurfaceRate}`,
     `malformedRowsSkipped: ${result.correctness.malformedRowsSkipped}`,
     `elapsedMs: ${result.performance.elapsedMs}`,
@@ -98,13 +99,13 @@ function buildRuntimeHealth(ctx: HandlerContext) {
     };
   });
   const wiringChecks = ([
-    ['src/handlers/session.ts', /buildMemoryFreshnessPack/],
-    ['src/handlers/lattice-handoff.ts', /buildMemoryFreshnessPack/],
-    ['src/handlers/story-create.ts', /story_create/],
-    ['src/handlers/transition-orchestrator.ts', /story_advance/],
-    ['src/handlers/done-closure.ts', /done_closure/],
-    ['src/handlers/done-prepare.ts', /Advisory memory considered/],
-    ['src/handlers/playbook-runtime-memory.ts', /final_response_check/],
+    ['src/handlers/session.ts', /buildMemoryFreshnessPack[\s\S]*renderMemoryFreshnessPack/],
+    ['src/handlers/lattice-handoff.ts', /buildMemoryFreshnessPack[\s\S]*renderMemoryFreshnessPack/],
+    ['src/handlers/story-create.ts', /Runtime memory STORY_INTAKE advisory only[\s\S]*renderMemoryFreshnessPack/],
+    ['src/handlers/transition-orchestrator.ts', /buildMemoryFreshnessPack[\s\S]*Runtime memory advisory \(not gate evidence\)/],
+    ['src/handlers/done-closure.ts', /buildMemoryFreshnessPack[\s\S]*Advisory memory considered/],
+    ['src/handlers/done-prepare.ts', /renderMemoryFreshnessPackSummary[\s\S]*Advisory memory considered/],
+    ['src/handlers/playbook-runtime-memory.ts', /final_response_check[\s\S]*completionClaimSource[\s\S]*ParentRollupResult\/current-structured-facts/],
   ] as Array<[string, RegExp]>).map(([rel, pattern]) => ({
     id: `consumer-wiring:${rel}`,
     status: fileContains(ctx.scanRoot, rel, pattern) ? 'pass' as const : 'fail' as const,

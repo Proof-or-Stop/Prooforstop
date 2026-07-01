@@ -180,6 +180,9 @@ const RUNTIME_MEMORY_FALLBACK_HOST = 'antigravity' as const;
 const REGISTERED_CRITICAL_RUNTIME_CONSUMERS = new Set<RuntimeConsumer>([
   'done_prepare',
   'done_closure',
+]);
+
+const ADVISORY_ONLY_RUNTIME_CONSUMERS = new Set<RuntimeConsumer>([
   'final_response_check',
 ]);
 
@@ -494,7 +497,8 @@ export function evaluateRuntimeMemoryConsumerPolicy(args: {
   fullBaselinePassed?: boolean;
 }): RuntimeMemoryConsumerPolicyDecision {
   const rolloutMode = args.rolloutMode ?? 'advisory';
-  const registeredCriticalConsumer = REGISTERED_CRITICAL_RUNTIME_CONSUMERS.has(args.consumer);
+  const advisoryOnlyConsumer = ADVISORY_ONLY_RUNTIME_CONSUMERS.has(args.consumer);
+  const registeredCriticalConsumer = !advisoryOnlyConsumer && REGISTERED_CRITICAL_RUNTIME_CONSUMERS.has(args.consumer);
   const fullBaselinePassed = args.fullBaselinePassed === true;
   const canEscalate = registeredCriticalConsumer && fullBaselinePassed;
   const severity: RuntimeSeverity = rolloutMode === 'advisory'
@@ -510,7 +514,9 @@ export function evaluateRuntimeMemoryConsumerPolicy(args: {
     baselinePassed: fullBaselinePassed,
     memoryAuthoritative: false,
     gateEvidence: false,
-    reason: severity === 'advisory'
+    reason: advisoryOnlyConsumer
+      ? `${args.consumer} is advisory-only and cannot become blocking even when rollout enforcement and the full 1M baseline are enabled.`
+      : severity === 'advisory'
       ? 'Runtime memory remains advisory unless the consumer is registered critical and the full 1M correctness baseline has passed.'
       : `Registered critical consumer ${args.consumer} may surface ${severity} runtime-memory diagnostics after the full 1M correctness baseline passed; memory still cannot satisfy gates.`,
   };

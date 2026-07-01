@@ -21,6 +21,7 @@ import {
 } from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
+import type { MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 
 type StepStatus = 'pending' | 'skipped' | 'pass' | 'blocked';
 type StepId =
@@ -54,6 +55,7 @@ interface DonePrepareBlocked {
   reason: string;
   next: string;
   currentBinding?: DonePrepareCurrentBinding;
+  memoryFreshnessPack?: MemoryFreshnessPack;
   files?: string[];
   commits?: string[];
   commands?: string[];
@@ -290,6 +292,12 @@ function block(args: DonePrepareBlocked): string {
   if (args.commands && args.commands.length > 0) {
     lines.push('commands:');
     for (const command of args.commands) lines.push(`  - ${command}`);
+  }
+  if (args.memoryFreshnessPack) {
+    lines.push('');
+    lines.push('Advisory memory considered:');
+    lines.push(...renderMemoryFreshnessPackSummary(args.memoryFreshnessPack).split('\n').map((line) => `  ${line}`));
+    lines.push('  memoryCompletionProof: false');
   }
   lines.push(`next: ${args.next}`);
   lines.push('');
@@ -924,6 +932,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
+      memoryFreshnessPack: runbook.memoryFreshnessPack,
       next: nextForDoneClosureBlock(storyId, runbook),
       commands: commandsForDoneClosureBlock(storyId, runbook, currentBinding),
       steps,

@@ -3,7 +3,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
+import { resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from './dev-memory.js';
 import { digestCanonicalJson, digestText } from './digest.js';
+import type { Playbook, PlaybookStatus } from './experience-layer-types.js';
+import { writePlaybooks } from './learning-store.js';
+import { buildMemoryFreshnessPack } from './playbook-runtime-memory.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -41,6 +45,7 @@ export interface PlaybookRuntimeBaselineVerifyResult {
     expectedIdsFoundRate: number;
     currentOverSupersededPreferenceRate: number;
     candidateFalseSurfaceRate: number;
+    supersededFalseSurfaceRate: number;
     deprecatedFalseSurfaceRate: number;
     malformedRowsSkipped: number;
   };
@@ -59,10 +64,30 @@ export interface PlaybookRuntimeBaselineVerifyResult {
   gateEvidence: false;
 }
 
+interface BaselineRecord {
+  id: string;
+  kind: 'memory' | 'playbook';
+  status: string;
+  text: string;
+  supersedes?: string[];
+}
+
+interface RuntimeGoldQueryResult {
+  queryId: string;
+  surfacedIds: string[];
+  expectedIdsFound: number;
+  candidateFalseSurfaces: number;
+  supersededFalseSurfaces: number;
+  mustNotSurfaceTotal: number;
+}
+
 const PROFILE_COUNTS: Record<PlaybookRuntimeBaselineProfile, number> = {
   small: 1_000,
   full: 1_000_000,
 };
+
+const BASELINE_RUNTIME_SHORTLIST_LIMIT = 96;
+const BASELINE_RUNTIME_FIXED_TIME = '2026-07-01T00:00:00.000Z';
 
 const GOLD_QUERIES = [
   {
@@ -103,7 +128,11 @@ const GOLD_RECORDS = [
   ['pb-parent-candidate', 'playbook', 'candidate', 'candidate parent roadmap totality should not surface'],
   ['mem-repro-first-current', 'memory', 'current', 'repro-first red failing evidence before fix story intake'],
   ['pb-repro-first-active', 'playbook', 'active', 'repro-first story intake red green relation verification'],
-] as const;
+] as const satisfies ReadonlyArray<readonly [string, BaselineRecord['kind'], string, string]>;
+
+const BASELINE_SUPERSEDES: Record<string, string[]> = {
+  'mem-truth-current': ['mem-truth-superseded'],
+};
 
 function outputDirFor(profile: PlaybookRuntimeBaselineProfile, outputDir?: string): string {
   if (outputDir) return outputDir;
@@ -111,13 +140,171 @@ function outputDirFor(profile: PlaybookRuntimeBaselineProfile, outputDir?: strin
 }
 
 function recordLine(id: string, kind: string, status: string, text: string): string {
-  return JSON.stringify({ id, kind, status, text });
+  const supersedes = BASELINE_SUPERSEDES[id];
+  return JSON.stringify({
+    id,
+    kind,
+    status,
+    text,
+    ...(supersedes ? { supersedes } : {}),
+  });
 }
 
 function noiseRecord(index: number): string {
   const classes = ['general', 'tool-workflow', 'host-policy', 'stale-doc', 'delivery', 'repro-first', 'parent-roadmap'];
   const cls = classes[index % classes.length];
   return recordLine(`noise-${index}`, 'memory', 'current', `${cls} deterministic baseline noise row ${index}`);
+}
+
+function parseBaselineRecord(line: string): BaselineRecord | null {
+  try {
+    const parsed = JSON.parse(line) as Partial<BaselineRecord>;
+    if (
+      typeof parsed.id !== 'string'
+      || (parsed.kind !== 'memory' && parsed.kind !== 'playbook')
+      || typeof parsed.status !== 'string'
+      || typeof parsed.text !== 'string'
+    ) {
+      return null;
+    }
+    return {
+      id: parsed.id,
+      kind: parsed.kind,
+      status: parsed.status,
+      text: parsed.text,
+      ...(Array.isArray(parsed.supersedes)
+        ? { supersedes: parsed.supersedes.filter((value): value is string => typeof value === 'string' && value.trim().length > 0) }
+        : {}),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function baselineTokens(text: string): string[] {
+  return [...new Set((text.toLowerCase().match(/[a-z0-9][a-z0-9._-]{1,}/g) ?? []))].sort();
+}
+
+function baselineRecordScore(query: string, record: BaselineRecord): number {
+  const haystack = `${record.id} ${record.kind} ${record.status} ${record.text}`.toLowerCase();
+  return baselineTokens(query).reduce((score, token) => score + (haystack.includes(token) ? 1 : 0), 0);
+}
+
+function insertScoredRecord(
+  shortlist: Array<{ record: BaselineRecord; score: number }>,
+  record: BaselineRecord,
+  score: number,
+): void {
+  if (score <= 0) return;
+  shortlist.push({ record, score });
+  shortlist.sort((a, b) => b.score - a.score || a.record.id.localeCompare(b.record.id));
+  if (shortlist.length > BASELINE_RUNTIME_SHORTLIST_LIMIT) shortlist.length = BASELINE_RUNTIME_SHORTLIST_LIMIT;
+}
+
+function memoryEntryFromBaseline(record: BaselineRecord): DevMemoryEntry {
+  return {
+    id: record.id,
+    createdAt: BASELINE_RUNTIME_FIXED_TIME,
+    sourceAgent: 'playbook-runtime-baseline',
+    category: 'workflow',
+    scope: 'project',
+    summary: record.text,
+    trigger: record.text,
+    lesson: record.text,
+    reusePrompt: record.text,
+    tags: (record.supersedes ?? []).map((id) => `supersedes-${id}`),
+    evidenceRefs: [`baseline-record:${record.id}`],
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  };
+}
+
+function playbookStatusFromBaseline(status: string): PlaybookStatus {
+  if (status === 'active' || status === 'candidate' || status === 'proposed' || status === 'stale' || status === 'archived') {
+    return status;
+  }
+  return 'stale';
+}
+
+function playbookFromBaseline(record: BaselineRecord): Playbook {
+  const keywords = baselineTokens(`${record.id} ${record.text}`).slice(0, 20);
+  return {
+    id: record.id,
+    title: `${record.id} baseline playbook`,
+    trigger: {
+      keywords,
+      fileKinds: ['ts'],
+      storyPhases: ['DEV', 'TEST', 'DONE'],
+    },
+    check: record.text,
+    pitfalls: [`Do not surface inactive baseline row ${record.id}.`],
+    verification: [`Runtime baseline query must rank ${record.id} according to active status.`],
+    lineage: {
+      sourceStoryId: 'B-baseline',
+      sourceFindingId: 'F-baseline',
+      sourceSignature: record.id,
+    },
+    status: playbookStatusFromBaseline(record.status),
+    usage: { surfacedCount: 0, resolvedHits: 0, dismissedHits: 0 },
+  };
+}
+
+function withIsolatedGlobalMemory<T>(fn: () => T): T {
+  const previous = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const dir = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-global-'));
+  process.env.LATTICE_GLOBAL_MEMORY_DIR = dir;
+  try {
+    return fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+    } else {
+      process.env.LATTICE_GLOBAL_MEMORY_DIR = previous;
+    }
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function runRuntimeGoldQuery(
+  query: typeof GOLD_QUERIES[number],
+  shortlist: BaselineRecord[],
+): RuntimeGoldQueryResult {
+  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-'));
+  try {
+    const memoryEntries = shortlist
+      .filter((record) => record.kind === 'memory')
+      .map(memoryEntryFromBaseline);
+    const playbooks = shortlist
+      .filter((record) => record.kind === 'playbook')
+      .map(playbookFromBaseline);
+    writeEntries(resolveProjectMemoryPath(root), memoryEntries);
+    writePlaybooks(root, playbooks);
+    const pack = withIsolatedGlobalMemory(() => buildMemoryFreshnessPack({
+      projectRoot: root,
+      consumer: 'session_brief',
+      query: query.query,
+      touchedPaths: ['packages/main/src/baseline.ts'],
+      storyPhase: 'TEST',
+      maxEntries: 20,
+      maxPlaybooks: 20,
+      maxLines: 60,
+      generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+    }));
+    const surfacedIds = [...pack.results.playbookIds, ...pack.results.devMemoryEntryIds];
+    const surfaced = new Set(surfacedIds);
+    const statusById = new Map(shortlist.map((record) => [record.id, record.status]));
+    const mustNotSurfaceIds = [...query.mustNotSurfaceIds];
+    return {
+      queryId: query.id,
+      surfacedIds,
+      expectedIdsFound: query.expectedIds.filter((id) => surfaced.has(id)).length,
+      candidateFalseSurfaces: mustNotSurfaceIds.filter((id) => surfaced.has(id) && (id.includes('candidate') || statusById.get(id) === 'candidate')).length,
+      supersededFalseSurfaces: mustNotSurfaceIds.filter((id) => surfaced.has(id) && statusById.get(id) === 'superseded').length,
+      mustNotSurfaceTotal: mustNotSurfaceIds.length,
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 export function generatePlaybookRuntimeBaseline(args: {
@@ -211,27 +398,38 @@ export function verifyPlaybookRuntimeBaseline(args: {
   const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
   const staleDetected = digestText(recordsRaw) !== manifest.recordsDigest ? true : false;
   const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: typeof GOLD_QUERIES };
-  const seen = new Set<string>();
+  const shortlists = new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
   let validRows = 0;
   let malformedRowsSkipped = 0;
   for (const line of recordsRaw.split('\n')) {
     if (!line) continue;
-    try {
-      const row = JSON.parse(line) as { id?: string; status?: string };
-      validRows += 1;
-      if (row.id && row.status !== 'candidate' && row.status !== 'superseded') seen.add(row.id);
-    } catch {
+    const row = parseBaselineRecord(line);
+    if (!row) {
       malformedRowsSkipped += 1;
+      continue;
+    }
+    validRows += 1;
+    for (const query of gold.queries) {
+      insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
     }
   }
+  const runtimeResults = gold.queries.map((query) =>
+    runRuntimeGoldQuery(query, (shortlists.get(query.id) ?? []).map((item) => item.record)));
   const expectedIds = gold.queries.flatMap((query) => [...query.expectedIds]);
-  const mustNotSurface = gold.queries.flatMap((query) => [...query.mustNotSurfaceIds]);
-  const expectedFound = expectedIds.filter((id) => seen.has(id)).length;
-  const falseSurface = mustNotSurface.filter((id) => seen.has(id)).length;
+  const expectedFound = runtimeResults.reduce((sum, result) => sum + result.expectedIdsFound, 0);
+  const candidateFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.candidateFalseSurfaces, 0);
+  const supersededFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.supersededFalseSurfaces, 0);
+  const mustNotSurfaceTotal = runtimeResults.reduce((sum, result) => sum + result.mustNotSurfaceTotal, 0);
   const expectedIdsFoundRate = expectedFound / Math.max(1, expectedIds.length);
-  const candidateFalseSurfaceRate = falseSurface / Math.max(1, mustNotSurface.length);
-  const currentOverSupersededPreferenceRate = seen.has('mem-truth-current') && !seen.has('mem-truth-superseded') ? 1 : 0;
-  const deprecatedFalseSurfaceRate = 0;
+  const candidateFalseSurfaceRate = candidateFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
+  const supersededFalseSurfaceRate = supersededFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
+  const truthFirst = runtimeResults.find((result) => result.queryId === 'truth-first');
+  const currentOverSupersededPreferenceRate = truthFirst
+    && truthFirst.surfacedIds.includes('mem-truth-current')
+    && !truthFirst.surfacedIds.includes('mem-truth-superseded')
+    ? 1
+    : 0;
+  const deprecatedFalseSurfaceRate = supersededFalseSurfaceRate;
   const manifestDomain = {
     schemaVersion: manifest.schemaVersion,
     profile: manifest.profile,
@@ -271,6 +469,7 @@ export function verifyPlaybookRuntimeBaseline(args: {
       expectedIdsFoundRate,
       currentOverSupersededPreferenceRate,
       candidateFalseSurfaceRate,
+      supersededFalseSurfaceRate,
       deprecatedFalseSurfaceRate,
       malformedRowsSkipped,
     },

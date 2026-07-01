@@ -72,6 +72,42 @@ async function run(): Promise<void> {
     assert.equal(fail.status, 'fail');
     assert.ok(fail.checks.some((check: any) => check.id === 'required-class:missing-class' && check.status === 'fail'));
 
+    const fakeSourceRoot = mkdtempSync(join(tmpdir(), 'pb-memory-health-fake-src-'));
+    try {
+      for (const rel of [
+        'src/handlers/session.ts',
+        'src/handlers/lattice-handoff.ts',
+        'src/handlers/story-create.ts',
+        'src/handlers/transition-orchestrator.ts',
+        'src/handlers/done-closure.ts',
+        'src/handlers/done-prepare.ts',
+        'src/handlers/playbook-runtime-memory.ts',
+      ]) {
+        write(fakeSourceRoot, rel, `// weak legacy token only: ${rel} story_create story_advance done_closure final_response_check\n`);
+      }
+      write(root, 'lattice.config.json', JSON.stringify({
+        scanRoot: 'packages/main',
+        storyDir: '.lattice/story/actives',
+        requirementsDir: 'docs/requirements',
+        runtimeMemory: { requiredClasses: [] },
+      }, null, 2));
+      resetConfigCache();
+      const fakeHandlers = createPlaybookRuntimeMemoryHandlers({
+        root,
+        store: new StoryStore(root),
+        scanRoot: fakeSourceRoot,
+        log: () => {},
+      });
+      const drift = fakeHandlers.playbook_runtime_health({ json: true }) as any;
+      assert.equal(drift.status, 'fail');
+      assert.ok(
+        drift.checks.some((check: any) => String(check.id).startsWith('consumer-wiring:') && check.status === 'fail'),
+        'health must fail when weak handler tokens remain but real MemoryFreshnessPack wiring is absent',
+      );
+    } finally {
+      if (existsSync(fakeSourceRoot)) rmSync(fakeSourceRoot, { recursive: true, force: true });
+    }
+
     const decision = handlers.dev_memory_finish_decision({
       storyId: 'B-smoke',
       decision: 'no-reusable-lesson',
@@ -94,4 +130,3 @@ run().catch((err) => {
   console.error(err instanceof Error ? err.stack ?? err.message : String(err));
   process.exitCode = 1;
 });
-

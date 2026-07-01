@@ -16,6 +16,7 @@ import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createDoneClosureHandlers } from '../handlers/done-closure.js';
+import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createLatticeHandoffHandlers } from '../handlers/lattice-handoff.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
@@ -30,6 +31,19 @@ function check(label: string, fn: () => void): void {
   total += 1;
   try {
     fn();
+    passed += 1;
+    console.log(`check: ${label} - PASS`);
+  } catch (err) {
+    console.error(`check: ${label} - FAIL`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    process.exitCode = 1;
+  }
+}
+
+async function checkAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  total += 1;
+  try {
+    await fn();
     passed += 1;
     console.log(`check: ${label} - PASS`);
   } catch (err) {
@@ -58,18 +72,20 @@ function mkRoot(): { root: string; store: StoryStore; ctx: HandlerContext } {
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'packages/main/src/index.ts', 'export const smoke = true;\n');
+  seedMemory(root);
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'playbook-runtime-mvp2']);
   git(root, ['config', 'commit.gpgsign', 'false']);
   git(root, ['add', '.']);
   git(root, ['commit', '-q', '-m', 'base']);
+  git(root, ['branch', '-M', 'main']);
+  git(root, ['switch', '-q', '-c', 'story/B-smoke']);
   resetConfigCache();
   const store = new StoryStore(root);
   store.writeStory('B-smoke', story());
   store.writeChecklist('B-smoke', checklist());
   const ctx = { root, store, scanRoot: join(root, 'packages', 'main'), log: () => {} };
-  seedMemory(root);
   return { root, store, ctx };
 }
 
@@ -148,6 +164,7 @@ async function run(): Promise<void> {
     const handoff = createLatticeHandoffHandlers(ctx);
     const runtime = createPlaybookRuntimeMemoryHandlers(ctx);
     const done = createDoneClosureHandlers(ctx);
+    const prepare = createDonePrepareHandlers(ctx);
 
     check('command metadata: runtime-memory commands are registered and non-gate', () => {
       for (const name of ['memory_playbook_baseline_generate', 'memory_playbook_baseline_verify', 'playbook_runtime_health', 'dev_memory_finish_decision', 'final_response_check']) {
@@ -155,6 +172,15 @@ async function run(): Promise<void> {
         assert.notEqual((COMMAND_POLICIES as any)[name]?.gateEvidence, true, `${name} is not gate evidence`);
         assert.ok(PROCESS_FACT_LEVELS.some((entry) => entry.name === name), `process fact includes ${name}`);
       }
+    });
+
+    await checkAsync('done_prepare surfaces advisory memory without proof claims', async () => {
+      const prepared = await prepare.done_prepare({ storyId: 'B-smoke', mergeMain: false, validate: false, refreshStale: false, dryRun: true });
+      assert.match(prepared, /DONE prepare:/);
+      assert.match(prepared, /Advisory memory considered/);
+      assert.match(prepared, /memoryCompletionProof: false/);
+      assert.match(prepared, /memoryAuthority: non_authoritative/);
+      assert.match(prepared, /memoryGateEvidence: false/);
     });
 
     check('story_create STORY_INTAKE output includes advisory memory pack only', () => {
@@ -226,6 +252,9 @@ async function run(): Promise<void> {
       assert.match(final, /Final response advisory check/);
       assert.match(final, /memoryCompletionProof: false/);
       assert.match(final, /gateEvidence: false/);
+      const policy = runtime.final_response_check({ storyId: 'B-smoke', json: true }) as any;
+      assert.equal(policy.policy.severity, 'advisory');
+      assert.match(policy.policy.reason, /advisory-only/);
     });
 
     check('transition render includes runtime memory advisory field', () => {
