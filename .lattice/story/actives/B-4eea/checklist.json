@@ -200,9 +200,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:26:58.352Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:26:58.833Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves story_create STORY_INTAKE surfaces the advisory memory pack through the CLI-visible stderr channel.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:59.199Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves transition rendering includes runtime memory advisory without treating it as gate evidence.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:59.564Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 regression proves corrupt advisory memory/playbooks do not crash session_brief and candidates stay suppressed.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:26:59.926Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -651,6 +686,15 @@
       "timestamp": "2026-07-01T04:26:56.711Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:26:58.833Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
