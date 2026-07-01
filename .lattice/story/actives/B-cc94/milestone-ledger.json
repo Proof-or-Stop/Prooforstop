@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-cc94",
-  "state": "candidate",
-  "ledgerHash": "sha256:1b5bf997fbf4359cb6b3f2f04df0607d970914f0314cf5e2fd33240e324656a8",
+  "state": "confirmed",
+  "ledgerHash": "sha256:a38fec2b311e2d58d2387f03d3326a63dfbae241c07c63c579f64425a60a4f23",
   "milestones": [
     {
       "id": "M0",
@@ -87,29 +87,16 @@
         "cli_smoke"
       ],
       "checklistRefs": [
-        "CHK-004"
+        "CHK-004",
+        "CHK-005"
       ],
       "verificationIntentRefs": [
         "CHK-004:happy:0",
         "CHK-004:edge:0",
         "CHK-004:edge:1",
         "CHK-004:adversarial:0",
-        "CHK-004:adversarial:1"
-      ],
-      "status": "covered"
-    },
-    {
-      "id": "M5-M12",
-      "sourceRequirementId": "REQ-PARENT-REMAINDER",
-      "claim": "Broader parent milestones are intentionally outside MVP1",
-      "doneMeans": "Final validation and summary state handoff/story/DONE/1M/health/rollout remain open for later stories",
-      "requiredEvidence": [
-        "docs_check"
-      ],
-      "checklistRefs": [
-        "CHK-005"
-      ],
-      "verificationIntentRefs": [
+        "CHK-004:adversarial:1",
+        "CHK-005:happy:0",
         "CHK-005:edge:0",
         "CHK-005:adversarial:0"
       ],
@@ -117,5 +104,10 @@
     }
   ],
   "createdAt": "2026-07-01T02:35:28.080Z",
-  "updatedAt": "2026-07-01T02:35:28.080Z"
+  "updatedAt": "2026-07-01T02:37:21.154Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "B-cc94-intent-collision-001",
+    "acceptedInterpretationHash": "sha256:7e692b52cd818a6a0983f1286b6c525fa1315cb6d1cd8b916dfd57e2a94f55a5",
+    "acceptedAt": "2026-07-01T02:37:21.154Z"
+  }
 }

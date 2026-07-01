@@ -4,9 +4,11 @@
   "id": "B-cc94-intent-collision-001",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Implement only MVP1 (M0-M4) for runtime pack and session_brief consumption; explicitly do not claim handoff/story/DONE/1M baseline completion.",
-  "acceptedInterpretationHash": "sha256:1c026ec57400400f5de24f99feead8c5af11377348c86d431fb9eb4e6f8af84d",
-  "notes": "The broader parent plan remains open. This pass prevents the phrase until全部完成 from being interpreted as all M1-M12 in one story.",
+  "acceptedInterpretation": "Implement only MVP1 (M0-M4) for runtime pack and session_brief consumption; M5-M12 remain outside this story and must not be claimed complete.",
+  "acceptedInterpretationHash": "sha256:7e692b52cd818a6a0983f1286b6c525fa1315cb6d1cd8b916dfd57e2a94f55a5",
+  "notes": "Confirmed against the current five-row MVP1 milestone ledger. The broader parent plan remains open.",
+  "ledgerHashBeforeDecision": "sha256:a38fec2b311e2d58d2387f03d3326a63dfbae241c07c63c579f64425a60a4f23",
+  "confirmedLedgerHash": "sha256:a38fec2b311e2d58d2387f03d3326a63dfbae241c07c63c579f64425a60a4f23",
   "createdAt": "2026-07-01T02:35:27.850Z",
-  "updatedAt": "2026-07-01T02:35:27.850Z"
+  "updatedAt": "2026-07-01T02:37:21.153Z"
 }
