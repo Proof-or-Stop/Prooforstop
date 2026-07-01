@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-b596:F-001",
+      "desc": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:254 still says this document does not implement the smoke test and that a future implementation story must build it, while the new Implementation Progress section and task now document G01 as implemented. Clarify this Non-Goals wording to say the full 10x15 smoke remains future, so readers do not confuse the completed G01 slice with the unfinished full baseline.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T00:42:25.097Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-002",
+      "_hash": "2ae76e6f9de07de3defc98d98671ccc7585282ec91fb5c967353cac3fe60894e",
+      "files": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
