@@ -1,0 +1,56 @@
+{
+  "storyId": "B-727b",
+  "changes": "Added the G03 prose-only negative-control baseline smoke and updated the UDM no-false-DONE baseline document to mark G01-G03 implemented while keeping G04-G10 future.",
+  "usage": "Build packages/main, then run node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js to verify the G03 prose-only negative control.",
+  "expectedOutcome": "The G03 smoke prints parent-roadmap large-ledger G03 baseline smoke PASS and proves 15 prose-only rows cannot create a full roadmap completion claim.",
+  "actualTranscript": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js printed parent-roadmap large-ledger G03 baseline smoke PASS.",
+  "outcomeDiff": "No difference: the actual transcript matches the expected PASS output exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story delivers G03 only. G04-G10 and the full 10x15 combined baseline remain future/incomplete and no Authority, fullAuthority, production, or remote two-host completion claim is made.",
+  "pitfalls": "DONE prepare required a fresh local review assurance quorum after main was merged; quorum_submit was run for 3 rounds x 2 local hosts and summary evidence was added before retrying closure.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 164875
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 91961
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 339084
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 326476
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 324287
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 455519
+    }
+  },
+  "totalDurationMs": 1702216,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T02:54:14.375Z",
+  "updatedAt": "2026-07-01T02:54:14.375Z"
+}
