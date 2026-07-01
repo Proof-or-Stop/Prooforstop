@@ -530,9 +530,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:27:06.493Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:27:06.961Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke proves project-configurable required memory classes are evaluated by playbook_runtime_health.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:07.333Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "MVP2 smoke proves registered consumers keep memory gateEvidence=false during rollout wiring.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:07.725Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process/runtime fact contracts verify runtime-memory commands are registered with correct non-gate/gate boundaries.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:08.078Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -827,6 +862,15 @@
       "timestamp": "2026-07-01T04:27:04.823Z",
       "phase": "DEV",
       "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:06.961Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
       "action": "update",
       "from": "in_progress",
       "to": "done",
