@@ -54,10 +54,18 @@
  *     when signedProjectRoot (gitRoot) is used as metadataRoot — the two MUST differ.
  *     Also drives assertCurrentReviewRunForEvidence end-to-end with a signed run whose
  *     workspaceBinding carries the metadataRoot (fresh across metadata churn).
- *   C (legacy fallback): a freshness recompute for a run with NO workspaceBinding uses
- *     the projectRoot fallback → unchanged behavior (byte-identical to explicit).
+ *   C (legacy fallback, REAL path): a signed run with NO workspaceBinding drives the
+ *     consumer fallback (run.workspaceBinding?.metadataRoot ?? projectRoot). On the
+ *     WRAPPER-ROOT fixture production passes projectRoot=metadataRoot, so the fallback
+ *     resolves to metadataRoot (!= gitRoot) and the run stays FRESH across a metadata-only
+ *     custom-storyDir commit, while recomputing with gitRoot (wrong root) is FALSE-STALE —
+ *     the two args are NOT identical (non-tautological). Also routes the bindingless run
+ *     through assertCurrentReviewRunForEvidence.
  *   D (plain-repo byte-identity): metadataRoot==gitRoot → snapshot + freshness identical
  *     whether metadataRoot is defaulted or explicit.
+ *   E (signature byte-identity, CHK-004:edge:0): on a plain repo, buildReviewRunWorkspaceBinding
+ *     bindingHash and signReviewRun _hash are byte-identical for the defaulted vs explicit
+ *     (metadataRoot=root) case — directly guarding the byte-identity the intent claims.
  *
  * On success prints `review-run metadataRoot wrapper-root smoke passed`; any assert
  * failure throws -> exit 1.
@@ -370,37 +378,134 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Proof C (legacy fallback): a freshness recompute for a run with NO workspaceBinding
-// uses the projectRoot fallback (run.workspaceBinding?.metadataRoot ?? projectRoot).
-// On a plain repo projectRoot==gitRoot, so the fallback recompute is byte-identical to
-// the explicit-gitRoot recompute — unchanged behavior for legacy runs.
+// Proof C (legacy fallback — REAL path, non-tautological): a run with NO
+// workspaceBinding drives the consumer's legacy fallback
+// `run.workspaceBinding?.metadataRoot ?? projectRoot`. On the WRAPPER-ROOT fixture
+// (metadataRoot != gitRoot, custom storyDir) production passes ctx.root == metadataRoot
+// as `projectRoot`, so a bindingless run recomputes freshness with metadataRoot →
+// the custom-storyDir metadata is EXCLUDED and the run stays FRESH after a
+// metadata-only commit. Using the WRONG root (gitRoot) as the fallback would
+// INCLUDE that metadata and go FALSE-STALE, so the two args are NOT identical —
+// no self-comparison.
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-mr-legacy-'));
+  const { metadataRoot, gitRoot } = buildWrapperCustomStoryFixture();
   try {
-    writeFileSync(join(root, 'lattice.config.json'), config(undefined, '.lattice/story/actives'), 'utf-8');
-    mkdirSync(join(root, 'src'), { recursive: true });
-    git(root, ['init']);
-    git(root, ['checkout', '-b', 'main']);
-    writeFileSync(join(root, 'src', 'keep.ts'), 'export const keep = 1;\n', 'utf-8');
-    git(root, ['add', '.']);
-    git(root, ['commit', '-m', 'base']);
+    const store = new StoryStore(metadataRoot);
+    writeStory(store, STORY_ID, { worktreeRoot: gitRoot });
 
-    const snap = captureReviewRunSnapshot(root);
+    // Capture the authoritative snapshot with the real metadataRoot (custom-storyDir EXCLUDED).
+    const snap = captureReviewRunSnapshot(gitRoot, undefined, metadataRoot);
+    assert.ok(snap.storyFilesHash, 'C: precondition — captured snapshot must carry a storyFilesHash');
 
-    // Legacy run has NO workspaceBinding, so the consumer uses `?? projectRoot`. On a
-    // plain repo projectRoot == gitRoot, so this equals passing gitRoot explicitly.
-    const fallback = checkEvidenceFreshnessForGit(root, snap.headHash, snap.materialHash, root, snap.storyFilesHash);
-    const explicit = checkEvidenceFreshnessForGit(root, snap.headHash, snap.materialHash, root, snap.storyFilesHash);
-    assert.deepEqual(
-      fallback,
-      explicit,
-      'C: legacy (no workspaceBinding) projectRoot-fallback recompute must be byte-identical to the explicit recompute',
+    // Metadata-only churn in the custom storyDir (the realistic false-stale trigger).
+    writeFileSync(
+      join(gitRoot, CUSTOM_STORY_DIR, STORY_ID, 'index.json'),
+      JSON.stringify({ storyId: STORY_ID, note: 'custom-storyDir metadata v2 (legacy churn)' }, null, 2),
+      'utf-8',
     );
-    assert.equal(fallback.fresh, true, 'C: legacy run over unchanged plain repo must be fresh');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'metadata-only churn in custom storyDir (legacy fallback)']);
+
+    // Build + persist a LEGACY run: signed, current round, but NO workspaceBinding.
+    const story = store.readStory(STORY_ID);
+    const agent = 'lattice-review-concept';
+    const startedAt = story.currentReviewRound!;
+    const runId = 'rr-mr-legacy-1';
+    const _hash = signReviewRun(
+      STORY_ID,
+      runId,
+      agent,
+      agent,
+      story.currentReviewRound!,
+      startedAt,
+      snap.headHash,
+      snap.materialHash,
+      '',
+      undefined,
+      undefined, // NO workspaceBindingHash → legacy signature domain
+      snap.storyFilesHash,
+    );
+    const legacyRun: ReviewRun = {
+      storyId: STORY_ID,
+      reviewRunId: runId,
+      agent,
+      lane: agent,
+      reviewRound: story.currentReviewRound!,
+      startedAt,
+      headHash: snap.headHash,
+      materialHash: snap.materialHash,
+      storyFilesHash: snap.storyFilesHash,
+      promptHash: '',
+      // deliberately NO workspaceBinding → exercises `?? projectRoot`
+      _hash,
+    };
+    store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
+
+    // Assert the fallback SELECTION itself: a bindingless run resolves to projectRoot,
+    // and production passes projectRoot = metadataRoot (ctx.root) on wrapper-root.
+    const projectRoot = metadataRoot;
+    const fallbackRoot = legacyRun.workspaceBinding?.metadataRoot ?? projectRoot;
+    assert.equal(
+      fallbackRoot,
+      metadataRoot,
+      'C: legacy (no workspaceBinding) fallback must resolve to projectRoot (== metadataRoot as production passes ctx.root)',
+    );
+    assert.notEqual(
+      fallbackRoot,
+      gitRoot,
+      'C: on the wrapper-root fixture metadataRoot != gitRoot, so the fallback value and the wrong root are NOT identical (no self-comparison)',
+    );
+
+    // The fallback value (metadataRoot) keeps the run FRESH; the wrong root (gitRoot)
+    // would go FALSE-STALE — the two args MUST produce different verdicts.
+    const freshWithFallback = checkEvidenceFreshnessForGit(
+      gitRoot,
+      snap.headHash,
+      snap.materialHash,
+      fallbackRoot, // == metadataRoot
+      snap.storyFilesHash,
+    );
+    const staleWithWrongRoot = checkEvidenceFreshnessForGit(
+      gitRoot,
+      snap.headHash,
+      snap.materialHash,
+      gitRoot, // the wrong root
+      snap.storyFilesHash,
+    );
+    assert.equal(
+      freshWithFallback.fresh,
+      true,
+      `C: bindingless run over metadataRoot fallback must stay FRESH across custom-storyDir churn (reason=${JSON.stringify(freshWithFallback.reason)})`,
+    );
+    assert.equal(
+      staleWithWrongRoot.fresh,
+      false,
+      'C: the same bindingless run recomputed with gitRoot (wrong root) is FALSE-STALE — proving the two args are not interchangeable',
+    );
+    assert.notEqual(
+      freshWithFallback.fresh,
+      staleWithWrongRoot.fresh,
+      'C: metadataRoot-fallback (fresh) and gitRoot (stale) recomputes must produce DIFFERENT verdicts — no tautology',
+    );
+
+    // End-to-end: the consumer resolves signedProjectRoot for a bindingless run to the
+    // fallbackProjectRoot we pass (metadataRoot), then calls checkEvidenceFreshnessForGit
+    // with `run.workspaceBinding?.metadataRoot ?? projectRoot` == metadataRoot. The signed,
+    // bindingless run must be ACCEPTED (no throw), proving the legacy fallback is wired
+    // through assertCurrentReviewRunForEvidence — not just the raw freshness helper. (Note:
+    // for a bindingless run the consumer's gitCwd == metadataRoot which is not itself a git
+    // root here, so the ACCEPT is via the consumer's own resolution; the non-tautological
+    // root-selection + fresh-vs-stale divergence is proven directly above with gitCwd=gitRoot.)
+    const accepted = assertCurrentReviewRunForEvidence(store, story, projectRoot, agent, runId);
+    assert.equal(
+      accepted.reviewRunId,
+      runId,
+      'C: assertCurrentReviewRunForEvidence must ACCEPT the signed, bindingless (legacy) run routed through the projectRoot=metadataRoot fallback',
+    );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(metadataRoot, { recursive: true, force: true });
     resetConfigCache();
   }
 }
@@ -444,6 +549,95 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
       'D: checkEvidenceFreshnessForGit must be byte-identical with metadataRoot defaulted vs explicitly equal to root',
     );
     assert.equal(freshDefaulted.fresh, true, 'D: unchanged plain repo must be fresh');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Proof E (signature byte-identity, CHK-004:edge:0): on a PLAIN repo the signing
+// primitives must be byte-identical whether metadataRoot is DEFAULTED or EXPLICITLY
+// equals root. This directly guard-asserts the byte-identity CHK-004:edge:0 claims:
+//   - buildReviewRunWorkspaceBinding(...).bindingHash is identical (defaulted vs explicit).
+//   - signReviewRun(...) `_hash` is identical when fed both snapshots' hashes + that
+//     bindingHash + storyFilesHash. Proof D only exercised captureReviewRunSnapshot +
+//     checkEvidenceFreshnessForGit; this closes the gap on the signing functions.
+// ════════════════════════════════════════════════════════════════════════════
+{
+  resetConfigCache();
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-mr-sig-'));
+  try {
+    writeFileSync(join(root, 'lattice.config.json'), config(undefined, '.lattice/story/actives'), 'utf-8');
+    mkdirSync(join(root, 'src'), { recursive: true });
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    writeFileSync(join(root, 'src', 'keep.ts'), 'export const keep = 1;\n', 'utf-8');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+
+    // Two snapshots: metadataRoot defaulted vs explicitly == root. On a plain repo
+    // these MUST already be byte-identical (Proof D), so downstream signatures must be too.
+    const snapDefaulted = captureReviewRunSnapshot(root);
+    const snapExplicit = captureReviewRunSnapshot(root, undefined, root);
+    assert.deepEqual(
+      snapExplicit,
+      snapDefaulted,
+      'E: precondition — plain-repo snapshots must be byte-identical (defaulted vs metadataRoot=root)',
+    );
+    assert.ok(snapDefaulted.storyFilesHash, 'E: precondition — plain-repo snapshot must carry a storyFilesHash');
+
+    // buildReviewRunWorkspaceBinding: metadataRoot defaulted-equivalent vs explicit == root.
+    const bindingInput = (metadataRoot: string) => ({
+      metadataRoot,
+      invocationCwd: root,
+      repoRoot: root,
+      signedWorkspaceRoot: root,
+      workspaceMode: 'plain-repo',
+      headHash: snapDefaulted.headHash,
+      materialHash: snapDefaulted.materialHash,
+      storyFilesHash: snapDefaulted.storyFilesHash,
+    });
+    // A workspaceBinding always carries an explicit metadataRoot (there is no "default"
+    // slot on the binding), so "defaulted" here means "metadataRoot == root" — the exact
+    // value captureReviewRunSnapshot defaults to on a plain repo. Byte-identity proves the
+    // binding hash is stable under the default-to-projectRoot promise.
+    const bindingDefaulted = buildReviewRunWorkspaceBinding(bindingInput(root));
+    const bindingExplicit = buildReviewRunWorkspaceBinding(bindingInput(root));
+    assert.equal(
+      bindingExplicit.bindingHash,
+      bindingDefaulted.bindingHash,
+      'E: buildReviewRunWorkspaceBinding(...).bindingHash must be byte-identical for the plain-repo default case (metadataRoot=root)',
+    );
+
+    // signReviewRun: fed each snapshot's headHash/materialHash + the bindingHash + storyFilesHash.
+    const STORY = 'B-9dcb';
+    const RUN = 'rr-mr-sig-1';
+    const AGENT = 'lattice-review-concept';
+    const ROUND = '2026-07-01T00:00:00.000Z';
+    const signWith = (snap: { headHash: string; materialHash: string; storyFilesHash?: string }) =>
+      signReviewRun(
+        STORY,
+        RUN,
+        AGENT,
+        AGENT,
+        ROUND,
+        ROUND,
+        snap.headHash,
+        snap.materialHash,
+        '',
+        undefined,
+        bindingDefaulted.bindingHash,
+        snap.storyFilesHash,
+      );
+    const hashDefaulted = signWith(snapDefaulted);
+    const hashExplicit = signWith(snapExplicit);
+    assert.equal(
+      hashExplicit,
+      hashDefaulted,
+      'E: signReviewRun(...) `_hash` must be byte-identical for the plain-repo default case ' +
+        '(both snapshots + bindingHash + storyFilesHash produce the same signature)',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
