@@ -5,7 +5,7 @@
       "desc": "M9/M10 million-record baseline verifier scans corpus membership but does not execute runtime matcher/ranking path, so scale correctness can pass even if retrieval is broken.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-01T04:35:07.225Z",
@@ -17,7 +17,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "missing|ts|million-record-baseline",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Baseline verifier now executes real MemoryFreshnessPack runtime matching/ranking via shortlisted records, and full 1M smoke passed with expectedIdsFoundRate=1 and current-over-superseded preference=1.",
+      "resolvedAt": "2026-07-01T04:48:03.314Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-002",
