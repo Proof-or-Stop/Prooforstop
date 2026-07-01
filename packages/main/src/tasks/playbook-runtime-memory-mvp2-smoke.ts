@@ -222,7 +222,11 @@ async function run(): Promise<void> {
     });
 
     check('handoff_create text includes Memory Runtime Preflight and host-policy top hits', () => {
-      const text = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex', toHost: 'claude-code' });
+      const text = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex-cli', toHost: 'claude-cli' });
+      assert.match(text, /fromHost: codex/);
+      assert.match(text, /toHost: claude-code/);
+      assert.match(text, /runtimeHostPolicy: claude-cli role=primary allowed=true/);
+      assert.match(text, /runtimeHostPolicyCapabilityHost: claude-code/);
       assert.match(text, /## Memory Runtime Preflight/);
       assert.match(text, /authority=non_authoritative gateEvidence=false/);
       assert.match(text, /topHitIds:/);
@@ -231,25 +235,35 @@ async function run(): Promise<void> {
     });
 
     check('handoff_resume includes memory pack and agy fallback requires primary failure signal', () => {
-      const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex', toHost: 'claude-code', json: true }) as any;
+      const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex-cli', toHost: 'claude-cli', json: true }) as any;
+      assert.equal(pack.fromHost, 'codex');
+      assert.equal(pack.toHost, 'claude-code');
+      assert.equal(pack.runtimeHostPolicy.capabilityHostId, 'claude-code');
       const file = join(root, 'handoff-pack.json');
       writeFileSync(file, `${JSON.stringify(pack, null, 2)}\n`, 'utf8');
-      const resume = handoff.handoff_resume({ file, resumeHost: 'claude-code' });
+      const resume = handoff.handoff_resume({ file, resumeHost: 'claude-cli' });
+      assert.match(resume, /resumeHost: claude-code/);
       assert.match(resume, /Runtime memory advisory/);
       assert.match(resume, /memoryGateEvidence: false/);
-      assert.throws(() => handoff.handoff_resume({ file, resumeHost: 'agy' }), /fallback-only/);
-      const fallback = handoff.handoff_resume({ file, resumeHost: 'agy', primaryHostFailure: 'claude-cli unavailable' });
+      assert.throws(() => handoff.handoff_resume({ file, resumeHost: 'agy-cli' }), /fallback-only/);
+      const fallback = handoff.handoff_resume({ file, resumeHost: 'agy-cli', primaryHostFailure: 'claude-cli unavailable' });
+      assert.match(fallback, /resumeHost: antigravity/);
       assert.match(fallback, /role=fallback allowed=true/);
     });
 
     check('host_dispatch includes shared pack digest and fallback policy', () => {
-      const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex', toHost: 'claude-code', json: true }) as any;
+      const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex-cli', toHost: 'claude-cli', json: true }) as any;
       const file = join(root, 'dispatch-pack.json');
       writeFileSync(file, `${JSON.stringify(pack, null, 2)}\n`, 'utf8');
-      const dispatch = handoff.host_dispatch({ file, host: 'claude-code' });
+      const dispatch = handoff.host_dispatch({ file, host: 'claude-cli' });
+      assert.match(dispatch, /host: claude-code/);
       assert.match(dispatch, /memoryPackDigest:/);
       assert.match(dispatch, /memoryGateEvidence: false/);
-      assert.throws(() => handoff.host_dispatch({ file, host: 'agy' }), /fallback-only/);
+      assert.throws(() => handoff.host_dispatch({ file, host: 'agy-cli' }), /fallback-only/);
+      const fallbackDispatch = handoff.host_dispatch({ file, host: 'agy-cli', primaryHostFailure: 'claude-cli unavailable', json: true }) as any;
+      assert.equal(fallbackDispatch.host, 'antigravity');
+      assert.equal(fallbackDispatch.prefetchManifest.host, 'antigravity');
+      assert.equal(fallbackDispatch.runtimeHostPolicy.capabilityHostId, 'antigravity');
     });
 
     check('done_closure and final_response_check surface advisory memory without proof claims', () => {

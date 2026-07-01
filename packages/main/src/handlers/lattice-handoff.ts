@@ -39,6 +39,7 @@ import {
   assertRuntimeHostPolicyAllowed,
   buildMemoryFreshnessPack,
   evaluateRuntimeHostPolicy,
+  normalizeRuntimeHostAliasForCapabilityRegistry,
   renderMemoryFreshnessPack,
   renderMemoryFreshnessPackSummary,
   runtimeMemoryTopHits,
@@ -625,12 +626,14 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         primaryHostFailure: args.primaryHostFailure,
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_create');
+      const fromCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.fromHost);
+      const toCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.toHost);
       const policy = resolveProofAdmissibilityPolicy(ctx.root);
       const admissibleProofRefs = normalizeListOrEmpty(args.admissibleProofRefs);
       const pack = createHandoffPack(ctx.store, ctx.root, {
         storyId: args.storyId,
-        fromHost: args.fromHost,
-        toHost: args.toHost,
+        fromHost: fromCapabilityHost,
+        toHost: toCapabilityHost,
         role: args.role,
         objective: args.objective,
         allowedPaths: normalizeList(args.allowedPaths),
@@ -679,6 +682,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
           ? [`⚠ phaseAuthority (${pack.phaseAuthorityWarning.relation}): ${pack.phaseAuthorityWarning.message}`]
           : []),
         `runtimeHostPolicy: ${hostPolicy.canonicalHost} role=${hostPolicy.role} allowed=${hostPolicy.allowed}`,
+        `runtimeHostPolicyCapabilityHost: ${hostPolicy.capabilityHostId}`,
         `runtimeHostPolicyReason: ${hostPolicy.reason}`,
         renderHandoffMemoryText(pack.memoryFreshnessPack),
         outputNote.trimEnd(),
@@ -731,7 +735,8 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         primaryHostFailure: args.primaryHostFailure,
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_resume');
-      const projection = buildHandoffResumeProjection(source, { resumeHost: args.resumeHost, ...options });
+      const resumeCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(targetHost);
+      const projection = buildHandoffResumeProjection(source, { resumeHost: resumeCapabilityHost, ...options });
       const memoryFreshnessPack = projection.memoryFreshnessPack ?? buildHandoffRuntimeMemoryPack(ctx, {
         storyId: projection.storyId,
         phase: projection.recoveryPoint.phase,
@@ -799,9 +804,10 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         primaryHostFailure: args.primaryHostFailure,
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'host_dispatch');
-      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, args.host, hostPolicy);
+      const dispatchCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.host);
+      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, dispatchCapabilityHost, hostPolicy);
       const result = buildHostDispatchProjection(pack, {
-        host: args.host,
+        host: dispatchCapabilityHost,
         mode: args.mode,
         preflight,
         prefetchManifest,

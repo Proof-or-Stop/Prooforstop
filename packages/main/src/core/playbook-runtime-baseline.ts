@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, closeSync, writeFileSync, writeSync, rmSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -36,9 +36,16 @@ export interface PlaybookRuntimeBaselineGenerateResult {
 export interface PlaybookRuntimeBaselineVerifyResult {
   status: 'pass' | 'fail';
   inputDir: string;
+  generatedInput: boolean;
+  generatedOutputKept: boolean;
   profile: PlaybookRuntimeBaselineProfile;
+  requestedProfile?: PlaybookRuntimeBaselineProfile;
   recordCount: number;
+  expectedProfileRecordCount: number;
   fullProfileExactMillion: boolean;
+  requestedProfileMatches: boolean;
+  profileRecordCountMatches: boolean;
+  fullProfileExactMillionMatches: boolean;
   recordsDigestStable: boolean;
   goldDigestStable: boolean;
   manifestDigestStable: boolean;
@@ -139,6 +146,32 @@ const BASELINE_SUPERSEDES: Record<string, string[]> = {
 function outputDirFor(profile: PlaybookRuntimeBaselineProfile, outputDir?: string): string {
   if (outputDir) return outputDir;
   return mkdtempSync(join(tmpdir(), `proofbound-memory-playbook-${profile}-`));
+}
+
+function ensureBaselineOutputWritable(outputDir: string, targetPaths: string[], force?: boolean): void {
+  if (!existsSync(outputDir)) {
+    const existingTargets = targetPaths.filter(existsSync);
+    if (existingTargets.length > 0 && !force) {
+      throw new Error(`baseline output target file already exists: ${existingTargets.join(', ')}`);
+    }
+    return;
+  }
+
+  if (force) {
+    rmSync(outputDir, { recursive: true, force: true });
+    return;
+  }
+
+  const stats = statSync(outputDir);
+  if (!stats.isDirectory()) {
+    throw new Error(`baseline output already exists and is not a directory: ${outputDir}`);
+  }
+  const entries = readdirSync(outputDir);
+  const existingTargets = targetPaths.filter(existsSync);
+  if (entries.length > 0 || existingTargets.length > 0) {
+    const blockers = existingTargets.length > 0 ? existingTargets : entries.map((entry) => join(outputDir, entry));
+    throw new Error(`baseline output directory must be empty unless force=true: ${blockers.join(', ')}`);
+  }
 }
 
 function recordLine(id: string, kind: string, status: string, text: string): string {
@@ -321,10 +354,7 @@ export function generatePlaybookRuntimeBaseline(args: {
   const recordsPath = join(outputDir, 'records.jsonl');
   const goldPath = join(outputDir, 'gold-queries.json');
   const manifestPath = join(outputDir, 'manifest.json');
-  if (existsSync(manifestPath)) {
-    if (!args.force) throw new Error(`baseline output already exists: ${manifestPath}`);
-    rmSync(outputDir, { recursive: true, force: true });
-  }
+  ensureBaselineOutputWritable(outputDir, [recordsPath, goldPath, manifestPath], args.force);
   mkdirSync(outputDir, { recursive: true });
 
   const fd = openSync(recordsPath, 'w');
@@ -390,105 +420,126 @@ export function verifyPlaybookRuntimeBaseline(args: {
   profile?: PlaybookRuntimeBaselineProfile;
   seed?: number;
   generate?: boolean;
+  keepGenerated?: boolean;
 } = {}): PlaybookRuntimeBaselineVerifyResult {
+  const started = performance.now();
   const generated = args.inputDir
     ? undefined
     : generatePlaybookRuntimeBaseline({ profile: args.profile ?? 'small', seed: args.seed, force: true });
   const inputDir = args.inputDir ?? generated!.outputDir;
-  const started = performance.now();
-  const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
-  const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
-  const goldRaw = readFileSync(join(inputDir, 'gold-queries.json'), 'utf8');
-  const recordsDigestStable = digestText(recordsRaw) === manifest.recordsDigest;
-  const goldDigestStable = digestText(goldRaw) === manifest.goldDigest;
-  const staleDetected = !recordsDigestStable || !goldDigestStable;
-  const gold = JSON.parse(goldRaw) as { queries: typeof GOLD_QUERIES };
-  const shortlists = new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
-  let validRows = 0;
-  let malformedRowsSkipped = 0;
-  for (const line of recordsRaw.split('\n')) {
-    if (!line) continue;
-    const row = parseBaselineRecord(line);
-    if (!row) {
-      malformedRowsSkipped += 1;
-      continue;
+  try {
+    const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
+    const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
+    const goldRaw = readFileSync(join(inputDir, 'gold-queries.json'), 'utf8');
+    const recordsDigestStable = digestText(recordsRaw) === manifest.recordsDigest;
+    const goldDigestStable = digestText(goldRaw) === manifest.goldDigest;
+    const staleDetected = !recordsDigestStable || !goldDigestStable;
+    const gold = JSON.parse(goldRaw) as { queries: typeof GOLD_QUERIES };
+    const shortlists = new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
+    let validRows = 0;
+    let malformedRowsSkipped = 0;
+    for (const line of recordsRaw.split('\n')) {
+      if (!line) continue;
+      const row = parseBaselineRecord(line);
+      if (!row) {
+        malformedRowsSkipped += 1;
+        continue;
+      }
+      validRows += 1;
+      for (const query of gold.queries) {
+        insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
+      }
     }
-    validRows += 1;
-    for (const query of gold.queries) {
-      insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
+    const runtimeResults = gold.queries.map((query) =>
+      runRuntimeGoldQuery(query, (shortlists.get(query.id) ?? []).map((item) => item.record)));
+    const expectedIds = gold.queries.flatMap((query) => [...query.expectedIds]);
+    const expectedFound = runtimeResults.reduce((sum, result) => sum + result.expectedIdsFound, 0);
+    const candidateFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.candidateFalseSurfaces, 0);
+    const supersededFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.supersededFalseSurfaces, 0);
+    const mustNotSurfaceTotal = runtimeResults.reduce((sum, result) => sum + result.mustNotSurfaceTotal, 0);
+    const expectedIdsFoundRate = expectedFound / Math.max(1, expectedIds.length);
+    const candidateFalseSurfaceRate = candidateFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
+    const supersededFalseSurfaceRate = supersededFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
+    const truthFirst = runtimeResults.find((result) => result.queryId === 'truth-first');
+    const currentOverSupersededPreferenceRate = truthFirst
+      && truthFirst.surfacedIds.includes('mem-truth-current')
+      && !truthFirst.surfacedIds.includes('mem-truth-superseded')
+      ? 1
+      : 0;
+    const deprecatedFalseSurfaceRate = supersededFalseSurfaceRate;
+    const manifestDomain = {
+      schemaVersion: manifest.schemaVersion,
+      profile: manifest.profile,
+      seed: manifest.seed,
+      recordCount: manifest.recordCount,
+      fullProfileExactMillion: manifest.fullProfileExactMillion,
+      recordsDigest: manifest.recordsDigest,
+      goldDigest: manifest.goldDigest,
+      corruptRows: manifest.corruptRows,
+      authority: manifest.authority,
+      gateEvidence: manifest.gateEvidence,
+    };
+    const manifestDigestStable = digestCanonicalJson(manifestDomain) === manifest.manifestDigest;
+    const thresholds = {
+      expectedIdsFoundRate: 1,
+      currentOverSupersededPreferenceRate: 1,
+      candidateFalseSurfaceRateMax: 0,
+      deprecatedFalseSurfaceRateMax: 0,
+    };
+    const expectedProfileRecordCount = PROFILE_COUNTS[manifest.profile];
+    const requestedProfileMatches = args.profile === undefined || manifest.profile === args.profile;
+    const profileRecordCountMatches = manifest.recordCount === expectedProfileRecordCount;
+    const fullProfileExactMillionMatches = manifest.fullProfileExactMillion === (manifest.profile === 'full' && manifest.recordCount === PROFILE_COUNTS.full);
+    const memory = process.memoryUsage();
+    const pass = validRows + malformedRowsSkipped === manifest.recordCount
+      && requestedProfileMatches
+      && profileRecordCountMatches
+      && fullProfileExactMillionMatches
+      && expectedIdsFoundRate >= thresholds.expectedIdsFoundRate
+      && currentOverSupersededPreferenceRate >= thresholds.currentOverSupersededPreferenceRate
+      && candidateFalseSurfaceRate <= thresholds.candidateFalseSurfaceRateMax
+      && deprecatedFalseSurfaceRate <= thresholds.deprecatedFalseSurfaceRateMax
+      && manifestDigestStable
+      && recordsDigestStable
+      && goldDigestStable
+      && staleDetected === false;
+    return {
+      status: pass ? 'pass' : 'fail',
+      inputDir,
+      generatedInput: Boolean(generated),
+      generatedOutputKept: Boolean(generated && args.keepGenerated),
+      profile: manifest.profile,
+      ...(args.profile ? { requestedProfile: args.profile } : {}),
+      recordCount: manifest.recordCount,
+      expectedProfileRecordCount,
+      fullProfileExactMillion: manifest.fullProfileExactMillion,
+      requestedProfileMatches,
+      profileRecordCountMatches,
+      fullProfileExactMillionMatches,
+      recordsDigestStable,
+      goldDigestStable,
+      manifestDigestStable,
+      staleDetected,
+      correctness: {
+        expectedIdsFoundRate,
+        currentOverSupersededPreferenceRate,
+        candidateFalseSurfaceRate,
+        supersededFalseSurfaceRate,
+        deprecatedFalseSurfaceRate,
+        malformedRowsSkipped,
+      },
+      thresholds,
+      performance: {
+        elapsedMs: Math.round(performance.now() - started),
+        peakRssBytes: memory.rss,
+        peakHeapUsedBytes: memory.heapUsed,
+      },
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    };
+  } finally {
+    if (generated && args.keepGenerated !== true) {
+      rmSync(generated.outputDir, { recursive: true, force: true });
     }
   }
-  const runtimeResults = gold.queries.map((query) =>
-    runRuntimeGoldQuery(query, (shortlists.get(query.id) ?? []).map((item) => item.record)));
-  const expectedIds = gold.queries.flatMap((query) => [...query.expectedIds]);
-  const expectedFound = runtimeResults.reduce((sum, result) => sum + result.expectedIdsFound, 0);
-  const candidateFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.candidateFalseSurfaces, 0);
-  const supersededFalseSurfaces = runtimeResults.reduce((sum, result) => sum + result.supersededFalseSurfaces, 0);
-  const mustNotSurfaceTotal = runtimeResults.reduce((sum, result) => sum + result.mustNotSurfaceTotal, 0);
-  const expectedIdsFoundRate = expectedFound / Math.max(1, expectedIds.length);
-  const candidateFalseSurfaceRate = candidateFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
-  const supersededFalseSurfaceRate = supersededFalseSurfaces / Math.max(1, mustNotSurfaceTotal);
-  const truthFirst = runtimeResults.find((result) => result.queryId === 'truth-first');
-  const currentOverSupersededPreferenceRate = truthFirst
-    && truthFirst.surfacedIds.includes('mem-truth-current')
-    && !truthFirst.surfacedIds.includes('mem-truth-superseded')
-    ? 1
-    : 0;
-  const deprecatedFalseSurfaceRate = supersededFalseSurfaceRate;
-  const manifestDomain = {
-    schemaVersion: manifest.schemaVersion,
-    profile: manifest.profile,
-    seed: manifest.seed,
-    recordCount: manifest.recordCount,
-    fullProfileExactMillion: manifest.fullProfileExactMillion,
-    recordsDigest: manifest.recordsDigest,
-    goldDigest: manifest.goldDigest,
-    corruptRows: manifest.corruptRows,
-    authority: manifest.authority,
-    gateEvidence: manifest.gateEvidence,
-  };
-  const manifestDigestStable = digestCanonicalJson(manifestDomain) === manifest.manifestDigest;
-  const thresholds = {
-    expectedIdsFoundRate: 1,
-    currentOverSupersededPreferenceRate: 1,
-    candidateFalseSurfaceRateMax: 0,
-    deprecatedFalseSurfaceRateMax: 0,
-  };
-  const memory = process.memoryUsage();
-  const pass = validRows + malformedRowsSkipped === manifest.recordCount
-    && expectedIdsFoundRate >= thresholds.expectedIdsFoundRate
-    && currentOverSupersededPreferenceRate >= thresholds.currentOverSupersededPreferenceRate
-    && candidateFalseSurfaceRate <= thresholds.candidateFalseSurfaceRateMax
-    && deprecatedFalseSurfaceRate <= thresholds.deprecatedFalseSurfaceRateMax
-    && manifestDigestStable
-    && recordsDigestStable
-    && goldDigestStable
-    && staleDetected === false;
-  return {
-    status: pass ? 'pass' : 'fail',
-    inputDir,
-    profile: manifest.profile,
-    recordCount: manifest.recordCount,
-    fullProfileExactMillion: manifest.fullProfileExactMillion,
-    recordsDigestStable,
-    goldDigestStable,
-    manifestDigestStable,
-    staleDetected,
-    correctness: {
-      expectedIdsFoundRate,
-      currentOverSupersededPreferenceRate,
-      candidateFalseSurfaceRate,
-      supersededFalseSurfaceRate,
-      deprecatedFalseSurfaceRate,
-      malformedRowsSkipped,
-    },
-    thresholds,
-    performance: {
-      elapsedMs: Math.round(performance.now() - started),
-      peakRssBytes: memory.rss,
-      peakHeapUsedBytes: memory.heapUsed,
-    },
-    authority: 'non_authoritative',
-    gateEvidence: false,
-  };
 }

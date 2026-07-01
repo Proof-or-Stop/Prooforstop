@@ -1075,6 +1075,7 @@ Behavior:
     profile: z.enum(['small', 'full']).optional().describe('Generated profile when inputDir is omitted. full verifies exactly 1,000,000 generated records.'),
     inputDir: z.string().optional().describe('Existing baseline directory with manifest.json, records.jsonl, and gold-queries.json. Omit to generate then verify.'),
     seed: z.number().optional().describe('Deterministic seed metadata when generating.'),
+    keepGenerated: z.boolean().optional().describe('When inputDir is omitted, keep the generated temp baseline directory instead of deleting it after verification.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},

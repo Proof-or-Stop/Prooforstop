@@ -37,6 +37,7 @@ export type RuntimeConsumer =
 
 export type MemoryFreshnessClass = 'fresh' | 'stale-relevant' | 'stale-irrelevant';
 export type RuntimeHostCanonicalLabel = 'codex-cli' | 'claude-cli' | 'antigravity';
+export type RuntimeCapabilityHostId = 'codex' | 'claude-code' | 'antigravity';
 export type RuntimeHostRole = 'primary' | 'fallback';
 export type RuntimeMemoryRolloutMode = 'advisory' | 'warn' | 'enforce';
 export type RuntimePrimaryFailureSignal =
@@ -117,6 +118,7 @@ export interface RuntimeMemoryTopHits {
 export interface RuntimeHostPolicyDecision {
   requestedHost: string;
   canonicalHost: RuntimeHostCanonicalLabel;
+  capabilityHostId: RuntimeCapabilityHostId;
   displayHost: string;
   role: RuntimeHostRole;
   primaryHosts: readonly ['codex-cli', 'claude-cli'];
@@ -434,6 +436,23 @@ export function normalizeRuntimeHostLabel(host: string | undefined): RuntimeHost
       : 'codex-cli';
 }
 
+export function runtimeHostLabelToCapabilityHostId(host: RuntimeHostCanonicalLabel): RuntimeCapabilityHostId {
+  switch (host) {
+    case 'codex-cli': return 'codex';
+    case 'claude-cli': return 'claude-code';
+    case 'antigravity': return 'antigravity';
+  }
+}
+
+export function normalizeRuntimeHostAliasForCapabilityRegistry(host: string | undefined): string {
+  const raw = host?.trim() ?? '';
+  const value = raw.toLowerCase().replace(/_/g, '-');
+  if (!value || value === 'codex' || value === 'codex-cli' || value === 'openai-codex') return 'codex';
+  if (value === 'claude' || value === 'claude-code' || value === 'claude-cli' || value === 'claude-code-cli') return 'claude-code';
+  if (value === 'agy' || value === 'agy-cli' || value === 'antigravity' || value === 'antigravity-cli') return RUNTIME_MEMORY_FALLBACK_HOST;
+  return raw;
+}
+
 function displayRuntimeHost(host: RuntimeHostCanonicalLabel): string {
   switch (host) {
     case 'codex-cli': return 'Codex CLI';
@@ -458,11 +477,13 @@ export function evaluateRuntimeHostPolicy(args: {
 }): RuntimeHostPolicyDecision {
   const requestedHost = args.requestedHost?.trim() || 'codex-cli';
   const canonicalHost = normalizeRuntimeHostLabel(requestedHost);
+  const capabilityHostId = runtimeHostLabelToCapabilityHostId(canonicalHost);
   const failureSignal = parsePrimaryFailureSignal(args.primaryHostFailure);
   if (canonicalHost !== RUNTIME_MEMORY_FALLBACK_HOST) {
     return {
       requestedHost,
       canonicalHost,
+      capabilityHostId,
       displayHost: displayRuntimeHost(canonicalHost),
       role: 'primary',
       primaryHosts: RUNTIME_MEMORY_PRIMARY_HOSTS,
@@ -475,6 +496,7 @@ export function evaluateRuntimeHostPolicy(args: {
   return {
     requestedHost,
     canonicalHost,
+    capabilityHostId,
     displayHost: displayRuntimeHost(canonicalHost),
     role: 'fallback',
     primaryHosts: RUNTIME_MEMORY_PRIMARY_HOSTS,

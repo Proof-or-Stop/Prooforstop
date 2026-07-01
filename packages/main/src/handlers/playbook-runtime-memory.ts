@@ -44,12 +44,19 @@ function renderBaselineVerify(result: ReturnType<typeof verifyPlaybookRuntimeBas
     'Memory/playbook baseline verifier',
     `status: ${result.status}`,
     `profile: ${result.profile}`,
+    `requestedProfile: ${result.requestedProfile ?? 'none'}`,
     `recordCount: ${result.recordCount}`,
+    `expectedProfileRecordCount: ${result.expectedProfileRecordCount}`,
     `fullProfileExactMillion: ${result.fullProfileExactMillion}`,
+    `requestedProfileMatches: ${result.requestedProfileMatches}`,
+    `profileRecordCountMatches: ${result.profileRecordCountMatches}`,
+    `fullProfileExactMillionMatches: ${result.fullProfileExactMillionMatches}`,
     `recordsDigestStable: ${result.recordsDigestStable}`,
     `goldDigestStable: ${result.goldDigestStable}`,
     `manifestDigestStable: ${result.manifestDigestStable}`,
     `staleDetected: ${result.staleDetected}`,
+    `generatedInput: ${result.generatedInput}`,
+    `generatedOutputKept: ${result.generatedOutputKept}`,
     `expectedIdsFoundRate: ${result.correctness.expectedIdsFoundRate}`,
     `currentOverSupersededPreferenceRate: ${result.correctness.currentOverSupersededPreferenceRate}`,
     `candidateFalseSurfaceRate: ${result.correctness.candidateFalseSurfaceRate}`,
@@ -192,11 +199,13 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
       profile?: PlaybookRuntimeBaselineProfile;
       inputDir?: string;
       seed?: number;
+      keepGenerated?: boolean;
     } & FormatArgs = {}) {
       const result = verifyPlaybookRuntimeBaseline({
-        profile: asProfile(args.profile),
+        profile: args.profile === undefined ? undefined : asProfile(args.profile),
         inputDir: args.inputDir,
         seed: args.seed,
+        keepGenerated: args.keepGenerated,
       });
       return wantsJson(args) ? result : renderBaselineVerify(result);
     },
