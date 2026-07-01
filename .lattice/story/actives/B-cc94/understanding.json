@@ -1,0 +1,38 @@
+{
+  "task": "Implement MVP1 of Playbook Runtime Memory Consumption so session_brief automatically surfaces bounded non-authoritative memory/playbook context.",
+  "outcome": "After completion, running lattice session_brief shows a bounded Memory Runtime Preflight section with active playbook hits, dev-memory hits, source digest, <=60 rendered lines, and explicit gateEvidence:false / non_authoritative labeling.",
+  "facts": [
+    "dev-memory exists and dev_memory_preflight can find relevant lessons manually",
+    "playbook_propose/diff/approve/reject exist but approved playbooks are candidate-only and not consumed at runtime",
+    "session_brief currently does not consume active playbooks or emit a MemoryFreshnessPack",
+    "MVP1 scope is limited to M0-M4 and excludes handoff/story/DONE consumers plus the 1M baseline",
+    "Memory/playbooks must remain advisory context and never satisfy gate evidence",
+    "Engineering choice: extend the current playbooks.json domain with an explicit playbookDigest/runtime projection rather than inventing a second store",
+    "Engineering choice: activation mutates candidate to active through a fail-closed playbook_activate command guarded by expectedPlaybookDigest and shared write safety",
+    "Engineering choice: session_brief renders an explicit bounded memory block by default in full mode, and keeps failures advisory/non-blocking"
+  ],
+  "constraints": [
+    "Do not make memory or playbooks gate evidence",
+    "Keep output bounded to <=60 lines",
+    "Use active-only playbook surfacing; candidates stay inert",
+    "Red/repro coverage must be written before implementation claims",
+    "Do not implement M5-M12 in this story",
+    "Consumer output must say non_authoritative and gateEvidence:false"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-07-01T02:33:05.394Z"
+}

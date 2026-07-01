@@ -1,0 +1,59 @@
+{
+  "storyId": "B-cc94",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-cc94/checklist.json",
+    ".lattice/story/actives/B-cc94/decision.json",
+    ".lattice/story/actives/B-cc94/index.json",
+    ".lattice/story/actives/B-cc94/intent-collision.json",
+    ".lattice/story/actives/B-cc94/milestone-ledger.json",
+    ".lattice/story/actives/B-cc94/original-intent-snapshot.json",
+    ".lattice/story/actives/B-cc94/plan.md",
+    ".lattice/story/actives/B-cc94/process-events.jsonl",
+    ".lattice/story/actives/B-cc94/process-metrics.json",
+    ".lattice/story/actives/B-cc94/proofstory.json",
+    ".lattice/story/actives/B-cc94/red-evidence.json",
+    ".lattice/story/actives/B-cc94/review.json",
+    ".lattice/story/actives/B-cc94/scope-check.json",
+    ".lattice/story/actives/B-cc94/scope-contract.json",
+    ".lattice/story/actives/B-cc94/understanding.json",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-*.ts",
+    "packages/main/src/tasks/*baseline*",
+    ".lattice/benchmarks/memory-playbook/**"
+  ],
+  "scopeChangeReason": "Exact path list for MVP1 implementation, story gate artifacts, package version files, and runtime memory code. Parent milestones M5-M12 remain excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T02:35:44.730Z",
+  "updatedAt": "2026-07-01T02:51:59.274Z"
+}

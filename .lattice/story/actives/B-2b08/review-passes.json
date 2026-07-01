@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-2b08:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed docs/requirements/decisions/story-lifecycle.md diff: wording binds bump to watched Proofbound CLI/runtime inputs, includes exact skip line, excludes repo-wide code artifact bump semantics, and creates no current product/experiment ledger requirement.",
+      "createdAt": "2026-07-01T02:59:47.669Z",
+      "reviewRound": "2026-07-01T02:57:52.644Z",
+      "reviewRunId": "B-2b08:RR-003",
+      "_hash": "a309838d8de5b168b60adf72a4480ef8c7aa81951ba73f4ac9f01b8a2578c441"
+    },
+    {
+      "id": "B-2b08:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed DONE version-bump skip wording coverage: old phrase absent in scoped source/smoke/docs, new watched CLI/runtime line present, version-bump smoke covers experiment harness non-watched skip and watched runtime bump, build plus smoke passed, and verificationEvidence maps to each verificationIntent.",
+      "createdAt": "2026-07-01T03:00:16.139Z",
+      "reviewRound": "2026-07-01T02:57:52.644Z",
+      "reviewRunId": "B-2b08:RR-002",
+      "_hash": "ce90e318b0eae844dc16f347e66523db0b967f31dc50355350595533da0a2efb"
+    },
+    {
+      "id": "B-2b08:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed version-bump runtime wording, smoke assertions, lifecycle doc diff, and branch scope; retired skip phrase is absent, replacement wording is consistent, build and version-bump smoke pass, and no unrelated runtime change was found.",
+      "createdAt": "2026-07-01T03:00:40.933Z",
+      "reviewRound": "2026-07-01T02:57:52.644Z",
+      "reviewRunId": "B-2b08:RR-006",
+      "_hash": "24b82cf4f7c46b4a90a4cd97628cffda97f067ab3a013181cf6040d4b16903d4"
+    },
+    {
+      "id": "B-2b08:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: DONE version-bump wording is narrowed to watched Proofbound CLI/runtime inputs, experiments/** remains outside the bump predicate, no alias or ledger policy is introduced, and evidence/gate semantics stay on the existing changed-path predicate. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/version-bump-smoke.js.",
+      "createdAt": "2026-07-01T03:01:00.647Z",
+      "reviewRound": "2026-07-01T02:57:52.644Z",
+      "reviewRunId": "B-2b08:RR-007",
+      "_hash": "a565c6853b833e48abe4c6f15e402adc64c998518f341b53a728b0a09f6d5172"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Only fix real correctness issues.",
+    "Do not optimize or expand policy arbitrarily.",
+    "Keep CLI package version semantics consistent and host-neutral."
+  ],
+  "drivers": [
+    "DONE output must not contradict visible repository code changes.",
+    "CLI version bumping should remain tied to watched runtime inputs unless a separate policy story changes that.",
+    "The fix should be small enough to review and test quickly."
+  ],
+  "options": [
+    {
+      "name": "A: Correct wording and docs only within current runtime-input policy",
+      "pros": [
+        "Fixes the real user confusion exposed by B-63ba",
+        "Keeps version semantics stable",
+        "Small, testable, and low blast radius"
+      ],
+      "cons": [
+        "Does not create a product-wide artifact versioning model"
+      ]
+    },
+    {
+      "name": "B: Expand CLI patch bump to experiments/** and all executable repo code",
+      "pros": [
+        "Every executable code change would visibly increment the CLI version"
+      ],
+      "cons": [
+        "Conflates CLI runtime version with research harness changes",
+        "Likely causes noisy version churn",
+        "Changes policy beyond the reported bug"
+      ]
+    },
+    {
+      "name": "C: Add a separate experiment/product ledger now",
+      "pros": [
+        "Could model non-runtime capability changes separately"
+      ],
+      "cons": [
+        "Too broad for this wording bug",
+        "Requires new policy and gates not requested here"
+      ]
+    }
+  ],
+  "chosen": "A: Correct wording and docs only within current runtime-input policy",
+  "rationale": "Choose A because the actual correctness issue is misleading DONE wording, not proven wrong CLI version semantics. This keeps logic consistent: package version tracks watched runtime inputs, while terminal/docs honestly explain why non-runtime code changes skip that bump.",
+  "preMortem": [
+    {
+      "scenario": "Wording remains ambiguous",
+      "trigger": "Skip line still says material code or similar broad phrase",
+      "consequence": "Users keep thinking DONE ignored code changes",
+      "mitigation": "Use exact watched CLI/runtime inputs wording and update smoke expectations"
+    },
+    {
+      "scenario": "Policy scope accidentally expands",
+      "trigger": "experiments/** is added to runtime bump detection inside this story",
+      "consequence": "CLI version churns for research harness changes and blurs release semantics",
+      "mitigation": "Keep excluded scope explicit and review diff for runtime input expansion"
+    },
+    {
+      "scenario": "Docs and code drift",
+      "trigger": "Code says runtime inputs but story-lifecycle still says material code",
+      "consequence": "Agents continue to infer wrong versioning rule",
+      "mitigation": "Update lifecycle doc in the same story and verify relatedDocs touched"
+    }
+  ],
+  "timestamp": "2026-07-01T02:43:50.230Z"
+}

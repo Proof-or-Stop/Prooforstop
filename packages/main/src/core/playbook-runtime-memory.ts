@@ -1,0 +1,548 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { extname } from 'node:path';
+
+import { digestCanonicalJson, digestText } from './digest.js';
+import {
+  attachSupersessionStatus,
+  buildSupersessionProjection,
+  readGlobalMemoryEntries,
+  readProjectMemoryEntries,
+  resolveGlobalMemoryReadPaths,
+  resolveProjectMemoryReadPaths,
+  searchEntries,
+  type DevMemoryEntry,
+} from './dev-memory.js';
+import {
+  computePlaybookDigest,
+  readPlaybooks,
+  readSignatureRegistry,
+  resolvePlaybooksPath,
+  resolveSignatureRegistryPath,
+  validatePlaybook,
+  type SignatureTagEntry,
+} from './learning-store.js';
+import type { Playbook } from './experience-layer-types.js';
+
+export type RuntimePlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
+export type RuntimeSeverity = 'advisory' | 'warn' | 'blocking';
+export type RuntimeConsumer =
+  | 'session_brief'
+  | 'dev_memory_start'
+  | 'host_handoff'
+  | 'story_create'
+  | 'story_advance'
+  | 'done_prepare'
+  | 'done_closure'
+  | 'final_response_check';
+
+export type MemoryFreshnessClass = 'fresh' | 'stale-relevant' | 'stale-irrelevant';
+
+export interface MemoryFreshnessPack {
+  schemaVersion: 'proofbound.memory-pack.v1';
+  generatedAt: string;
+  projectRoot: string;
+  query: string;
+  sourceDigests: {
+    projectDevMemoryDigest: string | null;
+    globalDevMemoryDigest: string | null;
+    playbookDigest: string | null;
+    signatureRegistryDigest: string | null;
+  };
+  results: {
+    devMemoryEntryIds: string[];
+    playbookIds: string[];
+    suppressedSupersededIds: string[];
+    deprecatedTermHits: string[];
+    contributingSourceRefs: string[];
+  };
+  freshness: {
+    stale: boolean;
+    class: MemoryFreshnessClass;
+    reason?: string;
+  };
+  render: {
+    maxLines: 60;
+    omittedCount: number;
+  };
+  authority: 'non_authoritative';
+  gateEvidence: false;
+  packDigest: string;
+  context: {
+    consumer: RuntimeConsumer;
+    storyPhase?: string;
+    touchedPaths: string[];
+    host?: string;
+    maxEntries: number;
+    maxPlaybooks: number;
+  };
+  items: {
+    devMemory: Array<{
+      id: string;
+      category: string;
+      scope: string;
+      summary: string;
+      lesson: string;
+      reusePrompt: string;
+      sourceRefs: string[];
+    }>;
+    playbooks: Array<{
+      id: string;
+      title: string;
+      check: string;
+      reasons: string[];
+      confidence: 'high' | 'medium' | 'low';
+      lineage: {
+        sourceStoryId: string;
+        sourceFindingId: string;
+        sourceSignature?: string;
+      };
+    }>;
+  };
+}
+
+export interface BuildMemoryFreshnessPackOptions {
+  projectRoot: string;
+  query?: string;
+  consumer?: RuntimeConsumer;
+  storyPhase?: string;
+  touchedPaths?: string[];
+  host?: string;
+  maxEntries?: number;
+  maxPlaybooks?: number;
+  maxLines?: number;
+  generatedAt?: string;
+}
+
+interface PlaybookMatch {
+  playbook: Playbook;
+  reasons: string[];
+  score: number;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+const SCHEMA_VERSION = 'proofbound.memory-pack.v1' as const;
+const DEFAULT_MAX_ENTRIES = 5;
+const DEFAULT_MAX_PLAYBOOKS = 5;
+const RENDER_MAX_LINES = 60;
+
+const TRIGGER_CLASSES = [
+  'host-policy',
+  'stale-doc',
+  'truth-first',
+  'repro-first',
+  'intent-totality',
+  'delivery',
+  'review',
+  'deprecated-term',
+] as const;
+
+function uniqueSorted(values: Iterable<string>): string[] {
+  return [...new Set([...values].filter((v) => v.trim().length > 0))].sort();
+}
+
+function tokenize(text: string): string[] {
+  return uniqueSorted((text.toLowerCase().match(/[a-z0-9][a-z0-9._-]{1,}/g) ?? []));
+}
+
+function containsTerm(text: string, term: string): boolean {
+  const lhs = text.toLowerCase();
+  const rhs = term.trim().toLowerCase();
+  return rhs.length > 0 && lhs.includes(rhs);
+}
+
+function fileKind(path: string): string {
+  const ext = extname(path).replace(/^\./, '').toLowerCase();
+  return ext || 'noext';
+}
+
+function digestFiles(paths: string[]): string | null {
+  const parts: string[] = [];
+  for (const path of uniqueSorted(paths)) {
+    if (!existsSync(path)) continue;
+    try {
+      parts.push(`${path}:${digestText(readFileSync(path, 'utf-8'))}`);
+    } catch {
+      parts.push(`${path}:unreadable`);
+    }
+  }
+  return parts.length > 0 ? digestCanonicalJson(parts) : null;
+}
+
+function readSourceDigests(projectRoot: string): MemoryFreshnessPack['sourceDigests'] {
+  return {
+    projectDevMemoryDigest: digestFiles(resolveProjectMemoryReadPaths(projectRoot)),
+    globalDevMemoryDigest: digestFiles(resolveGlobalMemoryReadPaths()),
+    playbookDigest: digestFiles([resolvePlaybooksPath(projectRoot)]),
+    signatureRegistryDigest: digestFiles([resolveSignatureRegistryPath(projectRoot)]),
+  };
+}
+
+function mergeEntries(projectEntries: DevMemoryEntry[], globalEntries: DevMemoryEntry[]): DevMemoryEntry[] {
+  const seen = new Set<string>();
+  const merged: DevMemoryEntry[] = [];
+  for (const entry of [...projectEntries, ...globalEntries]) {
+    if (seen.has(entry.id)) continue;
+    seen.add(entry.id);
+    merged.push(entry);
+  }
+  return merged;
+}
+
+function entrySourceRef(entry: DevMemoryEntry): string {
+  return `dev-memory:${entry.id}:${digestCanonicalJson(entry)}`;
+}
+
+function playbookSourceRef(playbook: Playbook): string {
+  return `playbook:${playbook.id}:${computePlaybookDigest(playbook)}`;
+}
+
+function signatureSourceRef(entry: SignatureTagEntry): string {
+  return `signature-registry:${entry.tag}:${digestCanonicalJson(entry)}`;
+}
+
+function selectDevMemoryEntries(
+  entries: DevMemoryEntry[],
+  query: string,
+  maxEntries: number,
+): {
+  selected: DevMemoryEntry[];
+  suppressed: DevMemoryEntry[];
+} {
+  const projection = buildSupersessionProjection(entries);
+  const raw = query.trim()
+    ? searchEntries(entries, { query, limit: Math.max(entries.length, maxEntries) })
+    : entries.slice().reverse();
+  const selected: DevMemoryEntry[] = [];
+  const suppressed: DevMemoryEntry[] = [];
+  const selectedIds = new Set<string>();
+  const suppressedIds = new Set<string>();
+
+  for (const entry of raw) {
+    const view = attachSupersessionStatus(entry, projection);
+    if (view.supersession.isSuperseded) {
+      if (!suppressedIds.has(entry.id)) {
+        suppressedIds.add(entry.id);
+        suppressed.push(entry);
+      }
+      continue;
+    }
+    if (selected.length >= maxEntries || selectedIds.has(entry.id)) continue;
+    selectedIds.add(entry.id);
+    selected.push(entry);
+  }
+
+  return { selected, suppressed };
+}
+
+function playbookText(playbook: Playbook): string {
+  return [
+    playbook.id,
+    playbook.title,
+    playbook.check,
+    ...playbook.pitfalls,
+    ...playbook.verification,
+    ...playbook.trigger.keywords,
+    ...playbook.trigger.fileKinds,
+    ...playbook.trigger.storyPhases,
+    playbook.lineage.sourceStoryId,
+    playbook.lineage.sourceFindingId,
+    playbook.lineage.sourceSignature ?? '',
+  ].join(' ').toLowerCase();
+}
+
+function keywordMatches(token: string, keyword: string): boolean {
+  const a = token.toLowerCase();
+  const b = keyword.toLowerCase();
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+function matchActivePlaybook(
+  playbook: Playbook,
+  opts: Required<Pick<BuildMemoryFreshnessPackOptions, 'query' | 'consumer' | 'touchedPaths'>> & {
+    storyPhase?: string;
+    host?: string;
+  },
+): PlaybookMatch | null {
+  if (playbook.status !== 'active') return null;
+
+  const reasons: string[] = [];
+  let score = 0;
+  const text = playbookText(playbook);
+  const queryTokens = tokenize(opts.query);
+  const triggerKeywords = playbook.trigger.keywords.map((k) => k.toLowerCase());
+  for (const token of queryTokens) {
+    if (triggerKeywords.some((keyword) => keywordMatches(token, keyword)) || text.includes(token)) {
+      score += 10;
+      reasons.push(`query:${token}`);
+    }
+  }
+
+  if (opts.storyPhase) {
+    const phase = opts.storyPhase.toLowerCase();
+    if (playbook.trigger.storyPhases.some((p) => p.toLowerCase() === phase)) {
+      score += 8;
+      reasons.push(`phase:${opts.storyPhase}`);
+    }
+  }
+
+  const touchedKinds = uniqueSorted(opts.touchedPaths.map(fileKind));
+  for (const kind of touchedKinds) {
+    if (playbook.trigger.fileKinds.some((k) => k.toLowerCase() === kind)) {
+      score += 6;
+      reasons.push(`fileKind:${kind}`);
+    }
+  }
+
+  if (opts.host && containsTerm(text, opts.host)) {
+    score += 4;
+    reasons.push(`host:${opts.host}`);
+  }
+  if (containsTerm(text, opts.consumer)) {
+    score += 3;
+    reasons.push(`consumer:${opts.consumer}`);
+  }
+
+  for (const triggerClass of TRIGGER_CLASSES) {
+    if (triggerKeywords.includes(triggerClass) || containsTerm(text, triggerClass)) {
+      reasons.push(`class:${triggerClass}`);
+      break;
+    }
+  }
+
+  if (score <= 0) return null;
+  const confidence = score >= 14 ? 'high' : score >= 8 ? 'medium' : 'low';
+  return { playbook, reasons: uniqueSorted(reasons), score, confidence };
+}
+
+export function matchRuntimePlaybooks(options: BuildMemoryFreshnessPackOptions): PlaybookMatch[] {
+  const query = options.query ?? '';
+  const consumer = options.consumer ?? 'session_brief';
+  const touchedPaths = options.touchedPaths ?? [];
+  const matches: PlaybookMatch[] = [];
+  for (const raw of readPlaybooks(options.projectRoot)) {
+    const validation = validatePlaybook(raw);
+    if (!validation.ok) continue;
+    const match = matchActivePlaybook(validation.playbook, {
+      query,
+      consumer,
+      storyPhase: options.storyPhase,
+      touchedPaths,
+      host: options.host,
+    });
+    if (match) matches.push(match);
+  }
+  return matches.sort((a, b) => b.score - a.score || a.playbook.id.localeCompare(b.playbook.id));
+}
+
+function collectDeprecatedTermHits(projectRoot: string, query: string): { hits: string[]; refs: string[] } {
+  const registry = readSignatureRegistry(projectRoot);
+  const hits: string[] = [];
+  const refs: string[] = [];
+  for (const tag of registry.tags) {
+    if (tag.status !== 'deprecated') continue;
+    const terms = [tag.tag, ...tag.aliases];
+    if (terms.some((term) => containsTerm(query, term))) {
+      hits.push(tag.tag);
+      refs.push(signatureSourceRef(tag));
+    }
+  }
+  return { hits: uniqueSorted(hits), refs: uniqueSorted(refs) };
+}
+
+function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
+  const { packDigest: _packDigest, ...domain } = pack;
+  return digestCanonicalJson(domain);
+}
+
+function buildRenderLines(pack: MemoryFreshnessPack): string[] {
+  const lines: string[] = [
+    '## Memory Runtime Preflight',
+    `  authority=${pack.authority} gateEvidence=${pack.gateEvidence}`,
+    `  packDigest: ${pack.packDigest}`,
+    `  freshness: ${pack.freshness.class}${pack.freshness.reason ? ` (${pack.freshness.reason})` : ''}`,
+    `  sourceDigests: project=${pack.sourceDigests.projectDevMemoryDigest ?? 'none'} global=${pack.sourceDigests.globalDevMemoryDigest ?? 'none'} playbooks=${pack.sourceDigests.playbookDigest ?? 'none'} signatures=${pack.sourceDigests.signatureRegistryDigest ?? 'none'}`,
+  ];
+
+  if (pack.items.playbooks.length === 0 && pack.items.devMemory.length === 0) {
+    lines.push('  empty: no relevant active playbooks or dev-memory entries surfaced');
+  }
+
+  if (pack.items.playbooks.length > 0) {
+    lines.push(`  Active playbooks (${pack.items.playbooks.length}):`);
+    for (const item of pack.items.playbooks) {
+      lines.push(`    - ${item.id} ${item.title}`);
+      lines.push(`      check: ${item.check}`);
+      lines.push(`      reasons: ${item.reasons.join(', ') || 'matched'}`);
+      lines.push(`      source: ${item.lineage.sourceStoryId} ${item.lineage.sourceFindingId}`);
+    }
+  }
+
+  if (pack.items.devMemory.length > 0) {
+    lines.push(`  Dev-memory (${pack.items.devMemory.length}):`);
+    for (const item of pack.items.devMemory) {
+      lines.push(`    - ${item.id} ${item.category}/${item.scope}: ${item.summary}`);
+      lines.push(`      lesson: ${item.lesson}`);
+      lines.push(`      reuse: ${item.reusePrompt}`);
+    }
+  }
+
+  if (pack.results.suppressedSupersededIds.length > 0) {
+    lines.push(`  suppressedSupersededIds: ${pack.results.suppressedSupersededIds.join(', ')}`);
+  }
+  if (pack.results.deprecatedTermHits.length > 0) {
+    lines.push(`  deprecatedTermHits: ${pack.results.deprecatedTermHits.join(', ')}`);
+  }
+
+  lines.push(`  render: maxLines=${pack.render.maxLines} omittedCount=${pack.render.omittedCount}`);
+  return lines;
+}
+
+function omittedCountFor(pack: MemoryFreshnessPack): number {
+  const lineCount = buildRenderLines(pack).length;
+  return lineCount > RENDER_MAX_LINES ? lineCount - RENDER_MAX_LINES + 1 : 0;
+}
+
+export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOptions): MemoryFreshnessPack {
+  const query = options.query?.trim() ?? '';
+  const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
+  const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
+  const maxLines: 60 = RENDER_MAX_LINES;
+
+  const projectEntries = readProjectMemoryEntries(options.projectRoot);
+  const globalEntries = readGlobalMemoryEntries();
+  const allEntries = mergeEntries(projectEntries, globalEntries);
+  const { selected, suppressed } = selectDevMemoryEntries(allEntries, query, maxEntries);
+  const playbookMatches = matchRuntimePlaybooks({
+    ...options,
+    query,
+    consumer: options.consumer ?? 'session_brief',
+    maxPlaybooks,
+  }).slice(0, maxPlaybooks);
+  const deprecated = collectDeprecatedTermHits(options.projectRoot, query);
+
+  const contributingSourceRefs = uniqueSorted([
+    ...selected.map(entrySourceRef),
+    ...suppressed.map(entrySourceRef),
+    ...playbookMatches.map((match) => playbookSourceRef(match.playbook)),
+    ...deprecated.refs,
+  ]);
+
+  const pack: MemoryFreshnessPack = {
+    schemaVersion: SCHEMA_VERSION,
+    generatedAt: options.generatedAt ?? new Date().toISOString(),
+    projectRoot: options.projectRoot,
+    query,
+    sourceDigests: readSourceDigests(options.projectRoot),
+    results: {
+      devMemoryEntryIds: selected.map((entry) => entry.id),
+      playbookIds: playbookMatches.map((match) => match.playbook.id),
+      suppressedSupersededIds: suppressed.map((entry) => entry.id),
+      deprecatedTermHits: deprecated.hits,
+      contributingSourceRefs,
+    },
+    freshness: { stale: false, class: 'fresh' },
+    render: { maxLines, omittedCount: 0 },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+    packDigest: '',
+    context: {
+      consumer: options.consumer ?? 'session_brief',
+      storyPhase: options.storyPhase,
+      touchedPaths: options.touchedPaths ?? [],
+      host: options.host,
+      maxEntries,
+      maxPlaybooks,
+    },
+    items: {
+      devMemory: selected.map((entry) => ({
+        id: entry.id,
+        category: entry.category,
+        scope: entry.scope,
+        summary: entry.summary,
+        lesson: entry.lesson,
+        reusePrompt: entry.reusePrompt,
+        sourceRefs: entry.evidenceRefs ?? [],
+      })),
+      playbooks: playbookMatches.map((match) => ({
+        id: match.playbook.id,
+        title: match.playbook.title,
+        check: match.playbook.check,
+        reasons: match.reasons,
+        confidence: match.confidence,
+        lineage: match.playbook.lineage,
+      })),
+    },
+  };
+  pack.packDigest = computeMemoryPackDigest(pack);
+  pack.render.omittedCount = omittedCountFor(pack);
+  pack.packDigest = computeMemoryPackDigest(pack);
+  return pack;
+}
+
+function sameValues(a: string[], b: string[]): boolean {
+  const left = uniqueSorted(a);
+  const right = uniqueSorted(b);
+  return left.length === right.length && left.every((value, idx) => value === right[idx]);
+}
+
+function sameSourceDigests(a: MemoryFreshnessPack['sourceDigests'], b: MemoryFreshnessPack['sourceDigests']): boolean {
+  return a.projectDevMemoryDigest === b.projectDevMemoryDigest
+    && a.globalDevMemoryDigest === b.globalDevMemoryDigest
+    && a.playbookDigest === b.playbookDigest
+    && a.signatureRegistryDigest === b.signatureRegistryDigest;
+}
+
+function sameRelevantResults(a: MemoryFreshnessPack, b: MemoryFreshnessPack): boolean {
+  return sameValues(a.results.devMemoryEntryIds, b.results.devMemoryEntryIds)
+    && sameValues(a.results.playbookIds, b.results.playbookIds)
+    && sameValues(a.results.suppressedSupersededIds, b.results.suppressedSupersededIds)
+    && sameValues(a.results.deprecatedTermHits, b.results.deprecatedTermHits)
+    && sameValues(a.results.contributingSourceRefs, b.results.contributingSourceRefs);
+}
+
+export function classifyMemoryFreshnessPack(
+  pack: MemoryFreshnessPack,
+  options: Partial<BuildMemoryFreshnessPackOptions> = {},
+): MemoryFreshnessPack {
+  const current = buildMemoryFreshnessPack({
+    projectRoot: options.projectRoot ?? pack.projectRoot,
+    query: options.query ?? pack.query,
+    consumer: options.consumer ?? pack.context.consumer,
+    storyPhase: options.storyPhase ?? pack.context.storyPhase,
+    touchedPaths: options.touchedPaths ?? pack.context.touchedPaths,
+    host: options.host ?? pack.context.host,
+    maxEntries: options.maxEntries ?? pack.context.maxEntries,
+    maxPlaybooks: options.maxPlaybooks ?? pack.context.maxPlaybooks,
+    maxLines: options.maxLines ?? pack.render.maxLines,
+  });
+
+  if (sameSourceDigests(pack.sourceDigests, current.sourceDigests)) {
+    return {
+      ...pack,
+      freshness: { stale: false, class: 'fresh' },
+    };
+  }
+
+  const relevant = !sameRelevantResults(pack, current);
+  return {
+    ...pack,
+    freshness: {
+      stale: true,
+      class: relevant ? 'stale-relevant' : 'stale-irrelevant',
+      reason: relevant
+        ? 'source digest changed and surfaced/suppressed/runtime refs changed'
+        : 'source digest changed but surfaced runtime refs are unchanged',
+    },
+  };
+}
+
+export function renderMemoryFreshnessPack(pack: MemoryFreshnessPack): string {
+  const lines = buildRenderLines(pack);
+  const maxLines = Math.min(RENDER_MAX_LINES, Math.max(1, pack.render.maxLines));
+  if (lines.length <= maxLines) return lines.join('\n');
+  const omitted = lines.length - maxLines + 1;
+  return [
+    ...lines.slice(0, maxLines - 1),
+    `  ... ${omitted} line(s) omitted by MemoryFreshnessPack render cap`,
+  ].join('\n');
+}
