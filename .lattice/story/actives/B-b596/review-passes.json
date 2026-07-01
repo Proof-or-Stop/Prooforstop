@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-01T01:00:35.411Z",
       "reviewRunId": "B-b596:RR-009",
       "_hash": "2d9ba9b4a41fb21b47f80f4dbfce8aa354735fc2ffe49d4455ef33bae293a88f"
+    },
+    {
+      "id": "B-b596:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Concept re-review confirms the main merge and delivery-context-pack scope acknowledgement preserve B-b596 scope. The B-b596 baseline doc states G01 only and full 10x15 not complete at docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:76 and :254-260, keeps G02-G10 future at :99-107, and rejects Authority/fullAuthority/production/two-host evidence at :89-90 and :259-260. The scope acknowledgement says delivery-context-pack evidence does not expand product scope beyond the G01 baseline smoke at .lattice/story/actives/B-b596/scope-contract.json:25 and :29. Main-merged docs remain bounded local CLI/diagnostic claims, not production, retired Authority, external runtime, or global hard-gate claims at parent-roadmap-intent-totality-gate-execution-plan.md:10-13, :33, :639-640 and proof-admissibility-hardening-execution-plan.md:49-50, :815. The smoke source remains G01-only with exactly 15 rows, local claim boundary, disallowed elevated claim vocabulary, positive 15-row full_roadmap_complete control, and 14-row negative guard at packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts:12-20, :46-53, :159-173, :190-204.",
+      "createdAt": "2026-07-01T01:03:19.753Z",
+      "reviewRound": "2026-07-01T01:00:35.411Z",
+      "reviewRunId": "B-b596:RR-012",
+      "_hash": "b57ed89b3534fc4a33d34c2aa0da1ea6f4b1abd9339db9091f965fe5efbe85e9"
     }
   ]
 }
