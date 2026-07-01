@@ -130,7 +130,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-01T01:49:00.476Z",
+      "endTime": "2026-07-01T01:50:36.063Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
@@ -138,11 +138,11 @@
           "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
           "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
           "result": "pass",
-          "note": "Decision doc names G01-G02 as implemented and includes the runnable parent-roadmap-large-ledger-g02 smoke command after build.",
-          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:49:00.603Z"
+          "note": "Post-commit decision doc check names G01-G02 as implemented and includes the runnable parent-roadmap-large-ledger-g02 smoke command after build.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.202Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,11 +150,11 @@
           "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
           "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
           "result": "pass",
-          "note": "Decision doc keeps G03-G10 future and states the full 10x15 baseline is not complete while marking only G01-G02 implemented.",
-          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:49:00.712Z"
+          "note": "Post-commit decision doc check keeps G03-G10 future and states the full 10x15 baseline is not complete while marking only G01-G02 implemented.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.436Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,11 +162,11 @@
           "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Documentation bounds G02 as local missing-row proof only and the retired vocabulary guard passed, with no elevated rollout, Authority, production, or two-host completion claim added.",
-          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:49:00.820Z"
+          "note": "Post-commit documentation bounds G02 as local missing-row proof only and the retired vocabulary guard passed, with no elevated rollout, Authority, production, or two-host completion claim added.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.573Z"
         }
       ]
     }
