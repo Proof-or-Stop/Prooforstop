@@ -153,6 +153,19 @@
           "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
           "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
           "timestamp": "2026-07-01T00:39:22.213Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && rg -n \"guards that local proof does not become Authority, fullAuthority, production, or\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Retired-authority vocabulary guard passes, and the baseline doc states the G01 proof is claim-bounded rather than Authority, production, fullAuthority, or two-host evidence.",
+          "headHash": "99d250039dde7ef10c3bf50ac1271abf64b51da3",
+          "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
+          "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
+          "timestamp": "2026-07-01T00:39:28.443Z"
         }
       ]
     }
