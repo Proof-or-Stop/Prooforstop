@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-experiment-protocol.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T00:28:52.128Z",
       "userSees": "Terminal includes \"profile default: scenarios=null,B1..B15\" and \"profile weighted: scenarios=B1,B1,B2\" in the selfcheck output.",
       "files": {
         "modify": [
@@ -50,7 +50,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck proves no-profile parseScenarioProfile returns fixed/default selection and existing fixed enumeration counts remain unchanged; output ended with 157 assertions passed.",
+          "headHash": "2b1602095894dba61c0cb999e9d1148564a598ce",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:28:52.338Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node --input-type=module weighted unique-runId probe",
+          "result": "pass",
+          "note": "Weighted B1:2,B2:1 expands as B1,B1,B2 while generated canonical runIds are unique: 15 cells and 15 unique runIds.",
+          "headHash": "2b1602095894dba61c0cb999e9d1148564a598ce",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:28:52.525Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck covers list profile B1,B2,B3 preserving explicit order and validating against RECOVERY_SCENARIOS without changing fixed defaults.",
+          "headHash": "2b1602095894dba61c0cb999e9d1148564a598ce",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:28:52.720Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:0 --tasks foo --seed fixed --k 1; test $? -eq 2",
+          "result": "pass",
+          "note": "Invalid zero weight fails closed with exit 2 and clear invalid scenario profile diagnostic before writing sidecars.",
+          "headHash": "2b1602095894dba61c0cb999e9d1148564a598ce",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:28:52.937Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -194,6 +240,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T00:28:52.128Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
     }
   ]
 }
