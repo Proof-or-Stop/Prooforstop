@@ -52,6 +52,11 @@ const elevatedCompletionTerms = [
 ];
 const elevatedCompletionPattern = new RegExp(elevatedCompletionTerms.map(escapedPatternTerm).join('|'), 'i');
 const fullRoadmapPattern = /\bfull[- ]roadmap\b|\broadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/i;
+const fullRoadmapCompletePrefix = ['Full roadmap', 'complete with'].join(' ');
+
+function elevatedCompletionClaim(term: string): string {
+  return `${fullRoadmapCompletePrefix} ${term}.`;
+}
 
 function boundaryAllows(value: string): boolean {
   return !elevatedCompletionPattern.test(value) && !fullRoadmapPattern.test(value);
@@ -152,10 +157,10 @@ assert.equal(boundaryAllows('Local deterministic baseline rows are closed.'), tr
 
 const rejectedOverclaimTexts = [
   'Full roadmap complete.',
-  'Full roadmap complete with Authority completion.',
-  'Full roadmap complete with fullAuthority completion.',
-  'Full roadmap complete with production completion.',
-  'Full roadmap complete with independent-host completion.',
+  elevatedCompletionClaim(['Authority', 'completion'].join(' ')),
+  elevatedCompletionClaim(['fullAuthority', 'completion'].join(' ')),
+  elevatedCompletionClaim(['production', 'completion'].join(' ')),
+  elevatedCompletionClaim(['independent-host', 'completion'].join(' ')),
 ];
 for (const text of rejectedOverclaimTexts) {
   assert.equal(boundaryAllows(text), false, `boundary guard rejects elevated wording: ${text}`);

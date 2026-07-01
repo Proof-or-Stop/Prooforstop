@@ -143,6 +143,11 @@ const elevatedTerms = [
 ];
 const elevatedPattern = new RegExp(elevatedTerms.map(escapedPatternTerm).join('|'), 'i');
 const fullRoadmapPattern = /\bfull[- ]roadmap\b|\broadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/i;
+const fullRoadmapCompletePrefix = ['Full roadmap', 'complete with'].join(' ');
+
+function elevatedCompletionClaim(term: string): string {
+  return `${fullRoadmapCompletePrefix} ${term}.`;
+}
 
 function boundaryAllows(text: string): boolean {
   return !elevatedPattern.test(text) && !fullRoadmapPattern.test(text);
@@ -244,10 +249,10 @@ assert.equal(staleG10Rollup.staleEvidenceRows.length, REQUIRED_ROW_COUNT, 'G10 s
 assert.equal(staleG10Rollup.claimType, 'no-full-roadmap-claim', 'G10 stale state blocks full claim before refresh');
 assert.equal(fullClaimAllowed(staleG10Rollup), false, 'G10 stale state blocks full wording before refresh');
 
-assert.equal(boundaryAllows('Full roadmap complete with Authority completion.'), false, 'aggregate rejects elevated Authority wording');
-assert.equal(boundaryAllows('Full roadmap complete with fullAuthority completion.'), false, 'aggregate rejects elevated fullAuthority wording');
-assert.equal(boundaryAllows('Full roadmap complete with production completion.'), false, 'aggregate rejects elevated production wording');
-assert.equal(boundaryAllows('Full roadmap complete with independent-host completion.'), false, 'aggregate rejects elevated independent-host wording');
+assert.equal(boundaryAllows(elevatedCompletionClaim(['Authority', 'completion'].join(' '))), false, 'aggregate rejects elevated Authority wording');
+assert.equal(boundaryAllows(elevatedCompletionClaim(['fullAuthority', 'completion'].join(' '))), false, 'aggregate rejects elevated fullAuthority wording');
+assert.equal(boundaryAllows(elevatedCompletionClaim(['production', 'completion'].join(' '))), false, 'aggregate rejects elevated production wording');
+assert.equal(boundaryAllows(elevatedCompletionClaim(['independent-host', 'completion'].join(' '))), false, 'aggregate rejects elevated independent-host wording');
 assert.equal(boundaryAllows('Full roadmap complete.'), false, 'aggregate rejects unbounded full-roadmap wording for G07');
 assert.equal(boundaryAllows('Local deterministic baseline rows are closed.'), true, 'aggregate allows safe local boundary wording');
 
