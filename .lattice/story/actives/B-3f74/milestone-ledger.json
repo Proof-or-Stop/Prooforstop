@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3f74",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3a6c32505ca103e9307c27d12136dbe1e6c6aba8b4d7d410c8f38e9c9c5e52a2",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-parent-roadmap-b-e781-sync",
+      "claim": "Parent Roadmap status reflects B-e781 closure of B-43de M4-M12 rows and keeps migration/repair optional.",
+      "doneMeans": "Parent Roadmap table credits B-e781/B-43de M4-M12 closure and still states migration/repair automation is optional/future, not required closure work.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-proof-admissibility-authority-boundary",
+      "claim": "Proof Admissibility Authority-facing proof consumer row is not active local implementation work.",
+      "doneMeans": "Proof Admissibility table describes Authority-facing proof as external/retired compatibility boundary and preserves no local productionDone claim.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-non-overclaim-verification",
+      "claim": "Targeted checks prove B-e781 closure and non-overclaim boundaries remain consistent.",
+      "doneMeans": "parent_roadmap_status and rg checks pass for allRowsClosed/full_roadmap_complete, optional migration/repair, retired/external Authority boundary, and no production/Authority completion from local CLI evidence.",
+      "requiredEvidence": [
+        "cli",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-01T00:17:04.061Z",
+  "updatedAt": "2026-07-01T00:17:12.577Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260701001712",
+    "acceptedInterpretationHash": "sha256:9748c1084f8d351269362a01ec169c869e2391e75d41f2704c05cc568814dad7",
+    "acceptedAt": "2026-07-01T00:17:12.577Z"
+  }
+}
