@@ -56,6 +56,25 @@
       ],
       "signatureTag": "missing|ts|playbook-runtime-health",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4eea:F-004",
+      "desc": "MVP2 smoke covers done_closure and final_response_check but not done_prepare, despite done_prepare memory rendering being changed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T04:35:10.079Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-003",
+      "_hash": "1ed3492f6c02ff10f579392fffdf644c6160c4bbdc9d38787f2c9846e69762fe",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|mvp2-smoke-covers",
+      "signatureTagSource": "auto"
     }
   ]
 }
