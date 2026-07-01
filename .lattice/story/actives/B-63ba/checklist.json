@@ -272,9 +272,9 @@
         "docs/requirements/decisions/lattice-experiment-protocol.md",
         "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T00:29:28.501Z",
       "userSees": "Docs contain the exact phrases \"exploratory offline profile\", \"fixed B1-B15 remains the default\", and \"not lifecycle gate evidence\".",
       "files": {
         "modify": [
@@ -309,7 +309,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"exploratory offline profile|fixed B1-B15 remains the default|not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "README and decision docs describe explicit scenario profile flags and safe offline use.",
+          "headHash": "949f3e065803c9b1e7099d92f2379bf68fae6774",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:28.736Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"fixed B1-B15 remains the default\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly state fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory.",
+          "headHash": "949f3e065803c9b1e7099d92f2379bf68fae6774",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:28.947Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly reject lifecycle gate evidence claims for parameterized profile output; story also leaves lifecycle/review/DONE/evidence gate files untouched.",
+          "headHash": "949f3e065803c9b1e7099d92f2379bf68fae6774",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:29.184Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -335,6 +370,15 @@
       "timestamp": "2026-07-01T00:29:16.391Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:28.501Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "done",
