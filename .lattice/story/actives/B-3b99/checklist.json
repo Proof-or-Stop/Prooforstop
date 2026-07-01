@@ -79,9 +79,9 @@
       "id": "CHK-002",
       "title": "Map done-closure local assurance impact vocabulary to implementation",
       "context": "gap_analyze line 238 in done-closure-runbook-assistant-execution-plan.md reports old authorityImpact enum uncovered. Current design retired Authority Server; map this requirement to local-assurance authorityImpact/projection implementation without reintroducing server-backed authority semantics.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T17:39:17.569Z",
       "files": {
         "modify": [
           "packages/main/src/core/canonical-story.ts",
@@ -116,7 +116,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-list-smoke.js",
+          "result": "pass",
+          "note": "capability list smoke passed and asserts local-only proofAdmissibility, signed-offline-local receipt verification, local-assurance-required degradations, and no productionDone claim from capability discovery.",
+          "headHash": "0715350b30104d8eb5b9c4cdbcc8dd1e530584bc",
+          "materialHash": "ea7df5fdfe1fa5832ba1f3924f5b16af31129b5f8dfe6842c42f664bb2ed6e4b",
+          "storyFilesHash": "de002b3573eb7993a2f6ab20e869ae19a15f1db0d99adcceec74e9430e9aa18b",
+          "timestamp": "2026-07-01T17:39:17.760Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/canonical-story-export-smoke.js",
+          "result": "pass",
+          "note": "canonical story export smoke passed and asserts local DONE keeps productionDone=false while exporting local-assurance-incomplete with authorityImpact blocks-production-done.",
+          "headHash": "0715350b30104d8eb5b9c4cdbcc8dd1e530584bc",
+          "materialHash": "ea7df5fdfe1fa5832ba1f3924f5b16af31129b5f8dfe6842c42f664bb2ed6e4b",
+          "storyFilesHash": "de002b3573eb7993a2f6ab20e869ae19a15f1db0d99adcceec74e9430e9aa18b",
+          "timestamp": "2026-07-01T17:39:17.924Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "Final gap_analyze reports 0 high gaps; retired authorityImpact none/localOnly/requiresAuthorityReceipt phrase is covered by local assurance @task mappings without Authority Server behavior.",
+          "headHash": "0715350b30104d8eb5b9c4cdbcc8dd1e530584bc",
+          "materialHash": "ea7df5fdfe1fa5832ba1f3924f5b16af31129b5f8dfe6842c42f664bb2ed6e4b",
+          "storyFilesHash": "de002b3573eb7993a2f6ab20e869ae19a15f1db0d99adcceec74e9430e9aa18b",
+          "timestamp": "2026-07-01T17:39:18.091Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
