@@ -1,0 +1,68 @@
+{
+  "storyId": "B-e891",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-e891/checklist.json",
+      ".lattice/story/actives/B-e891/decision.json",
+      ".lattice/story/actives/B-e891/index.json",
+      ".lattice/story/actives/B-e891/intent-collision.json",
+      ".lattice/story/actives/B-e891/milestone-ledger.json",
+      ".lattice/story/actives/B-e891/original-intent-snapshot.json",
+      ".lattice/story/actives/B-e891/plan.md",
+      ".lattice/story/actives/B-e891/process-events.jsonl",
+      ".lattice/story/actives/B-e891/process-metrics.json",
+      ".lattice/story/actives/B-e891/proofstory.json",
+      ".lattice/story/actives/B-e891/review-passes.json",
+      ".lattice/story/actives/B-e891/review-runs.json",
+      ".lattice/story/actives/B-e891/review.json",
+      ".lattice/story/actives/B-e891/scope-check.json",
+      ".lattice/story/actives/B-e891/scope-contract.json",
+      ".lattice/story/actives/B-e891/understanding.json",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-e891/checklist.json       | 104 +++++-\n .lattice/story/actives/B-e891/decision.json        |  72 ++++\n .lattice/story/actives/B-e891/index.json           |  41 ++-\n .../story/actives/B-e891/intent-collision.json     |  14 +\n .../story/actives/B-e891/milestone-ledger.json     |  98 ++++++\n .../actives/B-e891/original-intent-snapshot.json   |  16 +\n .lattice/story/actives/B-e891/plan.md              |  53 +++\n .lattice/story/actives/B-e891/process-events.jsonl |   8 +\n .lattice/story/actives/B-e891/process-metrics.json | 361 +++++++++++++++++++++\n .lattice/story/actives/B-e891/proofstory.json      |  98 ++++++\n .lattice/story/actives/B-e891/review-passes.json   |  40 +++\n .lattice/story/actives/B-e891/review-runs.json     | 214 ++++++++++++\n .lattice/story/actives/B-e891/review.json          |  74 +++++\n .lattice/story/actives/B-e891/scope-check.json     |  66 ++++\n .lattice/story/actives/B-e891/scope-contract.json  |  49 +++\n .lattice/story/actives/B-e891/understanding.json   |  22 ++\n ...attended-develop-mode-no-false-done-baseline.md |  34 +-\n ...rent-roadmap-large-ledger-g02-baseline-smoke.ts | 200 ++++++++++++\n 18 files changed, 1546 insertions(+), 18 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "Terminal shows parent-roadmap large-ledger G02 baseline smoke PASS and confirms one missing required row blocks full_roadmap_complete."
+    },
+    {
+      "source": "userSees",
+      "promise": "Documentation states G01 and G02 are implemented while G03-G10 remain future groups, and G02 is a missing-row negative control that blocks full completion."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+      "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+      "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-01T02:00:15.372Z",
+    "headHash": "eb97c1edfe402b8afd6942a64f115eb1b3cfba9a",
+    "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+    "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b"
+  },
+  "reviewRound": "2026-07-01T01:52:06.097Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
