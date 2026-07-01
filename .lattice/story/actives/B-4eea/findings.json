@@ -207,6 +207,25 @@
       "resolvedAt": "2026-07-01T05:03:56.584Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4eea:F-010",
+      "desc": "Runtime host policy accepts labels such as codex-cli, claude-cli, and agy-cli, but handoff/dispatch still pass the original host string into registries that recognize codex, claude-code, and antigravity. toHost:\"claude-cli\" or agy-cli can look allowed while pack/status resolves unknown/fallback.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T05:15:43.547Z",
+      "reviewRound": "2026-07-01T05:03:10.485Z",
+      "reviewRunId": "B-4eea:RR-010",
+      "_hash": "72ec0845523d4ffe0ae9eee60074b6b2c25f1f0622d141d343210e5d28bea732",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/handlers/lattice-handoff.ts"
+      ],
+      "signatureTag": "missing|ts|host-alias-normalization",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
