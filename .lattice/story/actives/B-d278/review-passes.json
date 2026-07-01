@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-01T03:21:14.340Z",
       "reviewRunId": "B-d278:RR-001",
       "_hash": "21a78a1684feb5d1928b14044ccf8a6624f4b62ef6de70e0ea80dc43c8bdf290"
+    },
+    {
+      "id": "B-d278:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Concept review verified B-d278 stays within the approved G04-G10 plus aggregate baseline scope. The deferral correction in packages/main/src/core/parent-roadmap-totality.ts:169 and :527 keeps human-approved deferrals open/not-required instead of counting them as runtime closure, with focused smoke coverage in packages/main/src/tasks/parent-roadmap-totality-smoke.ts:560. G04-G10 each model a real no-false-DONE failure/control mode: stale evidence, visible deferrals, migration/sample rows, overclaim boundary, malformed/duplicate rows, child assignment without delivery, and stale-to-fresh recovery. The aggregate smoke at packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts:214 evaluates 10 groups x 15 required rows and asserts the group matrix, G10 recovery, and G07 boundary terms. Commands run: git diff main...HEAD -- scoped files; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js; individual G04-G10 baseline smokes. All executed smokes passed.",
+      "createdAt": "2026-07-01T03:26:40.520Z",
+      "reviewRound": "2026-07-01T03:21:14.340Z",
+      "reviewRunId": "B-d278:RR-003",
+      "_hash": "e600a933f2938d94d712d54e56c4c7f270d2846222f713a5e988541b67bfcead"
     }
   ]
 }
