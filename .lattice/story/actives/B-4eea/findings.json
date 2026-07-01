@@ -264,6 +264,26 @@
       ],
       "signatureTag": "edge|ts|baseline-output-overwrite",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-4eea:F-013",
+      "desc": "verifyPlaybookRuntimeBaseline generates a temporary baseline when inputDir is omitted but never removes generated.outputDir. Repeated verify or health runs can accumulate large temporary baseline directories, especially for full profile.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T05:16:00.609Z",
+      "reviewRound": "2026-07-01T05:03:10.485Z",
+      "reviewRunId": "B-4eea:RR-010",
+      "_hash": "4b0128d0f3f0c5ad44a34cb0922fe2a79219170f4c28f4e828c0ed2c87aed8e2",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/handlers/playbook-runtime-memory.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "cleanup|ts|baseline-tempdir-leak",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
