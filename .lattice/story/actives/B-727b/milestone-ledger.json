@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-727b",
+  "state": "confirmed",
+  "ledgerHash": "sha256:972537d3ab6ad68f48c454d8406dcac4fe2fe0eca34e4ea3fd8f8c3c8194c3ef",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "G03 has an independent 15-required-row parent roadmap ledger inventory with row ids G03-M01 through G03-M15.",
+      "doneMeans": "The G03 smoke builds a requiredRowIds inventory of exactly 15 G03 row ids and evaluates exactly 15 row results.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "G03 generates all 15 ledger rows with completion prose but no machine closure evidence.",
+      "doneMeans": "The G03 smoke asserts 15 generated rows, every row has completion wording, and every row has an empty closureEvidence array.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-002",
+      "claim": "Prose-only G03 rows remain unclosed because machine evidence is missing.",
+      "doneMeans": "The G03 smoke asserts zero closed rows, 15 open rows, evidenceState missing, and missing_closure_evidence for every row.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-003",
+      "claim": "G03 blocks full roadmap completion wording even when row prose claims completion.",
+      "doneMeans": "The G03 smoke asserts summaryClass is not full_roadmap_complete, claimType is no-full-roadmap-claim, allRowsClosed is false, and enforce-mode full completion wording is blocking.",
+      "requiredEvidence": [
+        "deterministic_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-004",
+      "claim": "The baseline document records G03 as implemented while keeping G04-G10 and the full 10x15 baseline future/incomplete.",
+      "doneMeans": "The document includes the G03 runnable command and preserves the no Authority, production, fullAuthority, or independent two-host overclaim boundary.",
+      "requiredEvidence": [
+        "docs_grep",
+        "retired_authority_guard"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-01T02:30:58.900Z",
+  "updatedAt": "2026-07-01T02:31:05.661Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-G03-prose-only-negative-control",
+    "acceptedInterpretationHash": "sha256:95bd7926fb728f3aeba7b75ea4f4a497cf622a26cf170596f1d7b1df117814b7",
+    "acceptedAt": "2026-07-01T02:31:05.661Z"
+  }
+}

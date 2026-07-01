@@ -1,0 +1,92 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement G04 stale-evidence baseline group",
+      "context": "Add a deterministic G04 smoke where all 15 rows carry stale closure evidence; the rollup must report no full roadmap claim and staleEvidenceRows=15.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement G05 deferred-rows baseline group",
+      "context": "Add a deterministic G05 smoke where 12 rows close and 3 rows are validly deferred; the rollup must keep no full roadmap claim and expose deferredRows=3.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement G06 migration-sample baseline group",
+      "context": "Add a deterministic G06 smoke where all 15 rows are migration/sample-only and cannot count as real parent completion evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement G07 overclaim-boundary baseline group",
+      "context": "Add a deterministic G07 smoke where local rows are otherwise closed but forbidden Authority/fullAuthority/production/independent-host wording is rejected by claim-boundary checks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement G08 duplicate-or-malformed-row baseline group",
+      "context": "Add a deterministic G08 smoke proving duplicate or malformed row IDs create invalid rows and cannot satisfy multiple user commitments.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement G09 child-assignment-without-delivery baseline group",
+      "context": "Add a deterministic G09 smoke proving assignment to child stories is not delivery; incomplete/open child rows prevent full roadmap completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Implement G10 stale-then-refreshed recovery baseline group",
+      "context": "Add a deterministic G10 smoke that first blocks stale evidence for all 15 rows, then refreshes evidence and permits full roadmap completion only after refresh.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Bind all groups to full 10x15 aggregate baseline and docs",
+      "context": "Add or update the full parent-roadmap large-ledger baseline smoke so G01-G10 generate exactly 150 evaluated rows; update docs to mark the full baseline implemented only after every group command and aggregate command pass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

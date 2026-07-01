@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Make G03 an independent executable baseline group, not a documentation-only claim.",
+    "Preserve no-false-DONE boundaries: completion prose without machine evidence must not close any required row.",
+    "Keep this slice narrow: add one smoke and update only the baseline document.",
+    "Separate local synthetic evidence from rollout, Authority, production, or multi-host claims."
+  ],
+  "drivers": [
+    "User wants all remaining 10x15 baseline groups completed group by group.",
+    "G03 must prove prose-only closure is insufficient even when all 15 rows are present.",
+    "Existing evaluator behavior should be validated, not broadened, for this slice."
+  ],
+  "options": [
+    {
+      "name": "A: standalone G03 prose-only smoke plus doc boundary update",
+      "pros": [
+        "Creates independent G03 executable evidence.",
+        "Keeps the implementation reviewable and comparable with G01/G02.",
+        "Matches the documented G03 scenario exactly."
+      ],
+      "cons": [
+        "Does not complete G04-G10 yet.",
+        "Adds one more task-level smoke to maintain."
+      ]
+    },
+    {
+      "name": "B: skip G03 and jump to a full combined 10x15 smoke",
+      "pros": [
+        "Could complete the full suite sooner in one large change.",
+        "May reduce repeated lifecycle overhead."
+      ],
+      "cons": [
+        "Too broad and easier to false-DONE.",
+        "Would make it harder to audit which negative-control group failed."
+      ]
+    },
+    {
+      "name": "C: document G03 as implemented without executable smoke",
+      "pros": [
+        "Fastest documentation-only path.",
+        "No new test file needed."
+      ],
+      "cons": [
+        "It would be the exact prose-only anti-pattern G03 is meant to block.",
+        "Does not provide machine evidence for the baseline."
+      ]
+    }
+  ],
+  "chosen": "A: standalone G03 prose-only smoke plus doc boundary update",
+  "rationale": "Choose the standalone G03 smoke because it proves the exact prose-only failure mode with fresh machine evidence while preserving the group-by-group audit boundary.",
+  "preMortem": [
+    {
+      "scenario": "G03 is marked implemented based only on documentation updates.",
+      "trigger": "The team accepts prose that says prose-only closure is blocked without a runnable smoke.",
+      "consequence": "The baseline itself becomes a prose-only false-DONE example.",
+      "mitigation": "Create and run a standalone G03 smoke that asserts every row lacks closureEvidence and remains open."
+    },
+    {
+      "scenario": "The smoke accidentally closes rows because prose wording is treated as evidence.",
+      "trigger": "Rows include completion text and the test forgets to assert missing_closure_evidence.",
+      "consequence": "The evaluator could allow a full completion claim for prose-only rows.",
+      "mitigation": "Assert zero closed rows, 15 open rows, evidenceState missing, and missing_closure_evidence for every row."
+    },
+    {
+      "scenario": "The document claims the full 10x15 baseline is complete after G03.",
+      "trigger": "Progress wording broadens from G01-G03 implemented to all groups implemented.",
+      "consequence": "Users would think the full baseline is done while G04-G10 remain absent.",
+      "mitigation": "Keep G04-G10 future in the table and Non-Goals, and run doc grep plus delivery review."
+    }
+  ],
+  "timestamp": "2026-07-01T02:30:40.905Z"
+}

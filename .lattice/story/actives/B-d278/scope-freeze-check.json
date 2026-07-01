@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d278",
+  "checkedAt": "2026-07-01T03:01:32.987Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "2ad8ad08fb2a09f9b712ad2b4a02a719d703380529422eef2cedf387b67393b5",
+  "executionBoundaryHash": "1eff4f9332d3a760982f6ade56411340ad5c2637996f98d19acd1ea1297dca81",
+  "freshnessHash": "0977ed35b1c7dc0845eb6715ecf139b3e672354c2dcad71ee417b116a0daac17",
+  "effectiveExcludedKeywords": [
+    "Do not claim full 10x15 complete until all group smokes and the aggregate smoke pass",
+    "Do not implement Authority, fullAuthority, production rollout, or remote independent-host completion",
+    "Do not modify lattice.config.json",
+    "Do not modify packages/main/src/core/parent-roadmap-totality.ts unless a verified blocker proves the documented groups cannot be represented with the existing API",
+    "Do not modify ProofStory core, handlers, or lifecycle gates",
+    "Do not touch B-2b08, B-cc94, B-9dcb, or other active story artifacts except read-only inspection"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not claim full 10x15 complete until all group smokes and the aggregate smoke pass",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim full 10x15 complete until all group smokes and the aggregate smoke pass",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement Authority, fullAuthority, production rollout, or remote independent-host completion",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement Authority, fullAuthority, production rollout, or remote independent-host completion",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify lattice.config.json",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify lattice.config.json",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify packages/main/src/core/parent-roadmap-totality.ts unless a verified blocker proves the documented groups cannot be represented with the existing API",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify packages/main/src/core/parent-roadmap-totality.ts unless a verified blocker proves the documented groups cannot be represented with the existing API",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify ProofStory core, handlers, or lifecycle gates",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify ProofStory core, handlers, or lifecycle gates",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not touch B-2b08, B-cc94, B-9dcb, or other active story artifacts except read-only inspection",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not touch B-2b08, B-cc94, B-9dcb, or other active story artifacts except read-only inspection",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "3d418efbc465b8adabf8fe52874751c2e445e4db13c7b30e50124e479e405488"
+}

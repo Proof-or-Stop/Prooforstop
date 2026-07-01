@@ -44,9 +44,55 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T02:39:30.493Z",
+      "endTime": "2026-07-01T02:40:04.279Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc build passed after adding the G03 smoke.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.465Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts the required inventory and generated rows are exactly G03-M01 through G03-M15.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts all 15 prose-only rows have empty closureEvidence and remain open with evidenceState missing plus missing_closure_evidence.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.783Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts caller-supplied full completion prose and rollup text cannot override missing machine evidence in enforce mode.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.935Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -90,9 +136,64 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T02:39:44.265Z",
+      "endTime": "2026-07-01T02:40:14.102Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"G01-G03|G03|G04-G10|full 10x15 baseline is (not complete|still incomplete)|parent-roadmap-large-ledger-g03-baseline-smoke\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Doc grep shows the implemented slice is G01-G03 and includes the G03 smoke command and source reference.",
+          "headHash": "416a537388adb2ba81322362897ca9d6f94bd3fe",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:14.285Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"G01-G03|G03|G04-G10|full 10x15 baseline is (not complete|still incomplete)|parent-roadmap-large-ledger-g03-baseline-smoke\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Doc grep shows G04-G10 remain future/not implemented and the full 10x15 baseline remains incomplete.",
+          "headHash": "416a537388adb2ba81322362897ca9d6f94bd3fe",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:14.458Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "if rg -n \"G03-G10 are not implemented|G01-G02 implemented only|G03-G10 future implementation\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md; then exit 1; else echo \"no stale G03 boundary text\"; fi",
+          "result": "pass",
+          "note": "No stale G01-G02-only or G03-G10-not-implemented boundary text remains after documenting G03.",
+          "headHash": "416a537388adb2ba81322362897ca9d6f94bd3fe",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:14.627Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T02:39:30.493Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementing and verifying the G03 prose-only negative-control baseline smoke."
+    },
+    {
+      "timestamp": "2026-07-01T02:39:44.265Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Updating the G03 documentation boundary and implemented-slice status."
     }
   ]
 }

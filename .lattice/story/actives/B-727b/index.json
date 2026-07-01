@@ -4,7 +4,7 @@
   "title": "Implement G03 prose-only negative-control milestone ledger baseline",
   "description": "Implement the third group of the UDM no-false-DONE 10x15 baseline. G03 is the prose-only negative control: all 15 required row IDs exist and each row contains completion wording, but no row has machine closure evidence. The evaluator must report no full roadmap completion claim and expose missing evidence for every row. This story must update documentation to mark G03 implemented only, while keeping G04-G10 and the full 10x15 baseline as future work. It must not claim Authority, fullAuthority, production, or independent two-host completion.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -23,7 +23,7 @@
   ],
   "createdAt": "2026-07-01T02:25:52.159Z",
   "startedAt": "2026-07-01T02:25:52.159Z",
-  "endedAt": null,
+  "endedAt": "2026-07-01T02:57:49.904Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,11 +42,52 @@
       "user": "Harmonygo",
       "sessionId": "sess-81968d64d47412a0",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:30:09.009Z",
+      "branch": "story/B-727b",
+      "user": "Harmonygo",
+      "sessionId": "sess-5c2cc57d6822a7b5",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:35:48.093Z",
+      "branch": "story/B-727b",
+      "user": "Harmonygo",
+      "sessionId": "sess-5c2cc57d6822a7b5",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:41:14.569Z",
+      "branch": "story/B-727b",
+      "user": "Harmonygo",
+      "sessionId": "sess-5c2cc57d6822a7b5",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:46:38.856Z",
+      "branch": "story/B-727b",
+      "user": "Harmonygo",
+      "sessionId": "sess-5c2cc57d6822a7b5",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:57:49.904Z",
+      "branch": "story/B-727b",
+      "user": "Harmonygo",
+      "sessionId": "sess-5c2cc57d6822a7b5",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-727b",
-    "branch": "story/B-727b",
-    "createdAt": "2026-07-01T02:28:35.791Z"
-  }
+  "currentReviewRound": "2026-07-01T02:41:14.569Z"
 }

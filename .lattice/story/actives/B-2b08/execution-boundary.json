@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2b08",
+  "allowedCommands": [
+    "git diff*",
+    "git show*",
+    "git status*",
+    "lattice checklist_update *",
+    "lattice delivery_check_set *",
+    "lattice finding_add *",
+    "lattice finding_resolve *",
+    "lattice review_pass_set *",
+    "lattice review_run_start *",
+    "lattice story_advance *",
+    "lattice story_review *",
+    "lattice validate --story=B-2b08*",
+    "lattice verification_evidence_batch_add *",
+    "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+    "node packages/main/dist/tasks/version-bump-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Claude CLI",
+    "Codex CLI",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-2b08/**",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push*",
+    "git reset --hard*",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    ".omx",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Small correctness story. Do not broaden CLI version policy to experiments/**. Prefer exact wording/test/doc changes only.",
+  "createdAt": "2026-07-01T02:42:19.287Z",
+  "updatedAt": "2026-07-01T02:42:19.287Z",
+  "_hash": "88c29e70299d16238ea09c98ebbe24cca66bee291c50fc12434437ee0c0d840c"
+}

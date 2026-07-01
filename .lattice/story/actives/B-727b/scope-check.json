@@ -1,0 +1,59 @@
+{
+  "storyId": "B-727b",
+  "checkedAt": "2026-07-01T02:34:34.215Z",
+  "features": [
+    {
+      "feature": "CHK-001 G03 prose-only negative-control smoke scope",
+      "covered_by": "CHK-001; plan.md CHK-001; milestone-ledger M1-M4",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Checklist and plan allow creating packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts only for G03."
+    },
+    {
+      "feature": "CHK-002 baseline document boundary update",
+      "covered_by": "CHK-002; plan.md CHK-002; milestone-ledger M5",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Checklist and plan allow updating docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md to mark G01-G03 implemented while keeping G04-G10 future and full 10x15 incomplete."
+    },
+    {
+      "feature": "Parent-roadmap evaluator core changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.json protectedFiles packages/main/src/core/parent-roadmap-totality.ts; scope-boundary.json excluded Do not modify parent-roadmap evaluator core logic; plan.md CHK-001 Files",
+      "source": "Evaluator behavior is validated by the G03 smoke, not modified."
+    },
+    {
+      "feature": "G04-G10 smoke implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.json explicitExcludes G04-G10 smoke files; scope-boundary.json excluded Do not implement G04-G10; execution-boundary.json excludedPaths G04-G10",
+      "source": "Story B-727b is scoped only to G03; later smoke tasks remain future work."
+    },
+    {
+      "feature": "Authority production fullAuthority independent two-host claim broadening",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes; scope-boundary.json excluded; plan.md Intent Boundary and CHK-002",
+      "source": "PLAN requires local G03 proof only and forbids Authority, production, fullAuthority, or independent two-host completion claims."
+    },
+    {
+      "feature": "ProofStory core handlers and lattice config modifications",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.json protectedFiles packages/main/src/core/proofstory.ts packages/main/src/handlers/proofstory.ts lattice.config.json; execution-boundary.json excludedPaths",
+      "source": "Scope allows only G03 smoke, baseline document, and Lattice lifecycle evidence; ProofStory core/handlers/config are protected."
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 2,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7f532c829fc9bb7af11abe2f0e610b804ac6903de99f0cbf77b4bf5ecc257215",
+  "openQuestions": []
+}
