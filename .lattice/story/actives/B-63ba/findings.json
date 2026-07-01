@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-63ba:F-001",
+      "desc": "experiments/recovery-runner/run-driver.mjs:419 and experiments/recovery-runner/parameterized-fault-profile.mjs:81-88: a dangling explicit --scenarioProfile flag fail-opens to the fixed default instead of exiting 2. Repro: tmp=$(mktemp -d) && node experiments/recovery-runner/run-driver.mjs --record \"$tmp/missing.jsonl\" --tasks foo --k 1 --scenarioProfile; observed exit 0, 77 cells enumerated, and an exclusions sidecar written. Because arg() returns undefined for a missing flag value and parseScenarioProfile treats null/undefined profile+params as no flags, malformed profile input is accepted silently, violating the storys fail-closed profile validation contract and potentially running the wrong campaign if --engine is also supplied.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T00:34:30.423Z",
+      "reviewRound": "2026-07-01T00:30:41.407Z",
+      "reviewRunId": "B-63ba:RR-002",
+      "_hash": "87314a919ec67fae3ee94c55101de15bab0f482abc182617ac2cb6179eda699a",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/parameterized-fault-profile.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|experiments-recovery-runner",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
