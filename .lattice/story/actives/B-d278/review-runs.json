@@ -243,6 +243,128 @@
         "bindingHash": "17f6aad7591c45ef8402b7d4c121c48b15bf3c52a558671e4555ad5f199717ed"
       },
       "_hash": "82ef7645b1bdf79528265ef1929a258910f5279a1648c93f043aefaa76847881"
+    },
+    {
+      "reviewRunId": "B-d278:RR-005",
+      "storyId": "B-d278",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "startedAt": "2026-07-01T03:30:51.765Z",
+      "headHash": "d5d7207279d90ddd4bd8e98090870e8c1edefb09",
+      "materialHash": "88e815f2bf0735140d8dc622568a7a5dbe9a46b381c3f57da22916f2178b0a48",
+      "storyFilesHash": "23cd60e54623258c8c2ac3dc71e8e3c7c7508df3d582e1ac5586ca2a6fe5a2c7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "59522e30defe56551f35660f11f10647b0033ffff57079f6abd27efa3381be32",
+        "diffPackHash": "55694c57ae57eaceaad71dc49bdc9884070eca02b398320d37219f6e9cc1b274",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "11eeb7482abe21facc7ebb04aac51d54cd7a87e65b9c854795bdca5339df765c",
+          "1e6edb2dcae5ae9c6023eaea2427983048df8216c03d4f88ee93bb18e956055e",
+          "327665392dcf7ff9e78855c71be17b82c21668747b3c2e2e91a2da97dbd6b284",
+          "3580b02daf6b0a9c77270c6c7584d69e1a288f26422caaae2bb9956447bca65d",
+          "49117541cc708a0fa63230d8c12b58ea37d20b50cc15906157b1e1ec35bcdcb1",
+          "4afd6e0318d49fe7ce53fda9ee835273c2acd3898555c615cb00d2c4f6aa1e5f",
+          "5ef1d6258acd0fed3e714a2aff82ea6d4ae9a95c2aa6b6e5ca9c0d35c9493539",
+          "9c93b7f82ce84ebbe762ed379b22608493b7a84f88067439930d6dd4478f4dac",
+          "a300f7a63b0bdfa76865438d80eed00220ade6a2d5810ed5e02fbc7f6bc13e9c",
+          "b67f56c7b82c185daa6a734e18ad98bf7a5fca108b5ef464aafb4fffcef4750a",
+          "cdc97d424dcc0ce46bbcc5d1b0019a9e2a20fdc1058781adf1ccb7afc7cb40c0",
+          "d21c46e8865f50ac372aff7d7bafcef1a0527d5e1e2081f84d9b33685f90e1cd",
+          "d2ddf3829d845b2ff689830e297af5fec51d3697b9443801513e7482f17fe1d5",
+          "f1341a5e0454473ffe894fa3f0bac0f935848170347deb59f32e4e8200f1a335",
+          "f3c199933a5aa6ea9ed6c4c15c12e03f94635581676faada66c6ffbaf7f61f71"
+        ],
+        "bindingHash": "244f9894441112e93322aa097754686faa3ad15d7ede0c85d97a246b2eeddd31"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "workspaceMode": "story-worktree",
+        "headHash": "d5d7207279d90ddd4bd8e98090870e8c1edefb09",
+        "materialHash": "88e815f2bf0735140d8dc622568a7a5dbe9a46b381c3f57da22916f2178b0a48",
+        "storyFilesHash": "23cd60e54623258c8c2ac3dc71e8e3c7c7508df3d582e1ac5586ca2a6fe5a2c7",
+        "bindingHash": "93758213b7e24b3bfb2c6e6e5d064da1437323b793bf64e25082db982bca279f"
+      },
+      "_hash": "420ceea91c0ae5270bc28b3d503fcf380ec08172c39e5145e73ea59520a8f248"
+    },
+    {
+      "reviewRunId": "B-d278:RR-006",
+      "storyId": "B-d278",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "startedAt": "2026-07-01T03:31:02.724Z",
+      "headHash": "d5d7207279d90ddd4bd8e98090870e8c1edefb09",
+      "materialHash": "88e815f2bf0735140d8dc622568a7a5dbe9a46b381c3f57da22916f2178b0a48",
+      "storyFilesHash": "23cd60e54623258c8c2ac3dc71e8e3c7c7508df3d582e1ac5586ca2a6fe5a2c7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "59522e30defe56551f35660f11f10647b0033ffff57079f6abd27efa3381be32",
+        "diffPackHash": "55694c57ae57eaceaad71dc49bdc9884070eca02b398320d37219f6e9cc1b274",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "11eeb7482abe21facc7ebb04aac51d54cd7a87e65b9c854795bdca5339df765c",
+          "1e6edb2dcae5ae9c6023eaea2427983048df8216c03d4f88ee93bb18e956055e",
+          "327665392dcf7ff9e78855c71be17b82c21668747b3c2e2e91a2da97dbd6b284",
+          "3580b02daf6b0a9c77270c6c7584d69e1a288f26422caaae2bb9956447bca65d",
+          "49117541cc708a0fa63230d8c12b58ea37d20b50cc15906157b1e1ec35bcdcb1",
+          "4afd6e0318d49fe7ce53fda9ee835273c2acd3898555c615cb00d2c4f6aa1e5f",
+          "5ef1d6258acd0fed3e714a2aff82ea6d4ae9a95c2aa6b6e5ca9c0d35c9493539",
+          "9c93b7f82ce84ebbe762ed379b22608493b7a84f88067439930d6dd4478f4dac",
+          "a300f7a63b0bdfa76865438d80eed00220ade6a2d5810ed5e02fbc7f6bc13e9c",
+          "b67f56c7b82c185daa6a734e18ad98bf7a5fca108b5ef464aafb4fffcef4750a",
+          "cdc97d424dcc0ce46bbcc5d1b0019a9e2a20fdc1058781adf1ccb7afc7cb40c0",
+          "d21c46e8865f50ac372aff7d7bafcef1a0527d5e1e2081f84d9b33685f90e1cd",
+          "d2ddf3829d845b2ff689830e297af5fec51d3697b9443801513e7482f17fe1d5",
+          "f1341a5e0454473ffe894fa3f0bac0f935848170347deb59f32e4e8200f1a335",
+          "f3c199933a5aa6ea9ed6c4c15c12e03f94635581676faada66c6ffbaf7f61f71"
+        ],
+        "bindingHash": "244f9894441112e93322aa097754686faa3ad15d7ede0c85d97a246b2eeddd31"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d278",
+        "workspaceMode": "story-worktree",
+        "headHash": "d5d7207279d90ddd4bd8e98090870e8c1edefb09",
+        "materialHash": "88e815f2bf0735140d8dc622568a7a5dbe9a46b381c3f57da22916f2178b0a48",
+        "storyFilesHash": "23cd60e54623258c8c2ac3dc71e8e3c7c7508df3d582e1ac5586ca2a6fe5a2c7",
+        "bindingHash": "93758213b7e24b3bfb2c6e6e5d064da1437323b793bf64e25082db982bca279f"
+      },
+      "_hash": "029a1b267bed4da6fc61ccc6c45b5ef708232709c1ba1ac23c7c7f7e1b945a2e"
     }
   ]
 }
