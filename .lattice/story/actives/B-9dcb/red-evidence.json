@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-9dcb",
+  "records": [
+    {
+      "id": "RED-20260701023143",
+      "trigger": "review-run metadataRoot false-stale: on a wrapper-root layout with a custom storyDir, a metadata-only commit to that storyDir falsely flags the reviewer run stale",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "2e4b74fef42e422e0628e65efb4aedd6b460e9fb",
+      "baselineMaterialHash": "2a1fb57d3763b34d46554179a62e4aee2b6e0e6c9fb922d634b34a84f8dad1f8",
+      "observedFailure": "checkEvidenceFreshnessForGit reports fresh=false reason evidence storyFilesHash does not match current story-owned file state after a metadata-only commit to the custom storyDir, while the control (correct metadataRoot) stays fresh; the repro script exits 1.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-jek-Documents-Work-proofbound/8984fe33-96b9-4c3a-8ab2-c2f86e43e8a6/scratchpad/repro-review-run-metadataroot.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js"
+      },
+      "note": "Repro-first probe rp-mr1fmmur-clkpwd (red-reviewed target-bug rr-mr1forp4-nbl96r) holds the bounded failing output excerpt; baseline is pre-fix worktree HEAD.",
+      "createdAt": "2026-07-01T02:31:43.695Z"
+    }
+  ],
+  "createdAt": "2026-07-01T02:31:43.695Z",
+  "updatedAt": "2026-07-01T02:31:43.695Z"
+}

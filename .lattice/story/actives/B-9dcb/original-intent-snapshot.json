@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9dcb",
+  "sourceText": "Verify whether the two Codex-reported review-run metadataRoot defects exist (production captureReviewRunSnapshot signing from signedWorkspaceRoot, and consumer freshness recompute passing signedRoot as metadataRoot), then run the full Story lifecycle including a red test and spike to nail the reproduction, and fix through to completion.",
+  "normalizedOutcome": "In a wrapper-root project with a custom storyDir, a metadata-only commit to that storyDir no longer false-stales reviewer runs; review-run material/story hash semantics match the DONE gate; plain-repo/default-storyDir behavior stays byte-identical; lattice validate is all green.",
+  "acceptanceClaim": "A durable regression test (wrapper-root + custom storyDir + metadata-only commit) passes and lattice validate is all green after threading metadataRoot through captureReviewRunSnapshot/diagnoseReviewRunSnapshot and the two consumer freshness checks.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:592e802e1e512c328b0ba640afcde229f3e2361b5718486d2599a3547bbc9086",
+  "createdAt": "2026-07-01T02:31:43.187Z",
+  "updatedAt": "2026-07-01T02:31:43.187Z"
+}

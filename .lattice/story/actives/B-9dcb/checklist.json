@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Port the confirmed-failing repro into a durable red test (wrapper-root + custom storyDir metadata-only commit)",
       "context": "Repro-first evidence: probe rp-mr1fmmur-clkpwd, review rr-mr1forp4-nbl96r (red-reviewed/target-bug), spike sr-mr1fp8ob-6k3tki. Turn the scratchpad repro into a permanent test driving captureReviewRunSnapshot + checkEvidenceFreshnessForGit: control (correct metadataRoot) fresh, production path stale after a metadata-only commit to the custom storyDir. Test MUST fail before the fix.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:41:57.706Z",
       "userSees": "Running the test prints \"review-run metadataRoot wrapper-root smoke passed\"; before the fix it aborts with \"false stale reproduced\".",
       "verificationIntent": {
         "happy": [
