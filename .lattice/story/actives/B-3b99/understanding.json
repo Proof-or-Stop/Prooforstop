@@ -1,0 +1,30 @@
+{
+  "task": "Close the current nine high-priority convergence gaps by making existing implementation coverage machine-visible.",
+  "outcome": "After this story, running `lattice gap_analyze --json` shows zero high-priority gaps and `lattice convergence_check --json` reports `No high-priority gaps: passed`; the user sees the high-gap blocker disappear without any Authority Server semantics returning.",
+  "facts": [
+    "gap_analyze currently reports 9 high uncovered_requirement gaps and 1 medium no_test gap.",
+    "Autopilot health pause/resume events already exist in packages/main/src/core/autopilot-reliability.ts and its smoke test.",
+    "ProofStory original intent/key requirement binding already exists in packages/main/src/core/proofstory.ts and proofstory-intent-hardening smoke.",
+    "Current project direction has retired Authority Server production receipt semantics; do not revive them.",
+    "The done-closure authorityImpact gap maps to existing local assurance degradation/projection values in canonical-story/capabilities/lattice-hosts, not to requiresAuthorityReceipt."
+  ],
+  "constraints": [
+    "Only close current high convergence gaps; do not merge stale B-fbb6 branch contents.",
+    "Do not treat memory/playbook advisory content as gate evidence.",
+    "Use explicit implementation mappings and smoke evidence, not fake summaries.",
+    "No OMX or .omx usage."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/autopilot-reliability.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/canonical-story.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/canonical-story-export-smoke.ts"
+  ],
+  "timestamp": "2026-07-01T17:29:57.938Z"
+}

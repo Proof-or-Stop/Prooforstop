@@ -30,7 +30,45 @@
       "context": "Run build, relevant smokes, gap_analyze, and convergence_check. DONE requires No high-priority gaps pass and no unfinished business stories except parked Tier-C advisory backlog.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/capability-list-smoke.ts",
+          "packages/main/src/tasks/canonical-story-export-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build and relevant smoke tests pass after the mapping changes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice gap_analyze --json reports zero high-priority gaps.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice convergence_check --json passes the No high-priority gaps and All Stories completed checks, while parked Tier-C backlog remains advisory only.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The final convergence state does not rely on B-fbb6 branch merge, retired Authority Server semantics, or dev-memory advisory content as gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
