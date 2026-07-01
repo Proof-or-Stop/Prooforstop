@@ -19,6 +19,7 @@ import { createDoneClosureHandlers } from '../handlers/done-closure.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createLatticeHandoffHandlers } from '../handlers/lattice-handoff.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
+import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { renderTransitionResult } from '../handlers/transition-orchestrator.js';
 
 const NOW = '2026-07-01T00:00:00.000Z';
@@ -156,6 +157,35 @@ async function run(): Promise<void> {
       }
     });
 
+    check('story_create STORY_INTAKE output includes advisory memory pack only', () => {
+      const create = createStoryCreateHandlers(ctx);
+      let stderr = '';
+      const originalWrite = process.stderr.write.bind(process.stderr);
+      try {
+        (process.stderr.write as unknown as (chunk: string | Uint8Array) => boolean) = (chunk: string | Uint8Array) => {
+          stderr += Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
+          return true;
+        };
+        const text = create.story_create({
+          name: 'story-intake-memory-smoke',
+          title: 'Use stale-doc and host-policy lessons during story intake',
+          description: 'Story intake should surface prior stale-doc, host-policy, and parent-totality lessons without treating them as proof.',
+          type: 'feature',
+          priority: 'high',
+          background: '## Trigger Event\nB-smoke on 2026-07-01 needs story intake to show runtime memory before a host repeats stale-doc or host-policy mistakes during planning.\n\n## Key Insights\nThe advisory pack must be visible at intake because hosts often decide what to build before later gates can correct them. The pack is context only and must never satisfy evidence requirements.\n\n## Solution Tradeoffs\nUse the existing MemoryFreshnessPack renderer instead of a second intake-specific format, keeping digest and line caps consistent with session and handoff consumers.\n\n## Conversational Texture\nThe user wants fewer repeated process mistakes, but also does not want memory to become fake proof, so the output should be direct about its advisory boundary.',
+          checklist: [{ title: 'Show advisory memory at intake', context: 'Covers stale-doc, host-policy, and parent-totality runtime lessons.' }],
+          forceNew: true,
+        });
+        const combined = `${text}\n${stderr}`;
+        assert.match(combined, /Runtime memory STORY_INTAKE advisory only/);
+        assert.match(combined, /## Memory Runtime Preflight/);
+        assert.match(combined, /gateEvidence=false/);
+        assert.doesNotMatch(combined, /PB-candidate/);
+      } finally {
+        process.stderr.write = originalWrite as typeof process.stderr.write;
+      }
+    });
+
     check('handoff_create text includes Memory Runtime Preflight and host-policy top hits', () => {
       const text = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex', toHost: 'claude-code' });
       assert.match(text, /## Memory Runtime Preflight/);
@@ -235,4 +265,3 @@ run().catch((err) => {
   console.error(err instanceof Error ? err.stack ?? err.message : String(err));
   process.exitCode = 1;
 });
-
