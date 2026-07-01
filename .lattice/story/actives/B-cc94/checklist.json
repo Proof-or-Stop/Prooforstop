@@ -41,7 +41,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A new explicit playbook activation path exists: candidates stay inert until activated with a matching digest, and stale/malformed activation is rejected.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A candidate playbook activated with the current expectedPlaybookDigest becomes active and then can be surfaced by the runtime matcher.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A candidate playbook without activation never surfaces in runtime consumers.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stale expectedPlaybookDigest, malformed playbook shape, or concurrent write drift fails closed without losing existing playbooks.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
