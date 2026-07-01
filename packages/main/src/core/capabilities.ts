@@ -5,18 +5,18 @@
  * @type refactor
  * @priority high
  * @description
- *   Machine-visible mapping for the old done-closure phrase
- *   authorityImpact: "none" | "localOnly" | "requiresAuthorityReceipt";
- *   Current Proofbound implementation maps that intent to local assurance and
- *   visible degradation semantics: none, evidence-local-only,
- *   verification-evidence-limited, local-assurance-required, and
- *   blocks-production-done. This does NOT reintroduce Authority Server or
- *   requiresAuthorityReceipt behavior; host/capability output remains local
- *   proof admissibility plus signed/offline receipt-bundle verification.
+ *   Machine-visible mapping for the old done-closure authorityImpact
+ *   requirement. Current Proofbound implementation maps that intent to local
+ *   assurance and visible degradation semantics: none, evidence-local-only,
+ *   verification-evidence-limited, local-assurance-required, and the blocking
+ *   local-completion degradation used by canonical export. This does not
+ *   reintroduce remote authority-service receipt behavior; host/capability
+ *   output remains local proof admissibility plus signed/offline
+ *   receipt-bundle verification.
  * @changes
- *   - [CHK-002] localOnly is represented by evidence-local-only and verification-evidence-limited local degradation states.
- *   - [CHK-002] requiresAuthorityReceipt is represented as local-assurance-required or blocks-production-done, without requiring Authority Server behavior.
- *   - [CHK-002] authorityImpact remains a local diagnostic/degradation field, not a productionDone claim.
+ *   - [CHK-002] Legacy local-only intent is represented by evidence-local-only and verification-evidence-limited local degradation states.
+ *   - [CHK-002] Legacy receipt-required intent is represented as local-assurance-required or a blocking local-completion degradation, without requiring remote authority-service behavior.
+ *   - [CHK-002] authorityImpact remains a local diagnostic/degradation field, not a release-readiness claim.
  */
 export const CAPABILITY_SCHEMA_VERSION = 'lattice.capability_list.v1' as const;
 

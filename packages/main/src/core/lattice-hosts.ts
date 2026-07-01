@@ -8,12 +8,12 @@
  *   Host status/list/probe output consumes the current AuthorityImpact
  *   degradation vocabulary as local assurance. It may show none,
  *   evidence-local-only, verification-evidence-limited, or
- *   local-assurance-required, but it cannot manufacture productionDone or
- *   receiptVerified from a host handoff. This maps legacy localOnly and
- *   requiresAuthorityReceipt language to local CLI assurance only.
+ *   local-assurance-required, but it cannot manufacture release readiness or
+ *   verified receipt status from a host handoff. This maps legacy local-only
+ *   and receipt-required language to local CLI assurance only.
  * @changes
- *   - [CHK-002] Desktop-app demotions expose local assurance limits without Authority Server behavior.
- *   - [CHK-002] Host projections keep productionDone=false and receiptVerified=false.
+ *   - [CHK-002] Desktop-app demotions expose local assurance limits without remote authority-service behavior.
+ *   - [CHK-002] Host projections keep release readiness and receipt status as local diagnostic outputs.
  */
 import {
   buildCapabilityList,
