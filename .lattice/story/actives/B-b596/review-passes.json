@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-01T00:45:13.779Z",
       "reviewRunId": "B-b596:RR-006",
       "_hash": "a37f9599731289abdc24ef50e6ee4396505afdb2a66fa979da1a6362ac0ea38a"
+    },
+    {
+      "id": "B-b596:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001 and CHK-002 coverage after B-b596:F-001 doc fix. npm --prefix packages/main run build passed; G01 smoke passed and its source asserts exactly 15 closed/fresh rows, a 14-row missing_required_row negative guard, and no elevated Authority/fullAuthority/production/two-host claim terms. retired-authority-vocabulary guard passed. Doc boundary evidence keeps G01 only, names the runnable smoke command, says the full 10x15 baseline is not complete, and keeps G02-G10 future. No test-coverage blocker.",
+      "createdAt": "2026-07-01T00:47:44.219Z",
+      "reviewRound": "2026-07-01T00:45:13.779Z",
+      "reviewRunId": "B-b596:RR-005",
+      "_hash": "71ad41780e4b8e4dc2bb27434ec70ff27f9f52e6ad092a66c2a68f86524db52c"
     }
   ]
 }
