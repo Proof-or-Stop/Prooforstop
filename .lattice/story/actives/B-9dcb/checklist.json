@@ -249,7 +249,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "lattice validate all green (31 commands); smoke PASS via run-all-smokes --select review-run-metadataroot-wrapper-root (1/1)",
+          "headHash": "31eb54ba804b7cdd28ec8ab824454bf3db99e77b",
+          "materialHash": "b228b4a0991308ddfc19c0cdaf357e3d152917f2e60f85661a1a5ba147854168",
+          "storyFilesHash": "463d066fd56066e84ed1f686022fa6f69690463c2d5bb7ee39c61998181bbee2",
+          "timestamp": "2026-07-01T02:50:57.447Z"
+        }
+      ]
     }
   ]
 }
