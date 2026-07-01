@@ -42,7 +42,22 @@
           }
         ]
       },
-      "userSees": "Terminal shows parent-roadmap-large-ledger G01 baseline passed: 15 total rows, 15 closed rows, full_roadmap_complete, and no Authority or production overclaim."
+      "userSees": "Terminal shows parent-roadmap-large-ledger G01 baseline passed: 15 total rows, 15 closed rows, full_roadmap_complete, and no Authority or production overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+          "result": "pass",
+          "note": "G01 smoke passed and asserts exactly 15 rollup rows, 15 closed rows, zero open/stale/deferred/invalid/migration rows, allRowsClosed=true, and summaryClass=full_roadmap_complete.",
+          "headHash": "d1a769049b43f8d9e9f005107db8cefbffed71c5",
+          "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
+          "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
+          "timestamp": "2026-07-01T00:38:43.627Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
