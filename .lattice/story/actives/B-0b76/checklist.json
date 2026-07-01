@@ -317,7 +317,22 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "running the selfcheck exits 0 and prints 'make-fig-gate-ablation selfcheck: 38 assertions passed' (aggregator-compatible summary line)",
+          "headHash": "361b016352ecd7c5756730bf53ff52012ea02df2",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:30.560Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
