@@ -128,9 +128,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T01:49:00.476Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Decision doc names G01-G02 as implemented and includes the runnable parent-roadmap-large-ledger-g02 smoke command after build.",
+          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:49:00.603Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Decision doc keeps G03-G10 future and states the full 10x15 baseline is not complete while marking only G01-G02 implemented.",
+          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:49:00.712Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Documentation bounds G02 as local missing-row proof only and the retired vocabulary guard passed, with no elevated rollout, Authority, production, or two-host completion claim added.",
+          "headHash": "457c4706f6844822d7a0276416ede863ac7186bb",
+          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-01T01:49:00.820Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -142,6 +180,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented and verified G02 missing-row negative-control smoke."
+    },
+    {
+      "timestamp": "2026-07-01T01:49:00.476Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Updated and verified G02 baseline documentation boundaries."
     }
   ]
 }
