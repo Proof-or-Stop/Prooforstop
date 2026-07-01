@@ -104,11 +104,48 @@
       "title": "Add regression coverage for fixed and parameterized runs",
       "context": "Prove default fixed scenarios remain unchanged, seeded parameterized runs are deterministic, and invalid parameter combinations fail closed with clear diagnostics.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The selfcheck reports passing assertions for default fixed scenarios, deterministic seeded profiles, and invalid profile rejection.",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "experiments/recovery-runner/run-driver.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/parameterized-fault-profile.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-driver-selfcheck covers default fixed B1-B15 counts and the new profile expansion path in the same offline command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "same seed and same profile produce byte-identical scenario expansion and JSONL enumeration metadata",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "malformed profile CLI inputs exit non-zero before writing misleading records or sidecar logs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
