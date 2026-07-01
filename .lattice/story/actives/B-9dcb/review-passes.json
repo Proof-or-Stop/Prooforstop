@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-01T17:12:06.070Z",
       "reviewRunId": "B-9dcb:RR-017",
       "_hash": "13c354e6303ab4ee17ee81491163faac7307b7c3ddac85814ccca927808d8705"
+    },
+    {
+      "id": "B-9dcb:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review after F-003 fix: reviewed review-run metadataRoot threading, handler snapshot binding, and the new wrapper-root smoke. The smoke now exercises capture/diagnose divergence, assertCurrentReviewRunForEvidence, collectReviewerEvidenceState via a signed pass reaching validateEvidenceRunBinding, legacy fallback, and plain-repo byte identity. Targeted smoke passed with npm --prefix packages/main run test:review-run-metadataroot-wrapper-root. No blocker found.",
+      "createdAt": "2026-07-01T17:15:31.380Z",
+      "reviewRound": "2026-07-01T17:12:06.070Z",
+      "reviewRunId": "B-9dcb:RR-018",
+      "_hash": "58b1fc994ea828865342ca2cff7d52081c3c020f814347b880bfbf02cdad382c"
     }
   ]
 }
