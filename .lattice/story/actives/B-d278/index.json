@@ -4,7 +4,7 @@
   "title": "Implement G04-G10 remaining UDM no-false-DONE baseline groups",
   "description": "Complete the remaining seven groups of the UDM no-false-DONE 10x15 baseline after G01-G03. Implement deterministic machine checks for G04 stale evidence, G05 deferred rows, G06 migration/sample rows, G07 overclaim boundary, G08 duplicate or malformed rows, G09 child assignment without delivery, and G10 stale-then-refreshed recovery. Add a full aggregate 10x15 baseline smoke only when all ten groups are represented. Update the baseline document so it no longer claims G04-G10 are future. Do not claim Authority, fullAuthority, production, or remote independent-host completion.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -73,6 +73,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-0dea3f0dde07fffd",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-01T03:29:10.846Z",
+      "branch": "story/B-d278",
+      "user": "Harmonygo",
+      "sessionId": "sess-0dea3f0dde07fffd",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -80,5 +89,5 @@
     "branch": "story/B-d278",
     "createdAt": "2026-07-01T03:01:37.727Z"
   },
-  "currentReviewRound": "2026-07-01T03:21:14.340Z"
+  "currentReviewRound": "2026-07-01T03:29:10.846Z"
 }
