@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Derive every figure number deterministically from the raw records; never hand-transcribe",
+    "Reuse the existing dedup + outcome semantics (adjudicate-produced adjudicatedOutcome) — the generator counts, it does not re-classify",
+    "Offline + zero new dependencies — plain Node emitting a standalone SVG, testable without the campaign data",
+    "Single responsibility: this generator only reads records and draws; CI/statistics stay in analyze.mjs"
+  ],
+  "drivers": [
+    "Reproducibility: the committed-generator norm requires rebuilding the figure from powered/*.jsonl",
+    "Offline determinism: the selfcheck must run in npm test with synthetic records and no LLM",
+    "Non-interference: do not touch the paper, adjudicate.mjs, analyze.mjs, or the campaign data"
+  ],
+  "options": [
+    {
+      "name": "Standalone Node generator emitting SVG+CSV, with a synthetic-record offline selfcheck",
+      "pros": [
+        "No new deps; matches the repo (all recovery-runner tooling is .mjs)",
+        "Deterministic + offline-testable via injected synthetic records",
+        "SVG is vector, converts to PDF for the paper; CSV makes numbers auditable",
+        "Counts only, delegates classification to the records adjudicate already produced"
+      ],
+      "cons": [
+        "Re-implements a small dedup that also lives in analyze (must keep the keep-first key identical)"
+      ]
+    },
+    {
+      "name": "Extend analyze.mjs to also emit the figure",
+      "pros": [
+        "Single pass; dedup shared with the stats"
+      ],
+      "cons": [
+        "Bloats the locked analysis script + risks regressing its CI/GLMM output",
+        "Mixes plotting into the statistics module (two responsibilities)",
+        "Harder to keep the figure generator a small auditable unit"
+      ]
+    },
+    {
+      "name": "Python + matplotlib generator",
+      "pros": [
+        "Publication-standard plotting"
+      ],
+      "cons": [
+        "Adds a Python/matplotlib toolchain dependency the repo does not have",
+        "Inconsistent with the all-Node recovery-runner tooling"
+      ]
+    }
+  ],
+  "chosen": "Standalone Node generator emitting SVG+CSV, with a synthetic-record offline selfcheck",
+  "rationale": "A small standalone Node generator matches the all-.mjs recovery-runner tooling, adds no dependencies, and stays offline-testable with synthetic records — the same discipline every existing selfcheck follows. It counts outcomes already assigned by adjudicate (no re-classification) and leaves the bootstrap CI in analyze.mjs, keeping responsibilities clean. The only care point is that its keep-first dedup key must be byte-identical to analyze's; a selfcheck asserts the counts so drift is caught.",
+  "preMortem": [
+    {
+      "scenario": "Dedup key drifts from analyze.mjs so the figure double-counts restart duplicates",
+      "trigger": "using a different key tuple or not deduping",
+      "consequence": "per-arm counts diverge from the paper stats (e.g. 9,317 vs 9,240)",
+      "mitigation": "use the exact arm|taskId|scenarioId|repeat keep-first key; the selfcheck feeds duplicate synthetic records and asserts they are collapsed"
+    },
+    {
+      "scenario": "The generator silently reads *.voids.jsonl sidecars as records",
+      "trigger": "globbing *.jsonl without excluding .voids.jsonl",
+      "consequence": "void entries pollute the denominator / counts",
+      "mitigation": "explicitly exclude *.voids.jsonl; the selfcheck includes a voids-like file and asserts it is ignored"
+    },
+    {
+      "scenario": "The new selfcheck is not picked up by the aggregator",
+      "trigger": "missing final summary line or not added to run-selfchecks SELFCHECKS array",
+      "consequence": "npm test does not actually exercise the generator",
+      "mitigation": "print a final \"…assertions passed\" line matching the aggregator regex and add the file to the SELFCHECKS array; verify run-selfchecks reports 8"
+    }
+  ],
+  "timestamp": "2026-07-01T01:50:53.598Z"
+}

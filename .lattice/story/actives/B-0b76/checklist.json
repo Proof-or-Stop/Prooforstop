@@ -20,7 +20,18 @@
       "userSees": "run-selfchecks.mjs runs the new selfcheck and reports it passing offline.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
