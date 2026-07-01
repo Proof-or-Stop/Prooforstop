@@ -46,7 +46,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused smoke/test simulates or fixtures a non-runtime material-code change and observes a version-bump skip line that says no watched CLI/runtime inputs changed; WHY: non-runtime code can skip without misleading the user.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same focused coverage proves a watched CLI/runtime input change still requires the build/version-bump path instead of the skip path; WHY: the wording change does not weaken the runtime gate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke/test would fail if the implementation merely rewrites prose while classifying runtime-scope changes incorrectly, including the old misleading phrase being gone and runtime-scope behavior remaining intact in one targeted run; WHY: text correctness and gate semantics must move together.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
