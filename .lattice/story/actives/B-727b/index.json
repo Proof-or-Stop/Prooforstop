@@ -1,0 +1,38 @@
+{
+  "storyId": "B-727b",
+  "name": "udm-no-false-done-g03-baseline",
+  "title": "Implement G03 prose-only negative-control milestone ledger baseline",
+  "description": "Implement the third group of the UDM no-false-DONE 10x15 baseline. G03 is the prose-only negative control: all 15 required row IDs exist and each row contains completion wording, but no row has machine closure evidence. The evaluator must report no full roadmap completion claim and expose missing evidence for every row. This story must update documentation to mark G03 implemented only, while keeping G04-G10 and the full 10x15 baseline as future work. It must not claim Authority, fullAuthority, production, or independent two-host completion.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user",
+  "keywords": [
+    "UDM",
+    "no-false-DONE",
+    "G03",
+    "prose-only",
+    "parent-roadmap",
+    "baseline"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-01T02:25:52.159Z",
+  "startedAt": "2026-07-01T02:25:52.159Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-01T02:25:52.173Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-81968d64d47412a0",
+      "agent": "main"
+    }
+  ]
+}

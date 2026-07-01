@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add the G03 prose-only negative-control baseline smoke",
+      "context": "Create a deterministic smoke for one 15-required-row parent roadmap ledger where all 15 rows contain completion prose but no machine closure evidence; the evaluator must report missing evidence and block full completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "userSees": "Terminal shows `parent-roadmap large-ledger G03 baseline smoke PASS` and confirms prose-only closure cannot produce `full_roadmap_complete`.",
+      "excludes": [
+        "Do not modify parent-roadmap evaluator core logic",
+        "Do not implement G04-G10"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G03 smoke reports 15 required rows, 15 generated prose-only rows, zero closed rows, 15 open rows, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts every row is present but has no closureEvidence, evidenceState missing, and reason code missing_closure_evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts completion wording in row prose and caller-supplied rollup text cannot override missing machine evidence or permit a full completion summary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind G03 baseline to documentation boundaries",
+      "context": "Update the 10x15 baseline document so G01-G03 are implemented, G04-G10 remain future, and the full 10x15 baseline is still not complete.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "userSees": "Documentation states G01, G02, and G03 are implemented while G04-G10 remain future groups, and G03 is a prose-only negative control that blocks full completion.",
+      "excludes": [
+        "Do not state that the full 10x15 baseline is complete",
+        "Do not claim Authority/fullAuthority/production/two-host completion"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The baseline document names G03 as implemented and includes the runnable G03 smoke command.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document keeps G04-G10 marked as future groups and explicitly states the full 10x15 baseline is not complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation wording does not convert local G03 proof into Authority, production, fullAuthority, or independent two-host claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
