@@ -234,6 +234,30 @@ async function run(): Promise<void> {
       assert.doesNotMatch(text, /PB-candidate/);
     });
 
+    check('unknown primary target policy normalizes to codex capability id without leaking raw host', () => {
+      const rawHost = 'unknown-primary-target';
+      const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex-cli', toHost: rawHost, json: true }) as any;
+      assert.equal(pack.toHost, 'codex');
+      assert.notEqual(pack.toHost, rawHost);
+      assert.equal(pack.recoveryPoint.toHost, 'codex');
+      assert.equal(pack.runtimeHostPolicy.requestedHost, rawHost);
+      assert.equal(pack.runtimeHostPolicy.canonicalHost, 'codex-cli');
+      assert.equal(pack.runtimeHostPolicy.capabilityHostId, 'codex');
+
+      const file = join(root, 'unknown-primary-pack.json');
+      writeFileSync(file, `${JSON.stringify(pack, null, 2)}\n`, 'utf8');
+      const resume = handoff.handoff_resume({ file, resumeHost: rawHost, json: true }) as any;
+      assert.equal(resume.resumeHost, 'codex');
+      assert.equal(resume.processEvent.resumeHost, 'codex');
+      assert.equal(resume.runtimeHostPolicy.capabilityHostId, 'codex');
+      const dispatch = handoff.host_dispatch({ file, host: rawHost, json: true }) as any;
+      assert.equal(dispatch.host, 'codex');
+      assert.equal(dispatch.requestedHost, 'codex');
+      assert.equal(dispatch.prefetchManifest.host, 'codex');
+      assert.equal(dispatch.hostStatus.host, 'codex');
+      assert.equal(dispatch.runtimeHostPolicy.capabilityHostId, 'codex');
+    });
+
     check('handoff_resume includes memory pack and agy fallback requires primary failure signal', () => {
       const pack = handoff.handoff_create({ storyId: 'B-smoke', fromHost: 'codex-cli', toHost: 'claude-cli', json: true }) as any;
       assert.equal(pack.fromHost, 'codex');

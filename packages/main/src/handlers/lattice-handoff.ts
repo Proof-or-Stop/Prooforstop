@@ -627,13 +627,12 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_create');
       const fromCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.fromHost);
-      const toCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.toHost);
       const policy = resolveProofAdmissibilityPolicy(ctx.root);
       const admissibleProofRefs = normalizeListOrEmpty(args.admissibleProofRefs);
       const pack = createHandoffPack(ctx.store, ctx.root, {
         storyId: args.storyId,
         fromHost: fromCapabilityHost,
-        toHost: toCapabilityHost,
+        toHost: hostPolicy.capabilityHostId,
         role: args.role,
         objective: args.objective,
         allowedPaths: normalizeList(args.allowedPaths),
@@ -735,8 +734,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         primaryHostFailure: args.primaryHostFailure,
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_resume');
-      const resumeCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(targetHost);
-      const projection = buildHandoffResumeProjection(source, { resumeHost: resumeCapabilityHost, ...options });
+      const projection = buildHandoffResumeProjection(source, { resumeHost: hostPolicy.capabilityHostId, ...options });
       const memoryFreshnessPack = projection.memoryFreshnessPack ?? buildHandoffRuntimeMemoryPack(ctx, {
         storyId: projection.storyId,
         phase: projection.recoveryPoint.phase,
@@ -804,10 +802,9 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         primaryHostFailure: args.primaryHostFailure,
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'host_dispatch');
-      const dispatchCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.host);
-      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, dispatchCapabilityHost, hostPolicy);
+      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, hostPolicy.capabilityHostId, hostPolicy);
       const result = buildHostDispatchProjection(pack, {
-        host: dispatchCapabilityHost,
+        host: hostPolicy.capabilityHostId,
         mode: args.mode,
         preflight,
         prefetchManifest,
