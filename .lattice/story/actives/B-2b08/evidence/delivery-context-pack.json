@@ -1,0 +1,65 @@
+{
+  "storyId": "B-2b08",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-2b08/checklist.json",
+      ".lattice/story/actives/B-2b08/decision.json",
+      ".lattice/story/actives/B-2b08/done-required-evidence.json",
+      ".lattice/story/actives/B-2b08/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-2b08/index.json",
+      ".lattice/story/actives/B-2b08/intent-collision.json",
+      ".lattice/story/actives/B-2b08/original-intent-snapshot.json",
+      ".lattice/story/actives/B-2b08/process-events.jsonl",
+      ".lattice/story/actives/B-2b08/process-metrics.json",
+      ".lattice/story/actives/B-2b08/proofstory.json",
+      ".lattice/story/actives/B-2b08/red-evidence.json",
+      ".lattice/story/actives/B-2b08/review-passes.json",
+      ".lattice/story/actives/B-2b08/review-runs.json",
+      ".lattice/story/actives/B-2b08/review.json",
+      ".lattice/story/actives/B-2b08/summary.json",
+      ".lattice/story/actives/B-2b08/test-evidence.json",
+      ".lattice/story/actives/B-2b08/understanding.json",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "packages/main/src/core/version-bump.ts",
+      "packages/main/src/tasks/version-bump-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-2b08/checklist.json       | 218 ++++++++++++-\n .lattice/story/actives/B-2b08/decision.json        |  69 ++++\n .../actives/B-2b08/done-required-evidence.json     |  83 +++++\n .../B-2b08/evidence/live-smoke-transcript.json     |  20 ++\n .lattice/story/actives/B-2b08/index.json           |  41 ++-\n .../story/actives/B-2b08/intent-collision.json     |  12 +\n .../actives/B-2b08/original-intent-snapshot.json   |  15 +\n .lattice/story/actives/B-2b08/process-events.jsonl |  10 +\n .lattice/story/actives/B-2b08/process-metrics.json | 360 +++++++++++++++++++++\n .lattice/story/actives/B-2b08/proofstory.json      |  46 +++\n .lattice/story/actives/B-2b08/red-evidence.json    |  25 ++\n .lattice/story/actives/B-2b08/review-passes.json   |  40 +++\n .lattice/story/actives/B-2b08/review-runs.json     | 179 ++++++++++\n .lattice/story/actives/B-2b08/review.json          | 197 +++++++++++\n .lattice/story/actives/B-2b08/summary.json         |  56 ++++\n .lattice/story/actives/B-2b08/test-evidence.json   | 197 +++++++++++\n .lattice/story/actives/B-2b08/understanding.json   |  25 ++\n docs/requirements/decisions/story-lifecycle.md     |   5 +-\n packages/main/src/core/version-bump.ts             |  12 +-\n packages/main/src/tasks/version-bump-smoke.ts      |  16 +-\n 20 files changed, 1605 insertions(+), 21 deletions(-)"
+  },
+  "docsPromises": [],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [],
+    "evidenceCommands": [
+      "! rg -n \"version bump skipped \\(no material code change\\)\" packages/main/src/core/version-bump.ts packages/main/src/tasks/version-bump-smoke.ts docs/requirements/decisions/story-lifecycle.md",
+      "node packages/main/dist/tasks/version-bump-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
+      "rg -n \"CLI patch version tracks watched Proofbound CLI/runtime inputs|not every repository code artifact\" docs/requirements/decisions/story-lifecycle.md",
+      "rg -n \"experiments/|experiment/product ledger|watched Proofbound CLI/runtime inputs\" docs/requirements/decisions/story-lifecycle.md",
+      "rg -n \"packages/main/src/|package.json|lattice --version|watched Proofbound CLI/runtime inputs\" docs/requirements/decisions/story-lifecycle.md",
+      "rg old/new skip phrase in version-bump.ts, version-bump-smoke.ts, story-lifecycle.md"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-01T03:06:07.075Z",
+    "headHash": "256434ab0b2eac30d1fcd724d513f14349e39dc1",
+    "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+    "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38"
+  },
+  "reviewRound": "2026-07-01T02:57:52.644Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

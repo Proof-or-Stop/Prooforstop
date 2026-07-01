@@ -1,0 +1,46 @@
+{
+  "storyId": "B-2b08",
+  "checkedAt": "2026-07-01T03:10:44.286Z",
+  "headHash": "dad2e5f5609b6d178c54f8a4f3eb9ef2a61e786a",
+  "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044",
+  "storyFilesHash": "00c76be265f21d26b19e1b664063fa7fdea6251a473d1b28b66075338d4d7e38",
+  "reviewRound": "2026-07-01T02:57:52.644Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE/version-bump skip documentation promises that the CLI patch-version skip path reports no watched Proofbound CLI/runtime inputs changed when no watched inputs changed.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "docs/requirements/decisions/story-lifecycle.md:159 includes the exact skip line and the watched input list."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "The lifecycle documentation preserves the watched CLI/runtime input boundary and does not add experiments/** or offline experiment harnesses to the current CLI patch-version bump policy.",
+      "status": "verified",
+      "verifiedBy": "rg plus version-bump smoke",
+      "evidence": "docs/requirements/decisions/story-lifecycle.md:160 says experiments/** do not by themselves require a Proofbound CLI patch-version bump unless a later policy adds a separate ledger; version-bump-smoke asserts the experiments harness path is not a bump input."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node -e read packages/main/dist/core/version-bump.js and printed: ✓ version bump skipped (no watched CLI/runtime inputs changed). rg for exact old skip phrase across version-bump.ts, version-bump-smoke.ts, and story-lifecycle.md returned no matches."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/version-bump-smoke.js exited 0 with: version-bump smoke passed: 68 assertions. The smoke covers watched runtime inputs, metadata-only skip, experiments harness NO bump, and the retired material-code clause absence."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "rg checks verified story-lifecycle.md contains the watched input list, exact new skip wording, and the experiments/** non-expansion promise; test-evidence.json reports 9/9 required verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review reverse-scanned git diff vs main, delivery-context-pack.json, transcript-diff.md, test-evidence.json, done-required-evidence.json, summary.json, and changed docs/code. The real-machine transcript exists, PASS evidence is current for HEAD 256434ab0b2eac30d1fcd724d513f14349e39dc1, edge/adversarial coverage includes the experiments/** non-expansion case, and rg found no unresolved TODO/FIXME markers in the changed delivery/code/doc surface."
+  },
+  "_hash": "fed52a01d77ec8d5cabef5bc66a1efcb0f50e3a58e261da8bfd25a8baad34d08"
+}

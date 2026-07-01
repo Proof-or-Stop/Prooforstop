@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2b08",
+  "records": [
+    {
+      "id": "RED-20260701025036",
+      "trigger": "B-63ba exposed misleading DONE skip wording for non-runtime code changes",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "6c6a2fc04feb3f40f509be8e9e278a53d1b1ffe0",
+      "baselineMaterialHash": "02c1fb842018c335c044a49d213f13141f3ae7078a95d8df031fc67fbea03353",
+      "observedFailure": "Pre-fix source still defines VERSION_BUMP_SKIPPED_LINE as version bump skipped (no material code change), which is false when executable non-runtime experiment harness code changed but no watched CLI/runtime input changed.",
+      "failingCommand": "rg -n \"version bump skipped \\\\(no material code change\\\\)\" packages/main/src/core/version-bump.ts",
+      "expectedGreenCommand": "! rg -n \"version bump skipped \\\\(no material code change\\\\)\" packages/main/src/core/version-bump.ts && rg -n \"version bump skipped \\\\(no watched CLI/runtime inputs changed\\\\)\" packages/main/src/core/version-bump.ts",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "! rg -n \"version bump skipped \\\\(no material code change\\\\)\" packages/main/src/core/version-bump.ts && rg -n \"version bump skipped \\\\(no watched CLI/runtime inputs changed\\\\)\" packages/main/src/core/version-bump.ts"
+      },
+      "note": "Red evidence is source-level because the misleading DONE output is generated from this exported constant.",
+      "createdAt": "2026-07-01T02:50:36.364Z"
+    }
+  ],
+  "createdAt": "2026-07-01T02:50:36.364Z",
+  "updatedAt": "2026-07-01T02:50:36.364Z"
+}
