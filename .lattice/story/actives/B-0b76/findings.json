@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-0b76:F-001",
+      "desc": "CHK-002:adversarial:0 intent requires demonstrating the selfcheck exits with code 1 when an assertion fails, but the bound evidence command (node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs) only runs the passing selfcheck (exits 0 with 38 assertions passed). The note says the exit-1 path was implementer-verified by manually breaking an assertion, which is not reproducible by re-running the bound command. A runnable one-liner that injects a deliberate failure (e.g. node -e \"...\" or a temp fixture) and asserts exit code 1 would properly bind this intent.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T02:21:07.879Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-003",
+      "_hash": "276b968c87b13b8cd1d62c84a0706d6ef22abaf2ee53480e48267d77fd2cce80",
+      "files": [
+        "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+        "experiments/recovery-runner/make-fig-gate-ablation.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-intent-requires",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
