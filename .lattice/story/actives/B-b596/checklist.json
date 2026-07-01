@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add the G01 positive-control baseline smoke",
+      "context": "Create a deterministic smoke for one 15-row parent roadmap ledger where every row has fresh machine evidence and the rollup permits full completion without Authority or production claims.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind G01 baseline to validation and documentation boundaries",
+      "context": "Expose the G01 smoke in the project validation command set or equivalent deterministic test path, and document that only G01 is implemented while G02-G10 remain future groups.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
