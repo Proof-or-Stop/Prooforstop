@@ -1,18 +1,18 @@
 {
   "storyId": "B-0b76",
-  "changes": "Adds experiments/recovery-runner/make-fig-gate-ablation.mjs — a committed, reproducible generator that rebuilds the section 5/6 evidence-gate ablation figure from powered/*.jsonl (dedup keep-first by arm|taskId|scenarioId|repeat, counts adjudicatedOutcome, emits a standalone SVG + tidy CSV, with a hard conflict-guard on ambiguous dedup + a raw->unique transparency line); a 43-assertion offline selfcheck wired as the 8th check in run-selfchecks.mjs; and a README section documenting it.",
-  "usage": "node experiments/recovery-runner/make-fig-gate-ablation.mjs [poweredDir] [outPrefix] -> writes fig-gate-ablation.svg + .csv and prints per-arm amplification; node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs (offline, 43 assertions); node experiments/recovery-runner/run-selfchecks.mjs (8/8).",
-  "expectedOutcome": "Running the generator on the real powered/ prints A4 2/1920 (0.10%), A2prime 31/1920 (1.61%), A3 14/1920, A2 18/1920, A1 13/1560, a 'dedup: 18557 raw -> 9240 unique' line, and writes the SVG+CSV; run-selfchecks reports all 8 passing offline.",
-  "actualTranscript": "Verified live: 'dedup: 18557 raw records -> 9240 unique cells (9317 duplicate re-runs dropped)', 'A4 amplified 2/1920 = 0.10%', selfcheck '43 assertions passed, 0 failed', run-selfchecks 'all 8 recovery-runner selfchecks passed (offline, no live LLM)'; done_required_validate PASS (packages/main build + root full npm test).",
-  "outcomeDiff": "No difference — actual matches expected exactly (numbers reproduce analyze.mjs on the deduped matrix).",
+  "changes": "Adds experiments/recovery-runner/make-fig-gate-ablation.mjs (reproducible generator: reads powered/*.jsonl, dedup keep-first + conflict-guard, counts adjudicatedOutcome, emits SVG+CSV, prints raw->unique transparency), make-fig-gate-ablation-selfcheck.mjs (43 offline assertions, wired as the 8th selfcheck), and a README section.",
+  "usage": "node experiments/recovery-runner/make-fig-gate-ablation.mjs [poweredDir] [outPrefix]; node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs; node experiments/recovery-runner/run-selfchecks.mjs",
+  "expectedOutcome": "A COMMITTED generator experiments/recovery-runner/make-fig-gate-ablation.mjs rebuilds the section 5/6 amplification figure from powered/*.jsonl and emits SVG + CSV; it is backed by an offline synthetic-record selfcheck wired into run-selfchecks (reports 8/8, no live LLM); and the paper repo is NOT touched. Running the generator on powered/ reproduces the analyze.mjs per-arm counts (A4 2/1920, A2prime 31/1920, A3 14/1920, A2 18/1920, A1 13/1560, dedup total 9240) and writes fig-gate-ablation.svg + .csv.",
+  "actualTranscript": "ALL delivered: the committed generator rebuilds the figure from powered/*.jsonl -> SVG+CSV ('dedup: 18557 raw records -> 9240 unique cells (9317 dropped)', 'A4 amplified 2/1920 = 0.10%', matching analyze.mjs); the offline selfcheck is wired as the 8th ('43 assertions passed, 0 failed' + run-selfchecks 'all 8 recovery-runner selfchecks passed'); the paper repo is untouched (README states it does NOT compute the CI / edit the paper); done_required_validate PASS (packages/main build + root full npm test).",
+  "outcomeDiff": "No difference — every element of the original snapshot outcome is delivered: committed generator (yes), rebuilds figure from powered/*.jsonl -> SVG+CSV (yes), offline selfcheck wired into run-selfchecks 8/8 (yes), reproduces analyze counts A4 2/1920 + dedup 9240 (yes), paper untouched (yes). No scope shrinkage.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "The figure dedups internally to the 9240-cell matrix; analyze.mjs does NOT dedup, so analyze must be run on deduped input to match (documented in README). The generator only counts adjudicatedOutcome; the bootstrap CI stays in analyze.mjs and inserting the figure into the paper is a separate manual step (both out of scope, owned by the analysis/paper workstream).",
-  "pitfalls": "High-assurance ProofStory gate auto-triggered by the word 'gate' in the story text -> required original_intent_snapshot + intent_collision + scope_contract + acceptance-binding + red-evidence, plus scope_contract_acknowledge for the 4 Lattice-generated metadata json (fail-closed out-of-scope). Adversarial test-intent caught 2 REAL robustness bugs (nonexistent-dir ENOENT crash + empty-dir misleading all-zero artifacts) -> fixed. codex host-2 caught the real dedup/analyze consistency hazard all 4 claude lanes missed (F-002) -> fixed via conflict-guard + transparency. finding_resolve is REVIEW-only (rejected in DEV). Next person: always run analyze on DEDUPED input; keep the dedup key byte-identical to any future analyze dedup.",
+  "limitations": "Figure dedups internally to the 9240-cell matrix; analyze.mjs does not dedup, so analyze must run on deduped input to match (documented). Only counts adjudicatedOutcome; bootstrap CI stays in analyze.mjs; inserting the figure into the paper is a separate manual step (out of scope).",
+  "pitfalls": "High-assurance ProofStory gate auto-triggered by 'gate' in the story text -> intent snapshot/collision/scope-contract/acceptance-binding/red-evidence + scope_contract_acknowledge for 4 Lattice metadata json. Adversarial test-intent caught 2 real robustness bugs (nonexistent-dir crash + empty-dir artifacts); codex host-2 caught the dedup/analyze consistency hazard (F-002) all 4 claude lanes missed. DONE blocked repeatedly by concurrent stories (B-63ba) editing shared README/run-selfchecks -> storyFilesHash drift stales review bindings; landed in a quiet main window via fresh review round + quorum_submit 3x2 + delivery re-sign. finding_resolve is REVIEW-only.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 764784
     },
     "DEV": {
-      "count": 2,
-      "durationMs": 1332579
+      "count": 3,
+      "durationMs": 1333471
     },
     "REVIEW": {
-      "count": 2,
-      "durationMs": 1667693
+      "count": 3,
+      "durationMs": 2010269
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 274523
+      "count": 2,
+      "durationMs": 8034235
     }
   },
-  "totalDurationMs": 4203505,
+  "totalDurationMs": 12306685,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-01T02:56:00.694Z",
-  "updatedAt": "2026-07-01T02:56:00.694Z"
+  "updatedAt": "2026-07-01T05:11:03.874Z"
 }
