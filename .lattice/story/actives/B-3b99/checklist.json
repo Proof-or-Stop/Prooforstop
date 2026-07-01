@@ -232,9 +232,9 @@
       "id": "CHK-004",
       "title": "Verify convergence high gaps are zero",
       "context": "Run build, relevant smokes, gap_analyze, and convergence_check. DONE requires No high-priority gaps pass and no unfinished business stories except parked Tier-C advisory backlog.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T17:44:56.196Z",
       "files": {
         "modify": [],
         "create": [],
@@ -272,7 +272,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after B-3b99 mapping annotation fixes.",
+          "headHash": "560fca795456c57ad8c069b6d525690313861956",
+          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
+          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
+          "timestamp": "2026-07-01T17:44:56.410Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node packages/main/dist/tasks/capability-list-smoke.js && node packages/main/dist/tasks/canonical-story-export-smoke.js",
+          "result": "pass",
+          "note": "All four targeted smokes passed: autopilot reliability, ProofStory intent hardening, capability list, and canonical story export.",
+          "headHash": "560fca795456c57ad8c069b6d525690313861956",
+          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
+          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
+          "timestamp": "2026-07-01T17:44:56.574Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze reports healthy=true with Gaps: 0 high / 1 medium; the remaining medium is an existing missing fixture outside this high-gap closure story.",
+          "headHash": "560fca795456c57ad8c069b6d525690313861956",
+          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
+          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
+          "timestamp": "2026-07-01T17:44:56.744Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check --json",
+          "result": "pass",
+          "note": "No high-priority gaps, flow chain, code annotations, parked backlog, audit backlog, and requirements coverage all pass. The only failing row is expected pre-DONE: All Stories completed reports B-3b99 unfinished.",
+          "headHash": "560fca795456c57ad8c069b6d525690313861956",
+          "materialHash": "1f11e60a85392eed4558e65185d5f8789063086587dca96b7a27e3d6796e338d",
+          "storyFilesHash": "621a9e3f61ba792749baf37768c4a0c52c5fd1772b2402301389da641fcae0df",
+          "timestamp": "2026-07-01T17:44:56.911Z"
+        }
+      ]
     }
   ]
 }
