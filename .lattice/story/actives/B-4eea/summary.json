@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4eea",
+  "changes": "Completed Playbook Runtime Memory M5-M12: handoff/story/DONE consumers now receive bounded advisory MemoryFreshnessPack context; host policy keeps codex-cli and claude-cli primary with agy-cli fallback only; baseline generator/verifier now covers small and exact 1M profiles with gold-query, source-digest, supersession, candidate-only, stale, and deprecated-marker negative controls; health checks use project-configured required memory classes.",
+  "usage": "Use session_brief, handoff_create/resume, host_dispatch, story intake/advance, done_prepare/closure, final_response_check, memory_playbook_baseline_generate, memory_playbook_baseline_verify, and playbook_runtime_health to consume runtime memory automatically. Treat rendered memory as advisory context only; use structured validation, delivery check, done-required evidence, and review quorum for DONE claims.",
+  "expectedOutcome": "Hosts should see relevant lessons before acting, including stale-doc, host-policy, and parent-roadmap totality lessons, without manually searching memory. Candidate or superseded memories should not displace active lessons, old brand residue should not leak, and the 1M baseline should prove deterministic runtime consumption coverage before stronger rollout.",
+  "actualTranscript": "Final verification passed: npm --prefix packages/main run build; lattice validate --story=B-4eea --json with 31 configured commands; lattice done_required_validate ran build plus root npm test; playbook-runtime-memory-mvp1-smoke, mvp2-smoke, health-smoke, baseline-smoke, baseline-smoke --profile=full, command-catalog-smoke, process-fact contract, runtime-fact contract, and residue guard all passed. Full baseline generated and verified exactly 1,000,000 records after F-014 and residue cleanup. 3 rounds x 2 hosts were submitted with claude-cli and codex-cli only; agy-cli was not counted.",
+  "outcomeDiff": "Expected and actual match for the planned M5-M12 scope. The only retained boundary is intentional: runtime memory is not proof and cannot satisfy DONE; performance targets for the 1M baseline remain report-first rather than hard fail.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Memory packs are non-authoritative advisory context and have gateEvidence=false. Performance is reported first and not yet an enforce-mode threshold. Authority-style production claims are not used. agy-cli is fallback only when codex-cli or claude-cli is unavailable, quota-limited, or explicitly needed as standby.",
+  "pitfalls": "Claude CLI must remain the primary peer with Codex CLI for default 3x2 host verification; agy-cli is only fallback. Do not treat dev-memory or playbook packs as DONE evidence. Re-run baseline full profile before enforce rollout, and regenerate review/delivery/DONE evidence whenever materialHash or storyFilesHash changes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 64109
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 18781
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 382525
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 4582822
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 2835642
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1005003
+    }
+  },
+  "totalDurationMs": 8888883,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T06:22:43.047Z",
+  "updatedAt": "2026-07-01T06:22:43.047Z"
+}
