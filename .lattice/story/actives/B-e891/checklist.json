@@ -46,7 +46,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-01T01:48:49.764Z",
+      "endTime": "2026-07-01T01:50:27.140Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
@@ -54,11 +54,11 @@
           "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
           "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
           "result": "pass",
-          "note": "G02 smoke printed parent-roadmap large-ledger G02 baseline smoke PASS after asserting 15 required rows, 14 generated closed rows, no-full-roadmap-claim, and allRowsClosed false.",
-          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:48:49.889Z"
+          "note": "Post-commit G02 smoke printed parent-roadmap large-ledger G02 baseline smoke PASS after asserting 15 required rows, 14 generated closed rows, no-full-roadmap-claim, and allRowsClosed false.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.349Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,11 +66,11 @@
           "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
           "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
           "result": "pass",
-          "note": "G02 smoke asserts G02-M15 is the only open row and only invalid row, and that its reasonCodes include missing_required_row.",
-          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:48:50.006Z"
+          "note": "Post-commit G02 smoke asserts G02-M15 is the only open row and only invalid row, and that its reasonCodes include missing_required_row.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.480Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,11 +78,11 @@
           "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
           "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
           "result": "pass",
-          "note": "G02 smoke asserts Full roadmap complete is blocked in enforce mode and serialized ledger, rollup, and claim decision contain no elevated claim terms.",
-          "headHash": "bccb30484cae6e791c5b1a3363252b4f1669f32c",
-          "materialHash": "855463a7553b1e773ddee0585fe1b81d271b9dc47348f1ca6e5ed58d1b095fff",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-01T01:48:50.119Z"
+          "note": "Post-commit G02 smoke asserts Full roadmap complete is blocked in enforce mode and serialized ledger, rollup, and claim decision contain no elevated claim terms.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.627Z"
         }
       ]
     },
