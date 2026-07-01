@@ -75,6 +75,25 @@
       ],
       "signatureTag": "missing|ts|mvp2-smoke-covers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4eea:F-005",
+      "desc": "final_response_check is documented as advisory-only but is registered as critical, so enforce+baseline could mark it blocking.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-01T04:35:10.958Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-004",
+      "_hash": "427eccb7b9bd17376897dfba53a792596a1e572c02b60ad6b858e30f49c756af",
+      "files": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "packages/main/src/core/playbook-runtime-memory.ts"
+      ],
+      "signatureTag": "edge|md|final-response-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
