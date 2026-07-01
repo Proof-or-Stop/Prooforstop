@@ -259,7 +259,7 @@
       "desc": "Baseline generation only refuses outputDir when manifest.json exists. If outputDir already exists without a manifest, records.jsonl can be overwritten even when force is false, contradicting the command safety contract.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T05:15:55.274Z",
@@ -271,7 +271,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "edge|ts|baseline-output-overwrite",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 792b4b284: generatePlaybookRuntimeBaseline now calls ensureBaselineOutputWritable, refusing non-empty output directories and existing target files unless force=true. Baseline smoke asserts unrelated file and records.jsonl overwrite attempts are rejected without force.",
+      "resolvedAt": "2026-07-01T05:27:53.751Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-013",
