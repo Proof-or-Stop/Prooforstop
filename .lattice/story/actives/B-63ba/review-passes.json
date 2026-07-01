@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-01T01:25:45.045Z",
       "reviewRunId": "B-63ba:RR-015",
       "_hash": "d3f5a5f43217f44bf1065d3bd33ba1122424d2d99308b019ec4dedfda353ad07"
+    },
+    {
+      "id": "B-63ba:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of 419d6641b F-002 fix: inspected run-driver value-flag parser and selfcheck coverage, reran selfcheck and targeted temp-dir CLI probes for dangling --record/--engine/--tasks/--seed. Invalid inputs exit 2 before records/exclusions/voids sidecars; valid default and weighted profiles still enumerate and refuse no-engine runs correctly. No blocking findings.",
+      "createdAt": "2026-07-01T01:31:10.140Z",
+      "reviewRound": "2026-07-01T01:25:45.045Z",
+      "reviewRunId": "B-63ba:RR-013",
+      "_hash": "16c68d0ca8faa53924670fc91ace63c8120a2dffd27721d93117058c33e9ce1f"
     }
   ]
 }
