@@ -39,6 +39,25 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-001",
       "resolvedBy": "CL-001@b16042c"
+    },
+    {
+      "id": "B-9dcb:F-003",
+      "desc": "Missing coverage for validateEvidenceRunBinding consumer. The B-9dcb diff changes both assertCurrentReviewRunForEvidence and validateEvidenceRunBinding to pass run.workspaceBinding?.metadataRoot ?? projectRoot into checkEvidenceFreshnessForGit, but packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts only exercises assertCurrentReviewRunForEvidence plus raw checkEvidenceFreshnessForGit calls. rg found no collectReviewerEvidenceState/validateEvidenceRunBinding coverage in the new smoke, and npm --prefix packages/main run test:review-run-metadataroot-wrapper-root still passes; a regression in the collectReviewerEvidenceState path would be undetected. Add an end-to-end reviewer pass/finding record and collectReviewerEvidenceState assertion over the wrapper-root custom-storyDir metadata-only churn fixture.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T17:09:02.144Z",
+      "reviewRound": "2026-07-01T17:05:26.088Z",
+      "reviewRunId": "B-9dcb:RR-015",
+      "_hash": "09ba0e8b532180f85f253059ed5cd368d151ff15f02aba72325db7f2bc015c7a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|missing-coverage-validateevidencerunbinding",
+      "signatureTagSource": "auto"
     }
   ]
 }
