@@ -57,44 +57,44 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "After done_prepare main merge, selfcheck still proves no-profile parseScenarioProfile returns fixed/default selection and fixed enumeration counts remain unchanged; output ended with 167 assertions passed.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "F-002 refresh: selfcheck proves no-profile parseScenarioProfile returns the fixed/default selection and default B1-B15 enumeration remains unchanged; output ended with 174 assertions passed, 0 failed.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "node --input-type=module weighted unique-runId probe",
           "result": "pass",
-          "note": "After main merge, weighted B1:2,B2:1 still expands as B1,B1,B2 and canonical runIds remain unique: 15 cells, 15 unique runIds, duplicateRunIds empty.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Weighted B1:2,B2:1 expands as B1,B1,B2 and canonical buildCanonicalRecord runIds remain unique: 15 cells, 15 unique runIds, duplicateRunIds empty.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "Selfcheck still covers list profile B1,B2,B3 preserving explicit order and validating against RECOVERY_SCENARIOS without changing fixed defaults.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Selfcheck covers list profile B1,B2,B3 preserving explicit order and validating against RECOVERY_SCENARIOS without changing fixed defaults.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:0 --tasks foo --seed fixed --k 1; test $? -eq 2",
+          "command": "zero-weight profile plus dangling --record/--engine/--tasks/--seed probes",
           "result": "pass",
-          "note": "Invalid zero weight still fails closed with exit 2 and clear invalid scenario profile diagnostic before sidecar writes.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Invalid zero weight exits 2 with a clear profile diagnostic; dangling profile and shared CLI flags now fail closed before recovery-runner sidecar writes.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         }
       ]
     },
@@ -150,33 +150,33 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:2,B2:1 --tasks foo --seed fixed --k 1",
           "result": "pass",
-          "note": "Focused CLI run still prints [run-driver] scenario profile weighted: B1,B1,B2, enumerates 15 applicable cells, and preserves no-engine live campaign refusal.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Focused CLI run prints [run-driver] scenario profile weighted: B1,B1,B2, enumerates 15 applicable cells, and preserves no-engine live campaign refusal.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver.mjs --tasks foo --seed fixed --k 1",
           "result": "pass",
-          "note": "Selfcheck still retains default fixed protocol enumeration assertions including 77 cells for one task at k=1 and 231 cells for three tasks at k=1.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "No profile flags keeps existing behavior: command enumerates 77 applicable cells and 3 N/A exclusions for one task at k=1, then refuses live campaign without --engine.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node --input-type=module weighted unique-runId probe plus source review",
+          "command": "node --input-type=module weighted unique-runId probe plus F-002 dangling flag probes",
           "result": "pass",
-          "note": "Profile parsing still only changes the explicit scenarios list passed to enumerateCells; record assembly, adjudication, denominator logic, and no-engine refusal remain on existing paths, and duplicate weighted slots do not duplicate canonical runIds.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Profile parsing only changes the explicit scenarios list passed to enumerateCells; record assembly, adjudication, denominator logic, no-engine refusal, and fail-closed CLI parsing remain on existing paths.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         }
       ]
     },
@@ -233,33 +233,33 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "After main merge, selfcheck covers fixed B1-B15 defaults, list/weighted profile parsing, CLI integration, invalid profile rejection, and ended with 167 assertions passed, 0 failed.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Selfcheck covers fixed B1-B15 defaults, list/weighted profile parsing, CLI integration, invalid profile rejection, F-002 dangling shared flag rejection, and ended with 174 assertions passed, 0 failed.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node --input-type=module weighted unique-runId probe",
           "result": "pass",
-          "note": "Same weighted profile and seed still produce deterministic cells with no duplicate canonical runIds; B1 duplicate slots are represented by offset repeat values rather than duplicate identities.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.131Z"
+          "note": "Same weighted profile and seed produce deterministic cells with no duplicate canonical runIds; duplicate B1 weighted slots are represented by offset repeat values.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:0 --tasks foo --seed fixed --k 1; test $? -eq 2",
+          "command": "dangling --record/--engine/--tasks/--seed probes from temporary directories",
           "result": "pass",
-          "note": "Malformed invalid weight exits 2 before sidecar writes; selfcheck also asserts invalid and dangling profile inputs create no exclusions or voids sidecars.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.132Z"
+          "note": "Malformed and dangling CLI inputs exit 2 before sidecar writes; repros for --record --tasks foo, --record <file> --engine --k 1, --tasks, and --seed generated no recovery-runner sidecars.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         }
       ]
     },
@@ -316,33 +316,33 @@
           "kind": "docs_check",
           "command": "rg -n \"exploratory offline profile|fixed B1-B15 remains the default|not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
-          "note": "After main merge, README and decision docs still describe explicit scenario profile flags and safe offline use.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.132Z"
+          "note": "README and decision docs describe explicit scenario profile flags and safe offline use.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"fixed B1-B15 remains the default\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
-          "note": "Docs still explicitly state fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.132Z"
+          "note": "Docs explicitly state fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "docs_check",
           "command": "rg -n \"not lifecycle gate evidence\" experiments/recovery-runner/README.md docs/requirements/decisions/lattice-experiment-protocol.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
-          "note": "Docs still explicitly reject lifecycle gate evidence claims for parameterized profile output; story leaves lifecycle/review/DONE/evidence gate files untouched.",
-          "headHash": "e6785b5f2b9758628932f9a4ad0c3e8f6cd5dff0",
-          "materialHash": "117aa4cbe0b68708a5ec92ed0e34e2dc1741c4192dd51c404515b24740f126b1",
-          "storyFilesHash": "d6951e0301683920a8b4eff49db9d272f01aeb8d2d4cfbc82f488e7813200d66",
-          "timestamp": "2026-07-01T00:59:53.132Z"
+          "note": "Docs explicitly reject lifecycle gate evidence claims for parameterized profile output; this feature does not claim lossy recovery or gate shortcut semantics.",
+          "headHash": "419d6641b73c5eac4c67cd18badaada51223b51d",
+          "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+          "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+          "timestamp": "2026-07-01T01:25:34.314Z"
         }
       ]
     }
