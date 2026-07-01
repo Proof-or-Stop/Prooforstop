@@ -84,6 +84,10 @@ pre-registered set of cells applicable to BOTH arms in a comparison; the exact i
 matrix is published and every percentage states its denominator. N/A cells are excluded
 and logged (never counted as failures).
 
+Runner tooling may expose an exploratory offline profile for local scenario-subset dry
+runs, but the fixed B1-B15 remains the default for the pre-registered experiment. Such
+profile runs are not lifecycle gate evidence.
+
 ## 4. Outcomes + objective decision rules
 
 ### 4.1 §5 ablation (no injection)

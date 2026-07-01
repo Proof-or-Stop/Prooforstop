@@ -390,6 +390,9 @@ keys as proof. It also does not add parameterized fault injection,
 recovery-runner behavior, streaming I/O rewrites, parallel execution, or
 fountain/erasure-code evidence recovery.
 
+Any recovery-runner exploratory offline profile is experiment-only; the fixed B1-B15
+remains the default, and profile output is not lifecycle gate evidence.
+
 ### M2 - Reserved Proof-Key And Server-Owned Metadata Contract
 
 Goal: stop proof-looking metadata from being preseeded or overwritten by

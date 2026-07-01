@@ -27,6 +27,7 @@
 // Pure helpers are exported and exercised offline by run-driver-selfcheck.mjs.
 import { adjudicate } from './adjudicate.mjs';
 import { harnessAcceptance, hiddenRegression, diffHygiene } from './checks.mjs';
+import { parseScenarioProfile, formatScenarioProfileLine } from './parameterized-fault-profile.mjs';
 
 // ---------------------------------------------------------------------------
 // Pre-registered constants (mirror the protocol §1/§3/§5 EXACTLY)
@@ -166,6 +167,7 @@ export function enumerateCells({
   scenarios = [ABLATION_SCENARIO, ...RECOVERY_SCENARIOS],
   k = 5,
   seed = 'pre-reg',
+  allowDuplicateScenarios = false,
 } = {}) {
   if (!Array.isArray(tasks) || tasks.length === 0) {
     throw new Error('enumerateCells: tasks must be a non-empty array');
@@ -189,7 +191,7 @@ export function enumerateCells({
   if (new Set(arms).size !== arms.length) {
     throw new Error('enumerateCells: duplicate arm(s) are not allowed');
   }
-  if (new Set(scenarios).size !== scenarios.length) {
+  if (!allowDuplicateScenarios && new Set(scenarios).size !== scenarios.length) {
     throw new Error('enumerateCells: duplicate scenario(s) are not allowed');
   }
   const cells = [];
@@ -439,11 +441,33 @@ async function main() {
   const enginePath = arg('--engine', null);
   const maxReruns = intArg('--maxReruns', 3);
   requireNonNegInt('--maxReruns', maxReruns);
+  let scenarioSelection;
+  try {
+    scenarioSelection = parseScenarioProfile({
+      scenarioProfile: arg('--scenarioProfile', null),
+      scenarioParams: arg('--scenarioParams', null),
+      validScenarios: RECOVERY_SCENARIOS,
+    });
+  } catch (e) {
+    console.error(`[run-driver] invalid scenario profile: ${e && e.message ? e.message : e}`);
+    process.exit(2);
+  }
+  const scenarios = scenarioSelection.explicit
+    ? scenarioSelection.scenarios
+    : [ABLATION_SCENARIO, ...RECOVERY_SCENARIOS];
   // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
   const exclusionsFile = `${recordFile}.exclusions.jsonl`;
   const voidsFile = `${recordFile}.voids.jsonl`;
 
-  const { cells, excluded } = enumerateCells({ tasks, k, seed });
+  const { cells, excluded } = enumerateCells({
+    tasks,
+    scenarios,
+    k,
+    seed,
+    allowDuplicateScenarios: scenarioSelection.profile === 'weighted',
+  });
+  const profileLine = formatScenarioProfileLine(scenarioSelection);
+  if (profileLine) console.log(profileLine);
   // §7 — N/A cells are excluded AND durably logged with reason (not just counted).
   for (const e of excluded) appendFileSync(exclusionsFile, JSON.stringify(e) + '\n');
   console.log(`[run-driver] enumerated ${cells.length} applicable cells; ${excluded.length} N/A cells excluded -> ${exclusionsFile}`);
