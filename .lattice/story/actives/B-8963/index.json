@@ -4,7 +4,7 @@
   "title": "Reuse command-local hash snapshots across DONE and review gates",
   "description": "Introduce a narrow command-local freshness snapshot so DONE and review assurance gates can reuse one authoritative HEAD/material/story-files binding within the same command execution. This is not a global cache and must not weaken stale-evidence detection; it only removes duplicate whole-tree hash recomputation after the binding has already been captured for the same git state.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-06-30-dnacoder-transfer-analysis",
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-06-30T22:05:43.009Z",
   "startedAt": "2026-06-30T22:05:43.009Z",
-  "endedAt": null,
+  "endedAt": "2026-07-01T00:01:09.227Z",
   "events": [
     {
       "phase": "INIT",
@@ -135,12 +135,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-0d088a9d2060bc64",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-01T00:01:09.227Z",
+      "branch": "story/B-8963",
+      "user": "Harmonygo",
+      "sessionId": "sess-76cd9da6af9e84b9",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8963",
-    "branch": "story/B-8963",
-    "createdAt": "2026-06-30T22:07:54.702Z"
-  },
   "currentReviewRound": "2026-06-30T23:36:28.271Z"
 }
