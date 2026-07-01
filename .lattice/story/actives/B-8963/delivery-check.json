@@ -1,0 +1,57 @@
+{
+  "storyId": "B-8963",
+  "checkedAt": "2026-06-30T23:50:08.504Z",
+  "headHash": "193312577bdabdd49c6e297919ebbf149f06d08e",
+  "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+  "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+  "reviewRound": "2026-06-30T23:36:28.271Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M1 command-local syndrome preflight is documented as an exact hash-bound command-local snapshot with gitCwd, metadataRoot, ref, headHash, materialHash, storyFilesHash, capture time, material dirty files, and reuse only after cwd/root/ref/HEAD/no-material-dirty preflight.",
+      "status": "verified",
+      "verifiedBy": "git diff review + rg",
+      "evidence": "git diff main...HEAD adds the M1 command-local syndrome preflight subsection; rg -n found the subsection at line 376."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "The docs state this is not a persistent cache and does not use mtime or file-count freshness keys.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg -n found the no persistent cache / no mtime or file-count promise at line 388."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "The docs explicitly exclude fountain/erasure-code evidence recovery and broader recovery-runner semantics from this optimization.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg -n found the fountain/erasure-code non-goal at line 391."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-003",
+      "transcript": "node packages/main/dist/tasks/verification-freshness-smoke.js exited 0; printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false; DONE currentBinding reused with materialHash/storyFilesHash; stale supplied snapshot rejected after dirty material drift; lifecycle DONE/session/lifecycle call sites thread evidenceHashSnapshot; verification freshness smoke passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:review-escalation-freshness-root exited 0; review-escalation freshness-root smoke passed, covering fallback/recomputation behavior when no reusable snapshot is supplied."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js exited 0; delivery-check material binding, story-owned stale detection, tamper rejection, missing binding fail-closed, and empty-set storyFilesHash strictness all passed."
+    },
+    {
+      "featureId": "validation",
+      "transcript": "lattice test_list confirmed latest validation command lattice validate --story=B-8963 --json PASS at 2026-06-30T23:45:55.511Z with allPass=true, materialHash=13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb, storyFilesHash=537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96; lifecycle_check reported evidence freshness PASS and 12/12 verification coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse scan found docs promises met, focused smokes passed, F-001 resolved with production DONE/session/lifecycle call sites threading EvidenceHashSnapshot, and latest validation evidence fresh against materialHash 13198f080da1 / storyFilesHash 537eae118a8b. The previous delivery check was stale; this reviewer record refreshes delivery binding. Separate DONE-required and review-assurance-floor blockers remain outside delivery scope."
+  },
+  "_hash": "f497418ab5b54d40dae69d339547ca2a331af63d1b3e7cc3857ad384cd08df7c"
+}

@@ -1,6 +1,6 @@
 import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -667,8 +667,18 @@ function mapDoneRow(storyId: string, doneRow: DoneCheckRow): StoryReadinessRow {
   });
 }
 
-function buildDoneRows(store: StoryStore, storyId: string, root: string, gitCwd: string): StoryReadinessRow[] {
-  const rows = buildDoneChecklist(storyId, store, root, { gitCwd, auditWriter: null }).map((doneRow) => mapDoneRow(storyId, doneRow));
+function buildDoneRows(
+  store: StoryStore,
+  storyId: string,
+  root: string,
+  gitCwd: string,
+  evidenceHashSnapshot?: EvidenceHashSnapshot,
+): StoryReadinessRow[] {
+  const rows = buildDoneChecklist(storyId, store, root, {
+    gitCwd,
+    auditWriter: null,
+    evidenceHashSnapshot,
+  }).map((doneRow) => mapDoneRow(storyId, doneRow));
   const doneOracleHasBlockers = rows.some((doneRow) => doneRow.blocking);
   rows.push(row({
     id: 'done.done_prepare',
@@ -825,9 +835,10 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
   const { storyId, target, store, root } = input;
   const story = store.readStory(storyId);
   const gitCwd = input.gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
-  const headHash = currentGitHead(gitCwd) ?? null;
-  const materialHash = currentMaterialHash(gitCwd, 'HEAD', root) ?? null;
-  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', root) ?? null;
+  const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
+  const headHash = evidenceHashSnapshot?.headHash ?? null;
+  const materialHash = evidenceHashSnapshot?.materialHash ?? null;
+  const storyFilesHash = evidenceHashSnapshot?.storyFilesHash ?? null;
   const verificationEvidence = collectVerificationEvidence(store, storyId);
   const testEvidence = store.readTestEvidence(storyId);
   const deliveryCheck = store.readDeliveryCheck(storyId);
@@ -884,7 +895,7 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
     }
   }
   if (target === 'DONE') {
-    readiness.push(...buildDoneRows(store, storyId, root, gitCwd));
+    readiness.push(...buildDoneRows(store, storyId, root, gitCwd, evidenceHashSnapshot));
   }
 
   const localReady = !readiness.some((candidate) => candidate.blocking === true);

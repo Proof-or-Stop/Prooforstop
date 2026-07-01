@@ -14,12 +14,71 @@
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/*hash*smoke.ts"
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:17:53.600Z",
+      "endTime": "2026-06-30T22:25:29.250Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureEvidenceHashSnapshot returns one coherent headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the snapshot records material dirty state so dirty material worktree changes cannot be silently reused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the contract exposes no persistent cache and no mtime or file-count based freshness shortcut",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"captureEvidenceHashSnapshot: reusable=true, materialDirty=false\" in the focused smoke output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Smoke printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false and asserted one headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted clean snapshots have no material dirt and that dirty material worktree drift makes the old snapshot unsafe.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed with an in-memory EvidenceHashSnapshot contract; implementation adds no persistent cache and no mtime/file-count proof shortcut.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -33,19 +92,80 @@
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
           "packages/main/src/core/done-required-validation.ts",
-          "packages/main/src/handlers/review-escalation.ts",
           "packages/main/src/handlers/phase-gates.ts",
           "packages/main/src/handlers/delivery-check.ts",
-          "packages/main/src/handlers/quorum-submit.ts"
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-escalation.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/*freshness*smoke.ts"
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:36:25.883Z",
+      "endTime": "2026-06-30T22:41:51.872Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE oracle/review escalation/review assurance paths reuse a supplied command-local material/story binding instead of recomputing independently",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "if no reusable binding is supplied, consumers retain existing recomputation and stale-check behavior",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a stale supplied binding is not accepted after HEAD or material dirty state changes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>\" in the focused smoke output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Freshness smoke now pairs the existing runtime reuse check with static production call-site assertions proving runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check capture and pass evidenceHashSnapshot.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-escalation-freshness-root",
+          "result": "pass",
+          "note": "Review-escalation freshness-root smoke passed after threading snapshots, confirming fallback/recomputation behavior remains valid where no supplied snapshot is available.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js && node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "Freshness smoke rejected a stale supplied snapshot after dirty material drift, and delivery-check freshness smoke still proves story-owned drift remains stale across DONE consumers.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -58,13 +178,73 @@
         "modify": [],
         "create": [],
         "test": [
-          "packages/main/src/tasks/*hash*smoke.ts",
-          "packages/main/src/tasks/*freshness*smoke.ts"
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:26:01.466Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "focused smoke coverage proves unchanged-state snapshot reuse passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "focused smoke coverage proves story-owned file drift changes storyFilesHash and blocks stale evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "focused smoke coverage proves dirty material worktree state prevents unsafe snapshot reuse",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"stale supplied snapshot rejected after dirty material drift\" in the focused smoke output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserted unchanged-state snapshot reuse succeeds and printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "Delivery-check freshness smoke passed its story-owned change after delivery-check is stale across DONE consumers case.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke printed stale supplied snapshot rejected after dirty material drift and asserted reusable=false/materialDirty=true.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -80,9 +260,80 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:26:09.858Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proof-admissibility docs describe the command-local syndrome-preflight boundary",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs explicitly say mtime/file-count keys and persistent caches are non-goals",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs explicitly reject fountain-code or erasure-code recovery as evidence semantics",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"syndrome preflight is command-local only; no persistent cache\" in the documentation check output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the new M1 command-local syndrome preflight subsection.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the subsection line saying no persistent cache and no mtime or file-count freshness keys.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the explicit fountain/erasure-code evidence recovery non-goal.",
+          "headHash": "782f294b3e566c2a7c5770c2a34a3412a244c8eb",
+          "materialHash": "13198f080da17218cf31b7c0b75279d8f4b0f9b4ae0eb1196994c969f90cfbdb",
+          "storyFilesHash": "537eae118a8b08743aef521810a1052d14d48c9946881f85af4e4ea2bc373a96",
+          "timestamp": "2026-06-30T23:43:48.764Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T22:36:25.883Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for B-8963:F-001: production DONE/session/lifecycle call sites must supply the command-local snapshot, not only tests.",
+      "agent": "codex"
     }
   ]
 }

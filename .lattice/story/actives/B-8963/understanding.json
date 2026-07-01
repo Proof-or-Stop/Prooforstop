@@ -1,0 +1,31 @@
+{
+  "task": "Reduce duplicate current material/story hash recomputation inside DONE and review assurance gate paths without weakening freshness binding.",
+  "outcome": "When the user runs DONE/review readiness commands, Proofbound reports the same current material/story binding once per command path and still blocks stale evidence after real HEAD or story-file drift.",
+  "facts": [
+    "currentMaterialHash and currentStoryFilesHash are used across DONE, review escalation, review assurance, delivery, quorum, and validation evidence paths.",
+    "currentMaterialHash already has large-tree maxBuffer protection, so this story is not a streaming I/O rewrite.",
+    "evaluateReviewEscalation already accepts supplied materialHash and storyFilesHash, but DONE oracle paths do not consistently pass a shared binding.",
+    "Proofbound evidence must remain exact and hash-bound; DNAcoder fountain-code redundancy is not applicable.",
+    "B-b49f was discarded because it was half-initialized without checklist artifact; B-8963 is the clean replacement."
+  ],
+  "constraints": [
+    "No global persistent hash cache.",
+    "No mtime or file-count freshness key.",
+    "No fountain-code or erasure-code evidence model.",
+    "No autopilot parallel execution or recovery-runner fault injection in M1.",
+    "Snapshot reuse must fail closed when HEAD or material dirty state changes."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+  ],
+  "timestamp": "2026-06-30T22:10:07.948Z"
+}

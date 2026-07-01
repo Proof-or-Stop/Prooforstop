@@ -1,0 +1,52 @@
+{
+  "storyId": "B-8963",
+  "checkedAt": "2026-06-30T22:13:00.702Z",
+  "features": [
+    {
+      "feature": "hash snapshot contract",
+      "covered_by": "CHK-001 covers packages/main/src/core/evidence-freshness.ts plus packages/main/src/tasks/verification-freshness-smoke.ts; intents require one coherent headHash/materialHash/storyFilesHash binding, dirty material state recording, and no persistent cache or mtime/file-count shortcut.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, understanding_get, plan_get, scope_contract_show"
+    },
+    {
+      "feature": "DONE/review consumer threading",
+      "covered_by": "CHK-002 covers done-prepare.ts, done-required-validation.ts, phase-gates.ts, delivery-check.ts, quorum-submit.ts, done-oracle.ts, review-assurance-floor.ts, review-escalation.ts, plus verification-freshness-smoke.ts; intents require supplied binding reuse, fallback recomputation, and stale supplied binding rejection.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, decision_get, plan_get, scope_contract_show"
+    },
+    {
+      "feature": "stale-safety regression coverage",
+      "covered_by": "CHK-003 covers verification-freshness-smoke.ts, review-escalation-smoke.ts, and delivery-check-freshness-smoke.ts; intents require unchanged-state reuse pass, story-owned drift rejection, and dirty material worktree reuse rejection.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, plan_get, scope_contract_show"
+    },
+    {
+      "feature": "documentation boundary",
+      "covered_by": "CHK-004 covers docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; intents require command-local syndrome-preflight documentation and explicit rejection of mtime/file-count keys, persistent caches, and fountain/erasure-code recovery semantics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, understanding_get, plan_get, scope_contract_show"
+    },
+    {
+      "feature": "out-of-scope optimization and recovery work",
+      "covered_by": "Decision constraints and scope contract identify the boundary.",
+      "status": "excluded",
+      "excluded_by": "Excluded by decision constraints and scope contract explicitExcludes: experiments/recovery-runner/powered, experiments/recovery-runner, global persistent hash cache, autopilot parallel execution changes; also excludes mtime/file-count freshness keys and fountain/erasure-code evidence model.",
+      "source": "understanding_get, decision_get, scope_contract_show"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6fbfae085dfdd6139f8b5785e00f28f4afd6132b1d65ab45fdfc94346427c6e5",
+  "openQuestions": []
+}

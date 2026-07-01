@@ -1,0 +1,63 @@
+{
+  "storyId": "B-8963",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/session.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/recovery-runner/powered",
+    "experiments/recovery-runner",
+    "global persistent hash cache",
+    "autopilot parallel execution changes"
+  ],
+  "scopeChangeReason": "Expand scope for verified finding B-8963:F-001: production DONE/session/lifecycle buildDoneChecklist call sites must supply the command-local evidence hash snapshot.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These story-local ProofStory artifacts are required by the enforced DEV gate to bind the approved M1-only intent, milestone ledger, and acceptance mapping; they do not expand product code scope.",
+      "timestamp": "2026-06-30T22:28:43.648Z",
+      "paths": [
+        ".lattice/story/actives/B-8963/intent-collision.json",
+        ".lattice/story/actives/B-8963/milestone-ledger.json",
+        ".lattice/story/actives/B-8963/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8963/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-8963/intent-collision.json",
+        ".lattice/story/actives/B-8963/milestone-ledger.json",
+        ".lattice/story/actives/B-8963/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8963/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "8ab5522f04f96ffc4e139149e7a31fa98c6fb8d6",
+      "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+      "anchors": [
+        "ProofStory.DEVGate",
+        "B8963.M1OnlyAcceptedInterpretation",
+        "EvidenceHashSnapshot.CommandLocalReuse"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-30T22:11:49.717Z",
+  "updatedAt": "2026-06-30T22:36:36.892Z"
+}

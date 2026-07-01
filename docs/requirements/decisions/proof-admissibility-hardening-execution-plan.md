@@ -373,6 +373,23 @@ B-0985 status: complete for M1 classification. The shared module is
 `npm --prefix packages/main run test:proof-admissibility`. Gate enforcement and
 server-backed authority integration remain non-goals for this story.
 
+#### M1 command-local syndrome preflight
+
+Current-state proof consumers may reuse a command-local evidence hash snapshot
+inside one CLI command invocation to avoid recomputing the same tuple across
+DONE / review gate rows. The snapshot is exact hash-bound: `gitCwd`,
+`metadataRoot`, `ref`, `headHash`, `materialHash`, `storyFilesHash`, capture
+time, and material dirty files. Reuse is allowed only after a cheap syndrome
+preflight confirms the same git cwd/ref/metadata root, the same current HEAD,
+and no material dirty files. If the preflight fails, the consumer must capture a
+fresh binding or report that the supplied snapshot is not reusable.
+
+This is intentionally command-local only. It is not a persistent cache, does not
+write evidence/runtime artifacts, and does not use mtime or file-count freshness
+keys as proof. It also does not add parameterized fault injection,
+recovery-runner behavior, streaming I/O rewrites, parallel execution, or
+fountain/erasure-code evidence recovery.
+
 ### M2 - Reserved Proof-Key And Server-Owned Metadata Contract
 
 Goal: stop proof-looking metadata from being preseeded or overwritten by

@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-8963:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: proof-admissibility M1 addition is command-local only, rejects persistent cache/mtime/file-count/fountain-erasure scope, and does not drift into M2.",
+      "createdAt": "2026-06-30T22:33:04.505Z",
+      "reviewRound": "2026-06-30T22:30:00.663Z",
+      "reviewRunId": "B-8963:RR-004",
+      "_hash": "db17c4a3f8504d5cd3b8cde336dcd204ab334f0eb05b1d9f2172004a9443cf58"
+    },
+    {
+      "id": "B-8963:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: command-local snapshot reuse is host-neutral across gitCwd/metadataRoot/ref, rejects mismatched HEAD and material dirt before reuse, has no global or persisted cache, and stale evidence paths remain fail-closed via existing freshness gates.",
+      "createdAt": "2026-06-30T22:33:44.739Z",
+      "reviewRound": "2026-06-30T22:30:00.663Z",
+      "reviewRunId": "B-8963:RR-001",
+      "_hash": "d0eb9fcd516f2e67007d84fa414d1a66459ea0a2e93d64c1795b251b2fc51560"
+    },
+    {
+      "id": "B-8963:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence hash snapshot reuse, dirty material invalidation, completedSnapshot override behavior, and escalation/floor recomputation paths at current HEAD; no blocking quality or correctness issue found.",
+      "createdAt": "2026-06-30T22:35:21.306Z",
+      "reviewRound": "2026-06-30T22:30:00.663Z",
+      "reviewRunId": "B-8963:RR-007",
+      "_hash": "608875d7b334c2acb7aeeec9cea5f45683ddd117a406be31f3423d4d4096ee9d"
+    },
+    {
+      "id": "B-8963:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass after F-001 fix. Inspected current HEAD with focus on 918d569a7 and 24a8b451b: evidence hash snapshot remains command-local and in-memory; reuse is preflight-bound to gitCwd, metadataRoot, ref, current HEAD, and no material dirty files; no global cache or durable runtime artifact was introduced; DONE/readiness/session call sites thread the snapshot rather than adding arbitrary optimization; M2/server authority remains out of scope; existing stale evidence checks continue to fail closed.",
+      "createdAt": "2026-06-30T22:46:04.534Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-008",
+      "_hash": "38aa4c4c7f7fec1a79db65a4e966081357c664134e59a1935eb5bad2fbfe6e63"
+    },
+    {
+      "id": "B-8963:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review after F-001 fix. Reviewed proof-admissibility execution-plan M1 command-local syndrome preflight against current code. Doc lines 372-387 match implementation: command-local in-memory snapshot only; exact gitCwd/metadataRoot/ref/head/material/storyFiles/dirty binding; reuse preflight gates same roots/ref/HEAD and no material dirty files; fallback captures fresh binding. Negative scans found no persistent cache/artifact writes, no mtime/file-count proof, no fountain/erasure recovery, and no recovery-runner/parallel/M2 drift in this change. Production call sites in phase-gates, lifecycle-readiness, and session thread the snapshot in the way described, so no docs adjustment beyond the existing subsection is required.",
+      "createdAt": "2026-06-30T22:46:51.877Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-011",
+      "_hash": "0fa2813bbcecc8f5771d047fa5d9eb4d11573b43a2ad80a3b0f8e5777f1bc8ca"
+    },
+    {
+      "id": "B-8963:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-001 verified fixed. runDoneOracleGate captures and forwards a command-local evidenceHashSnapshot to buildDoneChecklist; buildStoryReadinessReport captures once and forwards it through DONE rows; session_brief DONE pre-check captures and passes the snapshot. buildDoneChecklist validates snapshot reuse and falls back safely when stale. Focused smoke passed: node packages/main/dist/tasks/verification-freshness-smoke.js.",
+      "createdAt": "2026-06-30T22:47:00.229Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-010",
+      "_hash": "9f7d855da8b98a9a7dc95193ed9ff9d0cfc72bae2dd1d9482bf42783d970c06a"
+    },
+    {
+      "id": "B-8963:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence-freshness.ts, done-oracle.ts, lifecycle-readiness.ts, phase-gates.ts, session.ts, and verification-freshness-smoke.ts after F-001. Wrapper-root routing, dirty snapshot rejection/fallback, DONE snapshot reuse, and session/lifecycle call sites look correct. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-oracle-wrapper-root, npm --prefix packages/main run test:review-escalation-freshness-root, and node packages/main/dist/tasks/verification-freshness-smoke.js.",
+      "createdAt": "2026-06-30T22:47:30.510Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-009",
+      "_hash": "e5e067baafa0b10704ee0fdb802e75d3b97f5bdfd24fd08cfb19ddc3404172fc"
+    },
+    {
+      "id": "B-8963:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed final delta after prior concept pass; packages/main/src/tasks/verification-freshness-smoke.ts only changes active vocabulary in a console log. Verified final material preserves host-neutral command-local snapshot semantics: evidenceHashSnapshot is captured at command boundaries with gitCwd/metadataRoot/ref, reused only after same cwd/root/ref/head plus clean material preflight, and DONE/session/lifecycle call sites thread the snapshot without persisting it. Ran node packages/main/dist/tasks/verification-freshness-smoke.js PASS.",
+      "createdAt": "2026-06-30T23:05:24.045Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-012",
+      "_hash": "d665b3ca3c14000e39eb71561b385715f077ec85669aecbfd4e3d859193d6508"
+    },
+    {
+      "id": "B-8963:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: focused coverage review verified the active-vocabulary freshness smoke output, the retired authority vocabulary guard, and the B-8963:F-001 production call-site coverage. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/verification-freshness-smoke.js; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js.",
+      "createdAt": "2026-06-30T23:06:06.404Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-014",
+      "_hash": "2981f9c4eb7597ad61b9d7d9bd21e43cee05a22d8ae950751a544748cbe172b8"
+    },
+    {
+      "id": "B-8963:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed proof-admissibility execution-plan M1 command-local syndrome preflight section against current implementation in evidence-freshness, done-oracle, lifecycle-readiness, phase-gates, session, and verification-freshness-smoke. The doc accurately describes command-local snapshot binding, same-root/ref/HEAD/material-dirt reuse preflight, fallback fresh capture, and non-persistent/non-mtime proof semantics. Verified final smoke wording uses active lifecycle vocabulary; retired authority vocabulary guard PASS via node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js. No docs blockers.",
+      "createdAt": "2026-06-30T23:06:29.627Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-015",
+      "_hash": "b3e646253c07b8fdba54af75814fe6645a3074d552e4f900fc2d17add0992cad"
+    },
+    {
+      "id": "B-8963:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Final quality pass on HEAD 3ac8f9a. Checked active-vocabulary smoke delta, command-local evidenceHashSnapshot threading through lifecycle/DONE/session call sites, stale snapshot rejection, and no snapshot threading regression. Targeted verification-freshness smoke passed; TypeScript noEmit compile passed.",
+      "createdAt": "2026-06-30T23:07:03.733Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-013",
+      "_hash": "ae964ebd5d3d5e47496a9394ed6f0e8f81492213d2d79954b2a52698f47f84f1"
+    },
+    {
+      "id": "B-8963:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs/vocabulary REVIEW round 4 after main merge passed. Reviewed the only changed non-story markdown file, docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, especially the added M1 command-local syndrome preflight section. The wording matches the implemented evidenceHashSnapshot/checkEvidenceHashSnapshotReuse behavior, preserves command-local/non-persistent boundaries, and avoids Authority/production/ledger overclaim. git diff --check plus proof-admissibility hardening and retired authority vocabulary guards passed.",
+      "createdAt": "2026-06-30T23:38:37.851Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-018",
+      "_hash": "06ce660540ae0568a570e73fd14a4444158a976d96a3dec9fcdd596ce602bd29"
+    },
+    {
+      "id": "B-8963:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "PASS: targeted concept review after main merge found the command-local snapshot boundary sound. Reviewed evidence-freshness snapshot capture/reuse, DONE oracle current binding consumption, readiness/session/phase-gate call-site threading, and proof-admissibility docs. Focused smoke confirmed clean reuse, DONE binding reuse, and dirty-material rejection; no persistent cache or mtime/file-count proof semantics introduced.",
+      "createdAt": "2026-06-30T23:39:40.002Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-016",
+      "_hash": "2bc2d155453f479898e9e95fad8da6451e61d6f416903d5a9c80ab812f2f7381"
+    },
+    {
+      "id": "B-8963:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-001 remains fixed. Verified production call sites capture and pass evidenceHashSnapshot in runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check. node packages/main/dist/tasks/verification-freshness-smoke.js passed before and after npm --prefix packages/main run build, and git diff --check passed.",
+      "createdAt": "2026-06-30T23:40:12.488Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-020",
+      "_hash": "383c14b412ad4d5201cbe9917d71c41a60f45a8a1beca5cbdb219b0a9833fdfb"
+    },
+    {
+      "id": "B-8963:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality review after main merge: inspected evidence hash snapshot contract, DONE oracle/current binding use, readiness/session call sites, dirty preflight parsing, and docs boundary. Ran git diff --check, focused freshness smokes, delivery-check freshness smoke, review-escalation freshness-root smoke, and npm --prefix packages/main run build -- --noEmit. No blocking quality issue found.",
+      "createdAt": "2026-06-30T23:40:26.370Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-019",
+      "_hash": "30e8dbfac066260bb5cc79408bf77f341f239de1c874adacd6af2b365c566a8e"
+    }
+  ]
+}

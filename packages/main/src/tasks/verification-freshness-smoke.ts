@@ -2,13 +2,23 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  captureEvidenceHashSnapshot,
+  checkEvidenceFreshnessForGit,
+  checkEvidenceHashSnapshotReuse,
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
+  isMaterialExcludedPath,
+} from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { EVIDENCE_STALE_MARKER, findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { createSessionHandlers } from '../handlers/session.js';
@@ -116,6 +126,118 @@ function coverageStatusWithMaterialHash(afterPath: string): string {
 function mkdtempRoot(): string {
   return mkdtempSync(join(tmpdir(), 'lattice-freshness-'));
 }
+
+function assertEvidenceHashSnapshotReusePreflight(): void {
+  const root = mkdtempRoot();
+  try {
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+    }, null, 2));
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    commit(root, 'base');
+    git(root, ['checkout', '-B', 'story/B-snapshot']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    commit(root, 'story file');
+
+    const snapshot = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+    assert.equal(snapshot.gitCwd, root, 'snapshot gitCwd should be the command git cwd');
+    assert.equal(snapshot.metadataRoot, root, 'snapshot metadataRoot should be the command metadata root');
+    assert.equal(snapshot.ref, 'HEAD', 'snapshot ref should be HEAD');
+    assert.equal(snapshot.headHash, currentGitHead(root), 'snapshot headHash should bind current HEAD');
+    assert.equal(snapshot.materialHash, currentMaterialHash(root, 'HEAD', root), 'snapshot materialHash should bind current material tree');
+    assert.equal(snapshot.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'snapshot storyFilesHash should bind current story-owned files');
+    assert.deepEqual(snapshot.materialDirtyFiles, [], 'clean fixture should have no material dirty files');
+
+    const reusable = checkEvidenceHashSnapshotReuse(snapshot, { gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+    assert.equal(reusable.reusable, true, `clean unchanged snapshot should be reusable: ${reusable.reasons.join('; ')}`);
+    assert.equal(reusable.materialDirty, false, 'clean unchanged snapshot should report no material dirt');
+    console.log(`captureEvidenceHashSnapshot: reusable=${reusable.reusable}, materialDirty=${reusable.materialDirty}`);
+
+    const store = new StoryStore(root);
+    const storyId = 'B-snapshot';
+    const now = '2026-06-30T00:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'snapshot-reuse-smoke',
+      title: 'Snapshot reuse smoke',
+      description: 'Smoke story proving DONE current binding can reuse a command-local snapshot.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Snapshot reuse',
+        context: 'Snapshot reuse',
+        status: 'done',
+        startTime: null,
+        endTime: null,
+      }],
+    });
+    const rows = buildDoneChecklist(storyId, store, root, {
+      gitCwd: root,
+      auditWriter: null,
+      evidenceHashSnapshot: snapshot,
+    });
+    assert.ok(rows.some(row => row.id === 'review-escalation'), 'DONE checklist should evaluate review escalation with current binding');
+    assert.ok(rows.some(row => row.id === 'review-assurance-floor'), 'DONE checklist should evaluate review assurance floor with current binding');
+    assert.ok(snapshot.materialHash, 'DONE current binding materialHash should be available');
+    assert.ok(snapshot.storyFilesHash, 'DONE current binding storyFilesHash should be available');
+    console.log(`DONE currentBinding reused: materialHash=${snapshot.materialHash} storyFilesHash=${snapshot.storyFilesHash}`);
+
+    write(root, 'packages/main/src/story.ts', 'export const story = 2;\n');
+    const stale = checkEvidenceHashSnapshotReuse(snapshot, { gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+    assert.equal(stale.reusable, false, 'old snapshot must not be reusable after dirty material drift');
+    assert.equal(stale.materialDirty, true, 'dirty material drift should be visible in the preflight');
+    assert.ok(stale.materialDirtyFiles.length > 0, 'dirty material drift should name at least one material dirty file');
+    console.log('stale supplied snapshot rejected after dirty material drift');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+assertEvidenceHashSnapshotReusePreflight();
+
+function assertProductionCallSitesThreadEvidenceHashSnapshot(): void {
+  const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const source = (path: string) => readFileSync(join(packageRoot, 'src', path), 'utf8');
+  const phaseGates = source('handlers/phase-gates.ts');
+  const lifecycleReadiness = source('core/lifecycle-readiness.ts');
+  const session = source('handlers/session.ts');
+
+  assert.match(
+    phaseGates,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd, metadataRoot: root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, store, root, \{ gitCwd, evidenceHashSnapshot \}\)/,
+    'runDoneOracleGate should capture and pass a command-local evidenceHashSnapshot',
+  );
+  assert.match(
+    lifecycleReadiness,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd, metadataRoot: root, ref: 'HEAD' \}\);[\s\S]*buildDoneRows\(store, storyId, root, gitCwd, evidenceHashSnapshot\)/,
+    'buildStoryReadinessReport should capture once and pass the snapshot to DONE rows',
+  );
+  assert.match(
+    lifecycleReadiness,
+    /buildDoneChecklist\(storyId, store, root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
+    'buildDoneRows should forward evidenceHashSnapshot to buildDoneChecklist',
+  );
+  assert.match(
+    session,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd: ctx\.root, metadataRoot: ctx\.root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, ctx\.store, ctx\.root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
+    'session_brief DONE pre-check should pass a command-local evidenceHashSnapshot',
+  );
+  console.log('lifecycle DONE/session/lifecycle call sites thread evidenceHashSnapshot');
+}
+
+assertProductionCallSitesThreadEvidenceHashSnapshot();
 
 const metadataOnly = [
   '.lattice/story/actives/B-smoke/checklist.json',
