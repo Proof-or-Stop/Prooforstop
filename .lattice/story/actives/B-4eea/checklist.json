@@ -694,9 +694,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T04:27:10.576Z",
-      "endTime": null
+      "endTime": "2026-07-01T04:27:11.037Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke passes with configured required runtime memory classes present.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:11.419Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "result": "pass",
+          "note": "Health smoke covers drift/staleness classification without hard-coding global required memories.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:11.770Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 regression proves source mutation of surfaced memory marks old packs stale-relevant while unrelated churn stays stale-irrelevant.",
+          "headHash": "efa01876a4632d36eaa7ab3dbc08a6bd38e293c9",
+          "materialHash": "fa626c0b28376004fa8c321135c9a998c2d1a67e578f025e668bda596adcec3b",
+          "storyFilesHash": "cd8f050341eaf262125f3c90ffd2d81912f2491803b6fb0555b781741248a3b0",
+          "timestamp": "2026-07-01T04:27:12.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-010",
@@ -915,6 +950,15 @@
       "timestamp": "2026-07-01T04:27:08.991Z",
       "phase": "DEV",
       "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "B-4eea current-HEAD verification evidence recorded after implementation and full test matrix pass."
+    },
+    {
+      "timestamp": "2026-07-01T04:27:11.037Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
       "action": "update",
       "from": "in_progress",
       "to": "done",
