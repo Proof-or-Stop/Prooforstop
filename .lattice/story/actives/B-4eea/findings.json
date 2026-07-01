@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|million-record-baseline",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4eea:F-002",
+      "desc": "1M baseline test does not execute the runtime search/ranking/pack path against gold queries; broken retriever/ranker could still pass if IDs exist in corpus.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T04:35:08.039Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-003",
+      "_hash": "9bcb1f4e7574a65f1c49677444946cb5ece41b8e11f8e2eb3b9f21f28432cc47",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|baseline-test-execute",
+      "signatureTagSource": "auto"
     }
   ]
 }
