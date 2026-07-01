@@ -33,6 +33,7 @@ function refreshManifest(outputDir: string, overrides: Record<string, unknown> =
     profile: manifest.profile,
     seed: manifest.seed,
     recordCount: overrides.recordCount ?? manifest.recordCount,
+    partitionCounts: overrides.partitionCounts ?? manifest.partitionCounts,
     fullProfileExactMillion: overrides.fullProfileExactMillion ?? manifest.fullProfileExactMillion,
     recordsDigest: digestText(readFileSync(`${outputDir}/records.jsonl`, 'utf8')),
     goldDigest: digestText(readFileSync(`${outputDir}/gold-queries.json`, 'utf8')),
@@ -63,10 +64,24 @@ function rewriteRecord(outputDir: string, id: string, update: (row: Record<strin
   refreshManifest(outputDir);
 }
 
+function replaceRecord(outputDir: string, id: string, replacement: Record<string, unknown>): void {
+  rewriteRecord(outputDir, id, () => replacement);
+}
+
+function removeGoldQuery(outputDir: string, queryId: string): void {
+  const goldPath = `${outputDir}/gold-queries.json`;
+  const gold = JSON.parse(readFileSync(goldPath, 'utf8')) as { queries?: Array<Record<string, unknown>> };
+  const before = gold.queries?.length ?? 0;
+  const queries = (gold.queries ?? []).filter((query) => query.id !== queryId);
+  assert.equal(queries.length, before - 1, `expected to remove gold query ${queryId}`);
+  writeFileSync(goldPath, `${JSON.stringify({ ...gold, queries }, null, 2)}\n`, 'utf8');
+  refreshManifest(outputDir);
+}
+
 function assertBrokenCandidateWouldFail(): void {
   const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
   try {
-    rewriteRecord(generated.outputDir, 'pb-host-policy-candidate', (row) => ({ ...row, status: 'active' }));
+    rewriteRecord(generated.outputDir, 'pb-candidate-only', (row) => ({ ...row, status: 'active' }));
     const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
     assert.equal(verified.status, 'fail');
     assert.ok(verified.correctness.candidateFalseSurfaceRate > 0, 'active candidate row must be counted as a false surface');
@@ -78,7 +93,7 @@ function assertBrokenCandidateWouldFail(): void {
 function assertBrokenSupersessionWouldFail(): void {
   const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
   try {
-    rewriteRecord(generated.outputDir, 'mem-truth-current', (row) => {
+    rewriteRecord(generated.outputDir, 'mem-superseded-default-current', (row) => {
       const next = { ...row };
       delete next.supersedes;
       return next;
@@ -86,6 +101,68 @@ function assertBrokenSupersessionWouldFail(): void {
     const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
     assert.equal(verified.status, 'fail');
     assert.ok(verified.correctness.supersededFalseSurfaceRate > 0, 'unsuppressed superseded row must be counted as a false surface');
+    assert.ok(verified.correctness.expectedSuppressedIdsFoundRate < 1, 'missing suppression evidence must fail the gold contract');
+  } finally {
+    if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
+  }
+}
+
+function assertMissingCandidateOnlyClassWouldFail(): void {
+  const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
+  try {
+    replaceRecord(generated.outputDir, 'pb-candidate-only', {
+      id: 'noise-replaced-candidate-only',
+      kind: 'playbook',
+      status: 'candidate',
+      partition: 'playbook-candidates',
+      recordClass: 'noise',
+      text: 'candidate replacement row keeps manifest self consistent but removes the required class',
+    });
+    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
+    assert.equal(verified.status, 'fail');
+    assert.ok(verified.correctness.goldRecordPresenceRate < 1, 'required candidate-only gold record must be present');
+  } finally {
+    if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
+  }
+}
+
+function assertBrokenDeprecatedBrandResidueWouldFail(): void {
+  const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
+  try {
+    rewriteRecord(generated.outputDir, 'mem-deprecated-brand-current', (row) => {
+      const next = { ...row };
+      delete next.supersedes;
+      return next;
+    });
+    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
+    assert.equal(verified.status, 'fail');
+    assert.ok(verified.correctness.deprecatedFalseSurfaceRate > 0, 'deprecated brand residue must not surface as current guidance');
+    assert.ok(verified.correctness.expectedSuppressedIdsFoundRate < 1, 'deprecated residue suppression must be recorded');
+  } finally {
+    if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
+  }
+}
+
+function assertBrokenSourceDigestGoldWouldFail(): void {
+  const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
+  try {
+    rewriteRecord(generated.outputDir, 'pb-source-mutation-active', (row) => ({ ...row, status: 'candidate' }));
+    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
+    assert.equal(verified.status, 'fail');
+    assert.ok(verified.correctness.expectedIdsFoundRate < 1, 'source-digest active playbook must surface for its gold query');
+    assert.equal(verified.correctness.sourceDigestMutationMatrixPass, true, 'fixture break is separate from matrix mechanics');
+  } finally {
+    if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
+  }
+}
+
+function assertMissingGoldQueryClassWouldFail(): void {
+  const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
+  try {
+    removeGoldQuery(generated.outputDir, 'deprecated-brand-residue');
+    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
+    assert.equal(verified.status, 'fail');
+    assert.ok(verified.correctness.goldQueryPresenceRate < 1, 'required gold query classes must not be removable by refreshing the manifest');
   } finally {
     if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
   }
@@ -186,6 +263,10 @@ async function run(): Promise<void> {
       assert.equal(generated.manifest.recordCount, 1_000_000);
       assert.equal(generated.manifest.fullProfileExactMillion, true);
     }
+    if (profile === 'small') {
+      assert.equal(generated.manifest.recordCount, 1_000);
+      assert.equal(generated.manifest.fullProfileExactMillion, false);
+    }
     const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
     assert.equal(verified.status, 'pass');
     assert.equal(verified.authority, 'non_authoritative');
@@ -199,11 +280,34 @@ async function run(): Promise<void> {
     assert.equal(verified.goldDigestStable, true);
     assert.equal(verified.manifestDigestStable, true);
     assert.equal(verified.correctness.expectedIdsFoundRate, 1);
+    assert.equal(verified.correctness.goldQueryPresenceRate, 1);
+    assert.equal(verified.correctness.goldRecordPresenceRate, 1);
+    assert.equal(verified.correctness.expectedSuppressedIdsFoundRate, 1);
+    assert.equal(verified.correctness.expectedDeprecatedTermHitsFoundRate, 1);
     assert.equal(verified.correctness.candidateFalseSurfaceRate, 0);
     assert.equal(verified.correctness.supersededFalseSurfaceRate, 0);
+    assert.equal(verified.correctness.deprecatedFalseSurfaceRate, 0);
     assert.equal(verified.correctness.currentOverSupersededPreferenceRate, 1);
+    assert.equal(verified.correctness.partitionContractPass, true);
+    assert.equal(verified.correctness.sourceDigestMutationMatrixPass, true);
+    assert.deepEqual(verified.sourceDigestMutationMatrix, {
+      projectMemoryRelevant: 'stale-relevant',
+      projectMemoryIrrelevant: 'stale-irrelevant',
+      globalMemoryRelevant: 'stale-relevant',
+      globalMemoryIrrelevant: 'stale-irrelevant',
+      playbookRelevant: 'stale-relevant',
+      playbookIrrelevant: 'stale-irrelevant',
+      signatureRegistryRelevant: 'stale-relevant',
+      signatureRegistryIrrelevant: 'stale-irrelevant',
+      initialSurfacePass: true,
+      pass: true,
+    });
     assertBrokenCandidateWouldFail();
     assertBrokenSupersessionWouldFail();
+    assertMissingCandidateOnlyClassWouldFail();
+    assertBrokenDeprecatedBrandResidueWouldFail();
+    assertBrokenSourceDigestGoldWouldFail();
+    assertMissingGoldQueryClassWouldFail();
     assertGoldTamperWouldFail();
     assertTruncatedSelfConsistentManifestWouldFail();
     assertRequestedProfileMismatchWouldFail();
