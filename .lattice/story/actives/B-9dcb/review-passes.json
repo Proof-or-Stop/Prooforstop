@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-01T02:51:12.598Z",
       "reviewRunId": "B-9dcb:RR-001",
       "_hash": "4ddcf77e779dcc5e08f41bfa81ba3f13bcc87107ce5ea259f999153af5188f96"
+    },
+    {
+      "id": "B-9dcb:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review: 11/12 must intents have valid evidence pointing at the correct Proof in the smoke (Proofs A/B/C/D each exercise the claimed behavior with direct assertions). One medium finding F-002 raised for CHK-004:edge:0 mislabeled evidence pointer (signReviewRun/workspaceBinding not exercised in Proof D). No must-gap on coverage substance; CHK-002:adversarial:0 is priority=should (not must). Overall coverage is adequate for the intent claims.",
+      "createdAt": "2026-07-01T02:54:10.248Z",
+      "reviewRound": "2026-07-01T02:51:12.598Z",
+      "reviewRunId": "B-9dcb:RR-006",
+      "_hash": "31799487516b3d2b8dc16345ceeb35bd22eaa70e3860a48441aaf7944284cff4"
     }
   ]
 }
