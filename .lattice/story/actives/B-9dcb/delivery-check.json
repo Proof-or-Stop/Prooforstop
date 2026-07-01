@@ -1,0 +1,35 @@
+{
+  "storyId": "B-9dcb",
+  "checkedAt": "2026-07-01T03:24:15.493Z",
+  "headHash": "d59fbcfdc0269947a6c9ccd43c52da050b61e71f",
+  "materialHash": "9c91d98058cd5cbb3e567bcc2198ea8fc55624d68ef2b70c7c5c88c60875a25c",
+  "storyFilesHash": "ea536f79bd0a3ca51dfa9e1ef6ab827d98cef940474d3bad2fe327d2b2d2fab3",
+  "reviewRound": "2026-07-01T03:05:44.403Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Proof A: captureReviewRunSnapshot(gitRoot, ctx, metadataRoot) vs default differ on materialHash and storyFilesHash (custom-storyDir file excluded vs included). diagnoseReviewRunSnapshot returns null (capturable) for both. Smoke passes: node dist/tasks/review-run-metadataroot-wrapper-root-smoke.js prints review-run metadataRoot wrapper-root smoke passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Proof A verified captureReviewRunSnapshot threads metadataRoot correctly. Proof D verified plain-repo byte-identity for captureReviewRunSnapshot and diagnoseReviewRunSnapshot with metadataRoot defaulted vs explicit == root. Proof E verified buildReviewRunWorkspaceBinding.bindingHash and signReviewRun _hash are byte-identical in plain-repo case."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Proof B: checkEvidenceFreshnessForGit stays FRESH with threaded metadataRoot and is FALSE-STALE with gitRoot-as-metadataRoot after metadata-only commit. assertCurrentReviewRunForEvidence end-to-end accepts the signed run bound to metadataRoot. Proof C: legacy fallback (no workspaceBinding) on wrapper-root resolves to projectRoot==metadataRoot, stays FRESH; gitRoot yields FALSE-STALE; assertCurrentReviewRunForEvidence accepts bindingless run."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Proof D: plain-repo snapshot and freshness byte-identical defaulted vs explicit. Proof E: signature byte-identity for buildReviewRunWorkspaceBinding.bindingHash and signReviewRun _hash on plain repo. Smoke registered in smoke-manifest.json and package.json script test:review-run-metadataroot-wrapper-root. All 4 proofs (A/B/C/D/E) run and assert green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items covered by the wrapper-root smoke (Proofs A-E). Smoke runs green (review-run metadataRoot wrapper-root smoke passed). No doc promises to verify: diff shows zero changes to CLAUDE.md, README, or docs/. Edge cases covered: metadata-only churn stays fresh (B), gitRoot-as-metadataRoot goes false-stale (B/C adversarial), legacy/bindingless fallback stays fresh (C), plain-repo byte-identity (D/E). No unresolved TODOs in changed production code."
+  },
+  "_hash": "ba0e7f4909672125b83cc2191b384d0c26f20879ee78ed0dc82f7a01c88ab454"
+}
