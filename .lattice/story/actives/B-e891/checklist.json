@@ -44,9 +44,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T01:50:27.140Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "Post-commit G02 smoke printed parent-roadmap large-ledger G02 baseline smoke PASS after asserting 15 required rows, 14 generated closed rows, no-full-roadmap-claim, and allRowsClosed false.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.349Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "Post-commit G02 smoke asserts G02-M15 is the only open row and only invalid row, and that its reasonCodes include missing_required_row.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.480Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+          "result": "pass",
+          "note": "Post-commit G02 smoke asserts Full roadmap complete is blocked in enforce mode and serialized ledger, rollup, and claim decision contain no elevated claim terms.",
+          "headHash": "5cdb7750d073846459f7a10588d9be8da1eb816e",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:27.627Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -90,9 +128,67 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T01:50:36.063Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Post-commit decision doc check names G01-G02 as implemented and includes the runnable parent-roadmap-large-ledger-g02 smoke command after build.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.202Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"G01-G02|G02|G03|G10|full 10x15 baseline is not complete|parent-roadmap-large-ledger-g02\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Post-commit decision doc check keeps G03-G10 future and states the full 10x15 baseline is not complete while marking only G01-G02 implemented.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.436Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Post-commit documentation bounds G02 as local missing-row proof only and the retired vocabulary guard passed, with no elevated rollout, Authority, production, or two-host completion claim added.",
+          "headHash": "300be38c1dbf403ef5c7ead9168029eb5db15f57",
+          "materialHash": "ec89ba8dbcc5503ce412a344f7e2ad0a2b43a123462f7ef232152ab338097fd6",
+          "storyFilesHash": "af4a4aeb159aacb6512fe71f6f6d42e28cd526c249fa8c1b4c988a3361261d5b",
+          "timestamp": "2026-07-01T01:50:36.573Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T01:48:49.764Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified G02 missing-row negative-control smoke."
+    },
+    {
+      "timestamp": "2026-07-01T01:49:00.476Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Updated and verified G02 baseline documentation boundaries."
     }
   ]
 }

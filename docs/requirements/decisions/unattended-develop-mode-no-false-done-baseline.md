@@ -1,7 +1,7 @@
 # Unattended Develop Mode No-False-DONE 10x15 Milestone Baseline
 
 Date: 2026-07-01
-Status: baseline design / G01 implemented only; G02-G10 future implementation
+Status: baseline design / G01-G02 implemented only; G03-G10 future implementation
 Related docs:
 
 - `docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`
@@ -73,12 +73,13 @@ rows, migration rows, and claim boundary status.
 
 ## Implementation Progress
 
-Current implemented slice: **G01 only**. The full 10x15 baseline is not complete.
+Current implemented slice: **G01-G02 only**. The full 10x15 baseline is not complete.
 
 Runnable command after building `packages/main`:
 
 ```bash
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js
 ```
 
 The G01 smoke lives at
@@ -89,14 +90,22 @@ existing parent-roadmap rollup API, asserts the positive-control
 guards that local proof does not become Authority, fullAuthority, production, or
 independent two-host completion evidence.
 
-The project validation config is not changed by this G01 slice. Until a later
+The G02 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts`.
+It is the missing-row negative-control smoke: the required inventory is exactly
+15 row ids, the generated ledger contains exactly 14 fresh closed rows, and
+`G02-M15` is deliberately omitted. The rollup must surface `G02-M15` as the only
+open and invalid row with `missing_required_row`, return
+`no-full-roadmap-claim`, and block full completion wording.
+
+The project validation config is not changed by this G01-G02 slice. Until a later
 story binds the full baseline into routine validation, run the command above
 directly.
 
 | Group | Implementation status |
 |---|---|
 | G01 | Implemented as the positive-control 15-row baseline smoke. |
-| G02 | Future / not implemented. |
+| G02 | Implemented as the missing-row negative-control 14-of-15 baseline smoke. |
 | G03 | Future / not implemented. |
 | G04 | Future / not implemented. |
 | G05 | Future / not implemented. |
@@ -152,7 +161,7 @@ milestone rows above and differs only in row status/evidence shape.
 | Group | Scenario | Required rollup result | Why it exists |
 |---|---|---|---|
 | G01 | All 15 rows closed with fresh machine evidence | `full_roadmap_complete` | Positive control: proves the baseline can complete when all proof is valid. |
-| G02 | 14 rows closed, 1 required row missing | `no-full-roadmap-claim`, `openRows=1` | Prevents one missing milestone from being hidden by an otherwise large pass set. |
+| G02 | 14 rows closed, 1 required row missing | `no-full-roadmap-claim`, `openRows=1`, `invalidRows=1` | Prevents one missing milestone from being hidden by an otherwise large pass set. |
 | G03 | 15 rows have prose closure but no machine evidence | `no-full-roadmap-claim`, evidence missing | Prevents documentation text from satisfying DONE. |
 | G04 | 15 rows have stale evidence | `no-full-roadmap-claim`, `staleEvidenceRows=15` | Proves stale material or story-file bindings block completion. |
 | G05 | 12 rows closed, 3 rows deferred | `no-full-roadmap-claim`, `deferredRows=3` | Ensures deliberate deferral is visible and not counted as complete. |
@@ -170,7 +179,7 @@ helpers to generate the 150 rows, but the observed rollup must match this table.
 | Group | Total rows | Closed rows | Open rows | Stale rows | Deferred rows | Invalid rows | Migration rows | Full claim allowed |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
 | G01 | 15 | 15 | 0 | 0 | 0 | 0 | 0 | yes |
-| G02 | 15 | 14 | 1 | 0 | 0 | 0 | 0 | no |
+| G02 | 15 | 14 | 1 | 0 | 0 | 1 | 0 | no |
 | G03 | 15 | 0 | 15 | 0 | 0 | 0 | 0 | no |
 | G04 | 15 | 0 | 0 | 15 | 0 | 0 | 0 | no |
 | G05 | 15 | 12 | 0 | 0 | 3 | 0 | 0 | no |
@@ -251,14 +260,15 @@ benchmark for unattended completion:
 
 ## Non-Goals
 
-Story B-b596 implements the G01 positive-control smoke only. The full 10x15
-smoke remains future work: G02-G10 are not implemented here, and this story
-makes no full-baseline completion claim.
+Story B-b596 implements the G01 positive-control smoke only. Story B-e891
+implements the G02 missing-row negative-control smoke only. The full 10x15
+smoke remains future and incomplete work: G03-G10 are not implemented here, and
+these stories make no full-baseline completion claim.
 
 This baseline also does not require or claim 150 real Lattice stories, remote
-hosts, Authority receipts, fullAuthority receipts, production execution, or
-independent two-host evidence. It should use synthetic local fixtures unless a
-future unlock story explicitly requires live execution.
+hosts, elevated rollout status, Authority receipts, fullAuthority receipts,
+production execution, or independent two-host evidence. It should use synthetic
+local fixtures unless a future unlock story explicitly requires live execution.
 
 ## Summary
 

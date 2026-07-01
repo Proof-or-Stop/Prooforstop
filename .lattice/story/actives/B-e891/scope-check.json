@@ -1,0 +1,66 @@
+{
+  "storyId": "B-e891",
+  "checkedAt": "2026-07-01T01:44:49.276Z",
+  "features": [
+    {
+      "feature": "CHK-001 G02 smoke scope covered",
+      "covered_by": "checklist CHK-001 creates packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts; plan.md CHK-001 creates only the G02 missing-row negative-control smoke; understanding touchpoints list only the G02 smoke and baseline document; proofstory AB-G02-independent-ledger/AB-G02-missing-row-visible/AB-G02-full-claim-blocked bind this scope.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist, plan.md, understanding, proofstory"
+    },
+    {
+      "feature": "CHK-002 doc boundary scope covered",
+      "covered_by": "checklist CHK-002 modifies docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md; plan.md CHK-002 modifies only the baseline document and keeps G03-G10 future; proofstory AB-G02-doc-boundary binds docs to G01-G02 implemented and full 10x15 incomplete.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist, plan.md, proofstory"
+    },
+    {
+      "feature": "core evaluator modification excluded",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "checklist CHK-001 excludes parent-roadmap evaluator core logic modification; plan.md CHK-001 says do not modify packages/main/src/core/parent-roadmap-totality.ts; scope-contract protectedFiles includes that path; scope-boundary excludes modifying parent-roadmap evaluator core logic.",
+      "source": "checklist, plan.md, scope-contract, scope-boundary"
+    },
+    {
+      "feature": "G03-G10 implementation excluded",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "checklist CHK-001 excludes implementing G03-G10; plan.md intent boundary says G03-G10 remain future work; scope-contract explicitExcludes lists G03 through G10 baseline smoke task files; scope-freeze-check marks Implement G03-G10 as excluded.",
+      "source": "checklist, plan.md, scope-contract, scope-freeze-check"
+    },
+    {
+      "feature": "elevated rollout/Authority/production claim boundary excluded",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "checklist CHK-002 excludes Authority/fullAuthority/production/two-host completion claims; plan.md requires no elevated claim terms in smoke output and document; scope-boundary excludes modifying Authority/fullAuthority/production semantics; proofstory acceptance bindings require avoiding elevated rollout claims.",
+      "source": "checklist, plan.md, scope-boundary, proofstory"
+    },
+    {
+      "feature": "ProofStory core/handler modification excluded",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract protectedFiles includes packages/main/src/core/proofstory.ts and packages/main/src/handlers/proofstory.ts; execution-boundary allowedPaths do not include ProofStory core or handler files.",
+      "source": "scope-contract, execution-boundary"
+    },
+    {
+      "feature": "lattice.config.json modification excluded",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract protectedFiles includes lattice.config.json; execution-boundary allowedPaths do not include lattice.config.json; requested scope allows only G02 smoke, baseline document, and B-e891 Lattice evidence artifacts.",
+      "source": "scope-contract, execution-boundary, reviewer scope review"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 2,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bfd46c957971a6c8bd73f66a51ed3708660d653264e47ad31ac9f86c2c7e9bb5",
+  "openQuestions": []
+}

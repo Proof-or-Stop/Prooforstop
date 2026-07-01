@@ -1,0 +1,49 @@
+{
+  "storyId": "B-e891",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    ".lattice/story/actives/B-e891/index.json",
+    ".lattice/story/actives/B-e891/understanding.json",
+    ".lattice/story/actives/B-e891/decision.json",
+    ".lattice/story/actives/B-e891/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e891/milestone-ledger.json",
+    ".lattice/story/actives/B-e891/intent-collision.json",
+    ".lattice/story/actives/B-e891/proofstory.json",
+    ".lattice/story/actives/B-e891/scope-contract.json",
+    ".lattice/story/actives/B-e891/process-events.jsonl"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.ts",
+    ".lattice/story/actives/B-e891/index.json",
+    ".lattice/story/actives/B-e891/understanding.json",
+    ".lattice/story/actives/B-e891/decision.json",
+    ".lattice/story/actives/B-e891/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e891/milestone-ledger.json",
+    ".lattice/story/actives/B-e891/intent-collision.json",
+    ".lattice/story/actives/B-e891/proofstory.json",
+    ".lattice/story/actives/B-e891/scope-contract.json",
+    ".lattice/story/actives/B-e891/process-events.jsonl"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "lattice.config.json"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+  ],
+  "scopeChangeReason": "B-e891 allows exact Lattice lifecycle evidence artifact paths plus the G02 smoke and baseline document; product code remains protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T01:40:57.387Z",
+  "updatedAt": "2026-07-01T01:41:44.879Z"
+}
