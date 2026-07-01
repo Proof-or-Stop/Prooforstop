@@ -1,0 +1,171 @@
+{
+  "storyId": "B-9dcb",
+  "checkedAt": "2026-07-01T02:25:54.873Z",
+  "features": [
+    {
+      "feature": "Durable red test that reproduces the false-stale bug: wrapper-root + custom-storyDir + metadata-only commit causes captureReviewRunSnapshot / checkEvidenceFreshnessForGit to report stale in the production path (must fail before fix, pass after)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Control case in repro test: correct metadataRoot path stays fresh across a metadata-only commit to the custom storyDir",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Legacy review run without workspaceBinding falls back to projectRoot (no behavior change in test)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Thread metadataRoot parameter into captureReviewRunSnapshot (core/review-run.ts) so materialHash/storyFilesHash use the storyDir-aware exclusion set",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Thread metadataRoot parameter into diagnoseReviewRunSnapshot (core/review-run.ts) for diagnostic materialHash consistency",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Default metadataRoot=projectRoot in captureReviewRunSnapshot/diagnoseReviewRunSnapshot keeps plain-repo snapshot byte-identical",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consumer fix: thread run.workspaceBinding?.metadataRoot ?? projectRoot into assertCurrentReviewRunForEvidence (core/review-run.ts write-time freshness check)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Consumer fix: thread run.workspaceBinding?.metadataRoot ?? projectRoot into validateEvidenceRunBinding (core/review-run.ts validate-time freshness check)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Legacy runs without workspaceBinding fall back to projectRoot in both consumer freshness checks (behavior unchanged)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Regression guard proving plain/default-storyDir snapshot+freshness are byte-identical after the fix (no divergence from prior behavior)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression guard locking wrapper-root+custom-storyDir metadata-only-commit path stays fresh after fix",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHK-001 red test turns green after fix; lattice validate all green",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Repro-first pre-story intake workflow (repro_probe, repro_review_set, spike_record, story_create_from_repro) used as intake method for B-9dcb",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Repro-first artifacts are evidence candidates and intake context, not delivery deliverables. B-9dcb consumes the pre-story artifacts but does not implement or change the repro-first intake machinery.",
+      "source": "decisions:decisions/repro-first-story-intake-experiment.md"
+    },
+    {
+      "feature": "Broader freshness/materialHash refactors beyond the two-sided fix (captureReviewRunSnapshot + assertCurrentReviewRunForEvidence/validateEvidenceRunBinding)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope: the story description states scope boundary is the two-sided fix; broader freshness/materialHash refactors are excluded.",
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Signing-algorithm changes in captureReviewRunSnapshot or workspaceBinding schema",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Excluded per scope boundary: signing-algorithm changes are not permitted; only metadataRoot parameter threading.",
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Other freshness consumers: done-oracle, done-prepare, verifier (already correct)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Excluded per scope boundary: done-oracle/done-prepare/verifier are already correct; the fix is limited to the two named consumers.",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "storyDir/loadConfig changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Excluded per scope boundary: storyDir resolution changes are out of scope.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "id-recency rejection relax for PASS kind (review-run-binding-race B-77ed scope: assertCurrentReviewRunForEvidence + validateEvidenceRunBinding stale_run issue relax)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This is a separate prior fix (review-run-binding-race.md); B-9dcb threads metadataRoot into the same consumers but does not re-implement or change the id-recency relax logic.",
+      "source": "decisions:decisions/review-run-binding-race.md"
+    },
+    {
+      "feature": "Authority/Layer4/customerKeyRef/repair-UX future capabilities",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded per scope boundary statement in story description.",
+      "source": "decisions:decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+    },
+    {
+      "feature": "EMPTY_STORY_FILES_HASH guard in checkEvidenceFreshnessForGit (review-run-binding-race mandatory soundness guard)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The EMPTY_STORY_FILES_HASH guard was delivered by the review-run-binding-race story; B-9dcb does not add or change this guard, only threads metadataRoot into the consumer calls.",
+      "source": "decisions:decisions/review-run-binding-race.md"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap (INIT_CHECK bootstrap using configured gitRoot)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Delivered by B-4e06; outside B-9dcb scope.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair command for mid-flight story verificationIntent repair",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Delivered by B-4e06; outside B-9dcb scope.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "covered": 12,
+    "excluded": 10,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a735107ec19b66ed4ef3558afa137d0faa5fdd48f4c8897ec63e1124a14bdd5b",
+  "openQuestions": []
+}
