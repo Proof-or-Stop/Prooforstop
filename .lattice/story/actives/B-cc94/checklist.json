@@ -134,7 +134,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Build and focused smoke evidence show MVP1 is complete, while the remaining parent milestones M5-M12 stay explicitly open for later stories.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build plus focused playbook-runtime-memory MVP1 smoke pass and cover CHK-001 through CHK-004 required proofs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Checklist evidence and final summary explicitly identify M5-M12 as deferred/not part of this MVP1 story.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation does not claim handoff/story/DONE/1M baseline completion from MVP1 session_brief evidence.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
