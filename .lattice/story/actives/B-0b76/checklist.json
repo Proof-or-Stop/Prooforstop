@@ -165,12 +165,22 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "README.md contains a section documenting make-fig-gate-ablation.mjs (input powered/*.jsonl → fig-gate-ablation.svg + .csv) and selfcheck count reads 8; WHY: pure documentation item, verified by manual inspection of README content",
+            "desc": "README.md contains a section documenting make-fig-gate-ablation.mjs (grep finds the script name + its input powered/*.jsonl and outputs fig-gate-ablation.svg/.csv); WHY: the committed-generator norm requires the generator be discoverable/documented",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "README selfcheck count is updated from 7 to 8 exactly — grep shows the recovery-runner selfcheck count reads 8, with no stale 7 left behind; WHY: a stale count is the classic doc-code drift the docs reviewer flags",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "README does NOT over-claim: it must not state the generator edits the paper/main.tex or computes the bootstrap CI (those are the declared excludes), and the documented inputs/outputs match the actual generator (powered/*.jsonl → fig-gate-ablation.svg + .csv); WHY: doc-promise-undelivered / over-claim is the primary docs-review failure mode",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
