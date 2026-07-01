@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-01T05:27:26.508Z",
       "reviewRunId": "B-4eea:RR-011",
       "_hash": "c64bdd2596ae00f45774111b9a4d1d0be80be97b87b08ec1d91a0bd31d49323d"
+    },
+    {
+      "id": "B-4eea:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-014 targeted re-review pass: docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md §5.2/§5.3 requires candidate-only, source-digest mutation matrix, superseded-default, and deprecated brand residue gold query coverage. packages/main/src/core/playbook-runtime-baseline.ts defines matching GOLD_QUERIES/GOLD_RECORDS ids and verifier thresholds requiring goldQueryPresenceRate=1, goldRecordPresenceRate=1, expected/suppressed/deprecated rates=1, false-surface rates=0, and sourceDigestMutationMatrix.pass. packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts includes negative assertions for broken candidate, supersession, missing candidate class, deprecated brand residue, broken source-digest gold, and missing gold query class. Ran node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile small: pass.",
+      "createdAt": "2026-07-01T06:06:39.020Z",
+      "reviewRound": "2026-07-01T06:03:51.847Z",
+      "reviewRunId": "B-4eea:RR-013",
+      "_hash": "5226118c89f673b2f7371f3753c097e10e9e5549be92247ebedc57739dc1d8ea"
     }
   ]
 }
