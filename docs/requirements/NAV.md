@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 71 files
+> 72 files
 
 ## evidence
 
@@ -44,6 +44,7 @@
 - [Proofbound LLM Usage Ledger Execution Plan](decisions/lattice-llm-usage-ledger-execution-plan.md)
 - [Proofbound Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan](decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md)
 - [Proofbound Parallel Wave](decisions/lattice-parallel-wave.md)
+- [Playbook Runtime Memory Consumption Execution Plan](decisions/playbook-runtime-memory-consumption-execution-plan.md)
 - [Proofbound Runtime-Owned Agent Assets Execution Plan](decisions/lattice-runtime-owned-agent-assets-execution-plan.md)
 - [Proofbound Strengthening Roadmap Execution Plan](decisions/lattice-strengthening-roadmap-execution-plan.md)
 - [Proofbound Lifecycle Proof-Or-Stop Readiness Check](decisions/lattice-lifecycle-readiness-check-execution-plan.md)
