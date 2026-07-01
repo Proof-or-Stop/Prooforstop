@@ -576,9 +576,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:59.275Z",
       "userSees": "parent-roadmap large-ledger 10x15 baseline smoke PASS",
       "files": {
         "modify": [
@@ -620,7 +620,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js",
+          "result": "pass",
+          "note": "Aggregate smoke passed; it evaluates the 10 groups x 15 required rows = 150-row matrix and prints the required PASS line.",
+          "headHash": "2d2af1c0fb2f4811a5ddef77a1fb6b83e14673e1",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:59.546Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js",
+          "result": "pass",
+          "note": "Aggregate smoke asserts G01 and refreshed G10 permit full-roadmap completion, G02-G06 and G08-G09 block it, and G07 blocks unbounded full/elevated overclaim wording while allowing safe local boundary wording.",
+          "headHash": "2d2af1c0fb2f4811a5ddef77a1fb6b83e14673e1",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:59.803Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm test; rg stale future/incomplete patterns in unattended-develop-mode-no-false-done-baseline.md; rg elevated terms in boundary/non-goal contexts",
+          "result": "pass",
+          "note": "npm test passed. Docs checks showed G01-G10 implemented plus aggregate command present, no stale G04-G10 future/incomplete text, and elevated terms only in overclaim, boundary, or non-goal contexts.",
+          "headHash": "2d2af1c0fb2f4811a5ddef77a1fb6b83e14673e1",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:21:00.064Z"
+        }
+      ]
     }
   ]
 }
