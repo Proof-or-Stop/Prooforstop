@@ -118,8 +118,8 @@ export interface FindingSignalsCache {
 // A Playbook distils a resolved finding into a reusable check the team can apply
 // proactively. The lifecycle is STAGED and human-gated:
 //   finding -> PlaybookProposal (proposed) -> [diff] -> Playbook (candidate)
-// `active` is NEVER auto-set; promoting a candidate to active is an explicit,
-// out-of-scope human step (Phase 3). These shapes stay in this LEAF (zero
+// `active` is NEVER auto-set by approve; promoting a candidate to active is a
+// separate fail-closed activation command. These shapes stay in this LEAF (zero
 // outward imports) so the playbook surface cannot couple back into the
 // gate/handler graph through its type surface.
 
@@ -150,7 +150,7 @@ export interface PlaybookTrigger {
   storyPhases: string[];
 }
 
-/** Lifecycle status of a Playbook. `active` requires an explicit human step. */
+/** Lifecycle status of a Playbook. `active` requires explicit activation. */
 export type PlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
 
 /**
@@ -188,9 +188,10 @@ export interface PlaybookUsage {
 }
 
 /**
- * An approved Playbook, persisted in `.lattice/learning/playbooks.json`. Created
- * by `playbook_approve` at status `candidate` (NEVER `active`). Carries the same
- * core content as the proposal plus a lifecycle status and usage counters.
+ * An approved Playbook, persisted in `.lattice/learning/playbooks.json`.
+ * `playbook_approve` creates status `candidate`; `playbook_activate` is the
+ * only explicit boundary to status `active`. Carries the same core content as
+ * the proposal plus a lifecycle status and usage counters.
  */
 export interface Playbook {
   id: string;

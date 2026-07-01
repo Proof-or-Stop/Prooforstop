@@ -1,0 +1,50 @@
+{
+  "storyId": "B-cc94",
+  "checkedAt": "2026-07-01T03:30:10.663Z",
+  "headHash": "80851485cf5b1a5a89bfb7fa1c3b096c4836919e",
+  "materialHash": "b1f63e6f88369a3684a3a9d7ef8f2391fc7e4bcf8a7d7ed886c6861d79c67bd7",
+  "storyFilesHash": "30dcdfce7fa4d93b9c7b9b28063b4bafd24d0b9e3793cc36a10ec311cc054feb",
+  "reviewRound": "2026-07-01T03:12:54.029Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "MVP1 is bounded to M0-M4: red/repro, active playbook activation boundary, runtime matcher, MemoryFreshnessPack, and session_brief bounded consumption. Dev-memory and playbooks remain non-authoritative with gateEvidence false, and M5-M12 are not claimed complete by MVP1.",
+      "status": "verified",
+      "verifiedBy": "Reverse-scan of execution-plan sections 3, 4.2, 4.3, M0-M12, and 7.1 against transcript, milestone ledger, scope contract, checklist evidence, validate evidence, and DONE-required evidence.",
+      "evidence": "Execution plan 7.1 lists MVP1 scope as M0-M4 and required proof. Transcript shows Proofbound CLI 0.3.125 session_brief Memory Runtime Preflight with authority=non_authoritative gateEvidence=false, packDigest/sourceDigests, freshness fresh, render maxLines=60 omittedCount=0. Milestone ledger contains only M0-M4 covered; scope contract excludes handoff/story/DONE/1M paths; validate PASS and done_required PASS are recorded."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "Dev-memory is advisory non-authoritative context, cannot satisfy delivery_check_set, verification evidence, review pass, or other signed gate artifacts, and entries/packs carry gateEvidence false and authority non_authoritative.",
+      "status": "verified",
+      "verifiedBy": "Read dev-memory decision doc and compared to session_brief transcript and story evidence treatment.",
+      "evidence": "Dev-memory doc states non-authoritative context, not gate evidence, with gateEvidence always false and authority always non_authoritative. session_brief transcript renders authority=non_authoritative gateEvidence=false. Delivery review treats the memory block as user-value transcript evidence only, not as review or DONE proof."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-004:user-value-transcript",
+      "transcript": "Observed transcript from B-cc94 evidence and reviewer session_brief: node packages/main/dist/cli.js --version => Proofbound CLI 0.3.125; node packages/main/dist/cli.js session_brief => Memory Runtime Preflight with authority=non_authoritative gateEvidence=false, packDigest/sourceDigests, freshness fresh, five dev-memory hits, suppressedSupersededIds, and render maxLines=60 omittedCount=0."
+    },
+    {
+      "featureId": "CHK-001-CHK-005:mvp1-smoke",
+      "transcript": "Reviewer ran node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js: playbook-runtime-memory MVP1 smoke passed: TOTAL 11 | PASS 11 | FAIL 0. Checks cover command metadata, activation fail-closed behavior, candidate inertness, active surfacing, source digests, superseded suppression, stale-relevant and stale-irrelevant classification, 60-line render cap, empty state, and corrupt advisory source resilience."
+    },
+    {
+      "featureId": "TEST:validate",
+      "transcript": ".lattice/story/actives/B-cc94/test-evidence.json records lattice validate --story=B-cc94 --json result PASS at 2026-07-01T03:25:26.468Z with allPass true and verificationCoverage 21/21 covered."
+    },
+    {
+      "featureId": "DONE:done-required",
+      "transcript": ".lattice/story/actives/B-cc94/done-required-evidence.json records status PASS at 2026-07-01T03:26:31.854Z for required commands: packages/main build and root full test suite, both under version 0.3.125 evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine test exists: CLI 0.3.125 session_brief transcript, reviewer-run MVP1 smoke 11/11, validate PASS, and done_required PASS. Edge cases are covered: candidate inertness, stale digest and malformed activation rejection, superseded suppression, stale-relevant vs stale-irrelevant, 60-line cap, empty state, and corrupt advisory memory/playbooks. Unresolved todos false for MVP1; M5-M12 handoff, story, DONE, final-response, 1M baseline, health, rollout, and multi-host work are outside this MVP1 story and remain deferred rather than claimed complete."
+  },
+  "_hash": "b97b66774992480ed41f1c14364f28f774c770eda9c65b9a317aa88484579707"
+}

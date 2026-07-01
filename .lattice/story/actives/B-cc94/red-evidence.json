@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-cc94",
+  "records": [
+    {
+      "id": "B-cc94-red-session-memory-pack",
+      "trigger": "session runtime memory/playbook non-consumption before MVP1",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "76a02ea74223807636ccfec0f6c090242356d98c",
+      "baselineMaterialHash": "02c1fb842018c335c044a49d213f13141f3ae7078a95d8df031fc67fbea03353",
+      "observedFailure": "Pre-fix lattice session_brief emits no Memory Runtime Preflight block, so hosts do not automatically consume active playbook/dev-memory runtime context at session entry.",
+      "failingCommand": "set -o pipefail; lattice session_brief | rg \"Memory Runtime Preflight\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-005:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js"
+      },
+      "note": "Baseline command was run after PLAN metadata commit 76a02ea and exited 1 because no Memory Runtime Preflight line exists yet.",
+      "createdAt": "2026-07-01T02:37:21.788Z"
+    },
+    {
+      "id": "B-cc94-red-session-memory-pack-bound",
+      "trigger": "session runtime memory/playbook non-consumption before MVP1",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "76a02ea74223807636ccfec0f6c090242356d98c",
+      "baselineMaterialHash": "02c1fb842018c335c044a49d213f13141f3ae7078a95d8df031fc67fbea03353",
+      "observedFailure": "Pre-fix lattice session_brief emits no Memory Runtime Preflight block, so hosts do not automatically consume active playbook/dev-memory runtime context at session entry.",
+      "failingCommand": "set -o pipefail; lattice session_brief | rg \"Memory Runtime Preflight\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js"
+      },
+      "note": "Baseline command was run after PLAN metadata commit 76a02ea and exited 1 because no Memory Runtime Preflight line exists yet; green target stays bound to the same acceptance ref.",
+      "createdAt": "2026-07-01T02:37:46.761Z"
+    }
+  ],
+  "createdAt": "2026-07-01T02:37:21.788Z",
+  "updatedAt": "2026-07-01T02:37:46.761Z"
+}

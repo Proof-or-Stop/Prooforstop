@@ -31,6 +31,7 @@ import {
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { loadConfig } from '../core/config.js';
+import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 
 // ---------------------------------------------------------------------------
 // dev_memory_capture
@@ -303,12 +304,15 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     dryRun?: boolean;
   }): string {
     const agentName = args.agent || 'agent';
-    const preflight = buildPreflightPack({
+    const preflight = buildMemoryFreshnessPack({
       query: args.query,
       projectRoot: root,
+      consumer: 'dev_memory_start',
+      host: agentName,
       maxEntries: args.maxEntries ?? 5,
+      maxLines: 60,
     });
-    const preflightText = formatPreflightPack(preflight, args.query);
+    const preflightText = renderMemoryFreshnessPack(preflight);
     const reminder = [
       ``,
       `Dev session starting (agent: ${agentName})`,
