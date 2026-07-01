@@ -416,19 +416,39 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-function arg(f, d) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : d; }
-function optionValue(f) {
-  const i = process.argv.indexOf(f);
-  if (i < 0) return { present: false, value: null };
-  const value = process.argv[i + 1];
-  if (value == null || value.startsWith('--') || value.trim() === '') {
-    return { present: true, value: null, error: `${f} requires a value` };
+function valueFlag(f, d = null) {
+  let firstValue = d;
+  let present = false;
+  let captured = false;
+  for (let i = 2; i < process.argv.length; i++) {
+    if (process.argv[i] !== f) continue;
+    present = true;
+    const value = process.argv[i + 1];
+    if (value == null || value.startsWith('--') || value.trim() === '') {
+      return { present: true, value: null, error: 'requires a following non-flag value' };
+    }
+    if (!captured) {
+      firstValue = value;
+      captured = true;
+    }
   }
-  return { present: true, value };
+  return { present, value: firstValue };
+}
+function checkedValueFlag(f, d = null) {
+  const opt = valueFlag(f, d);
+  if (opt.error) {
+    console.error(`[run-driver] invalid ${f}: ${opt.error}.`);
+    process.exit(2);
+  }
+  return opt;
+}
+function requireValueFlag(f, d = null) {
+  const opt = checkedValueFlag(f, d);
+  return opt.value;
 }
 // Strict non-negative-integer CLI parse: rejects "1.5"/"1e2"/"abc" (parseInt would silently
 // truncate them). Returns NaN for a malformed value so the caller can fail loudly.
-function intArg(f, d) { const raw = String(arg(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
+function intArg(f, d) { const raw = String(requireValueFlag(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
 function requireNonNegInt(name, val) {
   if (!Number.isInteger(val) || val < 0) {
     console.error(`[run-driver] invalid ${name}: must be a non-negative integer.`);
@@ -438,7 +458,7 @@ function requireNonNegInt(name, val) {
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
-  const tasks = arg('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
+  const tasks = requireValueFlag('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
   // Duplicate --tasks would crash later in enumerateCells with an uncaught throw; reject here
   // with the same clean exit-2 contract as the other CLI guards (host-2 INFO).
   if (new Set(tasks).size !== tasks.length) {
@@ -447,19 +467,13 @@ async function main() {
   }
   const k = intArg('--k', 5);
   if (!Number.isInteger(k) || k < 1) { console.error('[run-driver] invalid --k: must be a positive integer (>= 1).'); process.exit(2); }
-  const seed = arg('--seed', 'pre-reg');
-  const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
-  const enginePath = arg('--engine', null);
+  const seed = requireValueFlag('--seed', 'pre-reg');
+  const recordFile = requireValueFlag('--record', join(here, 'ablation-run-records.jsonl'));
+  const enginePath = requireValueFlag('--engine', null);
   const maxReruns = intArg('--maxReruns', 3);
   requireNonNegInt('--maxReruns', maxReruns);
-  const scenarioProfileOpt = optionValue('--scenarioProfile');
-  const scenarioParamsOpt = optionValue('--scenarioParams');
-  for (const opt of [scenarioProfileOpt, scenarioParamsOpt]) {
-    if (opt.error) {
-      console.error(`[run-driver] invalid scenario profile: ${opt.error}.`);
-      process.exit(2);
-    }
-  }
+  const scenarioProfileOpt = checkedValueFlag('--scenarioProfile');
+  const scenarioParamsOpt = checkedValueFlag('--scenarioParams');
   let scenarioSelection;
   try {
     scenarioSelection = parseScenarioProfile({

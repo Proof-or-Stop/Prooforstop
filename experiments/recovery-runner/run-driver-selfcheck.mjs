@@ -331,6 +331,9 @@ group('NEGATIVE CONTROL: validateRecord must REJECT a broken record');
 group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F-004/F-006)');
 {
   const driverPath = fileURLToPath(new URL('./run-driver.mjs', import.meta.url));
+  const outputText = (r) => `${r.stdout}${r.stderr}`;
+  const noRunArtifacts = (base) =>
+    !existsSync(base) && !existsSync(`${base}.exclusions.jsonl`) && !existsSync(`${base}.voids.jsonl`);
   // (1) enumerate-only (no engine) durably logs the N/A exclusions sidecar + exits 0
   const REC0 = join(TMP, 'enum-only.jsonl');
   const r0 = spawnSync(process.execPath, [driverPath, '--record', REC0, '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
@@ -366,6 +369,20 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   // host-2 INFO: duplicate --tasks exits 2 cleanly (was an uncaught exit-1 throw)
   const rDupTasks = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'dt.jsonl'), '--tasks', 'foo,foo', '--k', '1'], { encoding: 'utf8' });
   ok(rDupTasks.status === 2 && /duplicate task/.test(`${rDupTasks.stdout}${rDupTasks.stderr}`), 'CLI: duplicate --tasks exits 2 cleanly (host-2 INFO)');
+  // B-63ba:F-002: dangling value flags must fail before matrix enumeration or sidecar writes.
+  const rDanglingRecord = spawnSync(process.execPath, [driverPath, '--record', '--tasks', 'foo'], { encoding: 'utf8', cwd: TMP });
+  ok(rDanglingRecord.status === 2 && /invalid --record: requires a following non-flag value/.test(outputText(rDanglingRecord)), 'CLI: F-002 repro --record --tasks foo exits 2 with clear diagnostic');
+  ok(!existsSync(join(TMP, '--tasks.exclusions.jsonl')) && !existsSync(join(TMP, '--tasks.voids.jsonl')), 'CLI: F-002 repro --record --tasks foo writes no accidental --tasks sidecars');
+  const REC_DANGLING_ENGINE = join(TMP, 'engine-next.jsonl');
+  const rDanglingEngine = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_ENGINE, '--engine', '--k', '1'], { encoding: 'utf8' });
+  ok(rDanglingEngine.status === 2 && /invalid --engine: requires a following non-flag value/.test(outputText(rDanglingEngine)), 'CLI: F-002 repro --engine --k 1 exits 2 with clear diagnostic');
+  ok(noRunArtifacts(REC_DANGLING_ENGINE), 'CLI: F-002 repro --engine --k 1 writes no records or sidecars');
+  const rDanglingTasks = spawnSync(process.execPath, [driverPath, '--tasks'], { encoding: 'utf8', cwd: TMP });
+  ok(rDanglingTasks.status === 2 && /invalid --tasks: requires a following non-flag value/.test(outputText(rDanglingTasks)) && !/TypeError/.test(outputText(rDanglingTasks)), 'CLI: F-002 repro --tasks exits 2 without TypeError');
+  const REC_DANGLING_TASKS = join(TMP, 'dangling-tasks.jsonl');
+  const rDanglingTasksRecord = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_TASKS, '--tasks'], { encoding: 'utf8' });
+  ok(rDanglingTasksRecord.status === 2 && /invalid --tasks: requires a following non-flag value/.test(outputText(rDanglingTasksRecord)), 'CLI: dangling --tasks with record exits 2 with clear diagnostic');
+  ok(noRunArtifacts(REC_DANGLING_TASKS), 'CLI: dangling --tasks writes no records or sidecars');
   // B-63ba: explicit offline weighted profile enumerates the requested scenario slots and
   // still refuses a live campaign when no engine is supplied.
   const REC_PROFILE = join(TMP, 'weighted-profile.jsonl');
@@ -379,12 +396,12 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   ok(!existsSync(REC_BAD_PROFILE) && !existsSync(`${REC_BAD_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_BAD_PROFILE}.voids.jsonl`), 'CLI: invalid scenario profile writes no records or sidecars');
   const REC_DANGLING_PROFILE = join(TMP, 'dangling-profile.jsonl');
   const rDanglingProfile = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PROFILE, '--tasks', 'foo', '--k', '1', '--scenarioProfile'], { encoding: 'utf8' });
-  ok(rDanglingProfile.status === 2 && /invalid scenario profile: --scenarioProfile requires a value/.test(`${rDanglingProfile.stdout}${rDanglingProfile.stderr}`), 'CLI: dangling --scenarioProfile exits 2 with clear diagnostic (B-63ba:F-001)');
-  ok(!existsSync(REC_DANGLING_PROFILE) && !existsSync(`${REC_DANGLING_PROFILE}.exclusions.jsonl`) && !existsSync(`${REC_DANGLING_PROFILE}.voids.jsonl`), 'CLI: dangling --scenarioProfile writes no records or sidecars (B-63ba:F-001)');
+  ok(rDanglingProfile.status === 2 && /invalid --scenarioProfile: requires a following non-flag value/.test(outputText(rDanglingProfile)), 'CLI: dangling --scenarioProfile exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(noRunArtifacts(REC_DANGLING_PROFILE), 'CLI: dangling --scenarioProfile writes no records or sidecars (B-63ba:F-001)');
   const REC_DANGLING_PARAMS = join(TMP, 'dangling-params.jsonl');
   const rDanglingParams = spawnSync(process.execPath, [driverPath, '--record', REC_DANGLING_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioParams'], { encoding: 'utf8' });
-  ok(rDanglingParams.status === 2 && /invalid scenario profile: --scenarioParams requires a value/.test(`${rDanglingParams.stdout}${rDanglingParams.stderr}`), 'CLI: dangling --scenarioParams exits 2 with clear diagnostic (B-63ba:F-001)');
-  ok(!existsSync(REC_DANGLING_PARAMS) && !existsSync(`${REC_DANGLING_PARAMS}.exclusions.jsonl`) && !existsSync(`${REC_DANGLING_PARAMS}.voids.jsonl`), 'CLI: dangling --scenarioParams writes no records or sidecars (B-63ba:F-001)');
+  ok(rDanglingParams.status === 2 && /invalid --scenarioParams: requires a following non-flag value/.test(outputText(rDanglingParams)), 'CLI: dangling --scenarioParams exits 2 with clear diagnostic (B-63ba:F-001)');
+  ok(noRunArtifacts(REC_DANGLING_PARAMS), 'CLI: dangling --scenarioParams writes no records or sidecars (B-63ba:F-001)');
   const REC_WEIGHTED_NO_PARAMS = join(TMP, 'weighted-no-params.jsonl');
   const rWeightedNoParams = spawnSync(process.execPath, [driverPath, '--record', REC_WEIGHTED_NO_PARAMS, '--tasks', 'foo', '--k', '1', '--scenarioProfile', 'weighted'], { encoding: 'utf8' });
   ok(rWeightedNoParams.status === 2 && /--scenarioProfile weighted requires --scenarioParams/.test(`${rWeightedNoParams.stdout}${rWeightedNoParams.stderr}`), 'CLI: weighted profile without params exits 2');
