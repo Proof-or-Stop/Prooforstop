@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-01T02:53:12.296Z",
+      "endTime": "2026-07-01T02:56:07.623Z",
       "userSees": "A focused smoke first demonstrates the session memory/playbook non-consumption gap before the implementation path is claimed fixed.",
       "verificationIntent": {
         "happy": [
@@ -37,11 +37,11 @@
           "kind": "logic_test",
           "command": "lattice red_evidence_get --storyId=B-cc94 --json",
           "result": "pass",
-          "note": "ProofStory red evidence B-cc94-red-session-memory-pack-bound records the pre-fix session_brief non-consumption failure and binds it to the green MVP1 smoke.",
-          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:12.701Z"
+          "note": "ProofStory red evidence B-cc94-red-session-memory-pack-bound records the pre-fix session_brief non-consumption failure and binds it to the green MVP1 smoke on the current implementation.",
+          "headHash": "ee546e559c6cd5172ed00ca29e75f89b7631522f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:08.322Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -49,10 +49,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke asserts candidate playbook PB-candidate does not surface while active playbook PB-active does.",
-          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:13.017Z"
+          "headHash": "ee546e559c6cd5172ed00ca29e75f89b7631522f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:08.798Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -60,10 +60,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 smoke covers pack/source digest creation and stale-relevant mutation detection; pre-fix red evidence recorded that no digest pack existed in session_brief.",
-          "headHash": "73cbf515c4014ad18fdffe3b60afd81af3884763",
-          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
-          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
-          "timestamp": "2026-07-01T02:53:13.428Z"
+          "headHash": "ee546e559c6cd5172ed00ca29e75f89b7631522f",
+          "materialHash": "4b3dc139a8f6989f9c87c3ee7721ee762afc8e7927bf4755b74c0d5d03b21042",
+          "storyFilesHash": "e4ee1b30d983cc76adeb729639333d2694d029e6da1a4945b612d9702c47e8a3",
+          "timestamp": "2026-07-01T02:56:09.110Z"
         }
       ]
     },
