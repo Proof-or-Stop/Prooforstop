@@ -414,9 +414,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:39.437Z",
       "userSees": "parent-roadmap large-ledger G09 baseline smoke PASS",
       "files": {
         "modify": [
@@ -451,7 +451,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke passed; it asserts child-story-active rows remain incomplete/open and no full-roadmap completion claim is allowed.",
+          "headHash": "382be01d29738722b855903488d08ed91fc1547c",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:39.717Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke asserts child-story-active rows with childStoryId produce child_story_active reason codes and remain open until delivery evidence exists.",
+          "headHash": "382be01d29738722b855903488d08ed91fc1547c",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:39.994Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke asserts assigning every row to child stories cannot be summarized as delivered without closure evidence.",
+          "headHash": "382be01d29738722b855903488d08ed91fc1547c",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:40.266Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
