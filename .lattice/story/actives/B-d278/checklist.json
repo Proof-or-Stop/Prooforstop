@@ -495,9 +495,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:46.660Z",
       "userSees": "parent-roadmap large-ledger G10 baseline smoke PASS",
       "files": {
         "modify": [
@@ -532,7 +532,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke passed; it first blocks 15 stale rows, then refreshes all 15 rows and permits full roadmap completion only after refresh.",
+          "headHash": "343a160767559d9b6662a306b4325b67c7e20aa9",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:46.987Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke asserts staleEvidenceRows=15 before refresh and 15 fresh closed rows, zero stale rows, and full_roadmap_complete after refresh.",
+          "headHash": "343a160767559d9b6662a306b4325b67c7e20aa9",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:47.318Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke asserts the recovery path cannot bypass stale evidence checks; only fresh material/story/head bindings unlock completion.",
+          "headHash": "343a160767559d9b6662a306b4325b67c7e20aa9",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:47.625Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
