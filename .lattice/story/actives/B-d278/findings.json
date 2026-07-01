@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-d278:F-001",
+      "desc": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md:57 still says this completed baseline is a future implementation and line 255 says the group matrix is normative for a future smoke test, even though the same doc now states G01-G10 plus the aggregate smoke are implemented. This violates the docs review goal to remove stale TODO/future wording for completed G04-G10 and aggregate 10x15 baseline coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-01T03:25:55.083Z",
+      "reviewRound": "2026-07-01T03:21:14.340Z",
+      "reviewRunId": "B-d278:RR-002",
+      "_hash": "0dcdfe562fd9a9872db8182858617e52ba800d529c9715f8b53fdb801cb3da24",
+      "files": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
