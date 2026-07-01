@@ -97,7 +97,7 @@
       "desc": "final_response_check is documented as advisory-only but is registered as critical, so enforce+baseline could mark it blocking.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-01T04:35:10.958Z",
@@ -109,7 +109,11 @@
         "packages/main/src/core/playbook-runtime-memory.ts"
       ],
       "signatureTag": "edge|md|final-response-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "final_response_check is now explicitly advisory-only in runtime consumer policy and MVP2 asserts it remains advisory even when policy is evaluated.",
+      "resolvedAt": "2026-07-01T04:48:25.885Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-006",
