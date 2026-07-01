@@ -120,7 +120,7 @@
       "desc": "agy fallback documentation says programmatic primary-host status, while implementation accepts caller-provided primaryHostFailure string; boundary must be aligned or implemented.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-01T04:35:11.719Z",
@@ -133,7 +133,11 @@
         "packages/main/src/handlers/lattice-handoff.ts"
       ],
       "signatureTag": "missing|md|fallback-documentation-says",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Execution plan now matches implementation: agy fallback requires a concrete structured primary-host failure signal from host runtime, operator, or wrapper adapter; programmatic probing is documented as an adapter source rather than MVP requirement.",
+      "resolvedAt": "2026-07-01T04:48:30.865Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
