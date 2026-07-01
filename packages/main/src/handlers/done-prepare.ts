@@ -20,6 +20,7 @@ import {
   type DirtyWorktreeEntry,
 } from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
 
 type StepStatus = 'pending' | 'skipped' | 'pass' | 'blocked';
 type StepId =
@@ -592,6 +593,11 @@ function renderPass(args: {
     `  assuranceLevel: ${args.runbook.localAssurance.assuranceLevel}`,
     `  evidenceScope: ${args.runbook.localAssurance.evidenceScope}`,
     `  reviewAssurance: ${reviewAssuranceText(args.runbook)}`,
+    '',
+    'Advisory memory considered:',
+    ...renderMemoryFreshnessPackSummary(args.runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
+    `  completionClaimSource: ${args.runbook.completionClaimSource}`,
+    '  memoryCompletionProof: false',
     '',
     'Next:',
     `lattice story_advance '{"storyId":"${args.storyId}","phase":"DONE"}'`,

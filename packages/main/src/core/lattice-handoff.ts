@@ -15,6 +15,12 @@ import {
   type HandoffAdmissibilitySummary,
 } from './proof-admissibility-handoff.js';
 import type { ProofAdmissibilityPolicy } from './proof-admissibility-gates.js';
+import {
+  renderMemoryFreshnessPackSummary,
+  runtimeMemoryTopHits,
+  type MemoryFreshnessPack,
+  type RuntimeHostPolicyDecision,
+} from './playbook-runtime-memory.js';
 
 /**
  * Diagnostic warning attached to a handoff pack when the story's authoritative
@@ -106,6 +112,8 @@ export interface HandoffPack extends HandoffPackHashInput {
   phaseAuthorityWarning?: PhaseAuthorityWarning;
   packHash: string;
   admissibilitySummary: HandoffAdmissibilitySummary;
+  memoryFreshnessPack?: MemoryFreshnessPack;
+  runtimeHostPolicy?: RuntimeHostPolicyDecision;
   productionDone: false;
   receiptRefs: [];
 }
@@ -180,6 +188,8 @@ export interface HandoffAcceptProjection {
     performed: false;
     guidance: string;
   };
+  memoryFreshnessPack?: MemoryFreshnessPack;
+  runtimeHostPolicy?: RuntimeHostPolicyDecision;
 }
 
 export interface HandoffResumeProjection {
@@ -219,6 +229,8 @@ export interface HandoffResumeProjection {
     performed: false;
     guidance: string;
   };
+  memoryFreshnessPack?: MemoryFreshnessPack;
+  runtimeHostPolicy?: RuntimeHostPolicyDecision;
 }
 
 export type HandoffScopeStatus = 'pass' | 'warn' | 'fail';
@@ -332,6 +344,7 @@ export interface HostDispatchPrefetch {
   computedAt: string;
   sessionBrief: HostDispatchPrefetchSnapshot;
   devMemoryPreflight: HostDispatchPrefetchSnapshot;
+  memoryFreshnessPack?: MemoryFreshnessPack;
   activeStorySummary: HostDispatchPrefetchSnapshot;
   doneStorySummary: HostDispatchPrefetchSnapshot;
   gapAnalyzeSummary: HostDispatchPrefetchSnapshot;
@@ -346,6 +359,9 @@ export interface HostDispatchPrefetchManifest {
   verdict: 'blocked' | 'no-block' | 'uncertain';
   winSignal: string;
   staleSignals: string[];
+  memoryPackDigest?: string;
+  memoryTopHitIds?: string[];
+  runtimeHostPolicy?: RuntimeHostPolicyDecision;
 }
 
 export interface HostDispatchProjection {
@@ -369,6 +385,7 @@ export interface HostDispatchProjection {
   worktree: Pick<HandoffWorktreeProjection, 'branch' | 'worktreePath' | 'cleanupCommand' | 'reviewCommand'>;
   preflight: HostDispatchPrefetch;
   prefetchManifest: HostDispatchPrefetchManifest;
+  runtimeHostPolicy?: RuntimeHostPolicyDecision;
 }
 
 export interface HandoffAdmissibilityOptions {
@@ -988,6 +1005,8 @@ export function buildHandoffResumeProjection(
       performed: false,
       guidance: handoffEvidenceRefreshGuidance(),
     },
+    ...(!isAccept && source.memoryFreshnessPack ? { memoryFreshnessPack: source.memoryFreshnessPack } : {}),
+    ...(!isAccept && source.runtimeHostPolicy ? { runtimeHostPolicy: source.runtimeHostPolicy } : {}),
   };
 }
 
@@ -1345,7 +1364,22 @@ export function buildHostDispatchProjection(
     },
     preflight,
     prefetchManifest,
+    ...(prefetchManifest.runtimeHostPolicy ? { runtimeHostPolicy: prefetchManifest.runtimeHostPolicy } : {}),
   };
+}
+
+function renderOptionalMemoryLines(pack?: MemoryFreshnessPack, hostPolicy?: RuntimeHostPolicyDecision): string[] {
+  if (!pack && !hostPolicy) return [];
+  const lines = ['', 'Runtime memory advisory:'];
+  if (pack) {
+    lines.push(...renderMemoryFreshnessPackSummary(pack).split('\n').map((line) => `  ${line}`));
+  }
+  if (hostPolicy) {
+    lines.push(`  hostPolicy: ${hostPolicy.canonicalHost} role=${hostPolicy.role} allowed=${hostPolicy.allowed}`);
+    lines.push(`  hostPolicyReason: ${hostPolicy.reason}`);
+  }
+  lines.push('  memoryCompletionProof: false');
+  return lines;
 }
 
 export function renderHandoffAdmissibilityLines(summary: HandoffAdmissibilitySummary): string[] {
@@ -1430,6 +1464,7 @@ export function renderHandoffResumeText(projection: HandoffResumeProjection): st
     `receiptRefs: ${projection.receiptRefs.length}`,
     `recoveryPoint: ${projection.recoveryPoint.id}`,
     `nextActions: ${projection.nextActions.length}`,
+    ...renderOptionalMemoryLines(projection.memoryFreshnessPack, projection.runtimeHostPolicy),
   ].join('\n');
 }
 
@@ -1502,6 +1537,16 @@ export function renderHostDispatchProjectionText(result: HostDispatchProjection)
     `prefetchManifest.verdict: ${result.prefetchManifest.verdict}`,
     `prefetchManifest.winSignal: ${result.prefetchManifest.winSignal}`,
     `prefetchManifest.targetStoryId: ${result.prefetchManifest.targetStoryId}`,
+    ...(result.preflight.memoryFreshnessPack ? [
+      `memoryPackDigest: ${result.preflight.memoryFreshnessPack.packDigest}`,
+      `memoryTopHitIds: ${runtimeMemoryTopHits(result.preflight.memoryFreshnessPack).ids.join(', ') || 'none'}`,
+      `memoryAuthority: ${result.preflight.memoryFreshnessPack.authority}`,
+      `memoryGateEvidence: ${result.preflight.memoryFreshnessPack.gateEvidence}`,
+    ] : []),
+    ...(result.runtimeHostPolicy ? [
+      `runtimeHostPolicy: ${result.runtimeHostPolicy.canonicalHost} role=${result.runtimeHostPolicy.role} allowed=${result.runtimeHostPolicy.allowed}`,
+      `runtimeHostPolicyReason: ${result.runtimeHostPolicy.reason}`,
+    ] : []),
   ];
   if (result.limits.length > 0) {
     lines.push('', 'limits:');

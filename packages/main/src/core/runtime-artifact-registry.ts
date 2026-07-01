@@ -193,6 +193,17 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'memory-playbook-baseline-artifacts',
+    description: 'Deterministic playbook runtime memory benchmark corpora and reports.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/benchmarks/memory-playbook/' },
+    ],
+    ignorePatterns: ['.lattice/benchmarks/memory-playbook/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`^\.lattice-tmp-[^/]+(?:/.*)?$`) }],

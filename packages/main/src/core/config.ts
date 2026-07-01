@@ -125,6 +125,11 @@ export interface LatticeConfig {
   reproFirstPreflight?: ReproFirstPreflightConfig;
   proofStory?: ProofStoryConfig;
   lifecycleControl?: LifecycleControlConfig;
+  /** Runtime memory health diagnostics; advisory only, never gate evidence. */
+  runtimeMemory?: {
+    requiredClasses?: string[];
+  };
+  requiredRuntimeMemoryClasses?: string[];
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */
@@ -267,6 +272,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
+    'memory_playbook_baseline_*', 'playbook_runtime_health', 'final_response_check',
     'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
     'signature_backfill',  // B-17a9: WRITING Experience Layer maintenance command; fills empty finding signatureTags from a committed map (source='backfill'); dry-run default; declared allowedPhases:all mainSharedMutating in command-policy; writes audit-only fields after _hash; never recomputes _hash; no gate reads it
     'playbook_*',  // B-8387/B-cc94: audit-only staged Process Playbook lifecycle; propose/diff/approve/activate/reject declared allowedPhases:all in command-policy; never files findings/touches gates; no gate reads it

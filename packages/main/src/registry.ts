@@ -91,6 +91,7 @@ import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createReproIntakeHandlers } from './handlers/repro-intake.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
+import { createPlaybookRuntimeMemoryHandlers } from './handlers/playbook-runtime-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
@@ -343,6 +344,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
+  registry.registerBatch(createPlaybookRuntimeMemoryHandlers(ctx));
 
   // Host-neutral capability discovery for Proofbound adapters.
   registry.registerBatch(createCapabilityListHandlers());

@@ -90,6 +90,7 @@ import {
   applyDoneMergeEffects,
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
+import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -133,6 +134,8 @@ export interface TransitionResult {
   scopeGateReport: string;
   /** guard session projection gate report for REVIEW/TEST/DONE (else ''). */
   guardGateReport: string;
+  /** non-authoritative runtime memory/playbook advisory (else ''). */
+  memoryRuntimeAdvisory: string;
 }
 
 /**
@@ -147,7 +150,7 @@ export function renderTransitionResult(result: TransitionResult): string {
     `${result.metadataCommitReport}${result.doneMergeReport}\n` +
     `${result.nextSteps[result.newState] || ''}${result.docsHint}` +
     `${result.scopeGateReport}${result.guardGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
-    `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}`
+    `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}${result.memoryRuntimeAdvisory}`
   );
 }
 
@@ -280,6 +283,30 @@ function runRuntimeEnforcementPreflight(
   }
   if (decision.reason === 'none' && dirty.state === 'clean') return '';
   return `\nRuntime closure preflight: ${details.join('; ')}`;
+}
+
+function renderStoryAdvanceMemoryRuntimeAdvisory(ctx: HandlerContext, story: StoryInfo, targetPhase: StoryPhase): string {
+  try {
+    const pack = buildMemoryFreshnessPack({
+      projectRoot: ctx.root,
+      consumer: 'story_advance',
+      storyPhase: targetPhase,
+      query: [
+        `story:${story.storyId}`,
+        story.title,
+        story.description,
+        `from:${story.phase}`,
+        `to:${targetPhase}`,
+        'phase advance runtime memory playbook non-authoritative stale-doc truth-first repro-first intent-totality delivery review',
+      ].filter(Boolean).join('\n'),
+      maxEntries: 5,
+      maxPlaybooks: 5,
+      maxLines: 60,
+    });
+    return `\n\nRuntime memory advisory (not gate evidence):\n${renderMemoryFreshnessPack(pack)}`;
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -675,6 +702,8 @@ async function runStoryTransitionInner(
       } catch { /* probe — never block phase advance on stale-hint failure */ }
     }
 
+    const memoryRuntimeAdvisory = renderStoryAdvanceMemoryRuntimeAdvisory(ctx, story, args.phase);
+
     return {
       storyId: args.storyId,
       newState,
@@ -691,6 +720,7 @@ async function runStoryTransitionInner(
       staleEvidenceHint,
       scopeGateReport,
       guardGateReport,
+      memoryRuntimeAdvisory,
     };
   } finally {
     // Single owner: the orchestrator stops the actor exactly once on every
