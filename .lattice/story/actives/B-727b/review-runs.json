@@ -204,6 +204,54 @@
         "bindingHash": "cd57d3e7807dfbcfd6363c29752ccba4d256315e36a1538588d928d6f99c6d2a"
       },
       "_hash": "8b43fc0a15a6ee8ab777ac181f89011138f553f2dc63a68e8d0bd8c5b5b2ee00"
+    },
+    {
+      "reviewRunId": "B-727b:RR-006",
+      "storyId": "B-727b",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T02:41:14.569Z",
+      "startedAt": "2026-07-01T02:43:31.131Z",
+      "headHash": "025aa9da86aff95568078992d9fbb1e76c9c68ed",
+      "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+      "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "f4d9e158df5941c5d8a2ad338ebaa2590b348f942aa30608dd7b35c4d8b1ab42",
+        "diffPackHash": "bb2015885bd88db1ffc0b08982ca31209f68ff2c8afdc7a92d200f9350a9bf04",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "034bbf6f7a7641220010beed3be9fb04165da49a7e409563ac67ff2c417275cf",
+          "996ec278419494aa3581912e1ba40b8549fc8da7c2150cce606461264c8ac920",
+          "ab9a1a488f8b22804f0176aa218d066819a987ace01d2f453b00b98360a6b847",
+          "d86ebcd9f969d63caf72c8be27893af515225045cccd4f5e310c77d2a1aa3b36"
+        ],
+        "bindingHash": "bf9ee1e2a5f30de6f1f2b15ac15146ae5b280b95487f70f37fab046faeda0f87"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-727b",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-727b",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-727b",
+        "workspaceMode": "story-worktree",
+        "headHash": "025aa9da86aff95568078992d9fbb1e76c9c68ed",
+        "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+        "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+        "bindingHash": "d6649777c8f5e2648f686f1ddd998ef767dff93410b4ee1217534c1d9b1b9e54"
+      },
+      "_hash": "34be3af414c8c53282f9e35f5f772f409e07f6bfd74c965e489bad3b9d535276"
     }
   ]
 }

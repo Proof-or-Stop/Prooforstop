@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-01T02:41:14.569Z",
       "reviewRunId": "B-727b:RR-002",
       "_hash": "15c709ecf07fa101659bf5d5c8473d5161add0ab4e7b52e05d5ab99e33aabe1c"
+    },
+    {
+      "id": "B-727b:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: G03 smoke constructs exactly 15 required/generated rows with completion prose and empty closureEvidence, asserts all rows remain open with evidenceState=missing and missing_closure_evidence, recomputes rollup from row facts instead of caller parentLedgerRollup, blocks full-roadmap wording in enforce mode, and build plus focused smoke passed. Source refs: packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts:69, packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts:175, packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts:203, packages/main/src/core/parent-roadmap-totality.ts:546, packages/main/src/core/parent-roadmap-totality.ts:688, packages/main/src/core/parent-roadmap-totality.ts:800. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js.",
+      "createdAt": "2026-07-01T02:43:38.570Z",
+      "reviewRound": "2026-07-01T02:41:14.569Z",
+      "reviewRunId": "B-727b:RR-006",
+      "_hash": "b4507f1cef64fee7a61f4d1daa1c55478f9dff614a99a95257ab3c816bc5e7fd"
     }
   ]
 }
