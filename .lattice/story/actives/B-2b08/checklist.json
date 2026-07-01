@@ -79,9 +79,9 @@
         "packages/main/src/tasks/version-bump-smoke.ts",
         "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:56:43.377Z",
       "verificationIntent": {
         "happy": [
           {
@@ -220,6 +220,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented by 4e0a93f5 and verified by rg old/new phrase plus version-bump smoke.",
+      "agent": "codex-main-agent"
+    },
+    {
+      "timestamp": "2026-07-01T02:56:43.377Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented by 4e0a93f5 and verified by build plus version-bump smoke preserving runtime-input behavior.",
       "agent": "codex-main-agent"
     }
   ]
