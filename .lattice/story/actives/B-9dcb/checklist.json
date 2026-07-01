@@ -189,6 +189,18 @@
           "materialHash": "b228b4a0991308ddfc19c0cdaf357e3d152917f2e60f85661a1a5ba147854168",
           "storyFilesHash": "463d066fd56066e84ed1f686022fa6f69690463c2d5bb7ee39c61998181bbee2",
           "timestamp": "2026-07-01T02:50:55.314Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Proof C: legacy run without workspaceBinding falls back to projectRoot (unchanged)",
+          "headHash": "d99c7f45dab170ecf43a566a0245ce1793691331",
+          "materialHash": "b228b4a0991308ddfc19c0cdaf357e3d152917f2e60f85661a1a5ba147854168",
+          "storyFilesHash": "463d066fd56066e84ed1f686022fa6f69690463c2d5bb7ee39c61998181bbee2",
+          "timestamp": "2026-07-01T02:50:56.156Z"
         }
       ]
     },
