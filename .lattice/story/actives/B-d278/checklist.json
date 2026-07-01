@@ -333,7 +333,49 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "parent-roadmap large-ledger 10x15 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the aggregate smoke reports all 10 groups represented, exactly 150 evaluated milestone rows, and the expected group matrix.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The aggregate smoke asserts only G01 and refreshed G10 permit a full roadmap claim, while G02-G09 remain blocked from full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation and aggregate checks must not claim full 10x15 completion until every group command and aggregate command pass, and must not claim Authority, production, fullAuthority, or remote two-host proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
