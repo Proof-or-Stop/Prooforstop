@@ -198,13 +198,18 @@ export function enumerateCells({
   const excluded = [];
   for (const taskId of tasks) {
     for (const arm of arms) {
+      const scenarioOccurrences = new Map();
       for (const scenarioId of scenarios) {
+        const scenarioKey = scenarioId === ABLATION_SCENARIO ? 'null' : scenarioId;
+        const occurrence = scenarioOccurrences.get(scenarioKey) ?? 0;
+        scenarioOccurrences.set(scenarioKey, occurrence + 1);
         if (!scenarioAppliesToArm(scenarioId, arm)) {
           excluded.push({ arm, taskId, scenarioId, applicable: false, reason: 'not-applicable-per-§3' });
           continue;
         }
+        const repeatOffset = allowDuplicateScenarios ? occurrence * k : 0;
         for (let repeat = 1; repeat <= k; repeat++) {
-          cells.push({ arm, taskId, scenarioId, repeat, applicable: true });
+          cells.push({ arm, taskId, scenarioId, repeat: repeat + repeatOffset, applicable: true });
         }
       }
     }

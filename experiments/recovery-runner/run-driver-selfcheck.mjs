@@ -114,7 +114,21 @@ group('scenario profiles: explicit offline list/weighted parsing');
   const weighted = parseScenarioProfile({ scenarioProfile: 'weighted', scenarioParams: 'B1:2,B2:1', validScenarios: RECOVERY_SCENARIOS });
   eq(weighted.scenarios, ['B1', 'B1', 'B2'], 'profiles: weighted expands deterministically');
   eq(formatScenarioProfileLine(weighted), '[run-driver] scenario profile weighted: B1,B1,B2', 'profiles: weighted line is explicit');
-  eq(enumerateCells({ tasks: ['t1'], scenarios: weighted.scenarios, k: 1, allowDuplicateScenarios: true }).cells.length, 15, 'profiles: weighted duplicate scenario slots enumerate when explicitly allowed');
+  const weightedCells = enumerateCells({ tasks: ['foo'], scenarios: weighted.scenarios, k: 1, allowDuplicateScenarios: true }).cells;
+  eq(weightedCells.length, 15, 'profiles: weighted duplicate scenario slots enumerate when explicitly allowed');
+  const weightedRecords = (await runDriver({ cells: weightedCells, engine: async () => engineResult() })).records;
+  eq(weightedRecords.length, new Set(weightedRecords.map((r) => r.runId)).size, 'profiles: weighted duplicate scenario slots produce unique default runIds');
+  const b1RepeatsK1 = weightedCells
+    .filter((c) => c.arm === 'A4' && c.taskId === 'foo' && c.scenarioId === 'B1')
+    .map((c) => c.repeat)
+    .sort((a, b) => a - b);
+  eq(b1RepeatsK1, [1, 2], 'profiles: weighted duplicate B1 with k=1 offsets repeats');
+  const weightedCellsK2 = enumerateCells({ tasks: ['foo'], scenarios: weighted.scenarios, k: 2, allowDuplicateScenarios: true }).cells;
+  const b1RepeatsK2 = weightedCellsK2
+    .filter((c) => c.arm === 'A4' && c.taskId === 'foo' && c.scenarioId === 'B1')
+    .map((c) => c.repeat)
+    .sort((a, b) => a - b);
+  eq(b1RepeatsK2, [1, 2, 3, 4], 'profiles: weighted duplicate B1 with k=2 second slot starts at repeat 3');
 
   let threw = false; try { parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B1,B1', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: duplicate list entries throw');
   threw = false; try { parseScenarioProfile({ scenarioProfile: 'list', scenarioParams: 'B99', validScenarios: RECOVERY_SCENARIOS }); } catch { threw = true; } ok(threw, 'profiles: unknown scenario throws');
