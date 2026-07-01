@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-01T02:31:20.795Z",
       "reviewRunId": "B-0b76:RR-008",
       "_hash": "2fe57e90e61b01f8e30256799fc7de2ca49b68d022a4543c46f28efe0dddb93e"
+    },
+    {
+      "id": "B-0b76:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this change. The diff is purely additive (two new files + one-line run-selfchecks.mjs addition + README section). The only removed line is a README comment updating selfcheck count 7→8. Confirmed: make-fig-gate-ablation.mjs ONLY counts adjudicatedOutcome (aggregate() checks r.adjudicatedOutcome === amplified — no re-classification). Dedup conflict-guard is sound: readRecords throws when same cell key carries different adjudicatedOutcome values. No semantic drift from adjudicate/analyze semantics. Concept residue check: no concept deleted/replaced, grep check not triggered. No blocker.",
+      "createdAt": "2026-07-01T05:00:55.321Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-009",
+      "_hash": "9c98ae07b69609f0218f3a59a7a7d7413e9f2331c2485d03b194d350055d6620"
     }
   ]
 }
