@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-727b",
+  "id": "IC-G03-prose-only-negative-control",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Continue the next group means implement G03 only as the standalone prose-only negative-control baseline: 15 required G03 rows are all present, all rows contain completion wording, no row has machine closure evidence, every row remains open with missing_closure_evidence, full completion is blocked, and docs update to G01-G03 implemented while G04-G10 remain future.",
+  "acceptedInterpretationHash": "sha256:95bd7926fb728f3aeba7b75ea4f4a497cf622a26cf170596f1d7b1df117814b7",
+  "notes": "Collision checked against wrong interpretations: implementing all remaining groups in B-727b, treating documentation prose as G03 completion, or claiming full 10x15 completion after G03. All are rejected for this story.",
+  "ledgerHashBeforeDecision": "sha256:972537d3ab6ad68f48c454d8406dcac4fe2fe0eca34e4ea3fd8f8c3c8194c3ef",
+  "confirmedLedgerHash": "sha256:972537d3ab6ad68f48c454d8406dcac4fe2fe0eca34e4ea3fd8f8c3c8194c3ef",
+  "createdAt": "2026-07-01T02:31:05.660Z",
+  "updatedAt": "2026-07-01T02:31:05.660Z"
+}

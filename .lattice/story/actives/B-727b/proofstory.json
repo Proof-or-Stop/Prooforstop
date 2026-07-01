@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-727b",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:e4094598e41d6d223c38b96f3aadd6d8301f6712213ab5b701981652a807342f",
+  "confirmedMilestoneLedgerHash": "sha256:972537d3ab6ad68f48c454d8406dcac4fe2fe0eca34e4ea3fd8f8c3c8194c3ef",
+  "acceptanceBindings": [
+    {
+      "id": "AB-G03-independent-ledger",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "milestoneIds": [
+        "M1"
+      ],
+      "acceptanceClaim": "G03 has an independent 15-required-row ledger inventory and evaluates exactly 15 required rows.",
+      "note": "Covers required inventory and standalone G03 identity."
+    },
+    {
+      "id": "AB-G03-prose-only-rows",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "milestoneIds": [
+        "M2",
+        "M3"
+      ],
+      "acceptanceClaim": "G03 has 15 generated rows with completion prose but no closureEvidence.",
+      "note": "Covers the prose-only missing-machine-evidence contract."
+    },
+    {
+      "id": "AB-G03-full-claim-blocked",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M4",
+        "M5"
+      ],
+      "acceptanceClaim": "G03 blocks full roadmap completion wording even when row prose claims completion.",
+      "note": "Covers no-false-DONE and no-overclaim semantics."
+    },
+    {
+      "id": "AB-G03-doc-boundary",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0"
+      ],
+      "milestoneIds": [
+        "M5"
+      ],
+      "acceptanceClaim": "The baseline document says G01, G02, and G03 are implemented while G04-G10 and the full 10x15 baseline remain future/incomplete.",
+      "note": "Covers user-visible documentation state."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-727b may enter DEV only after the accepted G03 intent ledger is fully bound to checklist items and verificationIntent refs. Completion is local to G03 and must not claim the full 10x15 baseline.",
+  "createdAt": "2026-07-01T02:31:33.179Z",
+  "updatedAt": "2026-07-01T02:31:33.179Z"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-727b",
+  "sourceText": "User asked to continue the next group and then complete the remaining 10x15 baseline groups after G02.",
+  "normalizedOutcome": "Implement only G03 in this story as an independent prose-only negative-control baseline: all 15 required rows are present and contain completion wording, none has machine closure evidence, zero rows close, full roadmap completion is blocked, and documentation says G01-G03 are implemented while G04-G10 remain future.",
+  "acceptanceClaim": "G03 is DONE only if the standalone G03 smoke passes and the baseline document says G03 is implemented without claiming the full 10x15 baseline is complete.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004"
+  ],
+  "requestHash": "sha256:e4094598e41d6d223c38b96f3aadd6d8301f6712213ab5b701981652a807342f",
+  "createdAt": "2026-07-01T02:30:47.184Z",
+  "updatedAt": "2026-07-01T02:30:47.184Z"
+}
