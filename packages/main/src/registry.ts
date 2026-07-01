@@ -304,9 +304,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // finding signatureTags from a committed map (source='backfill'); dry-run default.
   // Writes audit-only fields after _hash; never recomputes _hash; no gate reads it.
   registry.registerBatch(createSignatureBackfillHandlers(ctx));
-  // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle
-  // (playbook_propose/diff/approve/reject). Never files findings / touches gates;
-  // writes only under .lattice/learning/. Approve fails closed on a stale digest.
+  // B-8387/B-cc94 (Experience Layer): staged Process Playbook lifecycle
+  // (playbook_propose/diff/approve/activate/reject). Never files findings /
+  // touches gates; writes only under .lattice/learning/. Approve/activate fail
+  // closed on stale digests.
   registry.registerBatch(createPlaybookHandlers(ctx));
   registry.registerBatch(createRecallHandlers(ctx));
   // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory

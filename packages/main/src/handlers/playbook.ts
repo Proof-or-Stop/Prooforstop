@@ -1,11 +1,12 @@
 /**
  * B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle.
  *
- * Four commands distil a resolved finding into a human-approved candidate
- * playbook:
+ * Five commands distil a resolved finding into a human-approved candidate
+ * playbook and then explicitly activate it for advisory runtime matching:
  *   playbook_propose --finding <id>            -> proposals/<id>.json (proposed)
  *   playbook_diff <proposalId>                 -> read-only render (no mutation)
  *   playbook_approve <proposalId> --expected…  -> playbooks.json candidate
+ *   playbook_activate <playbookId> --expected… -> playbooks.json active
  *   playbook_reject <proposalId>               -> discard the proposal
  *
  * HARD GUARDRAILS (load-bearing — enforced by smoke + static grep):
@@ -14,8 +15,10 @@
  *     through the store read port (`ctx.store.readFindings`).
  *   • `playbook_approve` fails CLOSED on a stale/missing `--expectedProposalDigest`
  *     (cloning the decision_doc_save pattern), and writes the candidate at
- *     status `candidate` — NEVER `active`. Promotion to active is an explicit
- *     out-of-scope human step.
+ *     status `candidate` — NEVER `active`.
+ *   • `playbook_activate` is the separate explicit activation boundary. It
+ *     fails CLOSED on stale/missing `--expectedPlaybookDigest`, rejects malformed
+ *     playbooks, and keeps active playbooks non-authoritative / gateEvidence=false.
  *
  * Imports stay minimal: `node:` builtins are not needed; the only outward imports
  * are the leaf types, the learning-store (which itself only touches
@@ -31,13 +34,18 @@ import type {
 } from '../core/experience-layer-types.js';
 import {
   appendPlaybook,
+  computePlaybookDigest,
   computePlaybookProposalDigest,
   deleteProposal,
   listProposals,
   readPlaybooks,
   readProposal,
+  resolveLearningOwnerRoot,
+  validatePlaybook,
+  writePlaybooks,
   writeProposal,
 } from '../core/learning-store.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
@@ -135,6 +143,17 @@ function renderTriggerLine(trigger: PlaybookTrigger): string {
   ].join(' ');
 }
 
+function withPlaybookWriteLock<T>(ctx: HandlerContext, label: string, fn: () => T): T {
+  return withReentrantMainWriteLock(resolveLearningOwnerRoot(ctx.root), fn, {
+    label,
+    onContention: 'wait',
+  });
+}
+
+function findPlaybookIndex(playbooks: Playbook[], playbookId: string): number {
+  return playbooks.findIndex((p) => p && p.id === playbookId);
+}
+
 export function createPlaybookHandlers(ctx: HandlerContext) {
   return {
     /**
@@ -227,29 +246,102 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         throw new Error('playbook_approve requires --expectedProposalDigest; refuse to approve without an explicit digest');
       }
 
-      const proposal = readProposal(ctx.root, proposalId);
-      if (!proposal) throw new Error(`playbook_approve: proposal not found: ${proposalId}`);
+      return withPlaybookWriteLock(ctx, 'playbook_approve', () => {
+        const proposal = readProposal(ctx.root, proposalId);
+        if (!proposal) throw new Error(`playbook_approve: proposal not found: ${proposalId}`);
 
-      // FAIL CLOSED: the stored digest must itself be self-consistent AND match
-      // the caller's expected digest. A tampered/stale proposal is rejected.
-      const computed = computePlaybookProposalDigest(proposal);
-      if (proposal.proposalDigest !== computed) {
-        throw new Error(`playbook_approve: proposal ${proposal.id} digest is inconsistent; re-propose before approving`);
+        // FAIL CLOSED: the stored digest must itself be self-consistent AND match
+        // the caller's expected digest. A tampered/stale proposal is rejected.
+        const computed = computePlaybookProposalDigest(proposal);
+        if (proposal.proposalDigest !== computed) {
+          throw new Error(`playbook_approve: proposal ${proposal.id} digest is inconsistent; re-propose before approving`);
+        }
+        if (expected !== computed) {
+          throw new Error(`playbook_approve: expectedProposalDigest is stale for ${proposal.id}; refresh via playbook_diff before approving`);
+        }
+
+        const candidate = candidateFromProposal(proposal);
+        const before = readPlaybooks(ctx.root);
+        appendPlaybook(ctx.root, candidate);
+        deleteProposal(ctx.root, proposal.id);
+        const after = readPlaybooks(ctx.root);
+        if (!after.some((p) => p.id === candidate.id && p.status === 'candidate')) {
+          throw new Error(`playbook_approve: write verification failed for ${candidate.id}; candidate was not persisted`);
+        }
+        for (const prior of before) {
+          if (!after.some((p) => p.id === prior.id)) {
+            throw new Error(`playbook_approve: write verification failed; existing playbook ${prior.id} disappeared`);
+          }
+        }
+
+        return [
+          `Playbook ${candidate.id} approved as candidate`,
+          `status: ${candidate.status} (active requires an explicit human promotion; not auto-set)`,
+          `lineage: story=${candidate.lineage.sourceStoryId} finding=${candidate.lineage.sourceFindingId}${candidate.lineage.sourceSignature ? ` signature=${candidate.lineage.sourceSignature}` : ''}`,
+          `proposal ${proposal.id} cleared`,
+        ].join('\n');
+      });
+    },
+
+    /**
+     * Explicitly promote one approved candidate to ACTIVE. This is the runtime
+     * activation boundary: candidates remain inert until this command succeeds.
+     * The caller must present the current approved-playbook digest, so stale or
+     * malformed rows fail closed instead of silently changing runtime guidance.
+     */
+    playbook_activate(args: { playbookId: string; expectedPlaybookDigest?: string }): string {
+      const playbookId = typeof args.playbookId === 'string' ? args.playbookId.trim() : '';
+      if (!playbookId) throw new Error('playbook_activate requires <playbookId>');
+
+      const expected = typeof args.expectedPlaybookDigest === 'string' ? args.expectedPlaybookDigest.trim() : '';
+      if (!expected) {
+        throw new Error('playbook_activate requires --expectedPlaybookDigest; refuse to activate without an explicit digest');
       }
-      if (expected !== computed) {
-        throw new Error(`playbook_approve: expectedProposalDigest is stale for ${proposal.id}; refresh via playbook_diff before approving`);
-      }
 
-      const candidate = candidateFromProposal(proposal);
-      appendPlaybook(ctx.root, candidate);
-      deleteProposal(ctx.root, proposal.id);
+      return withPlaybookWriteLock(ctx, 'playbook_activate', () => {
+        const playbooks = readPlaybooks(ctx.root);
+        const idx = findPlaybookIndex(playbooks, playbookId);
+        if (idx < 0) throw new Error(`playbook_activate: playbook not found: ${playbookId}`);
 
-      return [
-        `Playbook ${candidate.id} approved as candidate`,
-        `status: ${candidate.status} (active requires an explicit human promotion; not auto-set)`,
-        `lineage: story=${candidate.lineage.sourceStoryId} finding=${candidate.lineage.sourceFindingId}${candidate.lineage.sourceSignature ? ` signature=${candidate.lineage.sourceSignature}` : ''}`,
-        `proposal ${proposal.id} cleared`,
-      ].join('\n');
+        const validation = validatePlaybook(playbooks[idx]);
+        if (!validation.ok) {
+          throw new Error(`playbook_activate: malformed playbook ${playbookId}: ${validation.error}`);
+        }
+        const current = validation.playbook;
+        if (current.status !== 'candidate') {
+          throw new Error(`playbook_activate: ${playbookId} is status=${current.status}; only candidate playbooks can be activated`);
+        }
+
+        const computed = computePlaybookDigest(current);
+        if (expected !== computed) {
+          throw new Error(`playbook_activate: expectedPlaybookDigest is stale for ${playbookId}; refresh the playbook digest before activating`);
+        }
+
+        const activated: Playbook = { ...current, status: 'active' };
+        const next = playbooks.slice();
+        next[idx] = activated;
+        writePlaybooks(ctx.root, next);
+
+        const after = readPlaybooks(ctx.root);
+        const persisted = after.find((p) => p.id === playbookId);
+        if (!persisted || persisted.status !== 'active') {
+          throw new Error(`playbook_activate: write verification failed for ${playbookId}; active status was not persisted`);
+        }
+        for (const prior of playbooks) {
+          if (!after.some((p) => p.id === prior.id)) {
+            throw new Error(`playbook_activate: write verification failed; existing playbook ${prior.id} disappeared`);
+          }
+        }
+
+        return [
+          `Playbook ${playbookId} activated`,
+          `status: active`,
+          `previousPlaybookDigest: ${computed}`,
+          `activePlaybookDigest: ${computePlaybookDigest(persisted)}`,
+          `authority: non_authoritative`,
+          `gateEvidence: false`,
+        ].join('\n');
+      });
     },
 
     /** Discard a staged proposal. Clear error when the proposal is absent. */
