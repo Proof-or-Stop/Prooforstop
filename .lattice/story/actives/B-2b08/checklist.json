@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "packages/main/src/core/version-bump.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:56:42.878Z",
       "verificationIntent": {
         "happy": [
           {
@@ -209,6 +209,18 @@
           "timestamp": "2026-07-01T02:56:36.293Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-01T02:56:42.878Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented by 4e0a93f5 and verified by rg old/new phrase plus version-bump smoke.",
+      "agent": "codex-main-agent"
     }
   ]
 }
