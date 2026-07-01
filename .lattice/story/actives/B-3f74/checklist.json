@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Parent Roadmap table shows B-e781 M4-M12 closure as implemented/closed while migration/repair automation remains optional/future.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Parent Roadmap current status table credits B-e781/B-43de M4-M12 closure with local machine evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Migration/rollout/repair automation remains optional/future and is not required for M4-M12 closure.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim global lifecycle hard gate, production proof, or retired Authority completion from B-e781 evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

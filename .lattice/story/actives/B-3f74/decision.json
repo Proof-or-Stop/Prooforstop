@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Only fix real correctness issues in status/boundary documentation.",
+    "Do not optimize or greenwash status tables for their own sake.",
+    "Preserve consistency of logic across Parent Roadmap, Strengthening Roadmap, and Proof Admissibility.",
+    "Keep local CLI evidence separate from Authority or production completion claims."
+  ],
+  "drivers": [
+    "B-e781 machine evidence now closes B-43de M4-M12 parent rows.",
+    "Authority Server receipt-backed proof is being removed from active direction.",
+    "The user needs a stable table that distinguishes completed rows from optional/future/retired boundaries."
+  ],
+  "options": [
+    {
+      "name": "A: targeted status-boundary cleanup only",
+      "pros": [
+        "Corrects stale rows without changing runtime behavior",
+        "Keeps optional and retired boundaries visible",
+        "Matches the user-selected three items"
+      ],
+      "cons": [
+        "Does not implement migration automation or Authority proof consumer, which is intentional"
+      ]
+    },
+    {
+      "name": "B: implement missing capabilities to make tables all green",
+      "pros": [
+        "Would reduce visible non-complete rows"
+      ],
+      "cons": [
+        "Violates do-not-optimize-arbitrarily",
+        "Would reintroduce Authority or migration work the user did not ask to build",
+        "Higher risk and inconsistent with current system direction"
+      ]
+    }
+  ],
+  "chosen": "A: targeted status-boundary cleanup only",
+  "rationale": "Choose the targeted cleanup because the real issue is stale and ambiguous document status, not missing runtime implementation.",
+  "preMortem": [
+    {
+      "scenario": "Parent Roadmap cleanup overclaims full runtime or production completion",
+      "trigger": "Replacing Partial/future with a broad completed claim without B-e781 boundary text",
+      "consequence": "Users may believe more than local bounded M4-M12 closure was proven",
+      "mitigation": "Name B-e781, parent_roadmap_status, and local machine evidence boundaries explicitly"
+    },
+    {
+      "scenario": "Migration/repair automation is accidentally converted into required work",
+      "trigger": "Treating optional/future migration row as incomplete correctness blocker",
+      "consequence": "Scope expands into implementation work unrelated to the selected cleanup",
+      "mitigation": "Keep migration/repair as optional/future and state it is not required for M4-M12 closure"
+    },
+    {
+      "scenario": "Authority-facing proof consumer appears as active work despite retired Authority direction",
+      "trigger": "Leaving wording as generic Partial/future production adapter work",
+      "consequence": "Future agents may reopen Authority Server receipt-backed proof work contrary to current direction",
+      "mitigation": "Rewrite as external/retired boundary and keep productionDone=false language"
+    }
+  ],
+  "timestamp": "2026-07-01T00:14:07.072Z"
+}
