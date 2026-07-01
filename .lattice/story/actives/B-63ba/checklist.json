@@ -188,9 +188,9 @@
         "docs/requirements/decisions/lattice-experiment-protocol.md",
         "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T00:29:16.391Z",
       "userSees": "Terminal ends with \"run-driver-selfcheck: <N> assertions passed, 0 failed (no live LLM)\".",
       "files": {
         "modify": [
@@ -226,7 +226,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck covers fixed B1-B15 defaults, list/weighted profile parsing, CLI integration, invalid profile rejection, and ended with 157 assertions passed, 0 failed.",
+          "headHash": "fa9eaa6622f78c9c4ccfc822506f6f1260f0c525",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:16.633Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module weighted unique-runId probe",
+          "result": "pass",
+          "note": "Same weighted profile and seed produce deterministic cells with no duplicate canonical runIds; B1 duplicate slots are represented by offset repeat values rather than duplicate identities.",
+          "headHash": "fa9eaa6622f78c9c4ccfc822506f6f1260f0c525",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:16.851Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:0 --tasks foo --seed fixed --k 1; test $? -eq 2",
+          "result": "pass",
+          "note": "Malformed invalid weight exits 2 before sidecar writes; selfcheck also asserts invalid profile creates no exclusions or voids sidecars.",
+          "headHash": "fa9eaa6622f78c9c4ccfc822506f6f1260f0c525",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:17.093Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -291,6 +326,15 @@
       "timestamp": "2026-07-01T00:29:04.392Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:16.391Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "done",
