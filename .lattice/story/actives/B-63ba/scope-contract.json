@@ -1,0 +1,63 @@
+{
+  "storyId": "B-63ba",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-driver.mjs",
+    "experiments/recovery-runner/run-driver-selfcheck.mjs",
+    "experiments/recovery-runner/README.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/lattice-experiment-protocol.md"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/parameterized-fault-profile.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/run-driver-selfcheck.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "explicitExcludes": [
+    "Lifecycle DONE/review/delivery gate changes",
+    "Evidence hash freshness changes",
+    "Remote provider powered campaign execution",
+    "Fountain/erasure-code evidence recovery"
+  ],
+  "scopeChangeReason": "PLAN discovery located the real recovery-runner implementation under experiments/recovery-runner. This story is limited to offline harness parameterization, selfchecks, and docs; lifecycle/evidence gate files stay protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated ProofStory PLAN artifacts required by B-63ba intent snapshot, collision, acceptance binding, and spike evidence; these files are process evidence for this story, not expanded business implementation scope.",
+      "timestamp": "2026-07-01T00:30:17.675Z",
+      "paths": [
+        ".lattice/story/actives/B-63ba/intent-collision.json",
+        ".lattice/story/actives/B-63ba/original-intent-snapshot.json",
+        ".lattice/story/actives/B-63ba/proofstory.json",
+        ".lattice/story/actives/B-63ba/spike.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-63ba/intent-collision.json",
+        ".lattice/story/actives/B-63ba/original-intent-snapshot.json",
+        ".lattice/story/actives/B-63ba/proofstory.json",
+        ".lattice/story/actives/B-63ba/spike.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "9431387aff5d1f3fab7dca9ddf4de27bf44d6daf",
+      "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+      "anchors": [
+        "proofstory_intent_snapshot",
+        "proofstory_intent_collision",
+        "proofstory_acceptance_binding",
+        "proofstory_spike_evidence"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-01T00:08:19.049Z",
+  "updatedAt": "2026-07-01T00:30:17.675Z"
+}
