@@ -28,7 +28,7 @@
       "desc": "1M baseline test does not execute the runtime search/ranking/pack path against gold queries; broken retriever/ranker could still pass if IDs exist in corpus.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-01T04:35:08.039Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "missing|ts|baseline-test-execute",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Runtime baseline no longer verifies only manifest/member presence. The verifier calls buildMemoryFreshnessPack against baseline-derived memory/playbook stores, and negative controls reject candidate and superseded false surfaces.",
+      "resolvedAt": "2026-07-01T04:48:07.772Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-003",
