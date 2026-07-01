@@ -63,7 +63,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The run-driver accepts explicit exploratory profile flags, prints the selected profile in enumerate-only mode, and leaves the no-profile CLI behavior unchanged.",
+      "userSees": "Terminal includes \"[run-driver] scenario profile weighted: B1,B1,B2\" and then \"no --engine provided: refusing to run a live campaign\".",
       "files": {
         "modify": [
           "experiments/recovery-runner/run-driver.mjs"
