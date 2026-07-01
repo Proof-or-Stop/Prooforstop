@@ -236,7 +236,7 @@
       "desc": "Baseline verification trusts manifest.recordCount and does not enforce PROFILE_COUNTS or fullProfileExactMillion. A truncated corpus with a self-consistent refreshed manifest can pass without containing the promised 1,000,000 full-profile rows.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T05:15:50.529Z",
@@ -248,7 +248,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "missing|ts|baseline-profile-count",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 792b4b284: verifyPlaybookRuntimeBaseline now requires requestedProfileMatches, PROFILE_COUNTS[manifest.profile] record count match, and fullProfileExactMillion consistency. Baseline smoke rejects a truncated but self-consistent manifest and requested profile mismatch; full profile smoke passes with recordCount=1000000 and fullProfileExactMillion=true.",
+      "resolvedAt": "2026-07-01T05:27:48.309Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-012",
