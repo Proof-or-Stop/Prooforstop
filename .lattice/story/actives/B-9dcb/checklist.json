@@ -87,7 +87,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice validate prints all green and the durable test passes.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate all green; the durable red test now passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "signReviewRun + workspaceBinding signatures byte-identical for the default/plain-repo case (guard asserts)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrapper-root+custom-storyDir metadata-only-commit path locked green in the guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
