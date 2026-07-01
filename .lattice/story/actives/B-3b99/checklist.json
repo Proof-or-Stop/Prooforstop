@@ -14,7 +14,42 @@
       "context": "gap_analyze line 238 in done-closure-runbook-assistant-execution-plan.md reports old authorityImpact enum uncovered. Current design retired Authority Server; map this requirement to local-assurance authorityImpact/projection implementation without reintroducing server-backed authority semantics.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/canonical-story.ts",
+          "packages/main/src/core/capabilities.ts",
+          "packages/main/src/core/lattice-hosts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-list-smoke.ts",
+          "packages/main/src/tasks/canonical-story-export-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Implementation mapping shows old done-closure authorityImpact wording is represented by current local assurance degradation/projection values, not server-backed Authority receipt semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Capability/list smoke keeps local-assurance-required and blocks-production-done visible as local gate impact values without requiring Authority Server receipts.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No new requiresAuthorityReceipt, authorityDone, fullAuthorityDone, or server-backed Authority production path is introduced by this mapping.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
