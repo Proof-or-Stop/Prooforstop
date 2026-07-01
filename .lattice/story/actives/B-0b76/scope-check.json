@@ -1,0 +1,66 @@
+{
+  "storyId": "B-0b76",
+  "checkedAt": "2026-07-01T01:54:42.692Z",
+  "features": [
+    {
+      "feature": "Runnable generator script make-fig-gate-ablation.mjs that reads powered/*.jsonl (excluding *.voids.jsonl), deduplicates by arm|taskId|scenarioId|repeat (keep-first), computes per-arm metrics (n, amplified, rate, per1000, meanTokens, gate), and emits a standalone SVG figure + tidy CSV",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Generator script is deterministic, adds no new dependencies, and accepts [poweredDir] [outPrefix] args",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Offline selfcheck make-fig-gate-ablation-selfcheck.mjs using synthetic in-memory records to assert per-arm amplified counts, rate, per1000 rounding, CSV columns, SVG emission, and graceful empty-arm handling",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Selfcheck wired into run-selfchecks.mjs so it runs offline without live LLM or large campaign data",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "README.md documentation for make-fig-gate-ablation.mjs describing inputs (powered/*.jsonl) and outputs (fig-gate-ablation.svg + .csv), the committed-generator norm, and updated selfcheck count",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Editing the paper / main.tex (out of scope for this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: editing the paper / main.tex",
+      "source": "description"
+    },
+    {
+      "feature": "Recomputing the bootstrap confidence interval (out of scope for this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: recomputing the bootstrap confidence interval",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e13ab2259b1b1695103f8d9fc9062bb444aae480c414e68ec740c12a3db32d1b",
+  "openQuestions": []
+}
