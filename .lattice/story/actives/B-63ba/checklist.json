@@ -152,11 +152,48 @@
       "title": "Document non-goals and safe usage boundary",
       "context": "Document that this is an offline robustness harness for exploratory red-team studies, not lossy evidence recovery, not a gate shortcut, and not a claim of unattended production readiness.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/README.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The docs say parameterized fault profiles are exploratory offline recovery-runner inputs, not lossy evidence recovery, not lifecycle gate shortcuts, and not production-readiness proof.",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/README.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/lattice-experiment-protocol.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/run-driver-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README and decision docs describe the explicit profile flags and safe offline use",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs say fixed B1-B15 remains the default/pre-registered protocol and profile runs are exploratory",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs explicitly reject fountain/erasure recovery, lifecycle gate shortcuts, and production-readiness claims for this feature",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
