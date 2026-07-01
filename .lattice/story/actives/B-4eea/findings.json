@@ -94,6 +94,26 @@
       ],
       "signatureTag": "edge|md|final-response-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4eea:F-006",
+      "desc": "agy fallback documentation says programmatic primary-host status, while implementation accepts caller-provided primaryHostFailure string; boundary must be aligned or implemented.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-01T04:35:11.719Z",
+      "reviewRound": "2026-07-01T04:27:31.638Z",
+      "reviewRunId": "B-4eea:RR-004",
+      "_hash": "f513709a9ed0c1b2d0dfcfa5b1d918950787af3ea44a47d8d23ff6b38041f7c8",
+      "files": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/handlers/lattice-handoff.ts"
+      ],
+      "signatureTag": "missing|md|fallback-documentation-says",
+      "signatureTagSource": "auto"
     }
   ]
 }
