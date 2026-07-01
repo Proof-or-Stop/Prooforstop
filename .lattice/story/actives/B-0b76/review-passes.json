@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-01T04:59:40.978Z",
       "reviewRunId": "B-0b76:RR-010",
       "_hash": "08079bf75333cef569c8000d447ba3c6b66e7f99c7d4ba89123e8bfe0be95654"
+    },
+    {
+      "id": "B-0b76:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step1: ~50 symbols extracted; focused on key figure-generator symbols: readRecords, readRecordsWithStats, aggregate, toCSV, renderSVG, conflicts, kept, uniqueCount, cellKey. Step2: 1 paragraph cluster found — experiments/recovery-runner/README.md ## Figure generator section (lines 221-254). Step3: all 5 claims verified against make-fig-gate-ablation.mjs diff: (1) readRecordsWithStats transparency line matches code output exactly; (2) conflict guard (hard-throws on conflicting adjudicatedOutcome) matches code; (3) keep-first dedup matches code; (4) selfcheck count 8 matches run-selfchecks.mjs SELFCHECKS array (8 entries); (5) does-not-compute-CI and does-not-edit-paper match code comments. Exported pure functions (readRecords/readRecordsWithStats/aggregate/toCSV/renderSVG) all present. CSV columns match toCSV. --scenarioProfile note confirmed to be in a different section (run-driver), not Figure generator. No inconsistencies found.",
+      "createdAt": "2026-07-01T05:01:38.134Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-012",
+      "_hash": "0ae1e1456229eb8d556024598de2d33294d7a07f182c634db365e016c8567ab6"
     }
   ]
 }
