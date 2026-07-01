@@ -9,7 +9,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A focused smoke first demonstrates the session memory/playbook non-consumption gap before the implementation path is claimed fixed.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Seed a dev-memory lesson plus an active playbook and prove pre-fix session_brief has no Memory Runtime Preflight pack or active playbook hit.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Seed a candidate playbook and prove it remains inert so red coverage does not confuse candidate inertness with the active-playbook consumption gap.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prove no source digest/freshness pack exists pre-fix, so stale memory cannot be detected before the runtime pack is introduced.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
