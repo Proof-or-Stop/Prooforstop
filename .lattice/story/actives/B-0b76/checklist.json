@@ -422,6 +422,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:34.436Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks 'all 8' output proves the SELFCHECKS array holds 8 entries and make-fig-gate-ablation-selfcheck.mjs is among them (it ran)",
+          "headHash": "3850ee404833684d3ba491ba23a02f8c328488fa",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:35.002Z"
         }
       ]
     },
