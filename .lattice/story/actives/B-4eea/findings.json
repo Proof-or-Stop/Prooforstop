@@ -176,6 +176,25 @@
       ],
       "signatureTag": "adversarial|ts|baseline-gold-digest",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-4eea:F-009",
+      "desc": "dev_memory_finish_decision interpolates storyId directly into a filename, allowing storyId values with path separators to write outside the finish-decisions directory.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T04:56:34.774Z",
+      "reviewRound": "2026-07-01T04:47:47.850Z",
+      "reviewRunId": "B-4eea:RR-009",
+      "_hash": "f99c6c8a081bb1fc69d5b98a73528d2773740d3a2c7be95d698adf6111f66a1e",
+      "files": [
+        "packages/main/src/handlers/playbook-runtime-memory.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|path-segment-validation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
