@@ -909,7 +909,7 @@ Behavior:
     fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
-  { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
+  { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; prints Memory Runtime Preflight packDigest/gateEvidence=false and never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
     storyId: z.string().describe('Story ID'),
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
@@ -1217,7 +1217,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another without manufacturing release readiness. Alias: lattice handoff create', schema: {
+  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another; includes a memory/playbook packDigest with gateEvidence=false without manufacturing release readiness. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),
