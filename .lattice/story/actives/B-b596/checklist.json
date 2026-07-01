@@ -60,7 +60,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The G01 smoke is reachable through the deterministic validation path or documented command, and the baseline document names G01 as implemented.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document keeps G02-G10 marked as future groups and does not state the full 10x15 baseline is complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation and documentation wording do not convert local G01 proof into Authority, production, fullAuthority, or independent two-host claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
