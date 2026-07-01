@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3b99",
+  "allowedCommands": [
+    "lattice convergence_check --json",
+    "lattice done_required_validate --storyId=B-3b99",
+    "lattice gap_analyze --json",
+    "lattice validate --story=B-3b99",
+    "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+    "node packages/main/dist/tasks/canonical-story-export-smoke.js",
+    "node packages/main/dist/tasks/capability-list-smoke.js",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-3b99",
+    "packages/main/src/core/autopilot-reliability.ts",
+    "packages/main/src/core/canonical-story.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+    "packages/main/src/tasks/canonical-story-export-smoke.ts",
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "excludedCommands": [
+    "* .omx *",
+    "git checkout -- *",
+    "git clean -fd*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/koala",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/authority-submit.ts"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "Bounded convergence mapping story: allow only implementation annotations/smoke coverage for current 9 high gaps; no legacy branch merge or retired Authority Server work.",
+  "createdAt": "2026-07-01T17:28:54.694Z",
+  "updatedAt": "2026-07-01T17:28:54.694Z",
+  "_hash": "6a31b82f9ae19ef689db5eb3c69a34d3ae65448a7031fd388e51b612b1719052"
+}
