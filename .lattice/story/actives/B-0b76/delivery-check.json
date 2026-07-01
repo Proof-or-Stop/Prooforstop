@@ -1,0 +1,63 @@
+{
+  "storyId": "B-0b76",
+  "checkedAt": "2026-07-01T02:54:52.095Z",
+  "headHash": "d4b83af194a9f98d0c4f94653648e5ea7497b97a",
+  "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+  "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+  "reviewRound": "2026-07-01T02:31:20.795Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md#Figure-generator",
+      "promise": "README documents make-fig-gate-ablation.mjs with inputs powered/*.jsonl (excluding *.voids.jsonl) and outputs fig-gate-ablation.svg + fig-gate-ablation.csv",
+      "verifiedBy": "diff + file read",
+      "evidence": "README.md line 216 adds ## Figure generator section naming the script, its input powered/*.jsonl (excluding voids), and outputs fig-gate-ablation.svg/.csv; confirmed by git diff and reading the current file"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#Offline-self-checks",
+      "promise": "run-selfchecks.mjs selfcheck count updated from 7 to 8, listing make-fig-gate-ablation-selfcheck.mjs among the 8",
+      "verifiedBy": "diff + live run",
+      "evidence": "git diff shows the count bumped 7->8 in the run-selfchecks.mjs comment on line 158; running node run-selfchecks.mjs outputs all 8 recovery-runner selfchecks passed"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#Figure-generator",
+      "promise": "README explicitly states the generator does NOT compute the bootstrap CI and does NOT edit the paper",
+      "verifiedBy": "file read + grep",
+      "evidence": "README lines 228-230: does not re-classify runs, does not compute the bootstrap confidence interval, and does not edit the paper; analyze.mjs is the analysis owner; inserting into main.tex is a separate manual step — no over-claim"
+    },
+    {
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+      "promise": "Generator reads powered/*.jsonl (excluding *.voids.jsonl), dedups by arm|taskId|scenarioId|repeat keep-first, hard-throws on conflicting-outcome duplicates, prints dedup transparency line, and writes fig-gate-ablation.svg + fig-gate-ablation.csv",
+      "verifiedBy": "diff + live run",
+      "evidence": "Running node make-fig-gate-ablation.mjs on the real powered/ dir produced: dedup: 18557 raw records -> 9240 unique cells (9317 duplicate re-runs dropped); A4 amplified 2/1920; wrote /tmp/deliv.svg and /tmp/deliv.csv"
+    },
+    {
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs + run-selfchecks.mjs",
+      "promise": "Offline selfcheck runs 43 assertions (no live LLM), wired as the 8th entry in run-selfchecks.mjs SELFCHECKS array",
+      "verifiedBy": "live run",
+      "evidence": "node make-fig-gate-ablation-selfcheck.mjs exits 0 with make-fig-gate-ablation selfcheck: 43 assertions passed, 0 failed; run-selfchecks.mjs shows 8 entries in SELFCHECKS array and reports all 8 recovery-runner selfchecks passed"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node make-fig-gate-ablation.mjs /Users/jek/Documents/Work/proofbound/experiments/recovery-runner/powered /tmp/deliv -> A4 amplified 2/1920 = 0.10%, A2prime 31/1920, A3 14/1920, A2 18/1920, A1 13/1560; dedup 18557->9240; wrote /tmp/deliv.svg and /tmp/deliv.csv. Selfcheck covers happy (per-arm counts/rates, CSV header, SVG structure), edge (dedup keep-first observable via tokensSpent, voids excluded, null scenarioId, per1000 rounding, empty arm), adversarial (malformed JSON skipped, empty dir writes nothing, missing adjudicatedOutcome not counted as amplified, conflicting-outcome dupes hard-throw, exit-1 self-test F-001)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node make-fig-gate-ablation-selfcheck.mjs -> exits 0, 43 assertions passed, 0 failed (no live LLM). node run-selfchecks.mjs -> all 8 recovery-runner selfchecks passed. SELFCHECKS array has exactly 8 entries including make-fig-gate-ablation-selfcheck.mjs. Selfcheck produces both SVG and CSV from synthetic data and asserts both are non-empty with correct structure."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "README verified by file read and git diff: selfcheck count updated 7->8, Figure generator section added with correct inputs/outputs/excludes. Content correctness confirmed by live runs matching the README descriptions.",
+      "waiverReason": "CHK-003 is a documentation-only checklist item; the documented content is verified by reading the file and by the live run-selfchecks.mjs run that validates the count claim"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified by live machine runs and code inspection. Selfcheck runs 43 assertions covering happy/edge/adversarial paths; run-selfchecks.mjs reports 8/8 passing; main generator reproduces A4 2/1920 and the dedup transparency line on real powered/ data. No TODO/FIXME in new code. README explicitly states the bootstrap CI and paper-editing exclusions — no over-claims."
+  },
+  "_hash": "aaf73edf2dc60971fabe0e0cf29488d54b9ccaab13568979995130822944a32a"
+}
