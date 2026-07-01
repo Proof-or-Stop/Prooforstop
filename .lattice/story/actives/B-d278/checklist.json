@@ -333,9 +333,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:30.819Z",
       "userSees": "parent-roadmap large-ledger G08 baseline smoke PASS",
       "files": {
         "modify": [
@@ -370,7 +370,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke passed; it asserts invalidRows>0 and no-full-roadmap-claim for malformed or duplicate generated row coverage.",
+          "headHash": "b4d8e7129418320bb68099892b4f1ac865206a46",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:31.117Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke asserts malformed row shape is surfaced as invalid and a duplicate generated row cannot cover the missing required row.",
+          "headHash": "b4d8e7129418320bb68099892b4f1ac865206a46",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:31.374Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke asserts 15 generated entries still fail when they do not uniquely and validly satisfy all 15 required row IDs.",
+          "headHash": "b4d8e7129418320bb68099892b4f1ac865206a46",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:31.636Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
