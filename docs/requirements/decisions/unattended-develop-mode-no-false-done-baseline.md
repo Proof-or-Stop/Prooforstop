@@ -54,9 +54,9 @@ contains exactly 15 required milestone rows, for a total of 150 rows.
 10 parent ledgers x 15 required milestones = 150 milestone rows
 ```
 
-The rows are intent-coverage rows, not execution slices. A future implementation
-must not create 150 real stories. The test should use synthetic ledgers and
-rollup fixtures so it can run quickly and deterministically.
+The rows are intent-coverage rows, not execution slices. The implemented local
+deterministic baseline does not create 150 real stories. It uses synthetic
+ledgers and rollup fixtures so it can run quickly and deterministically.
 
 Milestone IDs are deterministic:
 
@@ -252,8 +252,9 @@ milestone rows above and differs only in row status/evidence shape.
 
 ## Expected Group Matrix
 
-This matrix is normative for the future smoke test. The implementation may use
-helpers to generate the 150 rows, but the observed rollup must match this table.
+This matrix is normative for the implemented local aggregate smoke. The
+implementation may use helpers to generate the 150 rows, but the observed
+rollup must match this table.
 
 | Group | Total rows | Closed rows | Open rows | Stale rows | Deferred rows | Invalid rows | Migration rows | Full claim allowed |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
