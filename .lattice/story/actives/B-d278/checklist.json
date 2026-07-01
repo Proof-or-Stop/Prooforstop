@@ -241,7 +241,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "parent-roadmap large-ledger G09 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G09 smoke reports child-story-assigned rows remain incomplete/open and no full roadmap completion claim is allowed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts child-story-active rows with childStoryId are not delivery and produce child_story_active reason codes plus next actions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts assigning every row to child stories cannot be summarized as delivered without closure evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
