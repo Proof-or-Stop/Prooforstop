@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-01T17:05:26.088Z",
       "reviewRunId": "B-9dcb:RR-016",
       "_hash": "c7673de5d5326b2e08abfb3a919a835e026ca9d3c557835bbb5347fe77e5379f"
+    },
+    {
+      "id": "B-9dcb:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: concept review found metadataRoot/workspaceBinding semantics coherent. captureReviewRunSnapshot now hashes signedWorkspaceRoot with metadataRoot as config/exclusion root; review_run_start persists the same metadataRoot in workspaceBinding; evidence consumers recompute freshness with run.workspaceBinding.metadataRoot while keeping gitCwd as signedWorkspaceRoot. Verified with temp source compile and wrapper-root/custom-storyDir smoke.",
+      "createdAt": "2026-07-01T17:08:34.221Z",
+      "reviewRound": "2026-07-01T17:05:26.088Z",
+      "reviewRunId": "B-9dcb:RR-014",
+      "_hash": "743577841e955f4b96d819e07fc97a630009efe4fabea84406c08ba8c2c5f7ca"
     }
   ]
 }
