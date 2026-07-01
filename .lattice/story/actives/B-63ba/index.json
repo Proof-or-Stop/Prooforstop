@@ -5,14 +5,13 @@
   "description": "Milestone 2 follow-up from the DNAcoder idea transfer analysis. Add a scoped recovery-runner capability for parameterized and composable fault injection distributions so Proofbound can explore gate robustness beyond the fixed B1-B15 scenario list. This is an offline research harness improvement, not a change to DONE, review, delivery, or evidence hash semantics. It must preserve the existing frozen scenario protocol and avoid optimizing without measured need.",
   "type": "feature",
   "phase": "INIT",
-  "priority": "high",
+  "priority": "medium",
   "riskSignals": [
     {
       "category": "Production/Emergency",
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-01T00:02:19.557Z",
   "startedAt": "2026-07-01T00:02:19.557Z",
   "endedAt": null,
@@ -25,6 +24,13 @@
       "user": "Harmonygo",
       "sessionId": "sess-81968d64d47412a0",
       "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the story explicitly says this is not a production readiness claim and does not modify production or emergency behavior; it only documents a non-goal boundary for an offline recovery-runner research harness.",
+      "at": "2026-07-01T00:02:29.781Z"
     }
   ]
 }
