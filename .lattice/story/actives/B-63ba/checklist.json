@@ -106,9 +106,9 @@
         "docs/requirements/decisions/lattice-experiment-protocol.md",
         "experiments/recovery-runner/README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T00:29:04.392Z",
       "userSees": "Terminal includes \"[run-driver] scenario profile weighted: B1,B1,B2\" and then \"no --engine provided: refusing to run a live campaign\".",
       "files": {
         "modify": [
@@ -143,7 +143,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver.mjs --scenarioProfile weighted --scenarioParams B1:2,B2:1 --tasks foo --seed fixed --k 1",
+          "result": "pass",
+          "note": "Focused CLI run printed [run-driver] scenario profile weighted: B1,B1,B2, enumerated 15 applicable cells, and preserved the no-engine live campaign refusal.",
+          "headHash": "4bf97e9e22203b23e4ce6cefe5454ac1168dac4e",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:04.587Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck retained default fixed protocol enumeration assertions including 77 cells for one task at k=1 and 231 cells for three tasks at k=1.",
+          "headHash": "4bf97e9e22203b23e4ce6cefe5454ac1168dac4e",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:04.767Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "main-agent source/diff review plus weighted unique-runId probe",
+          "result": "pass",
+          "note": "Profile parsing only changes the explicit scenarios list passed to enumerateCells; record assembly, adjudication, denominator logic, and no-engine refusal remain on existing paths, and duplicate weighted slots no longer duplicate canonical runIds.",
+          "headHash": "4bf97e9e22203b23e4ce6cefe5454ac1168dac4e",
+          "materialHash": "f4c50a01079f4e7f424cc6cda59c9c5a486080b122f9bd7db30a83e5afebcfdc",
+          "storyFilesHash": "080b37a24b043701d8e3564dbf4b2b85ac3f6ccbd680e48132d33535feea5cf8",
+          "timestamp": "2026-07-01T00:29:04.947Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -247,6 +282,15 @@
       "timestamp": "2026-07-01T00:28:52.128Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-63ba implementation committed and verification rerun by main agent."
+    },
+    {
+      "timestamp": "2026-07-01T00:29:04.392Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
