@@ -1,0 +1,47 @@
+{
+  "storyId": "B-cc94",
+  "checkedAt": "2026-07-01T02:28:45.784Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 bundles two distinct plan milestones (M2 runtime matcher + M3 freshness pack), each with separate deliverables/test sets. In PLAN, ensure verificationIntent covers matcher and freshness pack independently, or consider splitting the item."
+    },
+    {
+      "severity": "low",
+      "desc": "Plan M0 covers non-consumption red smokes across session_brief + story intake + DONE closure, but CHK-001 narrows the repro to session_brief only. Consistent with the intentional session-scoped MVP1 tradeoff; confirm the narrowing in PLAN so no M0 exit criterion is silently dropped."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-01T02:28:45.694Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "MVP1 done-recognition is not bound to acceptance criteria: the parent plan §7.1 lists six required proofs (active playbook appears; candidate stays inert; pack has source digest; pack remains gateEvidence:false and authority:non_authoritative; 60-line cap works; relevant source mutation detected), but no checklist item enumerates them. CHK-005 only says record verification evidence generically. In PLAN, bind each of the six proofs to a verificationIntent so the user can recognize MVP1 as done."
+        },
+        {
+          "severity": "low",
+          "desc": "Operator-observable outcomes are thin outside CHK-004. CHK-001/002/003/005 describe engineering/test deliverables without a concrete operator-visible signal. In PLAN add userSees, especially for CHK-004 (e.g. running lattice session_brief shows a bounded memory/playbook section, <=60 lines, marked non-authoritative / not gate evidence) and for CHK-002 (activate flips a candidate to active while other candidates stay inert)."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-01T02:28:45.784Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 bundles two distinct plan milestones (M2 runtime matcher + M3 freshness pack), each with separate deliverables/test sets. In PLAN, ensure verificationIntent covers matcher and freshness pack independently, or consider splitting the item."
+        },
+        {
+          "severity": "low",
+          "desc": "Plan M0 covers non-consumption red smokes across session_brief + story intake + DONE closure, but CHK-001 narrows the repro to session_brief only. Consistent with the intentional session-scoped MVP1 tradeoff; confirm the narrowing in PLAN so no M0 exit criterion is silently dropped."
+        }
+      ]
+    }
+  ],
+  "_hash": "de4f63c89aaedb87f115d742a384869b5aea865d78d2d82934745fd73faab5fb"
+}
