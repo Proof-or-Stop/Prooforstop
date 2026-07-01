@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-01T00:39:48.192Z",
       "reviewRunId": "B-b596:RR-003",
       "_hash": "391f8c2cdd416c48e7547b457d157985c822649f581b45cee40000108a2beab2"
+    },
+    {
+      "id": "B-b596:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: frozen intent is explicitly G01 only; milestone ledger M1-M5 covers exactly the G01 15-row positive control, negative row-count guard, claim boundary, and docs/validation boundary; ProofStory contract AC-G01 binds only CHK-001/CHK-002 and M1-M5 and says G02-G10/full 10x15 remain out of scope. Implementation/doc lines match that boundary: the smoke generates exactly 15 G01 rows, asserts full_roadmap_complete only for the local G01 ledger, rejects 14 generated rows, and guards elevated Authority/fullAuthority/production/two-host claim terms; the doc marks G01 implemented, G02-G10 future, and the full 10x15 baseline incomplete. No concept overclaim found.",
+      "createdAt": "2026-07-01T00:41:22.816Z",
+      "reviewRound": "2026-07-01T00:39:48.192Z",
+      "reviewRunId": "B-b596:RR-001",
+      "_hash": "af6c5cc65b7c992e0a27682b928734e96f7ccc934147b97fadadf911f709fa1d"
     }
   ]
 }
