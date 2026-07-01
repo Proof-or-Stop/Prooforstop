@@ -1,35 +1,35 @@
 {
   "storyId": "B-9dcb",
-  "checkedAt": "2026-07-01T03:45:13.632Z",
-  "headHash": "43f03e1c4df68e1d562f0a30687d2968cfbcb7b6",
-  "materialHash": "2b95664fd222042274f9ec94b0d1d496ea289a2e9a77d37c34928869bbe69df1",
-  "storyFilesHash": "012decd1e94d243829bcb78dc7c404c0e15287e1d57bd51e1d55fc9648a21913",
-  "reviewRound": "2026-07-01T03:05:44.403Z",
-  "agentId": "",
-  "docsPromises": [],
+  "checkedAt": "2026-07-01T17:21:58.397Z",
+  "headHash": "60450c516b69389a96bb229727de780283433792",
+  "materialHash": "e80529c6ebe832b4e789ae3acea2dc7697bcf7c019bd52e39b7161977cd5bb9d",
+  "storyFilesHash": "5bee3c80622325b33c3fbfd6d7cc12491d4b286ef2ce76c9eb895ed4b7051758",
+  "reviewRound": "2026-07-01T17:12:06.070Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-9dcb/background.md",
+      "promise": "Fix review-run metadataRoot snapshot/freshness so wrapper-root custom storyDir metadata-only commits do not false-stale reviewer runs.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:review-run-metadataroot-wrapper-root",
+      "evidence": "The smoke passes after F-003 and covers captureReviewRunSnapshot, assertCurrentReviewRunForEvidence, and collectReviewerEvidenceState/validateEvidenceRunBinding over wrapper-root custom-storyDir metadata-only churn."
+    }
+  ],
   "realMachineTests": [
     {
-      "featureId": "CHK-001",
-      "transcript": "review-run-metadataroot-wrapper-root-smoke.ts Proof A: captureReviewRunSnapshot with metadataRoot excludes custom-storyDir file from material/story hashes; defaulted (gitRoot-as-metadataRoot) includes it — hashes differ. diagnoseReviewRunSnapshot returns null (capturable) under both arg shapes."
+      "featureId": "CHK-001-CHK-004",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root passed; lattice validate --story=B-9dcb --json passed 31 configured commands; lattice done_required_validate passed packages/main build and root npm test."
     },
     {
-      "featureId": "CHK-002",
-      "transcript": "review-run-metadataroot-wrapper-root-smoke.ts Proof A verifies captureReviewRunSnapshot(gitRoot, ctx, metadataRoot) threads metadataRoot into currentMaterialHash/currentStoryFilesHash. diagnoseReviewRunSnapshot(projectRoot, metadataRoot) consistency proven. `node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js` prints: review-run metadataRoot wrapper-root smoke passed."
-    },
-    {
-      "featureId": "CHK-003",
-      "transcript": "review-run-metadataroot-wrapper-root-smoke.ts Proof B: after metadata-only commit to custom storyDir, consumer recompute using run.workspaceBinding?.metadataRoot stays FRESH; using signedProjectRoot (gitRoot) goes FALSE-STALE. assertCurrentReviewRunForEvidence end-to-end ACCEPTS the signed run. Proof C: legacy (no workspaceBinding) fallback resolves to projectRoot (==metadataRoot in production), stays FRESH; wrong-root (gitRoot) is FALSE-STALE — non-tautological. assertCurrentReviewRunForEvidence ACCEPTS the bindingless run."
-    },
-    {
-      "featureId": "CHK-004",
-      "transcript": "review-run-metadataroot-wrapper-root-smoke.ts Proof D: plain-repo byte-identity — captureReviewRunSnapshot/diagnoseReviewRunSnapshot/checkEvidenceFreshnessForGit are byte-identical with metadataRoot defaulted vs explicit==root. Proof E (CHK-004:edge:0): buildReviewRunWorkspaceBinding.bindingHash and signReviewRun._hash are byte-identical for the plain-repo default case. Smoke registered in smoke-manifest.json + package.json test:review-run-metadataroot-wrapper-root. All 4 CHK items have 3/3 must verificationEvidence passing. `node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js` exits 0."
+      "featureId": "F-003",
+      "transcript": "Reviewer lanes confirmed the smoke now writes signed reviewer evidence and calls collectReviewerEvidenceState, reaching validateEvidenceRunBinding for the wrapper-root custom-storyDir metadata-only churn case."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "No doc changes in this story — zero docsPromises. All four CHK items covered by the durable wrapper-root smoke (Proofs A-E): snapshot exclusion, consumer freshness (fresh vs false-stale), non-tautological legacy fallback, plain-repo byte-identity, and signing byte-identity. Smoke exits 0 on current HEAD. No TODO/FIXME in the production diff. Delivery is complete."
+    "summary": "B-9dcb delivery is current after F-003. The wrapper-root custom storyDir path, legacy fallback, default projectRoot behavior, and reviewer evidence consumer path are covered by real smoke tests and full validation."
   },
-  "_hash": "b54ece923a3c75e7e6dca0a806b31bcaebfff0a4a652ef84f3d61d2200cc02d8"
+  "_hash": "9e4c8283fb410cdd7ff44bdc1ad5cc705093626bb9cb2cca56312a184b5bde54"
 }
