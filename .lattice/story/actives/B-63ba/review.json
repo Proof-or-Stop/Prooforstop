@@ -99,6 +99,47 @@
         }
       ],
       "_hash": "2d323967920583d4f0bf3a68fa6671a0c0e5600338d505d4c1ad8220d7693387"
+    },
+    {
+      "timestamp": "2026-07-01T00:15:32.379Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Define the parameterized injection contract + Implement recovery-runner parameter parsing behind an explicit mode are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        }
+      ],
+      "_hash": "8a0faeab79210dbc04bc41f1ee20b0252f9c500f2f69744820fd51f2089fd67e"
+    },
+    {
+      "timestamp": "2026-07-01T00:16:13.654Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Define the parameterized injection contract + Implement recovery-runner parameter parsing behind an explicit mode are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        }
+      ],
+      "_hash": "be82f1c8590424284a88c3f996ebe76773ca85855581c38b25c0ba94e9ee6af5"
     }
   ]
 }
