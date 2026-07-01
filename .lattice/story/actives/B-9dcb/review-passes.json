@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-01T17:05:26.088Z",
       "reviewRunId": "B-9dcb:RR-014",
       "_hash": "743577841e955f4b96d819e07fc97a630009efe4fabea84406c08ba8c2c5f7ca"
+    },
+    {
+      "id": "B-9dcb:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS after F-003 fix. The added smoke coverage now persists a signed review run plus signed pass and calls collectReviewerEvidenceState over the wrapper-root custom-storyDir metadata-only churn fixture, which reaches validateEvidenceRunBinding through the real reviewer evidence path. Source checked: packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts lines 334-412 and packages/main/src/core/review-run.ts lines 960-966. Focused verification passed: npm --prefix packages/main run build; npm --prefix packages/main run test:review-run-metadataroot-wrapper-root. No concept/design blocker.",
+      "createdAt": "2026-07-01T17:15:22.427Z",
+      "reviewRound": "2026-07-01T17:12:06.070Z",
+      "reviewRunId": "B-9dcb:RR-017",
+      "_hash": "13c354e6303ab4ee17ee81491163faac7307b7c3ddac85814ccca927808d8705"
     }
   ]
 }
