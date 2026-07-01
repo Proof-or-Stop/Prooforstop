@@ -85,9 +85,9 @@
       "title": "Offline selfcheck wired into run-selfchecks",
       "context": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs: feed synthetic in-memory records, assert per-arm amplified counts + rate + per1000 rounding + CSV columns + that an SVG is emitted + graceful handling of an empty arm; wire it into run-selfchecks.mjs. Fully offline, no live LLM, no dependency on the large campaign data.",
       "userSees": "run-selfchecks.mjs runs the new selfcheck and reports it passing offline.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T02:04:10.278Z",
-      "endTime": null,
+      "endTime": "2026-07-01T02:05:39.293Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/run-selfchecks.mjs"
