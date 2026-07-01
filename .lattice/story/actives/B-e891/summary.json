@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e891",
+  "changes": "Added a standalone G02 missing-row negative-control smoke and updated the UDM no-false-DONE 10x15 baseline document to mark G01-G02 implemented only while keeping G03-G10 future.",
+  "usage": "Build packages/main, then run node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js to verify the G02 missing-row baseline.",
+  "expectedOutcome": "The G02 smoke prints parent-roadmap large-ledger G02 baseline smoke PASS, and the baseline document states G01-G02 implemented only with the full 10x15 baseline not complete.",
+  "actualTranscript": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js printed parent-roadmap large-ledger G02 baseline smoke PASS. Documentation grep showed G01-G02 implemented only, G03-G10 future, and full 10x15 baseline is not complete.",
+  "outcomeDiff": "No difference: actual smoke output and documentation boundaries match the expected G02-only outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "G02 only is implemented in this story. G03-G10 and the full combined 10x15 baseline smoke remain future work.",
+  "pitfalls": "The delivery-context-pack writer produced an extra context artifact that scope enforcement treated as out-of-scope; the signed delivery-check and transcript-diff are retained instead. Review pass commands required fully qualified reviewRunIds.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 205963
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 48917
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 394987
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 397946
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 346107
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 452079
+    }
+  },
+  "totalDurationMs": 1846021,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T02:05:24.283Z",
+  "updatedAt": "2026-07-01T02:05:24.283Z"
+}
