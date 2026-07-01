@@ -331,6 +331,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:30.560Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks.mjs prints 'all 8 recovery-runner selfchecks passed' — the new selfcheck is wired into the SELFCHECKS array and the count is 8",
+          "headHash": "a1ec64f542a9c4587067c1a037b3c9e9ed935bb0",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:31.163Z"
         }
       ]
     },
