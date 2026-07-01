@@ -170,7 +170,6 @@ const STATUS_SET = new Set<string>(PARENT_ROADMAP_STATUS_VALUES);
 const CLOSED_STATUSES = new Set<ParentRoadmapRowStatus>([
   'closed-by-implementation',
   'closed-by-existing-evidence',
-  'deferred-with-human-approval',
   'not-applicable',
 ]);
 const B43DE_M4_M12_ROW_IDS = Array.from({ length: 9 }, (_, index) => `M${index + 4}`);
@@ -527,9 +526,9 @@ function evaluateRow(row: ParentRoadmapRow, options: ParentRoadmapEvaluationOpti
     nextActions.push(`Resolve blocker for ${row.rowId}${row.blocker ? `: ${row.blocker}` : ''}.`);
   } else if (row.status === 'deferred-with-human-approval') {
     if (validDeferral(row, reasons, reasonCodes)) {
-      closed = true;
-      evidenceState = 'fresh';
-      reasons.push(`${row.rowId} is closed by explicit human-approved deferral, not runtime implementation.`);
+      evidenceState = 'not-required';
+      push(reasons, reasonCodes, 'human_approved_deferral', `${row.rowId} is deferred by explicit human approval, not closed as runtime implementation.`);
+      nextActions.push(`Keep ${row.rowId} visible as deferred until it is implemented, closed by evidence, or removed by audited scope decision.`);
     } else {
       evidenceState = 'invalid';
       nextActions.push(`Repair ${row.rowId} deferral with human approval, reason, revisit condition, and non-runtime statement.`);

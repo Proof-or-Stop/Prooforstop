@@ -1,7 +1,7 @@
 # Unattended Develop Mode No-False-DONE 10x15 Milestone Baseline
 
 Date: 2026-07-01
-Status: baseline design / G01-G03 implemented only; G04-G10 future implementation
+Status: full local deterministic baseline implemented; G01-G10 plus aggregate smoke are covered
 Related docs:
 
 - `docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`
@@ -73,7 +73,8 @@ rows, migration rows, and claim boundary status.
 
 ## Implementation Progress
 
-Current implemented slice: **G01-G03 only**. The full 10x15 baseline is not complete.
+Current implemented slice: **G01-G10 plus aggregate**. The full local
+deterministic 10x15 baseline is implemented.
 
 Runnable command after building `packages/main`:
 
@@ -81,6 +82,14 @@ Runnable command after building `packages/main`:
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js
 ```
 
 The G01 smoke lives at
@@ -108,23 +117,82 @@ rollup must keep all 15 rows open with missing evidence, return
 `no-full-roadmap-claim`, and block full completion wording even when a
 caller-supplied prose rollup says all rows are complete.
 
-The project validation config is not changed by this G01-G03 slice. Until a
-later story binds the full baseline into routine validation, run the commands
-above directly. G04-G10 remain future/not implemented, so the full 10x15 baseline
-is still incomplete.
+The G04 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts`.
+It is the stale-evidence negative-control smoke: all 15 rows carry closure
+evidence, but the row-level head/material/story-file bindings are stale against
+the current evaluation context. The rollup must report
+`staleEvidenceRows=15`, close zero rows, return `no-full-roadmap-claim`, and
+block full completion wording.
+
+The G05 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts`.
+It is the deferred-row negative-control smoke: 12 rows have fresh closure
+evidence while 3 rows have valid human-approved deferrals. The rollup must keep
+the 3 deferrals visible in `deferredRows`, must not count them as runtime
+closure, must return `no-full-roadmap-claim`, and must block full completion
+wording. The focused `parent-roadmap-totality-smoke` also covers this evaluator
+behavior so valid deferrals cannot silently become full-roadmap completion.
+
+The G06 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts`.
+It is the migration/sample negative-control smoke: all 15 rows are historical
+or sample migration rows. The rollup must return `migration_needed`, report all
+15 rows in `migrationRows`, and block full completion wording.
+
+The G07 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts`.
+It is the overclaim-boundary smoke: all 15 local rows close with fresh evidence,
+and safe local boundary wording remains allowed for the local deterministic
+baseline. Full-roadmap wording and deliberately elevated guard text that claims
+Authority, fullAuthority, production, or independent-host completion must be
+rejected by the boundary guard and must not appear in accepted row
+`claimBoundary` values.
+
+The G08 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts`.
+It is the malformed/duplicate-row negative-control smoke: 15 generated entries
+cannot satisfy all 15 required row commitments when a generated row is invalid
+or a duplicate leaves a required row uncovered. The rollup must surface
+`invalidRows>0`, return `no-full-roadmap-claim`, and block full completion
+wording.
+
+The G09 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts`.
+It is the child-assignment negative-control smoke: every row has an active
+`childStoryId`, but assignment is not delivery. The rollup must keep all 15 rows
+open/incomplete and block full completion wording until closure evidence exists.
+
+The G10 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts`.
+It is the stale-then-refreshed recovery smoke: the before state has 15 stale rows
+and blocks full completion wording; the refreshed state has the same 15 rows
+bound to fresh evidence and permits full roadmap completion only after refresh.
+
+The aggregate smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts`.
+It evaluates the 10 groups x 15 required rows = 150-row local matrix, asserts
+the group rollup counts, checks the G10 before/after recovery, and verifies that
+elevated G07 wording is rejected while safe local boundary wording remains
+allowed.
+
+The project validation config is not changed by this B-d278 slice. Run the
+commands above directly for the local deterministic baseline. This baseline
+does not assert Authority, fullAuthority, production rollout, remote execution,
+or independent-host completion.
 
 | Group | Implementation status |
 |---|---|
 | G01 | Implemented as the positive-control 15-row baseline smoke. |
 | G02 | Implemented as the missing-row negative-control 14-of-15 baseline smoke. |
 | G03 | Implemented as the prose-only negative-control 15-of-15 baseline smoke. |
-| G04 | Future / not implemented. |
-| G05 | Future / not implemented. |
-| G06 | Future / not implemented. |
-| G07 | Future / not implemented. |
-| G08 | Future / not implemented. |
-| G09 | Future / not implemented. |
-| G10 | Future / not implemented. |
+| G04 | Implemented as the stale-evidence 15-of-15 baseline smoke. |
+| G05 | Implemented as the 12-closed / 3-deferred baseline smoke. |
+| G06 | Implemented as the migration/sample 15-row baseline smoke. |
+| G07 | Implemented as the local-boundary / elevated-overclaim smoke. |
+| G08 | Implemented as the malformed/duplicate-row invalid baseline smoke. |
+| G09 | Implemented as the child-assignment-without-delivery baseline smoke. |
+| G10 | Implemented as the stale-then-refreshed recovery baseline smoke. |
 
 ## Common Milestone Template
 
@@ -192,40 +260,40 @@ helpers to generate the 150 rows, but the observed rollup must match this table.
 | G01 | 15 | 15 | 0 | 0 | 0 | 0 | 0 | yes |
 | G02 | 15 | 14 | 1 | 0 | 0 | 1 | 0 | no |
 | G03 | 15 | 0 | 15 | 0 | 0 | 0 | 0 | no |
-| G04 | 15 | 0 | 0 | 15 | 0 | 0 | 0 | no |
-| G05 | 15 | 12 | 0 | 0 | 3 | 0 | 0 | no |
+| G04 | 15 | 0 | 15 | 15 | 0 | 0 | 0 | no |
+| G05 | 15 | 12 | 3 | 0 | 3 | 0 | 0 | no |
 | G06 | 15 | 0 | 15 | 0 | 0 | 0 | 15 | no |
-| G07 | 15 | 15 | 0 | 0 | 0 | 0 | 0 | no, overclaim blocked |
-| G08 | 15 | 0 | 0 | 0 | 0 | >0 | 0 | no |
+| G07 | 15 | 15 | 0 | 0 | 0 | 0 | 0 | safe local boundary yes; full/elevated overclaim blocked |
+| G08 | 15 | 14 | 1 | 0 | 0 | >0 | 0 | no |
 | G09 | 15 | <15 | >0 | 0 | 0 | 0 | 0 | no |
 | G10 | 15 | 15 after refresh | 0 after refresh | 15 before refresh | 0 | 0 | 0 | yes after refresh only |
 
-## Future Full Smoke Test Contract
+## Full Smoke Test Contract
 
-The full 10x15 implementation should add or extend a smoke test similar to:
+The full 10x15 implementation includes this aggregate smoke:
 
 ```text
 node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js
 ```
 
-Suggested source file for the full baseline:
+Source file for the full baseline:
 
 ```text
 packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts
 ```
 
-The full smoke test should:
+The full smoke test:
 
-1. Generate the 10 synthetic parent ledgers.
-2. Generate exactly 150 milestone rows.
-3. Evaluate each parent rollup.
-4. Assert the group matrix above.
-5. Assert that only G01 and the refreshed state of G10 permit a full roadmap claim.
-6. Assert that G03 cannot pass with prose-only evidence.
-7. Assert that G04 cannot pass with stale evidence.
-8. Assert that G06 returns migration/sample semantics, not real completion.
-9. Assert that G07 cannot set Authority, fullAuthority, production, or independent two-host completion fields.
-10. Assert that every blocked group returns actionable `nextActions`.
+1. Generates the 10 synthetic parent ledgers.
+2. Evaluates exactly 150 required milestone rows.
+3. Evaluates each parent rollup.
+4. Asserts the group matrix above.
+5. Asserts that G01 and the refreshed state of G10 permit full roadmap completion.
+6. Asserts that G03 cannot pass with prose-only evidence.
+7. Asserts that G04 cannot pass with stale evidence.
+8. Asserts that G06 returns migration/sample semantics, not real completion.
+9. Asserts that G07 rejects Authority, fullAuthority, production, and independent-host completion wording while allowing safe local wording.
+10. Asserts that malformed or ambiguous groups fail closed instead of returning `full_roadmap_complete`.
 
 The test should fail closed. If a group is malformed or ambiguous, the result
 must be `no-full-roadmap-claim` rather than `full_roadmap_complete`.
@@ -239,11 +307,11 @@ The baseline is complete only when all of these are true:
 | Row count | Exactly 150 rows generated and evaluated. |
 | Positive control | G01 permits full completion. |
 | Recovery control | G10 permits full completion only after evidence refresh. |
-| Negative controls | G02-G09 do not permit a full completion claim. |
+| Negative controls | G02-G06 and G08-G09 do not permit a full completion claim; G07 permits only safe local wording and blocks elevated overclaims. |
 | Prose-only guard | G03 fails even if every row contains completion wording. |
 | Freshness guard | G04 fails while stale and names stale rows. |
 | Migration guard | G06 reports migration/sample semantics and no full roadmap claim. |
-| Overclaim guard | G07 cannot set Authority, fullAuthority, production, or two-host proof claims. |
+| Overclaim guard | G07 cannot set Authority, fullAuthority, production, or independent-host completion claims; safe local boundaries remain allowed. |
 | Duplicate guard | G08 reports invalid row IDs or invalid rows. |
 | Child assignment guard | G09 proves assignment is not delivery. |
 | Operator guidance | Every failed group exposes actionable next steps. |
@@ -271,11 +339,10 @@ benchmark for unattended completion:
 
 ## Non-Goals
 
-Story B-b596 implements the G01 positive-control smoke only. Story B-e891
-implements the G02 missing-row negative-control smoke only. Story B-727b
-implements the G03 prose-only negative-control smoke only. The full 10x15 smoke
-remains future and incomplete work: G04-G10 are not implemented here, and these
-stories make no full-baseline completion claim.
+Story B-b596 implemented the G01 positive-control smoke. Story B-e891
+implemented the G02 missing-row negative-control smoke. Story B-727b implemented
+the G03 prose-only negative-control smoke. Story B-d278 completes the remaining
+local deterministic baseline by adding G04-G10 plus the aggregate 10x15 smoke.
 
 This baseline also does not require or claim 150 real Lattice stories, remote
 hosts, elevated rollout status, Authority receipts, fullAuthority receipts,
