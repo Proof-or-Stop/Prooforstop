@@ -54,8 +54,24 @@
       "phase": "DEV",
       "headHash": "71528732909d2d9a93fbabdce481557eef4ed47a",
       "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice-generated ProofStory metadata from scope_shrinkage_decision_set (confirmed intentional out-of-scope: paper-insertion + bootstrap-CI, both pre-declared in CHK-001 excludes + INIT scope-boundary + intent_collision). Command-generated lifecycle artifact required by the intent-equivalence DONE gate; not a source change; classifier fails-closed on it so it must be acknowledged, same as the other 4 ProofStory metadata files.",
+      "timestamp": "2026-07-01T05:15:06.064Z",
+      "paths": [
+        ".lattice/story/actives/B-0b76/scope-shrinkage-decision.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-0b76/scope-shrinkage-decision.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "dd3525fcd0f3c9d00a0516077b574b75745a5b00",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128"
     }
   ],
   "createdAt": "2026-07-01T01:58:05.179Z",
-  "updatedAt": "2026-07-01T02:16:38.860Z"
+  "updatedAt": "2026-07-01T05:15:06.064Z"
 }
