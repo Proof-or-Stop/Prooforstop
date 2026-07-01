@@ -1,0 +1,28 @@
+{
+  "task": "review-run snapshot signing and consumer freshness recompute material/story hashes from signedWorkspaceRoot instead of the resolved metadataRoot, so a wrapper-root custom-storyDir metadata-only commit false-stales the reviewer run.",
+  "outcome": "In a wrapper-root project with a custom storyDir, after making a metadata-only commit to that storyDir and resubmitting reviewer evidence, `lattice finding_add` / `review_pass_set` no longer fails with `review evidence for <lane> bound reviewRunId <id> is stale: evidence storyFilesHash does not match current story-owned file state` — the reviewer run is accepted and REVIEW->TEST proceeds. Plain-repo / default-storyDir projects behave byte-identically. The new durable test prints its pass line and `lattice validate` reports all green.",
+  "facts": [
+    "captureReviewRunSnapshot (core/review-run.ts:310-321) computes materialHash=currentMaterialHash(projectRoot) and storyFilesHash=currentStoryFilesHash(projectRoot), both defaulting metadataRoot to projectRoot; the handler (handlers/review-run.ts:102) passes signedWorkspaceRoot only.",
+    "buildReviewRunWorkspaceBinding (core/review-run.ts:177-178) recomputes storyFilesHash with metadataRoot only when input.storyFilesHash is empty; the handler always passes the precomputed value, so that fallback is dead on this path.",
+    "assertCurrentReviewRunForEvidence (core/review-run.ts:686-692) and validateEvidenceRunBinding (core/review-run.ts:825-832) call checkEvidenceFreshnessForGit(signedProjectRoot, head, material, signedProjectRoot, story) — signed root passed as the metadataRoot arg.",
+    "evidence-freshness.ts currentMaterialHash/currentStoryFilesHash/checkEvidenceFreshnessForGit use metadataRoot via isMaterialExcludedPath -> isStoryMetadataPath -> loadConfig(metadataRoot); config.ts loadConfig(root) reads root/lattice.config.json for the custom storyDir.",
+    "ReviewRunWorkspaceBinding persists metadataRoot (types.ts:1752), sourced at handler:110 from workspace.metadataRoot || ctx.root.",
+    "done-oracle.ts:205, done-prepare.ts:351, verifier.ts:400 already thread a distinct metadataRoot; review-run is the only freshness consumer collapsing gitCwd and metadataRoot (B-6666 F-001 precedent).",
+    "Confirmed-failing repro (probe rp-mr1fmmur-clkpwd, red-reviewed/target-bug rr-mr1forp4-nbl96r; spike sr-mr1fp8ob-6k3tki confirmed sr-mr1frrtv-uxv41j): control fresh / production stale after a metadata-only commit."
+  ],
+  "constraints": [
+    "Plain-repo / default-storyDir behavior must stay byte-identical: metadataRoot defaults to projectRoot; signReviewRun / workspace-binding signatures unchanged for the default case.",
+    "Handler-Zod-consumer discipline (CLAUDE.md): any new metadataRoot param must be threaded to every consumer, not just one path.",
+    "No new consumer call sites beyond the two cited (spike verified); keep the binding metadataRoot authoritative for the consumer ?? fallback.",
+    "Legacy review runs without workspaceBinding must keep the projectRoot fallback (no behavior change).",
+    "story_review + REVIEW gate discipline: normal channel (>2 items + riskSignals) requires lattice-implementer dispatch, not main-agent code writing."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/tasks/ (new/updated smoke test for the wrapper-root + custom-storyDir path)"
+  ],
+  "timestamp": "2026-07-01T02:18:37.007Z"
+}

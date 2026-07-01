@@ -6,7 +6,31 @@
       "context": "Repro-first evidence: probe rp-mr1fmmur-clkpwd, review rr-mr1forp4-nbl96r (red-reviewed/target-bug), spike sr-mr1fp8ob-6k3tki. Turn the scratchpad repro into a permanent test driving captureReviewRunSnapshot + checkEvidenceFreshnessForGit: control (correct metadataRoot) fresh, production path stale after a metadata-only commit to the custom storyDir. Test MUST fail before the fix.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the new test prints its PASS line; before the fix it fails with the false-stale assertion.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Test reproduces control=fresh and production-path=stale on the wrapper-root+custom-storyDir metadata-only-commit before the fix, and fresh after",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy review run without workspaceBinding stays fresh (projectRoot fallback) in the test",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plain-repo/default-storyDir case in the test is byte-identical (no behavior change)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
