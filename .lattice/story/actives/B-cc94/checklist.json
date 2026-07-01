@@ -123,7 +123,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice session_brief now shows a bounded Memory Runtime Preflight block by default, without blocking the command or implying proof evidence.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "session_brief output includes Memory Runtime Preflight, active playbook hit IDs, dev-memory hit IDs, and pack digest/source digest summary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief has an explicit empty state when no runtime memory/playbook hits exist and still completes normally.",
+            "type": "cli"
+          },
+          {
+            "desc": "session_brief output remains bounded by the memory pack render cap.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A malformed/corrupt memory source cannot crash session_brief; advisory pack failure is rendered or skipped without blocking live lifecycle facts.",
+            "type": "cli"
+          },
+          {
+            "desc": "session_brief wording states gateEvidence=false and non_authoritative so memory cannot be mistaken for review/DONE proof.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
