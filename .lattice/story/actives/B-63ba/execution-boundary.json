@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-63ba",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "claude-subagent",
+    "codex-subagent",
+    "git-readonly",
+    "lattice-cli",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-63ba",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard*",
+    "npm publish*"
+  ],
+  "excludedTools": [
+    "network-publish",
+    "remote-release"
+  ],
+  "excludedPaths": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/session.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Execute in a dedicated B-63ba worktree. Keep changes scoped to offline recovery-runner robustness harness, tests, and one decision doc. Do not alter lifecycle gate semantics or remote publishing state.",
+  "createdAt": "2026-07-01T00:05:12.252Z",
+  "updatedAt": "2026-07-01T00:05:12.252Z",
+  "_hash": "ceea0a75854892c7823c5281e4bb975971c9591cc9249e45cd57a887baec524e"
+}
