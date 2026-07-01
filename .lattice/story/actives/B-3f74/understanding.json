@@ -1,0 +1,24 @@
+{
+  "task": "Synchronize stale roadmap/proof decision-document status boundaries after B-e781 closed the B-43de M4-M12 parent rows.",
+  "outcome": "User opens the Parent Roadmap and Proof Admissibility tables and sees: M4-M12 closure is credited to B-e781, migration/repair remains optional/future, and Authority-facing proof is explicitly not active local work or productionDone proof.",
+  "facts": [
+    "B-e781 closed B-43de M4-M12 parent roadmap rows with local machine evidence and row-level claim boundaries.",
+    "parent_roadmap_status --storyId=B-43de --json reports allRowsClosed=true, summaryClass=full_roadmap_complete, and openRows=[].",
+    "Parent Roadmap current table still says cross-track certification for the original roadmap is Partial / future, which is stale for M4-M12 closure.",
+    "Proof Admissibility currently labels Authority-facing proof consumer as Partial even though Authority Server receipt-backed proof is being removed from the active direction.",
+    "Migration/repair automation is optional/future and not required for B-e781 M4-M12 closure."
+  ],
+  "constraints": [
+    "Do not implement runtime code, lifecycle gates, migration automation, or Authority proof consumers.",
+    "Preserve non-overclaim boundaries: local CLI evidence must not claim productionDone, authorityDone, fullAuthorityDone, or retired Authority Server completion.",
+    "Only edit the scoped decision documents and Lattice metadata through CLI.",
+    "Follow consistency of logic: do not mark retired/non-goal rows as completed just to make a table green."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+  ],
+  "timestamp": "2026-07-01T00:13:54.753Z"
+}

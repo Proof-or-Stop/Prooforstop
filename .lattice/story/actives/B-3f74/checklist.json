@@ -8,9 +8,83 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T00:21:18.884Z",
+      "endTime": "2026-07-01T00:21:30.105Z",
+      "userSees": "Parent Roadmap table shows B-e781 M4-M12 closure as implemented/closed while migration/repair automation remains optional/future.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Parent Roadmap current status table credits B-e781/B-43de M4-M12 closure with local machine evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Migration/rollout/repair automation remains optional/future and is not required for M4-M12 closure.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim global lifecycle hard gate, production proof, or retired Authority completion from B-e781 evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"B-e781|B-43de M4-M12|allRowsClosed=true|summaryClass=full_roadmap_complete|Cross-track certification for the original roadmap \\| Implemented / closed ✅\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Parent Roadmap now credits B-e781/B-43de M4-M12 closure with local machine evidence and full_roadmap_complete status.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"Migration / rollout / repair automation \\| Partial / future|Optional follow-up only|not required for the B-e781 M4-M12\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Migration/rollout/repair automation remains optional/future and not required for M4-M12 closure.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"not a global lifecycle hard gate|production claim|retired Authority completion|external runtime conformance\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Parent Roadmap preserves no global gate, production, retired Authority, or external conformance overclaim.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +93,81 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T00:21:38.455Z",
+      "endTime": "2026-07-01T00:21:50.065Z",
+      "userSees": "Proof Admissibility table shows Authority-facing proof consumer as external/retired compatibility boundary, not active local work.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority-facing proof consumer row no longer reads as active local implementation work to finish.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compatibility or legacy Authority vocabulary remains bounded without reintroducing Authority Server receipt-backed proof as active scope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim local CLI evidence can set productionDone, authorityDone, fullAuthorityDone, or receiptVerified.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Authority-facing proof consumer \\| External / retired compatibility boundary ✅|does not implement an external Authority production adapter\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Authority-facing proof consumer is now documented as external/retired compatibility boundary, not active local implementation work.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Server-backed authority runtime and receipt semantics are retired|external compatibility boundaries|legacy receipt rows remain compatibility-only\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Compatibility and legacy Authority vocabulary remains bounded without reintroducing Authority Server receipt-backed proof as active scope.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"productionDoneEligible=false|productionDone=false|must not set `receiptVerified`, `authorityDone`, `fullAuthorityDone`, or `productionDone`\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Proof Admissibility preserves non-authority/non-production claims and does not let local CLI evidence set productionDone or Authority completion.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +177,92 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-01T00:21:59.112Z",
+      "endTime": "2026-07-01T00:24:10.396Z",
+      "userSees": "Targeted checks show M4-M12 closure, optional migration/repair boundary, and non-Authority/non-production claims all remain consistent.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parent_roadmap_status for B-43de reports allRowsClosed=true and full_roadmap_complete.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Targeted rg checks find migration/repair optional/future and Authority-facing external/retired boundary wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Targeted checks find productionDone/authority completion is not claimed from local CLI evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "B-43de rollup reports allRowsClosed=true, summaryClass=full_roadmap_complete, openRows=[], and M4-M12 rows closed with fresh evidence.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "rg -n Migration/repair optional-future and Authority external-retired boundary patterns in the two scoped docs",
+          "result": "pass",
+          "note": "Targeted docs check confirms migration/repair stays optional/future and Authority-facing proof consumer is external/retired compatibility boundary.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "rg -n non-overclaim boundary patterns in the two scoped docs",
+          "result": "pass",
+          "note": "Targeted docs check confirms local CLI evidence is bounded and does not claim Authority completion or productionDone.",
+          "headHash": "1993efcf9e76c1d2ff05831233bbce6c609da5e6",
+          "materialHash": "99ce74f0c14f35edf9d750c840bb9a1211b164d3841fc685592f73362029fb45",
+          "storyFilesHash": "0f234f07e6290f9d3d05a558143f2dfc410f4bad09d1c9659779b5842c49614c",
+          "timestamp": "2026-07-01T00:30:03.424Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice scope_contract_check --storyId=B-3f74 --json",
+          "result": "pass",
+          "note": "Scope check has no unacknowledged product-file violation; remaining warnings are explicitly acknowledged ProofStory lifecycle artifacts generated by required PLAN gates.",
+          "headHash": "fa7e9d544b76579c1cf5c28100410ef95ea61d33",
+          "materialHash": "d9fe43a41f68e11a277e48b97021a52614cdde4a1ad9a3d961c0daf947c1238b",
+          "storyFilesHash": "80cccdf62a76619a97924f74da75c8f64456c0b219a9a2d5f4676dacecc0d683",
+          "timestamp": "2026-07-01T00:24:10.980Z"
+        }
+      ]
     }
   ]
 }
