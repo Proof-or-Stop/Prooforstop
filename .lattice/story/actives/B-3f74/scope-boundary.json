@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3f74",
+  "mode": "maintenance",
+  "allowed": [
+    "Keep migration/repair automation documented as optional/future rather than required closure work",
+    "Run targeted read-only checks against lattice-strengthening roadmap and parent_roadmap_status evidence",
+    "Update Parent Roadmap decision document status rows after B-e781 M4-M12 closure",
+    "Update Proof Admissibility Authority-facing proof consumer wording as retired/external boundary, not active local work"
+  ],
+  "excluded": [
+    "Claim productionDone/fullAuthorityDone/authorityDone from local CLI evidence",
+    "Implement Authority-facing proof consumer or external production adapter",
+    "Implement migration/repair automation",
+    "Modify runtime code or lifecycle gates",
+    "Reintroduce Authority Server receipt-backed proof"
+  ],
+  "confirmedBy": "main-auditor",
+  "confirmationNote": "User selected three cleanup items from the updated table: Parent Roadmap stale Partial/future wording, Proof Admissibility Authority-facing boundary, and migration/repair optional boundary.",
+  "createdAt": "2026-07-01T00:12:04.385Z",
+  "updatedAt": "2026-07-01T00:12:04.385Z",
+  "_hash": "bd81636c8bcdc60d8de4a2c0805c79d475ae07c1ff15668cc4424953aa857db0"
+}
