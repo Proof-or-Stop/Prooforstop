@@ -90,8 +90,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-01T02:39:44.265Z",
       "endTime": null
     }
   ],
@@ -104,6 +104,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementing and verifying the G03 prose-only negative-control baseline smoke."
+    },
+    {
+      "timestamp": "2026-07-01T02:39:44.265Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Updating the G03 documentation boundary and implemented-slice status."
     }
   ]
 }
