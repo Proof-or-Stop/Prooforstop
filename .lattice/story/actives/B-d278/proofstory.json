@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-d278",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:6de4e80621c534a6c6cdfe1c1a2f644aabaca3a2a1c980fde78b1acb48fbf274",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-M-G04",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G04"
+      ],
+      "acceptanceClaim": "G04 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G04 to CHK-001 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G05",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G05"
+      ],
+      "acceptanceClaim": "G05 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G05 to CHK-002 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G06",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G06"
+      ],
+      "acceptanceClaim": "G06 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G06 to CHK-003 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G07",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G07"
+      ],
+      "acceptanceClaim": "G07 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G07 to CHK-004 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G08",
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G08"
+      ],
+      "acceptanceClaim": "G08 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G08 to CHK-005 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G09",
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G09"
+      ],
+      "acceptanceClaim": "G09 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G09 to CHK-006 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-G10",
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-G10"
+      ],
+      "acceptanceClaim": "G10 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "note": "Binds M-G10 to CHK-007 verification intents."
+    },
+    {
+      "id": "ACCEPT-M-AGG-DOCS",
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M-AGG-DOCS"
+      ],
+      "acceptanceClaim": "Full aggregate 10x15 baseline and documentation are complete only after all ten groups are represented and all commands pass.",
+      "note": "Binds M-AGG-DOCS to CHK-008 verification intents."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_confirmed_milestone_ledger",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "A candidate milestone ledger exists, but accepted intent interpretation has not confirmed it for gate consumption.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    }
+  ],
+  "note": "B-d278 ProofStory contract covers G04-G10 plus the full aggregate/docs milestone; DEV may start only after intent coverage and scope gates pass.",
+  "createdAt": "2026-07-01T03:06:26.526Z",
+  "updatedAt": "2026-07-01T03:06:26.526Z"
+}

@@ -1,0 +1,31 @@
+{
+  "storyId": "B-d278",
+  "checkedAt": "2026-07-01T03:48:21.232Z",
+  "headHash": "70f14233cd727f693bdf09f4b5a766305d3dd3f7",
+  "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+  "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+  "reviewRound": "2026-07-01T03:37:31.148Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "promise": "G04-G10 remaining UDM no-false-DONE baseline groups plus the aggregate 10x15 local deterministic baseline are implemented, not described as future work.",
+      "status": "verified",
+      "verifiedBy": "rg plus fresh smoke and validate commands",
+      "evidence": "Requirement doc states full local deterministic baseline implemented for G01-G10 plus aggregate; G04-G10 rows are marked implemented. Fresh runs passed G04-G10 individual smokes, aggregate 10x15 smoke, retired authority vocabulary guard, done_intent_equivalence_check enforce, and lattice validate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-d278-delivery",
+      "transcript": "Reviewed .lattice/story/actives/B-d278/evidence/transcript-diff.md; ran G04-G10 individual baseline smokes, parent-roadmap-large-ledger-baseline-smoke.js, retired-authority-vocabulary-guard-smoke.js, node bin/lattice.js validate --story=B-d278, and node bin/lattice.js done_intent_equivalence_check with mode enforce. All passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer confirms the user-visible promise is met: G04-G10 no-false-DONE baseline groups are executable and verified, aggregate 10x15 baseline passes, transcript evidence exists, formal validate passes, retired authority vocabulary guard passes, intent equivalence passes, and docs no longer present G04-G10 as future work."
+  },
+  "_hash": "9943df9e35b881f38f51bb5b26682419f26e42d91227ee17c2a0932c4b627a8b"
+}

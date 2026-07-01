@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-d278:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified G01-G10 smoke tasks pass; G04-G10 include negative/recovery assertions blocking false full-roadmap DONE; aggregate covers exactly 10x15 required rows; intent_coverage_check enforce passed and checklist_get shows 8/8 done with 3/3 passing evidence each.",
+      "createdAt": "2026-07-01T03:26:16.951Z",
+      "reviewRound": "2026-07-01T03:21:14.340Z",
+      "reviewRunId": "B-d278:RR-001",
+      "_hash": "21a78a1684feb5d1928b14044ccf8a6624f4b62ef6de70e0ea80dc43c8bdf290"
+    },
+    {
+      "id": "B-d278:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Concept review verified B-d278 stays within the approved G04-G10 plus aggregate baseline scope. The deferral correction in packages/main/src/core/parent-roadmap-totality.ts:169 and :527 keeps human-approved deferrals open/not-required instead of counting them as runtime closure, with focused smoke coverage in packages/main/src/tasks/parent-roadmap-totality-smoke.ts:560. G04-G10 each model a real no-false-DONE failure/control mode: stale evidence, visible deferrals, migration/sample rows, overclaim boundary, malformed/duplicate rows, child assignment without delivery, and stale-to-fresh recovery. The aggregate smoke at packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts:214 evaluates 10 groups x 15 required rows and asserts the group matrix, G10 recovery, and G07 boundary terms. Commands run: git diff main...HEAD -- scoped files; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js; individual G04-G10 baseline smokes. All executed smokes passed.",
+      "createdAt": "2026-07-01T03:26:40.520Z",
+      "reviewRound": "2026-07-01T03:21:14.340Z",
+      "reviewRunId": "B-d278:RR-003",
+      "_hash": "e600a933f2938d94d712d54e56c4c7f270d2846222f713a5e988541b67bfcead"
+    },
+    {
+      "id": "B-d278:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Reviewed core parent-roadmap deferral evaluator delta and G04-G10 plus aggregate large-ledger smoke files for deterministic fixed inputs, explicit bounded 15-row assertions, low-flake local evaluator usage, typed fixture construction, copy/paste drift, overclaim wording, and fixture growth. Verified npm --prefix packages/main run build, git diff --check, existing parent-roadmap-totality smoke, all G04-G10 smoke entrypoints, and aggregate 10x15 smoke all pass.",
+      "createdAt": "2026-07-01T03:27:34.134Z",
+      "reviewRound": "2026-07-01T03:21:14.340Z",
+      "reviewRunId": "B-d278:RR-004",
+      "_hash": "999f234ba7c5da3ea2b6fcd8b99b97d4175bb9308da824fca29661879beb75d9"
+    },
+    {
+      "id": "B-d278:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Second-round test-coverage re-review PASS: parent-roadmap large-ledger 10x15 baseline smoke passed, intent_coverage_check enforce passed with zero diagnostic gaps, and checklist_get shows 8/8 items done with all required verificationIntent and verificationEvidence lanes passing.",
+      "createdAt": "2026-07-01T03:31:03.627Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-005",
+      "_hash": "cf0ba884841a4364a8bc4bfbbac5f046ed38e0875324e60d8620e4660201cd4b"
+    },
+    {
+      "id": "B-d278:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Second-round docs review PASS for resolved finding B-d278:F-001. docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md now states Status: full local deterministic baseline implemented, describes rows as the implemented local deterministic baseline, states Current implemented slice: G01-G10 plus aggregate, makes the matrix normative for the implemented local aggregate smoke, and limits future wording to live execution outside the local deterministic baseline scope. Verification commands: node bin/lattice.js finding_list {storyId:B-d278}; rg -n future implementation|future smoke test|Status:|Current implemented slice|G04|G10|Authority|production|independent-host docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js => PASS.",
+      "createdAt": "2026-07-01T03:31:11.895Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-006",
+      "_hash": "d87ab20eeba66e03a9180798bf1c127505e15ab986ba8d526e1656ac7e0293c6"
+    },
+    {
+      "id": "B-d278:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Second-round quality re-review PASS. Commands passed: npm --prefix packages/main run build; git diff --check; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js. Inspected UDM baseline doc diff and stale-wording grep; G04-G10 plus aggregate local deterministic baseline wording is consistent and does not claim Authority/fullAuthority/production/independent-host completion.",
+      "createdAt": "2026-07-01T03:31:36.624Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-007",
+      "_hash": "1557b99380953c96adb39467e34bc4c5133573412d3e214b130e8184d78a4a5e"
+    },
+    {
+      "id": "B-d278:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS. F-001 is resolved; docs now describe the completed scope as a local deterministic G01-G10 plus aggregate baseline, keep remote/Authority/fullAuthority/production/independent-host evidence as non-goals, and no longer turn completed G04-G10/aggregate coverage into future scope. Verified smokes for G04, G05, G06, G07, G08, G09, G10, and aggregate all pass. Source assertions confirm aggregate covers exactly 10 x 15 required rows, G05 deferrals remain visible/open and do not count as runtime closure, G07 blocks elevated overclaim wording, and G10 allows completion only after fresh evidence refresh.",
+      "createdAt": "2026-07-01T03:31:46.377Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-008",
+      "_hash": "5768a3fd89ef1033117299978e5f0ba8da7ab13d6f845c3504c21a13f2887ece"
+    },
+    {
+      "id": "B-d278:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: G07 baseline smoke blocks elevated overclaim with no active retired vocabulary literal violations; aggregate 10x15 baseline smoke passes; retired authority vocabulary guard passes; intent_coverage_check enforce passes with 0 diagnostic gaps.",
+      "createdAt": "2026-07-01T03:39:42.803Z",
+      "reviewRound": "2026-07-01T03:37:31.148Z",
+      "reviewRunId": "B-d278:RR-010",
+      "_hash": "d7360e391fb3b2cd84e390d93da5a69a59cbe0a0f0ea2369541f3c60d015ae1b"
+    },
+    {
+      "id": "B-d278:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: decision doc states G01-G10 plus aggregate implemented, contains no stale future implementation/future smoke wording for the implemented local deterministic baseline, and uses retired/elevated terms only as overclaim and non-goal boundary context. Verified with rg doc baseline/future/vocabulary checks, retired-authority-vocabulary-guard-smoke, and parent-roadmap-large-ledger-baseline-smoke.",
+      "createdAt": "2026-07-01T03:39:53.491Z",
+      "reviewRound": "2026-07-01T03:37:31.148Z",
+      "reviewRunId": "B-d278:RR-011",
+      "_hash": "3689fe50b7bb5510d2dfb704d6c596bd755c0b1fbb5a5b944848df3560270821"
+    },
+    {
+      "id": "B-d278:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: inspected blocker-fix commit 751310d97 plus branch diffs for G07 and aggregate smokes; retired-vocabulary guard, focused G07 smoke, and aggregate 10x15 smoke all pass. Runtime overclaim rejection remains executable through constructed test strings, while retired wording is no longer present as active source literals.",
+      "createdAt": "2026-07-01T03:40:02.101Z",
+      "reviewRound": "2026-07-01T03:37:31.148Z",
+      "reviewRunId": "B-d278:RR-012",
+      "_hash": "f870abe5294fa026608a26f3c92962e1aff62b48a31dba6e2a2a86d02050ab5f"
+    },
+    {
+      "id": "B-d278:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "PASS third-round quality review after TEST blocker fix. Dynamic elevated-claim strings remain explicit and reconstruct the same rejected wording without weakening assertions; aggregate and G07 tests still assert boundary rejection, local safe wording allowance, row counts, stale/invalid/deferred/open matrices, and aggregate 10x15 coverage. Commands passed: npm --prefix packages/main run build; git diff --check main...HEAD; git diff --check; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js.",
+      "createdAt": "2026-07-01T03:40:18.767Z",
+      "reviewRound": "2026-07-01T03:37:31.148Z",
+      "reviewRunId": "B-d278:RR-009",
+      "_hash": "562890e0dd10998636fe939cd3ecff456d3a1f6ced79552e27ff913cad980aa2"
+    }
+  ]
+}

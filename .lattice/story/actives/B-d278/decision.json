@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Prove every remaining group with fresh deterministic machine checks, not prose-only status updates.",
+    "Keep local baseline evidence clearly separated from Authority, production, fullAuthority, and remote-host claims.",
+    "Make the aggregate command fail closed unless all 150 rows and the documented group matrix are represented.",
+    "Change evaluator core only where the documented baseline cannot honestly be represented by task-level smokes alone."
+  ],
+  "drivers": [
+    "The user asked to finish all remaining groups, not just update the document.",
+    "The baseline exists specifically to prevent false DONE on large multi-milestone work.",
+    "G05 deferral semantics must prevent deferred work from becoming full roadmap DONE."
+  ],
+  "options": [
+    {
+      "name": "A: implement G04-G10 group smokes plus aggregate smoke with one narrow evaluator correction",
+      "pros": [
+        "Covers every remaining documented group.",
+        "Produces independent commands and aggregate proof.",
+        "Fixes the discovered G05 semantic mismatch rather than hiding it."
+      ],
+      "cons": [
+        "Touches parent-roadmap evaluator core.",
+        "Larger story than one group at a time.",
+        "Requires careful review to avoid changing unrelated lifecycle behavior."
+      ]
+    },
+    {
+      "name": "B: implement only G04 next and leave G05-G10 future",
+      "pros": [
+        "Smallest immediate change.",
+        "Lowest conflict risk."
+      ],
+      "cons": [
+        "Does not satisfy the user request to complete the remaining groups.",
+        "Would prolong the very partial-DONE risk the baseline is meant to catch."
+      ]
+    },
+    {
+      "name": "C: implement smokes only and encode G05 as invalid deferral without core change",
+      "pros": [
+        "Avoids core evaluator edits.",
+        "May be quicker to implement."
+      ],
+      "cons": [
+        "Would not match the documented G05 expected matrix.",
+        "Would turn valid deferral into an invalid-row scenario and weaken the proof."
+      ]
+    }
+  ],
+  "chosen": "A: implement G04-G10 group smokes plus aggregate smoke with one narrow evaluator correction",
+  "rationale": "Choose option A because it is the only path that completes all remaining baseline groups, preserves aggregate proof, and honestly fixes the discovered G05 deferral semantics gap.",
+  "preMortem": [
+    {
+      "scenario": "The story claims the full 10x15 baseline is complete before every group command passes.",
+      "trigger": "Documentation is updated ahead of executable evidence or aggregate proof.",
+      "consequence": "The baseline itself becomes a false-DONE example.",
+      "mitigation": "Each checklist item requires a group command PASS, and CHK-008 requires the aggregate 150-row command PASS before docs claim full implementation."
+    },
+    {
+      "scenario": "The evaluator correction for G05 changes unrelated closure semantics.",
+      "trigger": "A broad refactor changes closed row handling for evidence-backed or not-applicable rows.",
+      "consequence": "Existing parent-roadmap completion behavior regresses.",
+      "mitigation": "Limit edits to deferred-row rollup semantics and run parent-roadmap-totality-smoke plus all large-ledger group smokes."
+    },
+    {
+      "scenario": "Local synthetic baseline proof is overclaimed as Authority or production completion.",
+      "trigger": "G07 or docs use elevated terms without explicit negative-boundary wording.",
+      "consequence": "Users mistake local deterministic smokes for external runtime certification.",
+      "mitigation": "Run overclaim guard assertions and docs grep; final summary must state no Authority, fullAuthority, production, or remote-host claim."
+    },
+    {
+      "scenario": "Aggregate smoke counts command PASS strings instead of evaluating all 150 rows.",
+      "trigger": "The aggregate command shells out to group smokes but does not verify row totals and matrix semantics.",
+      "consequence": "A missing group or malformed row could hide behind PASS text.",
+      "mitigation": "Aggregate command must compute and assert the 10x15 group matrix, including total evaluated row count 150."
+    }
+  ],
+  "timestamp": "2026-07-01T03:06:23.740Z"
+}
