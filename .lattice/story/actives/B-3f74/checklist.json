@@ -97,7 +97,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Targeted checks show M4-M12 closure, optional migration/repair boundary, and non-Authority/non-production claims all remain consistent.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parent_roadmap_status for B-43de reports allRowsClosed=true and full_roadmap_complete.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Targeted rg checks find migration/repair optional/future and Authority-facing external/retired boundary wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Targeted checks find productionDone/authority completion is not claimed from local CLI evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
