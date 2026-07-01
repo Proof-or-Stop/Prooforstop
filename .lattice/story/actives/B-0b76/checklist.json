@@ -98,6 +98,54 @@
         "test": [
           "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run make-fig-gate-ablation-selfcheck.mjs standalone → exits 0 and prints final line matching pattern make-fig-gate-ablation selfcheck: N assertions passed where N >= 1; WHY: confirms the selfcheck passes offline with synthetic data and emits the aggregator-compatible summary line",
+            "type": "cli"
+          },
+          {
+            "desc": "run-selfchecks.mjs includes the new selfcheck and reports all 8 passed → output contains all 8 recovery-runner selfchecks passed; WHY: confirms the wiring into the aggregator array is correct and the count updated from 7 to 8",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck asserts per-arm amplified counts match expected values for synthetic records with known outcomes; WHY: the selfcheck must verify the aggregation math, not just that it does not crash",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Selfcheck feeds duplicate same-key records and asserts dedup keep-first collapses them → the assertion specifically tests that n after dedup equals the unique key count, not the raw record count; WHY: the selfcheck must cover the dedup contract, not just pass-through counting",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck feeds a voids-like sidecar record and asserts it is excluded → the assertion verifies the *.voids.jsonl exclusion filter; WHY: without this, the selfcheck would not guard against a regression that reads voids files",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes an empty arm (zero records for one arm) and asserts no crash + arm appears with n=0; WHY: an empty arm is a real edge case in partial campaigns and must not throw",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck verifies per1000 rounding precision for a known rate → asserts exact one-decimal result; WHY: rounding bugs are silent and only caught by exact numeric assertion",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Selfcheck exits non-zero when an assertion fails (simulate by checking the selfcheck code path for assertion failure) → exit code is 1 and stderr/stdout indicates which assertion failed; WHY: a selfcheck that always exits 0 is worthless as a regression guard",
+            "type": "cli"
+          },
+          {
+            "desc": "SELFCHECKS array in run-selfchecks.mjs has exactly 8 entries and includes make-fig-gate-ablation-selfcheck.mjs → grep the array; WHY: if the wiring is accidentally omitted or the count is wrong, the aggregator silently under-tests",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck produces both SVG string and CSV output from synthetic data and asserts both are non-empty; WHY: a selfcheck that only tests aggregation math but not output generation misses rendering regressions",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
