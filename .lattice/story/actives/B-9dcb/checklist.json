@@ -76,7 +76,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After a metadata-only commit to the custom storyDir, resubmitting reviewer evidence no longer errors is stale: evidence storyFilesHash does not match current story-owned file state.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertCurrentReviewRunForEvidence/validateEvidenceRunBinding use workspaceBinding.metadataRoot so a clean tree stays fresh after a metadata-only commit",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy run without workspaceBinding falls back to projectRoot (unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Consumer metadataRoot matches the signed snapshot metadataRoot (no new false stale)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
