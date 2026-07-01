@@ -149,7 +149,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "parent-roadmap large-ledger G07 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G07 smoke reports 15 local closed rows while the overclaim guard blocks Authority, fullAuthority, production, and independent-host completion wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts safe local claim boundaries pass the guard while elevated claim-boundary text is rejected before any full completion claim is accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts local deterministic proof cannot be converted into Authority, production, fullAuthority, or independent two-host proof claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
