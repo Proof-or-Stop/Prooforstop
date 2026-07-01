@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0b76",
+  "checkedAt": "2026-07-01T01:48:27.653Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "646fbbbebae76255d7824b2adc9fa9319eb6b85c93b8e39d21690461d28a8bcc",
+  "executionBoundaryHash": "9dd574fefc42536281b4d47f472bdcd8f8bf6de96f77e36e58f1052b039ad53d",
+  "freshnessHash": "b042f296c32050c9c8236d47722b9542d73720b91debf4cc601cb88104167d56",
+  "effectiveExcludedKeywords": [
+    "committing generated figure assets (PDF/PNG) into the repo",
+    "editing the paper or main.tex (owned by another workstream)",
+    "modifying adjudicate.mjs / analyze.mjs / the campaign data",
+    "recomputing the cluster-bootstrap CI (stays in analyze.mjs)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "committing generated figure assets (PDF/PNG) into the repo",
+      "source": "scopeBoundary.excluded",
+      "text": "committing generated figure assets (PDF/PNG) into the repo",
+      "excluded": true
+    },
+    {
+      "keyword": "editing the paper or main.tex (owned by another workstream)",
+      "source": "scopeBoundary.excluded",
+      "text": "editing the paper or main.tex (owned by another workstream)",
+      "excluded": true
+    },
+    {
+      "keyword": "modifying adjudicate.mjs / analyze.mjs / the campaign data",
+      "source": "scopeBoundary.excluded",
+      "text": "modifying adjudicate.mjs / analyze.mjs / the campaign data",
+      "excluded": true
+    },
+    {
+      "keyword": "recomputing the cluster-bootstrap CI (stays in analyze.mjs)",
+      "source": "scopeBoundary.excluded",
+      "text": "recomputing the cluster-bootstrap CI (stays in analyze.mjs)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ea04d2f6f964f4ad7e2c10125f673feb23b5f5a1ad127bcba50e09db5ad1dcb2"
+}
