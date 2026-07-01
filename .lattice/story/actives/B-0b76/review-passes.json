@@ -116,6 +116,15 @@
       "reviewRound": "2026-07-01T05:15:20.930Z",
       "reviewRunId": "B-0b76:RR-014",
       "_hash": "7a7d7a3ffa274167bcd8eca8932eb3daa915064d664e6195ee6726f02f995c5c"
+    },
+    {
+      "id": "B-0b76:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 re-attest: Figure generator README section (lines 221-255 of experiments/recovery-runner/README.md) is consistent with code. (1) Transparency line: README describes dedup raw→unique transparency format — code lines 213-215 of make-fig-gate-ablation.mjs print exactly this format. (2) Conflict guard: README states generator hard-throws on conflicting-outcome duplicates — confirmed at code lines 58-97. (3) Does-not-compute-CI / does-not-edit-paper: both README and code header lines 17-19 state the same. (4) Selfcheck count 8: README line 163 states (8) — run-selfchecks.mjs SELFCHECKS array has exactly 8 entries. No drift detected; section unchanged from prior PASS rounds.",
+      "createdAt": "2026-07-01T05:17:52.161Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-016",
+      "_hash": "8a362b98f0aa36403d878c011dcf51665fd28aa01d6124bf0e35d4867fce5551"
     }
   ]
 }
