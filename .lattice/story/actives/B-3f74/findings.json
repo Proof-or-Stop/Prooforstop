@@ -17,6 +17,24 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f74:F-002",
+      "desc": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md still has a current-looking M7 test expectation at lines 525-530 that says B-43de migrates to partial parent governance with open child rows, while the current status and execution-order sections at lines 32-33 and 592-609 say B-e781 closed B-43de M4-M12 and parent_roadmap_status now reports allRowsClosed=true/full_roadmap_complete. Because B-3f74 is specifically syncing boundary status after B-e781, this leaves contradictory B-43de boundary wording in the same document.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-01T00:26:40.535Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-002",
+      "_hash": "4af2118b7e003839de6140a593d48b3a1f9b07663d24757ec4b56ed7097ff15c",
+      "files": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
