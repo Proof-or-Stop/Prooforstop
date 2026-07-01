@@ -54,7 +54,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Proof Admissibility table shows Authority-facing proof consumer as external/retired compatibility boundary, not active local work.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority-facing proof consumer row no longer reads as active local implementation work to finish.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compatibility or legacy Authority vocabulary remains bounded without reintroducing Authority Server receipt-backed proof as active scope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim local CLI evidence can set productionDone, authorityDone, fullAuthorityDone, or receiptVerified.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
