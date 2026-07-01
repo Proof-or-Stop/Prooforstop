@@ -344,6 +344,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:31.163Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts aggregate() per-arm amplified counts + rates on synthetic records with known outcomes (A4 rate 0.25, A2prime 0.5)",
+          "headHash": "9e3bf876b7f8adbcae01b99dc435f7fc9ca61641",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:31.695Z"
         }
       ]
     },
