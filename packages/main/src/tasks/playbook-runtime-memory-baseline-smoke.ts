@@ -89,6 +89,23 @@ function assertBrokenSupersessionWouldFail(): void {
   }
 }
 
+function assertGoldTamperWouldFail(): void {
+  const generated = generatePlaybookRuntimeBaseline({ profile: 'small' });
+  try {
+    const goldPath = `${generated.outputDir}/gold-queries.json`;
+    const gold = JSON.parse(readFileSync(goldPath, 'utf8')) as Record<string, unknown>;
+    writeFileSync(goldPath, `${JSON.stringify({ ...gold, tampered: true }, null, 2)}\n`, 'utf8');
+    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir });
+    assert.equal(verified.status, 'fail');
+    assert.equal(verified.staleDetected, true);
+    assert.equal(verified.goldDigestStable, false);
+    assert.equal(verified.recordsDigestStable, true);
+    assert.equal(verified.manifestDigestStable, true, 'manifest stays stable; gold file digest drift must fail verification');
+  } finally {
+    if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });
+  }
+}
+
 async function run(): Promise<void> {
   const profile = profileFromArgs();
   const generated = generatePlaybookRuntimeBaseline({ profile });
@@ -105,6 +122,8 @@ async function run(): Promise<void> {
     assert.equal(verified.authority, 'non_authoritative');
     assert.equal(verified.gateEvidence, false);
     assert.equal(verified.recordCount, generated.manifest.recordCount);
+    assert.equal(verified.recordsDigestStable, true);
+    assert.equal(verified.goldDigestStable, true);
     assert.equal(verified.manifestDigestStable, true);
     assert.equal(verified.correctness.expectedIdsFoundRate, 1);
     assert.equal(verified.correctness.candidateFalseSurfaceRate, 0);
@@ -112,6 +131,7 @@ async function run(): Promise<void> {
     assert.equal(verified.correctness.currentOverSupersededPreferenceRate, 1);
     assertBrokenCandidateWouldFail();
     assertBrokenSupersessionWouldFail();
+    assertGoldTamperWouldFail();
     console.log([
       'playbook-runtime-memory baseline smoke passed',
       `profile=${verified.profile}`,

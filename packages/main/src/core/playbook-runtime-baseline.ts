@@ -39,6 +39,8 @@ export interface PlaybookRuntimeBaselineVerifyResult {
   profile: PlaybookRuntimeBaselineProfile;
   recordCount: number;
   fullProfileExactMillion: boolean;
+  recordsDigestStable: boolean;
+  goldDigestStable: boolean;
   manifestDigestStable: boolean;
   staleDetected: boolean;
   correctness: {
@@ -396,8 +398,11 @@ export function verifyPlaybookRuntimeBaseline(args: {
   const started = performance.now();
   const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
   const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
-  const staleDetected = digestText(recordsRaw) !== manifest.recordsDigest ? true : false;
-  const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: typeof GOLD_QUERIES };
+  const goldRaw = readFileSync(join(inputDir, 'gold-queries.json'), 'utf8');
+  const recordsDigestStable = digestText(recordsRaw) === manifest.recordsDigest;
+  const goldDigestStable = digestText(goldRaw) === manifest.goldDigest;
+  const staleDetected = !recordsDigestStable || !goldDigestStable;
+  const gold = JSON.parse(goldRaw) as { queries: typeof GOLD_QUERIES };
   const shortlists = new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
   let validRows = 0;
   let malformedRowsSkipped = 0;
@@ -456,6 +461,8 @@ export function verifyPlaybookRuntimeBaseline(args: {
     && candidateFalseSurfaceRate <= thresholds.candidateFalseSurfaceRateMax
     && deprecatedFalseSurfaceRate <= thresholds.deprecatedFalseSurfaceRateMax
     && manifestDigestStable
+    && recordsDigestStable
+    && goldDigestStable
     && staleDetected === false;
   return {
     status: pass ? 'pass' : 'fail',
@@ -463,6 +470,8 @@ export function verifyPlaybookRuntimeBaseline(args: {
     profile: manifest.profile,
     recordCount: manifest.recordCount,
     fullProfileExactMillion: manifest.fullProfileExactMillion,
+    recordsDigestStable,
+    goldDigestStable,
     manifestDigestStable,
     staleDetected,
     correctness: {

@@ -12,6 +12,7 @@ import {
   evaluateRuntimeMemoryConsumerPolicy,
   renderMemoryFreshnessPackSummary,
 } from '../core/playbook-runtime-memory.js';
+import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -45,6 +46,8 @@ function renderBaselineVerify(result: ReturnType<typeof verifyPlaybookRuntimeBas
     `profile: ${result.profile}`,
     `recordCount: ${result.recordCount}`,
     `fullProfileExactMillion: ${result.fullProfileExactMillion}`,
+    `recordsDigestStable: ${result.recordsDigestStable}`,
+    `goldDigestStable: ${result.goldDigestStable}`,
     `manifestDigestStable: ${result.manifestDigestStable}`,
     `staleDetected: ${result.staleDetected}`,
     `expectedIdsFoundRate: ${result.correctness.expectedIdsFoundRate}`,
@@ -147,8 +150,20 @@ function renderHealth(report: ReturnType<typeof buildRuntimeHealth>): string {
   return lines.join('\n');
 }
 
-function finishDecisionPath(root: string, storyId?: string): string {
-  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${storyId || 'no-story'}.json`);
+function finishDecisionStoryId(storyId?: string): { recordStoryId?: string; pathSegment: string } {
+  const trimmed = storyId?.trim();
+  if (!trimmed) return { pathSegment: 'no-story' };
+  if (!isCanonicalStoryId(trimmed)) {
+    throw new Error(
+      `dev_memory_finish_decision: invalid storyId ${JSON.stringify(storyId)}; ` +
+      'must be a canonical, path-safe Proofbound story id',
+    );
+  }
+  return { recordStoryId: trimmed, pathSegment: trimmed };
+}
+
+function finishDecisionPath(root: string, pathSegment: string): string {
+  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
 }
 
 function normalizeDecision(value: unknown): FinishDecision {
@@ -202,6 +217,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
       if ((decision === 'no-reusable-lesson' || decision === 'defer-with-reason') && reason.length < 5) {
         throw new Error(`${decision} requires a concrete reason`);
       }
+      const safeStory = finishDecisionStoryId(args.storyId);
       const capturedEntryIds = Array.isArray(args.capturedEntryIds)
         ? args.capturedEntryIds
         : typeof args.capturedEntryIds === 'string' && args.capturedEntryIds.trim().length > 0
@@ -209,7 +225,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
           : [];
       const record = {
         schemaVersion: 'proofbound.dev-memory-finish-decision.v1',
-        storyId: args.storyId,
+        storyId: safeStory.recordStoryId,
         decision,
         reason,
         capturedEntryIds,
@@ -218,7 +234,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
         gateEvidence: false as const,
         recordedAt: new Date().toISOString(),
       };
-      const path = finishDecisionPath(ctx.root, args.storyId);
+      const path = finishDecisionPath(ctx.root, safeStory.pathSegment);
       if (!existsSync(dirname(path))) mkdirSync(dirname(path), { recursive: true });
       writeFileSync(path, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
       if (wantsJson(args)) return { path, record };

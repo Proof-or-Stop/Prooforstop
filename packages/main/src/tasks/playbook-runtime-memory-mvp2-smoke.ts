@@ -172,6 +172,15 @@ async function run(): Promise<void> {
         assert.notEqual((COMMAND_POLICIES as any)[name]?.gateEvidence, true, `${name} is not gate evidence`);
         assert.ok(PROCESS_FACT_LEVELS.some((entry) => entry.name === name), `process fact includes ${name}`);
       }
+      assert.equal(COMMAND_POLICIES.memory_playbook_baseline_generate.ownershipClass, 'dangerousMutating');
+      assert.equal(COMMAND_POLICIES.memory_playbook_baseline_generate.destructiveRisk, 'workspace-destructive');
+      const baselineGenerateFact = PROCESS_FACT_LEVELS.find((entry) => entry.name === 'memory_playbook_baseline_generate');
+      assert.equal(baselineGenerateFact?.level, 'L2');
+      assert.equal(baselineGenerateFact?.category, 'memory-runtime-write');
+      for (const name of ['memory_playbook_baseline_verify', 'playbook_runtime_health', 'final_response_check'] as const) {
+        assert.equal(COMMAND_POLICIES[name].ownershipClass, 'readOnly', `${name} remains read-only`);
+        assert.equal(COMMAND_POLICIES[name].destructiveRisk, 'none', `${name} remains non-destructive`);
+      }
     });
 
     await checkAsync('done_prepare surfaces advisory memory without proof claims', async () => {

@@ -120,6 +120,37 @@ async function run(): Promise<void> {
     assert.ok(existsSync(decision.path));
     assert.match(readFileSync(decision.path, 'utf8'), /no-reusable-lesson/);
 
+    for (const invalid of [
+      {
+        storyId: '../../outside',
+        forbiddenPaths: [
+          join(root, '.lattice', 'outside.json'),
+          join(root, '.lattice', 'dev-memory', 'outside.json'),
+        ],
+      },
+      {
+        storyId: '../../../outside-root',
+        forbiddenPaths: [join(root, 'outside-root.json')],
+      },
+      {
+        storyId: 'B-bad/leaf',
+        forbiddenPaths: [join(root, '.lattice', 'dev-memory', 'finish-decisions', 'B-bad', 'leaf.json')],
+      },
+    ]) {
+      assert.throws(
+        () => handlers.dev_memory_finish_decision({
+          storyId: invalid.storyId,
+          decision: 'no-reusable-lesson',
+          reason: 'Invalid story id must fail before path use.',
+          json: true,
+        }),
+        /dev_memory_finish_decision: invalid storyId .*path-safe Proofbound story id/,
+      );
+      for (const forbiddenPath of invalid.forbiddenPaths) {
+        assert.equal(existsSync(forbiddenPath), false, `invalid storyId ${invalid.storyId} writes no outside file ${forbiddenPath}`);
+      }
+    }
+
     console.log('playbook-runtime-memory health smoke passed');
   } finally {
     if (existsSync(root)) rmSync(root, { recursive: true, force: true });

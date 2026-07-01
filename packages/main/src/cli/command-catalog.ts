@@ -1063,7 +1063,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'memory_playbook_baseline_generate', description: 'Generate deterministic playbook runtime memory baseline artifacts (small or full 1,000,000 records); non-authoritative benchmark only', schema: {
+  { name: 'memory_playbook_baseline_generate', description: 'Write deterministic playbook runtime memory baseline artifacts (small or full 1,000,000 records); force may replace outputDir; non-authoritative benchmark only', schema: {
     profile: z.enum(['small', 'full']).optional().describe('Baseline profile. full writes exactly 1,000,000 records. Default small.'),
     outputDir: z.string().optional().describe('Output directory; omit for temp output. Refuses to overwrite unless force is true.'),
     seed: z.number().optional().describe('Deterministic seed metadata (default 42).'),
