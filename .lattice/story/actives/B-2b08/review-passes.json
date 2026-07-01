@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-01T02:57:52.644Z",
       "reviewRunId": "B-2b08:RR-006",
       "_hash": "24b82cf4f7c46b4a90a4cd97628cffda97f067ab3a013181cf6040d4b16903d4"
+    },
+    {
+      "id": "B-2b08:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: DONE version-bump wording is narrowed to watched Proofbound CLI/runtime inputs, experiments/** remains outside the bump predicate, no alias or ledger policy is introduced, and evidence/gate semantics stay on the existing changed-path predicate. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/version-bump-smoke.js.",
+      "createdAt": "2026-07-01T03:01:00.647Z",
+      "reviewRound": "2026-07-01T02:57:52.644Z",
+      "reviewRunId": "B-2b08:RR-007",
+      "_hash": "a565c6853b833e48abe4c6f15e402adc64c998518f341b53a728b0a09f6d5172"
     }
   ]
 }
