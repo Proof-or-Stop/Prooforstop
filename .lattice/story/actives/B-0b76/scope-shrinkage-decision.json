@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-0b76",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [
+    "paper-figure-insertion",
+    "bootstrap-ci-computation"
+  ],
+  "reason": "Confirmed intentional scoping: figure insertion into the paper (main.tex) and bootstrap-CI computation were EXPLICITLY out of scope from the story's start — declared in CHK-001 excludes, the INIT scope-boundary excludedScope, and the intent_collision acceptedInterpretation (another workstream owns the paper; analyze.mjs owns the CI). The delivery covers the full IN-scope outcome (committed generator rebuilds the figure from powered/*.jsonl + SVG/CSV, 43-assertion offline selfcheck wired 8/8, README, reproduces analyze counts A4 2/1920 dedup 9240). The 'narrower than snapshot' heuristic reflects exactly these two pre-declared exclusions; operator confirmed the scoping.",
+  "approvedBy": "operator",
+  "createdAt": "2026-07-01T05:11:52.990Z",
+  "updatedAt": "2026-07-01T05:13:28.367Z"
+}

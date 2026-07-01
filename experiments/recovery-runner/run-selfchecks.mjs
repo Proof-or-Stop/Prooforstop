@@ -17,6 +17,7 @@ const SELFCHECKS = [
   'analyze-selfcheck.mjs',
   'corpus-selfcheck.mjs',
   'live-engine-selfcheck.mjs',
+  'make-fig-gate-ablation-selfcheck.mjs',
 ];
 
 let failed = 0;

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-0b76",
+  "id": "IC-20260701015804",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Build + commit the figure generator plus an offline selfcheck and a README note in proofbound experiments; do NOT edit the paper/main.tex and do NOT recompute the bootstrap CI (analyze.mjs owns it). 'gate' refers to visualizing the experiment's A4 review-gate arm, not modifying any Proofbound gate/security code.",
+  "acceptedInterpretationHash": "sha256:174590a6222b0486e46f10c0465702e526092bab94cd677c7d3e7545ad52ebb5",
+  "notes": "Single unambiguous interpretation. high_assurance was auto-triggered by the word 'gate' in the figure/story wording, but the change is a read-only figure generator over existing campaign records that touches no gate/security code.",
+  "createdAt": "2026-07-01T01:58:04.876Z",
+  "updatedAt": "2026-07-01T01:58:04.876Z"
+}

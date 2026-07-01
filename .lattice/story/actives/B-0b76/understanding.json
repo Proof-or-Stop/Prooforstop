@@ -1,0 +1,27 @@
+{
+  "task": "Add a committed, reproducible generator that rebuilds the section 5/6 evidence-gate ablation figure (per-arm amplification) directly from the powered campaign records, with an offline selfcheck, so the paper figure is auditable and re-buildable rather than a one-off export.",
+  "outcome": "Running `node experiments/recovery-runner/make-fig-gate-ablation.mjs` prints per-arm lines such as `A4  amplified 2/1920 = 0.10% (≈1/1000) meanTok 204553` and `A2prime amplified 31/1920 = 1.61% (≈16/1000)`, then writes fig-gate-ablation.svg + fig-gate-ablation.csv and 'wrote … (dedup total 9240 records)'. Running `node experiments/recovery-runner/run-selfchecks.mjs` prints '✓ make-fig-gate-ablation-selfcheck.mjs: … assertions passed' and 'all 8 recovery-runner selfchecks passed (offline, no live LLM)', exit 0.",
+  "facts": [
+    "experiments/recovery-runner/powered/*.jsonl are the per-task campaign records (24 task files + *.voids.jsonl sidecars); the deduped full matrix is 9,240 cells",
+    "adjudicate.mjs assigns adjudicatedOutcome (amplified/recovered/safe-stop/null); analyze.mjs owns the cluster-bootstrap CI",
+    "dedup keep-first by arm|taskId|scenarioId|repeat matches analyze intent",
+    "validated scratch prototype computes: A4 2/1920, A2prime 31/1920, A3 14/1920, A2 18/1920, A1 13/1560; A3/A4 token ratio 0.98",
+    "RESOLVED: run-selfchecks.mjs currently runs 7 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze/corpus/live-engine); adding the figure selfcheck makes 8",
+    "RESOLVED: run-selfchecks.mjs wires each selfcheck as a child process via spawnSync and scrapes a summary line matching /assertions? (passed|failed)|✓|✗/, so the new selfcheck must print a final line like \"make-fig-gate-ablation selfcheck: N assertions passed\""
+  ],
+  "constraints": [
+    "offline + deterministic: no live LLM, no network, no new npm dependencies",
+    "must NOT edit the paper / main.tex (owned by another workstream) and must NOT commit generated PDF/PNG assets",
+    "must NOT modify adjudicate.mjs or analyze.mjs; the bootstrap CI stays in analyze.mjs",
+    "the selfcheck must not depend on the large campaign data — use synthetic in-memory records",
+    "numbers emitted must match analyze.mjs on the same records"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+    "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+    "experiments/recovery-runner/run-selfchecks.mjs",
+    "experiments/recovery-runner/README.md"
+  ],
+  "timestamp": "2026-07-01T01:50:18.732Z"
+}

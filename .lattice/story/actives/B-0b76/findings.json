@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "id": "B-0b76:F-001",
+      "desc": "CHK-002:adversarial:0 intent requires demonstrating the selfcheck exits with code 1 when an assertion fails, but the bound evidence command (node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs) only runs the passing selfcheck (exits 0 with 38 assertions passed). The note says the exit-1 path was implementer-verified by manually breaking an assertion, which is not reproducible by re-running the bound command. A runnable one-liner that injects a deliberate failure (e.g. node -e \"...\" or a temp fixture) and asserts exit code 1 would properly bind this intent.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-01T02:21:07.879Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-003",
+      "_hash": "276b968c87b13b8cd1d62c84a0706d6ef22abaf2ee53480e48267d77fd2cce80",
+      "files": [
+        "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+        "experiments/recovery-runner/make-fig-gate-ablation.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-intent-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reproducible exit-1 self-test added (commit f17c76f0): normal run self-spawns a child with FIG_SELFCHECK_FORCE_FAIL=1 and asserts child.status===1; FIG_SELFCHECK_FORCE_FAIL=1 node selfcheck exits 1 (verified). Selfcheck now 43 assertions, run-selfchecks 8/8.",
+      "resolvedAt": "2026-07-01T02:31:41.512Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b76:F-002",
+      "desc": "codex host-2 (cross-vendor): make-fig-gate-ablation.mjs dedups keep-first by arm|taskId|scenarioId|repeat; analyze.mjs keeps every valid non-void row (no cell-key dedup). On the SAME raw powered/*.jsonl the generator reports 9240 cells (A4 2/1920) while analyze-style counting sees 18557 rows (A4 4/3855). INVESTIGATION: raw set = 18557 records = 9240 unique cells each run ~2x (max 3x) across session-limit re-runs; 0 duplicated cells have conflicting outcomes, so the deduped 9240 figure is unambiguous and CORRECT (matches the paper analysis run on deduped input per the known analyze-needs-dedup-first requirement). Real cross-tool CONSISTENCY HAZARD + missing dedup transparency, not a wrong figure. Fix in scope: generator prints dedup transparency (raw->unique->dropped + conflict count) + a conflict guard (error if any duplicated cell has conflicting outcomes); README documents figure and analyze both operate on the deduped cell matrix and analyze must dedup raw input first. analyze.mjs itself is out of scope (locked).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-01T02:24:10.582Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "_hash": "c7aac988ee32706a422bc6c4afc87788a9441ca85aa493cf07cd4cfea191c54c",
+      "signatureTag": "adversarial|unknown|codex-host-cross",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Dedup transparency + conflict guard added (commit f17c76f0): readRecordsWithStats exposes rawCount/uniqueCount/droppedCount; run() prints 'dedup: 18557 raw records -> 9240 unique cells (9317 duplicate re-runs dropped)'; a hard conflict guard throws if any duplicated cell has conflicting adjudicatedOutcome (0 in the real data -> 9240 unambiguous+correct, matches the paper's deduped analysis). README documents figure & analyze both operate on the deduped cell matrix and analyze must dedup raw input first. analyze.mjs (no dedup) is out of scope/locked; flagged for the analysis/paper workstream.",
+      "resolvedAt": "2026-07-01T02:31:42.010Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,708 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-0b76:RR-001",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "startedAt": "2026-07-01T02:17:11.895Z",
+      "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+      "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+      "promptHash": "a7f77b4ddca1bdb26e53ab5046c294d83e77d5edabcc873e562730f90e78efb3",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "1f6b287b22841d052535357e7102cc2004358cef569e582b81e9a90cc02fcb66",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "45742ae21cf3e7cf954679a6b597d60f70f026ebdfffb1db13ecbc2e26ca9ce4",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "d8bfdefc4c110a235c6d60cbac53824b2b3ff6efcfb8a62febedd946969f40a2",
+          "dcf3c03427b9a158ec2342090f83531a23174688e7ec6a5c341c7965c4552323"
+        ],
+        "bindingHash": "8543282a7b7159784d3e827f55a07a45def2c3bed93b46cc6f052528ec2389cc"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+        "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+        "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+        "bindingHash": "5a52d012865450a6460a28536489e68941c3ca3126a21bb3c3ef0ab3ec74d42d"
+      },
+      "_hash": "1716db3c137204b9fcf49aae9c12fccb8b3d00b3d4fd731720be10ca78128272"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-002",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "startedAt": "2026-07-01T02:17:23.300Z",
+      "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+      "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+      "promptHash": "e0da95f6a8048a3c413798ed2f8720277978bce0aa6a914961167fba99f800c5",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "1f6b287b22841d052535357e7102cc2004358cef569e582b81e9a90cc02fcb66",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "45742ae21cf3e7cf954679a6b597d60f70f026ebdfffb1db13ecbc2e26ca9ce4",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "d8bfdefc4c110a235c6d60cbac53824b2b3ff6efcfb8a62febedd946969f40a2",
+          "dcf3c03427b9a158ec2342090f83531a23174688e7ec6a5c341c7965c4552323"
+        ],
+        "bindingHash": "8543282a7b7159784d3e827f55a07a45def2c3bed93b46cc6f052528ec2389cc"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+        "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+        "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+        "bindingHash": "5a52d012865450a6460a28536489e68941c3ca3126a21bb3c3ef0ab3ec74d42d"
+      },
+      "_hash": "b626554a4437ce9094480455f96a1173ae2e6dbc6f055a899ae6aa956fac1cb4"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-003",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "startedAt": "2026-07-01T02:17:30.167Z",
+      "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+      "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+      "promptHash": "d206d98e79f6ee0e7e7dd7efd0dc24fffbdb7ea6392be024269a0834a0de8d96",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "1f6b287b22841d052535357e7102cc2004358cef569e582b81e9a90cc02fcb66",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "45742ae21cf3e7cf954679a6b597d60f70f026ebdfffb1db13ecbc2e26ca9ce4",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "d8bfdefc4c110a235c6d60cbac53824b2b3ff6efcfb8a62febedd946969f40a2",
+          "dcf3c03427b9a158ec2342090f83531a23174688e7ec6a5c341c7965c4552323"
+        ],
+        "bindingHash": "8543282a7b7159784d3e827f55a07a45def2c3bed93b46cc6f052528ec2389cc"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+        "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+        "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+        "bindingHash": "5a52d012865450a6460a28536489e68941c3ca3126a21bb3c3ef0ab3ec74d42d"
+      },
+      "_hash": "c411ab4d9c605041aab17a87cc8f161b10acef49d7b951f501c8b6b9b7fb6060"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-004",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "startedAt": "2026-07-01T02:17:30.833Z",
+      "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+      "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+      "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+      "promptHash": "2c7520c536390c50d436a78155b45eee22ade40da2fdb605738414ce82601d71",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "1f6b287b22841d052535357e7102cc2004358cef569e582b81e9a90cc02fcb66",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "45742ae21cf3e7cf954679a6b597d60f70f026ebdfffb1db13ecbc2e26ca9ce4",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "d8bfdefc4c110a235c6d60cbac53824b2b3ff6efcfb8a62febedd946969f40a2",
+          "dcf3c03427b9a158ec2342090f83531a23174688e7ec6a5c341c7965c4552323"
+        ],
+        "bindingHash": "8543282a7b7159784d3e827f55a07a45def2c3bed93b46cc6f052528ec2389cc"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "96edcb75157ae3d88430db8f465b32733f94701e",
+        "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+        "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+        "bindingHash": "5a52d012865450a6460a28536489e68941c3ca3126a21bb3c3ef0ab3ec74d42d"
+      },
+      "_hash": "6d3c90f5c124c54066b3fb5a43f287bb478795009e1bc4dbb73feb3f99648371"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-005",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "startedAt": "2026-07-01T02:32:07.579Z",
+      "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+      "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+      "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+      "promptHash": "0b5a921fa58e522e9337a770400e7323541b34810557f82e83c597093dc9a101",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "216bff2a72a8f4f471a825b2666bf180ea091dcb458ea246258341a9a8e184af",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "b215c9fe36a88a2c3c7d72235163a71853977188130361ffda5db5f483c7d538",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7"
+        ],
+        "bindingHash": "37b036b35201a015d42adcebef743407a33a50cf7a9305cc1c28e13e6afde402"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+        "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+        "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+        "bindingHash": "c41a36e5cfed4a04bcb1f61f43042e07553d5fd7f32fd118b2621dae079749a6"
+      },
+      "_hash": "26129811317df7786586ed39d413b782af598df143c7840d4617e7b932fae535"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-006",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "startedAt": "2026-07-01T02:32:16.098Z",
+      "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+      "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+      "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+      "promptHash": "46ad90ae7fb614563974cea1a314fa75be2cee4499a6a66cbc8f6f3dc30159b1",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "216bff2a72a8f4f471a825b2666bf180ea091dcb458ea246258341a9a8e184af",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "b215c9fe36a88a2c3c7d72235163a71853977188130361ffda5db5f483c7d538",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7"
+        ],
+        "bindingHash": "37b036b35201a015d42adcebef743407a33a50cf7a9305cc1c28e13e6afde402"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+        "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+        "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+        "bindingHash": "c41a36e5cfed4a04bcb1f61f43042e07553d5fd7f32fd118b2621dae079749a6"
+      },
+      "_hash": "73d71e77919ed94fbf6fdecb4bc6342384c53b23710e34f20ab7e7bcd42f45d4"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-007",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "startedAt": "2026-07-01T02:32:22.662Z",
+      "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+      "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+      "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+      "promptHash": "f3325573c80fa557db726eb9b1effeee6a61fc03d8b8924a78b7f1ce7d42d28d",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "216bff2a72a8f4f471a825b2666bf180ea091dcb458ea246258341a9a8e184af",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "b215c9fe36a88a2c3c7d72235163a71853977188130361ffda5db5f483c7d538",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7"
+        ],
+        "bindingHash": "37b036b35201a015d42adcebef743407a33a50cf7a9305cc1c28e13e6afde402"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+        "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+        "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+        "bindingHash": "c41a36e5cfed4a04bcb1f61f43042e07553d5fd7f32fd118b2621dae079749a6"
+      },
+      "_hash": "f7f9211af01288228c5eea774ab357978c6d01001b64b2c46d003168334c33e9"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-008",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "startedAt": "2026-07-01T02:32:23.552Z",
+      "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+      "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+      "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+      "promptHash": "d49649e351285a07560856ab9cf8622a84afef743e0da8655afe28b6da4a04eb",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "216bff2a72a8f4f471a825b2666bf180ea091dcb458ea246258341a9a8e184af",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7541806b43cce4c3fbfb2af2b610354987c2dabd078226031a5249f86b094637",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "b215c9fe36a88a2c3c7d72235163a71853977188130361ffda5db5f483c7d538",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7"
+        ],
+        "bindingHash": "37b036b35201a015d42adcebef743407a33a50cf7a9305cc1c28e13e6afde402"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "64b875a705fa81c2beb4b2131bc3094ec8b7e751",
+        "materialHash": "333f6d0f876719f4a72feaf4a4bb545c29a6d698c0dab340a507781b5ccb635e",
+        "storyFilesHash": "c04fd19a45a15ae8c45104a043511c8e12cd2f7d7f3e2ea61e817a2bdf8fad04",
+        "bindingHash": "c41a36e5cfed4a04bcb1f61f43042e07553d5fd7f32fd118b2621dae079749a6"
+      },
+      "_hash": "d329ebc2a37307e89603d9e5aebac243be5602919f1ff75bfea6bb944372c5a9"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-009",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "startedAt": "2026-07-01T05:00:10.049Z",
+      "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "54c3bce1b663c72c35f2543a5c218f91a21a83c4f2162fda52e3328935b8e393",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "b36abcd18214ce70d1355ab0f743903918080e9549915121f890f7ca0a4d372a"
+      },
+      "_hash": "0841af91f66b6d88be1881b1e9094418a293cab6df8146bf98e242c3e42b74d9"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-010",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "startedAt": "2026-07-01T05:00:13.696Z",
+      "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "26c9df83db26e6c203c2a2e13b65db56735d59c0e027f6404c8cbf620dba4372",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "b36abcd18214ce70d1355ab0f743903918080e9549915121f890f7ca0a4d372a"
+      },
+      "_hash": "d37e6ae5bf0a9d5665f38c01add2192abb9e69183f2ca2be4e1f696fe9ee11cb"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-011",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "startedAt": "2026-07-01T05:00:22.217Z",
+      "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "49ad617ab8dbbf15c7cc1c83b4cd766b039bfd69f90b88f740725540803de78a",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "b36abcd18214ce70d1355ab0f743903918080e9549915121f890f7ca0a4d372a"
+      },
+      "_hash": "4b3c2739497108f9f984a65165f3cf91fca3522e074103a6aa954957a1567c36"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-012",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "startedAt": "2026-07-01T05:00:25.825Z",
+      "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "de3c145f4a88fa4a61cdf9516909df9bf56a4d70efa89035f8d3595ad4bc5b47",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "79893458e204563e93bfe7e1a4931a96193c1cb9",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "b36abcd18214ce70d1355ab0f743903918080e9549915121f890f7ca0a4d372a"
+      },
+      "_hash": "e43aa6644df2d1cf1422f6dae0c02e0abff0b29217482be6caff3ee1c20bda9d"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-013",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "startedAt": "2026-07-01T05:16:08.591Z",
+      "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "403c5dc2f6e91dd1e6b90ae1113aded762fa0e6b3a38589cb76b73a236791648",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "319c9173f99d527bcf07f53864801b9412253b598075abcb308e1db6d4cf0388"
+      },
+      "_hash": "c83a805b9efd10afb17e69a7ff0f08d8b21252153866ce5ceb77a7e6750b87bb"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-014",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "startedAt": "2026-07-01T05:16:08.819Z",
+      "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "b3e509efc1d791b45d813eb02f42300e321d554882edd73c6ff5a445ae62b9f6",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "319c9173f99d527bcf07f53864801b9412253b598075abcb308e1db6d4cf0388"
+      },
+      "_hash": "cefcf3993475d5bcf80e719ea7bce7a5a76a45e10c63afcc9cd8912673644f88"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-015",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "startedAt": "2026-07-01T05:16:17.683Z",
+      "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "ea8390338770b9b6d167f13629cd5683d8db4d3a1a3d7d9079c2e9b8d4684d6e",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "319c9173f99d527bcf07f53864801b9412253b598075abcb308e1db6d4cf0388"
+      },
+      "_hash": "acca9e4213f203ccb91b93e2ee7ea738a438d746842dedfc2092f6b32bf5a8de"
+    },
+    {
+      "reviewRunId": "B-0b76:RR-016",
+      "storyId": "B-0b76",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "startedAt": "2026-07-01T05:16:17.818Z",
+      "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+      "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+      "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+      "promptHash": "7934dbe5ad5d4741c65554a3867cf4a80373e05bc0839c5bbf9c6a3b127b4761",
+      "scopeBinding": {
+        "scopeContractHash": "f0a2caebc71bfb40981f1ce1b0a7e8f26e3248e4499049766c46c87d12f1f9af",
+        "diffPackHash": "51f8e024983ad93ea97ea1633739b2c2e22a360800a7207c39637c0d8ad6b950",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/README.md",
+          "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "245bc2844a04cbd0c13e489dfa237708a3c969389682433044e384772a509831",
+          "7027c8cc46d480c98f96f4e624575c026b4d1796938a98aad4e415d5d25c5bdc",
+          "7da8e28bfcaaafd50917ec74781da53e75cfe694a252b794bb930ba0d53f50a7",
+          "d01cbd3d8b17c0e8d161feea0deab895674e2f0ec4596bf62185409e5353aba7",
+          "f9d662b13b6b88ee40f1d3f28e9c08d584008de1a8081e9b88af9d7dc57ef50e"
+        ],
+        "bindingHash": "03cd9e599794b97436d2e97d71e697291f9e5ad31ab6642fd742946317582591"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0b76",
+        "workspaceMode": "story-worktree",
+        "headHash": "b3207f2783b19ffc512abc7baaef000468eaa964",
+        "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+        "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+        "bindingHash": "319c9173f99d527bcf07f53864801b9412253b598075abcb308e1db6d4cf0388"
+      },
+      "_hash": "d59f6c73bc4169b716408d7527282de897a8af1b21a279f630086dacd1e54e3e"
+    }
+  ]
+}
