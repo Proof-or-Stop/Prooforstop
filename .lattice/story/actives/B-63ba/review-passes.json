@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-01T00:40:58.772Z",
       "reviewRunId": "B-63ba:RR-006",
       "_hash": "5e0e1b9bcd0411f85b6b74a7d17e8eef6e501faff002cc30486650082cef0690"
+    },
+    {
+      "id": "B-63ba:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "ROUND 2 targeted coverage re-review after F-001 fix: run-driver-selfcheck covers dangling --scenarioProfile, dangling --scenarioParams, weighted profile without params, params-without-profile, invalid weighted params, no record/exclusions/void sidecars before fail-closed exits, valid weighted enumerate-only behavior, and existing default enumerate-only behavior. Verified with node experiments/recovery-runner/run-driver-selfcheck.mjs plus focused spawn probes; no coverage finding.",
+      "createdAt": "2026-07-01T00:43:35.436Z",
+      "reviewRound": "2026-07-01T00:40:58.772Z",
+      "reviewRunId": "B-63ba:RR-007",
+      "_hash": "090b30d93e4fea200f7ef406b8ca51b43d4d309826ad6f2cf8a7ec9f8dc7fc39"
     }
   ]
 }
