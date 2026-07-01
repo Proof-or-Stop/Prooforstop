@@ -1,0 +1,50 @@
+{
+  "storyId": "B-3b99",
+  "checkedAt": "2026-07-01T18:04:49.634Z",
+  "headHash": "953c4e7b842b8fdddcc0138857509214903495b8",
+  "materialHash": "e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27",
+  "storyFilesHash": "95f24fb6f616b5338be3908a0d13bb87b44f3a3fe3862bd5d69dba214cb6cd45",
+  "reviewRound": "2026-07-01T17:53:58.880Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-3b99/background.md",
+      "promise": "B-3b99 closes the current high convergence gaps with a narrow mapping fix, without merging stale B-fbb6 work or reintroducing retired Authority Server semantics.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus transcript-diff/test-evidence/current analyzer output",
+      "evidence": "Current gap_analyze reports healthy=true with Gaps: 0 high / 1 medium; convergence_check passes No high-priority gaps and Code annotations compliant; retired-authority-vocabulary-guard-smoke PASS; git log/diff show no B-fbb6 code merge."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3b99/plan.md",
+      "promise": "Implement only explicit implementation mappings and smoke-backed evidence for Autopilot, ProofStory, and local assurance wording; keep dev-memory advisory and avoid broadening scope.",
+      "status": "verified",
+      "verifiedBy": "diff review, session_brief memory preflight, validation evidence, and current analyzer output",
+      "evidence": "Diff is limited to scoped B-3b99 @task annotations/smoke mappings plus story metadata; session_brief says Memory Runtime Preflight authority=non_authoritative gateEvidence=false; validate PASS and done_required_validate PASS are the gate evidence."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-3b99:TEST-validation",
+      "transcript": "TEST evidence records lattice validate --story=B-3b99 --json PASS at 2026-07-01T18:01:09.855Z: status=pass, allPass=true, project validation commands passed, retired-authority-vocabulary-guard-smoke PASS, verification coverage 13/13 covered with 0 required missing."
+    },
+    {
+      "featureId": "B-3b99:DONE-required",
+      "transcript": "done_required_validate PASS ended 2026-07-01T18:03:05.612Z with required receipts packages/main build PASS and root full test suite PASS; materialHash e99f3465f3537cf9a5f51e8bb3b544e317162421544e39c4c90edbf8a121bc27."
+    },
+    {
+      "featureId": "B-3b99:convergence-current",
+      "transcript": "Current lattice gap_analyze --json reports healthy=true and Gaps: 0 high / 1 medium; current lattice convergence_check --json passes No high-priority gaps, Flow chain complete, Code annotations compliant, Parked backlog, Audit backlog, and Requirements coverage. The only failing row is expected pre-DONE: All Stories completed lists B-3b99 unfinished."
+    },
+    {
+      "featureId": "B-3b99:scope-regression-check",
+      "transcript": "git diff main...HEAD shows scoped B-3b99 mapping annotations/smoke assertions only in the named core/task files; git log main..HEAD contains B-3b99 commits only; rg found no added B-fbb6 reference in packages/main/src; added retired-vocabulary strings are guarded by explicit current-local-assurance/not-Authority-Server language and the retired vocabulary guard smoke passes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery criteria met: real machine validation is present, edge/adversarial coverage is present across 13/13 verification intents, current analyzer output shows 0 high gaps and compliant annotations, B-fbb6 was not merged, and dev-memory remains advisory rather than gate evidence."
+  },
+  "_hash": "2497988dcd2d23941c8a37523374e24c8a6a53fa19a0e9f04724b11a1fe9d98d"
+}
