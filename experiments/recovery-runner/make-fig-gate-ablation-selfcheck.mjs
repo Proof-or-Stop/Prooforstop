@@ -5,10 +5,10 @@
 // contract, the *.voids.jsonl exclusion, per-1000 rounding, empty-arm safety, and that
 // CSV/SVG output is emitted. Exits non-zero on any failure.
 // Run: node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ARMS, aggregate, readRecords, toCSV, renderSVG } from './make-fig-gate-ablation.mjs';
+import { ARMS, aggregate, readRecords, toCSV, renderSVG, run } from './make-fig-gate-ablation.mjs';
 
 let passed = 0, failed = 0; const fails = [];
 function ok(c, label) { if (c) passed++; else { failed++; fails.push(label); } }
@@ -148,6 +148,54 @@ group('NEGATIVE CONTROL: asserts are not vacuous');
     const a = aggregate(readRecords(d2));
     ok(a.perArm.A4.amplified === 1, 'neg-control: keep-first genuinely keeps amplified (not 0 as keep-last would give)');
   } finally { rmSync(d2, { recursive: true, force: true }); }
+}
+
+// =========================================================================================
+group('readRecords: missing powered dir throws a clear "not found" error (no raw ENOENT)');
+{
+  let threw = false, msg = '';
+  try {
+    readRecords(join(tmpdir(), 'b0b76-does-not-exist-' + Date.now()));
+  } catch (e) {
+    threw = true;
+    msg = e && e.message ? e.message : String(e);
+  }
+  ok(threw, 'readRecords: nonexistent dir throws');
+  ok(threw && msg.includes('not found'), `readRecords: throw message contains 'not found' (got ${JSON.stringify(msg)})`);
+}
+
+// =========================================================================================
+group('run: empty dataset writes NOTHING and returns { wrote:false, recordCount:0 }');
+{
+  const emptyDir = mkdtempSync(join(tmpdir(), 'b0b76-empty-'));
+  const outPrefix = join(emptyDir, 'fig-out');
+  try {
+    const result = run(emptyDir, outPrefix);
+    eq([result.wrote, result.recordCount], [false, 0], 'run: empty dataset → { wrote:false, recordCount:0 }');
+    ok(!existsSync(`${outPrefix}.svg`), 'run: empty dataset writes NO .svg');
+    ok(!existsSync(`${outPrefix}.csv`), 'run: empty dataset writes NO .csv');
+  } finally {
+    rmSync(emptyDir, { recursive: true, force: true });
+  }
+}
+
+// =========================================================================================
+group('run: real records → { wrote:true } and BOTH .svg + .csv are created');
+{
+  const dataDir = mkdtempSync(join(tmpdir(), 'b0b76-run-'));
+  const outPrefix = join(dataDir, 'fig-out');
+  try {
+    writeFileSync(join(dataDir, 'r.jsonl'), [
+      JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified')),
+      JSON.stringify(rec('A2prime', 't1', 'B1', 1, 'recovered')),
+    ].join('\n'));
+    const result = run(dataDir, outPrefix);
+    ok(result.wrote === true, 'run: real records → wrote:true');
+    ok(existsSync(`${outPrefix}.svg`), 'run: real records create the .svg artifact');
+    ok(existsSync(`${outPrefix}.csv`), 'run: real records create the .csv artifact');
+  } finally {
+    rmSync(dataDir, { recursive: true, force: true });
+  }
 }
 
 // =========================================================================================

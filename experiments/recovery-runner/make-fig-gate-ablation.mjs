@@ -13,7 +13,7 @@
 // edits the paper.
 //
 // Usage: node make-fig-gate-ablation.mjs [poweredDir] [outPrefix]
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -41,6 +41,9 @@ export function cellKey(r) {
 // is skipped defensively (a truncated write from a crashed campaign must not abort the run);
 // valid lines are still parsed.
 export function readRecords(poweredDir) {
+  if (!existsSync(poweredDir)) {
+    throw new Error('make-fig-gate-ablation: powered dir not found: ' + poweredDir);
+  }
   const files = readdirSync(poweredDir)
     .filter((f) => f.endsWith('.jsonl') && !f.endsWith('.voids.jsonl'))
     .sort(); // deterministic file order → deterministic keep-first winner
@@ -154,11 +157,18 @@ ${legend}
 `;
 }
 
-// CLI entry point (only runs when executed directly, not on import).
-export function main(argv = process.argv.slice(2)) {
-  const poweredDir = argv[0] || join(HERE, 'powered');
-  const outPrefix = argv[1] || join(HERE, 'fig-gate-ablation');
+// Core run: read → dedup → aggregate → write artifacts. REFUSES to write anything when there
+// are zero records (an all-zero SVG+CSV would be silently misleading); in that case it prints a
+// clear message to stderr and returns { wrote:false }. Throws (via readRecords) if the dir is
+// missing. Returns the aggregate + counts so callers/tests can assert without re-reading disk.
+export function run(poweredDir, outPrefix) {
   const records = readRecords(poweredDir);
+  if (records.length === 0) {
+    process.stderr.write(
+      `make-fig-gate-ablation: no records found in ${poweredDir} (nothing to plot; not writing artifacts)\n`,
+    );
+    return { wrote: false, recordCount: 0 };
+  }
   const agg = aggregate(records);
   writeFileSync(`${outPrefix}.svg`, renderSVG(agg));
   writeFileSync(`${outPrefix}.csv`, toCSV(agg));
@@ -173,7 +183,23 @@ export function main(argv = process.argv.slice(2)) {
   console.log(`H1 point RD (A2' - A4) amplification: ${agg.contrasts.rdH1.toFixed(2)} pp`);
   console.log(`compute ratio A3/A4 = ${agg.contrasts.tokRatioA3A4.toFixed(3)}   A2'/A4 = ${agg.contrasts.tokRatioA2pA4.toFixed(3)}`);
   console.log(`wrote ${outPrefix}.svg and ${outPrefix}.csv  (dedup total ${agg.total} records)`);
-  return agg;
+  return { wrote: true, recordCount: records.length, agg };
+}
+
+// CLI entry point (only runs when executed directly, not on import). Turns a thrown error into a
+// clear one-line stderr message + exit 1 (never a raw stack), and treats "nothing written" as a
+// non-zero exit so a caller/CI can tell the artifacts were not produced.
+export function main(argv = process.argv.slice(2)) {
+  const poweredDir = argv[0] || join(HERE, 'powered');
+  const outPrefix = argv[1] || join(HERE, 'fig-gate-ablation');
+  try {
+    const result = run(poweredDir, outPrefix);
+    if (!result.wrote) process.exit(1);
+    process.exit(0);
+  } catch (err) {
+    process.stderr.write(`${err && err.message ? err.message : String(err)}\n`);
+    process.exit(1);
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
