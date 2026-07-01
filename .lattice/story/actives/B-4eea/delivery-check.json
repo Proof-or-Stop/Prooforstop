@@ -1,0 +1,75 @@
+{
+  "storyId": "B-4eea",
+  "checkedAt": "2026-07-01T05:35:53.636Z",
+  "headHash": "9eabff97d8738a65697976ceed0c6c17d5a26ab6",
+  "materialHash": "498b5c5c299b9ee733eb1afcaacf8c1b195ab8aac291cac07e32e4b1be8bda39",
+  "storyFilesHash": "432373b9db0faee927278c4dce64092cb9c1ccb9c03fd144f42eec6f9ffbe0be",
+  "reviewRound": "2026-07-01T05:27:26.508Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "M5-M7 consumers surface runtime memory/playbook packs in handoff, story lifecycle, DONE closure, and final-response checks without turning memory into gate evidence.",
+      "status": "verified",
+      "verifiedBy": "session_brief plus MVP1/MVP2 smoke and process/runtime fact contracts",
+      "evidence": "session_brief emitted Memory Runtime Preflight with authority=non_authoritative and gateEvidence=false; transcript-diff records MVP1 11/11, MVP2 9/9, command catalog, process fact, and runtime fact contract passes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "Host policy keeps Codex CLI and Claude Code CLI as primary hosts, normalizes aliases to capability ids, and permits agy-cli only with a concrete primary-host failure signal.",
+      "status": "verified",
+      "verifiedBy": "MVP2 handoff/dispatch smoke and source assertions",
+      "evidence": "playbook-runtime-memory-mvp2-smoke passed 9/9; assertions cover codex-cli to codex and claude-cli to claude-code normalization, unknown primary target normalization to codex, and agy fallback rejection unless primaryHostFailure is supplied."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "M9/M10 provide deterministic small and full baseline generation plus correctness/performance verification, including full 1,000,000-record profile and negative controls for stale or malformed corpora.",
+      "status": "verified",
+      "verifiedBy": "baseline smoke, transcript, and verifier assertions",
+      "evidence": "baseline smoke passed small recordCount=1000 and full recordCount=1000000 with fullProfileExactMillion=true; source assertions cover goldDigest tamper, truncated records, requested profile mismatch, fullProfileExactMillion mismatch, force/no-overwrite behavior, and temp cleanup."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "M11 exposes a project-configurable runtime health and drift scanner for required memory classes and consumer wiring.",
+      "status": "verified",
+      "verifiedBy": "health smoke and handler inspection",
+      "evidence": "playbook-runtime-memory-health-smoke passed; assertions cover configured host-policy pass, missing required class fail, consumer-wiring drift fail, and gateEvidence=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "M12 rollout/runbook promises preserve advisory-only semantics: no gate treats runtime memory as proof evidence, and rollout claims rely on structured validation/review evidence rather than memory text.",
+      "status": "verified",
+      "verifiedBy": "command catalog, process fact contract, runtime fact contract, and TEST validation",
+      "evidence": "command catalog smoke passed with 291 commands; verify-process-fact-contract.mjs and verify-runtime-fact-contract.mjs passed; TEST lattice validate --story=B-4eea --json passed all 31 configured commands."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002",
+      "transcript": "M5 handoff/host entry: node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js passed TOTAL 9 | PASS 9 | FAIL 0. It verifies handoff_create, handoff_resume, and host_dispatch include the memory pack, pack digest, host-policy hits, capability host ids, authority=non_authoritative, gateEvidence=false, and agy fallback rejection without primaryHostFailure."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "M9 baseline generator: node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js passed for small profile recordCount=1000; --profile=full passed with recordCount=1000000 and fullProfileExactMillion=true. Source assertions also cover deterministic digests, force/no-overwrite protection, and cleanup of generated temp dirs."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "M10 baseline verifier: full baseline smoke passed correctness thresholds through the MemoryFreshnessPack runtime path, records performance/RSS as report-first evidence, and includes negative controls for tampered gold-queries.json, truncated records, requested profile mismatch, and wrong fullProfileExactMillion flag."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "M11 health: node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js passed. The smoke checks configured required runtime memory classes, fails missing-class and consumer-wiring drift cases, keeps playbook_runtime_health readOnly/non-authoritative, and verifies gateEvidence=false."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "M12 rollout/host policy: MVP2 smoke plus command catalog/process fact/runtime fact contracts passed. Evidence covers Codex/Claude primary host policy, agy fallback-only gating, command metadata, and no memory-as-proof semantics. Separate DONE review-assurance-floor quorum is still reported missing by session_brief and is outside this delivery-check write."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed session_brief, git status/diff, checklist coverage, execution plan M5-M12 promises, transcript-diff, smoke assertions, and TEST validation evidence. Delivery promises are backed by real machine build/smoke/contract runs with edge and adversarial coverage for host fallback, baseline tamper/truncation/profile mismatch, health drift, and non-gate memory semantics. Caveat: this delivery check does not resolve separate DONE blockers for done_required validation, branch sync, review assurance floor, or summary metadata."
+  },
+  "_hash": "f4fe679f16cc6e80d73c446473f915851ff1aed58a62c6b12afbd37192e5a6dd"
+}
