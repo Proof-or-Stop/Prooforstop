@@ -74,7 +74,7 @@
       "desc": "MVP2 smoke covers done_closure and final_response_check but not done_prepare, despite done_prepare memory rendering being changed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-01T04:35:10.079Z",
@@ -86,7 +86,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
       ],
       "signatureTag": "missing|ts|mvp2-smoke-covers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "MVP2 smoke now invokes createDonePrepareHandlers().done_prepare on a TEST story and asserts DONE prepare output includes Advisory memory considered, non-authoritative memory, gateEvidence false, and memoryCompletionProof false.",
+      "resolvedAt": "2026-07-01T04:48:21.735Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-005",
