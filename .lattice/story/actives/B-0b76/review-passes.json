@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-01T02:16:39.502Z",
       "reviewRunId": "B-0b76:RR-001",
       "_hash": "e96d3fbcb066b28da22544b524e3222303019231de9e018f09605c3cb4390ef6"
+    },
+    {
+      "id": "B-0b76:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 8 exported symbols extracted (readRecords, aggregate, toCSV, renderSVG, cellKey, ARMS, META, run/main). Step 2/3: 1 README paragraph compared (## Figure generator section). All claims verified against make-fig-gate-ablation.mjs: (1) input = powered/*.jsonl excluding *.voids.jsonl — CONFIRMED by readRecords filter; (2) dedup keep-first by arm|taskId|scenarioId|repeat — CONFIRMED by cellKey + seen Set; (3) counts adjudicatedOutcome — CONFIRMED in aggregate(); (4) outputs fig-gate-ablation.svg + .csv — CONFIRMED in run(); (5) exported readRecords/aggregate/toCSV/renderSVG — CONFIRMED, all four export keywords present; (6) selfcheck count = 8 — CONFIRMED, run-selfchecks.mjs SELFCHECKS array has exactly 8 entries after adding make-fig-gate-ablation-selfcheck.mjs; (7) does NOT compute bootstrap CI — CONFIRMED, code only counts, comment explicitly delegates CI to analyze.mjs; (8) does NOT edit the paper — CONFIRMED, no main.tex or paper file writes. No doc-code drift found.",
+      "createdAt": "2026-07-01T02:18:21.795Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-004",
+      "_hash": "27cf74775f69cd729fb4c75003e1f0f302b6252dbc15b7641799bae18c5acff5"
     }
   ]
 }
