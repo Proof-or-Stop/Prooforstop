@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2b08",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Clarify DONE post-merge version-bump skip wording when no watched CLI/runtime inputs changed",
+    "Document the CLI/runtime watched-input boundary for package version bumps in story-lifecycle docs",
+    "Update focused smoke expectations that assert the visible skip line"
+  ],
+  "excluded": [
+    "Do not change release, publish, or remote push policy",
+    "Do not expand CLI package version bumping to every repository code artifact or experiments/** in this story",
+    "Do not introduce a separate experiment/product version ledger in this story",
+    "Do not touch unrelated active stories or parked backlog"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "User approved opening a small story after B-63ba exposed that DONE said no material code change even though experiment harness code changed. Boundary is to fix misleading wording and document the existing CLI/runtime version scope, not broaden version policy arbitrarily.",
+  "createdAt": "2026-07-01T02:41:59.254Z",
+  "updatedAt": "2026-07-01T02:41:59.254Z",
+  "_hash": "21ab96f65f18d86f6a8c36722b5abfc657e0086bc85f42f73203cd84d184b1de"
+}

@@ -1,0 +1,20 @@
+{
+  "storyId": "B-2b08",
+  "expected": null,
+  "actual": {
+    "command": "node -e \"const v=require(\\\"./packages/main/dist/core/version-bump.js\\\"); console.log(v.VERSION_BUMP_SKIPPED_LINE)\"",
+    "exitCode": 0,
+    "stdout": "✓ version bump skipped (no watched CLI/runtime inputs changed)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-01T03:07:52.011Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "256434ab0b2eac30d1fcd724d513f14349e39dc1",
+  "materialHash": "a7901e26dcf251a43590260045232e8f08012bfdf5f4ab77bb297fe8e15e7044"
+}

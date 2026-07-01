@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-2b08",
+  "sourceText": "User asked: why did B-63ba reach DONE without increasing the version number, and is that a bug? After analysis, user approved opening a small story to fix the misleading DONE version-bump skip wording.",
+  "normalizedOutcome": "DONE version-bump skip output and lifecycle docs honestly explain that CLI package version bumps are skipped when no watched CLI/runtime inputs changed, even if non-runtime repository code changed.",
+  "acceptanceClaim": "The old user-facing skip phrase no material code change is absent from the DONE version-bump skip path, the new phrase no watched CLI/runtime inputs changed is present, focused smoke coverage passes, and story-lifecycle docs describe the CLI/runtime version boundary without adding experiments/** to the bump policy.",
+  "keyRequirementIds": [
+    "B-2b08:REQ-001",
+    "B-2b08:REQ-002",
+    "B-2b08:REQ-003"
+  ],
+  "requestHash": "sha256:68028e357c546ed2ce6d54bef893efe543251e837f2684250dcad9dd87ab6221",
+  "createdAt": "2026-07-01T02:50:35.517Z",
+  "updatedAt": "2026-07-01T02:50:35.517Z"
+}

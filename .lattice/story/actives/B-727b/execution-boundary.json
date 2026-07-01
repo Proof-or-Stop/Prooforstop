@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-727b",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js",
+    "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+    "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts"
+  ],
+  "excludedCommands": [
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "lattice.config.json",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Only local build, smoke, grep, and Lattice lifecycle commands are needed for G03.",
+  "createdAt": "2026-07-01T02:25:52.159Z",
+  "updatedAt": "2026-07-01T02:25:52.159Z",
+  "_hash": "1b68525147835066b9c6b53b152c7554eca3629447a74ecc118dd302105bbdd1"
+}
