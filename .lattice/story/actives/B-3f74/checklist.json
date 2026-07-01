@@ -93,9 +93,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T00:21:38.455Z",
-      "endTime": null,
+      "endTime": "2026-07-01T00:21:50.065Z",
       "userSees": "Proof Admissibility table shows Authority-facing proof consumer as external/retired compatibility boundary, not active local work.",
       "files": {
         "modify": [
@@ -126,7 +126,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Authority-facing proof consumer \\| External / retired compatibility boundary ✅|does not implement an external Authority production adapter\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Authority-facing proof consumer is now documented as external/retired compatibility boundary, not active local implementation work.",
+          "headHash": "a8c05a3d449d18d986f6db25a46a096e692a97bb",
+          "materialHash": "d9fe43a41f68e11a277e48b97021a52614cdde4a1ad9a3d961c0daf947c1238b",
+          "storyFilesHash": "80cccdf62a76619a97924f74da75c8f64456c0b219a9a2d5f4676dacecc0d683",
+          "timestamp": "2026-07-01T00:21:50.255Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Server-backed authority runtime and receipt semantics are retired|external compatibility boundaries|legacy receipt rows remain compatibility-only\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Compatibility and legacy Authority vocabulary remains bounded without reintroducing Authority Server receipt-backed proof as active scope.",
+          "headHash": "a8c05a3d449d18d986f6db25a46a096e692a97bb",
+          "materialHash": "d9fe43a41f68e11a277e48b97021a52614cdde4a1ad9a3d961c0daf947c1238b",
+          "storyFilesHash": "80cccdf62a76619a97924f74da75c8f64456c0b219a9a2d5f4676dacecc0d683",
+          "timestamp": "2026-07-01T00:21:50.420Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"productionDoneEligible=false|productionDone=false|must not set `receiptVerified`, `authorityDone`, `fullAuthorityDone`, or `productionDone`\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Proof Admissibility preserves non-authority/non-production claims and does not let local CLI evidence set productionDone or Authority completion.",
+          "headHash": "a8c05a3d449d18d986f6db25a46a096e692a97bb",
+          "materialHash": "d9fe43a41f68e11a277e48b97021a52614cdde4a1ad9a3d961c0daf947c1238b",
+          "storyFilesHash": "80cccdf62a76619a97924f74da75c8f64456c0b219a9a2d5f4676dacecc0d683",
+          "timestamp": "2026-07-01T00:21:50.586Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
