@@ -52,8 +52,9 @@
  *   B (consumer freshness): after a metadata-only commit to the custom storyDir, the
  *     consumer recompute stays FRESH when metadataRoot is threaded and is FALSE-STALE
  *     when signedProjectRoot (gitRoot) is used as metadataRoot — the two MUST differ.
- *     Also drives assertCurrentReviewRunForEvidence end-to-end with a signed run whose
- *     workspaceBinding carries the metadataRoot (fresh across metadata churn).
+ *     Also drives assertCurrentReviewRunForEvidence and collectReviewerEvidenceState
+ *     end-to-end with a signed run whose workspaceBinding carries the metadataRoot
+ *     (fresh across metadata churn).
  *   C (legacy fallback, REAL path): a signed run with NO workspaceBinding drives the
  *     consumer fallback (run.workspaceBinding?.metadataRoot ?? projectRoot). On the
  *     WRAPPER-ROOT fixture production passes projectRoot=metadataRoot, so the fallback
@@ -83,11 +84,13 @@ import {
   signReviewRun,
   buildReviewRunWorkspaceBinding,
   assertCurrentReviewRunForEvidence,
+  collectReviewerEvidenceState,
 } from '../core/review-run.js';
+import { signReviewPass } from '../core/finding-verify.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, ReviewRun, StoryInfo } from '../core/types.js';
+import type { ChecklistData, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-9dcb';
 const CUSTOM_STORY_DIR = 'custom/story';
@@ -154,6 +157,20 @@ function writeStory(store: StoryStore, storyId: string, opts: { worktreeRoot?: s
   };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
+}
+
+function signedReviewPass(storyId: string, id: string, agent: string, reviewRound: string, reviewRunId: string): ReviewPass {
+  const createdAt = '2026-07-01T00:01:00.000Z';
+  const note = `${agent} checked metadataRoot wrapper-root freshness and found no blocker`;
+  return {
+    id,
+    agent,
+    note,
+    createdAt,
+    reviewRound,
+    reviewRunId,
+    _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound, reviewRunId),
+  };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -315,9 +332,12 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
     );
 
     // ── End-to-end: assertCurrentReviewRunForEvidence with a signed run whose
-    // workspaceBinding carries the metadataRoot must accept the run (fresh). This
-    // proves the consumer edit (run.workspaceBinding?.metadataRoot ?? projectRoot)
-    // is wired all the way through, not just the raw checkEvidenceFreshnessForGit. ──
+    // workspaceBinding carries the metadataRoot must accept the run (fresh).
+    // collectReviewerEvidenceState must also accept a pass bound to that run, which
+    // reaches validateEvidenceRunBinding through the real REVIEW gate consumer path.
+    // Together these prove the consumer edit (run.workspaceBinding?.metadataRoot ??
+    // projectRoot) is wired all the way through, not just the raw
+    // checkEvidenceFreshnessForGit. ──
     const story = store.readStory(STORY_ID);
     const agent = 'lattice-review-concept';
     const startedAt = story.currentReviewRound!;
@@ -370,6 +390,25 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
       accepted.reviewRunId,
       runId,
       'B: assertCurrentReviewRunForEvidence must ACCEPT the signed run bound to the metadataRoot (workspaceBinding threaded)',
+    );
+
+    const pass = signedReviewPass(STORY_ID, 'RP-mr-e2e-1', agent, story.currentReviewRound!, runId);
+    store.writeReviewPasses(STORY_ID, { passes: [pass] });
+    const evidenceState = collectReviewerEvidenceState(store, STORY_ID, metadataRoot);
+    assert.equal(
+      evidenceState.invalid.length,
+      0,
+      `B: collectReviewerEvidenceState must not reject the metadataRoot-bound pass after metadata churn (invalid=${JSON.stringify(evidenceState.invalid)})`,
+    );
+    assert.equal(
+      evidenceState.valid.length,
+      1,
+      'B: collectReviewerEvidenceState must classify the metadataRoot-bound review pass as current valid evidence',
+    );
+    assert.equal(
+      evidenceState.valid[0]?.id,
+      pass.id,
+      'B: collectReviewerEvidenceState must preserve the signed pass that reaches validateEvidenceRunBinding',
     );
   } finally {
     rmSync(metadataRoot, { recursive: true, force: true });
