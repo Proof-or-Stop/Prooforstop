@@ -4,7 +4,7 @@
   "title": "Sync roadmap boundary status after B-e781 closure",
   "description": "Update decision-doc status boundaries after B-e781 closed B-43de M4-M12 parent roadmap rows: mark Parent Roadmap cross-track certification as closed with bounded local evidence, keep migration/repair automation optional/future, and keep Proof Admissibility Authority-facing proof consumer as retired/external boundary rather than active work.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-01T00:10:27.109Z",
   "startedAt": "2026-07-01T00:10:27.109Z",
-  "endedAt": null,
+  "endedAt": "2026-07-01T00:53:30.099Z",
   "events": [
     {
       "phase": "INIT",
@@ -87,12 +87,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-2634cbf0795c7146",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-01T00:53:30.099Z",
+      "branch": "story/B-3f74",
+      "user": "Harmonygo",
+      "sessionId": "sess-2634cbf0795c7146",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3f74",
-    "branch": "story/B-3f74",
-    "createdAt": "2026-07-01T00:13:25.570Z"
-  },
   "currentReviewRound": "2026-07-01T00:29:41.296Z"
 }
