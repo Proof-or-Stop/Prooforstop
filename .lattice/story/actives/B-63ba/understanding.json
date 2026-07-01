@@ -1,0 +1,28 @@
+{
+  "task": "Add an explicit offline parameterized fault-injection profile path to recovery-runner while preserving the default fixed B1-B15 protocol.",
+  "outcome": "When the user runs `node experiments/recovery-runner/run-driver-selfcheck.mjs`, the terminal ends with `run-driver-selfcheck: ... assertions passed, 0 failed`, and a focused profile run such as `node experiments/recovery-runner/run-driver.mjs --tasks foo --scenarioProfile weighted --scenarioParams B1:2,B2:1 --seed fixed --k 1` enumerates a deterministic weighted exploratory scenario set without changing the default B1-B15 run.",
+  "facts": [
+    "B-8963 completed M1 command-local hash snapshot reuse; B-63ba is the separate M2 follow-up.",
+    "Recovery-runner code lives under experiments/recovery-runner, especially run-driver.mjs and run-driver-selfcheck.mjs.",
+    "run-driver.mjs already exports RECOVERY_SCENARIOS B1-B15, seededShuffle, enumerateCells({scenarios}), and a CLI with --tasks/--k/--seed.",
+    "The experiment protocol fixes B1-B15 for the pre-registered protocol; parameterized profiles must be exploratory and explicit.",
+    "Without --engine, run-driver enumerates only and refuses live campaigns, which fits safe offline verification."
+  ],
+  "constraints": [
+    "Do not change lifecycle DONE/review/delivery gates or evidence hash semantics.",
+    "Do not replace fixed B1-B15 defaults or silently change pre-registered denominators.",
+    "Do not run live provider powered campaigns in this story.",
+    "Do not add persistent caches, fountain-code recovery, or arbitrary optimization.",
+    "Keep implementation small, deterministic, and covered by offline selfchecks."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/recovery-runner/run-driver.mjs",
+    "experiments/recovery-runner/run-driver-selfcheck.mjs",
+    "experiments/recovery-runner/README.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/lattice-experiment-protocol.md",
+    "experiments/recovery-runner/parameterized-fault-profile.mjs"
+  ],
+  "timestamp": "2026-07-01T00:08:35.332Z"
+}

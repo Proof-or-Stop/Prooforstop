@@ -1,0 +1,34 @@
+{
+  "storyId": "B-63ba",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-driver.mjs",
+    "experiments/recovery-runner/run-driver-selfcheck.mjs",
+    "experiments/recovery-runner/README.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/lattice-experiment-protocol.md"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/parameterized-fault-profile.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/run-driver-selfcheck.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "explicitExcludes": [
+    "Lifecycle DONE/review/delivery gate changes",
+    "Evidence hash freshness changes",
+    "Remote provider powered campaign execution",
+    "Fountain/erasure-code evidence recovery"
+  ],
+  "scopeChangeReason": "PLAN discovery located the real recovery-runner implementation under experiments/recovery-runner. This story is limited to offline harness parameterization, selfchecks, and docs; lifecycle/evidence gate files stay protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T00:08:19.049Z",
+  "updatedAt": "2026-07-01T00:08:19.049Z"
+}
