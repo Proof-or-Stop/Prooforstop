@@ -140,6 +140,19 @@
           "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
           "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
           "timestamp": "2026-07-01T00:39:16.263Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "command": "rg -n \"full 10x15 baseline is not complete|G02 \\| Future / not implemented|G10 \\| Future / not implemented\" docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+          "result": "pass",
+          "note": "Docs explicitly say the full 10x15 baseline is not complete and keep future groups G02 through G10 out of the G01 completion claim.",
+          "headHash": "b271c690bb6e66d002a6ba4aa822f72719998e59",
+          "materialHash": "8b9ba1a66759fe9af219bdb321f1f1c38d2274a36719c8c83181018a3b7ffc35",
+          "storyFilesHash": "bd664a613586fcbfa2f3c83c331bd56a75abf600037fafcd0cc73c9e76a9e95a",
+          "timestamp": "2026-07-01T00:39:22.213Z"
         }
       ]
     }
