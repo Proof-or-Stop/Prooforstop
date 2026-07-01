@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-3b99:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed source diff vs main, PASS validation snapshot, scope contract, and retired vocabulary mapping annotations. Code/runtime delta is annotation-only in scoped files; targeted smokes and retired vocabulary guard passed; no blocking quality or maintainability findings.",
+      "createdAt": "2026-07-01T17:56:22.124Z",
+      "reviewRound": "2026-07-01T17:53:58.880Z",
+      "reviewRunId": "B-3b99:RR-002",
+      "_hash": "9fd56c629db6060c3089a50091f22c6708b39338a9fc3644a906cc580f97b2ed"
+    },
+    {
+      "id": "B-3b99:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: current diff closes high convergence mapping gaps with local-assurance-only vocabulary; no stale B-fbb6 merge, no dev-memory gate evidence, and acknowledged ProofStory scope warnings are non-blocking metadata.",
+      "createdAt": "2026-07-01T17:56:31.200Z",
+      "reviewRound": "2026-07-01T17:53:58.880Z",
+      "reviewRunId": "B-3b99:RR-001",
+      "_hash": "fd4aa36098fb5c203c09cbd213a5bf5728773e2ddad078303cd6b0f27aee63c2"
+    },
+    {
+      "id": "B-3b99:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS: live gap_analyze reports 0 high gaps, convergence_check reports code annotations compliant, retired vocabulary guard and targeted smokes passed, and fresh lattice validate --story=B-3b99 --json returned allPass=true with verificationCoverage 13/13 covered and 0 missing required.",
+      "createdAt": "2026-07-01T17:59:00.813Z",
+      "reviewRound": "2026-07-01T17:53:58.880Z",
+      "reviewRunId": "B-3b99:RR-004",
+      "_hash": "b3ae6a77d213c313f3021890bf3edcaa86b5894d73fd75f6bb91555d9f2637ee"
+    }
+  ]
+}

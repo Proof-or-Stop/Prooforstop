@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Close the machine-visible convergence gap without changing unrelated runtime semantics.",
+    "Preserve the retired Authority Server boundary; local assurance wording may be mapped but server-backed claims must not return.",
+    "Use current code and tests as evidence, not stale plan prose."
+  ],
+  "drivers": [
+    "convergence_check blocks on 9 high gaps",
+    "scanner relies on @task annotation keyword matching",
+    "user explicitly requested no fake completion"
+  ],
+  "options": [
+    {
+      "name": "A: Add explicit @task mapping annotations plus smoke evidence",
+      "pros": [
+        "Smallest code change",
+        "Keeps behavior stable",
+        "Matches scanner mechanism"
+      ],
+      "cons": [
+        "Requires careful wording so annotations do not become misleading claims"
+      ]
+    },
+    {
+      "name": "B: Rewrite gap_analyze scanner semantics",
+      "pros": [
+        "Could reduce future false positives"
+      ],
+      "cons": [
+        "Higher risk",
+        "Touches shared convergence behavior",
+        "Out of scope for current high-gap closure"
+      ]
+    },
+    {
+      "name": "C: Edit decision docs to hide requirement lines",
+      "pros": [
+        "Quickly removes false positives"
+      ],
+      "cons": [
+        "Can erase useful requirements and looks like papering over gaps"
+      ]
+    }
+  ],
+  "chosen": "A: Add explicit @task mapping annotations plus smoke evidence",
+  "rationale": "The high gaps point at implemented behavior that the current scanner cannot see because it matches requirement keywords against task annotations. Explicit mapping annotations plus existing smoke tests close the real convergence issue without mutating product behavior or hiding requirements.",
+  "preMortem": [
+    {
+      "scenario": "Annotation overclaims unsupported behavior",
+      "trigger": "Mapping text says Authority receipt behavior is supported",
+      "consequence": "Retired Authority Server semantics reappear in docs or CLI claims",
+      "mitigation": "Use local assurance/admissibility wording only and verify no requiresAuthorityReceipt/server-backed path is introduced."
+    },
+    {
+      "scenario": "Scanner passes but behavior is untested",
+      "trigger": "Only comments are added",
+      "consequence": "Convergence looks clean while regression coverage is weak",
+      "mitigation": "Run build plus relevant Autopilot/ProofStory/local assurance smoke tests and attach evidence."
+    },
+    {
+      "scenario": "Scope expands into Antigravity provider migration",
+      "trigger": "B-fbb6 context leaks into implementation",
+      "consequence": "Old Koala/Authority branch contents contaminate main",
+      "mitigation": "Keep B-fbb6 discarded and touch only B-3b99 bounded paths."
+    }
+  ],
+  "timestamp": "2026-07-01T17:29:38.526Z"
+}

@@ -1,3 +1,19 @@
+/**
+ * @task B-3b99
+ * @checklist CHK-002
+ * @title Export local assurance degradation instead of authority receipt closure
+ * @type refactor
+ * @priority high
+ * @description
+ *   Canonical story export maps old done-closure authorityImpact local-only /
+ *   receipt-required intent into local assurance degradation rows. Local
+ *   completion remains local, and missing release-readiness proof appears as
+ *   local-assurance-incomplete with a blocking local-completion impact. This
+ *   does not revive remote authority-service receipt behavior.
+ * @changes
+ *   - [CHK-002] Local assurance gaps are exported as visible degradations.
+ *   - [CHK-002] Canonical authority tier stays local-evidence with signed/offline receipt references only as local inputs.
+ */
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { basename } from 'node:path';

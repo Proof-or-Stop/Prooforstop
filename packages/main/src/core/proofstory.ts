@@ -4,6 +4,24 @@
  * This module is pure: it builds story-scoped intent artifacts and evaluates
  * diagnostics. Lifecycle integration imports only the evaluators; no second
  * lifecycle state machine or child-story scheduler lives here.
+ *
+ * @task B-3b99
+ * @checklist CHK-003
+ * @title Map ProofStory key requirements and source requirement bindings
+ * @type refactor
+ * @priority high
+ * @description
+ *   Machine-visible mapping for legacy requirement spellings "keyRequirements": [,
+ *   "keyRequirements": ["REQ-001"], originalIntentSnapshot.keyRequirements,
+ *   and "sourceRequirementId": "REQ-001". The current implementation stores
+ *   those source requirement identifiers as originalIntentSnapshot.keyRequirementIds
+ *   and requires each milestone sourceRequirementId to bind back to that set.
+ *   This preserves source intent totality without reintroducing a second
+ *   lifecycle state machine.
+ * @changes
+ *   - [CHK-003] keyRequirements maps to BuildOriginalIntentSnapshotArgs.keyRequirementIds and OriginalIntentSnapshotData.keyRequirementIds.
+ *   - [CHK-003] originalIntentSnapshot.keyRequirements maps to originalIntentSnapshot.keyRequirementIds for request-hash and diagnostic binding.
+ *   - [CHK-003] sourceRequirementId maps milestone rows to the accepted original intent keyRequirementIds.
  */
 
 import { createHash } from 'node:crypto';

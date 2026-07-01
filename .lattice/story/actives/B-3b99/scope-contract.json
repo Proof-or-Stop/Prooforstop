@@ -1,0 +1,62 @@
+{
+  "storyId": "B-3b99",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/autopilot-reliability.ts",
+    "packages/main/src/core/canonical-story.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/proofstory.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/canonical-story-export-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/koala",
+    ".omx",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/authority-submit.ts"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    "docs/koala",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/authority-submit.ts"
+  ],
+  "scopeChangeReason": "Initialize enforce scope contract from B-3b99 PLAN: current high-gap mapping closure only; no retired Authority Server or stale B-fbb6 merge scope.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These are command-generated ProofStory lifecycle artifacts required by the DEV gate for original intent, intent collision, and contract binding; they are necessary to prove B-3b99 did not shrink the user intent.",
+      "timestamp": "2026-07-01T17:43:02.724Z",
+      "paths": [
+        ".lattice/story/actives/B-3b99/intent-collision.json",
+        ".lattice/story/actives/B-3b99/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3b99/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3b99/intent-collision.json",
+        ".lattice/story/actives/B-3b99/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3b99/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "7d5f729ee8087662d84da63377fd08885400ade3",
+      "materialHash": "ea7df5fdfe1fa5832ba1f3924f5b16af31129b5f8dfe6842c42f664bb2ed6e4b",
+      "anchors": [
+        "proofstory.original_intent",
+        "proofstory.intent_collision",
+        "proofstory.contract_binding"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-01T17:33:26.839Z",
+  "updatedAt": "2026-07-01T17:43:02.724Z"
+}

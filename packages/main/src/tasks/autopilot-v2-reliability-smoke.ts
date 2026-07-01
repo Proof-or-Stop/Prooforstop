@@ -1,4 +1,20 @@
 import assert from 'node:assert/strict';
+/**
+ * @task B-3b99
+ * @checklist CHK-001
+ * @title Smoke provider health pause and resume event mapping
+ * @type chore
+ * @priority high
+ * @description
+ *   Smoke-backed evidence for Autopilot event tokens health_probe,
+ *   provider_unhealthy, waiting_for_provider_health, paused_requires_resume,
+ *   health_recovered, and resumed. The assertions below exercise both
+ *   process-alive waiting semantics and safe-boundary paused resume semantics.
+ * @changes
+ *   - [CHK-001] Assert paused transient provider failure emits health_probe, provider_unhealthy, paused_requires_resume.
+ *   - [CHK-001] Assert live transient provider failure emits waiting_for_provider_health.
+ *   - [CHK-001] Assert recovered provider health emits health_probe, health_recovered, resumed.
+ */
 import {
   buildProviderHealthRecoveredEvents,
   buildProviderHealthTransition,

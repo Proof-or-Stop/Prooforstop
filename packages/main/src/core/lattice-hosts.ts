@@ -1,3 +1,20 @@
+/**
+ * @task B-3b99
+ * @checklist CHK-002
+ * @title Project host capability authority impact as local assurance only
+ * @type refactor
+ * @priority high
+ * @description
+ *   Host status/list/probe output consumes the current AuthorityImpact
+ *   degradation vocabulary as local assurance. It may show none,
+ *   evidence-local-only, verification-evidence-limited, or
+ *   local-assurance-required, but it cannot manufacture release readiness or
+ *   verified receipt status from a host handoff. This maps legacy local-only
+ *   and receipt-required language to local CLI assurance only.
+ * @changes
+ *   - [CHK-002] Desktop-app demotions expose local assurance limits without remote authority-service behavior.
+ *   - [CHK-002] Host projections keep release readiness and receipt status as local diagnostic outputs.
+ */
 import {
   buildCapabilityList,
   buildCapabilityProbe,

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3b99",
+  "changes": "Closed all current high-priority convergence gaps by adding machine-visible implementation mappings for Autopilot provider-health events, done-closure local assurance vocabulary, and ProofStory key/source requirement binding. Corrected new annotations so active source satisfies the retired vocabulary guard.",
+  "usage": "Run lattice gap_analyze --json and lattice convergence_check --json from the Proofbound worktree to verify the high-gap and annotation state. The story is managed through the normal Proofbound lifecycle and does not add a user-facing CLI command.",
+  "expectedOutcome": "REQ-HIGH-GAPS-ZERO: gap_analyze reports zero high-priority gaps and convergence_check passes No high-priority gaps. REQ-NO-AUTHORITY-REVIVAL: active annotations pass the retired vocabulary guard and use current local assurance wording. REQ-NO-BFBB6-MERGE: the stale B-fbb6 branch contents are absent from this story diff.",
+  "actualTranscript": "TEST evidence: lattice validate --story=B-3b99 --json returned status=pass, allPass=true, verification coverage 13/13, missingRequired=0. done_required_validate passed packages/main build and root npm test. gap_analyze reports 0 high / 1 medium. convergence_check passes No high-priority gaps, Flow chain complete, Code annotations compliant, Parked backlog, Audit backlog, and Requirements coverage; the All Stories completed row clears when B-3b99 reaches DONE.",
+  "outcomeDiff": "Expected and actual match for REQ-HIGH-GAPS-ZERO, REQ-NO-AUTHORITY-REVIVAL, and REQ-NO-BFBB6-MERGE. The medium missing fixture item is a separate medium backlog item, while this story target is the current high-priority convergence closure.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The delivered scope is the current high-priority convergence closure: zero high gaps, compliant annotations, no retired server-backed completion revival, and no stale B-fbb6 merge. The separate medium fixture backlog item remains tracked as medium severity.",
+  "pitfalls": "Do not treat dev-memory as gate evidence. Do not reintroduce retired server-backed completion vocabulary in active annotations just to satisfy gap text. Future mapping closures should prefer current local assurance terminology and verify with the retired vocabulary guard.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 119118
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7100
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 270244
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1205937
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 337505
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 412977
+    }
+  },
+  "totalDurationMs": 2352962,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-01T18:05:39.742Z",
+  "updatedAt": "2026-07-01T18:06:29.363Z"
+}

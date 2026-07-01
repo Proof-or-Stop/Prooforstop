@@ -1,6 +1,21 @@
 #!/usr/bin/env node
 /**
  * Focused smoke coverage for ProofStory progressive intent hardening.
+ *
+ * @task B-3b99
+ * @checklist CHK-003
+ * @title Smoke ProofStory key requirement and source requirement binding
+ * @type chore
+ * @priority high
+ * @description
+ *   Smoke-backed evidence for legacy spellings keyRequirements,
+ *   originalIntentSnapshot.keyRequirements, and sourceRequirementId. The test
+ *   creates an original intent snapshot with keyRequirementIds: ["REQ-001"],
+ *   stores milestone rows with sourceRequirementId: "REQ-001", checks request
+ *   hash stability, and verifies diagnostics reject unbound milestone sources.
+ * @changes
+ *   - [CHK-003] Assert keyRequirementIds participate in the original intent request hash.
+ *   - [CHK-003] Assert sourceRequirementId rows are accepted only when bound to original intent keyRequirementIds.
  */
 
 import { strict as assert } from 'node:assert';
