@@ -269,11 +269,11 @@
           "file": "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts",
           "command": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js",
           "result": "pass",
-          "note": "Proof D: signReviewRun + workspaceBinding signatures byte-identical for default/plain-repo case",
-          "headHash": "ec95eccbbbd58adfef560cd7baad26b4dadebdc8",
-          "materialHash": "b228b4a0991308ddfc19c0cdaf357e3d152917f2e60f85661a1a5ba147854168",
-          "storyFilesHash": "463d066fd56066e84ed1f686022fa6f69690463c2d5bb7ee39c61998181bbee2",
-          "timestamp": "2026-07-01T02:50:58.121Z"
+          "note": "Proof E: direct byte-identity assert on buildReviewRunWorkspaceBinding().bindingHash and signReviewRun()._hash for metadataRoot defaulted-vs-explicit (plain repo)",
+          "headHash": "e737a35385cd052ffab59b73b78a99017a171671",
+          "materialHash": "9c91d98058cd5cbb3e567bcc2198ea8fc55624d68ef2b70c7c5c88c60875a25c",
+          "storyFilesHash": "ea536f79bd0a3ca51dfa9e1ef6ab827d98cef940474d3bad2fe327d2b2d2fab3",
+          "timestamp": "2026-07-01T03:05:43.406Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
