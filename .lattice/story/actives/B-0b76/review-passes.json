@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-01T02:16:39.502Z",
       "reviewRunId": "B-0b76:RR-002",
       "_hash": "c408163dc09ae3bd8fd32ffa81c38f7fe3bf570622a8477064d9d6ac2542eea8"
+    },
+    {
+      "id": "B-0b76:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 10 exported symbols extracted (ARMS, META, cellKey, readRecordsWithStats, readRecords, aggregate, toCSV, renderSVG, run, main). Step 2: 1 README section compared (Figure generator section + dedup-consistency note in experiments/recovery-runner/README.md). All claims verified against make-fig-gate-ablation.mjs code: (1) dedup transparency line format matches exactly; (2) conflict guard hard-throws on differing adjudicatedOutcome matches code; (3) keep-first via continue matches code; (4) cell key arm|taskId|scenarioId|repeat matches cellKey(); (5) exported pure functions list matches export declarations; (6) selfcheck count 8 matches run-selfchecks.mjs with 8 entries; (7) counts-only / no re-classify / no CI / no paper-edit claims match code comments and aggregate(); (8) analyze.mjs does-not-dedup advisory matches code comment. No doc-code drift, no over-claim, no under-claim, no doc-promise-undelivered.",
+      "createdAt": "2026-07-01T02:32:58.394Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-007",
+      "_hash": "43ce917286279c93b3dbe72ee57cfe49dcbcd97c2f994c8feb08eec0431ea45a"
     }
   ]
 }
