@@ -383,6 +383,19 @@
           "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
           "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
           "timestamp": "2026-07-01T02:15:32.774Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck empty-arm assertion: an arm with zero records -> n=0 with no crash",
+          "headHash": "2d68730c168eabb2597b70f11f96de239963c182",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:33.317Z"
         }
       ]
     },
