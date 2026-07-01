@@ -1,0 +1,57 @@
+{
+  "storyId": "B-63ba",
+  "checkedAt": "2026-07-01T01:43:12.502Z",
+  "headHash": "85b09649f23659508931abfde54d01fc74c68875",
+  "materialHash": "156dc11612e4751510dca00e3989a0aef9e4017eab44cf874f954ed2719be382",
+  "storyFilesHash": "d7932a57671b3ff6dd22a6b8296a9343ac54b5dfd717ae27f4ded79f0022be44",
+  "reviewRound": "2026-07-01T01:25:45.045Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md",
+      "promise": "Recovery-runner profile flags are documented only as an explicit exploratory offline profile; fixed B1-B15 remains the default; profile runs are not lifecycle gate evidence.",
+      "status": "verified",
+      "verifiedBy": "nl -ba experiments/recovery-runner/README.md | sed -n 95,112p; added-doc-lines grep",
+      "evidence": "README lines 101-104 state exploratory offline profile, fixed B1-B15 default, and not lifecycle gate evidence; added-doc-lines scan showed no production/unattended readiness claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "promise": "Experiment protocol keeps the fixed B1-B15 pre-registered experiment as the default and limits profile runs to exploratory local dry runs.",
+      "status": "verified",
+      "verifiedBy": "nl -ba docs/requirements/decisions/lattice-experiment-protocol.md | sed -n 82,92p",
+      "evidence": "Lines 87-89 say exploratory offline profile for local scenario-subset dry runs, fixed B1-B15 remains default, and profile runs are not lifecycle gate evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Proof-admissibility docs do not promote recovery-runner profiles into lifecycle gate evidence, production evidence, or unattended readiness.",
+      "status": "verified",
+      "verifiedBy": "nl -ba docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md | sed -n 388,397p; rg added lines for production/unattended/readiness",
+      "evidence": "Lines 390-395 keep parameterized fault injection outside evidence recovery and say exploratory offline profile is experiment-only, fixed B1-B15 remains default, profile output is not lifecycle gate evidence; added-line scan found no production or unattended readiness overclaim."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-003",
+      "transcript": "Ran node experiments/recovery-runner/run-driver-selfcheck.mjs on this worktree: 174 assertions passed, 0 failed (no live LLM). Covers fixed B1-B15 default enumeration, profile parser, weighted deterministic expansion, invalid profile rejection, and CLI fail-closed cases."
+    },
+    {
+      "featureId": "CHK-002/CHK-003",
+      "transcript": "Ran focused CLI probes from temporary directories. default-fixed exited 0 with 77 applicable cells and 3 N/A exclusions; weighted-profile exited 0 with scenario profile weighted: B1,B1,B2, 15 applicable cells, and no-engine live-campaign refusal; invalid-profile, dangling-profile, dangling-record, dangling-engine, dangling-tasks, and dangling-seed all exited 2 before records or sidecars were written."
+    },
+    {
+      "featureId": "B-63ba-validation",
+      "transcript": "Read-only lifecycle/done closure checks consumed explicit evidence: lattice validate PASS at 2026-07-01T01:36:44.456Z with 13/13 verification intents covered, and DONE-required validation PASS at 2026-07-01T01:38:02.630Z with 2 required commands."
+    },
+    {
+      "featureId": "B-63ba-diff-docs",
+      "transcript": "Reviewed git diff main...HEAD and added docs lines. Material code changes are limited to experiments/recovery-runner/parameterized-fault-profile.mjs, run-driver.mjs, and run-driver-selfcheck.mjs; docs additions only state exploratory offline profile, fixed B1-B15 default, and not lifecycle gate evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passes for the requested scope: parameterized fault injection is explicit exploratory offline recovery-runner profile only; fixed B1-B15 remains default; invalid/dangling profile and shared CLI value flags fail closed before sidecar writes; TEST validate and DONE-required validation are explicit PASS; changed docs do not claim lifecycle gate evidence, production readiness, or unattended readiness. Separate DONE blockers remain outside this delivery check: branch not synced with main and review assurance floor missing."
+  },
+  "_hash": "47392d07a051addac693a614fe99d48fd352000308ee3d99f80619538c01bf92"
+}

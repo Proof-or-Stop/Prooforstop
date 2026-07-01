@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-63ba:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope review passed: implementation matches accepted offline profile interpretation, preserves fixed B1-B15 defaults, leaves lifecycle/review/DONE/evidence gate code untouched, stays host-neutral, and avoids arbitrary optimization.",
+      "createdAt": "2026-07-01T00:33:15.364Z",
+      "reviewRound": "2026-07-01T00:30:41.407Z",
+      "reviewRunId": "B-63ba:RR-001",
+      "_hash": "a44fad02507eb1d90d4eb060c7a3899b4f79da4cd35979debe67aaded2ff74a3"
+    },
+    {
+      "id": "B-63ba:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs/user-facing text review: checked named docs for exact boundary phrases, no production/lifecycle evidence overclaim, fixed B1-B15 default, and CLI behavior consistency.",
+      "createdAt": "2026-07-01T00:34:33.271Z",
+      "reviewRound": "2026-07-01T00:30:41.407Z",
+      "reviewRunId": "B-63ba:RR-004",
+      "_hash": "7132979b05586567412c441fc9d582ce7f4fbcfff30ca902478da3e00c498641"
+    },
+    {
+      "id": "B-63ba:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed all B-63ba verificationIntent refs for coverage: fixed default unchanged, list and weighted parsing, invalid profile fail-closed with no invalid sidecars, duplicate weighted runId uniqueness, focused CLI run behavior, and required docs phrases. Fresh selfcheck, focused CLI, docs grep, and source assertion review found no coverage blocker.",
+      "createdAt": "2026-07-01T00:34:56.684Z",
+      "reviewRound": "2026-07-01T00:30:41.407Z",
+      "reviewRunId": "B-63ba:RR-005",
+      "_hash": "1791bace269e86b278d61982905228c6b0c7c5e124dd0eae051e116c11afaf47"
+    },
+    {
+      "id": "B-63ba:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 2 F-001 re-review scoped to run-driver scenarioProfile/scenarioParams validation and selfcheck coverage. Dangling profile/params and weighted-without-params now fail closed before sidecars; default/list/weighted valid paths remain green.",
+      "createdAt": "2026-07-01T00:43:34.848Z",
+      "reviewRound": "2026-07-01T00:40:58.772Z",
+      "reviewRunId": "B-63ba:RR-006",
+      "_hash": "5e0e1b9bcd0411f85b6b74a7d17e8eef6e501faff002cc30486650082cef0690"
+    },
+    {
+      "id": "B-63ba:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "ROUND 2 targeted coverage re-review after F-001 fix: run-driver-selfcheck covers dangling --scenarioProfile, dangling --scenarioParams, weighted profile without params, params-without-profile, invalid weighted params, no record/exclusions/void sidecars before fail-closed exits, valid weighted enumerate-only behavior, and existing default enumerate-only behavior. Verified with node experiments/recovery-runner/run-driver-selfcheck.mjs plus focused spawn probes; no coverage finding.",
+      "createdAt": "2026-07-01T00:43:35.436Z",
+      "reviewRound": "2026-07-01T00:40:58.772Z",
+      "reviewRunId": "B-63ba:RR-007",
+      "_hash": "090b30d93e4fea200f7ef406b8ca51b43d4d309826ad6f2cf8a7ec9f8dc7fc39"
+    },
+    {
+      "id": "B-63ba:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs-only review after main merge: README keeps local assurance/DONE boundaries narrow; decision docs mark exploratory offline profile experiment-only, fixed B1-B15 default, and not lifecycle gate evidence.",
+      "createdAt": "2026-07-01T01:07:10.654Z",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "reviewRunId": "B-63ba:RR-011",
+      "_hash": "9c6667bcf2d68a8d9b5301f2429e8aecea48ca149fa2462ac4b700bee0d2c84f"
+    },
+    {
+      "id": "B-63ba:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: current material only adds explicit offline recovery-runner scenarioProfile/scenarioParams list/weighted profiles, preserves fixed B1-B15 default behavior, leaves lifecycle/review/DONE/evidence gate code untouched, and documents no production or lifecycle-gate evidence claim.",
+      "createdAt": "2026-07-01T01:07:17.367Z",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "reviewRunId": "B-63ba:RR-008",
+      "_hash": "fccdfb52331cb741768e21861a8977b1a32de452f87781a955c844b64d43d55b"
+    },
+    {
+      "id": "B-63ba:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-current-material coverage review after main merge: Lattice validate passed with verification intent coverage 13/13; run-driver selfcheck reports 167 assertions; focused weighted CLI prints B1,B1,B2 and preserves no-engine refusal; invalid/dangling profile probes exit 2 with no record/exclusions/void sidecars; weighted unique-runId probe reports 15 cells, 15 records, 15 unique runIds, duplicateRunIds empty; docs phrase check finds exploratory offline profile, fixed B1-B15 remains the default, and not lifecycle gate evidence. Separate existing quality finding B-63ba:F-002 remains outside this coverage-pass verdict.",
+      "createdAt": "2026-07-01T01:11:13.193Z",
+      "reviewRound": "2026-07-01T01:04:34.884Z",
+      "reviewRunId": "B-63ba:RR-012",
+      "_hash": "bdb99428c13533356efa9f53f4760e2d6c813142b40c3f6d24c202a970ab9bc5"
+    },
+    {
+      "id": "B-63ba:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane reviewed experiments/recovery-runner/README.md plus lattice-experiment-protocol and proof-admissibility decision docs. The new profile language clearly limits scenario profiles to exploratory offline dry runs, preserves fixed B1-B15 as the default pre-registered experiment path, and states profile output is not lifecycle gate evidence. No production, unattended, or lifecycle gate shortcut implication found.",
+      "createdAt": "2026-07-01T01:29:52.144Z",
+      "reviewRound": "2026-07-01T01:25:45.045Z",
+      "reviewRunId": "B-63ba:RR-014",
+      "_hash": "231d2e82546b2cdb8834617f8ff3d7343db4b0c0d89d38eaf70ee1dbead244c1"
+    },
+    {
+      "id": "B-63ba:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review: verified verificationIntent/evidence/test coverage for default fixed protocol, list profile, weighted deterministic expansion, duplicate weighted runId uniqueness, invalid profile fail-closed behavior, and F-002 dangling shared CLI flags/no-sidecar using run-driver-selfcheck plus focused reviewer probe.",
+      "createdAt": "2026-07-01T01:30:58.802Z",
+      "reviewRound": "2026-07-01T01:25:45.045Z",
+      "reviewRunId": "B-63ba:RR-015",
+      "_hash": "d3f5a5f43217f44bf1065d3bd33ba1122424d2d99308b019ec4dedfda353ad07"
+    },
+    {
+      "id": "B-63ba:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of 419d6641b F-002 fix: inspected run-driver value-flag parser and selfcheck coverage, reran selfcheck and targeted temp-dir CLI probes for dangling --record/--engine/--tasks/--seed. Invalid inputs exit 2 before records/exclusions/voids sidecars; valid default and weighted profiles still enumerate and refuse no-engine runs correctly. No blocking findings.",
+      "createdAt": "2026-07-01T01:31:10.140Z",
+      "reviewRound": "2026-07-01T01:25:45.045Z",
+      "reviewRunId": "B-63ba:RR-013",
+      "_hash": "16c68d0ca8faa53924670fc91ace63c8120a2dffd27721d93117058c33e9ce1f"
+    },
+    {
+      "id": "B-63ba:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept lane reviewed recovery-runner profile parsing, run-driver CLI, selfcheck coverage, README, and decision docs. No blocker: profile is explicit and validated, default no-profile path still enumerates fixed null+B1-B15, profile docs mark it exploratory/not lifecycle gate evidence, and there is no packages/main or lifecycle gate diff.",
+      "createdAt": "2026-07-01T01:31:31.173Z",
+      "reviewRound": "2026-07-01T01:25:45.045Z",
+      "reviewRunId": "B-63ba:RR-016",
+      "_hash": "1e584458c9108586684eb1166b66824a9b9a2748af0cab85926fc8a6540f24a7"
+    }
+  ]
+}

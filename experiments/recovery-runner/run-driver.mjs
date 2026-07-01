@@ -27,6 +27,7 @@
 // Pure helpers are exported and exercised offline by run-driver-selfcheck.mjs.
 import { adjudicate } from './adjudicate.mjs';
 import { harnessAcceptance, hiddenRegression, diffHygiene } from './checks.mjs';
+import { parseScenarioProfile, formatScenarioProfileLine } from './parameterized-fault-profile.mjs';
 
 // ---------------------------------------------------------------------------
 // Pre-registered constants (mirror the protocol §1/§3/§5 EXACTLY)
@@ -166,6 +167,7 @@ export function enumerateCells({
   scenarios = [ABLATION_SCENARIO, ...RECOVERY_SCENARIOS],
   k = 5,
   seed = 'pre-reg',
+  allowDuplicateScenarios = false,
 } = {}) {
   if (!Array.isArray(tasks) || tasks.length === 0) {
     throw new Error('enumerateCells: tasks must be a non-empty array');
@@ -189,20 +191,25 @@ export function enumerateCells({
   if (new Set(arms).size !== arms.length) {
     throw new Error('enumerateCells: duplicate arm(s) are not allowed');
   }
-  if (new Set(scenarios).size !== scenarios.length) {
+  if (!allowDuplicateScenarios && new Set(scenarios).size !== scenarios.length) {
     throw new Error('enumerateCells: duplicate scenario(s) are not allowed');
   }
   const cells = [];
   const excluded = [];
   for (const taskId of tasks) {
     for (const arm of arms) {
+      const scenarioOccurrences = new Map();
       for (const scenarioId of scenarios) {
+        const scenarioKey = scenarioId === ABLATION_SCENARIO ? 'null' : scenarioId;
+        const occurrence = scenarioOccurrences.get(scenarioKey) ?? 0;
+        scenarioOccurrences.set(scenarioKey, occurrence + 1);
         if (!scenarioAppliesToArm(scenarioId, arm)) {
           excluded.push({ arm, taskId, scenarioId, applicable: false, reason: 'not-applicable-per-§3' });
           continue;
         }
+        const repeatOffset = allowDuplicateScenarios ? occurrence * k : 0;
         for (let repeat = 1; repeat <= k; repeat++) {
-          cells.push({ arm, taskId, scenarioId, repeat, applicable: true });
+          cells.push({ arm, taskId, scenarioId, repeat: repeat + repeatOffset, applicable: true });
         }
       }
     }
@@ -409,10 +416,39 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-function arg(f, d) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : d; }
+function valueFlag(f, d = null) {
+  let firstValue = d;
+  let present = false;
+  let captured = false;
+  for (let i = 2; i < process.argv.length; i++) {
+    if (process.argv[i] !== f) continue;
+    present = true;
+    const value = process.argv[i + 1];
+    if (value == null || value.startsWith('--') || value.trim() === '') {
+      return { present: true, value: null, error: 'requires a following non-flag value' };
+    }
+    if (!captured) {
+      firstValue = value;
+      captured = true;
+    }
+  }
+  return { present, value: firstValue };
+}
+function checkedValueFlag(f, d = null) {
+  const opt = valueFlag(f, d);
+  if (opt.error) {
+    console.error(`[run-driver] invalid ${f}: ${opt.error}.`);
+    process.exit(2);
+  }
+  return opt;
+}
+function requireValueFlag(f, d = null) {
+  const opt = checkedValueFlag(f, d);
+  return opt.value;
+}
 // Strict non-negative-integer CLI parse: rejects "1.5"/"1e2"/"abc" (parseInt would silently
 // truncate them). Returns NaN for a malformed value so the caller can fail loudly.
-function intArg(f, d) { const raw = String(arg(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
+function intArg(f, d) { const raw = String(requireValueFlag(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
 function requireNonNegInt(name, val) {
   if (!Number.isInteger(val) || val < 0) {
     console.error(`[run-driver] invalid ${name}: must be a non-negative integer.`);
@@ -422,7 +458,7 @@ function requireNonNegInt(name, val) {
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
-  const tasks = arg('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
+  const tasks = requireValueFlag('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
   // Duplicate --tasks would crash later in enumerateCells with an uncaught throw; reject here
   // with the same clean exit-2 contract as the other CLI guards (host-2 INFO).
   if (new Set(tasks).size !== tasks.length) {
@@ -431,19 +467,45 @@ async function main() {
   }
   const k = intArg('--k', 5);
   if (!Number.isInteger(k) || k < 1) { console.error('[run-driver] invalid --k: must be a positive integer (>= 1).'); process.exit(2); }
-  // Pre-reg §5 sets min k=3 (k=5 default); a smaller k is an operational knob (MVP halves k),
-  // not an error — warn so an under-powered run is never silent (host-2 INFO).
-  if (k < 3) console.warn(`[run-driver] note: --k=${k} is below the pre-reg minimum of 3 (k=5 default); per-cell estimates will be under-powered.`);
-  const seed = arg('--seed', 'pre-reg');
-  const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
-  const enginePath = arg('--engine', null);
+  const seed = requireValueFlag('--seed', 'pre-reg');
+  const recordFile = requireValueFlag('--record', join(here, 'ablation-run-records.jsonl'));
+  const enginePath = requireValueFlag('--engine', null);
   const maxReruns = intArg('--maxReruns', 3);
   requireNonNegInt('--maxReruns', maxReruns);
+  const scenarioProfileOpt = checkedValueFlag('--scenarioProfile');
+  const scenarioParamsOpt = checkedValueFlag('--scenarioParams');
+  let scenarioSelection;
+  try {
+    scenarioSelection = parseScenarioProfile({
+      scenarioProfile: scenarioProfileOpt.present ? scenarioProfileOpt.value : null,
+      scenarioParams: scenarioParamsOpt.present ? scenarioParamsOpt.value : null,
+      validScenarios: RECOVERY_SCENARIOS,
+    });
+  } catch (e) {
+    console.error(`[run-driver] invalid scenario profile: ${e && e.message ? e.message : e}`);
+    process.exit(2);
+  }
+  // Pre-reg §5 sets min k=3 (k=5 default); a smaller k is an operational knob (MVP halves k),
+  // not an error — warn so an under-powered run is never silent (host-2 INFO). Emit it only
+  // after scenario-profile validation so malformed profile input gets a clean fail-closed
+  // diagnostic before any matrix/sidecar work.
+  if (k < 3) console.warn(`[run-driver] note: --k=${k} is below the pre-reg minimum of 3 (k=5 default); per-cell estimates will be under-powered.`);
+  const scenarios = scenarioSelection.explicit
+    ? scenarioSelection.scenarios
+    : [ABLATION_SCENARIO, ...RECOVERY_SCENARIOS];
   // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
   const exclusionsFile = `${recordFile}.exclusions.jsonl`;
   const voidsFile = `${recordFile}.voids.jsonl`;
 
-  const { cells, excluded } = enumerateCells({ tasks, k, seed });
+  const { cells, excluded } = enumerateCells({
+    tasks,
+    scenarios,
+    k,
+    seed,
+    allowDuplicateScenarios: scenarioSelection.profile === 'weighted',
+  });
+  const profileLine = formatScenarioProfileLine(scenarioSelection);
+  if (profileLine) console.log(profileLine);
   // §7 — N/A cells are excluded AND durably logged with reason (not just counted).
   for (const e of excluded) appendFileSync(exclusionsFile, JSON.stringify(e) + '\n');
   console.log(`[run-driver] enumerated ${cells.length} applicable cells; ${excluded.length} N/A cells excluded -> ${exclusionsFile}`);

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0b76",
+  "allowedCommands": [
+    "git add / git commit",
+    "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+    "node experiments/recovery-runner/make-fig-gate-ablation.mjs",
+    "node experiments/recovery-runner/run-selfchecks.mjs"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+    "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+    "experiments/recovery-runner/README.md",
+    "experiments/recovery-runner/run-selfchecks.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/recovery-runner/adjudicate.mjs",
+    "experiments/recovery-runner/analyze.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Offline, deterministic; no live LLM; no network. Selfcheck uses synthetic in-memory records (no dependency on the large campaign data). Does not touch the paper repo.",
+  "createdAt": "2026-07-01T01:48:11.920Z",
+  "updatedAt": "2026-07-01T01:48:11.920Z",
+  "_hash": "9dd574fefc42536281b4d47f472bdcd8f8bf6de96f77e36e58f1052b039ad53d"
+}

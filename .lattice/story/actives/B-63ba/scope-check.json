@@ -1,0 +1,51 @@
+{
+  "storyId": "B-63ba",
+  "checkedAt": "2026-07-01T00:14:45.500Z",
+  "features": [
+    {
+      "feature": "Default fixed recovery-runner protocol remains null ablation plus B1-B15 when no exploratory profile is supplied; B1-B15 constants and existing counts are preserved.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Explicit exploratory scenario profile support accepts weighted and list/subset profiles behind an explicit mode without changing canonical defaults.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Invalid exploratory profiles fail closed for unknown scenario ids, malformed or duplicate weights, and zero or negative weights before records or sidecar logs can mislead.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Docs state the safe offline exploratory boundary and non-goals, including no fountain/erasure recovery, no lifecycle gate shortcut, and no unattended production readiness claim.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "relatedDocs:experiments/recovery-runner/README.md;relatedDocs:docs/requirements/decisions/lattice-experiment-protocol.md;relatedDocs:docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "Lifecycle DONE/review/evidence hash semantics and gate implementation files remain excluded/protected; this story must not modify lifecycle gate consumers, process-fact registries, DONE-required validation, review-run signing, or evidence freshness semantics.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 context limits implementation to exploratory recovery-runner parsing and says to avoid lifecycle gate semantics; CHK-004 documents not lifecycle gate evidence.",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "95a7e16a877f052d7d58aa19043180cdf1fc54cbaa9b2b75d4f9ff6d9a0aefe6"
+}
