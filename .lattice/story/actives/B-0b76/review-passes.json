@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-01T02:31:20.795Z",
       "reviewRunId": "B-0b76:RR-005",
       "_hash": "e5fb6292e5f54451b01287a0fee64677592a3cf395d49f3b8f5ead5900fe2091"
+    },
+    {
+      "id": "B-0b76:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-attest @ f17c76f0: F-001 gap closed. CHK-002:adversarial:0 is now reproducibly demonstrated by the bound command: the normal selfcheck run (node make-fig-gate-ablation-selfcheck.mjs) includes a SELF-TEST group (lines 256-265) that self-spawns a FIG_SELFCHECK_FORCE_FAIL=1 child and asserts child.status===1 — confirmed live: 43 assertions passed (spawn-assert included), exits 0. FIG_SELFCHECK_FORCE_FAIL=1 child exits 1 as expected. All 26 evidence items reviewed: each is a logic_test or docs_check with verdict=success backed by selfcheck (43 assertions) or docs grep commands, all confirmed runnable. validate staleness (0/26 stale-headHash) is a pre-existing mechanical artifact from lattice metadata commits advancing HEAD after evidence was stamped — unchanged from round 1 baseline, not introduced by the F-001 fix. No new coverage gap found.",
+      "createdAt": "2026-07-01T02:48:34.709Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-008",
+      "_hash": "2fe57e90e61b01f8e30256799fc7de2ca49b68d022a4543c46f28efe0dddb93e"
     }
   ]
 }
