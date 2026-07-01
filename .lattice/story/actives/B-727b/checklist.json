@@ -44,9 +44,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-01T02:39:30.493Z",
-      "endTime": null
+      "endTime": "2026-07-01T02:40:04.279Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc build passed after adding the G03 smoke.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.465Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts the required inventory and generated rows are exactly G03-M01 through G03-M15.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts all 15 prose-only rows have empty closureEvidence and remain open with evidenceState missing plus missing_closure_evidence.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.783Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js",
+          "result": "pass",
+          "note": "G03 smoke asserts caller-supplied full completion prose and rollup text cannot override missing machine evidence in enforce mode.",
+          "headHash": "509d84384cd8042fa9d028fbb0f6340169d3d421",
+          "materialHash": "bb723f88a6283c62428ab3e83bda0c35560408f464f6d414e0728b866b064c79",
+          "storyFilesHash": "b3281ed734906942ff18a1deb23035193c12835ddd189282397742843bade4f6",
+          "timestamp": "2026-07-01T02:40:04.935Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
