@@ -1,0 +1,30 @@
+{
+  "storyId": "B-63ba",
+  "name": "parameterized-fault-injection-recovery-runner",
+  "title": "Add parameterized fault injection to recovery-runner",
+  "description": "Milestone 2 follow-up from the DNAcoder idea transfer analysis. Add a scoped recovery-runner capability for parameterized and composable fault injection distributions so Proofbound can explore gate robustness beyond the fixed B1-B15 scenario list. This is an offline research harness improvement, not a change to DONE, review, delivery, or evidence hash semantics. It must preserve the existing frozen scenario protocol and avoid optimizing without measured need.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-01T00:02:19.557Z",
+  "startedAt": "2026-07-01T00:02:19.557Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-01T00:02:19.558Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-81968d64d47412a0",
+      "agent": "main"
+    }
+  ]
+}

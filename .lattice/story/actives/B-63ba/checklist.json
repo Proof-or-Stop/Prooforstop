@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the parameterized injection contract",
+      "context": "Map the existing fixed recovery-runner scenario model to a conservative parameter schema for probability, distribution seed, and composition without changing the existing frozen B1-B15 protocol.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement recovery-runner parameter parsing behind an explicit mode",
+      "context": "Add the smallest code path needed for exploratory parameterized runs, keeping default behavior identical and avoiding changes to lifecycle gate semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for fixed and parameterized runs",
+      "context": "Prove default fixed scenarios remain unchanged, seeded parameterized runs are deterministic, and invalid parameter combinations fail closed with clear diagnostics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document non-goals and safe usage boundary",
+      "context": "Document that this is an offline robustness harness for exploratory red-team studies, not lossy evidence recovery, not a gate shortcut, and not a claim of unattended production readiness.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
