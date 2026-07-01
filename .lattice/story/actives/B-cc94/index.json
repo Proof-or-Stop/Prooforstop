@@ -4,7 +4,7 @@
   "title": "Implement Playbook Runtime Memory MVP1 for session consumption",
   "description": "Implement the first MVP slice of the Playbook Runtime Memory Consumption plan: prove current runtime non-consumption with red/repro smoke, add explicit active playbook activation semantics, build a non-authoritative MemoryFreshnessPack and matcher, and surface a bounded memory/playbook pack in session_brief without making memory gate evidence.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "playbook-runtime",
@@ -93,6 +93,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-07-01T03:18:01.276Z",
+      "branch": "story/B-cc94",
+      "user": "Harmonygo",
+      "sessionId": "sess-208e5ef97f7688a2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-01T03:31:01.190Z",
       "branch": "story/B-cc94",
       "user": "Harmonygo",
       "sessionId": "sess-208e5ef97f7688a2",
