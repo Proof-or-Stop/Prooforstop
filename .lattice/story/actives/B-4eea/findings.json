@@ -213,7 +213,7 @@
       "desc": "Runtime host policy accepts labels such as codex-cli, claude-cli, and agy-cli, but handoff/dispatch still pass the original host string into registries that recognize codex, claude-code, and antigravity. toHost:\"claude-cli\" or agy-cli can look allowed while pack/status resolves unknown/fallback.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T05:15:43.547Z",
@@ -225,7 +225,11 @@
         "packages/main/src/handlers/lattice-handoff.ts"
       ],
       "signatureTag": "missing|ts|host-alias-normalization",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commits 792b4b284 and 72989e45: runtime host policy exposes capabilityHostId and handoff_create/handoff_resume/host_dispatch use policy capability ids for target host fields. MVP2 smoke covers claude-cli->claude-code, agy-cli fallback->antigravity, and unknown primary target normalization to codex without raw host leakage. Verified by build and playbook-runtime-memory-mvp2-smoke.",
+      "resolvedAt": "2026-07-01T05:27:43.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eea:F-011",
