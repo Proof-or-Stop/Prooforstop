@@ -1,7 +1,7 @@
 # Unattended Develop Mode No-False-DONE 10x15 Milestone Baseline
 
 Date: 2026-07-01
-Status: baseline design / G01-G02 implemented only; G03-G10 future implementation
+Status: baseline design / G01-G03 implemented only; G04-G10 future implementation
 Related docs:
 
 - `docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`
@@ -73,13 +73,14 @@ rows, migration rows, and claim boundary status.
 
 ## Implementation Progress
 
-Current implemented slice: **G01-G02 only**. The full 10x15 baseline is not complete.
+Current implemented slice: **G01-G03 only**. The full 10x15 baseline is not complete.
 
 Runnable command after building `packages/main`:
 
 ```bash
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js
 node packages/main/dist/tasks/parent-roadmap-large-ledger-g02-baseline-smoke.js
+node packages/main/dist/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.js
 ```
 
 The G01 smoke lives at
@@ -98,15 +99,25 @@ It is the missing-row negative-control smoke: the required inventory is exactly
 open and invalid row with `missing_required_row`, return
 `no-full-roadmap-claim`, and block full completion wording.
 
-The project validation config is not changed by this G01-G02 slice. Until a later
-story binds the full baseline into routine validation, run the command above
-directly.
+The G03 smoke lives at
+`packages/main/src/tasks/parent-roadmap-large-ledger-g03-baseline-smoke.ts`.
+It is the prose-only negative-control smoke: the required inventory and generated
+ledger both contain exactly 15 `G03-M01` ... `G03-M15` rows, and each row contains
+written closure/completion prose while carrying no machine closure evidence. The
+rollup must keep all 15 rows open with missing evidence, return
+`no-full-roadmap-claim`, and block full completion wording even when a
+caller-supplied prose rollup says all rows are complete.
+
+The project validation config is not changed by this G01-G03 slice. Until a
+later story binds the full baseline into routine validation, run the commands
+above directly. G04-G10 remain future/not implemented, so the full 10x15 baseline
+is still incomplete.
 
 | Group | Implementation status |
 |---|---|
 | G01 | Implemented as the positive-control 15-row baseline smoke. |
 | G02 | Implemented as the missing-row negative-control 14-of-15 baseline smoke. |
-| G03 | Future / not implemented. |
+| G03 | Implemented as the prose-only negative-control 15-of-15 baseline smoke. |
 | G04 | Future / not implemented. |
 | G05 | Future / not implemented. |
 | G06 | Future / not implemented. |
@@ -261,9 +272,10 @@ benchmark for unattended completion:
 ## Non-Goals
 
 Story B-b596 implements the G01 positive-control smoke only. Story B-e891
-implements the G02 missing-row negative-control smoke only. The full 10x15
-smoke remains future and incomplete work: G03-G10 are not implemented here, and
-these stories make no full-baseline completion claim.
+implements the G02 missing-row negative-control smoke only. Story B-727b
+implements the G03 prose-only negative-control smoke only. The full 10x15 smoke
+remains future and incomplete work: G04-G10 are not implemented here, and these
+stories make no full-baseline completion claim.
 
 This baseline also does not require or claim 150 real Lattice stories, remote
 hosts, elevated rollout status, Authority receipts, fullAuthority receipts,
