@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T03:20:00.052Z",
       "userSees": "parent-roadmap large-ledger G04 baseline smoke PASS",
       "files": {
         "modify": [
@@ -44,7 +44,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke passed; it asserts 15 required rows, zero closed rows, staleEvidenceRows=15, stale_parent_rollup, and no-full-roadmap-claim.",
+          "headHash": "d38164e367a0011ae58fed28b65995718ba7a079",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:00.341Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke asserts each stale row has closureEvidence with stale head/material/story binding and stale_closure_evidence reason codes.",
+          "headHash": "d38164e367a0011ae58fed28b65995718ba7a079",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:00.573Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke asserts full completion wording is blocked while every required row is present but stale.",
+          "headHash": "d38164e367a0011ae58fed28b65995718ba7a079",
+          "materialHash": "69f508c7989bbcbcdb65eec2571308bc03196bab289a2bec6477a8bd823874ac",
+          "storyFilesHash": "cd710bc943dba3195c7cffe85d447b983e8342983985b9cfba32d3e0eb0879aa",
+          "timestamp": "2026-07-01T03:20:00.805Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
