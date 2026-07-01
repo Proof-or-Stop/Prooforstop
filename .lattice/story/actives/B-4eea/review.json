@@ -1,0 +1,156 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-01T04:01:04.394Z",
+      "issueCount": 25,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"M5 wire handoff and host entry runtime memory consumers\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"M6 wire story intake and lifecycle runtime memory consumers\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"M7 wire DONE closure and final-response advisory memory consumers\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"M9 add deterministic million-record playbook memory baseline generator\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"M10 add million-record correctness and performance verifier\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 (\"P3-enforce add registered warn/enforce rollout policy after baseline correctness\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"M8 add capture-or-noop end-of-work memory decision\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 (\"M11 add project-configurable playbook runtime health and drift scanner\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 (\"M12 finalize rollout runbook and Codex/Claude 3x2 verification with agy fallback only\") was added in PLAN phase: Expand repro-created default checklist into the full user-approved M5-M12 execution ledger so DONE cannot shrink scope."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "10 checklist items; please check for missing combined scenarios (e.g., what happens when Implement fix for reproduced failure + M5 wire handoff and host entry runtime memory consumers are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4eea\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "too_broad: Milestone ledger has 10 row(s), above the 5 row threshold for high_assurance. Record a complete slice-plan.json or assignedStory fields before enforce-mode DEV admission; suggested slicing groups are diagnostic only and no child stories are created automatically. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4eea is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9ac033d76a306f2534c855142a68f1236a58add50c8e5f5bb12864b588615558"
+    }
+  ]
+}

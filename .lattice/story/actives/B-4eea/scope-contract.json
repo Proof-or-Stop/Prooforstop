@@ -1,0 +1,53 @@
+{
+  "storyId": "B-4eea",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    ".gitignore",
+    "packages/main/src/core/playbook-memory-baseline.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-memory-baseline.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".lattice/artifacts/authority/**"
+  ],
+  "scopeChangeReason": "Initialize enforce scope contract from the full M5-M12 checklist so implementation cannot drift outside the approved memory-runtime, baseline, health, rollout, and docs/test surfaces.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T04:01:34.762Z",
+  "updatedAt": "2026-07-01T04:01:34.762Z"
+}
