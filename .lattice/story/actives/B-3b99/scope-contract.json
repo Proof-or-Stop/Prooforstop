@@ -30,7 +30,33 @@
     "packages/main/src/core/authority-submit.ts"
   ],
   "scopeChangeReason": "Initialize enforce scope contract from B-3b99 PLAN: current high-gap mapping closure only; no retired Authority Server or stale B-fbb6 merge scope.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These are command-generated ProofStory lifecycle artifacts required by the DEV gate for original intent, intent collision, and contract binding; they are necessary to prove B-3b99 did not shrink the user intent.",
+      "timestamp": "2026-07-01T17:43:02.724Z",
+      "paths": [
+        ".lattice/story/actives/B-3b99/intent-collision.json",
+        ".lattice/story/actives/B-3b99/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3b99/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3b99/intent-collision.json",
+        ".lattice/story/actives/B-3b99/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3b99/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "7d5f729ee8087662d84da63377fd08885400ade3",
+      "materialHash": "ea7df5fdfe1fa5832ba1f3924f5b16af31129b5f8dfe6842c42f664bb2ed6e4b",
+      "anchors": [
+        "proofstory.original_intent",
+        "proofstory.intent_collision",
+        "proofstory.contract_binding"
+      ]
+    }
+  ],
   "createdAt": "2026-07-01T17:33:26.839Z",
-  "updatedAt": "2026-07-01T17:33:26.839Z"
+  "updatedAt": "2026-07-01T17:43:02.724Z"
 }
