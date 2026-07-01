@@ -18,7 +18,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G01 smoke reports 15 total rows, 15 closed rows, no open/stale/deferred/invalid/migration rows, and full_roadmap_complete.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts the positive control cannot pass with fewer than exactly 15 generated milestone rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts local G01 proof does not set Authority, fullAuthority, production, or independent two-host completion claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

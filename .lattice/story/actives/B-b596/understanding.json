@@ -1,0 +1,25 @@
+{
+  "task": "Implement the G01 positive-control group for the UDM no-false-DONE 10x15 milestone baseline.",
+  "outcome": "When the user runs node packages/main/dist/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.js, the terminal prints that G01 passed with 15 total rows, 15 closed rows, zero open/stale/invalid/deferred/migration rows, full_roadmap_complete, and no Authority or production overclaim.",
+  "facts": [
+    "The user asked to start the first group of the 10x15 milestone baseline.",
+    "The baseline design document defines G01 as the positive control: all 15 rows closed with fresh machine evidence.",
+    "B-e781 already proved parent-roadmap totality closure for M4-M12 and exposed the parent roadmap evaluator APIs.",
+    "This story must not claim G02-G10 or full 10x15 completion."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Implement only G01, not G02-G10.",
+    "Use deterministic local synthetic fixtures; do not create 150 real Lattice stories.",
+    "Do not set or imply Authority, fullAuthority, production, or independent two-host completion.",
+    "Keep documentation wording open-source English."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "lattice.config.json",
+    "packages/main/src/core/parent-roadmap-totality.ts"
+  ],
+  "timestamp": "2026-07-01T00:27:02.838Z"
+}
