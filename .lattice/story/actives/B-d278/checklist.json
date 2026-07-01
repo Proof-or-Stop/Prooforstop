@@ -9,7 +9,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "parent-roadmap large-ledger G04 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G04 smoke reports 15 required rows, zero closed rows, 15 stale evidence rows, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts each stale row carries closureEvidence but mismatched stale material/story/head binding and reason code stale_closure_evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts full completion wording is blocked while all evidence is stale, even though every required row is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
