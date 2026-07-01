@@ -4,7 +4,7 @@
   "title": "Implement G01 positive-control milestone ledger baseline",
   "description": "Implement the first group of the Unattended Develop Mode no-false-DONE 10x15 baseline: G01, where all 15 milestone rows are closed with fresh machine evidence and the parent roadmap rollup must allow a full roadmap completion claim without Authority or production overclaim.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "udm",
@@ -31,6 +31,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-81968d64d47412a0",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-01T00:25:03.435Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-81968d64d47412a0",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b596",
+    "branch": "story/B-b596",
+    "createdAt": "2026-07-01T00:25:02.340Z"
+  }
 }
