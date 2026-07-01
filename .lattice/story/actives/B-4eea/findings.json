@@ -282,7 +282,7 @@
       "desc": "verifyPlaybookRuntimeBaseline generates a temporary baseline when inputDir is omitted but never removes generated.outputDir. Repeated verify or health runs can accumulate large temporary baseline directories, especially for full profile.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T05:16:00.609Z",
@@ -295,7 +295,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
       ],
       "signatureTag": "cleanup|ts|baseline-tempdir-leak",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 792b4b284: verifyPlaybookRuntimeBaseline cleans generated temp baseline directories by default in a finally block and exposes keepGenerated for explicit retention. Baseline smoke asserts default cleanup removes generated inputDir and keepGenerated preserves it; health smoke remains green.",
+      "resolvedAt": "2026-07-01T05:27:58.316Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
