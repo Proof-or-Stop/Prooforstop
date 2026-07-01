@@ -6,6 +6,12 @@
 // COUNTS the `adjudicatedOutcome` already stamped on each record, and emits a
 // standalone paper figure (SVG) + a tidy CSV.
 //
+// The raw powered/ dir accumulates restart re-runs (~2× per cell across session-limit cycles),
+// so this generator dedups internally, HARD-GUARDS against conflicting-outcome duplicates
+// (keep-first must never silently pick one of two disagreeing outcomes), and prints a
+// raw→unique transparency line. analyze.mjs does NOT dedup, so it must be run on deduped input
+// to match this figure (see README).
+//
 // This module is deliberately structured as EXPORTED PURE functions so the offline
 // self-check can drive it on tiny synthetic fixtures without the huge campaign data.
 // It only COUNTS outcomes — it does NOT re-classify runs and does NOT compute any
@@ -37,18 +43,29 @@ export function cellKey(r) {
 }
 
 // Read every `*.jsonl` in poweredDir EXCLUDING `*.voids.jsonl`, JSON.parse each non-empty
-// line, dedup KEEP-FIRST by cellKey, return the deduped record array. A malformed JSON line
-// is skipped defensively (a truncated write from a crashed campaign must not abort the run);
-// valid lines are still parsed.
-export function readRecords(poweredDir) {
+// line, dedup KEEP-FIRST by cellKey, and return BOTH the deduped record array and dedup
+// transparency stats `{ records, rawCount, uniqueCount, droppedCount }`:
+//   - rawCount    = total valid parsed rows (before dedup)
+//   - uniqueCount = deduped cells kept (= records.length)
+//   - droppedCount = rawCount − uniqueCount (duplicate re-runs dropped)
+// A malformed JSON line is skipped defensively (a truncated write from a crashed campaign must
+// not abort the run) and is NOT counted in rawCount; valid lines are still parsed.
+//
+// CONFLICT GUARD (F-002): the powered/ dir accumulates restart re-runs, so most cells appear
+// ~2× across session-limit cycles. Keep-first is only safe when the duplicate records agree on
+// the outcome. If two records share a cell key but carry DIFFERENT `adjudicatedOutcome`,
+// keep-first would silently pick one of two conflicting outcomes — so we HARD-THROW instead.
+export function readRecordsWithStats(poweredDir) {
   if (!existsSync(poweredDir)) {
     throw new Error('make-fig-gate-ablation: powered dir not found: ' + poweredDir);
   }
   const files = readdirSync(poweredDir)
     .filter((f) => f.endsWith('.jsonl') && !f.endsWith('.voids.jsonl'))
     .sort(); // deterministic file order → deterministic keep-first winner
-  const seen = new Set();
+  const firstOutcome = new Map(); // cellKey → the kept-first record's adjudicatedOutcome
+  const conflicts = []; // cellKeys whose duplicates disagree on adjudicatedOutcome
   const recs = [];
+  let rawCount = 0;
   for (const f of files) {
     const text = readFileSync(join(poweredDir, f), 'utf-8');
     for (const line of text.split('\n')) {
@@ -59,13 +76,33 @@ export function readRecords(poweredDir) {
       } catch {
         continue; // defensively skip a malformed / truncated line, keep going
       }
+      rawCount++;
       const k = cellKey(r);
-      if (seen.has(k)) continue; // keep-first
-      seen.add(k);
+      if (firstOutcome.has(k)) {
+        // duplicate re-run of an already-seen cell: keep-first, but guard the outcome.
+        if (firstOutcome.get(k) !== r.adjudicatedOutcome && !conflicts.includes(k)) {
+          conflicts.push(k);
+        }
+        continue; // keep-first (record dropped)
+      }
+      firstOutcome.set(k, r.adjudicatedOutcome);
       recs.push(r);
     }
   }
-  return recs;
+  if (conflicts.length > 0) {
+    throw new Error(
+      `make-fig-gate-ablation: ${conflicts.length} cell(s) have conflicting outcomes across ` +
+      `duplicate records (ambiguous dedup): ${conflicts.slice(0, 3).join(', ')}`,
+    );
+  }
+  const uniqueCount = recs.length;
+  return { records: recs, rawCount, uniqueCount, droppedCount: rawCount - uniqueCount };
+}
+
+// Back-compat thin wrapper: return just the deduped record array (existing callers/selfcheck
+// are unaffected). Throws on a conflicting-outcome duplicate, same as readRecordsWithStats.
+export function readRecords(poweredDir) {
+  return readRecordsWithStats(poweredDir).records;
 }
 
 // Aggregate deduped records into per-arm counts + headline contrasts. An arm with zero
@@ -162,7 +199,7 @@ ${legend}
 // clear message to stderr and returns { wrote:false }. Throws (via readRecords) if the dir is
 // missing. Returns the aggregate + counts so callers/tests can assert without re-reading disk.
 export function run(poweredDir, outPrefix) {
-  const records = readRecords(poweredDir);
+  const { records, rawCount, uniqueCount, droppedCount } = readRecordsWithStats(poweredDir);
   if (records.length === 0) {
     process.stderr.write(
       `make-fig-gate-ablation: no records found in ${poweredDir} (nothing to plot; not writing artifacts)\n`,
@@ -172,6 +209,10 @@ export function run(poweredDir, outPrefix) {
   const agg = aggregate(records);
   writeFileSync(`${outPrefix}.svg`, renderSVG(agg));
   writeFileSync(`${outPrefix}.csv`, toCSV(agg));
+  // Dedup transparency (F-002): analyze.mjs does NOT dedup, so surface the raw→unique collapse.
+  console.log(
+    `dedup: ${rawCount} raw records → ${uniqueCount} unique cells (${droppedCount} duplicate re-runs dropped)`,
+  );
   console.log('per-arm:');
   for (const a of ARMS) {
     const s = agg.perArm[a];

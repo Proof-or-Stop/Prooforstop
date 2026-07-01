@@ -235,8 +235,18 @@ node make-fig-gate-ablation.mjs [poweredDir] [outPrefix]
 node make-fig-gate-ablation-selfcheck.mjs   # offline assertions over synthetic fixtures (no live LLM)
 ```
 
-The generator's pure functions (`readRecords`/`aggregate`/`toCSV`/`renderSVG`) are exported so the
-selfcheck drives them offline on tiny synthetic records without the large campaign data.
+The generator's pure functions (`readRecords`/`readRecordsWithStats`/`aggregate`/`toCSV`/`renderSVG`)
+are exported so the selfcheck drives them offline on tiny synthetic records without the large campaign data.
+
+**Deduped cell matrix (raw `powered/` holds restart re-runs).** The figure and `analyze.mjs` both
+operate on the **deduped** cell matrix (`arm|taskId|scenarioId|repeat`, **keep-first**). The raw
+`powered/` dir accumulates restart re-runs (~2× per cell across session-limit cycles — currently
+~18,557 raw records → 9,240 unique cells), so `analyze.mjs`, which does **not** dedup, must be run on
+**deduped** input to match the figure. This generator dedups internally, **guards against
+conflicting-outcome duplicates** (if two records share a cell key but disagree on
+`adjudicatedOutcome`, keep-first is ambiguous and the generator **hard-throws** rather than silently
+picking one), and prints a `dedup: <raw> raw records → <unique> unique cells (<dropped> duplicate
+re-runs dropped)` transparency line.
 
 ## Data lives elsewhere
 

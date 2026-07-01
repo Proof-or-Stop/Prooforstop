@@ -2,13 +2,23 @@
 // Offline self-check for make-fig-gate-ablation.mjs (no live LLM, no dependency on the
 // large campaign data). Drives the EXPORTED pure functions on tiny synthetic fixtures
 // with KNOWN outcomes + a temp dir, and asserts the aggregation math, the dedup keep-first
-// contract, the *.voids.jsonl exclusion, per-1000 rounding, empty-arm safety, and that
-// CSV/SVG output is emitted. Exits non-zero on any failure.
+// contract, the *.voids.jsonl exclusion, per-1000 rounding, empty-arm safety, that
+// CSV/SVG output is emitted, the F-002 conflicting-outcome dedup guard (readRecords throws),
+// and — reproducibly — that this selfcheck exits non-zero on any failure (F-001, via a
+// self-spawned FIG_SELFCHECK_FORCE_FAIL=1 child whose status must be 1). Exits non-zero on
+// any failure.
 // Run: node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs
 import { mkdtempSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { ARMS, aggregate, readRecords, toCSV, renderSVG, run } from './make-fig-gate-ablation.mjs';
+
+// F-001 reproducible exit-1 self-test: when this env var is set we are running as the CHILD
+// that the normal run spawns to PROVE the selfcheck exits non-zero on failure. In that mode we
+// register exactly one forced failure and MUST NOT recurse (skip the spawn-assertion below).
+const FORCE_FAIL = process.env.FIG_SELFCHECK_FORCE_FAIL === '1';
 
 let passed = 0, failed = 0; const fails = [];
 function ok(c, label) { if (c) passed++; else { failed++; fails.push(label); } }
@@ -18,6 +28,14 @@ function group(n) { process.stdout.write(`\n## ${n}\n`); }
 // synthetic §7-ish record builder. outcome ∈ {'recovered','safe-stop','amplified',null}
 function rec(arm, taskId, scenarioId, repeat, outcome, tokens = 1000) {
   return { arm, taskId, scenarioId, repeat, adjudicatedOutcome: outcome, tokensSpent: tokens };
+}
+
+// F-001: in the spawned child, register one deterministic failure so this process exits 1.
+// This is what the parent's spawn-assertion below verifies (child.status === 1). Do NOT spawn a
+// grandchild — the FORCE_FAIL guard on the spawn-assertion prevents infinite recursion.
+if (FORCE_FAIL) {
+  group('FORCED-FAIL PROBE (F-001 reproducible exit-1 self-test)');
+  ok(false, 'forced-fail probe (F-001 reproducible exit-1 self-test)');
 }
 
 // =========================================================================================
@@ -74,11 +92,14 @@ group('readRecords: keep-first dedup + *.voids.jsonl exclusion (temp dir)');
 let dir;
 try {
   dir = mkdtempSync(join(tmpdir(), 'b0b76-selfcheck-'));
-  // x.jsonl: two records with the SAME key but DIFFERENT outcome → first (amplified) must win.
+  // x.jsonl: two records with the SAME key + SAME outcome (agreeing dupes are safe to collapse
+  // keep-first; conflicting-outcome dupes throw — that is exercised in the CONFLICT GUARD group
+  // below). They differ in a NON-outcome field (tokensSpent) so keep-first is genuinely observable:
+  // the FIRST record's tokensSpent (111) must survive, not the later 999.
   // plus a second distinct-key A2prime record.
   const xLines = [
-    JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified')),   // key K, FIRST → wins
-    JSON.stringify(rec('A4', 't1', 'B1', 1, 'recovered')),   // key K, dup → dropped
+    JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified', 111)), // key K, FIRST → wins
+    JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified', 999)), // key K, dup → dropped
     JSON.stringify(rec('A2prime', 't1', 'B1', 1, 'recovered')),
     '{ this is a malformed line',                             // malformed → skipped, no crash
     '',                                                       // blank → skipped
@@ -90,9 +111,12 @@ try {
 
   const recs = readRecords(dir);
   const agg = aggregate(recs);
-  // dedup keep-first: K collapses to one A4 record, and the FIRST outcome (amplified) survives.
+  // dedup keep-first: K collapses to one A4 record.
   eq(agg.perArm.A4.n, 1, 'readRecords: same-key dupes collapse to n=1 (dedup)');
-  eq(agg.perArm.A4.amplified, 1, 'readRecords: keep-first → the FIRST (amplified) outcome wins, not the later recovered');
+  eq(agg.perArm.A4.amplified, 1, 'readRecords: the kept A4 outcome is amplified');
+  // keep-first is genuinely observable: the FIRST record (tokensSpent 111) survives, not 999.
+  eq(recs.find((r) => r.arm === 'A4' && r.taskId === 't1').tokensSpent, 111,
+    'readRecords: keep-first → the FIRST record wins (tokensSpent 111, not the later 999)');
   // voids sidecar excluded: the A4 void record (tvoid) must NOT have inflated A4 to n=2.
   ok(!recs.some((r) => r.taskId === 'tvoid'), 'readRecords: *.voids.jsonl record excluded');
   // the null-scenario record is read and uses the literal 'null' segment in its key.
@@ -137,16 +161,17 @@ group('toCSV: header + one row per arm; renderSVG: non-empty standalone SVG');
 // =========================================================================================
 group('NEGATIVE CONTROL: asserts are not vacuous');
 {
-  // If keep-first were actually keep-LAST, the A4 outcome above would be 'recovered' → amplified=0.
-  // Re-derive from a 2-line same-key fixture to prove the winner is genuinely the first.
+  // If keep-first were actually keep-LAST, the FIRST record's tokensSpent (111) would NOT survive.
+  // Use SAME-outcome dupes (agreeing → no conflict throw) that differ only in tokensSpent to prove
+  // the winner is genuinely the first, not the last.
   const d2 = mkdtempSync(join(tmpdir(), 'b0b76-negctl-'));
   try {
     writeFileSync(join(d2, 'y.jsonl'), [
-      JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified')),
-      JSON.stringify(rec('A4', 't1', 'B1', 1, 'recovered')),
+      JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified', 111)), // FIRST
+      JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified', 999)), // dup, dropped
     ].join('\n'));
-    const a = aggregate(readRecords(d2));
-    ok(a.perArm.A4.amplified === 1, 'neg-control: keep-first genuinely keeps amplified (not 0 as keep-last would give)');
+    const kept = readRecords(d2).find((r) => r.arm === 'A4' && r.taskId === 't1');
+    ok(kept.tokensSpent === 111, 'neg-control: keep-first genuinely keeps the FIRST record (tokensSpent 111, not 999 as keep-last would give)');
   } finally { rmSync(d2, { recursive: true, force: true }); }
 }
 
@@ -196,6 +221,47 @@ group('run: real records → { wrote:true } and BOTH .svg + .csv are created');
   } finally {
     rmSync(dataDir, { recursive: true, force: true });
   }
+}
+
+// =========================================================================================
+group('readRecords: CONFLICT GUARD — same-key records with DIFFERENT outcome throw (F-002)');
+{
+  // two records share a cell key but disagree on adjudicatedOutcome → keep-first is ambiguous,
+  // so readRecords must HARD-THROW instead of silently picking one outcome.
+  const dc = mkdtempSync(join(tmpdir(), 'b0b76-conflict-'));
+  try {
+    writeFileSync(join(dc, 'c.jsonl'), [
+      JSON.stringify(rec('A4', 't1', 'B1', 1, 'amplified')),
+      JSON.stringify(rec('A4', 't1', 'B1', 1, 'recovered')), // same key, DIFFERENT outcome
+    ].join('\n'));
+    let threw = false, msg = '';
+    try { readRecords(dc); } catch (e) { threw = true; msg = e && e.message ? e.message : String(e); }
+    ok(threw, 'conflict-guard: same-key conflicting-outcome records make readRecords throw');
+    ok(threw && msg.includes('conflicting'), `conflict-guard: throw message contains 'conflicting' (got ${JSON.stringify(msg)})`);
+    // negative control: two same-key records with the SAME outcome must NOT throw (keep-first ok).
+    writeFileSync(join(dc, 'c.jsonl'), [
+      JSON.stringify(rec('A4', 't2', 'B1', 1, 'amplified')),
+      JSON.stringify(rec('A4', 't2', 'B1', 1, 'amplified')), // same key, SAME outcome
+    ].join('\n'));
+    let agreedThrew = false;
+    try { readRecords(dc); } catch { agreedThrew = true; }
+    ok(!agreedThrew, 'conflict-guard: same-key AGREEING duplicates do NOT throw (keep-first safe)');
+  } finally {
+    rmSync(dc, { recursive: true, force: true });
+  }
+}
+
+// =========================================================================================
+group('SELF-TEST: this selfcheck exits non-zero when an assertion fails (F-001, reproducible)');
+if (!FORCE_FAIL) {
+  // Spawn a CHILD of THIS file with FIG_SELFCHECK_FORCE_FAIL=1, which registers one forced
+  // failure and exits. Asserting child.status === 1 PROVES the selfcheck genuinely fails-loud.
+  // (Skipped when we ARE the forced-fail child, so it never recurses into a grandchild.)
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
+    env: { ...process.env, FIG_SELFCHECK_FORCE_FAIL: '1' },
+    encoding: 'utf-8',
+  });
+  ok(child.status === 1, `exit-1 self-test: forced-fail child exits with status 1 (got ${JSON.stringify(child.status)})`);
 }
 
 // =========================================================================================
