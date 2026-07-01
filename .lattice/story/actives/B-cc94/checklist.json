@@ -74,9 +74,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:53:13.910Z",
       "userSees": "A new explicit playbook activation path exists: candidates stay inert until activated with a matching digest, and stale/malformed activation is rejected.",
       "verificationIntent": {
         "happy": [
@@ -97,7 +97,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 smoke activates a candidate with current computePlaybookDigest and verifies it becomes active and surfaces.",
+          "headHash": "613ca9ea020caea83d56378c33546cedf0f6ed4c",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:14.212Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 smoke verifies unactivated candidate playbooks remain inert in runtime matching.",
+          "headHash": "613ca9ea020caea83d56378c33546cedf0f6ed4c",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:14.533Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+          "result": "pass",
+          "note": "MVP1 smoke verifies stale digest and malformed playbook activation fail closed while preserving sibling playbook rows.",
+          "headHash": "613ca9ea020caea83d56378c33546cedf0f6ed4c",
+          "materialHash": "f78a8253180a4e828ee83683c5a14e01bb4bd800e2e583b2ae7b54bad07aac8f",
+          "storyFilesHash": "54cf52b8c96eef2944baac79ebf8f236f0ccbc2e27a7584b7c4cd03cdeb6c99e",
+          "timestamp": "2026-07-01T02:53:14.859Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
