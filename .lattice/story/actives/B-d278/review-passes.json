@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-01T03:29:10.846Z",
       "reviewRunId": "B-d278:RR-007",
       "_hash": "1557b99380953c96adb39467e34bc4c5133573412d3e214b130e8184d78a4a5e"
+    },
+    {
+      "id": "B-d278:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS. F-001 is resolved; docs now describe the completed scope as a local deterministic G01-G10 plus aggregate baseline, keep remote/Authority/fullAuthority/production/independent-host evidence as non-goals, and no longer turn completed G04-G10/aggregate coverage into future scope. Verified smokes for G04, G05, G06, G07, G08, G09, G10, and aggregate all pass. Source assertions confirm aggregate covers exactly 10 x 15 required rows, G05 deferrals remain visible/open and do not count as runtime closure, G07 blocks elevated overclaim wording, and G10 allows completion only after fresh evidence refresh.",
+      "createdAt": "2026-07-01T03:31:46.377Z",
+      "reviewRound": "2026-07-01T03:29:10.846Z",
+      "reviewRunId": "B-d278:RR-008",
+      "_hash": "5768a3fd89ef1033117299978e5f0ba8da7ab13d6f845c3504c21a13f2887ece"
     }
   ]
 }
