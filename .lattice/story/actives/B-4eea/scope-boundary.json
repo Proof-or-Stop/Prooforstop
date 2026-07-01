@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4eea",
+  "mode": "feature",
+  "allowed": [
+    "Add focused smoke tests and update command docs/help/process-fact/runtime-artifact registry as needed",
+    "Implement M10 correctness/performance verifier with report-first performance and required correctness thresholds",
+    "Implement M11 project-configurable playbook runtime health/drift scanner",
+    "Implement M12 rollout/runbook/multi-host verification semantics: Codex CLI and Claude Code CLI primary, agy-cli fallback only",
+    "Implement M6 story intake and story_advance runtime memory consumption without treating memory as gate evidence",
+    "Implement M7 DONE/done_prepare/done_closure/final-response advisory memory consumption tied to structured ParentRollupResult checks",
+    "Implement M8 capture-or-noop end-of-work memory decision surface",
+    "Implement M9 deterministic million-record baseline generator with small/full profiles and gitignored runtime output",
+    "Implement P3-enforce warn/enforce rollout only after the 1M correctness verifier passes",
+    "Implement Playbook Runtime Memory M5 handoff and host-entry consumers using the existing MemoryFreshnessPack core"
+  ],
+  "excluded": [
+    "Do not claim full completion while any M5-M12 row is open, deferred, or unverified",
+    "Do not clean up Tier-C experiment story duplicates; those are allowed experimental data",
+    "Do not create a second memory or evidence engine parallel to MemoryFreshnessPack",
+    "Do not make memory or playbooks gate evidence or proof of DONE",
+    "Do not reintroduce remote Authority Server semantics",
+    "Do not rely on agy-cli as a primary 3x2 host unless Codex or Claude is unavailable/quota-limited"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "User explicitly approved implementing the remaining playbook-runtime-memory-consumption-execution-plan.md milestones in the documented order until fully complete; previous B-cc94 only covered MVP1/M0-M4.",
+  "createdAt": "2026-07-01T03:55:08.707Z",
+  "updatedAt": "2026-07-01T03:55:08.707Z",
+  "_hash": "1cd33a729c18eb60c099b4915e85e1ae9940a173275a05897da67cc7e530bd4b"
+}
