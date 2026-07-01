@@ -1,0 +1,66 @@
+{
+  "storyId": "B-3f74",
+  "checkedAt": "2026-07-01T00:16:13.995Z",
+  "features": [
+    {
+      "feature": "Allowed path: docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md for Parent Roadmap status/boundary wording",
+      "covered_by": "CHK-001 and CHK-003 cover documentation wording only: reflect B-e781/B-43de M4-M12 closure with local machine evidence and preserve migration boundary.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist CHK-001/CHK-003; Strengthening Roadmap B-e781 closure ledger."
+    },
+    {
+      "feature": "Allowed path: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md for Proof Admissibility Authority-facing boundary wording",
+      "covered_by": "CHK-002 and CHK-003 cover documentation wording only: classify Authority-facing proof consumer as external/retired compatibility boundary without local productionDone claim.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist CHK-002/CHK-003; Proof Admissibility current vocabulary/status table."
+    },
+    {
+      "feature": "Evidence-only reference: docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "covered_by": "CHK-001 and CHK-003 use this as read/test evidence for B-e781 closure; no planned modification required.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Strengthening Roadmap status, ProofStory Governance Ledger / M4-M12 Child Story Map, and B-e781 closure ledger."
+    },
+    {
+      "feature": "Runtime code changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User scope limits story to docs status/boundary wording; checklist modify paths contain only decision docs. Excluded paths include packages/main/src/**, packages/main/tests/**, scripts/**, and bin/**.",
+      "source": "User scope; checklist files.modify."
+    },
+    {
+      "feature": "Migration, rollout, or repair automation implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story may update wording that migration/repair remains optional/future, but must not implement bulk migration, repair command, or global enforce rollout. Excluded paths include packages/main/src/**, packages/main/dist/**, and scripts/**.",
+      "source": "Parent Roadmap migration/rollout/repair rows; Strengthening Roadmap migration negative-control boundary."
+    },
+    {
+      "feature": "Authority proof implementation or server-backed production proof",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story may clarify compatibility/external/retired Authority wording, but must not implement Authority proof, receipt-backed production completion, authorityDone/fullAuthorityDone/productionDone/receiptVerified semantics, or external adapter behavior.",
+      "source": "User scope; Proof Admissibility non-goals/current vocabulary."
+    },
+    {
+      "feature": "Direct story-file or fixture edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Process instructions require Lattice CLI for story metadata and forbid direct docs/story or fixture edits; .lattice story metadata must not be manually edited.",
+      "source": "AGENTS instructions."
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "505e5c5a452c7835106dbbfe69b3faf3e4e47f48996a38ff881fd0e95ee75bb7",
+  "openQuestions": []
+}
