@@ -178,6 +178,8 @@ const PROFILE_COUNTS: Record<PlaybookRuntimeBaselineProfile, number> = {
 
 const BASELINE_RUNTIME_SHORTLIST_LIMIT = 96;
 const BASELINE_RUNTIME_FIXED_TIME = '2026-07-01T00:00:00.000Z';
+const BASELINE_DEPRECATED_BRAND_MARKER = 'deprecated-brand-marker';
+const BASELINE_DEPRECATED_BRAND_ALIAS = 'legacy-brand-marker';
 
 const BASELINE_PARTITIONS: readonly BaselinePartition[] = [
   'general-irrelevant',
@@ -254,11 +256,11 @@ const GOLD_QUERIES: readonly BaselineGoldQuery[] = [
   },
   {
     id: 'deprecated-brand-residue',
-    query: 'deprecated brand residue koala scanner current proofbound guidance',
+    query: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner current proofbound guidance`,
     expectedIds: ['mem-deprecated-brand-current'],
     mustNotSurfaceIds: ['mem-deprecated-brand-residue', 'pb-deprecated-brand-residue-candidate'],
     expectedSuppressedIds: ['mem-deprecated-brand-residue'],
-    expectedDeprecatedTermHits: ['retired-koala-brand'],
+    expectedDeprecatedTermHits: [BASELINE_DEPRECATED_BRAND_MARKER],
     supersededPreference: { currentId: 'mem-deprecated-brand-current', supersededId: 'mem-deprecated-brand-residue' },
   },
 ];
@@ -408,7 +410,7 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     status: 'current',
     partition: 'stale-doc',
     recordClass: 'deprecated-brand-residue',
-    text: 'deprecated brand residue koala scanner says use current proofbound guidance not legacy brand defaults',
+    text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner says use current proofbound guidance not legacy brand defaults`,
     supersedes: ['mem-deprecated-brand-residue'],
   },
   {
@@ -417,7 +419,7 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     status: 'deprecated',
     partition: 'malformed-adversarial',
     recordClass: 'deprecated-brand-residue',
-    text: 'deprecated brand residue koala legacy default should not surface as current guidance',
+    text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} legacy default should not surface as current guidance`,
   },
   {
     id: 'pb-deprecated-brand-residue-candidate',
@@ -425,16 +427,16 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     status: 'candidate',
     partition: 'playbook-candidates',
     recordClass: 'deprecated-brand-residue',
-    text: 'deprecated brand residue koala candidate should remain inert scanner input',
+    text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} candidate should remain inert scanner input`,
   },
 ];
 
 const BASELINE_SIGNATURE_REGISTRY: SignatureRegistryData = {
   tags: [
     {
-      tag: 'retired-koala-brand',
+      tag: BASELINE_DEPRECATED_BRAND_MARKER,
       status: 'deprecated',
-      aliases: ['koala'],
+      aliases: [BASELINE_DEPRECATED_BRAND_ALIAS],
       mergedInto: 'proofbound',
       createdBy: 'playbook-runtime-baseline',
       approvedBy: null,
@@ -924,7 +926,7 @@ function runMatrixScenario(mutator: (root: string, fixture: {
       const pack = buildMemoryFreshnessPack({
         projectRoot: root,
         consumer: 'session_brief',
-        query: 'memory pack stale digest source mutation matrix retired-koala-brand',
+        query: `memory pack stale digest source mutation matrix ${BASELINE_DEPRECATED_BRAND_MARKER}`,
         touchedPaths: ['packages/main/src/baseline.ts'],
         storyPhase: 'TEST',
         maxEntries: 20,
@@ -935,7 +937,7 @@ function runMatrixScenario(mutator: (root: string, fixture: {
       const initialSurfacePass = pack.results.devMemoryEntryIds.includes(projectEntry.id)
         && pack.results.devMemoryEntryIds.includes(globalEntry.id)
         && pack.results.playbookIds.includes(activePlaybook.id)
-        && pack.results.deprecatedTermHits.includes('retired-koala-brand')
+        && pack.results.deprecatedTermHits.includes(BASELINE_DEPRECATED_BRAND_MARKER)
         && pack.authority === 'non_authoritative'
         && pack.gateEvidence === false;
       mutator(root, { projectEntry, globalEntry, activePlaybook });
@@ -1006,7 +1008,7 @@ function runSourceDigestMutationMatrix(): SourceDigestMutationMatrixResult {
   const signatureRegistryRelevant = runMatrixScenario((root) => {
     writeSignatureRegistry(root, {
       tags: BASELINE_SIGNATURE_REGISTRY.tags.map((tag) =>
-        tag.tag === 'retired-koala-brand' ? { ...tag, createdBy: 'playbook-runtime-baseline-mutated' } : tag),
+        tag.tag === BASELINE_DEPRECATED_BRAND_MARKER ? { ...tag, createdBy: 'playbook-runtime-baseline-mutated' } : tag),
     });
   });
   const signatureRegistryIrrelevant = runMatrixScenario((root) => {
