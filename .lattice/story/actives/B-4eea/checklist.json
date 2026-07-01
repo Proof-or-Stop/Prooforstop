@@ -47,10 +47,10 @@
           "command": "node -e \"<red/probe helper checking baseline commands and memory-pack help visibility>\"",
           "result": "pass",
           "note": "Original red probe now passes on current HEAD: commands exist and handoff_create/done_prepare/story_advance help expose Memory Runtime Preflight or packDigest.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,10 +58,10 @@
           "command": "lattice proofstory_gate_check --storyId=B-4eea --mode=warn --json",
           "result": "pass",
           "note": "ProofStory gate check reports no missing MVP artifacts, no missing milestone coverage, and wouldBlockFutureDevAdmission=false.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,10 +69,10 @@
           "command": "lattice scope_contract_check --storyId=B-4eea --json",
           "result": "pass",
           "note": "Scope contract check passes with 41 changed files and 0 unacknowledged violations after explicit M5-M12 scope alignment.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves handoff_create text includes Memory Runtime Preflight, host-policy hits, and excludes candidate playbooks.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,10 +139,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves handoff_resume carries the pack and permits agy only with a concrete primary failure signal.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves host_dispatch exposes memoryPackDigest/gateEvidence=false and rejects agy fallback without primary failure evidence.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         }
       ]
     },
@@ -210,10 +210,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves story_create STORY_INTAKE surfaces the advisory memory pack through the CLI-visible stderr channel.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,10 +221,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves transition rendering includes runtime memory advisory without treating it as gate evidence.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -232,10 +232,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 regression proves corrupt advisory memory/playbooks do not crash session_brief and candidates stay suppressed.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         }
       ]
     },
@@ -292,10 +292,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke now covers done_prepare directly: DONE prepare output includes Advisory memory considered, memoryAuthority non_authoritative, memoryGateEvidence false, and memoryCompletionProof false.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -303,10 +303,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves final_response_check remains advisory-only even under runtime policy evaluation and completionClaimSource stays ParentRollupResult/current-structured-facts.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -314,10 +314,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke verifies DONE/final-response memory output never becomes proof: memoryCompletionProof is false and gateEvidence remains false.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         }
       ]
     },
@@ -377,10 +377,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline smoke generated/verified exactly 1,000,000 deterministic records.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -388,10 +388,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline smoke reports fullProfileExactMillion=true and deterministic verification success.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -399,10 +399,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline smoke exercises large corpus shape without relying on gateEvidence or mutable runtime memory proof claims.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         }
       ]
     },
@@ -458,10 +458,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline verifier generated and verified exactly 1000000 records through the real MemoryFreshnessPack runtime path, with expectedIdsFoundRate=1 and current-over-superseded preference=1.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.936Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -469,10 +469,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline reports performance without enforcing the p95 target yet; observed elapsedMs about 6577 and peakRssBytes about 845447168 in this run.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -540,10 +540,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
           "note": "Health smoke proves project-configurable required memory classes are evaluated by playbook_runtime_health.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -551,10 +551,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke proves registered consumers keep memory gateEvidence=false during rollout wiring.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -562,10 +562,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Process/runtime fact contracts verify runtime-memory commands are registered with correct non-gate/gate boundaries.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         }
       ]
     },
@@ -622,10 +622,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "MVP2 smoke confirms dev_memory_finish_decision is registered as a runtime-memory command and not gate evidence.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -633,10 +633,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
           "result": "pass",
           "note": "MVP1 regression proves rendered packs preserve authority=non_authoritative and gateEvidence=false for finish-time reuse decisions.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -644,10 +644,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verifies dev_memory_finish_decision remains a process fact entry, not a DONE proof surface.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         }
       ]
     },
@@ -704,10 +704,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
           "note": "Health smoke passes on configured host-policy required runtime memory and confirms playbook_runtime_health remains readOnly and non-authoritative.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -715,10 +715,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
           "note": "Health smoke fails when the project-configured required runtime memory class is missing, proving required memories are config-driven rather than globally hard-coded.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -788,10 +788,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Process and runtime fact contracts pass after final_response_check stays advisory-only and playbook runtime memory commands remain non-gate evidence.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -811,10 +811,10 @@
           "command": "rg -n \"programmatic primary-host probing is an adapter source\" docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
           "result": "pass",
           "note": "Execution plan now scopes agy fallback to explicit structured host-runtime/operator/wrapper failure signals and treats programmatic probing as an adapter source, not an MVP claim.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "headHash": "0a4b536dac10d2e726bd9da292bbc18c76562221",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:34.937Z"
         }
       ]
     }
