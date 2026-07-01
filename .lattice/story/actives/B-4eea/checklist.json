@@ -476,14 +476,14 @@
         },
         {
           "intentRef": "CHK-006:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Baseline smoke includes negative controls: candidate false-surface and superseded false-surface mutations are rejected instead of passing as manifest-only checks.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "note": "Build plus small/full baseline smoke passed at HEAD 33c1cf5db. The smoke now verifies recordsDigestStable/goldDigestStable and includes a gold-queries tamper negative control that fails when manifest goldDigest is not matched.",
+          "headHash": "33c1cf5db7ba6e8fb64087dbd4563df09f7d1707",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:01.337Z"
         }
       ]
     },
@@ -722,14 +722,14 @@
         },
         {
           "intentRef": "CHK-009:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
           "result": "pass",
-          "note": "Health smoke now includes a fake source tree with weak handler tokens only; consumer wiring drift fails unless real MemoryFreshnessPack entrypoint wiring remains present.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "note": "Build plus health smoke passed at HEAD 33c1cf5db. The smoke now rejects non-canonical dev_memory_finish_decision storyIds before path derivation and confirms no outside decision file is written.",
+          "headHash": "33c1cf5db7ba6e8fb64087dbd4563df09f7d1707",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:01.337Z"
         }
       ]
     },
@@ -795,14 +795,14 @@
         },
         {
           "intentRef": "CHK-010:edge:0",
-          "kind": "docs_check",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "MVP2 smoke proves agy-cli remains fallback-only and requires a concrete primaryHostFailure signal before handoff_resume or host_dispatch accepts it.",
-          "headHash": "ce61dbb30c1838cbc965422a017ec3f56213c736",
-          "materialHash": "5fb1421ddf8dcd614d28330e555dbae6c659c0e6788b75c21b56f23a3fb41aab",
-          "storyFilesHash": "e14616fc92e1d097feaa0ac90bec8e334ff8b1fa5f826a1ff75c5651dbe40aff",
-          "timestamp": "2026-07-01T04:48:48.517Z"
+          "note": "Runtime-memory command metadata and process/runtime registries passed at HEAD 33c1cf5db. baseline_generate is now classified as mutating/destructive non-gate output while verify/health/final_response remain read-only advisory consumers.",
+          "headHash": "33c1cf5db7ba6e8fb64087dbd4563df09f7d1707",
+          "materialHash": "3e5aa70560790e610c074babddacd128e20c51a73eefb9952fd27a63a5ac2455",
+          "storyFilesHash": "c8aee4de2de704c5f0bfc77ab55ba2e5147d9e16014ed7da52678d912c4214d7",
+          "timestamp": "2026-07-01T05:03:01.337Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
