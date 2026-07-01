@@ -4,7 +4,7 @@
   "title": "Thread metadataRoot through review-run snapshot + freshness so wrapper-root custom-storyDir metadata-only commits stop false-staling reviewer runs",
   "description": "review_run_start signs review-run material/story hashes (captureReviewRunSnapshot) and the consumer freshness checks (assertCurrentReviewRunForEvidence, validateEvidenceRunBinding) recompute them from signedWorkspaceRoot instead of the resolved metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot) with a custom storyDir, story-metadata paths are wrongly folded into materialHash/storyFilesHash on both the production and consumer sides, so a metadata-only commit to that storyDir falsely flags the reviewer run stale and diverges from the DONE gate / quorum / validation hash semantics. Fix (two-sided, backward-compatible): (1) thread metadataRoot into captureReviewRunSnapshot + diagnoseReviewRunSnapshot and pass workspace.metadataRoot || ctx.root from the handler (default metadataRoot=projectRoot keeps plain repos byte-identical); (2) thread run.workspaceBinding?.metadataRoot ?? projectRoot into the two consumer freshness calls (binding already persists metadataRoot; legacy runs without a binding fall back to projectRoot). Reproduced red via a confirmed-failing probe (rp-mr1fmmur-clkpwd, red-reviewed target-bug) + spike.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -71,6 +71,15 @@
       "timestamp": "2026-07-01T02:51:39.085Z",
       "reviewer": "behavior",
       "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-01T02:58:42.192Z",
+      "branch": "story/B-9dcb",
+      "user": "Harmonygo",
+      "sessionId": "8984fe33-96b9-4c3a-8ab2-c2f86e43e8a6",
       "agent": "main"
     }
   ],

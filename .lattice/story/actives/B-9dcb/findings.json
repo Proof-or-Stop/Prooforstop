@@ -5,7 +5,7 @@
       "desc": "quality-tautology: review-run-metadataroot-wrapper-root-smoke.ts:394-400 Proof C is tautological — both `fallback` and `explicit` call checkEvidenceFreshnessForGit with identical arguments (root, root), so deepEqual always passes and the assertion does not actually exercise the legacy-fallback path through the consumer code (run.workspaceBinding?.metadataRoot ?? projectRoot). The test is supposed to verify that a ReviewRun with no workspaceBinding falls back to projectRoot, but it never constructs such a run or calls assertCurrentReviewRunForEvidence; it only compares a function with itself.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-01T02:53:49.806Z",
@@ -16,14 +16,16 @@
         "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-tautology-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@b16042c"
     },
     {
       "id": "B-9dcb:F-002",
       "desc": "CHK-004:edge:0 intent says signReviewRun + workspaceBinding signatures byte-identical for the default/plain-repo case (guard asserts), but Proof D only exercises captureReviewRunSnapshot and checkEvidenceFreshnessForGit byte-identity. signReviewRun and buildReviewRunWorkspaceBinding are not called in Proof D. The property holds transitively but the smoke does not directly guard-assert signing byte-identity as the intent claims. Evidence pointer is mislabeled for this specific claim.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-01T02:54:00.080Z",
@@ -34,7 +36,9 @@
         "packages/main/src/tasks/review-run-metadataroot-wrapper-root-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-intent-says",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@b16042c"
     }
   ]
 }
