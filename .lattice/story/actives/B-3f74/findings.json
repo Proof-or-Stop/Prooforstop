@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-3f74:F-001",
+      "desc": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:32 still says the built-in `migration` and `B-43de` samples expose partial parent governance and needed rows. That conflicts with the B-e781 closure claim and the read-only status check `lattice parent_roadmap_status --storyId=B-43de --json`, which reports `allRowsClosed=true`, `openRows=[]`, and `summaryClass=full_roadmap_complete` for B-43de. This leaves the scoped Parent Roadmap doc internally inconsistent about whether B-43de M4-M12 is closed or still partial/open.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-01T00:26:29.064Z",
+      "reviewRound": "2026-07-01T00:24:23.508Z",
+      "reviewRunId": "B-3f74:RR-004",
+      "_hash": "4dd1a1dccf6fb3b9fd0cabc7c4ee8cfd0710aae322c8a390a6f1ec8804fc2f9d",
+      "files": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
