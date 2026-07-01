@@ -484,7 +484,22 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -n 'make-fig-gate-ablation.mjs' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README has a '## Figure generator (make-fig-gate-ablation.mjs)' section naming the script, its input powered/*.jsonl (excluding voids), and outputs fig-gate-ablation.svg/.csv",
+          "headHash": "c60dce40ddc10b55548ae9b3f60421d0315bcd04",
+          "materialHash": "6bce0a02ddf684df420f8848b38e0bb226b8381852e975e2717ae23de04fd559",
+          "storyFilesHash": "5fbb131c707e708e2367d19873cbe9b601fca6905354ab100ae960ada18b0f62",
+          "timestamp": "2026-07-01T02:15:36.128Z"
+        }
+      ]
     }
   ]
 }
