@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-4eea",
+  "state": "confirmed",
+  "ledgerHash": "sha256:8c48a961d35bcb69785326912b17f6b1b3ee34c41b7c2b24c2ab3564b01d8b07",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-M0",
+      "claim": "Pre-story red/repro/spike binding is preserved",
+      "doneMeans": "Probe/review/spike artifacts are referenced, candidate-only, and not used as DONE proof",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5",
+      "claim": "Handoff and host-entry consumers include runtime memory pack",
+      "doneMeans": "handoff_create/handoff_resume/host dispatch outputs show packDigest/top IDs, primary host policy, and agy fallback-only reason",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-M6",
+      "claim": "Story intake and lifecycle consumers include runtime memory pack",
+      "doneMeans": "story_create/repro-first/story_advance surfaces phase-appropriate advisory playbooks without unregistered blocking",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-M7",
+      "claim": "DONE/final response surfaces runtime memory while relying on structured facts",
+      "doneMeans": "done_prepare/done_closure/final-response check shows advisory memory and checks full-roadmap wording against ParentRollupResult/current facts",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M9",
+      "sourceRequirementId": "REQ-M9",
+      "claim": "Million-record baseline generator exists and is material-safe",
+      "doneMeans": "generator produces exactly 1,000,000 deterministic records in full profile, stable digest, corrupt rows, gold queries, and gitignored/temp output",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M10",
+      "sourceRequirementId": "REQ-M10",
+      "claim": "Million-record verifier passes correctness and reports performance",
+      "doneMeans": "verifier checks thresholds, line cap, stale detection, peak memory budget, and report-first performance",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "P3",
+      "sourceRequirementId": "REQ-P3",
+      "claim": "Warn/enforce rollout policy is registered and baseline-gated",
+      "doneMeans": "default advisory remains; warn/enforce only for registered critical consumers after M10 correctness passes",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "REQ-M8",
+      "claim": "Capture-or-noop end-of-work decision exists",
+      "doneMeans": "command/reminder records captured, no-reusable-lesson, or deferred-with-reason without auto-promotion",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M11",
+      "sourceRequirementId": "REQ-M11",
+      "claim": "Runtime memory health/drift scanner exists",
+      "doneMeans": "health checks configured required classes, active playbooks, deprecated guidance, consumer wiring, and baseline availability",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-009"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:edge:0",
+        "CHK-009:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M12",
+      "sourceRequirementId": "REQ-M12",
+      "claim": "Rollout/runbook and 3x2 verification complete",
+      "doneMeans": "docs and verification show advisory/warn/blocking rollout, Codex+Claude digest parity/stale classification, agy fallback only, and no memory-as-evidence confusion",
+      "requiredEvidence": [
+        "build",
+        "focused-smoke",
+        "verificationEvidence",
+        "story-review",
+        "routine-validate"
+      ],
+      "checklistRefs": [
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-010:happy:0",
+        "CHK-010:edge:0",
+        "CHK-010:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-01T04:00:36.227Z",
+  "updatedAt": "2026-07-01T04:00:36.723Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "B-4eea-full-m5-m12-intent",
+    "acceptedInterpretationHash": "sha256:e3725ffeba08693d5176924c1f10313a051b036ba0643938629ee0cea29b081e",
+    "acceptedAt": "2026-07-01T04:00:36.723Z"
+  }
+}
