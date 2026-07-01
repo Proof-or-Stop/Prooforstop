@@ -1,0 +1,25 @@
+{
+  "storyId": "B-b596",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g01-baseline-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/parent-roadmap-totality.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "packages/main/src/core/parent-roadmap-totality.ts"
+  ],
+  "scopeChangeReason": "B-b596 implements only the G01 baseline smoke and documentation/validation binding; it must not change the parent-roadmap evaluator or other roadmap documents.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T00:33:06.133Z",
+  "updatedAt": "2026-07-01T00:33:06.133Z"
+}
