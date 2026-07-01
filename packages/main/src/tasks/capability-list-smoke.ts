@@ -1,5 +1,22 @@
 #!/usr/bin/env node
 
+/**
+ * @task B-3b99
+ * @checklist CHK-002
+ * @title Smoke local assurance authorityImpact degradation mapping
+ * @type test
+ * @priority high
+ * @description
+ *   Smoke-backed evidence that the retired authorityImpact:
+ *   "none" | "localOnly" | "requiresAuthorityReceipt"; phrase maps to current
+ *   local assurance semantics only. The assertions below require local-only
+ *   proofAdmissibility, signed-offline-local receipt bundle verification,
+ *   authorityImpact=local-assurance-required degradations, and no
+ *   productionDone claim from capability discovery.
+ * @changes
+ *   - [CHK-002] Assert capability discovery cannot manufacture productionDone.
+ *   - [CHK-002] Assert receipt-verify degradation uses local-assurance-required instead of requiresAuthorityReceipt.
+ */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

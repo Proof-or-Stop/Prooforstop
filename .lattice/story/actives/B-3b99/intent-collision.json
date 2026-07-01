@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3b99",
+  "id": "IC-B-3b99-001",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement only explicit machine-visible mappings and smoke-backed evidence needed to close the current 9 high-priority gap_analyze findings. Do not implement retired Authority Server receipt semantics, do not merge stale B-fbb6 contents, and do not claim convergence until gap_analyze/convergence_check prove it.",
+  "acceptedInterpretationHash": "sha256:797d980227c64e6b2d44f79ce510b0cc8619b3b7dd4f91443695eefbb7392dbc",
+  "notes": "No scope shrinkage: this keeps the user intent of all current high convergence gaps closed, while excluding stale branch pollution and retired semantics.",
+  "createdAt": "2026-07-01T17:33:26.557Z",
+  "updatedAt": "2026-07-01T17:33:26.557Z"
+}

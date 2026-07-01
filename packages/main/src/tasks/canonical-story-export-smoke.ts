@@ -1,5 +1,21 @@
 #!/usr/bin/env node
 
+/**
+ * @task B-3b99
+ * @checklist CHK-002
+ * @title Smoke canonical story local assurance export
+ * @type test
+ * @priority high
+ * @description
+ *   Smoke-backed evidence that canonical story export keeps local DONE separate
+ *   from productionDone and surfaces local assurance gaps as visible
+ *   degradations. This maps localOnly / requiresAuthorityReceipt intent to
+ *   local-assurance-incomplete with authorityImpact blocks-production-done,
+ *   without reintroducing Authority Server receipt behavior.
+ * @changes
+ *   - [CHK-002] Assert lifecycle.productionDone stays false for local DONE.
+ *   - [CHK-002] Assert local-assurance-incomplete is exported with authorityImpact blocks-production-done.
+ */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

@@ -1,3 +1,22 @@
+/**
+ * @task B-3b99
+ * @checklist CHK-001
+ * @title Map Autopilot provider health pause and resume events
+ * @type refactor
+ * @priority high
+ * @description
+ *   Machine-visible mapping for Autopilot v2 reliability provider-health
+ *   transition semantics. Transient provider failures emit health_probe,
+ *   provider_unhealthy, and either waiting_for_provider_health while the
+ *   process is alive or paused_requires_resume when the process is no longer
+ *   alive. Recovery emits health_probe, health_recovered, and resumed from
+ *   committed checkpoint state.
+ * @changes
+ *   - [CHK-001] health_probe and provider_unhealthy classify retryable provider health failures.
+ *   - [CHK-001] waiting_for_provider_health maps to in-process wait/re-probe semantics.
+ *   - [CHK-001] paused_requires_resume maps to a safe-boundary pause that requires autopilot_resume or autopilot_watch.
+ *   - [CHK-001] health_recovered and resumed map to provider recovery followed by checkpoint-safe continuation.
+ */
 export const AUTOPILOT_RELIABILITY_SCHEMA_VERSION = 'lattice.autopilot_reliability.v1' as const;
 
 export const CURRENT_AUTOPILOT_HOST_BASELINE = ['codex', 'claude-code', 'antigravity'] as const;

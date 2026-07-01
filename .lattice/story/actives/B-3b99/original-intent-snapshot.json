@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3b99",
+  "sourceText": "User asked to solve the remaining convergence blockers one by one until all are DONE. After B-fbb6 was safely discarded as stale/unsafe, convergence_check reports 9 high-priority uncovered_requirement gaps. This story must close those high gaps truthfully without fake completion.",
+  "normalizedOutcome": "lattice gap_analyze --json reports zero high-priority gaps and lattice convergence_check --json passes No high-priority gaps, while retired Authority Server semantics and stale B-fbb6 branch contents are not reintroduced.",
+  "acceptanceClaim": "B-3b99 is DONE only if fresh build/smoke evidence passes and convergence_check shows No high-priority gaps passed; any remaining parked Tier-C stories stay advisory, not blocking.",
+  "keyRequirementIds": [
+    "REQ-HIGH-GAPS-ZERO",
+    "REQ-NO-AUTHORITY-REVIVAL",
+    "REQ-NO-BFBB6-MERGE"
+  ],
+  "requestHash": "sha256:46dcbc12710bdab2770a1b5e45f898884da1c42573c3c8b08818a54c1949dd52",
+  "createdAt": "2026-07-01T17:33:26.531Z",
+  "updatedAt": "2026-07-01T17:33:26.531Z"
+}
