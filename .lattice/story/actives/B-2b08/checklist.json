@@ -148,9 +148,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-01T02:56:43.843Z",
       "verificationIntent": {
         "happy": [
           {
@@ -230,6 +230,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented by 4e0a93f5 and verified by build plus version-bump smoke preserving runtime-input behavior.",
+      "agent": "codex-main-agent"
+    },
+    {
+      "timestamp": "2026-07-01T02:56:43.843Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented by 4e0a93f5 and verified by story-lifecycle docs checks.",
       "agent": "codex-main-agent"
     }
   ]
