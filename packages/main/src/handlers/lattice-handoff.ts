@@ -35,6 +35,16 @@ import { createLearningValidateHandlers } from './learning-validate.js';
 import { createSessionHandlers } from './session.js';
 import { createStoryQueryHandlers } from './story-query.js';
 import { createSummaryHandlers } from './summary.js';
+import {
+  assertRuntimeHostPolicyAllowed,
+  buildMemoryFreshnessPack,
+  evaluateRuntimeHostPolicy,
+  normalizeRuntimeHostAliasForCapabilityRegistry,
+  renderMemoryFreshnessPack,
+  renderMemoryFreshnessPackSummary,
+  runtimeMemoryTopHits,
+  type RuntimeHostPolicyDecision,
+} from '../core/playbook-runtime-memory.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -389,6 +399,7 @@ function buildHostDispatchPrefetchManifest(
   preflight: HostDispatchPrefetch,
   supersession: HostDispatchSupersessionReport,
   storyIsDone: boolean,
+  hostPolicy?: RuntimeHostPolicyDecision,
 ): HostDispatchPrefetchManifest {
   const staleSignals: string[] = [];
   const allUnavailable = [
@@ -428,6 +439,11 @@ function buildHostDispatchPrefetchManifest(
           ? 'doneStorySummary.available'
           : 'ready-for-open-work',
       staleSignals,
+      ...(preflight.memoryFreshnessPack ? {
+        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      } : {}),
+      ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
   }
 
@@ -439,6 +455,11 @@ function buildHostDispatchPrefetchManifest(
       verdict: 'uncertain',
       winSignal: `supersession(${supersession.winner})`,
         staleSignals,
+      ...(preflight.memoryFreshnessPack ? {
+        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      } : {}),
+      ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
   }
 
@@ -455,6 +476,11 @@ function buildHostDispatchPrefetchManifest(
       verdict: 'uncertain',
       winSignal: 'requires_revalidation',
       staleSignals,
+      ...(preflight.memoryFreshnessPack ? {
+        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      } : {}),
+      ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
   }
 
@@ -465,10 +491,40 @@ function buildHostDispatchPrefetchManifest(
     verdict: 'no-block',
     winSignal: 'activeStorySummary/gapAnalyze/learningValidate',
     staleSignals,
+    ...(preflight.memoryFreshnessPack ? {
+      memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
+      memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+    } : {}),
+    ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
   };
 }
 
-function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHost: string): {
+function buildHandoffRuntimeMemoryPack(ctx: HandlerContext, args: {
+  storyId: string;
+  host?: string;
+  phase?: string;
+  objective?: string;
+  consumer?: 'host_handoff';
+}) {
+  return buildMemoryFreshnessPack({
+    projectRoot: ctx.root,
+    consumer: args.consumer ?? 'host_handoff',
+    storyPhase: args.phase,
+    host: args.host,
+    query: [
+      `story:${args.storyId}`,
+      args.host ?? '',
+      args.objective ?? '',
+      'handoff host-policy codex-cli claude-cli agy fallback unavailable quota timed-out',
+      'stale-doc truth-first repro-first intent-totality delivery',
+    ].filter(Boolean).join(' '),
+    maxEntries: 5,
+    maxPlaybooks: 5,
+    maxLines: 60,
+  });
+}
+
+function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHost: string, hostPolicy?: RuntimeHostPolicyDecision): {
   preflight: HostDispatchPrefetch;
   prefetchManifest: HostDispatchPrefetchManifest;
 } {
@@ -488,6 +544,12 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
   const gapAnalyzeSummary = runSnapshot('gap_analyze', () => gapHandlers.gap_analyze());
   const learningSignalSummary = runSnapshot('learning_validate', () =>
     learningHandlers.learning_validate({ story: pack.storyId, json: true }));
+  const memoryFreshnessPack = buildHandoffRuntimeMemoryPack(ctx, {
+    storyId: pack.storyId,
+    phase: pack.recoveryPoint.phase,
+    host: requestedHost || pack.toHost,
+    objective: pack.objective,
+  });
 
   const activeStory = (activeStorySummary.parsed && typeof activeStorySummary.parsed === 'object')
     ? (activeStorySummary.parsed as Record<string, unknown>)
@@ -509,6 +571,7 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
     computedAt: new Date().toISOString(),
     sessionBrief,
     devMemoryPreflight,
+    memoryFreshnessPack,
     activeStorySummary,
     doneStorySummary,
     gapAnalyzeSummary,
@@ -517,7 +580,7 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
   };
 
   const preflightHost = requestedHost.trim().length > 0 ? requestedHost : pack.toHost;
-  const prefetchManifest = buildHostDispatchPrefetchManifest(pack.storyId, preflightHost, preflight, supersession, storyIsDone);
+  const prefetchManifest = buildHostDispatchPrefetchManifest(pack.storyId, preflightHost, preflight, supersession, storyIsDone, hostPolicy);
   return { preflight, prefetchManifest };
 }
 
@@ -530,6 +593,10 @@ function readResumeSource(file: string, options: HandoffAdmissibilityOptions): H
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
+}
+
+function renderHandoffMemoryText(pack: ReturnType<typeof buildHandoffRuntimeMemoryPack>): string {
+  return `\n\n${renderMemoryFreshnessPack(pack)}`;
 }
 
 export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -549,16 +616,23 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       authorityBoundary?: string;
       executionInstructions?: string[] | string;
       admissibleProofRefs?: string[] | string;
+      primaryHostFailure?: string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
+      const hostPolicy = evaluateRuntimeHostPolicy({
+        requestedHost: args.toHost,
+        primaryHostFailure: args.primaryHostFailure,
+      });
+      assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_create');
+      const fromCapabilityHost = normalizeRuntimeHostAliasForCapabilityRegistry(args.fromHost);
       const policy = resolveProofAdmissibilityPolicy(ctx.root);
       const admissibleProofRefs = normalizeListOrEmpty(args.admissibleProofRefs);
       const pack = createHandoffPack(ctx.store, ctx.root, {
         storyId: args.storyId,
-        fromHost: args.fromHost,
-        toHost: args.toHost,
+        fromHost: fromCapabilityHost,
+        toHost: hostPolicy.capabilityHostId,
         role: args.role,
         objective: args.objective,
         allowedPaths: normalizeList(args.allowedPaths),
@@ -572,6 +646,13 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         admissibleProofRefs,
         policy,
       });
+      pack.memoryFreshnessPack = buildHandoffRuntimeMemoryPack(ctx, {
+        storyId: pack.storyId,
+        phase: pack.recoveryPoint.phase,
+        host: pack.toHost,
+        objective: pack.objective,
+      });
+      pack.runtimeHostPolicy = hostPolicy;
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, pack);
@@ -599,6 +680,10 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         ...(pack.phaseAuthorityWarning
           ? [`⚠ phaseAuthority (${pack.phaseAuthorityWarning.relation}): ${pack.phaseAuthorityWarning.message}`]
           : []),
+        `runtimeHostPolicy: ${hostPolicy.canonicalHost} role=${hostPolicy.role} allowed=${hostPolicy.allowed}`,
+        `runtimeHostPolicyCapabilityHost: ${hostPolicy.capabilityHostId}`,
+        `runtimeHostPolicyReason: ${hostPolicy.reason}`,
+        renderHandoffMemoryText(pack.memoryFreshnessPack),
         outputNote.trimEnd(),
       ].filter(Boolean).join('\n');
     },
@@ -634,6 +719,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       file: string;
       resumeHost?: string;
       admissibleProofRefs?: string[] | string;
+      primaryHostFailure?: string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
@@ -642,14 +728,26 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       const admissibleProofRefs = normalizeList(args.admissibleProofRefs);
       const options = handoffAdmissibilityOptions(policy, admissibleProofRefs);
       const source = readResumeSource(resolve(process.cwd(), args.file), options);
-      const projection = buildHandoffResumeProjection(source, { resumeHost: args.resumeHost, ...options });
+      const targetHost = args.resumeHost ?? (source.schemaVersion === 'lattice.handoff_accept.v1' ? source.acceptedByHost : source.toHost);
+      const hostPolicy = evaluateRuntimeHostPolicy({
+        requestedHost: targetHost,
+        primaryHostFailure: args.primaryHostFailure,
+      });
+      assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_resume');
+      const projection = buildHandoffResumeProjection(source, { resumeHost: hostPolicy.capabilityHostId, ...options });
+      const memoryFreshnessPack = projection.memoryFreshnessPack ?? buildHandoffRuntimeMemoryPack(ctx, {
+        storyId: projection.storyId,
+        phase: projection.recoveryPoint.phase,
+        host: projection.resumeHost,
+      });
+      const enriched = { ...projection, memoryFreshnessPack, runtimeHostPolicy: hostPolicy };
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
-        writeJsonNoOverwrite(outputPath, projection);
+        writeJsonNoOverwrite(outputPath, enriched);
       }
-      if (wantsJson(args)) return projection;
+      if (wantsJson(args)) return enriched;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
-      return [renderHandoffResumeText(projection), outputNote.trimEnd()].filter(Boolean).join('\n');
+      return [renderHandoffResumeText(enriched), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     handoff_receipt_submit(args: {
       file: string;
@@ -692,15 +790,21 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       file: string;
       mode?: 'supervised';
       admissibleProofRefs?: string[] | string;
+      primaryHostFailure?: string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
       const policy = resolveProofAdmissibilityPolicy(ctx.root);
       const pack = readHandoffPack(resolve(process.cwd(), args.file), handoffAdmissibilityOptions(policy, normalizeList(args.admissibleProofRefs)));
-      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, args.host);
+      const hostPolicy = evaluateRuntimeHostPolicy({
+        requestedHost: args.host,
+        primaryHostFailure: args.primaryHostFailure,
+      });
+      assertRuntimeHostPolicyAllowed(hostPolicy, 'host_dispatch');
+      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, hostPolicy.capabilityHostId, hostPolicy);
       const result = buildHostDispatchProjection(pack, {
-        host: args.host,
+        host: hostPolicy.capabilityHostId,
         mode: args.mode,
         preflight,
         prefetchManifest,

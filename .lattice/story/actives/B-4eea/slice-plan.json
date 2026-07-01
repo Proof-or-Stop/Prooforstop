@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-4eea",
+  "ledgerHash": "sha256:8c48a961d35bcb69785326912b17f6b1b3ee34c41b7c2b24c2ab3564b01d8b07",
+  "slices": [
+    {
+      "id": "slice-mvp2-consumers-and-generator-red",
+      "milestoneIds": [
+        "M0",
+        "M5",
+        "M6",
+        "M7",
+        "M9"
+      ],
+      "reason": "First slice covers candidate red/spike control and advisory consumer wiring before the scale verifier."
+    },
+    {
+      "id": "slice-scale-rollout-health-and-verification",
+      "milestoneIds": [
+        "M10",
+        "P3",
+        "M8",
+        "M11",
+        "M12"
+      ],
+      "reason": "Second slice covers the baseline verifier, rollout, capture/noop, health, and final multi-host verification."
+    }
+  ],
+  "planHash": "sha256:faf64a3e39706934978d396a4b19f13fee42175d39b93ef8d20e44a23a0f5ba0",
+  "createdAt": "2026-07-01T04:01:34.539Z",
+  "updatedAt": "2026-07-01T04:01:34.539Z"
+}

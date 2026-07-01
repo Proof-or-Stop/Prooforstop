@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-d278",
+  "state": "confirmed",
+  "ledgerHash": "sha256:0984e281a0c8b9c425afa3b4843662d72cadc115d0a4382060394774239453c8",
+  "milestones": [
+    {
+      "id": "M-G04",
+      "sourceRequirementId": "REQ-G04",
+      "claim": "G04 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G04 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G05",
+      "sourceRequirementId": "REQ-G05",
+      "claim": "G05 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G05 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G06",
+      "sourceRequirementId": "REQ-G06",
+      "claim": "G06 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G06 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G07",
+      "sourceRequirementId": "REQ-G07",
+      "claim": "G07 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G07 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G08",
+      "sourceRequirementId": "REQ-G08",
+      "claim": "G08 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G08 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G09",
+      "sourceRequirementId": "REQ-G09",
+      "claim": "G09 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G09 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-G10",
+      "sourceRequirementId": "REQ-G10",
+      "claim": "G10 baseline group is implemented as a runnable deterministic smoke matching the documented scenario.",
+      "doneMeans": "parent-roadmap large-ledger G10 baseline smoke PASS is produced by the group smoke after packages/main is built, with logic assertions covering happy, edge, and adversarial cases.",
+      "requiredEvidence": [
+        "group_smoke_pass",
+        "logic_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    },
+    {
+      "id": "M-AGG-DOCS",
+      "sourceRequirementId": "REQ-AGG-DOCS",
+      "claim": "Full aggregate 10x15 baseline and documentation are complete only after all ten groups are represented and all commands pass.",
+      "doneMeans": "Aggregate smoke prints parent-roadmap large-ledger 10x15 baseline smoke PASS, evaluates exactly 150 rows, and docs mark G01-G10 implemented with no elevated external claims.",
+      "requiredEvidence": [
+        "aggregate_smoke_pass",
+        "docs_check",
+        "group_matrix_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "assignedStory": "B-d278",
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-01T03:06:24.742Z",
+  "updatedAt": "2026-07-01T03:06:44.536Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-B-d278-g04-g10-aggregate-final",
+    "acceptedInterpretationHash": "sha256:a128bdea516484a264e304b76f922d1b2c55cd90c46b87b9873f880bf8826450",
+    "acceptedAt": "2026-07-01T03:06:44.536Z"
+  }
+}

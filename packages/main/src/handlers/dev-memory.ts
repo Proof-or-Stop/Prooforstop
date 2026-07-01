@@ -321,8 +321,9 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       `  lattice dev_memory_finish                    # report project entries (no story required)`,
       `  lattice dev_memory_finish --scope=global     # promote to global dev-memory`,
       `  lattice dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
+      `  lattice dev_memory_finish_decision --decision=captured|no-reusable-lesson|defer-with-reason`,
       ``,
-      `Project entries are retained automatically. --storyId is optional.`,
+      `Project entries are retained automatically. No decision automatically promotes project/global memory.`,
     ].join('\n');
     return preflightText + reminder;
   }

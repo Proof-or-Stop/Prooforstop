@@ -1,0 +1,39 @@
+{
+  "task": "Complete the remaining Playbook Runtime Memory Consumption plan after B-cc94 MVP1 without shrinking M5-M12 scope.",
+  "outcome": "The user can run the new/updated Proofbound CLI surfaces and see Memory Runtime Preflight in session, handoff, story lifecycle, DONE closure, health, and rollout outputs; the 1,000,000-record baseline generator/verifier passes correctness; final status shows every M5-M12 row complete with memory still marked non-authoritative gateEvidence:false.",
+  "facts": [
+    "B-cc94 completed MVP1/M0-M4 only: session_brief and dev_memory_start consume MemoryFreshnessPack.",
+    "playbook-runtime-memory-consumption-execution-plan.md defines M5-M12 as the remaining completion scope and says full runtime-memory-consumption completion requires 1M correctness baseline.",
+    "Pre-story red probe rp-mr1jjulp-nb58yf fails on missing M5-M12 command/consumer surfaces; repro review rr-mr1jk20o-bqqxy9 classifies it as target-bug.",
+    "Confirmed spike sr-mr1jk9ww-n86ajg / sr-mr1jkgg2-poc49t found the existing MemoryFreshnessPack core and handler/registry entrypoints can be extended.",
+    "Memory/playbooks are advisory context only: authority=non_authoritative and gateEvidence=false must remain invariant."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not treat memory/playbooks as gate evidence, DONE proof, or release readiness.",
+    "Codex CLI and Claude Code CLI are the two primary hosts for 3x2 verification; agy-cli is fallback only when a primary is unavailable/quota-limited.",
+    "Generated 1M baseline payloads must default to temp/gitignored runtime output and avoid materialHash/story evidence pollution.",
+    "No full completion claim while any M5-M12 ledger row is open, deferred without human approval, or unverified."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/core/playbook-memory-baseline.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+  ],
+  "timestamp": "2026-07-01T04:00:35.511Z"
+}

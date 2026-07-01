@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-0b76:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. The only removed line is a README comment updating the selfcheck count from 7 to 8 — a documentation number update, not a concept word deletion. All three new files (make-fig-gate-ablation.mjs, make-fig-gate-ablation-selfcheck.mjs, run-selfchecks.mjs edit) are purely additive. Concept residue check completed; no blocker.",
+      "createdAt": "2026-07-01T02:17:35.659Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-001",
+      "_hash": "e96d3fbcb066b28da22544b524e3222303019231de9e018f09605c3cb4390ef6"
+    },
+    {
+      "id": "B-0b76:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 8 exported symbols extracted (readRecords, aggregate, toCSV, renderSVG, cellKey, ARMS, META, run/main). Step 2/3: 1 README paragraph compared (## Figure generator section). All claims verified against make-fig-gate-ablation.mjs: (1) input = powered/*.jsonl excluding *.voids.jsonl — CONFIRMED by readRecords filter; (2) dedup keep-first by arm|taskId|scenarioId|repeat — CONFIRMED by cellKey + seen Set; (3) counts adjudicatedOutcome — CONFIRMED in aggregate(); (4) outputs fig-gate-ablation.svg + .csv — CONFIRMED in run(); (5) exported readRecords/aggregate/toCSV/renderSVG — CONFIRMED, all four export keywords present; (6) selfcheck count = 8 — CONFIRMED, run-selfchecks.mjs SELFCHECKS array has exactly 8 entries after adding make-fig-gate-ablation-selfcheck.mjs; (7) does NOT compute bootstrap CI — CONFIRMED, code only counts, comment explicitly delegates CI to analyze.mjs; (8) does NOT edit the paper — CONFIRMED, no main.tex or paper file writes. No doc-code drift found.",
+      "createdAt": "2026-07-01T02:18:21.795Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-004",
+      "_hash": "27cf74775f69cd729fb4c75003e1f0f302b6252dbc15b7641799bae18c5acff5"
+    },
+    {
+      "id": "B-0b76:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No quality issues found. All imports used, no dead code, no silent catch swallowing (the one bare catch at readRecords line 59 is intentional documented defense for malformed JSONL). Error handling correct: nonexistent dir throws clear not-found Error; empty dataset returns wrote:false without writing artifacts; main() converts any thrown error to a single-line stderr+exit1. No new external deps (all node:* builtins). Import-guarded main correct. Deterministic file ordering via .sort(). Selfchecks: 38/38 and 8/8 pass. No doc-promise-undelivered issues in the diff.",
+      "createdAt": "2026-07-01T02:18:43.483Z",
+      "reviewRound": "2026-07-01T02:16:39.502Z",
+      "reviewRunId": "B-0b76:RR-002",
+      "_hash": "c408163dc09ae3bd8fd32ffa81c38f7fe3bf570622a8477064d9d6ac2542eea8"
+    },
+    {
+      "id": "B-0b76:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 10 exported symbols extracted (ARMS, META, cellKey, readRecordsWithStats, readRecords, aggregate, toCSV, renderSVG, run, main). Step 2: 1 README section compared (Figure generator section + dedup-consistency note in experiments/recovery-runner/README.md). All claims verified against make-fig-gate-ablation.mjs code: (1) dedup transparency line format matches exactly; (2) conflict guard hard-throws on differing adjudicatedOutcome matches code; (3) keep-first via continue matches code; (4) cell key arm|taskId|scenarioId|repeat matches cellKey(); (5) exported pure functions list matches export declarations; (6) selfcheck count 8 matches run-selfchecks.mjs with 8 entries; (7) counts-only / no re-classify / no CI / no paper-edit claims match code comments and aggregate(); (8) analyze.mjs does-not-dedup advisory matches code comment. No doc-code drift, no over-claim, no under-claim, no doc-promise-undelivered.",
+      "createdAt": "2026-07-01T02:32:58.394Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-007",
+      "_hash": "43ce917286279c93b3dbe72ee57cfe49dcbcd97c2f994c8feb08eec0431ea45a"
+    },
+    {
+      "id": "B-0b76:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-attest @ f17c76f0: reviewed make-fig-gate-ablation.mjs (readRecordsWithStats + readRecords thin wrapper + conflict-guard) and make-fig-gate-ablation-selfcheck.mjs (self-spawn exit-1 test). No dead code, no unused imports, no new deps. Conflict guard correctly uses !== on adjudicatedOutcome (null-safe per data contract). Self-spawn uses FORCE_FAIL guard to prevent grandchild recursion. All 43 selfcheck assertions pass; FIG_SELFCHECK_FORCE_FAIL=1 exits 1; run-selfchecks 8/8 pass.",
+      "createdAt": "2026-07-01T02:33:54.296Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-006",
+      "_hash": "9c56b15680150c0187bc720a8ff68af8ca674cacc53ba13f1b37b1330b9703e4"
+    },
+    {
+      "id": "B-0b76:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-attest @ f17c76f0. No concept deletions or replacements in this diff. Generator only COUNTs adjudicatedOutcome (line 119: r.adjudicatedOutcome === amplified), zero imports from adjudicate.mjs or analyze.mjs, no classification logic. Conflict guard is conceptually sound: firstOutcome Map tracks keep-first outcome per cellKey, hard-throws on disagreeing duplicates (message contains conflicting), agreeing duplicates are safe keep-first. No concept residue to scan: diff adds new files only; the seen Set → firstOutcome Map substitution is a private implementation variable, not a named concept. Selfcheck counter update (7)→(8) in README is accurate. Adjudicate/analyze semantic boundary is respected throughout.",
+      "createdAt": "2026-07-01T02:33:56.879Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-005",
+      "_hash": "e5fb6292e5f54451b01287a0fee64677592a3cf395d49f3b8f5ead5900fe2091"
+    },
+    {
+      "id": "B-0b76:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-attest @ f17c76f0: F-001 gap closed. CHK-002:adversarial:0 is now reproducibly demonstrated by the bound command: the normal selfcheck run (node make-fig-gate-ablation-selfcheck.mjs) includes a SELF-TEST group (lines 256-265) that self-spawns a FIG_SELFCHECK_FORCE_FAIL=1 child and asserts child.status===1 — confirmed live: 43 assertions passed (spawn-assert included), exits 0. FIG_SELFCHECK_FORCE_FAIL=1 child exits 1 as expected. All 26 evidence items reviewed: each is a logic_test or docs_check with verdict=success backed by selfcheck (43 assertions) or docs grep commands, all confirmed runnable. validate staleness (0/26 stale-headHash) is a pre-existing mechanical artifact from lattice metadata commits advancing HEAD after evidence was stamped — unchanged from round 1 baseline, not introduced by the F-001 fix. No new coverage gap found.",
+      "createdAt": "2026-07-01T02:48:34.709Z",
+      "reviewRound": "2026-07-01T02:31:20.795Z",
+      "reviewRunId": "B-0b76:RR-008",
+      "_hash": "2fe57e90e61b01f8e30256799fc7de2ca49b68d022a4543c46f28efe0dddb93e"
+    },
+    {
+      "id": "B-0b76:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this change. The diff is purely additive (two new files + one-line run-selfchecks.mjs addition + README section). The only removed line is a README comment updating selfcheck count 7→8. Confirmed: make-fig-gate-ablation.mjs ONLY counts adjudicatedOutcome (aggregate() checks r.adjudicatedOutcome === amplified — no re-classification). Dedup conflict-guard is sound: readRecords throws when same cell key carries different adjudicatedOutcome values. No semantic drift from adjudicate/analyze semantics. Concept residue check: no concept deleted/replaced, grep check not triggered. No blocker.",
+      "createdAt": "2026-07-01T05:00:55.321Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-009",
+      "_hash": "9c98ae07b69609f0218f3a59a7a7d7413e9f2331c2485d03b194d350055d6620"
+    },
+    {
+      "id": "B-0b76:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-attest. Deliverable byte-identical to prior PASS (f17c76f0); only main merged in. Checked make-fig-gate-ablation.mjs + selfcheck + run-selfchecks.mjs + README. (1) Dead code: none — all imports used, all exports consumed by selfcheck or CLI. (2) Type safety: pure JS .mjs, no as-any, one intentional empty-catch for malformed JSONL lines is documented design (defensive skip of truncated writes). (3) I/O isolation: N/A — experiments script, no bridge.ts boundary. (4) Doc-promise-undelivered: README promises readRecordsWithStats, readRecords, conflict guard (F-002), and exit-1 self-test (F-001) — all confirmed implemented in code. Selfchecks: 43/43 (make-fig-gate-ablation) + 8/8 (run-selfchecks). 0 findings.",
+      "createdAt": "2026-07-01T05:01:09.904Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-010",
+      "_hash": "08079bf75333cef569c8000d447ba3c6b66e7f99c7d4ba89123e8bfe0be95654"
+    },
+    {
+      "id": "B-0b76:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step1: ~50 symbols extracted; focused on key figure-generator symbols: readRecords, readRecordsWithStats, aggregate, toCSV, renderSVG, conflicts, kept, uniqueCount, cellKey. Step2: 1 paragraph cluster found — experiments/recovery-runner/README.md ## Figure generator section (lines 221-254). Step3: all 5 claims verified against make-fig-gate-ablation.mjs diff: (1) readRecordsWithStats transparency line matches code output exactly; (2) conflict guard (hard-throws on conflicting adjudicatedOutcome) matches code; (3) keep-first dedup matches code; (4) selfcheck count 8 matches run-selfchecks.mjs SELFCHECKS array (8 entries); (5) does-not-compute-CI and does-not-edit-paper match code comments. Exported pure functions (readRecords/readRecordsWithStats/aggregate/toCSV/renderSVG) all present. CSV columns match toCSV. --scenarioProfile note confirmed to be in a different section (run-driver), not Figure generator. No inconsistencies found.",
+      "createdAt": "2026-07-01T05:01:38.134Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-012",
+      "_hash": "0ae1e1456229eb8d556024598de2d33294d7a07f182c634db365e016c8567ab6"
+    },
+    {
+      "id": "B-0b76:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 26 intents (CHK-001: 3h/5e/5a, CHK-002: 3h/4e/3a, CHK-003: 1h/1e/1a), all 26 have passing logic_test or docs_check evidence. make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed; run-selfchecks.mjs: 8/8; lattice validate: allPass=true (31/31 commands).",
+      "createdAt": "2026-07-01T05:03:27.704Z",
+      "reviewRound": "2026-07-01T04:59:40.978Z",
+      "reviewRunId": "B-0b76:RR-011",
+      "_hash": "fd284599b4cd8098730bfbdb0edaec9da8e5870031ddd56d3853985f670b91ac"
+    },
+    {
+      "id": "B-0b76:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 re-attest. Diff is metadata + new generator files only (make-fig-gate-ablation.mjs, make-fig-gate-ablation-selfcheck.mjs, run-selfchecks.mjs +1 line, README.md update). No concept deletion or replacement detected. Generator counts adjudicatedOutcome only (confirmed in source + selfcheck assertions). Conflict guard hard-throws on same-cell differing adjudicatedOutcome (confirmed). Dedup keep-first on agreeing duplicates does not throw (confirmed). Zero concept residue to check. No blocker.",
+      "createdAt": "2026-07-01T05:16:35.739Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-013",
+      "_hash": "a73dfad2817fb92a55294829c469b61a36ef29abaa4d50ec9558cd574cbf3173"
+    },
+    {
+      "id": "B-0b76:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 quality re-attest: make-fig-gate-ablation-selfcheck.mjs 43/43 passed, run-selfchecks.mjs 8/8 passed. No new findings. Deliverable byte-identical to prior PASS rounds.",
+      "createdAt": "2026-07-01T05:16:49.454Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-014",
+      "_hash": "7a7d7a3ffa274167bcd8eca8932eb3daa915064d664e6195ee6726f02f995c5c"
+    },
+    {
+      "id": "B-0b76:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 re-attest: Figure generator README section (lines 221-255 of experiments/recovery-runner/README.md) is consistent with code. (1) Transparency line: README describes dedup raw→unique transparency format — code lines 213-215 of make-fig-gate-ablation.mjs print exactly this format. (2) Conflict guard: README states generator hard-throws on conflicting-outcome duplicates — confirmed at code lines 58-97. (3) Does-not-compute-CI / does-not-edit-paper: both README and code header lines 17-19 state the same. (4) Selfcheck count 8: README line 163 states (8) — run-selfchecks.mjs SELFCHECKS array has exactly 8 entries. No drift detected; section unchanged from prior PASS rounds.",
+      "createdAt": "2026-07-01T05:17:52.161Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-016",
+      "_hash": "8a362b98f0aa36403d878c011dcf51665fd28aa01d6124bf0e35d4867fce5551"
+    },
+    {
+      "id": "B-0b76:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. selfcheck = 43 assertions passed, validate clean (31/31 commands), all 26 verificationIntents bound and passing.",
+      "createdAt": "2026-07-01T05:25:03.558Z",
+      "reviewRound": "2026-07-01T05:15:20.930Z",
+      "reviewRunId": "B-0b76:RR-015",
+      "_hash": "16bce0d76e5c7a11709bd9e88dfec93f10f3c961ef848863d672c69dd94ff9e7"
+    }
+  ]
+}

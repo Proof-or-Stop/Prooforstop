@@ -1,0 +1,59 @@
+{
+  "storyId": "B-0b76",
+  "checkedAt": "2026-07-01T05:27:01.221Z",
+  "headHash": "382b33f9ebe7474fa7ccbe3d9ea7cde1fc2da62d",
+  "materialHash": "01694219f39d02a750f00de998d990a45e2cb04224355d5a377fb9d20c005128",
+  "storyFilesHash": "f31af90e0af07b19b9b7cc055bfb6c6887fc674c4c6a19f173cb4a042c540782",
+  "reviewRound": "2026-07-01T05:15:20.930Z",
+  "agentId": "claude-sonnet-4-6",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation.mjs",
+      "promise": "make-fig-gate-ablation.mjs committed in experiments/recovery-runner/",
+      "status": "verified",
+      "verifiedBy": "git diff --stat main",
+      "evidence": "git diff --stat main shows 248-line new file make-fig-gate-ablation.mjs"
+    },
+    {
+      "docPath": "experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs",
+      "promise": "make-fig-gate-ablation-selfcheck.mjs committed with 43 assertions passing offline",
+      "status": "verified",
+      "verifiedBy": "node make-fig-gate-ablation-selfcheck.mjs",
+      "evidence": "43 assertions passed, 0 failed (no live LLM)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-selfchecks.mjs",
+      "promise": "run-selfchecks.mjs updated to include the new selfcheck",
+      "status": "verified",
+      "verifiedBy": "node run-selfchecks.mjs",
+      "evidence": "8/8 recovery-runner selfchecks passed offline"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md",
+      "promise": "README.md updated with figure-generation section",
+      "status": "verified",
+      "verifiedBy": "git diff --stat main",
+      "evidence": "README.md +37/-1 lines (figure section added)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-selfchecks.mjs",
+      "promise": "All 8 recovery-runner selfchecks pass offline (no live LLM)",
+      "status": "verified",
+      "verifiedBy": "node run-selfchecks.mjs",
+      "evidence": "all 8 recovery-runner selfchecks passed (offline, no live LLM)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-make-fig-ablation",
+      "transcript": "node experiments/recovery-runner/make-fig-gate-ablation-selfcheck.mjs: 43 assertions passed, 0 failed (no live LLM). node experiments/recovery-runner/run-selfchecks.mjs: all 8 recovery-runner selfchecks passed (offline, no live LLM)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-attestation after main merge changed whole-tree hash. Deliverable files byte-identical to prior signed delivery. make-fig-gate-ablation-selfcheck.mjs 43/43; run-selfchecks.mjs 8/8. No live LLM required."
+  },
+  "_hash": "072664b83824cafa645bd9ab0ea7926ca59b02f82f8e6de1d671dd40a81462d8"
+}

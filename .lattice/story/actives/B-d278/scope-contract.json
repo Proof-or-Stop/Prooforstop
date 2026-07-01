@@ -1,0 +1,46 @@
+{
+  "storyId": "B-d278",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    ".lattice/story/actives/B-d278/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+    ".lattice/story/actives/B-d278/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "lattice.config.json"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    ".lattice/story/actives/B-2b08/**",
+    ".lattice/story/actives/B-cc94/**",
+    ".lattice/story/actives/B-9dcb/**"
+  ],
+  "scopeChangeReason": "PLAN discovered G05 deferred-row semantics require a narrow parent-roadmap evaluator correction; all other implementation remains bounded to G04-G10/aggregate smokes and baseline docs.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-01T03:06:26.047Z",
+  "updatedAt": "2026-07-01T03:06:26.047Z"
+}

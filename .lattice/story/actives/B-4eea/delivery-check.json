@@ -1,0 +1,53 @@
+{
+  "storyId": "B-4eea",
+  "checkedAt": "2026-07-01T06:22:14.353Z",
+  "headHash": "f548e6aa11c30518b9ad2aab0b7dac5b184b8569",
+  "materialHash": "afd36923c9a12c8b7999fa6272d342f4b74ac4a8a5105039ed848b943b995aeb",
+  "storyFilesHash": "8255b8ee9ae58ca617d54dfee3088cd29b968330127fd904a5cf3e2ef6c0cd4d",
+  "reviewRound": "2026-07-01T06:15:46.427Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "Runtime memory is consumed as advisory context at handoff, story, and DONE entrypoints, while gateEvidence remains false and structured evidence remains authoritative.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+      "evidence": "MVP2 smoke passed after final fixes; it verifies handoff/story/DONE consumers, advisory-only memory, ParentRollupResult/current facts for completion claims, and agy fallback scope."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "The 1M baseline verifies active/superseded/candidate/deprecated/stale classes, deterministic digest stability, source mutation detection, and report-first performance.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+      "evidence": "Full baseline smoke passed with exactly 1,000,000 deterministic records and required gold query classes after F-014 and residue fixes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "Runtime memory health uses project-configurable required memory classes rather than globally hard-coded requirements.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js",
+      "evidence": "Health smoke passed and includes missing-required-class failure coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-M5-M7",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js passed: handoff, story intake, story advance, done prepare/closure, final response, host policy, and non-authoritative memory boundary were verified."
+    },
+    {
+      "featureId": "CHK-M9-M10",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js and --profile=full passed; the full profile generated and verified exactly 1,000,000 records through the real runtime pack path."
+    },
+    {
+      "featureId": "CHK-M11-M12",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-health-smoke.js passed; command catalog, process fact, runtime fact, build, residue guard, done_required_validate, and lattice validate also passed on the final material."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-4eea final delivery check is bound to the current material after F-014 and residue cleanup. The feature is complete for the planned M5-M12 runtime memory consumption and baseline scope; memory remains advisory and cannot satisfy DONE proof."
+  },
+  "_hash": "3cda7c8b4d0f3c1002e9f6136508f09f2c219dfc9fc0655f7552656465a4abb6"
+}

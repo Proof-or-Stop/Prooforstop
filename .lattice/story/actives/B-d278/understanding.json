@@ -1,0 +1,30 @@
+{
+  "task": "Implement the remaining G04-G10 UDM no-false-DONE baseline groups and the aggregate 10x15 smoke without overclaiming external completion semantics.",
+  "outcome": "After building packages/main, these commands print PASS:\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js -> parent-roadmap large-ledger G04 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js -> parent-roadmap large-ledger G05 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js -> parent-roadmap large-ledger G06 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js -> parent-roadmap large-ledger G07 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js -> parent-roadmap large-ledger G08 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js -> parent-roadmap large-ledger G09 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js -> parent-roadmap large-ledger G10 baseline smoke PASS\nnode packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js -> parent-roadmap large-ledger 10x15 baseline smoke PASS",
+  "facts": [
+    "G01, G02, and G03 are already implemented and documented as local deterministic baseline smokes.",
+    "The baseline document defines G04 as stale evidence, G05 as deferred rows, G06 as migration/sample rows, G07 as overclaim boundary, G08 as duplicate/malformed rows, G09 as child assignment without delivery, and G10 as stale-then-refreshed recovery.",
+    "The aggregate baseline must represent exactly 10 groups x 15 required milestone rows = 150 evaluated rows.",
+    "PLAN audit found the documented G05 semantics require a narrow parent-roadmap evaluator correction because valid deferrals currently count as full closure."
+  ],
+  "constraints": [
+    "Do not claim Authority, fullAuthority, production rollout, or remote independent-host completion.",
+    "Do not modify ProofStory lifecycle gates, handlers, or lattice.config.json.",
+    "Keep evaluator changes limited to documented parent-roadmap deferral rollup semantics required by G05.",
+    "Each group command must be independently runnable and the aggregate command must not pass unless all groups are represented."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts",
+    "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts"
+  ],
+  "timestamp": "2026-07-01T03:06:23.301Z"
+}

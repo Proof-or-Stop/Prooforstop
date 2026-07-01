@@ -7,9 +7,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:00.052Z",
+      "userSees": "parent-roadmap large-ledger G04 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G04 smoke reports 15 required rows, zero closed rows, 15 stale evidence rows, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts each stale row carries closureEvidence but mismatched stale material/story/head binding and reason code stale_closure_evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts full completion wording is blocked while all evidence is stale, even though every required row is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke passed; it asserts 15 required rows, zero closed rows, staleEvidenceRows=15, stale_parent_rollup, and no-full-roadmap-claim.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke asserts each stale row has closureEvidence with stale head/material/story binding and stale_closure_evidence reason codes.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.js",
+          "result": "pass",
+          "note": "G04 smoke asserts full completion wording is blocked while every required row is present but stale.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +88,81 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:08.797Z",
+      "userSees": "parent-roadmap large-ledger G05 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G05 smoke reports 15 required rows, 12 implementation-closed rows, 3 deferred rows, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts the three deferred rows carry valid human approval, revisit conditions, non-runtime statements, and appear in deferredRows rather than disappearing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts human-approved deferrals do not permit full roadmap completion wording or silently count as implemented runtime delivery.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js",
+          "result": "pass",
+          "note": "G05 smoke passed; it asserts 15 required rows, 12 evidence-closed rows, 3 visible deferredRows, partial_parent_done, and no-full-roadmap-claim.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "G05 and totality smokes assert valid deferrals carry human approval, revisit conditions, non-runtime statements, and remain visible in deferredRows.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.js && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "Smokes assert human-approved deferrals do not count as implemented runtime delivery and full-roadmap wording is blocked while deferrals remain.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +171,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:15.954Z",
+      "userSees": "parent-roadmap large-ledger G06 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G06 smoke reports 15 migration/sample rows, migrationRows=15, migration_needed, and no full roadmap completion claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts migration/sample rows remain open parent-governed rows and cannot become real closure evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts legacy schema or migration metadata cannot be summarized as a completed current roadmap.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js",
+          "result": "pass",
+          "note": "G06 smoke passed; it asserts 15 migration/sample rows, migrationRows=15, migration_needed, and no-full-roadmap-claim.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js",
+          "result": "pass",
+          "note": "G06 smoke asserts migration/sample rows remain open and cannot become real closure evidence.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.js",
+          "result": "pass",
+          "note": "G06 smoke asserts legacy schema and migration metadata cannot be summarized as a completed current roadmap.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -40,9 +252,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:23.726Z",
+      "userSees": "parent-roadmap large-ledger G07 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G07 smoke reports 15 local closed rows while the overclaim guard blocks Authority, fullAuthority, production, and independent-host completion wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts safe local claim boundaries pass the guard while elevated claim-boundary text is rejected before any full completion claim is accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts local deterministic proof cannot be converted into Authority, production, fullAuthority, or independent two-host proof claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke passed; it asserts 15 local closed rows and rejects full-roadmap, Authority, fullAuthority, production, and independent-host completion wording through the boundary guard.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke asserts safe local boundary wording is allowed while unbounded full-roadmap and elevated claim text are rejected.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.js",
+          "result": "pass",
+          "note": "G07 smoke asserts local deterministic proof cannot be converted into Authority, production, fullAuthority, or independent-host completion claims.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -51,9 +333,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:30.819Z",
+      "userSees": "parent-roadmap large-ledger G08 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G08 smoke reports invalidRows>0 and no full roadmap completion claim for duplicate or malformed row coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts a duplicate generated row cannot cover the missing required row and malformed row shape is surfaced as invalid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts a ledger with 15 generated entries still fails if those entries do not uniquely and validly cover all 15 required row IDs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke passed; it asserts invalidRows>0 and no-full-roadmap-claim for malformed or duplicate generated row coverage.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke asserts malformed row shape is surfaced as invalid and a duplicate generated row cannot cover the missing required row.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.js",
+          "result": "pass",
+          "note": "G08 smoke asserts 15 generated entries still fail when they do not uniquely and validly satisfy all 15 required row IDs.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -62,9 +414,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:39.437Z",
+      "userSees": "parent-roadmap large-ledger G09 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G09 smoke reports child-story-assigned rows remain incomplete/open and no full roadmap completion claim is allowed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts child-story-active rows with childStoryId are not delivery and produce child_story_active reason codes plus next actions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts assigning every row to child stories cannot be summarized as delivered without closure evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke passed; it asserts child-story-active rows remain incomplete/open and no full-roadmap completion claim is allowed.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke asserts child-story-active rows with childStoryId produce child_story_active reason codes and remain open until delivery evidence exists.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.js",
+          "result": "pass",
+          "note": "G09 smoke asserts assigning every row to child stories cannot be summarized as delivered without closure evidence.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -73,9 +495,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:46.660Z",
+      "userSees": "parent-roadmap large-ledger G10 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the G10 smoke first blocks 15 stale rows, then refreshes all 15 rows and permits full roadmap completion only after refresh.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke asserts the before state has staleEvidenceRows=15 and the after state has 15 fresh closed rows, zero stale rows, and full_roadmap_complete.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke asserts the recovery path cannot bypass stale evidence checks; only fresh material/story/head bindings unlock completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke passed; it first blocks 15 stale rows, then refreshes all 15 rows and permits full roadmap completion only after refresh.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke asserts staleEvidenceRows=15 before refresh and 15 fresh closed rows, zero stale rows, and full_roadmap_complete after refresh.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.js",
+          "result": "pass",
+          "note": "G10 smoke asserts the recovery path cannot bypass stale evidence checks; only fresh material/story/head bindings unlock completion.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -84,9 +576,86 @@
       "relatedDocs": [
         "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-01T03:20:59.275Z",
+      "userSees": "parent-roadmap large-ledger 10x15 baseline smoke PASS",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-large-ledger-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g04-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g05-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g06-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g07-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g08-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g09-baseline-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-large-ledger-g10-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the aggregate smoke reports all 10 groups represented, exactly 150 evaluated milestone rows, and the expected group matrix.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The aggregate smoke asserts only G01 and refreshed G10 permit a full roadmap claim, while G02-G09 remain blocked from full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation and aggregate checks must not claim full 10x15 completion until every group command and aggregate command pass, and must not claim Authority, production, fullAuthority, or remote two-host proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js",
+          "result": "pass",
+          "note": "Aggregate smoke passed; it evaluates the 10 groups x 15 required rows = 150-row matrix and prints the required PASS line.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/parent-roadmap-large-ledger-baseline-smoke.js",
+          "result": "pass",
+          "note": "Aggregate smoke asserts G01 and refreshed G10 permit full-roadmap completion, G02-G06 and G08-G09 block it, and G07 blocks unbounded full/elevated overclaim wording while allowing safe local boundary wording.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm test; rg stale future/incomplete patterns in unattended-develop-mode-no-false-done-baseline.md; rg elevated terms in boundary/non-goal contexts",
+          "result": "pass",
+          "note": "npm test passed. Docs checks showed G01-G10 implemented plus aggregate command present, no stale G04-G10 future/incomplete text, and elevated terms only in overclaim, boundary, or non-goal contexts.",
+          "headHash": "4dd109a0bfe0fe4e5d398ed6fd52bd96474a51b0",
+          "materialHash": "90397ce9431181df77b0b19ee1186e7d5d910f333d19b23e37036a930b0c32c1",
+          "storyFilesHash": "2258396eb9ad07954bb421c377b39026a8769c6564704966d8378f3d8885dcae",
+          "timestamp": "2026-07-01T03:38:14.192Z"
+        }
+      ]
     }
   ]
 }

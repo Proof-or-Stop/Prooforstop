@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4eea",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "jq *",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "agy-cli-fallback",
+    "apply_patch",
+    "claude-cli",
+    "codex-cli",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".gitignore",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/evidence",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "* .omx/*",
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "Use Lattice commands for story artifacts. Generated million-record payloads must default to temp/gitignored runtime output and must not dirty materialHash or story evidence.",
+  "createdAt": "2026-07-01T03:55:08.864Z",
+  "updatedAt": "2026-07-01T03:55:08.864Z",
+  "_hash": "9e65598ef60377142871b2a856f378aa3cf6c5331843c768c9af798eda75d7eb"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0b76",
+  "sourceText": "Formally commit the figure generator into proofbound/experiments/recovery-runner via a small Lattice story, satisfying the committed-generator norm (every paper figure ships a runnable generator that rebuilds it from the raw records). Keep figure insertion into the paper out of scope (another session owns main.tex).",
+  "normalizedOutcome": "A committed generator experiments/recovery-runner/make-fig-gate-ablation.mjs rebuilds the section 5/6 amplification figure from powered/*.jsonl (emits SVG + CSV), backed by an offline synthetic-record selfcheck wired into run-selfchecks (reports 8/8, no live LLM); the paper repo is not touched.",
+  "acceptanceClaim": "Running the generator on powered/ reproduces the analyze.mjs per-arm counts (A4 2/1920, A2prime 31/1920, dedup total 9240) and writes fig-gate-ablation.svg + .csv; node run-selfchecks.mjs reports all 8 selfchecks passing offline.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:496c64ccd6c1cd744ebd292674a37784cb61bc34649f0614434b923a9ea3087c",
+  "createdAt": "2026-07-01T01:58:04.638Z",
+  "updatedAt": "2026-07-01T01:58:04.638Z"
+}

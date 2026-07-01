@@ -4,7 +4,7 @@
   "title": "Fix control-plane readiness when status endpoint is unreachable",
   "description": "When the configured control service URL is unreachable, status should report unreachable and stop claiming ready.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DISCARDED",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-28T10:01:11.328Z",
   "startedAt": "2026-06-28T10:01:11.328Z",
-  "endedAt": null,
+  "endedAt": "2026-07-01T17:00:18.817Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,14 @@
       "user": "Harmonygo",
       "sessionId": "sess-c1592222a4fdb073",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-07-01T17:00:18.817Z",
+      "sessionId": "sess-b4387-codex",
+      "agent": "main",
+      "reason": "Superseded by Authority Server removal: this old control-plane reachability story modifies authority-client/autopilot-authority surfaces that are no longer part of the core Proofbound path, so merging it would reintroduce retired semantics."
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-4387",
-    "branch": "story/B-4387",
-    "createdAt": "2026-06-28T10:05:29.111Z"
-  }
+  ]
 }
