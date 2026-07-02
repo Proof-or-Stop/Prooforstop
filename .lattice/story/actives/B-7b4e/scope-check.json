@@ -117,9 +117,12 @@
       "q": "The scope is bounded correctly, but the dispatch-required Quantum decision document path is absent in this worktree. Should CHK-001 create/import that document before implementation reviewers rely on it as source-of-truth?",
       "evidence": "nl failed for docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md; find only located the PINN claim-admissibility plan, while checklist/dispatch reference the Quantum path.",
       "sourcePointers": [
-        ".lattice/story/actives/B-7b4e/plan.md:9",
-        ".lattice/story/actives/B-7b4e/checklist.json:8"
-      ]
+        "CHK-001",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        ".lattice/story/actives/B-7b4e/plan.md"
+      ],
+      "resolution": "The missing Quantum decision document is expected baseline drift from story worktree creation: the document was created as an untracked main file before B-7b4e worktree bootstrap, so it was not visible inside the worktree. This is not a scope expansion. CHK-001 explicitly owns adding docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md as the story source of truth during DEV, while M2-M5 and scientific/hardware/production claims remain excluded.",
+      "resolvedAt": "2026-07-02T19:54:50.279Z"
     }
   ]
 }

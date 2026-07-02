@@ -76,6 +76,49 @@
         }
       ],
       "_hash": "9398fe384e4b791f6f806f601c9fbfc9e033b8d0552fbb4352bfdd1563e236dc"
+    },
+    {
+      "timestamp": "2026-07-02T19:54:35.596Z",
+      "issueCount": 7,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Register the Quantum plan as the story source of truth + Implement Quantum claim and evidence schema primitives are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-7b4e\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-7b4e is unreadable; allowing (fail-open)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-B-7b4e-quantum-doc-missing unresolved — \"The scope is bounded correctly, but the dispatch-required Quantum decision do...\". Please run `lattice scope_question_resolve --storyId=B-7b4e --oqId=OQ-B-7b4e-quantum-doc-missing --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "e1f0992764bc50f99cec52c3940938e270fa93724ee3f4f5685932634976b07b"
     }
   ]
 }
