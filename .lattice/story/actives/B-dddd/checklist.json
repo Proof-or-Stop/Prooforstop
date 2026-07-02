@@ -69,7 +69,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Outcome ledger appends a validated record under the shared learning owner root and preserves existing records.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Neutral and unknown outcomes are recorded for observability but do not count as decisive positive helped samples.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed playbook ids, empty outcomes, invalid exposure modes, or invalid verdict sources fail closed without corrupting the ledger.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
