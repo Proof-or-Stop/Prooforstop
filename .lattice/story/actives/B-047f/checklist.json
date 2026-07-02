@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0: protocol freeze tool with machine-validated protocol.json and sha256 protocol hash",
+      "context": "Create experiments/experience-ablation/protocol.mjs exposing a CLI (node protocol.mjs freeze|validate|hash --root=<repoRoot> --experimentId=<id> --config=<path>) plus library functions. protocol.json fields (schemaVersion 'proofbound.experience-ablation-protocol.v1'): experimentId; taskClasses (the six in-store trap classes + heldOut + clean group membership lists); perPopulation sample-size config (seeded: alpha 0.05, power 0.80, baselineBand [0.5,0.8], mdeBand [0.25,0.35]; live: alpha 0.05, power 0.80, baseline 0.30, mde 0.10); pilotFreezeRule {minControlFaultRuns: 15, freezeAt: 'wilson95Lower', maxCiWidth: 0.30}; noOverclaimBoundaryRef (pointer to plan S15); memorySnapshotHash (sha256 over the runtime memory store snapshot supplied as a directory or file list — freeze records it; validate re-checks presence, not re-hashing live stores); createdAt accepted as an input parameter (never Date.now inside the hashed payload). protocolHash = sha256 of the canonical JSON serialization (stable key order, hash field excluded). freeze writes .lattice/experiments/experience-ablation/<experimentId>/protocol.json + memory-snapshot-hash.json; validate exits non-zero on any missing/malformed field or hash mismatch. Hermetic selfcheck experiments/experience-ablation/protocol-selfcheck.mjs covers: valid freeze -> validate passes; tampered field -> hash mismatch fails; missing memorySnapshotHash -> fails; hash stability across key reordering.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/protocol.mjs",
+          "experiments/experience-ablation/protocol-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/protocol-selfcheck.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M2: immutable pair ledger with deterministic seeded run order",
+      "context": "Create experiments/experience-ablation/pair-ledger.mjs exposing a CLI (node pair-ledger.mjs build|verify --root=<repoRoot> --experimentId=<id> --manifest=<path> --seed=<string>) plus library functions. build requires an existing frozen protocol.json with a valid protocolHash (refuses otherwise — this mechanically enforces M0's no-task-without-hash exit criterion) and writes: fixture-manifest.jsonl (one row per fixture: fixtureId, trapClass, trapGroup in_store|held_out|clean, oracleRef; fixtures need not exist on disk yet — M1 builds them), pair-ledger.jsonl (one row per fixture pair: pairId=fixtureId, the two arm-run slots control|treatment, status pending), and run-order-seed.json ({seed, runOrder: [...armRunIds]}) where runOrder comes from xmur3(seed)+mulberry32+Fisher-Yates over all arm-runs (the run-driver.mjs pattern, re-implemented locally). Determinism: same seed + same manifest -> byte-identical runOrder. Immutability: build and any mutating operation refuse with a clear error when score-records.jsonl exists in the experiment root; verify re-derives the runOrder from the stored seed and fails on any divergence, and fails if the stored protocolHash no longer matches protocol.json. Hermetic selfcheck experiments/experience-ablation/pair-ledger-selfcheck.mjs covers: same-seed reproducibility; different-seed divergence; refusal without frozen protocol; refusal after a score record exists; verify catches a tampered ledger row.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/pair-ledger.mjs",
+          "experiments/experience-ablation/pair-ledger-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/pair-ledger-selfcheck.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M5: per-population sample-size calculator with adequacy report",
+      "context": "Create experiments/experience-ablation/sample-size.mjs exposing a CLI (node sample-size.mjs report --config=<protocol.json path or inline params> --out=<dir>) plus pure library functions: twoProportionNPerArm(p1, mde, alpha, power) using the pooled two-sided z formula with treatment = baseline MINUS mde (reduction direction — the direction mistake is a known reviewer trap from B-36fd review round 2); mcnemarDiscordantPairs(p01, p10, alpha, power) for the paired design (Connor/Miettinen discordant-pair approximation with the standard formula, documented in a comment); wilson95(successes, n) returning {lower, upper, width}; pilotFreezeCheck(defects, n, rule) implementing the S7 freeze rule (>=15 runs required, freeze N computed at the Wilson lower bound, extend flag when width > 0.30). report writes adequacy-report.json + adequacy-report.md showing, per population (seeded band scan at 0.025 grid resolution + live point): planned N per arm, assumptions, detectable effect, and the in-band maximum with its location. Hermetic selfcheck experiments/experience-ablation/sample-size-selfcheck.mjs asserts the reviewed anchor values from the plan's S7: n(0.30, 0.10) rounds up to 294; n(0.625, 0.25) rounds up to 62; n(0.5, 0.35) = 27; n(0.5, 0.25) = 58; band maximum over baseline 0.5-0.8 x MDE 0.25-0.35 = 62 near baseline 0.625/MDE 0.25; wilson95 sanity (e.g. 9 defects of 15 runs -> CI containing 0.6, lower bound < 0.6, width reported); pilotFreezeCheck rejects n < 15 and flags extend when width > 0.30. The selfcheck is the story's red test: it fails before the tool exists and passes after.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/sample-size.mjs",
+          "experiments/experience-ablation/sample-size-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/sample-size-selfcheck.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
