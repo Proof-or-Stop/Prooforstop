@@ -61,8 +61,24 @@
       "phase": "DEV",
       "headHash": "8de373648a87a7c610c7f472420bb684668685e0",
       "materialHash": "ab8730a13c8e7a9f13166910634f406467c269a571ce183c0d6bad2189393c93"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round-2 docs fix F-008 changed playbook_promotion_status canonical wording from nonDeducibleSources to nonPromotableSources; existing promotion worker smoke assertion needed matching wording update to keep coverage aligned with the operator-visible status output.",
+      "timestamp": "2026-07-02T21:05:40.060Z",
+      "paths": [
+        "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba3335dacf2e59ec5c46874c474495d6dc857730",
+      "materialHash": "520f2a2e9d2a2d9fb59e673a3838372b4d9c65301c6662376581778e42507428"
     }
   ],
   "createdAt": "2026-07-02T20:16:16.031Z",
-  "updatedAt": "2026-07-02T20:53:46.683Z"
+  "updatedAt": "2026-07-02T21:05:40.060Z"
 }
