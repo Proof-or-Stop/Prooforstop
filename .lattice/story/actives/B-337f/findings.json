@@ -331,7 +331,7 @@
       "desc": "execution-oracle-nonce-read-via-argv: The F-015 nonce-hardening passes process.argv[2]=nonce to run-check.mjs, but process.argv is shared across the Node.js process including all imported ESM modules. A workspace lib file (e.g. lib/saffron.mjs) can read process.argv[2] during ESM module evaluation (before run-check.mjs asserts LIMIT), print the nonce-tagged pass line (argv2 + \" saffron-check: PASS\"), then call process.exit(0). The oracle finds the correct nonce-tagged line in stdout -> passed:true despite LIMIT=52. Probe executed and confirmed: stdout shows the nonce-prefixed PASS line, defectPresent:false. Root cause: argv is not isolated from imported workspace modules; only the check script itself is integrity-bound, not the entire subprocess namespace.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T23:16:07.066Z",
@@ -342,7 +342,11 @@
         "experiments/experience-ablation/trap-templates.mjs:493-497"
       ],
       "signatureTag": "adversarial|mjs:493-497|execution-oracle-nonce",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence rewritten to a secret-path probe: the oracle writes a probe script into its own mkdtemp dir with a randomBytes(16) output path baked into the source (never passed to the child via argv/env, never under the workspace), imports the workspace lib, and writes String(LIMIT===25) to the secret path. Workspace code cannot locate the path to forge, and process.exit/SyntaxError/hang leave no file -> falseDoneAttempt. argv-read forgery probe pinned; selfcheck 31/31 green. (F-016 quality-lane + F-017 same-issue both closed by this fix; Codex round-5 had already judged the argv-read vector out-of-scope but this closes it anyway.)",
+      "resolvedAt": "2026-07-02T23:20:37.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-017",
