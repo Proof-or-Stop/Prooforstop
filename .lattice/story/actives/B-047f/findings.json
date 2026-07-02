@@ -256,6 +256,23 @@
       "resolvedAt": "2026-07-02T21:26:34.004Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-013",
+      "desc": "[host-2 Codex re-verdict] Regression introduced by c562db46e: renderAdequacyMarkdown closing paragraph still described the M6 pilot rule as freeze at the Wilson 95% CI lower bound, contradicting the corrected F-001 implementation (N-maximizing baseline within the CI). Generated reports would carry the disproven rule text.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:31:25.330Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "6adee34f1c92aa0a83113f708d5a0024a38b4811f7aff96ed5d27cdce2a0732c",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "doc-code-drift|mjs|host-codex-verdict",
+      "signatureTagSource": "auto"
     }
   ]
 }
