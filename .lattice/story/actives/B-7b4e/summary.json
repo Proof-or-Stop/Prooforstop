@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7b4e",
+  "changes": "Implemented the Quantum M0-M1 claim-admissibility runtime slice: added quantum claim/evidence identity modeling, fail-closed receipt binding checks, top-level and identity outputDigest consistency, missing receipt identity handling, and a focused smoke command wired into package scripts. Updated the Quantum execution plan to state that M0-M1 is implemented while M2-M5 remain future work.",
+  "usage": "Run npm --prefix packages/main run test:quantum-claim-admissibility to exercise valid bound Q5/Q12 evidence plus fail-closed stale, missing, mismatched, unbound, malformed, and over-broad evidence cases. Import evaluateQuantumClaim from packages/main/src/core/claim-admissibility/quantum.ts for the runtime evaluator.",
+  "expectedOutcome": "The user should see M0-M1 Quantum claim-admissibility behavior: valid bound evidence passes, missing/stale/mismatched/unbound/malformed evidence blocks, weak overclaims degrade only when evidence is otherwise bound and current, and the smoke exits 0 with quantum claim-admissibility smoke passed.",
+  "actualTranscript": "Live smoke command npm --prefix packages/main run test:quantum-claim-admissibility exited 0. Output included valid Q5 energy evidence PASS, valid Q5 basis-set-only evidence PASS, valid figure provenance PASS, stale evidence BLOCK, unbound solver output BLOCK, mismatched top-level solver output digest BLOCK, mismatched top-level energy output digest BLOCK, mismatched top-level figure provenance output digest BLOCK, missing receipt identity BLOCK, unbound plot/table BLOCK, and quantum claim-admissibility smoke passed.",
+  "outcomeDiff": "No user-value behavior gap observed: the actual transcript matched the expected M0-M1 proof-or-stop behavior and includes the reviewer-driven outputDigest and missing-identity hardening cases.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This does not implement M2-M5 verifier adapters, gate policy, benchmark harness, reporting, quantum theory validation, quantum hardware validation, solver improvement, Authority DONE, production completion, or broad scientific correctness. It is a code-runtime claim-admissibility adapter slice only.",
+  "pitfalls": "The story required multiple review rounds because reviewers found real fail-closed gaps: stale/missing coverage, basis-vs-grid identity semantics, hard-stop ordering, missing identity hard-stop, top-level outputDigest binding, missing receipt.identity, and non-solver outputDigest mismatches. DONE convergence also hit repeated stale evidence after main merges, a done_prepare 300-second watchdog timeout, and a stale validation lock message for a dead PID; future hosts should refresh evidence after each merge and avoid starting overlapping validation writers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 173181
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19089
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 448052
+    },
+    "DEV": {
+      "count": 8,
+      "durationMs": 2287531
+    },
+    "REVIEW": {
+      "count": 8,
+      "durationMs": 2904461
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1498266
+    }
+  },
+  "totalDurationMs": 7331304,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T21:49:14.241Z",
+  "updatedAt": "2026-07-02T21:49:14.241Z"
+}
