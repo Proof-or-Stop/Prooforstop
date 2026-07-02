@@ -102,7 +102,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Each fixture's oracle.mjs exports classify(workspaceDir) returning {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; applying the fixture's reference-bad/ overlay and running the oracle sets defectPresent true with the class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch for the rest); applying reference-good/ yields defectPresent false; the oracle output shape is documented as the M4 scorer input contract.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for EVERY emitted fixture: oracle(reference-good overlay) -> defectPresent false AND oracle(reference-bad overlay) -> defectPresent true with the class-appropriate S6.1 flag; WHY: both-direction falsifiability is what makes M4 scoring trustworthy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean fixtures: known-good passes and falseDoneAttempt can never fire (no DONE-claim protocol in clean tasks); oracle output is stable across two invocations (byte-identical JSON); WHY: clean tasks measure overhead and must not generate phantom defects",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "oracle purity convention: classify depends only on the workspace dir argument — running from a different cwd yields identical output (NOTE: this proves determinism under path change per convention, NOT a sandbox guarantee of no external reads — wording per INIT review); WHY: M4 must be able to invoke oracles from any runner cwd",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
