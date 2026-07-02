@@ -125,6 +125,23 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-008",
+      "desc": "[host-2 Codex P2, probe-proven] portable-path oracle misses $HOME/cache and ~/cache (both classified ok). Fix: accept only relative project paths; reject ~, $-env roots, all absolutes and drive letters.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:51.613Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "48d8657e1610fa7ab46651e61009806506e3301b8fc70d1a176d2f58c9366b1c",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
