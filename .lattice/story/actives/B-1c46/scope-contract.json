@@ -80,10 +80,32 @@
         "main_sync_readiness_runtime_cache_cleanliness",
         "B_1c46_full_validate_unblock"
       ]
+    },
+    {
+      "actor": "codex-cli",
+      "reason": "Required DONE cleanup regression fix for B-1c46: post-DONE runtime memory and stale-evidence advisories must use the surviving main root instead of the deleted story worktree, and the done-premerge smoke needs diagnostics proving the worktree is not recreated.",
+      "timestamp": "2026-07-02T16:42:16.698Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0fce26722573f9ec76a2c8abbfbc30de80a9c506",
+      "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+      "anchors": [
+        "post_done_advisory_main_root",
+        "done_cleanup_no_worktree_recreation"
+      ]
     }
   ],
   "createdAt": "2026-07-02T14:27:50.270Z",
-  "updatedAt": "2026-07-02T16:29:04.060Z",
+  "updatedAt": "2026-07-02T16:42:16.698Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
