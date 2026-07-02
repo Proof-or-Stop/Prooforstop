@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-02T13:27:36.648Z",
       "reviewRunId": "B-6048:RR-013",
       "_hash": "215874a9c6fa73fa4ff287a5101fc47305167f1dddb877b175e8eb9805639ac6"
+    },
+    {
+      "id": "B-6048:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review PASS for F-007. Verified cache context/key/projection carry projectRoot and candidateLimit; candidateLimit affects indexed selection without cache collision; classifier preserves candidateLimit from pack context; authority=non_authoritative and gateEvidence=false remain unchanged. Fresh commands: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js.",
+      "createdAt": "2026-07-02T13:32:18.761Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-011",
+      "_hash": "fa138e727d1401e9bbde544e82cdd4273aebd75f1b8628c0be6dc84f06e05054"
     }
   ]
 }
