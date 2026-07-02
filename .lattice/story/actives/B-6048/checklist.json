@@ -121,7 +121,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-02T12:10:30.998Z",
       "endTime": "2026-07-02T12:10:39.675Z",
       "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false.",
@@ -389,6 +389,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M6 full million parity report committed and verified after digest fix."
+    },
+    {
+      "timestamp": "2026-07-02T12:17:14.461Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen M4 to address test-coverage finding B-6048:F-003: story_advance consumer omitted from smoke."
     }
   ]
 }
