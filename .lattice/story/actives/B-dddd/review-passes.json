@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-dddd:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: B-dddd stays within docs/requirements/decisions/playbook-promotion-worker-execution-plan.md V1/M0-M2 foundation scope. Diff adds playbook_outcome_record plus outcome ledger primitives only; no playbook_promotion_sweep/status/DONE-settlement hook or auto candidate->active path was added. Runtime active guidance still rejects non-active playbooks at packages/main/src/core/playbook-runtime-memory.ts:318. Outcome schema/validation keeps candidate/active as observation status only, requires authority=non_authoritative and gateEvidence=false, and rejects helped with exposureMode=none at packages/main/src/core/learning-store.ts:761, packages/main/src/core/learning-store.ts:799, packages/main/src/core/learning-store.ts:808, packages/main/src/core/learning-store.ts:811. Command catalog keeps host/hostProvider/hostCapabilityId open strings and says DONE completion alone is not helped at packages/main/src/cli/command-catalog.ts:1830, packages/main/src/cli/command-catalog.ts:1839, packages/main/src/cli/command-catalog.ts:1840, packages/main/src/cli/command-catalog.ts:1841. Smoke coverage asserts DONE alone writes no outcome, neutral/unknown are not positive helped, candidate remains candidate, and no Codex/Claude-specific command namespace exists at packages/main/src/tasks/experience-layer-playbook-smoke.ts:516, packages/main/src/tasks/experience-layer-playbook-smoke.ts:549, packages/main/src/tasks/experience-layer-playbook-smoke.ts:587, packages/main/src/tasks/experience-layer-playbook-smoke.ts:650.",
+      "createdAt": "2026-07-02T03:17:39.835Z",
+      "reviewRound": "2026-07-02T03:14:49.647Z",
+      "reviewRunId": "B-dddd:RR-001",
+      "_hash": "4b57c5f86e6ffeaa275b9f2eac63b05698516e94894c62810f3d6611a4780edb"
+    },
+    {
+      "id": "B-dddd:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage pass: verified 9/9 verification intents have matching evidence and reran current-HEAD coverage. playbook_outcome_record help output is registered and host-neutral; command-catalog, command-ownership, and lifecycle-registry smokes pass. Full experience-layer playbook smoke fails only in the known decision-doc-promotion-smoke.js:346 path, which reproduces on canonical main, while all new outcome ledger checks pass before that baseline failure.",
+      "createdAt": "2026-07-02T03:19:04.432Z",
+      "reviewRound": "2026-07-02T03:14:49.647Z",
+      "reviewRunId": "B-dddd:RR-003",
+      "_hash": "8ff3ecb2f29918f839c83ffc76407e1772fd810141688cdc990624634310d0d0"
+    },
+    {
+      "id": "B-dddd:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review B-dddd:RR-004 checked playbook_outcome_record types/schema strictness, handler authority/gate claim refusal, explicit helped exposure semantics, JSONL outcome validation/append under the reused playbook main write lock, and command catalog/ownership/process-fact consistency. No blocking implementation quality issue found; focused outcome checks pass, while the full playbook smoke tail hits the documented pre-existing decision-doc dist baseline failure.",
+      "createdAt": "2026-07-02T03:20:03.232Z",
+      "reviewRound": "2026-07-02T03:14:49.647Z",
+      "reviewRunId": "B-dddd:RR-004",
+      "_hash": "fe131e85bdf4e49b3edf99511082dd119aac2b6d849a1b61b4e3e3ed69a88520"
+    }
+  ]
+}

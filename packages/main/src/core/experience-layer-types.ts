@@ -205,6 +205,60 @@ export interface Playbook {
   usage: PlaybookUsage;
 }
 
+// ── B-dddd M0-M2: append-only playbook outcome ledger ────────────────────────
+//
+// Outcome events are explicit, audit-only learning observations. They do NOT
+// activate, reject, promote, demote, or surface playbooks at runtime; they only
+// record what a caller observed after a concrete exposure (or non-exposure).
+
+export type PlaybookOutcomeSchemaVersion = 'proofbound.playbook-outcome.v1';
+export type PlaybookExposureMode = 'candidate-inspection' | 'active-advisory' | 'none';
+export type PlaybookOutcomeVerdict = 'helped' | 'neutral' | 'dismissed' | 'harmful' | 'unknown';
+
+export interface PlaybookOutcomeContext {
+  storyPhase?: string;
+  storyType?: string;
+  fileKinds: string[];
+  triggerClasses: string[];
+  host?: string;
+  hostProvider?: string;
+  hostCapabilityId?: string;
+}
+
+export interface PlaybookOutcomeVerdictData {
+  verdict: PlaybookOutcomeVerdict;
+  verdictSource: string;
+  causedNoise: boolean;
+  causedWrongClaim: boolean;
+  preventedRepeatFinding: boolean;
+  note?: string;
+}
+
+export interface PlaybookOutcomeBindings {
+  headHash?: string;
+  storyFilesHash?: string;
+  materialHash?: string;
+  summaryDigest?: string;
+  deliveryCheckDigest?: string;
+}
+
+export interface PlaybookOutcomeEvent {
+  schemaVersion: PlaybookOutcomeSchemaVersion;
+  eventId: string;
+  idempotencyKey: string;
+  observedAt: string;
+  storyId: string;
+  playbookId: string;
+  playbookStatusAtObservation: 'candidate' | 'active';
+  exposureMode: PlaybookExposureMode;
+  consumer: string;
+  context: PlaybookOutcomeContext;
+  outcome: PlaybookOutcomeVerdictData;
+  bindings: PlaybookOutcomeBindings;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 // ── B-7561 (Experience Layer Phase 3): Story Recall — structured-field similarity ──
 //
 // The FINAL slice distils each story's existing metadata (read through the

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-dddd",
+  "changes": "Added the M0-M2 playbook outcome ledger foundation: new PlaybookOutcomeEvent schema, append/read validation helpers, host-neutral playbook_outcome_record command, command policy/process-fact registration, and smoke coverage for explicit exposure semantics.",
+  "usage": "Use lattice playbook_outcome_record with storyId, playbookId, exposureMode, consumer, context, and outcome to append an audit-only outcome row under .lattice/learning/playbook-outcomes.jsonl. The command is host-neutral and never creates gate evidence or activates a playbook.",
+  "expectedOutcome": "Users can explicitly record candidate/active playbook observations while preserving Proofbound boundaries: candidates do not become active automatically, DONE completion alone does not count as helped, helped requires concrete exposure, and neutral/unknown outcomes remain observability-only.",
+  "actualTranscript": "lattice validate passed 31 configured commands; done_required_validate passed packages/main build and root npm test. live_smoke_transcript captured focused output: playbook_outcome_record explicitly appends a non-authoritative ledger row PASS; ordinary story/DONE completion alone is not recorded as helped PASS; helped requires concrete exposure and structured verdict source PASS; no Codex/Claude-specific namespace introduced PASS. It also reported baseline_failure_confirmed=decision-doc-promotion-smoke.js:346 for the pre-existing main baseline failure in the broader playbook smoke.",
+  "outcomeDiff": "Expected and actual match for B-dddd: explicit outcome recording exists, implicit DONE-to-helped settlement is rejected, exposure/source requirements are enforced, and no host-specific namespace was added. The known decision-doc-promotion baseline failure is outside this story and does not affect the new outcome checks.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "V1 closes the assessment-ledger foundation only. It does not implement automatic candidate activation, promotion sweep evaluation, DONE settlement hooks, trial traffic, timers, runtime memory candidate surfacing, or non-deducible source registry enforcement; those remain later milestones in the execution plan.",
+  "pitfalls": "Same-worktree owner lease switched session ids during TEST, so several metadata commands required explicit forceTakeover. The broader experience-layer playbook smoke still has a pre-existing decision-doc-promotion baseline failure on main; rely on focused outcome PASS lines for this story.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 76336
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21582
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 353307
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1109430
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 458155
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 313047
+    }
+  },
+  "totalDurationMs": 2332048,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T03:27:40.849Z",
+  "updatedAt": "2026-07-02T03:27:40.849Z"
+}

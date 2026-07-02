@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Learning records are advisory context, never proof or DONE gate evidence.",
+    "Candidate playbooks remain inert until the existing explicit activation boundary is invoked.",
+    "Outcome recording must require concrete exposure and structured verdict source for positive helped claims.",
+    "Implementation should reuse the existing learning-store, digest, and write-lock patterns instead of introducing a parallel subsystem.",
+    "Command surfaces must remain host-neutral and agent-neutral."
+  ],
+  "drivers": [
+    "Existing playbook lifecycle already has propose/diff/approve/activate/reject and should not be reworked.",
+    "The V1 plan requires assessment-loop foundation but not automatic activation or scheduled workers.",
+    "Concurrent hosts can write learning artifacts, so shared write discipline must be preserved."
+  ],
+  "options": [
+    {
+      "name": "A: Add append-only playbook outcome ledger plus host-neutral playbook_outcome_record command",
+      "pros": [
+        "Smallest real correctness fix for the missing outcome lifecycle.",
+        "Reuses .lattice/learning owner-root, canonical JSON, and playbook write-lock patterns.",
+        "Keeps activation and runtime surfacing unchanged while enabling later evaluator work."
+      ],
+      "cons": [
+        "Does not yet recommend activation or rejection; later M4-M6 stories still need evaluator/status surfaces.",
+        "Adds one more learning artifact that must be validated and documented in process fact metadata."
+      ]
+    },
+    {
+      "name": "B: Implement full promotion sweep and recommendation evaluator now",
+      "pros": [
+        "Would close more of the plan in one story.",
+        "Could immediately produce recommend_activate/reject decisions."
+      ],
+      "cons": [
+        "Larger blast radius and more risk of arbitrary optimization before ledger primitives are proven.",
+        "Would mix M0-M2 foundation with M4-M6 policy logic and make review less crisp."
+      ]
+    },
+    {
+      "name": "C: Only document the future worker and skip code changes",
+      "pros": [
+        "No runtime risk and no new CLI command."
+      ],
+      "cons": [
+        "Leaves candidate outcome recording missing, so generated candidates still cannot be assessed mechanically.",
+        "Does not satisfy the user request to start development."
+      ]
+    }
+  ],
+  "chosen": "A: Add append-only playbook outcome ledger plus host-neutral playbook_outcome_record command",
+  "rationale": "Option A is the narrowest correctness fix: it gives Proofbound an auditable outcome ledger while preserving the explicit activation boundary and avoiding V2 policy work.",
+  "preMortem": [
+    {
+      "scenario": "Candidate helped is inferred from ordinary story DONE success.",
+      "trigger": "Outcome command or tests allow helped with no exposureMode or verdictSource.",
+      "consequence": "Learning loop records false positives and may recommend bad playbooks later.",
+      "mitigation": "Reject helped unless exposureMode is concrete and verdictSource is structured; add smoke assertions for this."
+    },
+    {
+      "scenario": "Outcome recording accidentally mutates active runtime guidance.",
+      "trigger": "Implementation increments active usage counters or changes status during outcome record.",
+      "consequence": "Candidate playbooks could become runtime advice without explicit activation.",
+      "mitigation": "Write only append-only outcome records and keep playbook status unchanged; assert gateEvidence=false."
+    },
+    {
+      "scenario": "Learning-store writes conflict across hosts.",
+      "trigger": "Outcome command writes without the existing shared playbook write lock or owner-root resolution.",
+      "consequence": "Concurrent agents could lose records or split stores between worktrees.",
+      "mitigation": "Use withPlaybookWriteLock and resolveLearningOwnerRoot; verify append preserves existing records."
+    }
+  ],
+  "timestamp": "2026-07-02T02:51:21.535Z"
+}

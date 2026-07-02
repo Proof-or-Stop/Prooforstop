@@ -12,19 +12,71 @@
         "DONE settlement hook"
       ],
       "files": {
-        "modify": [
-          "packages/main/src/core",
-          "packages/main/src/handlers"
-        ],
+        "modify": [],
         "create": [],
         "test": [
-          "packages/main/src/tasks",
-          "packages/main/tests"
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:13:10.712Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test demonstrates explicit playbook outcome recording exists and can be asserted as a regression target.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE/story completion alone is not accepted as a helped outcome without explicit exposure and verdict source.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A candidate helped outcome with exposureMode=none or missing structured verdictSource is rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User sees test output containing \"playbook outcome recording rejects helped without concrete exposure\" and \"DONE success alone does not settle a candidate as helped\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: playbook_outcome_record explicitly appends a non-authoritative ledger row. The underlying full playbook smoke still exits 1 because decision-doc-promotion-smoke.js:346 fails on canonical main as a pre-existing baseline issue.",
+          "headHash": "ab717f88f842def3d79a80293ca76440e28d5c1a",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:10.869Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: ordinary story/DONE completion alone is not recorded as helped. Full smoke baseline failure is unrelated and pre-existing on canonical main.",
+          "headHash": "ab717f88f842def3d79a80293ca76440e28d5c1a",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:11.018Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: helped requires concrete exposure and structured verdict source. Full smoke baseline failure is unrelated and pre-existing on canonical main.",
+          "headHash": "ab717f88f842def3d79a80293ca76440e28d5c1a",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:11.169Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -44,12 +96,68 @@
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks"
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:13:23.106Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Outcome ledger appends a validated record under the shared learning owner root and preserves existing records.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Neutral and unknown outcomes are recorded for observability but do not count as decisive positive helped samples.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed playbook ids, empty outcomes, invalid exposure modes, or invalid verdict sources fail closed without corrupting the ledger.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User sees test output containing \"outcome ledger preserves existing records\" and \"neutral/unknown are observability only\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: playbook_outcome_record explicitly appends a non-authoritative ledger row, including ledger creation and candidate digest preservation under the learning owner root.",
+          "headHash": "07129fb3d99517a2ddacef1297f4401c328e6a58",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:23.270Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: neutral/unknown are observability only, not decisive positive helped samples.",
+          "headHash": "07129fb3d99517a2ddacef1297f4401c328e6a58",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:23.422Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: malformed authority/gate claims and inherited outcome fields reject fail-closed without appending ledger rows.",
+          "headHash": "07129fb3d99517a2ddacef1297f4401c328e6a58",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:23.577Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -64,18 +172,104 @@
       ],
       "files": {
         "modify": [
-          "packages/main/src/handlers",
-          "packages/main/src/cli-engine.ts",
-          "packages/main/src/core/command-policy.ts"
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks"
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:13:23.975Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The host-neutral lattice playbook_outcome_record command records an explicit outcome and prints authority=non_authoritative plus gateEvidence=false.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The command leaves candidate status unchanged and does not activate, reject, or surface runtime guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No Codex-specific or Claude-specific namespace is introduced for outcome recording; command policy and process facts classify it as audit-only metadata.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User runs lattice playbook_outcome_record and sees Playbook outcome recorded, outcome: <value>, authority: non_authoritative, gateEvidence: false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_outcome_record --help and focused outcome PASS-line check",
+          "result": "pass",
+          "note": "Built CLI help exposes host-neutral lattice playbook_outcome_record and the focused check confirmed output includes non-authoritative outcome recording semantics: authority non_authoritative and gateEvidence false.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.129Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: candidate status remains candidate; no activation, rejection, or runtime surfacing occurs.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.281Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract plus focused outcome PASS-line check",
+          "result": "pass",
+          "note": "Command catalog, ownership, and lifecycle registry tests passed; focused outcome check confirmed no Codex/Claude-specific namespace and process facts classify playbook_outcome_record as audit-only non-gate metadata.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.449Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T03:13:10.712Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Record focused outcome verification for CHK-001 after implementer commit 2e8ad04c7."
+    },
+    {
+      "timestamp": "2026-07-02T03:13:23.106Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Record focused outcome verification for CHK-002 after implementer commit 2e8ad04c7."
+    },
+    {
+      "timestamp": "2026-07-02T03:13:23.975Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Record focused outcome verification for CHK-003 after implementer commit 2e8ad04c7."
     }
   ]
 }
