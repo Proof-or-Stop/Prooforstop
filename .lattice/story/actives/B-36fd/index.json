@@ -1,0 +1,43 @@
+{
+  "storyId": "B-36fd",
+  "name": "experience-ablation-plan-corrected",
+  "title": "Author the corrected experience-layer A/B ablation causal-validation execution plan",
+  "description": "The draft execution plan for the experience-layer A/B ablation causal-validation study was adversarially reviewed on 2026-07-02 (2-round multi-agent review: 4 repo mappers + 4 review lenses + 12 independent adjudicators; 12/12 findings verified as real). The untracked draft file docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md was deleted from disk mid-review by concurrent repo activity, so nothing remains on disk. This story authors the corrected plan into docs/requirements/decisions/, incorporating all 12 verified corrections: 3 validity holes (answer-key circularity, learning-store pollution, fixture leakage), per-population sample-size recalibration (~6x oversizing fixed), matched-pairs design replacing incoherent 5-factor blocking, reuse of existing infrastructure (hint-mode arm switch, recovery-runner harness, analyze.mjs statistics) instead of greenfield rebuild, a deterministic reviewer-free primary endpoint, artifact-root naming fixes, and endpoint/claim alignment. Docs-only: no code, no gate, no schema changes.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "experience-layer",
+    "ablation",
+    "causal-validation",
+    "ab-test",
+    "execution-plan",
+    "docs",
+    "experiment-design"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-02T18:46:40.313Z",
+  "startedAt": "2026-07-02T18:46:40.313Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-02T18:46:40.717Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ]
+}
