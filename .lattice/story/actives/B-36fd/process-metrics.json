@@ -1,13 +1,13 @@
 {
   "storyId": "B-36fd",
-  "generatedAt": "2026-07-02T19:07:53.060Z",
+  "generatedAt": "2026-07-02T19:21:14.525Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 1,
     "reviewRounds": 2,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -260,7 +260,7 @@
           "note": "express channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [

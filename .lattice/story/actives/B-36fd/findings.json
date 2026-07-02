@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-36fd:F-001",
+      "desc": "numeric-inconsistency: S17 states \"~29-58 fixtures per group, both arms — roughly 84-116 paired fault-task runs total\" but 2 fault-bearing groups x (29-58 fixtures each) in a matched-pairs design yields 58-116 total paired runs, not 84-116; the lower bound of 84 implies 42 fixtures per group, not 29; no arithmetic path from 29 per group to 84 total can be found",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:21:14.519Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-002",
+      "_hash": "a0aa8ca774ee2e86889594274ee437eff15e8ef576e6de685c440d476693bcbf",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|numeric-inconsistency-states",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
