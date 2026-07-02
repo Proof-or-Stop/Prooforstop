@@ -49,7 +49,7 @@
       "desc": "doc-promise-undelivered: M6 milestone (Reuses column) cites \"Campaign runner (run-campaign.mjs identity-keyed resume)\" as an existing reusable component, but experiments/recovery-runner/run-campaign.mjs does not exist in the repo (confirmed: ls experiments/recovery-runner/*.mjs lists no such file); the autopilot-v2 reliability plan (B-4e16, INIT) describes run-campaign.mjs as a to-be-built artifact under experiments/recovery-runner/powered/; citing a planned-but-unbuilt file as a reuse target is a factual error in the plan",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T19:21:31.204Z",
@@ -60,7 +60,11 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-milestone",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "M6 Reuses now cites the committed engine (run-driver.mjs / live-engine.mjs) and explicitly marks the identity-keyed campaign-resume runner as gitignored scratch under experiments/recovery-runner/powered/ that must be committed as part of M6 (added to M6 exit criteria); M7 Reuses same-class fix for session-guard/watchdog. Verified via git ls-files (203 tracked recovery-runner files; powered/ ignored at .gitignore:86). Commit 3d666c058.",
+      "resolvedAt": "2026-07-02T19:26:44.218Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
