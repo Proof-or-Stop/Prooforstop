@@ -1,6 +1,6 @@
 # Playbook Runtime Memory Performance Index Optimization Plan
 
-Status: B-1c46 execution baseline
+Status: B-1c46 implemented
 Parent: `playbook-memory-entry-layer-optimization-plan.md`
 
 ## 1. Goal
@@ -25,51 +25,72 @@ entrypoint. M7 health and M8 rollout remain separate work in the parent plan.
 
 | Milestone | Implementation | Verification |
 |---|---|---|
-| M0 profile/red baseline | Full-profile smoke records reference, indexed-cold, and warm-cache timings. | `playbook-runtime-memory-baseline-smoke --profile=full` and performance smoke output expose target status. |
-| M1 semantic parity guard | Result digests compare reference and optimized `MemoryFreshnessPack` outputs. | `playbook-runtime-memory-index-smoke` and `playbook-runtime-memory-m3-m6-smoke`. |
+| M0 profile/red baseline | Full-profile smoke records reference, indexed-cold, warm-cache, target, peak RSS, cache, index, query, and counter timings. | Initial red profile: `indexedWarmCacheMs=2971`, `targetWarmMs=2000`, target unmet. Final baseline exposes `targetStatus=met`. |
+| M1 semantic parity guard | Result digests and semantic guard compare reference and optimized `MemoryFreshnessPack` outputs. | Full profile reports matching digest, `semanticParity=pass`, and false-surface rates all 0. |
 | M2 exact-token fast path | Runtime index schema v2 adds exact lookup counters and direct token-id selection. | `exactFastPathHits=100` on full M6 report. |
 | M3 fuzzy auxiliary index | Runtime index schema v2 adds bounded fuzzy token maps and visible fallback counters. | `fuzzyIndexHits=126`, `fuzzyFallbacks=0`, `tokenScanFallbacks=0` on full M6 report. |
-| M4 durable pack cache | Pack cache persists lookup-bound entries under learning runtime cache and reuses them across processes. | M4 smoke proves `crossProcessCacheHit=true` and contributing mutation miss. |
-| M5 performance gate | New full-profile performance smoke hard-fails if parity/advisory metadata/2,000 ms target fails. | `node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000`. |
+| M4 durable pack cache | Pack cache persists lookup-bound entries under the learning runtime cache and reuses them across processes. | M4 smoke proves `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, and `staleMutationMiss=true`. |
+| M5 performance gate | New full-profile performance smoke hard-fails if semantic parity, advisory metadata, or the 2,000 ms target fails. | `node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000` passed with `indexedWarmCacheMs=1`. |
 | M6 million-record parity | Full profile compares reference, indexed cold, and indexed warm/cache result digests. | M6 report: 1,000,000 records, matching digest, warm cache at target. |
 
 ## 4. Measured Results
 
-Latest captured full M3-M6 run:
+Pre-optimization M0 red profile:
 
 | Metric | Value |
 |---|---:|
 | Records | 1,000,000 |
-| Reference full scan | 50,834 ms |
-| Indexed cold query path | 9,231 ms |
+| Reference full scan | 39,660 ms |
+| Indexed cold query path | 10,681 ms |
+| Indexed warm/cache hot path | 2,971 ms |
+| Target warm latency | 2,000 ms |
+| Target status | unmet |
+| Warm cache hits | 8 |
+| Peak RSS | 1,160,101,888 bytes |
+
+Latest captured full baseline smoke after B-1c46:
+
+| Metric | Value |
+|---|---:|
+| Records | 1,000,000 |
+| Reference full scan | 49,347 ms |
+| Indexed cold query path | 6,972 ms |
 | Indexed warm/cache hot path | 1 ms |
 | Target warm latency | 2,000 ms |
 | Target status | met |
 | Result digest | `19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8` |
+| Candidate false-surface rate | 0 |
+| Superseded false-surface rate | 0 |
+| Deprecated false-surface rate | 0 |
+| Malformed rows skipped | 5 |
 | Warm cache hits | 8 |
 | Cache hit rate | 0.500 |
-| Index build | 17,290 ms |
+| Index build | 14,132 ms |
+| Warm prime | 11,270 ms |
+| p50 warm query | 0 ms |
+| p95 warm query | 0 ms |
 | Exact fast-path hits | 100 |
 | Fuzzy index hits | 126 |
 | Fuzzy fallbacks | 0 |
 | Token scan fallbacks | 0 |
+| Optimized report peak RSS | 3,845,570,560 bytes |
 
 Latest captured performance smoke:
 
 | Metric | Value |
 |---|---:|
 | Records | 1,000,000 |
-| Reference full scan | 52,681 ms |
-| Indexed cold query path | 9,977 ms |
+| Reference full scan | 38,547 ms |
+| Indexed cold query path | 6,825 ms |
 | Indexed warm/cache hot path | 1 ms |
 | Target warm latency | 2,000 ms |
 | Target status | met |
-| Peak RSS | 3,528,818,688 bytes |
+| Peak RSS | 3,610,689,536 bytes |
 | Exact fast-path hits | 100 |
 | Fuzzy index hits | 126 |
 | Fuzzy fallbacks | 0 |
 | Token scan fallbacks | 0 |
-| Index build | 26,241 ms |
+| Index build | 14,272 ms |
 
 Interpretation: the optimized warm runtime hot path meets the 1-2 second target.
 The complete full-profile report still includes generation, reference scan, and
@@ -82,6 +103,7 @@ entrypoint path.
 npm --prefix packages/main run build
 node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js
 node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js
+node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full
 node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000
 ```
 
@@ -92,7 +114,26 @@ playbook-runtime-memory M3-M6 smoke passed: TOTAL 8 | PASS 8 | FAIL 0
 playbook-runtime-memory performance smoke passed profile=full recordCount=1000000 semanticParity=pass parityPass=true indexedWarmCacheMs=1 targetWarmMs=2000 targetStatus=met authority=non_authoritative gateEvidence=false
 ```
 
-## 6. No-Overclaim Rule
+## 6. Implementation Notes
+
+- `playbook-runtime-memory-index.ts` uses schema v2 with exact token maps plus
+  bounded fuzzy token maps. Normal full-profile queries report no token scan
+  fallback.
+- `playbook-runtime-memory-cache.ts` persists pack cache entries under the
+  learning runtime cache. Cache keys bind project root, schema version,
+  consumer, normalized query/context, contributing source digests, runtime
+  config digest, policy version, limits, and index version. A changed
+  contributing source misses; irrelevant broad source churn can downgrade to
+  stale-irrelevant.
+- `playbook-runtime-memory.ts` accepts a prevalidated runtime index source digest
+  tuple for repeated hot-path calls. The full-profile benchmark passes the
+  source digests from the just-built index, avoiding repeated million-row source
+  digest work before each warm cache hit.
+- `playbook-runtime-memory-performance-smoke.ts` is the user-visible gate. It
+  exits non-zero unless semantic parity, advisory metadata, and
+  `indexedWarmCacheMs <= targetWarmMs` all pass.
+
+## 7. No-Overclaim Rule
 
 Allowed claim:
 
