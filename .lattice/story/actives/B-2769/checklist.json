@@ -56,7 +56,47 @@
       "context": "Define PINN claim/evidence schema and binding/identity checks for lifecycle transitions.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "PINN claim/evidence schema in PLAN includes explicit identity fields and deterministic mismatch/absence handling guidance.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chk-002:happy",
+            "desc": "Verify PINN claim/evidence identity schema covers domain, config, seed, and output fields and is versioned in the plan.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chk-002:edge",
+            "desc": "Verify schema mismatch or missing identity fields deterministically blocks transitions.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chk-002:adversarial",
+            "desc": "Verify schema cannot be widened to imply PDE correctness or scientific proof.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
