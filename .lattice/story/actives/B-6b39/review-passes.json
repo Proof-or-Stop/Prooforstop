@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6b39:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change. All three amended passages (S7 freeze rule, M6 exit-criteria row, S17 step 2 echo) are mutually consistent and use the N-maximizing baseline rule. Statistical formula p* = 0.5 + mde/2 is mathematically correct. No stale lower-bound references remain. sample-size.mjs pilotFreezeCheck reference is forward-looking in a planning doc (M5 artifact), not a doc-promise-undelivered issue. English-only; no unrelated edits. No dead code, type safety, or I/O isolation issues (pure doc change). No findings.",
+      "createdAt": "2026-07-02T21:40:04.560Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-002",
+      "_hash": "373246e0b52ee3cd136d73f1b4e9566f9203f22ab71066ecbfdab531ab52f035"
+    }
+  ]
+}
