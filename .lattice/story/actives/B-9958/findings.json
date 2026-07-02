@@ -19,6 +19,27 @@
       ],
       "signatureTag": "missing|ts|9958-smoke-directly",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9958:F-002",
+      "desc": "B-9958 lacks enough CLI-level coverage for the new command surfaces and undercovers M7 status/readiness. The recorded smoke invokes createPlaybookHandlers directly and checks MAIN_TOOLS/COMMAND_POLICIES/PROCESS_FACT_LEVELS membership, but it does not execute the actual lattice CLI for the CLI-marked verification intents, nor does it call playbook_promotion_status to assert the V1 readiness and V2 disabled posture promised by CHK-005. CLI parser/schema/default flag behavior and status text/json output could regress without this smoke failing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T20:42:00.614Z",
+      "reviewRound": "2026-07-02T20:39:07.457Z",
+      "reviewRunId": "B-9958:RR-002",
+      "_hash": "1de08cb1ec88382a62113e03b67b8f3f98af5d945fd1bfc73d020d228d3fc6f7",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/playbook.ts",
+        ".lattice/story/actives/B-9958/checklist.json"
+      ],
+      "signatureTag": "missing|ts|9958-lacks-enough",
+      "signatureTagSource": "auto"
     }
   ]
 }
