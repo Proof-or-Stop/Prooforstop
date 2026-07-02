@@ -201,7 +201,7 @@
       "desc": "[host-2 Codex P2, probe-proven] verdict-line oracle only rejects the exact wrong token: FEATURE-X: COMPLETE. (trailing punctuation) classified defectPresent:false. Fix: strict whitelist — anything not exactly the right value is a mismatch.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T22:45:52.938Z",
@@ -211,7 +211,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "verdict-line is a strict whitelist: any value other than the exact right token (including COMPLETE. with punctuation and unknown words) is a mismatch; probe pinned. Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:39.214Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-011",
