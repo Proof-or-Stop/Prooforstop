@@ -5,7 +5,7 @@
       "desc": "Docs cite latest measured baseline/RSS values that do not match story evidence. performance-index doc lines 51-77 label full baseline as latest with 39,825/6,439/12,520/10,873 and RSS 1,504,083,968/3,294,199,808, but checklist evidence lines 62-64 records final full baseline as referenceFullScanMs=49347 indexedColdMs=6972 indexedWarmCacheMs=1 indexBuildMs=14132 warmPrimeMs=11270 and no evidence was found for those RSS values. entry-layer doc lines 24 and 26 also cite RSS 646,414,336 and 3,845,570,560 with no matching story evidence; performance evidence lines 465-467 records peakRssBytes=3610689536.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T15:01:23.337Z",
@@ -17,7 +17,11 @@
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-cite-latest",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 85ce7f952: docs now label the metric tables as canonical checklist-bound evidence and use the reviewer/checklist values (baseline 49347/6972/1/indexBuild 14132/warmPrime 11270; performance 38547/6825/1/RSS 3610689536). Unbound later local spot-check values are removed from the docs, and the entry-layer doc says RSS is run-dependent instead of citing unmatched values.",
+      "resolvedAt": "2026-07-02T15:06:24.254Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1c46:F-002",
