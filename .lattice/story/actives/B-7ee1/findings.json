@@ -76,7 +76,7 @@
       "desc": "playbook_auto_promotion_apply writes playbooks.json before appending playbook-auto-activations.jsonl. If the activation audit append fails, for example because the existing audit JSONL contains a malformed/truncated row that readPlaybookAutoActivationEvents skips but atomicAppendCanonicalJsonLine later refuses to rewrite, the command can leave the candidate persisted as active without the required append-only activation audit row. This violates the story requirement that every activation be digest-bound, auditable, and append-only, and it also breaks later idempotency/demotion provenance because the active playbook no longer has an auto-activation record.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:43:37.792Z",
@@ -89,7 +89,11 @@
         "packages/main/src/handlers/playbook.ts"
       ],
       "signatureTag": "edge|ts|playbook-auto-promotion",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c22e761. Apply now preflights activation-audit append path before mutating playbooks, writes active status, appends/verifies activation audit, and rolls back playbooks if audit append/verification fails. Smoke covers malformed activation JSONL leaving candidate status candidate with no valid activation row.",
+      "resolvedAt": "2026-07-02T23:00:49.540Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-005",
