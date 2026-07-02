@@ -58,6 +58,26 @@
       ],
       "signatureTag": "missing|ts|coverage-exercise-fail",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ee1:F-004",
+      "desc": "playbook_auto_promotion_apply writes playbooks.json before appending playbook-auto-activations.jsonl. If the activation audit append fails, for example because the existing audit JSONL contains a malformed/truncated row that readPlaybookAutoActivationEvents skips but atomicAppendCanonicalJsonLine later refuses to rewrite, the command can leave the candidate persisted as active without the required append-only activation audit row. This violates the story requirement that every activation be digest-bound, auditable, and append-only, and it also breaks later idempotency/demotion provenance because the active playbook no longer has an auto-activation record.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:37.792Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-003",
+      "_hash": "453444bb486329f13a05d9d19cae7e803f2160619052a24bf368f6b6f4c95e5e",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-auto-promotion",
+      "signatureTagSource": "auto"
     }
   ]
 }
