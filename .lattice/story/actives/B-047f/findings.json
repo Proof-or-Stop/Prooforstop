@@ -67,6 +67,24 @@
       ],
       "signatureTag": "edge|mjs|host-codex-protocol",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-005",
+      "desc": "[host-2 Codex P2] Seals are self-authenticating (tamper+rehash passes) and validateFrozenProtocol ignores the sidecar protocolHash field it stores. Partial fix in-scope: verify sidecar.protocolHash === doc.protocolHash; document the threat model (tamper-EVIDENCE for accidental drift; external anchoring of the protocolHash into story/run evidence is the M6 runner responsibility). Full external anchoring is out of S1 scope by design.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:06.926Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "4f69312509782fedfc0e953c08f6bc4fae7e087a0a6c797d61a04d9084e7e99e",
+      "files": [
+        "experiments/experience-ablation/protocol.mjs",
+        "experiments/experience-ablation/pair-ledger.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-seals",
+      "signatureTagSource": "auto"
     }
   ]
 }
