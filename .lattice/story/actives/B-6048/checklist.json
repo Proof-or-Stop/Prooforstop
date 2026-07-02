@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "M3: implement pack cache with freshness-safe invalidation",
       "context": "Add a derived MemoryFreshnessPack cache keyed by schemaVersion, consumer, normalized query/context, contributing source digest tuple, runtime config digest, consumer policy version, top-k/line cap, and indexVersion. Preserve authority=non_authoritative and gateEvidence=false. Related plan section: playbook-memory-entry-layer-optimization-plan.md M3.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T11:45:18.893Z",
-      "endTime": null,
+      "endTime": "2026-07-02T12:10:25.998Z",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M3 Pack Cache Detailed Checklist"
       ],
@@ -42,7 +42,42 @@
           }
         ]
       },
-      "userSees": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false."
+      "userSees": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: unchanged requests hit the cache and preserve identical bounded pack digest; build also passed with npm --prefix packages/main run build.",
+          "headHash": "2d2e8c30ee2202e5595a7aebb5b1d43c3e524d52",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:26.188Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: stale-irrelevant broad source changes are treated as soft cache hits when contributing rows are unchanged.",
+          "headHash": "2d2e8c30ee2202e5595a7aebb5b1d43c3e524d52",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:26.344Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: contributing source changes miss/invalidate cache; stale-irrelevant freshness changes recompute packDigest; authority remains non_authoritative and gateEvidence=false.",
+          "headHash": "2d2e8c30ee2202e5595a7aebb5b1d43c3e524d52",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:26.502Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -186,6 +221,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M3 pack cache implementation."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:25.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M3 cache implementation committed in 26f747766 and digest fix in 2d2e8c30; build and M3-M6 smoke passed."
     }
   ]
 }
