@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-02T20:33:29.331Z",
       "reviewRunId": "B-db1b:RR-019",
       "_hash": "355eb892ee31b2d1c57b805b52aafc26a94df6c9b8f76c937dbcdbf59810256b"
+    },
+    {
+      "id": "B-db1b:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current REVIEW round test-coverage recheck after F-010/F-011. npm run test:pinn-claim-admissibility passed and runs packages/main/dist/tasks/pinn-claim-admissibility-smoke.js. Reviewed source and dist smoke: F-010 passive PDE correctness narratives (proved/verified/guaranteed/validated) are covered with claim_boundary_violation assertions; F-011 numeric direct true-ish claim fields are covered for terminalCompletionClaim=1 and dynamic legacy completion field=1. Prior coverage remains present for exact B1-B15 corpus, A4 rejecting all 15 injections while weaker arms expose gaps, duplicate receipt fail-closed behavior, deep supplied-report sanitization/rejection across suiteStatus/artifactIndex/nested injections/benchmarkPath, and quoted assignment regressions.",
+      "createdAt": "2026-07-02T20:46:02.150Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-021",
+      "_hash": "d54b1029ea095fe6658fac69ff2b184304244ef2bb94bf962dea2d29b472b919"
     }
   ]
 }
