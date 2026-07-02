@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-ac71:F-001",
+      "desc": "doc-internal-contradiction: execution-plan §1 uses the phrase \"mutually-distrusting vendor hosts\" (line 37) — the exact framing the threat-model §3 explicitly marks as FORBIDDEN for any description of the independence claim (forbidden = \"mutually-distrusting parties\" / \"no operator trust required\"). The threat-model correctly caps the claim at cross-vendor-independent, same-operator-orchestrated, not a mutually-hostile trust boundary. The execution-plan §1 is the narrative that sets reader expectations before M1-M5; leaving the forbidden phrase there means the independence over-claim lives precisely where it shapes go/no-go decisions on M4 and M5.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:13:47.626Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-003",
+      "_hash": "1e905f0f38763125495d577169fc357d3dbe5d78367d950e4bdc118d9666b313",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "adversarial|md|internal-contradiction-execution",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
