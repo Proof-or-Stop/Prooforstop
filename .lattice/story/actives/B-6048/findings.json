@@ -99,7 +99,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md:24-30 and :334-335 still say the indexed/cached million hot path is NOT YET PROVEN / only claimable after future M6 latency reporting, but this branch implements and tests a full-profile optimized parity report at packages/main/src/core/playbook-runtime-baseline.ts:1278-1323 and packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:335-367. Update the docs to state the current report-first result with full reference baseline plus indexed/cached parity timings, while still not claiming 1-2s million-record runtime performance is proven.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T13:09:15.202Z",
@@ -112,7 +112,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 109254188: playbook-memory-entry-layer-optimization-plan.md now says M6 proves indexed/cached million-record parity plus latency reporting, while the 1-2s SLO remains unproven/report-first. Docs pass B-6048:RP-003 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:09.530Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6048:F-006",
