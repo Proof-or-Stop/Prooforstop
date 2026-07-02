@@ -29,7 +29,7 @@
       "desc": "playbook_promotion_observe treats an archive recommendation as handled when the current playbook status is still stale. The evaluator emits action=\"archive\" specifically when aggregate.status === \"stale\" (learning-store.ts:1121-1125), but classifyRecommendationHandling returns handled/current_status_stale for row.action === \"archive\" or \"reject\" (learning-store.ts:1493-1502). That makes a newly applied archive recommendation disappear from unhandled backlog without any archive transition or archived metadata being present; the smoke test encodes this optimistic case at playbook-promotion-observe-smoke.ts:297-317. Archive should remain unhandled while current status is stale, and only become handled when current status/metadata actually records archived (or whatever explicit archive sink is chosen).",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T17:41:12.647Z",
@@ -41,7 +41,11 @@
         "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
       ],
       "signatureTag": "edge|ts|playbook-promotion-observe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed archive recommendation handling so current status stale remains unhandled (current_status_still_stale) and archive is handled only when current status is archived. Smoke now includes archive remains unhandled while stale plus archive handled after archived status. Build and focused smoke passed.",
+      "resolvedAt": "2026-07-02T17:46:18.570Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-521d:F-003",
