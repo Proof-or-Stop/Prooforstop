@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-36fd:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue check complete. Four rev-1 concepts verified absent or correctly scoped: (1) Shadow C / third arm — S4 explicitly rejects it, no assertion of the concept anywhere; (2) 5-factor blocked randomization — S8 heading is Matched Pairs Not Blocked Randomization, the five-factor mention is part of the rejection rationale, not a live design assertion; (3) reviewer findings in seeded-study primary endpoint — S6.1 explicitly excludes live LLM reviewer findings from the deterministic primary outcome; (4) .proof-or-stop/ as live artifact root — appears exactly once at S12 as a parenthetical rev-1 correction note (the allowed single occurrence). Terminology consistency: Proof-or-Stop appears only twice in lines 409-410 scoped to lifecycle-readiness concept, not as directory or command set. Trap group names in-store and held-out negative-control are used consistently across S5.1, S7, S10, S11, S14, S15. Docs-only story; single new file; no promised-but-undelivered content. Zero blockers.",
+      "createdAt": "2026-07-02T19:17:09.086Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-001",
+      "_hash": "45c6d399f279dbdc93bbd4451d7edd3e5db990d45d24fd6be33e57c8d17aede3"
+    }
+  ]
+}
