@@ -48,6 +48,7 @@
 - [Proofbound Runtime-Owned Agent Assets Execution Plan](decisions/lattice-runtime-owned-agent-assets-execution-plan.md)
 - [Proofbound Strengthening Roadmap Execution Plan](decisions/lattice-strengthening-roadmap-execution-plan.md)
 - [Proofbound Lifecycle Proof-Or-Stop Readiness Check](decisions/lattice-lifecycle-readiness-check-execution-plan.md)
+- [Proof-or-Stop for PINNs: Cross-Domain Claim-Admissibility Execution Plan](decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md)
 - [Proofbound Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
