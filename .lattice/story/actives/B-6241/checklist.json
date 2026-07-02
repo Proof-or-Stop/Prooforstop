@@ -236,7 +236,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice playbook_promotion_status displays pending learning candidates, latest decisions, non-deducible sources, settlement health, and disabled flags without presenting candidates as active guidance.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-005:happy:0 status after candidates, decisions, and non-deducible records exist shows pending-learning candidates, latest decisions, registry, health, and feature flags.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:happy:1 active playbook with harmful or dismissed signals is highlighted as negative/demotion posture.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-005:edge:0 status with no candidates or decisions succeeds with zero counts and clear disabled feature flag state.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:edge:1 retention warnings or malformed skipped rows are reported as advisory health without failing lifecycle commands.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-005:adversarial:0 candidate inspected through status does not appear in active runtime memory pack fields or active guidance section.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:adversarial:1 rejected archived and non-deducible records remain visible for audit but never render as active runtime guidance.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
