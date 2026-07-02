@@ -23,6 +23,10 @@ import {
   buildMemoryFreshnessPack,
   classifyMemoryFreshnessPack,
 } from '../core/playbook-runtime-memory.js';
+import {
+  clearRuntimeMemoryPackCache,
+  getRuntimeMemoryPackCacheStats,
+} from '../core/playbook-runtime-memory-cache.js';
 
 const NOW = '2026-07-02T00:00:00.000Z';
 
@@ -167,6 +171,9 @@ function packPair(root: string, query: string) {
 
 async function run(): Promise<void> {
   const roots: string[] = [];
+  const previousGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const globalRoot = mkdtempSync(join(tmpdir(), 'pb-memory-index-global-'));
+  process.env.LATTICE_GLOBAL_MEMORY_DIR = globalRoot;
   try {
     check('M0 profiling baseline remains non-authoritative report-only', () => {
       const root = mkRoot(); roots.push(root); seed(root);
@@ -234,6 +241,7 @@ async function run(): Promise<void> {
     });
 
     check('M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics', () => {
+      clearRuntimeMemoryPackCache();
       const root = mkRoot(); roots.push(root); seed(root);
       const { indexed } = packPair(root, 'old plan says task missing');
       writeEntries(resolveProjectMemoryPath(root), [
@@ -256,6 +264,7 @@ async function run(): Promise<void> {
 
       const root2 = mkRoot(); roots.push(root2); seed(root2);
       const { indexed: indexed2 } = packPair(root2, 'old plan says task missing');
+      assert.equal(indexed2.projectRoot, root2, 'runtime pack cache must not reuse a pack from another project root');
       writeEntries(resolveProjectMemoryPath(root2), [
         memoryEntry('mem-old', {
           summary: 'Deprecated runtime memory old plan',
@@ -270,6 +279,12 @@ async function run(): Promise<void> {
           reusePrompt: 'truth-first stale-doc task missing',
           tags: ['supersedes-mem-old'],
         }),
+        memoryEntry('mem-host', {
+          summary: 'Host policy Codex Claude agy fallback',
+          trigger: 'codex claude agy fallback',
+          lesson: 'Use Codex and Claude as primary hosts, agy only as fallback',
+          reusePrompt: 'codex claude agy fallback',
+        }),
         memoryEntry('mem-unrelated', {
           summary: 'Unrelated runtime note',
           trigger: 'banana orchard',
@@ -277,6 +292,17 @@ async function run(): Promise<void> {
           reusePrompt: 'banana orchard',
         }),
       ]);
+      const cachedIrrelevant = buildMemoryFreshnessPack({
+        projectRoot: root2,
+        query: 'old plan says task missing',
+        consumer: 'session_brief',
+        storyPhase: 'DEV',
+        touchedPaths: ['packages/main/src/core/playbook-runtime-memory.ts'],
+        generatedAt: NOW,
+      });
+      assert.equal(cachedIrrelevant.projectRoot, root2);
+      assert.equal(cachedIrrelevant.freshness.class, 'stale-irrelevant');
+      assert.equal(getRuntimeMemoryPackCacheStats().staleIrrelevantHits, 1);
       const irrelevant = classifyMemoryFreshnessPack(indexed2, { useIndex: false });
       assert.equal(irrelevant.freshness.class, 'stale-irrelevant');
     });
@@ -284,6 +310,12 @@ async function run(): Promise<void> {
     if (process.exitCode) process.exit(process.exitCode);
     console.log(`playbook-runtime-memory index smoke passed: TOTAL ${total} | PASS ${passed} | FAIL 0`);
   } finally {
+    if (previousGlobal === undefined) {
+      delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+    } else {
+      process.env.LATTICE_GLOBAL_MEMORY_DIR = previousGlobal;
+    }
+    rmSync(globalRoot, { recursive: true, force: true });
     for (const root of roots) {
       if (existsSync(root)) rmSync(root, { recursive: true, force: true });
     }

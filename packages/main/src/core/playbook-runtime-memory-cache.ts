@@ -43,6 +43,7 @@ export interface RuntimeMemoryPackCacheContext {
   maxEntries: number;
   maxPlaybooks: number;
   maxLines: number;
+  candidateLimit?: number;
   runtimeIndex?: RuntimeMemoryIndex | null;
 }
 
@@ -54,6 +55,7 @@ export interface RuntimeMemoryPackContributionDigest {
 }
 
 export interface RuntimeMemoryPackCacheKey {
+  projectRoot: string;
   schemaVersion: MemoryFreshnessPack['schemaVersion'];
   consumer: RuntimeConsumer;
   normalizedQuery: string;
@@ -69,6 +71,7 @@ export interface RuntimeMemoryPackCacheKey {
     maxEntries: number;
     maxPlaybooks: number;
     maxLines: number;
+    candidateLimit?: number;
   };
   indexVersion: string | null;
   cacheKeyDigest: string;
@@ -267,6 +270,7 @@ function candidateProjectionDigest(context: RuntimeMemoryPackCacheContext): stri
     host: context.host,
     maxEntries: context.maxEntries,
     maxPlaybooks: context.maxPlaybooks,
+    ...(context.candidateLimit !== undefined ? { candidateLimit: context.candidateLimit } : {}),
   });
   const refs = [
     ...candidates.devMemoryEntries.map((entry) => `dev-memory:${entry.id}:${digestCanonicalJson(entry)}`),
@@ -283,6 +287,7 @@ function keyDomain(
   contributionTuple: RuntimeMemoryPackContributionDigest[],
 ): Omit<RuntimeMemoryPackCacheKey, 'cacheKeyDigest' | 'lookupDigest'> {
   return {
+    projectRoot: context.projectRoot,
     schemaVersion: context.schemaVersion,
     consumer: context.consumer,
     normalizedQuery: normalizeText(context.query),
@@ -298,6 +303,7 @@ function keyDomain(
       maxEntries: context.maxEntries,
       maxPlaybooks: context.maxPlaybooks,
       maxLines: context.maxLines,
+      ...(context.candidateLimit !== undefined ? { candidateLimit: context.candidateLimit } : {}),
     },
     indexVersion: context.runtimeIndex?.manifest.indexVersion ?? null,
   };
@@ -306,6 +312,7 @@ function keyDomain(
 function lookupDomain(domain: Omit<RuntimeMemoryPackCacheKey, 'cacheKeyDigest' | 'lookupDigest'>): object {
   return {
     schemaVersion: domain.schemaVersion,
+    projectRoot: domain.projectRoot,
     consumer: domain.consumer,
     normalizedQuery: domain.normalizedQuery,
     normalizedContext: domain.normalizedContext,
@@ -421,6 +428,7 @@ export function buildRuntimeMemoryPackCacheContext(
     maxEntries: number;
     maxPlaybooks: number;
     maxLines: number;
+    candidateLimit?: number;
     runtimeIndex?: RuntimeMemoryIndex | null;
   },
 ): RuntimeMemoryPackCacheContext {
@@ -435,6 +443,7 @@ export function buildRuntimeMemoryPackCacheContext(
     maxEntries: normalized.maxEntries,
     maxPlaybooks: normalized.maxPlaybooks,
     maxLines: normalized.maxLines,
+    ...(normalized.candidateLimit !== undefined ? { candidateLimit: normalized.candidateLimit } : {}),
     runtimeIndex: normalized.runtimeIndex ?? null,
   };
 }

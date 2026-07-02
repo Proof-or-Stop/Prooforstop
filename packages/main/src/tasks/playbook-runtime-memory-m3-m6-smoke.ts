@@ -249,6 +249,54 @@ async function run(): Promise<void> {
       assert.equal(getRuntimeMemoryPackCacheStats().staleIrrelevantHits, 1);
     });
 
+    check('M3 pack cache separates indexed candidateLimit selection windows', () => {
+      const root = mkRoot('m3-candidate-limit'); roots.push(root);
+      writeEntries(resolveProjectMemoryPath(root), Array.from({ length: 60 }, (_, index) =>
+        memoryEntry(`mem-limit-${String(index).padStart(2, '0')}`, 'limitprobe runtime memory candidate window', {
+          createdAt: `2026-07-02T00:00:${String(index).padStart(2, '0')}.000Z`,
+        })));
+      writePlaybooks(root, []);
+      writeSignatureRegistry(root, { tags: [] });
+      rebuildRuntimeMemoryIndex(root, NOW);
+      clearRuntimeMemoryPackCache();
+
+      const narrow = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: 'limitprobe runtime memory candidate window',
+        consumer: 'session_brief',
+        maxEntries: 3,
+        maxPlaybooks: 0,
+        candidateLimit: 50,
+        generatedAt: NOW,
+      });
+      const broad = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: 'limitprobe runtime memory candidate window',
+        consumer: 'session_brief',
+        maxEntries: 3,
+        maxPlaybooks: 0,
+        candidateLimit: 80,
+        generatedAt: NOW,
+      });
+      const broadAgain = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: 'limitprobe runtime memory candidate window',
+        consumer: 'session_brief',
+        maxEntries: 3,
+        maxPlaybooks: 0,
+        candidateLimit: 80,
+        generatedAt: NOW,
+      });
+
+      assert.deepEqual(narrow.results.devMemoryEntryIds, ['mem-limit-49', 'mem-limit-48', 'mem-limit-47']);
+      assert.deepEqual(broad.results.devMemoryEntryIds, ['mem-limit-59', 'mem-limit-58', 'mem-limit-57']);
+      assert.deepEqual(broadAgain.results.devMemoryEntryIds, broad.results.devMemoryEntryIds);
+      assert.equal(narrow.context.candidateLimit, 50);
+      assert.equal(broad.context.candidateLimit, 80);
+      assert.equal(getRuntimeMemoryPackCacheStats().entries, 2);
+      assert.equal(getRuntimeMemoryPackCacheStats().hits, 1);
+    });
+
     check('M4 shared optimized API covers lifecycle consumers as advisory-only packs', () => {
       const root = mkRoot('m4-consumers'); roots.push(root); seed(root);
       clearRuntimeMemoryPackCache();

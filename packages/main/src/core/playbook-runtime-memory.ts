@@ -97,6 +97,7 @@ export interface MemoryFreshnessPack {
     host?: string;
     maxEntries: number;
     maxPlaybooks: number;
+    candidateLimit?: number;
   };
   items: {
     devMemory: Array<{
@@ -625,6 +626,9 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
   const query = options.query?.trim() ?? '';
   const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
+  const candidateLimit = options.candidateLimit === undefined
+    ? undefined
+    : Math.max(0, Math.floor(options.candidateLimit));
   const maxLines: 60 = RENDER_MAX_LINES;
   const consumer = options.consumer ?? 'session_brief';
   const runtimeIndex = resolveRuntimeIndexForPack(options);
@@ -637,6 +641,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
       maxEntries,
       maxPlaybooks,
       maxLines,
+      candidateLimit,
       runtimeIndex,
     });
   if (cacheContext) {
@@ -649,7 +654,8 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
     }
   }
 
-  const indexed = resolveIndexedCandidates(options, query, maxEntries, maxPlaybooks, runtimeIndex);
+  const indexedOptions = candidateLimit === undefined ? options : { ...options, candidateLimit };
+  const indexed = resolveIndexedCandidates(indexedOptions, query, maxEntries, maxPlaybooks, runtimeIndex);
   const allEntries = indexed?.devMemoryEntries
     ?? mergeEntries(readProjectMemoryEntries(options.projectRoot), readGlobalMemoryEntries());
   const { selected, suppressed } = selectDevMemoryEntries(allEntries, query, maxEntries);
@@ -693,6 +699,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
       host: options.host,
       maxEntries,
       maxPlaybooks,
+      ...(candidateLimit !== undefined ? { candidateLimit } : {}),
     },
     items: {
       devMemory: selected.map((entry) => ({
@@ -777,6 +784,7 @@ export function classifyMemoryFreshnessPack(
     host: options.host ?? pack.context.host,
     maxEntries: options.maxEntries ?? pack.context.maxEntries,
     maxPlaybooks: options.maxPlaybooks ?? pack.context.maxPlaybooks,
+    candidateLimit: options.candidateLimit ?? pack.context.candidateLimit,
     maxLines: options.maxLines ?? pack.render.maxLines,
     useCache: false,
     useIndex: options.useIndex ?? false,

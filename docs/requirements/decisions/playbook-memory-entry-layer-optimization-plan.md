@@ -9,10 +9,10 @@ Proofbound now has verified runtime memory consumption: active playbooks and
 dev-memory lessons surface at lifecycle entrypoints, while candidates remain
 inert and memory remains `gateEvidence:false`.
 
-The remaining gap is latency for making this a normal entry-layer capability.
-The full 1,000,000-record baseline is valuable as a correctness proof, but it is
-not the desired runtime path for `session_brief`, handoff, story intake, DONE
-closure, or final-response checks.
+The remaining gap is enforcing an operational latency SLO for making this a
+normal entry-layer capability. The full 1,000,000-record baseline is valuable as
+a correctness proof, but it is not the desired runtime path for `session_brief`,
+handoff, story intake, DONE closure, or final-response checks.
 
 ## Current Verified Baseline Vs Runtime Target
 
@@ -23,11 +23,12 @@ not the optimized runtime hot path.
 |---|---|---:|---:|---:|---|
 | Full reference baseline | PASS | 1,000,000 | 19,934 ms | 1,062,748,160 bytes | Correctness/profile proof only |
 | Indexed small fixture path | PASS | fixture-sized | smoke-level | smoke-level | M0-M2 semantic safety proof |
-| Indexed/cached million hot path | NOT YET PROVEN | 1,000,000 | target 1-2s | report-first | M3-M6 target |
+| Indexed/cached million parity + latency report | PASS | 1,000,000 | reported separately | report-first | M3-M6 proves correctness parity and timing visibility, not the 1-2s SLO |
 
-Do not claim sub-second or 1-2 second million-record runtime performance until
-M6 reports indexed/cached hot-path latency on 1,000,000 records. M0-M2 only
-prove safe indexing and small-fixture parity.
+Do not claim sub-second or 1-2 second million-record runtime performance. M6 now
+proves indexed/cached parity at 1,000,000 records and reports reference,
+indexed-cold, and indexed-warm/cache latency, but the 1-2s SLO remains
+unproven and report-first.
 
 The full reference baseline is acceptable for full validation. It is not
 acceptable for a regular entrypoint that should feel instant to a host starting
@@ -83,8 +84,9 @@ Initial SLO targets:
 | candidate false-surface rate | 0 | 0 |
 | stale relevant mutation detection | 100% on fixtures | 100% on fixtures |
 
-Performance thresholds are report-first until the indexed runtime path is
-proven correct. Correctness thresholds remain required.
+Performance thresholds are report-first. The indexed runtime path now has
+million-record parity and latency reporting; the 1-2s SLO is still not proven or
+enforced. Correctness thresholds remain required.
 
 ## 5. Architecture
 
@@ -223,7 +225,7 @@ Required behavior:
 | M3 Pack cache | Reuse unchanged packs safely | Digest/config/index changes invalidate cache; unchanged inputs hit cache |
 | M4 Consumer rollout | Wire indexed pack into normal entrypoints | `session_brief`, handoff, story, DONE, final response use optimized path |
 | M5 Correctness matrix | Prove active/candidate/superseded/stale/deprecated/malformed behavior | Matrix remains green with optimized runtime |
-| M6 Million baseline parity | Prove optimized path still matches reference behavior at 1M scale | Full profile passes with exact 1,000,000 records and gold-query parity against reference full scan |
+| M6 Million baseline parity | Prove optimized path still matches reference behavior at 1M scale | Full profile passes with exact 1,000,000 records, gold-query parity against reference full scan, and report-first latency numbers |
 | M7 Health and observability | Make latency and cache behavior visible | Health reports index age, cache hit rate, p95 latency, stale counts |
 | M8 Rollout policy | Move from report-only to warn/enforce where appropriate | Runtime SLOs are enforced only after correctness and observability are stable |
 
@@ -278,7 +280,8 @@ For both reference and optimized paths, verify:
   - reference full scan;
   - indexed cold path;
   - indexed warm/cache path.
-- Performance SLO remains report-first until correctness parity is green.
+- Performance SLO remains report-first after correctness parity is green; M6
+  records latency but does not prove or enforce a 1-2s target.
 
 ## 7. Verification Matrix
 
@@ -331,8 +334,13 @@ M0-M2 completion means:
 
 It does not mean million-record runtime performance is optimized.
 
-A host may only claim "1-2s million-record runtime memory" after M6 produces a
-passing indexed/cached million-record parity report with latency numbers.
+M3-M6 completion means indexed/cached million-record parity is proven against
+the reference full-scan path and latency is reported for reference, indexed-cold,
+and indexed-warm/cache runs.
+
+A host must not claim "1-2s million-record runtime memory" from this evidence.
+That SLO remains unproven, report-first, and non-enforced until a later rollout
+explicitly promotes it.
 
 ## 10. Paper-Framing Note
 
