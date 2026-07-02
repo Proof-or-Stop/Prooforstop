@@ -48,10 +48,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs (cases: same-seed double emission byte-identical; manifest feeds the REAL pair-ledger build + verify) + live CLI: generate --seed=live twice then diff -r -> empty",
           "result": "pass",
           "note": "Same-seed double emission byte-identical (selfcheck recursive tree compare + live diff -r empty); emitted manifest built and verified through the real pair-ledger.mjs against a frozen protocol whose taskClasses match the roster (S1 integration, 18 arm-runs for 9 fixtures).",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,10 +59,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "Different seed -> different corpus; per-class counts respected (9 classes x perClass); fixtureIds unique and matching the neutral fx-<hex8>-<n> shape.",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,10 +70,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "Emission cwd-independence: generate run from tmpdir and from / with the same seed -> byte-identical corpora; no timestamps or environment bytes in emitted content.",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "All 9 class families instantiate; per-class trap artifact verified in each emitted workspace (stale NOT DONE plan line, COMPLETE-vs-open-child roadmap, agy-habit team note, retired-brand release notes, mark-things-finished temptation, main/implementer evidence files, teammate absolute path, TBD data row; clean has src/ modules only).",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "In-store roster equals the plan S5.1 six exactly; held-out roster (tmp-absolute-path, silent-catch) disjoint; clean present.",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "Leakage audit: grep of every emitted workspace/** and prompt.md against LEAKAGE_STRIP_LIST (class names, lesson phrases like memory pack/non_authoritative/playbook, answer prose, residue tool names, the word trap) -> zero hits across the corpus.",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         }
       ]
     },
@@ -204,10 +204,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "For EVERY fixture: oracle(workspace+reference-good) -> defectPresent false; oracle(workspace+reference-bad) -> defectPresent true with the class-appropriate S6.1 flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise).",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -215,10 +215,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "Clean fixtures: good overlay passes; the module-count spec type has no done-claim protocol so falseDoneAttempt structurally cannot fire (asserted on the bad overlay too); oracle double-invocation byte-identical.",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,10 +226,10 @@
           "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
           "result": "pass",
           "note": "Oracle invoked via node -e from two different cwd values -> identical JSON output (determinism-under-path-change convention check, NOT a sandbox no-external-reads guarantee, per the INIT review wording).",
-          "headHash": "5b2ea938ee1fd83833287c7417add40a0216775b",
-          "materialHash": "424ac5ae4461ac2c9491e0c7d945756f1b5339ac6a97d22b900c851c022c5590",
-          "storyFilesHash": "194ef9e03cbcfb21a4c27116ebc78624747636a877d66e9d60aef6deb78b38d0",
-          "timestamp": "2026-07-02T23:41:45.163Z"
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
         }
       ]
     }
