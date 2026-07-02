@@ -19,16 +19,19 @@ handoff, story intake, DONE closure, or final-response checks.
 The current verified 1,000,000-record result is a full reference/profile path,
 not the optimized runtime hot path.
 
-| Path | Status | Records | Elapsed | Peak RSS | Meaning |
-|---|---|---:|---:|---:|---|
-| Full reference baseline | PASS | 1,000,000 | 49,347 ms | 646,414,336 bytes | Correctness/profile proof only |
+| Path | Status | Records | Elapsed | RSS evidence | Meaning |
+|---|---|---:|---:|---|---|
+| Full reference baseline | PASS | 1,000,000 | 49,347 ms | Run-dependent; see B-1c46 evidence doc | Correctness/profile proof only |
 | Indexed small fixture path | PASS | fixture-sized | smoke-level | smoke-level | M0-M2 semantic safety proof |
-| Indexed/cached million hot path | PASS | 1,000,000 | warm cache 1 ms | 3,845,570,560 bytes during full report | B-1c46 proves the indexed/cached hot path target; the full reference+index report still takes tens of seconds |
+| Indexed/cached million hot path | PASS | 1,000,000 | warm cache 1 ms | Canonical performance gate peak RSS: 3,610,689,536 bytes; RSS is run-dependent | B-1c46 proves the indexed/cached hot path target; the full reference+index report still takes tens of seconds |
 
 Do not claim that the complete million-record report is sub-second or 1-2
 seconds. B-1c46 proves the indexed/cached warm runtime hot path at
 1,000,000 records with parity and `indexedWarmCacheMs=1`; it does not make the
-reference full scan or index build instant.
+reference full scan or index build instant. RSS is not the hot-path latency SLO;
+the checklist-bound performance gate records the canonical peak RSS for the full
+performance report; other RSS captures are run-dependent and should be read from
+the B-1c46 evidence doc.
 
 The full reference baseline is acceptable for full validation. It is not
 acceptable for a regular entrypoint that should feel instant to a host starting

@@ -48,35 +48,20 @@ Pre-optimization M0 red profile:
 | Warm cache hits | 8 |
 | Peak RSS | 1,160,101,888 bytes |
 
-Latest captured full baseline smoke after B-1c46:
+Canonical checklist-bound full baseline evidence:
 
 | Metric | Value |
 |---|---:|
 | Records | 1,000,000 |
-| Reference full scan | 39,825 ms |
-| Indexed cold query path | 6,439 ms |
+| Reference full scan | 49,347 ms |
+| Indexed cold query path | 6,972 ms |
 | Indexed warm/cache hot path | 1 ms |
 | Target warm latency | 2,000 ms |
 | Target status | met |
-| Result digest | `19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8` |
-| Candidate false-surface rate | 0 |
-| Superseded false-surface rate | 0 |
-| Deprecated false-surface rate | 0 |
-| Malformed rows skipped | 5 |
-| Warm cache hits | 8 |
-| Cache hit rate | 0.500 |
-| Index build | 12,520 ms |
-| Warm prime | 10,873 ms |
-| p50 warm query | 0 ms |
-| p95 warm query | 0 ms |
-| Exact fast-path hits | 100 |
-| Fuzzy index hits | 126 |
-| Fuzzy fallbacks | 0 |
-| Token scan fallbacks | 0 |
-| Baseline peak RSS | 1,504,083,968 bytes |
-| Optimized report peak RSS | 3,294,199,808 bytes |
+| Index build | 14,132 ms |
+| Warm prime | 11,270 ms |
 
-Latest captured performance smoke:
+Canonical checklist-bound performance gate evidence:
 
 | Metric | Value |
 |---|---:|
@@ -87,11 +72,6 @@ Latest captured performance smoke:
 | Target warm latency | 2,000 ms |
 | Target status | met |
 | Peak RSS | 3,610,689,536 bytes |
-| Exact fast-path hits | 100 |
-| Fuzzy index hits | 126 |
-| Fuzzy fallbacks | 0 |
-| Token scan fallbacks | 0 |
-| Index build | 14,272 ms |
 
 Interpretation: the optimized warm runtime hot path meets the 1-2 second target.
 The complete full-profile report still includes generation, reference scan, and
