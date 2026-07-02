@@ -41,7 +41,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Focused smoke asserts the stable ordered M2 adapter ids and evidence kinds, then prints quantum verifier adapter descriptors listed.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts every M2 adapter has executionBoundary read-receipt-only, supports the v1 output version, and does not declare commandSpec.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts adapter claim boundaries do not advertise quantum theory, hardware, solver improvement, production, or Authority claims.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -83,7 +124,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Valid quantum.solver-output adapter output normalizes into a passing receipt and evaluateQuantumClaim accepts the normalized Q5 evidence.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke verifies unknown adapter ids and unsupported output versions return deterministic non-admissible normalization results.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke verifies mismatched hamiltonianHash, gridHash, verifierScriptHash, and outputDigest remain blocked after normalization.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -127,7 +209,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Registry smoke confirms code-runtime and quantum packs are both listed and the quantum pack resolves from the read-only registry.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Quantum pack assertions confirm read-only/declarative boundaries and that verifier adapters ingest supplied receipts only.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Smoke verifies no duplicate pack/adapter/schema ids, no storage roots, no lifecycle gates, and no completion claims are introduced.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -171,7 +294,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Command output ends with quantum M2 verifier adapter pack passed, proving the focused M2 smoke is wired.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Existing stale, missing, unbound, mismatch, and overclaim M0-M1 smoke cases still pass alongside M2 assertions.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts runtime text says M0-M2 implemented and M3-M5 pending; the plan doc records the same boundary and does not claim full quantum validation.",
+          "headHash": "fcd47ab9d5a2dbd487db0431fec00df881313fbd",
+          "materialHash": "6e48982df8723d863b24f0e64e4f6724673a77094207ee60566cdb68d15ec84c",
+          "storyFilesHash": "86d3ce75d89196be797a51aa00a224112700bdd3ae252cfa3271cb9a2773c0eb",
+          "timestamp": "2026-07-02T23:25:07.837Z"
+        }
+      ]
     }
   ]
 }
