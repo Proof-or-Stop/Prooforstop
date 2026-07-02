@@ -292,6 +292,25 @@
       ],
       "signatureTag": "adversarial|ts|pinn-report-render",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-db1b:F-014",
+      "desc": "pinn_claim_check accepts arbitrary evidenceJson objects but evaluatePinnClaim assumes receipts is iterable and every required receipt has an identity object. Malformed supplied evidence throws generic runtime errors instead of returning allowed=false with deterministic reason codes. Repro after build: call createPinnClaimAdmissibilityHandlers({}).pinn_claim_check({format:\"json\", evidenceJson: JSON.stringify({claimId:\"C1\", activeIdentity:{}, receipts:[{adapterId:\"spec-freeze\",status:\"pass\",exitCode:0}]})}) and it throws Cannot read properties of undefined (reading pdeSpecHash); with receipts as an object it throws object is not iterable. This weakens the fail-closed/CLI-validation contract for missing or unsafe verifier receipts and should be fixed with runtime evidence-shape validation plus smoke coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:19:00.599Z",
+      "reviewRound": "2026-07-02T21:14:45.759Z",
+      "reviewRunId": "B-db1b:RR-027",
+      "_hash": "66cda0e3e47d0d134ef5db976d9d2859d6b2235d2bbc8ea84630a46ce83b27f4",
+      "files": [
+        "packages/main/src/core/pinn-claim-admissibility.ts",
+        "packages/main/src/handlers/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "edge|ts|pinn-claim-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
