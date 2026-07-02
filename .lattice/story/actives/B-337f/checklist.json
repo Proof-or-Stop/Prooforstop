@@ -16,7 +16,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node experiments/experience-ablation/fixture-generator.mjs generate --out=<tmp>/corpus --seed=s1 --perClass=2 prints a per-class emission summary and creates <tmp>/corpus/<fixtureId>/ dirs each containing prompt.md, task.json (schemaVersion proofbound.experience-ablation-fixture.v1), workspace/, acceptance.mjs, oracle.mjs, reference-good/, reference-bad/, plus <tmp>/corpus/manifest.json; running generate twice with the same seed into two dirs then diff -r shows zero differences; node fixture-generator.mjs list-classes prints the class roster with groups; node experiments/experience-ablation/fixture-generator-selfcheck.mjs prints a per-case PASS list and exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "generate --seed=s1 --perClass=2 twice into separate dirs -> recursive byte-diff empty AND manifest.json rows {fixtureId,trapClass,trapGroup,oracleRef} feed the REAL pair-ledger.mjs build (frozen protocol in a temp root) ending in verify PASS; WHY: M1 exit criterion deterministic fixtures + integration with the S1 tools without adapters",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "different seed -> corpora differ; per-class counts respected (perClass fixtures per class); fixtureIds unique across the corpus; WHY: the ledger and protocol-freeze pipeline key on unique seeded ids",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "emitted content contains no timestamps and no environment-dependent bytes (generate on two different cwd values -> identical corpus); WHY: protocol-frozen corpora must reproduce across machines and checkouts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
