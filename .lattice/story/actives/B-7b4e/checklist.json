@@ -1,0 +1,179 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register the Quantum plan as the story source of truth",
+      "context": "Use the Quantum execution plan as the controlling requirement and preserve its non-goals around quantum theory, hardware, wet experiments, solver improvement, and broad scientific correctness.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees that this story is M0-M1 only, with M2-M5 explicitly pending.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The story references the Quantum execution plan and records that this implementation slice is M0-M1 only.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Runtime implementation status stays explicit so later hosts do not treat M2-M5 as delivered.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No wording claims quantum theory validation, physical validation, quantum hardware validation, solver improvement, production completion, or broad scientific correctness.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement Quantum claim and evidence schema primitives",
+      "context": "Add a bounded runtime schema for quantum claims and evidence receipts with core identity fields and conditional identity requirements from the plan.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "User sees deterministic schema errors for malformed Quantum evidence receipts.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/claim-admissibility/quantum.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid quantum evidence receipt with required core fields and applicable conditional identities validates successfully.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic tasks that do not require randomSeed or timeStepHash are not over-blocked.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Receipts missing core fields, using unknown claim IDs, or omitting applicable conditional identities are rejected with reason codes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement deterministic stale/missing/mismatched binding checks",
+      "context": "Quantum evidence must fail closed when Hamiltonian, grid, verifier script, solver config, or output identity does not match the active claim state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "packages/main/src/core/proof-admissibility-binding.ts"
+      ],
+      "userSees": "User sees stable reason codes for mismatched Quantum evidence bindings.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Matching active claim state and evidence bindings return allowed/admissible status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional conditional fields are required only when the claim type needs them.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Hamiltonian/grid/verifierScriptHash mismatch, unbound solver output, and unbound plot/table evidence are rejected deterministically.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add focused smoke coverage for the M0-M1 Quantum slice",
+      "context": "Create a local smoke task and package script covering valid, missing, stale, mismatched, and weak-evidence scoped-claim cases.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User can run one smoke command that proves the Quantum M0-M1 slice is fail-closed.",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke passes for a valid Hamiltonian-bound energy claim and a valid figure provenance claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Single-run energy evidence remains scoped and cannot prove a stronger ground-state claim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke demonstrates rejection for unbound solver output, unbound plot/table, and Hamiltonian/grid/verifierScriptHash mismatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
