@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ab8d",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main install *",
+    "npm --prefix packages/main run build",
+    "npx tsc *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/validate.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/core/experience-pack-surface.ts",
+    "packages/main/src/core/experiment-arm.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M3 arm-switch story: new core leaves + wiring of existing pack render sites + CLI choke-point retrieval gate + smoke task. Read-only inspection of any file is fine; writes confined to the listed paths (exact new-file names may vary slightly within the same directories per PLAN decision). No experiments/ writes (M1 owns that tree).",
+  "createdAt": "2026-07-02T22:54:40.306Z",
+  "updatedAt": "2026-07-02T22:54:40.306Z",
+  "_hash": "23bd18301e180b903a3e46fd6c493f9386672932482879d974b5a41f1ae28f14"
+}

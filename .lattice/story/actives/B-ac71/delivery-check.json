@@ -1,0 +1,94 @@
+{
+  "storyId": "B-ac71",
+  "checkedAt": "2026-07-02T22:51:58.188Z",
+  "headHash": "1ab50e60162b0ff733561a93f7d29a88d9518069",
+  "materialHash": "139c88118b506e971f36227fc36062846d9564185f685a8dc9ece50f8b742e8c",
+  "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+  "reviewRound": "2026-07-02T22:30:34.362Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#2-trust-anchor",
+      "promise": "Trust anchor section: verdicts verified against PINNED manifest key for claimed hostId, never self-reported key in bundle",
+      "verifiedBy": "direct file read + grep",
+      "evidence": "Section 2 lines 19-25: Trust is anchored in a pinned manifest distributed out-of-band, verified against the PINNED key for its claimed hostId, not the self-reported key in the bundle. Unambiguous."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#3-independence",
+      "promise": "Independence definition states cross-vendor but same-operator ceiling, with allowed vs forbidden paper wording spelled out explicitly",
+      "verifiedBy": "direct file read + grep",
+      "evidence": "Section 3 lines 28-36: cross-vendor independence named, ceiling stated (two hosts orchestrated by SAME operator), allowed wording given, two forbidden phrases listed. Boundary unambiguous."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#4-fail-closed-table",
+      "promise": "Fail-closed rule table covers all 6 attack vectors with detection mechanism and fail-closed response per row",
+      "verifiedBy": "direct file read",
+      "evidence": "Section 4 table: 6 rows for forged verdict, same-key masquerade, stale materialHash, replay, partial/omission, key compromise — each with reject or rotate defense. Global rule states no soft path. All 6 vectors present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#5-key-management",
+      "promise": "Key lifecycle section covers generation, pinning, rotation, and revocation as separate subsections with concrete steps",
+      "verifiedBy": "direct file read + grep",
+      "evidence": "Section 5: 4 explicit sub-bullets covering Generation (generateEd25519KeyPair), Pinning/distribution (explicit operator action), Rotation (manifest-versioned, retired-at timestamp), Revocation (revoked-at list, delayed-discovery covered). 4 of 4 present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#6-acceptance",
+      "promise": "Section 6 acceptance checklist covers all 5 topics: trust anchor, independence+ceiling, fail-closed table, key lifecycle, M5 wording boundary",
+      "verifiedBy": "direct file read",
+      "evidence": "Section 6 lines 68-72: 5 checklist items matching exactly: trust anchor, independence + ceiling, fail-closed rules, key gen/pin/rotation/revocation, paper wording boundary for M5. 5 of 5 present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md#adversarial-forbidden-phrases",
+      "promise": "Forbidden independence phrases absent as assertions in both docs",
+      "verifiedBy": "grep run in worktree",
+      "evidence": "grep output: fully independent hosts, zero-trust multi-party, trustless multi-party, mutually-distrusting vendor all return 0 matches. mutually-distrusting parties returns 1 match at threat-model.md line 36 inside the Section 3 forbidden-phrases definition list — a meta-use naming the phrase as prohibited, not a system assertion. No assertive over-claim present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md#0-current-state",
+      "promise": "Current-state section names CLI-only chain, existing crypto primitives, and the three real gaps",
+      "verifiedBy": "direct file read + grep",
+      "evidence": "Section 0 lines 10-26: names receipt-bundle.ts, decision-doc-quorum.ts, verdicts.ts, quorum-submit.ts. Lists Gap 1 (no required signature), Gap 2 (independence is label not crypto), Gap 3 (no cross-host collection). 3 of 3 gaps named."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md#2-milestones",
+      "promise": "Doc defines six milestones M0-M5 with per-milestone objective, acceptance criteria, repro-first note, size, and risk",
+      "verifiedBy": "grep run in worktree",
+      "evidence": "grep for ^### M[0-5] returns exactly 6 headings M0 through M5. Each section contains objective, files or deliverable, acceptance criteria, repro-first note or exempt, and size tags in headings. Risk note present for M4."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md#cheap-vs-expensive-gate",
+      "promise": "Cheap proof-of-mechanism block M0-M3 explicitly split from expensive powered run M4 as a separate go/no-go decision gate with named criteria",
+      "verifiedBy": "direct file read + grep",
+      "evidence": "Section 2 line 46-47: Cheap proof-of-mechanism M0-M3 vs Expensive strong claim M4 distinction explicit. Decision 2026-07-02 stated. Section 3 line 110-111: M0 through M3 then stop/decide then M4, M4 is a separate go/no-go. Section 5 line 124: explicit go/no-go step for M4."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md#5-lattice-story-sequence",
+      "promise": "Doc includes a Lattice story sequence section mapping milestones to stories",
+      "verifiedBy": "direct file read",
+      "evidence": "Section 5 lines 118-124: maps M0 through M4/M5 to stories with repro-first requirements noted per milestone. 5 entries covering the full sequence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md#adversarial-no-bare-autopilot-mnumbers",
+      "promise": "Zero bare autopilot M-numbers in execution-plan",
+      "verifiedBy": "grep run in worktree",
+      "evidence": "grep -rnE autopilot M[0-9] and related patterns on execution-plan.md returns 0 lines. Autopilot capabilities named by function; only Tier-C milestone M4 remains, which is qualified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Docs-only deliverable. Real-machine acceptance via transcript-diff.md: grep returned 26 matching lines across threat-model sections 2-5 covering pinned, out-of-band, Independence, ceiling, cross-vendor, fail-closed, rotation, revocation, generateEd25519KeyPair. Section 6 acceptance checklist 5 of 5 topics present in body. Adversarial grep for forbidden phrases confirmed 0 assertive occurrences; 1 meta-use in Section 3 forbidden-list is correct and intended. lattice validate green (build + 10 smoke suites)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Docs-only deliverable. Real-machine acceptance via transcript-diff.md: grep for ^### M[0-5] returned exactly 6 headings M0-M5 all present. Section 2 explicitly documents the cheap/expensive split and 2026-07-02 go/no-go decision. grep for bare autopilot M-numbers returned 0 lines. lattice validate green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 11 docsPromises independently verified from diff, direct file reads, and grep runs. Both CHK-001 and CHK-002 are docs-only deliverables with real-machine acceptance transcripts recorded in transcript-diff.md. The single mutually-distrusting parties occurrence is a confirmed meta-use naming the forbidden phrase not asserting it. No TODO/FIXME/HACK found. No assertive over-claims. M3-M4 go/no-go gate explicit. Section 6 acceptance checklist 5 of 5 topics covered."
+  },
+  "_hash": "2483dae8aab6cfdf661373e3aca8860fe363d1a980ace39e0be9d8c84e950a14"
+}

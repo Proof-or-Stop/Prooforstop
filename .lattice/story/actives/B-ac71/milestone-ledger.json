@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-ac71",
+  "state": "confirmed",
+  "ledgerHash": "sha256:63420705ab1928b090a1b71cc1ff1ec36dea2e23326063b82bdbad64dee6f56c",
+  "milestones": [
+    {
+      "id": "M0-threat",
+      "sourceRequirementId": "REQ-001",
+      "claim": "The Tier-C threat model + key-management decision doc is finalized",
+      "doneMeans": "threat-model.md exists and satisfies its Section-6 acceptance",
+      "requiredEvidence": [
+        "waiver"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M0-plan",
+      "sourceRequirementId": "REQ-001",
+      "claim": "The Tier-C execution plan doc is finalized",
+      "doneMeans": "execution-plan.md exists with the 6-milestone plan",
+      "requiredEvidence": [
+        "waiver"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T22:02:02.153Z",
+  "updatedAt": "2026-07-02T22:07:52.315Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702220100",
+    "acceptedInterpretationHash": "sha256:32dee53a5676dd18d9fae426d7a34d96b0a6c0b6767a0a97fd277fee1e81dce1",
+    "acceptedAt": "2026-07-02T22:07:52.315Z"
+  }
+}
