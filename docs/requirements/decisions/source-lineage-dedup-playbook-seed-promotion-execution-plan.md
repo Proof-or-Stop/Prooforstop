@@ -469,10 +469,12 @@ Ensure active playbooks are consumed by `session_brief`, DONE closure, and
 
 Make the mechanism reusable outside this repository.
 
-### M8. Controlled Auto-Promotion (V2+)
+### M8. Evidence-Activated Advisory Promotion
 
-Enable advisory auto-activation only after V1 has real outcome records and a
-human-reviewed threshold policy.
+Enable advisory activation only through `playbook_auto_promotion_apply` after
+V1 has real outcome records, a reviewed threshold policy, current candidate
+digest, applied `recommend_activate` decision, explicit exposure/outcome
+evidence, clean lineage, and rollback readiness.
 
 ## 12. Acceptance Criteria
 
@@ -482,8 +484,9 @@ human-reviewed threshold policy.
   paths.
 - `dev-memory` becomes a preferred seed source when it has sufficient lineage.
 - Raw finding proposal remains available as fallback/manual path.
-- Automatic advisory activation is disabled by default and cannot bypass
-  lineage, exposure, outcome, or safety thresholds.
+- Advisory activation is available through the evidence-gated apply command and
+  cannot bypass lineage, exposure, outcome, digest, decision, policy, or safety
+  thresholds.
 - Active playbooks are verified as consumed by `session_brief`, DONE closure,
   and `final_response_check`.
 - No learning artifact can satisfy lifecycle gate evidence.
@@ -523,8 +526,10 @@ This plan adds that missing audit layer.
 - Batch proposal defaults to dry-run.
 - Batch candidate approval requires manifest digest.
 - Promotion sweep writes recommendation rows only.
-- Auto-promotion requires an explicit feature flag and can only activate
-  advisory playbooks.
+- `playbook_auto_promotion_apply` is separate from promotion sweep; it is
+  evidence-activated, non-authoritative, non-gate, and can only activate
+  advisory playbooks that satisfy the reviewed policy and current digest-bound
+  evidence contract.
 - DONE settlement remains non-blocking and cannot infer helped from DONE
   success.
 

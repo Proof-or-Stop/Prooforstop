@@ -1229,6 +1229,17 @@ export function buildPlaybookAutoPromotionApplyReport(
       throw new Error('playbook_auto_promotion_apply: fail-closed; eligible candidates became stale before write');
     }
     if (activatedPlaybooks.length > 0) {
+      for (const event of activationEvents) {
+        appendPlaybookAutoActivationEvent(opts.projectRoot, event);
+      }
+      const persistedActivationKeys = new Set(
+        readPlaybookAutoActivationEvents(opts.projectRoot).map((event) => event.idempotencyKey),
+      );
+      for (const event of activationEvents) {
+        if (!persistedActivationKeys.has(event.idempotencyKey)) {
+          throw new Error(`playbook_auto_promotion_apply: activation audit verification failed for ${event.playbookId}`);
+        }
+      }
       writePlaybooks(opts.projectRoot, next);
       const after = readPlaybooks(opts.projectRoot);
       for (const activated of activatedPlaybooks) {
@@ -1241,9 +1252,6 @@ export function buildPlaybookAutoPromotionApplyReport(
         if (!after.some((row) => row.id === prior.id)) {
           throw new Error(`playbook_auto_promotion_apply: write verification failed; existing playbook ${prior.id} disappeared`);
         }
-      }
-      for (const event of activationEvents) {
-        appendPlaybookAutoActivationEvent(opts.projectRoot, event);
       }
     }
   }

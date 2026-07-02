@@ -19,9 +19,11 @@ import type {
 } from './experience-layer-types.js';
 import {
   buildPlaybookSourceReference,
+  readPlaybookAutoActivationEventsWithDiagnostics,
   readPlaybookOutcomeEventsWithDiagnostics,
   readPlaybookPromotionDecisionRows,
   resolveFindingSignalsPath,
+  resolvePlaybookAutoActivationsPath,
   resolvePlaybookOutcomesPath,
   resolvePlaybookPromotionDecisionsPath,
   resolvePlaybooksPath,
@@ -65,6 +67,7 @@ interface LineageInput {
   sourceFindingId?: string;
   sourceSignature?: string;
   rawSourceKey?: string;
+  canonicalSourceKey?: string;
   support?: number;
   anchorRefs?: string[];
 }
@@ -113,6 +116,9 @@ function sourceKeyFromLineage(input: {
 }
 
 function canonicalSourceKey(input: LineageInput): string | null {
+  const persistedCanonicalSourceKey = trim(input.canonicalSourceKey);
+  if (persistedCanonicalSourceKey) return persistedCanonicalSourceKey;
+
   const sourceStoryId = trim(input.sourceStoryId);
   const sourceFindingId = normalizeFindingId(sourceStoryId, trim(input.sourceFindingId));
   const sourceSignature = trim(input.sourceSignature);
@@ -154,6 +160,7 @@ function makeRecord(input: LineageInput & { sourceRef: string }): SourceLineageA
     sourceFindingId,
     sourceSignature,
     rawSourceKey,
+    canonicalSourceKey: input.canonicalSourceKey,
   });
   return {
     artifactKind: input.artifactKind,
@@ -489,6 +496,34 @@ function collectDecisions(projectRoot: string, records: SourceLineageAuditRecord
   });
 }
 
+function collectAutoActivations(projectRoot: string, playbooks: Playbook[], records: SourceLineageAuditRecord[], diagnostics: SourceLineageDiagnostic[]): void {
+  const path = resolvePlaybookAutoActivationsPath(projectRoot);
+  const activationRows = readPlaybookAutoActivationEventsWithDiagnostics(projectRoot);
+  if (!existsSync(path)) {
+    diagnostic(diagnostics, 'store_missing', 'playbook auto activations store is absent', { path, severity: 'info' });
+  } else if (activationRows.malformedCount > 0) {
+    diagnostic(diagnostics, 'store_malformed_row', `playbook auto activations skipped malformed rows: ${activationRows.malformedCount}`, {
+      path,
+      artifactKind: 'playbook_auto_activation',
+    });
+  }
+  const playbookById = new Map(playbooks.map((playbook) => [playbook.id, playbook]));
+  activationRows.events.forEach((event) => {
+    const playbook = playbookById.get(event.playbookId);
+    const source = playbook ? buildPlaybookSourceReference(playbook.lineage) : undefined;
+    records.push(makeRecord({
+      artifactKind: 'playbook_auto_activation',
+      artifactId: event.activationId,
+      sourceRef: `${path}#${event.activationId}`,
+      sourceStoryId: source?.sourceStoryId,
+      sourceFindingId: source?.sourceFindingId,
+      sourceSignature: source?.sourceSignature,
+      rawSourceKey: source?.sourceKey ?? event.evidence.lineageCanonicalSourceKey,
+      canonicalSourceKey: event.evidence.lineageCanonicalSourceKey,
+    }));
+  });
+}
+
 function duplicateGroups(records: SourceLineageAuditRecord[]) {
   const byKey = new Map<string, SourceLineageAuditRecord[]>();
   for (const record of records) {
@@ -518,6 +553,7 @@ export function buildLearningSourceLineageAudit(opts: BuildSourceLineageAuditOpt
   const playbooks = collectPlaybooks(opts.projectRoot, records, diagnostics);
   collectOutcomes(opts.projectRoot, playbooks, records, diagnostics);
   collectDecisions(opts.projectRoot, records, diagnostics);
+  collectAutoActivations(opts.projectRoot, playbooks, records, diagnostics);
 
   for (const record of records) {
     if (!record.lineagePresent) {

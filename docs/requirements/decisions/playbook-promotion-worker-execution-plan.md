@@ -1,8 +1,9 @@
 # Playbook Promotion Worker Execution Plan
 
 Status: revised draft after Claude CLI + agy CLI audit; V1 M3-M6 plus M5.5
-implemented by B-6241. M7/M8 trial serving, matched-control serving, timers,
-and automatic candidate-to-active mutation remain future work.
+implemented by B-6241. B-7ee1 adds evidence-activated advisory
+candidate-to-active apply. Trial serving, matched-control serving, and timers
+remain future work.
 
 ## 1. Why This Document Exists
 
@@ -29,9 +30,10 @@ Short version:
 > Story DONE should trigger non-blocking learning settlement. A promotion worker
 > should then use explicit outcome evidence to recommend activation, reject,
 > archive, recommend demotion, or mark playbook sources as non-promotable. The
-> first version uses a simple absolute-threshold evaluator. Matched control
-> groups, trial traffic, timers, and auto-active promotion are future
-> extensions, not V1 requirements.
+> first version uses a simple absolute-threshold evaluator. A separate
+> `playbook_auto_promotion_apply` command may activate only evidence-qualified
+> advisory candidates; matched control groups, trial traffic, and timers are
+> future extensions.
 
 ## 2. Audit-Driven Scope Correction
 
@@ -132,13 +134,14 @@ V1 does not require:
 - low-traffic trial serving;
 - matched candidate-vs-control experiments;
 - timer registration;
-- automatic `candidate -> active` mutation.
+- blanket or timer-driven `candidate -> active` mutation.
 
-V1 closes the assessment loop, not the activation loop. It reduces the
-human-memory dependency by surfacing auditable activation recommendations, but
-it does not remove the human activation boundary. Fully automatic advisory
-activation is V2+ behind an explicit feature flag and a separate reviewable
-rollout decision.
+V1 closes the assessment loop. B-7ee1 then closes the guarded advisory
+activation loop through `playbook_auto_promotion_apply`: promotion sweep remains
+recommendation-only, while the separate apply command consumes reviewed policy,
+current candidate digest, applied `recommend_activate` decision, explicit
+exposure/outcome evidence, clean lineage, and rollback readiness. The apply
+command remains non-authoritative and never writes gate evidence.
 
 `playbook_promotion_observe` is an evidence-gathering surface for M7/M8
 readiness: it reports current candidates, explicit candidate-consumption
@@ -662,8 +665,8 @@ Rules:
 - V1 apply may write recommendations, rejected/archive metadata, demotion
   recommendations, and non-promotable source records stored under the legacy
   compatibility naming/path;
-- V1 apply does not automatically activate candidates unless a later feature
-  flag/story enables that behavior;
+- promotion sweep apply does not activate candidates; activation is handled only
+  by the separate evidence-gated `playbook_auto_promotion_apply` command;
 - apply cannot mutate story lifecycle state;
 - apply cannot write review, validation, delivery, or DONE evidence.
 

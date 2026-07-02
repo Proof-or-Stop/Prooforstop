@@ -632,7 +632,8 @@ export type SourceLineageArtifactKind =
   | 'playbook_proposal'
   | 'playbook'
   | 'playbook_outcome'
-  | 'playbook_promotion_decision';
+  | 'playbook_promotion_decision'
+  | 'playbook_auto_activation';
 
 export interface SourceLineageDiagnostic {
   code: string;

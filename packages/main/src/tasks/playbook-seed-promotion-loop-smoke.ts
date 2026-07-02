@@ -21,12 +21,15 @@ import { resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from '../
 import type {
   FindingSignalsCache,
   Playbook,
+  PlaybookAutoActivationEvent,
   PlaybookOutcomeEvent,
   PlaybookProposal,
 } from '../core/experience-layer-types.js';
 import {
   aggregatePlaybookPromotion,
+  appendPlaybookAutoActivationEvent,
   buildPlaybookSourceReference,
+  computePlaybookDigest,
   computePlaybookProposalDigest,
   listProposals,
   markNonDeducibleSource,
@@ -34,6 +37,7 @@ import {
   readPlaybooks,
   readProposal,
   resolveFindingSignalsPath,
+  resolvePlaybookAutoActivationsPath,
   writeProposal,
   writePlaybooks,
 } from '../core/learning-store.js';
@@ -323,6 +327,49 @@ function recordHelpedOutcome(
     },
     bindings: {},
   } as any);
+}
+
+function syntheticActivationEvent(candidate: Playbook, guard: any, policy: any): PlaybookAutoActivationEvent {
+  const activeDigest = computePlaybookDigest({ ...candidate, status: 'active' });
+  return {
+    schemaVersion: 'proofbound.playbook-auto-activation.v1',
+    activationId: `PBA-${guard.activationIdempotencyKey.slice(0, 16)}`,
+    idempotencyKey: guard.activationIdempotencyKey,
+    activatedAt: '2026-07-02T00:09:00.000Z',
+    playbookId: candidate.id,
+    before: {
+      playbookStatus: 'candidate',
+      playbookDigest: guard.playbookDigest,
+    },
+    after: {
+      playbookStatus: 'active',
+      playbookDigest: activeDigest,
+    },
+    policy: {
+      policyId: policy.policyId,
+      policyDigest: policy.policyDigest,
+      reviewedBy: policy.reviewedBy,
+    },
+    evidence: {
+      aggregateDigest: guard.aggregateDigest,
+      decisionId: guard.promotionDecisionId,
+      decisionIdempotencyKey: guard.promotionDecisionIdempotencyKey,
+      decisionDigest: guard.promotionDecisionDigest,
+      recommendation: 'recommend_activate',
+      reasonCodes: guard.reasonCodes,
+      decisiveSamples: guard.decisiveSamples,
+      helpedCount: guard.helpedCount,
+      dismissedCount: guard.dismissedCount,
+      harmfulCount: guard.harmfulCount,
+      wrongClaimCount: guard.wrongClaimCount,
+      contextClassCount: guard.contextClassCount,
+      realOutcomeCount: guard.realOutcomeCount,
+      exposureCount: guard.exposureCount,
+      lineageCanonicalSourceKey: guard.lineageCanonicalSourceKey,
+    },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
 }
 
 function withSweepEnabled<T>(fn: () => T): T {
@@ -668,6 +715,18 @@ function run(): void {
       recordHelpedOutcome(handlers, candidate.id, 1, { host: 'codex-a', trigger: 'claim-boundary' });
       recordHelpedOutcome(handlers, candidate.id, 2, { host: 'claude-b', trigger: 'stale-authority-wording' });
       recordHelpedOutcome(handlers, candidate.id, 3, { host: 'codex-c', trigger: 'claim-boundary' });
+      const noDecisionDry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      const noDecisionGuard = noDecisionDry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
+      assert.equal(noDecisionGuard?.recommendation, 'recommend_activate');
+      assert.ok(noDecisionGuard?.blockers.includes('missing_applied_recommend_activate_decision'));
+      const beforeNoDecisionApply = snapshotDir(root, '.lattice');
+      assert.throws(
+        () => handlers.playbook_auto_promotion_apply({ apply: true, json: true }),
+        /fail-closed/,
+      );
+      assert.equal(snapshotDir(root, '.lattice'), beforeNoDecisionApply, 'outcomes alone must not activate or write');
+      assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'candidate');
+
       const sweep = withSweepEnabled(() => parseJson<any>(handlers.playbook_promotion_sweep({ apply: true, json: true })));
       assert.ok(sweep.decisions.some((row: any) => row.playbookId === candidate.id && row.action === 'recommend_activate' && row.applied));
 
@@ -690,6 +749,29 @@ function run(): void {
       assert.equal(eligibleDry.globalBlockers.length, 0);
       assert.equal(eligibleDry.activationPolicy.policyId, 'proofbound.evidence-activated-advisory-playbook.v1');
       assert.doesNotMatch(JSON.stringify(eligibleDry), /PLAYBOOK_AUTO_ACTIVE_ENABLED/, 'old default-off env flag is not part of the activation contract');
+
+      const activationLogPath = resolvePlaybookAutoActivationsPath(root);
+      mkdirSync(dirname(activationLogPath), { recursive: true });
+      writeFileSync(activationLogPath, '{malformed activation row\n', 'utf8');
+      const beforeMalformedAuditApply = snapshotDir(root, '.lattice');
+      assert.throws(
+        () => handlers.playbook_auto_promotion_apply({ apply: true, json: true }),
+        /fail-closed|Expected property name|Unexpected token|JSON/,
+      );
+      assert.equal(snapshotDir(root, '.lattice'), beforeMalformedAuditApply, 'malformed activation log must not leave candidate active');
+      assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'candidate');
+      rmSync(activationLogPath, { force: true });
+
+      appendPlaybookAutoActivationEvent(root, syntheticActivationEvent(candidate, guard, eligibleDry.activationPolicy));
+      const beforeExistingAuditApply = snapshotDir(root, '.lattice');
+      assert.throws(
+        () => handlers.playbook_auto_promotion_apply({ apply: true, json: true }),
+        /activation_audit_already_exists|fail-closed/,
+      );
+      assert.equal(snapshotDir(root, '.lattice'), beforeExistingAuditApply, 'pre-existing activation audit blocks without extra writes');
+      assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'candidate');
+      assert.equal(readPlaybookAutoActivationEvents(root).filter((row) => row.playbookId === candidate.id).length, 1);
+      rmSync(activationLogPath, { force: true });
 
       const applied = parseJson<any>(handlers.playbook_auto_promotion_apply({ apply: true, json: true }));
       assert.equal(applied.applied, true);

@@ -1461,20 +1461,29 @@ function validatePlaybookAutoActivationEvent(raw: unknown): {
   return { ok: true, event: raw as unknown as PlaybookAutoActivationEvent };
 }
 
-export function readPlaybookAutoActivationEvents(projectRoot: string): PlaybookAutoActivationEvent[] {
+export function readPlaybookAutoActivationEventsWithDiagnostics(projectRoot: string): {
+  events: PlaybookAutoActivationEvent[];
+  malformedCount: number;
+} {
   const filePath = resolvePlaybookAutoActivationsPath(projectRoot);
-  if (!existsSync(filePath)) return [];
+  if (!existsSync(filePath)) return { events: [], malformedCount: 0 };
   const events: PlaybookAutoActivationEvent[] = [];
+  let malformedCount = 0;
   for (const line of readFileSync(filePath, 'utf8').split('\n')) {
     if (!line.trim()) continue;
     try {
       const validated = validatePlaybookAutoActivationEvent(JSON.parse(line));
       if (validated.ok) events.push(validated.event);
+      else malformedCount += 1;
     } catch {
-      // Malformed audit rows are ignored by readers; appends still fail closed.
+      malformedCount += 1;
     }
   }
-  return events;
+  return { events, malformedCount };
+}
+
+export function readPlaybookAutoActivationEvents(projectRoot: string): PlaybookAutoActivationEvent[] {
+  return readPlaybookAutoActivationEventsWithDiagnostics(projectRoot).events;
 }
 
 export function appendPlaybookAutoActivationEvent(projectRoot: string, event: PlaybookAutoActivationEvent): string {
