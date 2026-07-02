@@ -168,7 +168,7 @@
       "desc": "normalizeBenchmarkReport sanitizes top-level and claims overclaim fields, but then returns untrusted nested supplied report structures verbatim at packages/main/src/handlers/pinn-claim-admissibility.ts:133-143 (notably report.injections/report.arms/report.a4/report.artifactIndex). Repro: call pinn_report_render with format:\"json\" and benchmarkJson built from runPinnClaimBenchmark() plus injections:[{...benchmark.injections[0], deploymentReadyClaim:\"true\"}]. The JSON result preserves result.injections[0].deploymentReadyClaim === \"true\", while text mode does not render that field. This lets supplied report JSON carry arbitrary nested overclaim fields and makes JSON/text report boundary behavior inconsistent.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:09:30.592Z",
@@ -179,7 +179,11 @@
         "packages/main/src/handlers/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "adversarial|ts|normalizebenchmarkreport-sanitizes-level",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by rebuilding supplied benchmark reports through typed nested sanitizers instead of returning caller-controlled injections, arms, a4, or artifactIndex objects verbatim; true-ish overclaim keys anywhere in nested data now reject, and arbitrary nested fields are not preserved. Verified by smoke, direct benchmarkJson/benchmarkPath probes, build, guard, and full lattice validate.",
+      "resolvedAt": "2026-07-02T20:21:23.628Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
