@@ -93,7 +93,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "packages/main/src/core/proof-admissibility-binding.ts"
       ],
-      "userSees": "User sees stable reason codes for mismatched Quantum evidence bindings.",
+      "userSees": "Smoke output includes: \"mismatched hamiltonianHash: BLOCK\", \"mismatched gridHash: BLOCK\", and \"mismatched verifierScriptHash: BLOCK\".",
       "files": {
         "modify": [
           "packages/main/src/core/claim-admissibility/quantum.ts"
