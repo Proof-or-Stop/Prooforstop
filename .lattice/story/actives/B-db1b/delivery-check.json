@@ -1,64 +1,82 @@
 {
   "storyId": "B-db1b",
-  "checkedAt": "2026-07-02T21:12:50.391Z",
-  "headHash": "24f1fbccaf085210a581f49315b962bfd484dea7",
-  "materialHash": "d61ecf833379333d8ff74e212264079fa2e6505601116434129defaea9059687",
-  "storyFilesHash": "3422ccb57078fc4e0872db4af1c9cbe3dddf795b4e0461125535f615a2ab4ab5",
-  "reviewRound": "2026-07-02T20:44:40.430Z",
+  "checkedAt": "2026-07-02T22:04:40.058Z",
+  "headHash": "03ad8b0da47a54519f58940f21b3c98679c8f626",
+  "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
+  "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
+  "reviewRound": "2026-07-02T21:27:07.783Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
-      "promise": "Story B-db1b delivers a local runtime pack for M0-M5 only: claim admissibility, C1-C9 evidence identity and receipt checks, read-only nextAction policy, B1-B15/A1-A4 benchmark, report renderer, and no PDE correctness, deployment, Authority production, lifecycle mutation, or remote release claim.",
+      "promise": "Story B-db1b delivers a local runtime pack with pinn_claim_check, pinn_benchmark_run, and pinn_report_render while remaining local claim-admissibility only.",
       "status": "verified",
-      "verifiedBy": "doc review plus live CLI commands and smoke test",
-      "evidence": "Reviewed the plan scope, boundary, milestone table, and non-goals. Live local CLI returned complete C9 allowed=true with nine checked adapters and all overclaim flags false; benchmark PASS with A4 rejecting 15/15; report rendered artifact index and boundary paragraph; overclaim and side-effect flags were rejected."
+      "verifiedBy": "docs rg/sed + live CLI",
+      "evidence": "Decision doc current status lists the three commands and excludes scientific solver, PDE correctness proof, lifecycle mutation, external Authority verification, and remote release. Live node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json returned allowed=true,nextAction=advance with all completion/correctness flags false."
     },
     {
-      "docPath": ".lattice/story/actives/B-db1b/evidence/transcript-diff.md",
-      "promise": "Recorded expected and actual transcripts match for complete C9 claim check, B1-B15 benchmark, report rendering, and overclaim probes.",
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Evidence binding and verifier-adapter failures block with deterministic reason codes instead of advancing unsupported claims.",
       "status": "verified",
-      "verifiedBy": "transcript review plus rerun of equivalent commands",
-      "evidence": "Reran node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json, pinn_benchmark_run --format=json, pinn_report_render --format=text/json, B1 injection check, invalid overclaim/side-effect flag commands, and npm run test:pinn-claim-admissibility. Results matched the transcript promises."
+      "verifiedBy": "live CLI evidencePath probes + npm run test:pinn-claim-admissibility",
+      "evidence": "Temp evidencePath probes returned allowed=false,nextAction=stop for malformed_receipts and malformed_receipt_identity; focused smoke passed."
     },
     {
-      "docPath": ".lattice/story/actives/B-db1b/test-evidence.json",
-      "promise": "Current story validation evidence covers all required verification intents for B-db1b.",
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "A4 rejects all B1-B15 stale/mismatch/unsafe injections and beats A1/A2/A3 on unsupported advancement while reporting Wilson and overhead fields.",
       "status": "verified",
-      "verifiedBy": "jq inspection of committed Lattice validation evidence",
-      "evidence": "test-evidence.json records command lattice validate --story=B-db1b --json, result PASS, timestamp 2026-07-02T21:06:59.351Z, materialHash d61ecf833379333d8ff74e212264079fa2e6505601116434129defaea9059687, storyFilesHash 3422ccb57078fc4e0872db4af1c9cbe3dddf795b4e0461125535f615a2ab4ab5, and coverage 18/18 with 0 required missing."
+      "verifiedBy": "live CLI benchmark",
+      "evidence": "node bin/lattice.js pinn_benchmark_run --format=json returned suiteStatus=PASS,totalInjections=15,A3 acceptedCount=14 unsupportedAcceptanceCount=14,A4 acceptedCount=0 rejectedInjectionCount=15,rejectionWilson95 present,meanWallTimeMs and meanInterventionCount present."
     },
     {
-      "docPath": ".lattice/story/actives/B-db1b/done-required-evidence.json",
-      "promise": "DONE-required evidence has passing build and full root test receipts for the current material/story file state.",
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Report rendering includes an artifact index and non-claim boundary wording and never claims PDE correctness, production readiness, or external Authority completion.",
       "status": "verified",
-      "verifiedBy": "jq inspection of committed DONE-required evidence",
-      "evidence": "done-required-evidence.json status PASS, endedAt 2026-07-02T21:09:40.351Z, materialHash d61ecf833379333d8ff74e212264079fa2e6505601116434129defaea9059687, storyFilesHash 3422ccb57078fc4e0872db4af1c9cbe3dddf795b4e0461125535f615a2ab4ab5, receipts packages/main build PASS exit 0 and root full test suite PASS exit 0."
+      "verifiedBy": "live CLI report JSON/text and overclaim rejection",
+      "evidence": "pinn_report_render --format=text rendered artifactIndex plus deploymentReadyClaim=false, externalCompletionClaim=false, terminalCompletionClaim=false, pdeCorrectnessClaim=false. A benchmarkPath with claims.pdeCorrectnessClaim=true was refused."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Local diagnostic and local gate evidence cannot set productionDone or Authority completion claims.",
+      "status": "verified",
+      "verifiedBy": "lifecycle_check + live CLI output",
+      "evidence": "lattice lifecycle_check --target=DONE --json reported authorityDone=false, fullAuthorityDone=false, productionDone=false. Claim/report outputs keep the same boundary flags false; --productionDone=true and --pdeCorrectnessClaim=true are rejected by CLI validation."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "The PINN claim-admissibility decision doc is discoverable from requirements navigation.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found NAV.md entry for Proof-or-Stop for PINNs: Cross-Domain Claim-Admissibility Execution Plan."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "B-db1b-C9-complete",
-      "transcript": "node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json -> allowed true, nextAction advance, nine adapters checked, no missing adapters, deploymentReadyClaim/externalCompletionClaim/terminalCompletionClaim/pdeCorrectnessClaim all false, artifact index present."
+      "featureId": "CHK-001",
+      "transcript": "Command boundary verified with node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json: allowed=true,nextAction=advance, all local/production/PDE correctness booleans false; node bin/lattice.js pinn_benchmark_run --productionDone=true failed schema validation with expected never."
     },
     {
-      "featureId": "B-db1b-B1-B15-benchmark",
-      "transcript": "node bin/lattice.js pinn_benchmark_run --format=json -> suiteStatus PASS, totalInjections 15, A4 rejectedInjectionCount 15, A4 unsupportedAcceptanceCount 0, A4 staleAcceptanceCount 0, weaker A1/A2/A3 arms expose unsupported and stale acceptance, Wilson interval and overhead fields present."
+      "featureId": "CHK-002-CHK-004",
+      "transcript": "Schema, adapter, and transition behavior verified with npm run test:pinn-claim-admissibility plus temp evidencePath CLI probes: malformed receipts -> allowed=false,nextAction=stop,reasons include malformed_receipts; missing receipt identity -> allowed=false,nextAction=stop,reasons include malformed_receipt_identity; passive PDE narrative -> allowed=false,nextAction=stop,claim_boundary_violation."
     },
     {
-      "featureId": "B-db1b-report-render",
-      "transcript": "node bin/lattice.js pinn_report_render --format=text and --format=json -> report includes artifactIndex and the fixed boundary paragraph; all completion and PDE correctness flags remain false."
+      "featureId": "CHK-005",
+      "transcript": "node bin/lattice.js pinn_benchmark_run --format=json returned suiteStatus=PASS,totalInjections=15,A3 acceptedCount=14/unsupportedAcceptanceCount=14, and A4 rejectedInjectionCount=15 with rejectedInjectionIds B1-B15, Wilson interval, meanWallTimeMs, and meanInterventionCount."
     },
     {
-      "featureId": "B-db1b-fail-closed-edges",
-      "transcript": "node bin/lattice.js pinn_claim_check --injection=B1 --claimId=C9 --format=json -> allowed false, nextAction stop, identity_mismatch/stale_evidence reasons. node bin/lattice.js pinn_benchmark_run --productionDone=true, pinn_claim_check ... --advancePhase=true, and pinn_report_render ... --pdeCorrectnessClaim=true each failed argument validation with expected never. npm run test:pinn-claim-admissibility -> pinn claim-admissibility smoke passed, including supplied report, narrative, numeric overclaim, duplicate receipt, low-loss-only, and malicious benchmark path probes."
+      "featureId": "CHK-006",
+      "transcript": "node bin/lattice.js pinn_report_render --format=json and --format=text returned deterministic report data with artifactIndex length 3, A4 blocks 15/15, boundary paragraph, and all completion/PDE booleans false; report overclaim via benchmarkPath claims.pdeCorrectnessClaim=true was refused."
+    },
+    {
+      "featureId": "VALIDATION",
+      "transcript": "Read-only lattice lifecycle_check --storyId=B-db1b --target=DONE --json and lattice test_list --storyId=B-db1b show validation PASS at 2026-07-02T21:57:29.389Z on materialHash e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32 with 18/18 verification intents covered; DONE-required validation PASS at 2026-07-02T21:59:47.015Z with 2 required commands."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "PASS for the promised local claim-admissibility runtime slice. Evidence covers doc promises, complete admissible C9, stale/mismatched B1 stop, deterministic B1-B15 benchmark, report rendering, side-effect and overclaim rejection, smoke tests, validation coverage, and DONE-required build/full-test receipts. Residual risk: the global lattice binary in this environment does not expose the new PINN commands, while the worktree-local node bin/lattice.js entrypoint does; this matches known self-hosting dist lag and should be resolved by canonical dist refresh after merge."
+    "summary": "PASS for delivery scope. Current docs, checklist evidence, validation, DONE-required evidence, and live CLI behavior support the B-db1b local PINN claim-admissibility delivery. F-012/F-013/F-014 regressions were explicitly reprobed. Remaining DONE blockers are review/quorum/summary process blockers, not delivery-function failures."
   },
-  "_hash": "f47d20aa43e13f175e894a5f6c4c20e4af7ad0ae5d6ee16bb6e9480e2ba64f37"
+  "_hash": "7adc8fc05794956b9a248624e46832eee02ea8e331eb40279c1cfbeb68aad91f"
 }
