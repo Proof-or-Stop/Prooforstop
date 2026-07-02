@@ -145,7 +145,7 @@
       "desc": "Blocking test-coverage gap: the quantum smoke does not cover mismatched top-level receipt.outputDigest or missing receipt.identity, both within the M0-M1 missing/mismatched/unbound evidence boundary. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:143-148 deletes both identity.outputDigest and receipt.outputDigest for unbound solver output, but has no case where receipt.outputDigest differs while identity.outputDigest remains bound; repro returns allowed=true,nextAction=advance,reasons=[]. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 covers missing active codeHash, not missing receipt identity, while packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity; repro deleting receipt.identity throws Cannot read properties of undefined (reading codeHash) instead of returning stable fail-closed reasons.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T21:07:31.736Z",
@@ -157,7 +157,11 @@
         "packages/main/src/core/claim-admissibility/quantum.ts"
       ],
       "signatureTag": "missing|ts|blocking-test-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by adding direct smoke coverage for mismatched top-level receipt.outputDigest and missing receipt.identity; focused smoke passes and prints both cases as BLOCK before quantum claim-admissibility smoke passed.",
+      "resolvedAt": "2026-07-02T21:13:46.711Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
