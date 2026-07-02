@@ -237,9 +237,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:31:33.382Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:31:41.867Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies non_promotable state is respected by future seed/proposal commands while preserving legacy non_deducible storage compatibility.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:42.258Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies DONE-style neutral settlement and exposureMode=none do not create helped outcomes; helped with no exposure is rejected.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:42.622Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies learning outputs and new reports remain authority=non_authoritative and gateEvidence=false.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:42.987Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
