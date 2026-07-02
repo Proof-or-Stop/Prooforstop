@@ -113,12 +113,17 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "Verifier adapter pack plan includes deterministic PINN adapter list and failure behavior for missing/stale/bad evidence.",
+      "userSees": "User sees: \"Plan now lists the verifier adapter pack with residual/BC/IC/baseline/reproducibility/provenance evidence definitions.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "packages/main/src/core",
+          "packages/main/src/cli",
+          ".lattice/story/actives/B-2769"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/tasks/proof-or-stop-pinn-adapter-list.ts"
+        ],
         "test": []
       },
       "verificationIntent": {
