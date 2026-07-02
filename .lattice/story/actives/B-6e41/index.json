@@ -4,7 +4,7 @@
   "title": "Add ClaimAdmissibilityPack interface and read-only pack registry",
   "description": "Implement the first runtime slice of the claim-admissibility adapter pack framework: a typed pack contract, read-only registry, duplicate/unknown fail-closed validation, and smoke coverage without introducing new proof storage or weakening lifecycle gates.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "claim-admissibility",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-02T22:18:35.468Z",
   "startedAt": "2026-07-02T22:18:35.468Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T23:03:01.397Z",
   "events": [
     {
       "phase": "INIT",
@@ -69,12 +69,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-59bf77b8df9a1c06",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:03:01.398Z",
+      "branch": "story/B-6e41",
+      "user": "Harmonygo",
+      "sessionId": "sess-59bf77b8df9a1c06",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6e41",
-    "branch": "story/B-6e41",
-    "createdAt": "2026-07-02T22:20:53.034Z"
-  },
   "currentReviewRound": "2026-07-02T22:45:01.546Z"
 }
