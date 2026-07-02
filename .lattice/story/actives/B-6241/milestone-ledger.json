@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-6241",
+  "state": "confirmed",
+  "ledgerHash": "sha256:1ff3d39236070eb00dbfc467dd3fe967c6a3c8d072e25fb8b9c51f809f7e9f8e",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-V1-PROMOTION-WORKER",
+      "claim": "V1 aggregate evaluator and decision metadata stores exist and are test-covered.",
+      "doneMeans": "Smoke tests demonstrate all V1 evaluator decisions and validated learning metadata writes.",
+      "requiredEvidence": [
+        "logic_test",
+        "build"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-V1-PROMOTION-WORKER",
+      "claim": "playbook_promotion_sweep supports deterministic dry-run and feature-flagged idempotent apply.",
+      "doneMeans": "CLI smoke proves dry-run writes nothing, apply writes one audited decision per key, and no auto-activation occurs.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-V1-PROMOTION-WORKER",
+      "claim": "playbook_propose consults non-deducible source records with explicit auditable override.",
+      "doneMeans": "CLI smoke proves marked sources block by default, short override rejects, explicit override succeeds and is recorded.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:edge:0",
+        "CHK-003:happy:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-LEARNING-NOT-PROOF",
+      "claim": "DONE settlement is best-effort learning-only and never blocks or mutates lifecycle proof evidence.",
+      "doneMeans": "Smoke and code inspection prove settlement is post-DONE/idempotent/advisory and cannot infer helped from DONE alone.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-ASSESSMENT-NOT-ACTIVATION",
+      "claim": "playbook_promotion_status surfaces pending learning posture without making candidates active runtime guidance.",
+      "doneMeans": "CLI smoke proves candidates/decisions/non-deducible/health are visible and candidate rows are not active guidance.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T03:43:31.902Z",
+  "updatedAt": "2026-07-02T03:43:36.944Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702034336",
+    "acceptedInterpretationHash": "sha256:5e49210d1905a8b544683efe2b824e517bdb0bc9c4e83cd08e2fa72b3d286434",
+    "acceptedAt": "2026-07-02T03:43:36.944Z"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "storyId": "B-6241",
+  "checkedAt": "2026-07-02T04:21:10.948Z",
+  "headHash": "9e114d7acbda8f2066866f85125657ad4634bd4d",
+  "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+  "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+  "reviewRound": "2026-07-02T04:11:03.656Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "V1 closes the assessment loop, not the activation loop; candidate activation remains an explicit human boundary.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan docs and implementation",
+      "evidence": "docs section 5 says V1 does not auto-promote; packages/main/src/handlers/playbook.ts playbook_promotion_sweep writes decision rows only, and packages/main/src/tasks/playbook-promotion-worker-smoke.ts asserts recommend_activate never sets candidate active."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Candidate playbooks are pending learning material, not active runtime guidance.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan status handler and smoke",
+      "evidence": "playbook_promotion_status labels pendingLearning as not active runtime guidance and prints candidatesAreRuntimeGuidance:false; focused smoke CHK-005 asserts pendingLearning and candidatesAreRuntimeGuidance:false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "decisiveSamples means helped + dismissed + harmful only; neutral and unknown do not count as positive promotion evidence.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan evaluator and smoke",
+      "evidence": "aggregatePlaybookPromotion computes decisiveSamples as helpedCount + dismissedCount + harmfulCount; smoke asserts neutral and unknown rows keep decisiveSamples at zero and evaluator holds."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "A helped candidate outcome requires explicit exposure and a structured verdict source; DONE success alone cannot create helped evidence.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan outcome validator and DONE settlement smoke",
+      "evidence": "validatePlaybookOutcomeEvent rejects helped with exposureMode none and isPositiveHelpedPlaybookOutcome requires non-none exposure plus structured verdictSource; smoke asserts DONE settlement creates no candidate helped outcome from DONE success alone."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Repeated rejected source experience can be marked non-deducible and must guard repeat proposal unless explicitly overridden.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan non-deducible path and smoke",
+      "evidence": "playbook_promotion_sweep records mark_non_deducible and playbook_propose refuses marked sources unless overrideNonDeducible has a useful reason; smoke covers blocked proposal and audited override."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": ".lattice/story/actives/B-6241/evidence/transcript-diff.md records npm --prefix packages/main run build PASS."
+    },
+    {
+      "featureId": "promotion-smoke",
+      "transcript": ".lattice/story/actives/B-6241/evidence/transcript-diff.md records node packages/main/dist/tasks/playbook-promotion-worker-smoke.js PASS."
+    },
+    {
+      "featureId": "vocabulary-guard-smoke",
+      "transcript": ".lattice/story/actives/B-6241/evidence/transcript-diff.md records node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js PASS after fixing command-policy wording."
+    },
+    {
+      "featureId": "validate",
+      "transcript": ".lattice/story/actives/B-6241/evidence/transcript-diff.md and test-evidence.json record lattice validate --story=B-6241 --json PASS with verification coverage 30/30."
+    },
+    {
+      "featureId": "done-required",
+      "transcript": ".lattice/story/actives/B-6241/evidence/transcript-diff.md and done-required-evidence.json record lattice done_required_validate --storyId=B-6241 --json PASS, including packages/main build and root full test suite."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scan verified the V1 worker boundaries against implementation, smoke coverage, validate evidence, and DONE-required evidence; no unresolved delivery TODOs found."
+  },
+  "_hash": "f202139df75006ec919fd4c4fb78648e1cc270529e836d339a526b0e967727e4"
+}

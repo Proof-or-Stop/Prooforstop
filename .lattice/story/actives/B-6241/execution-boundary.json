@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6241",
+  "allowedCommands": [
+    "lattice done_required_validate",
+    "lattice validate",
+    "node packages/main/dist/cli.js playbook_promotion_status --help",
+    "node packages/main/dist/cli.js playbook_promotion_sweep --help",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:command-catalog-smoke",
+    "npm --prefix packages/main run test:command-ownership-contract",
+    "npm --prefix packages/main run test:experience-layer-playbook",
+    "npm --prefix packages/main run test:lifecycle-registry-contract"
+  ],
+  "allowedTools": [
+    "Claude Code CLI reviewer",
+    "Codex CLI",
+    "Lattice CLI",
+    "Node.js smoke tests",
+    "TypeScript compiler"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git push",
+    "git reset --hard",
+    "npm publish",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "No remote writes. No future auto-active/timer/trial implementation. Keep learning artifacts non-authoritative and materialHash-excluded.",
+  "createdAt": "2026-07-02T03:38:01.770Z",
+  "updatedAt": "2026-07-02T03:38:01.770Z",
+  "_hash": "db4a83fa8ed9424148bf8bfd3cfea17a0f4bd087fc5ad4d329b7cfb1c7db9cb6"
+}

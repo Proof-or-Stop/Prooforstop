@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Host-neutral workflow commands remain independent of Codex or any single host.",
+    "Learning artifacts must not become lifecycle proof evidence or DONE gate inputs.",
+    "Candidate playbooks stay pending learning until explicit human/operator activation.",
+    "Every state transition performed by the sweep must be idempotent and auditable.",
+    "Implement only V1 correctness gaps from the plan, not speculative optimization."
+  ],
+  "drivers": [
+    "Need to finish candidate assessment/rejection/non-deducible loop without weakening evidence boundaries.",
+    "Existing B-dddd outcome ledger provides explicit settled outcome events that can feed aggregation.",
+    "Runtime memory work is concurrently owned by B-ec3b, so this story must avoid active runtime pack changes."
+  ],
+  "options": [
+    {
+      "name": "A: deterministic local sweep with explicit apply and advisory recommendations",
+      "pros": [
+        "Matches V1 plan boundary and keeps automatic activation out of scope",
+        "Can be tested with pure local fixtures and smoke tests",
+        "Keeps recommendations/rejections/non-deducible markings auditable and idempotent"
+      ],
+      "cons": [
+        "Does not fully automate activation; operator still must activate separately",
+        "Sparse local samples may hold candidates longer"
+      ]
+    },
+    {
+      "name": "B: automatic promotion worker that mutates candidate to active",
+      "pros": [
+        "Would close activation loop and reduce operator steps"
+      ],
+      "cons": [
+        "Contradicts V1 boundary",
+        "Risks turning local learning into runtime guidance without explicit review",
+        "Would touch B-ec3b runtime memory scope"
+      ]
+    },
+    {
+      "name": "C: matched-control trial traffic and timer daemon",
+      "pros": [
+        "Richer statistical signal and automatic recurring sweep"
+      ],
+      "cons": [
+        "Explicitly future/V2+ in the plan",
+        "Requires serving changes and background scheduling outside this story",
+        "Increases risk and review surface without current necessity"
+      ]
+    }
+  ],
+  "chosen": "A: deterministic local sweep with explicit apply and advisory recommendations",
+  "rationale": "Choose the deterministic local sweep because it closes the V1 assessment loop while preserving Proofbound evidence boundaries and avoiding automatic activation.",
+  "preMortem": [
+    {
+      "scenario": "Candidate recommendations leak into active runtime guidance",
+      "trigger": "status/session surfaces reuse runtime memory pack fields",
+      "consequence": "Agents treat candidate material as active advice",
+      "mitigation": "Keep status output separate and avoid runtime memory pack changes"
+    },
+    {
+      "scenario": "DONE settlement falsely credits a candidate",
+      "trigger": "implementation equates story DONE with helped outcome",
+      "consequence": "Bad candidates can be recommended from unrelated success",
+      "mitigation": "Require explicit exposure and structured verdict for helped outcomes; post-DONE hook is learning-only/no-op unless eligible"
+    },
+    {
+      "scenario": "Apply sweep is rerun and duplicates decisions",
+      "trigger": "operator repeats playbook_promotion_sweep --apply",
+      "consequence": "Audit log becomes noisy and downstream status misleading",
+      "mitigation": "Use deterministic aggregate digest/idempotency key and skip duplicate decision rows"
+    }
+  ],
+  "timestamp": "2026-07-02T03:40:38.420Z"
+}

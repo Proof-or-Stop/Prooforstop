@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6241",
+  "checkedAt": "2026-07-02T03:38:02.031Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "08417520fae3f2ad8517219d9e65e762bc4828706c533afc81d5930d15c4d589",
+  "executionBoundaryHash": "db4a83fa8ed9424148bf8bfd3cfea17a0f4bd087fc5ad4d329b7cfb1c7db9cb6",
+  "freshnessHash": "0d84ffc7afa8cc24e77826cbb524b6c54999629d3796bcc4aa33be690481f216",
+  "effectiveExcludedKeywords": [
+    "No automatic candidate-to-active promotion",
+    "No changes to B-ec3b runtime-memory-index scope files unless mechanically required and explicitly reviewed",
+    "No lifecycle gate evidence consumption from playbook promotion",
+    "No matched-control or trial traffic serving",
+    "No timer/daemon registration"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No automatic candidate-to-active promotion",
+      "source": "scopeBoundary.excluded",
+      "text": "No automatic candidate-to-active promotion",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to B-ec3b runtime-memory-index scope files unless mechanically required and explicitly reviewed",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to B-ec3b runtime-memory-index scope files unless mechanically required and explicitly reviewed",
+      "excluded": true
+    },
+    {
+      "keyword": "No lifecycle gate evidence consumption from playbook promotion",
+      "source": "scopeBoundary.excluded",
+      "text": "No lifecycle gate evidence consumption from playbook promotion",
+      "excluded": true
+    },
+    {
+      "keyword": "No matched-control or trial traffic serving",
+      "source": "scopeBoundary.excluded",
+      "text": "No matched-control or trial traffic serving",
+      "excluded": true
+    },
+    {
+      "keyword": "No timer/daemon registration",
+      "source": "scopeBoundary.excluded",
+      "text": "No timer/daemon registration",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dae1ac1f83426c9d91ae8ce04b0febd1bcaaf0a7a0238526892c722c8a044cca"
+}

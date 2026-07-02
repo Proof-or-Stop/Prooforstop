@@ -1,0 +1,58 @@
+{
+  "storyId": "B-6241",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "M7 trial/matched-control serving",
+    "M8 timer/auto-active advisory activation",
+    "runtime active memory pack implementation changes owned by B-ec3b"
+  ],
+  "scopeChangeReason": "Initialize B-6241 scope contract from PLAN and protect concurrent B-ec3b runtime-memory-index ownership.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge command-generated ProofStory and intent metadata already present in this story worktree so REVIEW scope gate can classify lifecycle planning artifacts; no implementation scope is expanded.",
+      "timestamp": "2026-07-02T04:01:14.144Z",
+      "paths": [
+        ".lattice/story/actives/B-6241/intent-collision.json",
+        ".lattice/story/actives/B-6241/milestone-ledger.json",
+        ".lattice/story/actives/B-6241/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6241/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6241/intent-collision.json",
+        ".lattice/story/actives/B-6241/milestone-ledger.json",
+        ".lattice/story/actives/B-6241/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6241/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "0b207923454b880fe35e52e95432ab97d6348c16",
+      "materialHash": "5be3d6c4c14ddca3ffb0feccbcc19010c0f05e86ef3125c898db135a20330d42"
+    }
+  ],
+  "createdAt": "2026-07-02T03:44:44.152Z",
+  "updatedAt": "2026-07-02T04:01:14.144Z"
+}

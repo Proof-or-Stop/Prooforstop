@@ -1814,6 +1814,8 @@ Behavior:
   { name: 'playbook_propose', description: 'Stage a Playbook proposal distilled from a resolved finding (audit-only; never files a finding)', schema: {
     finding: z.string().describe('Source finding id (e.g. B-xxx:F-001) to distil into a playbook proposal.'),
     storyId: z.string().optional().describe('Optional story id; defaults to the prefix parsed from the finding id.'),
+    overrideNonDeducible: z.boolean().optional().describe('Explicitly override a marked non_deducible source. Requires nonDeducibleOverrideReason and records audit metadata.'),
+    nonDeducibleOverrideReason: z.string().optional().describe('Required with overrideNonDeducible=true; a useful reason whose digest is recorded for audit.'),
   }},
   { name: 'playbook_diff', description: 'Read-only render of the candidate Playbook that approve would write (no mutation)', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to render.'),
@@ -1825,6 +1827,53 @@ Behavior:
   { name: 'playbook_activate', description: 'Explicitly activate a candidate Playbook for advisory runtime matching (fails closed on a stale digest)', schema: {
     playbookId: z.string().describe('Approved playbook id (PBP-NNN/PB-NNN) to activate.'),
     expectedPlaybookDigest: z.string().describe('Must byte-match computePlaybookDigest for the stored candidate; a stale/missing digest fails closed.'),
+  }},
+  { name: 'playbook_outcome_record', description: 'Append an explicit audit-only Playbook outcome observation (non-authoritative; never gate evidence)', schema: {
+    storyId: z.string().describe('Story where the observation was made. Story/DONE completion alone is not interpreted as helped.'),
+    playbookId: z.string().describe('Candidate or active playbook id being observed. The command snapshots current status but does not change it.'),
+    exposureMode: z.enum(['candidate-inspection', 'active-advisory', 'none']).describe('Concrete exposure mode; helped requires a value other than none.'),
+    consumer: z.string().describe('Host-neutral consumer surface, for example session_brief, reviewer, delivery, done_closure, or another source token.'),
+    context: z.object({
+      storyPhase: z.string().optional(),
+      storyType: z.string().optional(),
+      fileKinds: z.array(z.string()).describe('Coarse file-kind buckets involved in the observation.'),
+      triggerClasses: z.array(z.string()).describe('Trigger/pattern classes involved in the observation.'),
+      host: z.string().optional().describe('Optional host label; accepts future host strings.'),
+      hostProvider: z.string().optional().describe('Optional provider label; host-neutral and not a namespace.'),
+      hostCapabilityId: z.string().optional().describe('Optional host capability id.'),
+    }).strict().describe('Structured observation context.'),
+    outcome: z.object({
+      verdict: z.enum(['helped', 'neutral', 'dismissed', 'harmful', 'unknown']).describe('Outcome verdict. Neutral/unknown are observability only, not positive helped samples.'),
+      verdictSource: z.string().describe('Structured source token, for example operator, reviewer, delivery-reviewer, done-settlement, or health-scan.'),
+      causedNoise: z.boolean().describe('Whether the playbook caused noise.'),
+      causedWrongClaim: z.boolean().describe('Whether the playbook caused a wrong claim.'),
+      preventedRepeatFinding: z.boolean().describe('Whether the playbook prevented a repeat finding.'),
+      note: z.string().optional().describe('Optional audit note; no prompt text or secrets.'),
+    }).strict().describe('Structured verdict source and outcome flags.'),
+    bindings: z.object({
+      headHash: z.string().optional(),
+      storyFilesHash: z.string().optional(),
+      materialHash: z.string().optional(),
+      summaryDigest: z.string().optional(),
+      deliveryCheckDigest: z.string().optional(),
+    }).strict().optional().describe('Optional hash/digest bindings for audit correlation only.'),
+    observedAt: z.string().optional().describe('ISO timestamp; defaults to now.'),
+    idempotencyKey: z.string().optional().describe('Caller-provided idempotency/audit key; defaults from playbook/story/time/verdict.'),
+    eventId: z.string().optional().describe('Caller-provided event id; defaults to PBO-<uuid>.'),
+    authority: z.literal('non_authoritative').optional().describe('Only non_authoritative is accepted; omitted values are recorded as non_authoritative.'),
+    gateEvidence: z.literal(false).optional().describe('Only false is accepted; this command can never create gate evidence.'),
+  }},
+  { name: 'playbook_promotion_sweep', description: 'Evaluate candidate/active playbooks and optionally append idempotent non-authoritative promotion recommendation rows', schema: {
+    dryRun: z.boolean().optional().describe('Preview decisions without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Append idempotent decision rows. Requires PLAYBOOK_PROMOTION_SWEEP_ENABLED=true/1/yes. Never activates candidates.'),
+    playbookId: z.string().optional().describe('Optional playbook id to evaluate.'),
+    since: z.string().optional().describe('Optional ISO timestamp; only outcomes observed at/after this time are counted.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
+  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non-deducible sources, health, flags', schema: {
+    playbookId: z.string().optional().describe('Optional playbook id filter.'),
+    limit: z.coerce.number().int().optional().describe('Maximum latest decisions/health rows to render (default 10, max 50).'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),

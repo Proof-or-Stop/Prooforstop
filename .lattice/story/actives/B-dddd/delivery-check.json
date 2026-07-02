@@ -1,0 +1,53 @@
+{
+  "storyId": "B-dddd",
+  "checkedAt": "2026-07-02T03:33:08.280Z",
+  "headHash": "e5a09935633addff9b38118249506e5359caee3c",
+  "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+  "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+  "reviewRound": "2026-07-02T03:14:49.647Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "Outcome checks show DONE/story completion alone is not helped and helped requires concrete exposure plus structured verdict source.",
+      "status": "verified",
+      "verifiedBy": "delivery_context_pack + live_smoke_transcript + test-evidence verificationCoverage + smoke source review",
+      "evidence": "delivery_context_pack docsPromises[0]; live-smoke-transcript stdout has ordinary story/DONE completion alone is not recorded as helped PASS and helped requires concrete exposure and structured verdict source PASS; test-evidence covers CHK-001 happy/edge/adversarial."
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "Outcome ledger preserves existing records and neutral/unknown outcomes are observability only, not positive helped samples.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage + smoke source review + test-coverage reviewer pass",
+      "evidence": "test-evidence covers CHK-002 happy/edge/adversarial; smoke asserts appended events are retained and neutral/unknown do not count as helped; test-coverage reviewer verified all 9/9 intents and baseline failure is pre-existing."
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "playbook_outcome_record is host-neutral and prints/defines authority=non_authoritative plus gateEvidence=false.",
+      "status": "verified",
+      "verifiedBy": "CLI help + handler/source review + live_smoke_transcript + command registry tests",
+      "evidence": "node packages/main/dist/cli.js playbook_outcome_record --help exposes host-neutral consumer and authority/gateEvidence constraints; handler output prints authority: non_authoritative and gateEvidence: false; live transcript confirms no Codex/Claude-specific namespace."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".lattice/story/actives/B-dddd/evidence/live-smoke-transcript.json and transcript-diff.md: PASS lines for explicit outcome recording, DONE alone not helped, helped requires concrete exposure/source; lattice validate PASS at 2026-07-02T03:29:39.517Z."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": ".lattice/story/actives/B-dddd/test-evidence.json verificationCoverage: CHK-002 happy/edge/adversarial covered; smoke asserts ledger append retention and neutral/unknown observability-only behavior; done_required_validate PASS at 2026-07-02T03:30:25.002Z."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/cli.js playbook_outcome_record --help plus live-smoke-transcript.json/transcript-diff.md: host-neutral command, authority non_authoritative, gateEvidence false, no Codex/Claude-specific namespace; command catalog/ownership/lifecycle registry tests passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified B-dddd local user-visible promises against delivery_context_pack, summary_get, lifecycle_check, live smoke transcript, test-evidence coverage, CLI help, and reviewer passes. Validation and DONE-required validation are PASS; evidence files are present; the decision-doc-promotion smoke failure is confirmed pre-existing by test-coverage review. This delivery check is local non-production review evidence only."
+  },
+  "_hash": "44e529d42ef6fe75840e3940bd9d2bf7e3a8211d2cb5f5b941a607930eb84c9d"
+}

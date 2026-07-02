@@ -1,0 +1,20 @@
+{
+  "storyId": "B-dddd",
+  "expected": "User sees test output containing \"playbook outcome recording rejects helped without concrete exposure\" and \"DONE success alone does not settle a candidate as helped\".",
+  "actual": {
+    "command": "bash -lc \"npm --prefix packages/main run test:experience-layer-playbook > /tmp/bdddd-playbook-smoke.log 2>&1 || true; grep -E \\\"outcome: (ordinary story/DONE completion alone is not recorded as helped|helped requires concrete exposure and structured verdict source|no Codex/Claude-specific namespace introduced|playbook_outcome_record explicitly appends)\\\" /tmp/bdddd-playbook-smoke.log; grep -q \\\"decision-doc-promotion-smoke.js:346\\\" /tmp/bdddd-playbook-smoke.log && echo baseline_failure_confirmed=decision-doc-promotion-smoke.js:346; exit 0\"",
+    "exitCode": 0,
+    "stdout": "check: outcome: playbook_outcome_record explicitly appends a non-authoritative ledger row — PASS\ncheck: outcome: ordinary story/DONE completion alone is not recorded as helped — PASS\ncheck: outcome: helped requires concrete exposure and structured verdict source — PASS\ncheck: outcome: no Codex/Claude-specific namespace introduced — PASS\nbaseline_failure_confirmed=decision-doc-promotion-smoke.js:346\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-02T03:25:10.634Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "e958aabd477df2aa2557f40f9aa3619926151374",
+  "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2"
+}
