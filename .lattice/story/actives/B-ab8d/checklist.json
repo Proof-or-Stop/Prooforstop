@@ -374,7 +374,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js",
+          "result": "pass",
+          "note": "23 check PASS lines covering cases (a)-(i), final line experience-pack-arm-switch-smoke: ALL PASS, exit 0 (verified twice for byte-stability)",
+          "headHash": "e557aa5a4870a64ac067b3c3c065bd2815f095d0",
+          "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb",
+          "storyFilesHash": "2b05b74d50dbf96233950be1de1e22b93b1e7fe029925a8b21b9fa353e3f2776",
+          "timestamp": "2026-07-02T23:59:08.008Z"
+        }
+      ]
     }
   ]
 }
