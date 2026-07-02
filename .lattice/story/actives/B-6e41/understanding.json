@@ -1,0 +1,28 @@
+{
+  "task": "Add the first runtime slice of the claim-admissibility adapter-pack framework: a typed pack contract and read-only pack registry.",
+  "outcome": "After running npm --prefix packages/main run test:claim-admissibility-pack-framework, the terminal prints pack contract exposes code-runtime pack, duplicate pack ids: BLOCK, duplicate artifact aliases: BLOCK, compat entrypoint exports pack registry, and ends with claim-admissibility pack framework smoke passed.",
+  "facts": [
+    "The existing proof-admissibility base already owns proof vocabulary, surface definitions, evaluator behavior, and gate-facing diagnostics.",
+    "The framework document defines M1 as a typed ClaimAdmissibilityPack interface plus a registry that lists, validates, and exposes enabled packs.",
+    "Quantum and PINN domain packs are future extensions and must not be implemented in this story.",
+    "The built-in code-runtime pack can be represented from existing proof surface definitions without adding storage or lifecycle execution behavior."
+  ],
+  "constraints": [
+    "Do not create a second proof manager, storage root, ledger, or lifecycle gate stack.",
+    "Do not edit story or fixture JSON directly.",
+    "Keep packs read-only and declarative in this milestone.",
+    "Do not expose productionDone, scientific truth, hardware validation, solver improvement, or Authority claims from packs."
+  ],
+  "unknowns": [
+    "Whether future pack manifests will come from config or code remains open and is not solved in this story.",
+    "Whether domain schemas are JSON Schema or TypeScript-first remains deferred to M2.",
+    "Whether verifier adapters execute commands or normalize existing receipts remains deferred to M3."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-02T22:21:48.828Z"
+}
