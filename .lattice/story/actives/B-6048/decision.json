@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Memory remains advisory and never gate evidence.",
+    "Correctness parity is required before any performance claim.",
+    "Reuse existing B-ec3b index and pack builder semantics instead of replacing runtime memory.",
+    "Keep M3-M6 mechanically verifiable with one dedicated smoke plus existing baselines."
+  ],
+  "drivers": [
+    "Need optimized entry-layer memory without overclaiming million-record runtime speed.",
+    "Need cache and consumer rollout to preserve current facts over memory.",
+    "Need M6 report-first latency split for reference/indexed/cached paths."
+  ],
+  "options": [
+    {
+      "name": "A: shared optimized pack API plus cache module",
+      "pros": [
+        "Centralizes advisory boundary and cache key semantics",
+        "Minimizes consumer-specific drift",
+        "Makes M5/M6 parity easier to test"
+      ],
+      "cons": [
+        "Requires careful options plumbing through existing consumers"
+      ]
+    },
+    {
+      "name": "B: per-consumer cache wiring",
+      "pros": [
+        "Could optimize each entrypoint independently"
+      ],
+      "cons": [
+        "Higher drift risk and more places to accidentally change authority semantics"
+      ]
+    }
+  ],
+  "chosen": "A: shared optimized pack API plus cache module",
+  "rationale": "Choose the shared optimized pack API because M3-M6 are about one consistent runtime memory entry layer. A central cache/key/freshness path makes it easier to prove gateEvidence=false, parity, and invalidation across consumers.",
+  "preMortem": [
+    {
+      "scenario": "Cache returns stale or irrelevant memory as fresh",
+      "trigger": "Cache key omits contributing source digest, policy, limits, or indexVersion",
+      "consequence": "Hosts see stale lessons and repeat past errors",
+      "mitigation": "Include those fields in cache key and add stale-relevant/stale-irrelevant negative tests."
+    },
+    {
+      "scenario": "Optimized path changes semantics from reference path",
+      "trigger": "Candidate prefilter drops required rows or mishandles supersession",
+      "consequence": "Runtime memory becomes faster but less reliable",
+      "mitigation": "M5 matrix and M6 parity compare required ids, false-surface, supersession, deprecated residue, malformed rows, maxLines, and omittedCount."
+    },
+    {
+      "scenario": "Performance claim is over-stated",
+      "trigger": "Small fixture cache hit is mistaken for 1M indexed/cached hot path",
+      "consequence": "Paper/docs or host response claims unsupported 1-2s million runtime",
+      "mitigation": "No-overclaim rule remains in docs and M6 must report latency separately without enforcing SLO before correctness parity is green."
+    }
+  ],
+  "timestamp": "2026-07-02T11:17:02.062Z"
+}

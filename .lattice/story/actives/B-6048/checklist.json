@@ -2,8 +2,171 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-mr3eqhxh-7boc2k, Review: rr-mr3eqmi3-d3ojnq",
+      "title": "M3: implement pack cache with freshness-safe invalidation",
+      "context": "Add a derived MemoryFreshnessPack cache keyed by schemaVersion, consumer, normalized query/context, contributing source digest tuple, runtime config digest, consumer policy version, top-k/line cap, and indexVersion. Preserve authority=non_authoritative and gateEvidence=false. Related plan section: playbook-memory-entry-layer-optimization-plan.md M3.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M3 Pack Cache Detailed Checklist"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/playbook-runtime-memory-index.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-runtime-memory-cache.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "unchanged inputs produce a cache hit and identical bounded pack digest",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "stale-irrelevant broad source changes do not create a hard hot-path miss when contributing rows are unchanged",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "changed contributing rows, policy, limits, or indexVersion miss/invalidate the cache and never make memory gate evidence",
+            "type": "logic"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "M4: roll indexed/cached memory packs into lifecycle consumers",
+      "context": "Wire the optimized indexed/cached MemoryFreshnessPack path into session_brief, handoff create/resume, story intake/story advance, DONE prepare/closure, and final response check. Every consumer remains advisory-only with authority=non_authoritative and gateEvidence=false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M4 Consumer Rollout Detailed Checklist",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "session_brief and handoff consumers receive optimized indexed/cached packs with stable digest and non-authoritative metadata",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story intake/story advance and DONE/final-response consumers use the optimized path without relying on memory as proof",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "consumer policy cannot turn memory pack text into review, validation, DONE, or release evidence",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M5: add reference-versus-optimized correctness matrix",
+      "context": "For both reference and optimized paths verify active playbook surfacing, candidate false-surface zero, superseded suppression, stale-relevant/stale-irrelevant behavior, deprecated brand residue classification, malformed-row resilience, and line-cap/omittedCount preservation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M5 Correctness Matrix Detailed Checklist"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "optimized path matches reference path for active playbook and required ids on matrix fixtures",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "superseded, stale-irrelevant, stale-relevant, and line-cap behavior match reference semantics",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "candidate playbooks, deprecated brand residue, and malformed rows do not surface as current guidance or crash either path",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M6: prove million-record indexed/cached parity with report-first latency",
+      "context": "Generate or reuse deterministic 1,000,000-record baseline; run reference full-scan, indexed runtime, and cached runtime gold queries; compare required IDs, freshness, false-surface, supersession, deprecated-term, malformed-row, maxLines, and omittedCount; report reference/indexed-cold/indexed-warm latency separately without enforcing 1-2s until parity is green.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M6 Million Baseline Parity Detailed Checklist"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "full profile reports exact 1,000,000-record reference/indexed/cached parity with required ids and freshness classes matching",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "latency is reported separately for reference full scan, indexed cold path, and indexed warm/cache path, while SLO remains report-first",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M6 cannot pass if candidate false-surface, supersession suppression, deprecated-term handling, malformed-row behavior, maxLines, or omittedCount diverges",
+            "type": "logic"
+          }
+        ]
+      },
       "status": "pending",
       "startTime": null,
       "endTime": null
