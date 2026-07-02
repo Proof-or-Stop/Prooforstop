@@ -275,7 +275,12 @@ function demoHash(label: string): string {
 function buildRequiredIdentityFields(input: QuantumClaimCheckInput, claimId: QuantumClaimId): QuantumIdentityField[] {
   const requirements = CLAIM_REQUIREMENTS[claimId];
   const fields: QuantumIdentityField[] = [...QUANTUM_CORE_IDENTITY_FIELDS, ...requirements.conditionalFields];
-  if (requirements.basisOrGrid) fields.push('gridHash');
+  if (requirements.basisOrGrid) {
+    const identity = input.activeIdentity ?? {};
+    if (hasField(identity, 'basisSetHash')) fields.push('basisSetHash');
+    if (hasField(identity, 'gridHash')) fields.push('gridHash');
+    if (!hasField(identity, 'basisSetHash') && !hasField(identity, 'gridHash')) fields.push('basisSetHash', 'gridHash');
+  }
   if (input.stochastic === true || input.seedSensitive === true) fields.push('randomSeed');
   if (input.checkpointed === true) fields.push('checkpointHash');
   for (const field of requirements.claimSpecificFields ?? []) fields.push(field);

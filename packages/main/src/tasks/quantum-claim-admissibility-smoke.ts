@@ -41,6 +41,13 @@ const validEnergy = buildCompleteQuantumEvidence('Q5');
 const validEnergyResult = checkPass('valid Q5 energy evidence', validEnergy);
 assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending\./);
 
+const validBasisOnlyEnergy = buildCompleteQuantumEvidence('Q5');
+delete validBasisOnlyEnergy.activeIdentity?.gridHash;
+if (validBasisOnlyEnergy.receipts?.[0]) {
+  delete validBasisOnlyEnergy.receipts[0].identity.gridHash;
+}
+checkPass('valid Q5 basis-set-only evidence', validBasisOnlyEnergy);
+
 checkPass('valid figure provenance', buildCompleteQuantumEvidence('Q12'));
 
 const deterministic = buildCompleteQuantumEvidence('Q4');
@@ -70,9 +77,36 @@ const mismatchedGrid = buildCompleteQuantumEvidence('Q5');
 if (mismatchedGrid.activeIdentity) mismatchedGrid.activeIdentity.gridHash = 'sha256:mismatched-grid';
 checkBlock('mismatched gridHash', mismatchedGrid, 'identity_mismatch');
 
+const mismatchedBasis = buildCompleteQuantumEvidence('Q5');
+delete mismatchedBasis.activeIdentity?.gridHash;
+if (mismatchedBasis.receipts?.[0]) {
+  delete mismatchedBasis.receipts[0].identity.gridHash;
+  mismatchedBasis.receipts[0].identity.basisSetHash = 'sha256:mismatched-basis-set';
+}
+checkBlock('mismatched basisSetHash', mismatchedBasis, 'identity_mismatch');
+
+const missingBasisOrGrid = buildCompleteQuantumEvidence('Q5');
+delete missingBasisOrGrid.activeIdentity?.basisSetHash;
+delete missingBasisOrGrid.activeIdentity?.gridHash;
+if (missingBasisOrGrid.receipts?.[0]) {
+  delete missingBasisOrGrid.receipts[0].identity.basisSetHash;
+  delete missingBasisOrGrid.receipts[0].identity.gridHash;
+}
+checkBlock('missing basis/grid identity', missingBasisOrGrid, 'missing_basis_or_grid_identity');
+
 const mismatchedVerifier = buildCompleteQuantumEvidence('Q5');
 if (mismatchedVerifier.activeIdentity) mismatchedVerifier.activeIdentity.verifierScriptHash = 'sha256:mismatched-verifier-script';
 checkBlock('mismatched verifierScriptHash', mismatchedVerifier, 'verifier_script_mismatch');
+
+const missingRequiredReceipt = buildCompleteQuantumEvidence('Q5');
+missingRequiredReceipt.receipts = [];
+checkBlock('missing required receipt', missingRequiredReceipt, 'missing_required_receipt');
+
+const staleEvidence = buildCompleteQuantumEvidence('Q5');
+if (staleEvidence.receipts?.[0]) {
+  staleEvidence.receipts[0].stale = true;
+}
+checkBlock('stale evidence', staleEvidence, 'stale_evidence');
 
 const unboundSolverOutput = buildCompleteQuantumEvidence('Q4');
 if (unboundSolverOutput.receipts?.[0]) {
