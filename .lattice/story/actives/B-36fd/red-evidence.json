@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-36fd",
+  "records": [
+    {
+      "id": "RED-20260702190551",
+      "trigger": "Restoration claim: the corrected rev-2 execution plan must exist in the committed tree; at baseline it does not (rev-1 was untracked and deleted from disk mid-review on 2026-07-02, so no committed copy has ever existed).",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "cfd9c805129da6099fe827c0106d055981a1c166",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exits non-zero (fatal: path exists on disk, but not in HEAD) — the decision document is absent from the committed story-branch tree, so the restoration outcome is unmet before the fix.",
+      "failingCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "expectedGreenCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "same_acceptance",
+        "command": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      },
+      "note": "Docs-only restoration story: red = document absent from committed tree; green = the same command succeeds after the rev-2 authoring commit, plus a content marker check for one of the 12 corrections (matched-pairs section).",
+      "createdAt": "2026-07-02T19:05:51.073Z"
+    },
+    {
+      "id": "RED-20260702190714",
+      "trigger": "Restoration claim: the corrected rev-2 execution plan must exist in the committed tree; at baseline it does not (rev-1 was untracked and deleted from disk mid-review on 2026-07-02, so no committed copy has ever existed).",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "cfd9c805129da6099fe827c0106d055981a1c166",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exits non-zero (fatal: path exists on disk, but not in HEAD) — the decision document is absent from the committed story-branch tree, so the restoration outcome is unmet before the fix.",
+      "failingCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "expectedGreenCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "same_acceptance",
+        "command": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      },
+      "note": "Docs-only restoration story: red = document absent from committed tree; green = the same command succeeds after the rev-2 authoring commit, plus a content marker check for one of the 12 corrections (matched-pairs section).",
+      "createdAt": "2026-07-02T19:07:14.230Z"
+    },
+    {
+      "id": "RED-20260702190751",
+      "trigger": "Restoration claim: the corrected rev-2 execution plan must exist in the committed tree; at baseline it does not (rev-1 was untracked and deleted from disk mid-review on 2026-07-02, so no committed copy has ever existed).",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "cfd9c805129da6099fe827c0106d055981a1c166",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exits non-zero (fatal: path exists on disk, but not in HEAD) — the decision document is absent from the committed story-branch tree, so the restoration outcome is unmet before the fix.",
+      "failingCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "expectedGreenCommand": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md && grep -c 'Study Geometry: Matched Pairs' docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      },
+      "note": "Docs-only restoration story: red = document absent from committed tree; green = the same command succeeds after the rev-2 authoring commit, plus a content marker check for one of the 12 corrections (matched-pairs section).",
+      "createdAt": "2026-07-02T19:07:51.634Z"
+    }
+  ],
+  "createdAt": "2026-07-02T19:05:51.073Z",
+  "updatedAt": "2026-07-02T19:07:51.634Z"
+}

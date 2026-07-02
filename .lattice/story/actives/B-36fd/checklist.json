@@ -52,7 +52,75 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "D=docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md; test $(grep -cE \"^## [0-9]+\\.\" $D) -eq 18 && grep -q \"held-out negative-control traps\" $D && grep -q \"Study Geometry: Matched Pairs\" $D && grep -q \"There is no separately allocated shadow arm\" $D && grep -q \"lattice/experiments/experience-ablation/\" $D && grep -q \"Haldane-Anscombe\" $D && grep -q \"Benjamini-Hochberg\" $D && grep -q \"resolveLearningRoot\" $D && grep -q \"memory-snapshot-hash.json\" $D && grep -q \"fixture-leakage audit\" $D && grep -q \"2026-06-29\" $D && grep -q \"learning_effectiveness\" $D",
+          "result": "pass",
+          "note": "18 numbered sections present and one distinctive marker per adjudicated correction found at its designated section: held-out traps (S5.1), matched-pairs geometry (S8), no allocated shadow arm (S4), .lattice experiments root (S12), RR zero-denominator guard (S11), BH-FDR (S11), worktree-canonicalization isolation rationale (S12), memory freeze artifact (S12), leakage audit (S9/M6), s5-s6 completion date in the scheduling note (S17), live-substrate reuse (S5.2/M8).",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -q \"firstByte % 2 === 0\" packages/main/src/core/hint-mode.ts && grep -q \"resolveLearningRoot\" packages/main/src/core/learning-store.ts && grep -q \"mkdtemp\" experiments/recovery-runner/live-engine.mjs && grep -q \"benjaminiHochberg\" experiments/recovery-runner/analyze.mjs && grep -qE \"hintMode === 'on'\" packages/main/src/core/experience-hint-surface.ts",
+          "result": "pass",
+          "note": "Every existing-component claim the doc relies on matches source: sha256 first-byte-parity arm switch, learning-root canonicalization, recovery-runner mkdtemp isolation precedent, benjaminiHochberg in analyze.mjs, render-gate on the ON arm.",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "! LC_ALL=en_US.UTF-8 grep -qP \"[\\x{4e00}-\\x{9fff}\\x{3000}-\\x{303f}\\x{ff00}-\\x{ffef}]\" docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "result": "pass",
+          "note": "Zero CJK characters (CJK unified ideographs, CJK punctuation, fullwidth forms) in the document; english-open-source-surface gate will pass.",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "test -e scripts/verify-lattice-residue.mjs && test -e experiments/recovery-runner/tasks && test -e packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts && test $(grep -c \"proof-or-stop\" docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md) -eq 1",
+          "result": "pass",
+          "note": "All repo paths referenced by the doc exist, and the .proof-or-stop string appears exactly once — inside the explicit rev-1 correction note in S12, nowhere else.",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "note": "Semantic trace check (every rev-1-to-rev-2 delta maps to one of the 12 adjudicated findings; no un-reviewed design content introduced) requires reading comprehension against the adjudication record and the preserved rev-1 semantics; not mechanically automatable. Deferred to the REVIEW lanes (docs + behavior reviewers) which re-verify delta-to-finding traceability; the commit message enumerates the 12 findings for that audit.",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "D=docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md; grep -q \"Proofbound agents became smarter\" $D && grep -q \"Memory proves DONE\" $D && grep -q \"eliminates defects\" $D && grep -q \"Known circularity limitation\" $D",
+          "result": "pass",
+          "note": "All rev-1 disallowed claims survive in S15 and the new circularity limitation disclosure is present in S2 (plus the S15 required-disclosure and S16 paper sentence), i.e. the no-overclaim rule is intact and strengthened.",
+          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
+          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
+          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
+          "timestamp": "2026-07-02T19:09:27.694Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-36fd",
+  "id": "IC-20260702190536",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Restore-with-corrections as a freshly authored rev-2 document: NOT a verbatim restoration of the deleted rev-1 text, NOT an implementation of any plan milestone (M0-M9 remain future stories), and NOT a new design exercise — every substantive delta from rev-1 semantics must trace to one of the 12 adjudicated review findings. The deliverable is exactly one English markdown file at the scope-allowed path; the plan stays a draft decision document.",
+  "acceptedInterpretationHash": "sha256:b89c50fb7a997e44eaa2de7fb6f73cd522a1d531789f13cde2a09e3fa05c8b1d",
+  "notes": "Collision candidates considered and rejected: (a) verbatim rev-1 restoration then separate patch story — rejected because it would publish a known-invalid design as current guidance; (b) corrections-appendix onto rev-1 — rejected because executors following the body would still build the invalid 588-task study; (c) treating the request as authorization to start building M0-M5 — rejected as explicit scope creep beyond a docs story. Interpretation confirmed against the decision artifact (chosen=clean-reauthor-rev2) and the operator's explicit docs-story instruction.",
+  "createdAt": "2026-07-02T19:05:36.139Z",
+  "updatedAt": "2026-07-02T19:05:36.139Z"
+}

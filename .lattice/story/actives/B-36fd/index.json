@@ -4,8 +4,8 @@
   "title": "Author the corrected experience-layer A/B ablation causal-validation execution plan",
   "description": "The draft execution plan for the experience-layer A/B ablation causal-validation study was adversarially reviewed on 2026-07-02 (2-round multi-agent review: 4 repo mappers + 4 review lenses + 12 independent adjudicators; 12/12 findings verified as real). The untracked draft file docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md was deleted from disk mid-review by concurrent repo activity, so nothing remains on disk. This story authors the corrected plan into docs/requirements/decisions/, incorporating all 12 verified corrections: 3 validity holes (answer-key circularity, learning-store pollution, fixture leakage), per-population sample-size recalibration (~6x oversizing fixed), matched-pairs design replacing incoherent 5-factor blocking, reuse of existing infrastructure (hint-mode arm switch, recovery-runner harness, analyze.mjs statistics) instead of greenfield rebuild, a deterministic reviewer-free primary endpoint, artifact-root naming fixes, and endpoint/claim alignment. Docs-only: no code, no gate, no schema changes.",
   "type": "chore",
-  "phase": "PLAN",
-  "priority": "high",
+  "phase": "DEV",
+  "priority": "medium",
   "keywords": [
     "experience-layer",
     "ablation",
@@ -25,7 +25,6 @@
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-02T18:46:40.313Z",
   "startedAt": "2026-07-02T18:46:40.313Z",
   "endedAt": null,
@@ -56,11 +55,32 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T19:07:52.963Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-36fd",
     "branch": "story/B-36fd",
     "createdAt": "2026-07-02T18:50:13.664Z"
-  }
+  },
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: the story description mentions token-budget ceilings as experiment-scheduling prose inside a docs-only decision document; no credentials, secrets, or auth surfaces are read, written, or referenced as code. The single deliverable is a markdown plan file.",
+      "at": "2026-07-02T19:03:16.328Z"
+    },
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production appears only in experiment-design prose (production learning store isolation requirements described as future-milestone constraints) inside a docs-only decision document; this story changes no production code, config, or runtime behavior.",
+      "at": "2026-07-02T19:03:16.853Z"
+    }
+  ]
 }
