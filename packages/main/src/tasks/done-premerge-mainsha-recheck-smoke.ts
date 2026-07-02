@@ -410,7 +410,7 @@ function assertUnchangedMainStillCompletesDone(): void {
     check(
       'happy: story worktree removed on success',
       !existsSync(worktreePath),
-      'worktree directory was not removed on the happy DONE path',
+      `worktree directory was not removed on the happy DONE path\nCLI output:\n${output}\nworktree list:\n${git(root, ['worktree', 'list', '--porcelain'])}`,
     );
     check(
       'happy: story branch deleted on success',
