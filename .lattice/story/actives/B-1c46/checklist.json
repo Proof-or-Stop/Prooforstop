@@ -167,9 +167,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T14:54:44.054Z",
       "userSees": "Expected transcript includes `exactFastPathHits=<n>`, `tokenScanFallbacks=<n>`, `parityPass=true`, and an improved indexed/token-scan timing versus M0.",
       "files": {
         "modify": [
@@ -204,7 +204,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Exact-token lookup is covered by indexedReferenceParity=true on small smoke and exactFastPathHits=100 on the 1,000,000-record M6 report, with matching result digest.",
+          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:44.285Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "CandidateLimit windows, superseding entries, and cached/uncached selection are covered; M3 candidateLimit check proved distinct windows and cache keys.",
+          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:44.513Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Fuzzy-only and fallback-sensitive paths remain covered by digest parity and tokenScanFallbacks=0 in normal full-profile queries; semantic drift fails the guard.",
+          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:44.744Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
