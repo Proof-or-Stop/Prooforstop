@@ -5,7 +5,7 @@
       "desc": "Stale docs still describe advisory auto-promotion as future/default-off/feature-flag gated instead of the B-7ee1 evidence-activated apply path. In playbook-promotion-worker-execution-plan.md, the status/summary and V1 activation paragraphs still say candidate-to-active mutation remains future work or behind an explicit feature flag (for example lines 3-5, 33-34, 137-141, and 665-666), while the new section says evidence-activated promotion is not controlled by a default-off ordinary-use flag. In source-lineage-dedup-playbook-seed-promotion-execution-plan.md, the updated M8 section is correct, but acceptance/safety text still says automatic advisory activation is disabled by default or requires an explicit feature flag (lines 485-486 and 525-527). This leaves the touched decision docs internally inconsistent with the intended boundary: promotion sweep only recommends; separate playbook_auto_promotion_apply may activate only after reviewed policy, current digest, applied recommend_activate decision, explicit exposure/outcome evidence, clean lineage, and rollback readiness, while remaining non-authoritative and non-gate evidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T22:41:57.196Z",
@@ -17,7 +17,11 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|md|stale-docs-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed stale docs in a09ef69f/c22e761. Decision docs now state promotion sweep remains recommendation-only and playbook_auto_promotion_apply is a separate evidence-activated non-authoritative apply path; grep confirms touched docs no longer present old PLAYBOOK_AUTO_ACTIVE/default-off/future-only wording.",
+      "resolvedAt": "2026-07-02T23:00:29.874Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-002",
@@ -45,7 +49,7 @@
       "desc": "M8 coverage does not exercise the fail-closed path where a candidate has enough real helped/exposure outcomes to evaluate as recommend_activate but no applied recommend_activate decision row exists. The smoke records three helped outcomes and immediately runs playbook_promotion_sweep before calling playbook_auto_promotion_apply, so a regression that activated on outcomes alone would not be caught. The same block also only checks second-apply idempotency after the playbook is already active, not the digest-bound activation idempotency/audit key branch for an already-recorded activation row while the candidate remains candidate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T22:43:15.162Z",
@@ -57,7 +61,11 @@
         "packages/main/src/core/playbook-seed.ts"
       ],
       "signatureTag": "missing|ts|coverage-exercise-fail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f/c22e761 by extending playbook-seed-promotion-loop-smoke: sufficient helped/exposure outcomes without applied recommend_activate fail closed; already-recorded activation audit while candidate remains candidate blocks activation; malformed activation ledger fails closed and leaves candidate candidate. Verified by playbook-evidence-activation smoke.",
+      "resolvedAt": "2026-07-02T23:00:29.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-004",
