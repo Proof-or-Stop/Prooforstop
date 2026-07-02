@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-02T20:33:29.331Z",
       "reviewRunId": "B-db1b:RR-017",
       "_hash": "6f932da970abca601c2efcdba9874946e491c1de63943a13be4f31ae313a2872"
+    },
+    {
+      "id": "B-db1b:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs lane after F-009. Verified the decision doc still lists exactly M0-M5 as six checked milestones, preserves local-only/read-only claim-admissibility scope, and explicitly excludes PDE correctness, deployment readiness, evidence-producing verifier scripts, lifecycle mutation, external Authority production verification, and remote release. Command catalog/policy wording for pinn_claim_check, pinn_benchmark_run, and pinn_report_render remains bounded to read-only local diagnostics/reporting; implementation renders sanitized report claims false and the boundary paragraph does not overclaim.",
+      "createdAt": "2026-07-02T20:34:59.710Z",
+      "reviewRound": "2026-07-02T20:33:29.331Z",
+      "reviewRunId": "B-db1b:RR-019",
+      "_hash": "355eb892ee31b2d1c57b805b52aafc26a94df6c9b8f76c937dbcdbf59810256b"
     }
   ]
 }
