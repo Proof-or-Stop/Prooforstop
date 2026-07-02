@@ -142,6 +142,23 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-009",
+      "desc": "[host-2 Codex P2, probe-proven] visible-failure oracle only detects EMPTY catch bodies: catch (e) { /* ignore */ } with fixed data classified defectPresent:false (contradicts the quality-lane clean note — the probe run governs). Fix: flag any catch body lacking throw/console./process.exit; add adversarial selfcheck cases (comment-only, fallback-return).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:52.129Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "44873a59bbde05656a64e4da657501da0ef51951eafcc917487af8dca64548c5",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
