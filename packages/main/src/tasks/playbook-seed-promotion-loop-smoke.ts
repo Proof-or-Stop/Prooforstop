@@ -760,6 +760,7 @@ function run(): void {
       );
       assert.equal(snapshotDir(root, '.lattice'), beforeMalformedAuditApply, 'malformed activation log must not leave candidate active');
       assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'candidate');
+      assert.equal(readPlaybookAutoActivationEvents(root).filter((row) => row.playbookId === candidate.id).length, 0);
       rmSync(activationLogPath, { force: true });
 
       appendPlaybookAutoActivationEvent(root, syntheticActivationEvent(candidate, guard, eligibleDry.activationPolicy));

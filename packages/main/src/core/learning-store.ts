@@ -1486,6 +1486,40 @@ export function readPlaybookAutoActivationEvents(projectRoot: string): PlaybookA
   return readPlaybookAutoActivationEventsWithDiagnostics(projectRoot).events;
 }
 
+export function assertCanAppendPlaybookAutoActivationEvents(projectRoot: string, events: PlaybookAutoActivationEvent[]): void {
+  const filePath = resolvePlaybookAutoActivationsPath(projectRoot);
+  const existingKeys = new Set<string>();
+  if (existsSync(filePath)) {
+    readFileSync(filePath, 'utf8').split('\n').forEach((line, index) => {
+      if (!line.trim()) return;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(line);
+      } catch (err) {
+        throw new Error(`playbook-auto-activations row ${index + 1} is invalid JSON: ${(err as Error).message}`);
+      }
+      const validated = validatePlaybookAutoActivationEvent(parsed);
+      if (!validated.ok) {
+        throw new Error(`playbook-auto-activations row ${index + 1} is malformed: ${validated.error}`);
+      }
+      existingKeys.add(validated.event.idempotencyKey);
+    });
+  }
+
+  const nextKeys = new Set<string>();
+  for (const event of events) {
+    const validated = validatePlaybookAutoActivationEvent(event);
+    if (!validated.ok) throw new Error(`appendPlaybookAutoActivationEvent: ${validated.error}`);
+    if (existingKeys.has(validated.event.idempotencyKey)) {
+      throw new Error(`playbook-auto-activations already has idempotencyKey ${validated.event.idempotencyKey}`);
+    }
+    if (nextKeys.has(validated.event.idempotencyKey)) {
+      throw new Error(`playbook-auto-activations batch repeats idempotencyKey ${validated.event.idempotencyKey}`);
+    }
+    nextKeys.add(validated.event.idempotencyKey);
+  }
+}
+
 export function appendPlaybookAutoActivationEvent(projectRoot: string, event: PlaybookAutoActivationEvent): string {
   const validated = validatePlaybookAutoActivationEvent(event);
   if (!validated.ok) throw new Error(`appendPlaybookAutoActivationEvent: ${validated.error}`);

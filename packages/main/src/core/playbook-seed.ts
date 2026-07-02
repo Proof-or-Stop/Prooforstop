@@ -18,6 +18,7 @@ import type { Finding } from './types.js';
 import {
   aggregatePlaybookPromotion,
   appendPlaybookAutoActivationEvent,
+  assertCanAppendPlaybookAutoActivationEvents,
   computePlaybookDigest,
   computePlaybookProposalDigest,
   deleteProposal,
@@ -1229,29 +1230,43 @@ export function buildPlaybookAutoPromotionApplyReport(
       throw new Error('playbook_auto_promotion_apply: fail-closed; eligible candidates became stale before write');
     }
     if (activatedPlaybooks.length > 0) {
-      for (const event of activationEvents) {
-        appendPlaybookAutoActivationEvent(opts.projectRoot, event);
-      }
-      const persistedActivationKeys = new Set(
-        readPlaybookAutoActivationEvents(opts.projectRoot).map((event) => event.idempotencyKey),
-      );
-      for (const event of activationEvents) {
-        if (!persistedActivationKeys.has(event.idempotencyKey)) {
-          throw new Error(`playbook_auto_promotion_apply: activation audit verification failed for ${event.playbookId}`);
-        }
-      }
+      assertCanAppendPlaybookAutoActivationEvents(opts.projectRoot, activationEvents);
       writePlaybooks(opts.projectRoot, next);
-      const after = readPlaybooks(opts.projectRoot);
-      for (const activated of activatedPlaybooks) {
-        const persisted = after.find((row) => row.id === activated.playbookId);
-        if (!persisted || persisted.status !== 'active' || computePlaybookDigest(persisted) !== activated.activePlaybookDigest) {
-          throw new Error(`playbook_auto_promotion_apply: write verification failed for ${activated.playbookId}`);
+      let activeStatusPersisted = true;
+      try {
+        const after = readPlaybooks(opts.projectRoot);
+        for (const activated of activatedPlaybooks) {
+          const persisted = after.find((row) => row.id === activated.playbookId);
+          if (!persisted || persisted.status !== 'active' || computePlaybookDigest(persisted) !== activated.activePlaybookDigest) {
+            throw new Error(`playbook_auto_promotion_apply: write verification failed for ${activated.playbookId}`);
+          }
         }
-      }
-      for (const prior of before) {
-        if (!after.some((row) => row.id === prior.id)) {
-          throw new Error(`playbook_auto_promotion_apply: write verification failed; existing playbook ${prior.id} disappeared`);
+        for (const prior of before) {
+          if (!after.some((row) => row.id === prior.id)) {
+            throw new Error(`playbook_auto_promotion_apply: write verification failed; existing playbook ${prior.id} disappeared`);
+          }
         }
+        for (const event of activationEvents) {
+          appendPlaybookAutoActivationEvent(opts.projectRoot, event);
+        }
+        const persistedActivationKeys = new Set(
+          readPlaybookAutoActivationEvents(opts.projectRoot).map((event) => event.idempotencyKey),
+        );
+        for (const event of activationEvents) {
+          if (!persistedActivationKeys.has(event.idempotencyKey)) {
+            throw new Error(`playbook_auto_promotion_apply: activation audit verification failed for ${event.playbookId}`);
+          }
+        }
+        activeStatusPersisted = false;
+      } catch (err) {
+        if (activeStatusPersisted) {
+          try {
+            writePlaybooks(opts.projectRoot, before);
+          } catch (rollbackErr) {
+            throw new Error(`playbook_auto_promotion_apply: activation failed after status write and rollback failed: ${(rollbackErr as Error).message}; original: ${(err as Error).message}`);
+          }
+        }
+        throw err;
       }
     }
   }
