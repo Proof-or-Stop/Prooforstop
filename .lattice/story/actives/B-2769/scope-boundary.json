@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2769",
+  "mode": "feature",
+  "allowed": [
+    "A1/A2/A3/A4 benchmark harness design",
+    "failure-injection dataset definitions",
+    "lifecycle gating predicates for admissibility",
+    "PINN claim schema/evidence binding primitives",
+    "proof-boundary control for PINN lifecycle claims"
+  ],
+  "excluded": [
+    "Authority server protocol changes",
+    "new production-ready external API endpoints",
+    "PDE solver accuracy improvements",
+    "real scientific correctness claims",
+    "wet-lab workflows"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User-confirmed: build claim-control extension only; no PDE-correctness/accuracy claims or Authority-Server feature work in this story.",
+  "createdAt": "2026-07-02T16:32:08.272Z",
+  "updatedAt": "2026-07-02T16:32:08.272Z",
+  "_hash": "342572f18292072c2da7ff42de233a88a6c2982c5badf310cb995c23ccc578fa"
+}

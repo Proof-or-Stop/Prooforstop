@@ -4,7 +4,7 @@
   "title": "Implement Proof-or-Stop PINN claim-admissibility extension",
   "description": "Add a future-domain PINN domain pack for claim-admissibility control, including evidence binding, gate policy, benchmark harness, and reporting wording.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-d105e010db50a277",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T16:32:22.203Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2769",
+    "branch": "story/B-2769",
+    "createdAt": "2026-07-02T16:32:21.246Z"
+  }
 }

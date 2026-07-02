@@ -1,0 +1,28 @@
+{
+  "task": "Build a future-domain Proof-or-Stop PINN claim-admissibility extension with explicit evidence-bound lifecycle gate and benchmark controls.",
+  "outcome": "Proof-or-Stop supports a PINN domain pack with bounded claim schema, gates, benchmark evidence, and reusable governance language without claiming PDE correctness.",
+  "facts": [
+    "Proof-or-Stop currently lacks PINN-specific claim/evidence schemas",
+    "No prior production implementation for PINN domain pack exists in this repo",
+    "Existing lifecycle gate mechanics and verificationEvidence infrastructure already exist",
+    "CLI drift and bootstrap issues should be handled via standard story/worktree flow"
+  ],
+  "constraints": [
+    "No claim about PDE mathematical correctness or solver performance",
+    "Control semantics must be evidence/identity-bound",
+    "Benchmark must compare control regimes (A1/A2/A3/A4) with identical task settings",
+    "No API changes beyond required PINN domain extension scope"
+  ],
+  "unknowns": [
+    "Where to persist benchmark artifacts under story artifact layout",
+    "Exact command/receipt identity required for new evidence rows",
+    "Whether existing schema registry has suitable extension points for PINN fields"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/evidence schema layer (or equivalent)",
+    "workflow validation hooks for lifecycle gating",
+    "benchmark or experiment harness for claim-control regimes",
+    "docs/requirements/decisions/ and related doc navigation"
+  ],
+  "timestamp": "2026-07-02T16:31:53.532Z"
+}
