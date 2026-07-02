@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-008",
       "_hash": "a74b20a76bc73944938ef7c96306bfaf1ffa1a0137b0e1a43b15c9f3565f06c4"
+    },
+    {
+      "id": "B-337f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) have valid must-priority manual_transcript evidence with result=pass. Selfcheck confirmed at 27 PASS, exit 0, on the final code (commits 6ea7bea73 + 1252a94bf). (a) All 9 intents verified: determinism/cwd-independence/pair-ledger integration (CHK-001), trap artifacts/class disjointness/leakage audit (CHK-002), oracle both-directions/stability/cwd convention (CHK-003) — evidence notes map precisely to the selfcheck PASS lines. (b) 12 adversarial probe pins for F-001/F-004/F-006..F-012 genuinely pin the defeat direction: spot-revert of old oracle logic (substring PASS check, substring host-id match, empty-catch-only detection, missing containment guard, no baseline inventory, no portable-path $HOME/tilde rejection, ok-zero on missing srcDir, includes() source check) would fail each probe in the defeat direction; the new anchored/exact/inventoried oracles pass all probes. F-012 (anchored sourcePattern) confirmed in trap-templates.mjs line 475 new RegExp(spec.sourcePattern, m).test(src). (c) No orphaned intents: all 9 intents have intentRef-bound evidence; validate missing-coverage flag is purely hash staleness from fix commits, not missing evidence bindings. M1 exit criterion intact (pair-ledger integration PASS in selfcheck). Open F-013 (low/missing, dead wrongValue field) does not affect coverage semantics.",
+      "createdAt": "2026-07-02T22:59:44.460Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-009",
+      "_hash": "49ad1f4fa04b67acc9f4a48263eb0e5bd704a7cd84b82bec03a3b9f4efb98605"
     }
   ]
 }
