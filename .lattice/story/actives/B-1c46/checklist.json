@@ -329,9 +329,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T14:54:59.813Z",
       "userSees": "Expected transcript includes `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, `staleMutationMiss=true`, and `gateEvidence=false`.",
       "files": {
         "modify": [
@@ -365,7 +365,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M4 smoke reports crossProcessCacheHit=true with a sha256 cacheKeyDigest, proving durable cache reuse across a second process for the same bound query/context.",
+          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:55:00.049Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3/M4 cache cases cover unchanged hits, contributing source mutation misses, stale-irrelevant broad source changes, candidateLimit separation, and advisory-only metadata.",
+          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:55:00.280Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "After contributing source mutation, the second-process run reports staleMutationMiss=true/contributingMisses=1 and cannot consume stale cache as fresh.",
+          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:55:00.510Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
