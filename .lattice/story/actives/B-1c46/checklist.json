@@ -169,7 +169,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:54:44.054Z",
+      "endTime": "2026-07-02T14:57:15.877Z",
       "userSees": "Expected transcript includes `exactFastPathHits=<n>`, `tokenScanFallbacks=<n>`, `parityPass=true`, and an improved indexed/token-scan timing versus M0.",
       "files": {
         "modify": [
@@ -209,35 +209,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
           "result": "pass",
-          "note": "Exact-token lookup is covered by indexedReferenceParity=true on small smoke and exactFastPathHits=100 on the 1,000,000-record M6 report, with matching result digest.",
-          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:44.285Z"
+          "note": "Small index smoke reports indexedReferenceParity=true candidateFalseSurface=0 exactFastPathHits=8 and preserves reference ids and boundaries.",
+          "headHash": "a520b9533ded7f1b80025253b5fcc4416998cdae",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:16.134Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "CandidateLimit windows, superseding entries, and cached/uncached selection are covered; M3 candidateLimit check proved distinct windows and cache keys.",
-          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:44.513Z"
+          "note": "CandidateLimit windows, corpus order, superseding entries, and cached/uncached selection remain covered; full M6 reports exactFastPathHits=100 and matching digest.",
+          "headHash": "a520b9533ded7f1b80025253b5fcc4416998cdae",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:16.390Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "Fuzzy-only and fallback-sensitive paths remain covered by digest parity and tokenScanFallbacks=0 in normal full-profile queries; semantic drift fails the guard.",
-          "headHash": "c4192bec3a303dff308fcb9ac7d193c69da848f7",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:44.744Z"
+          "note": "Full performance smoke keeps parityPass=true, authority=non_authoritative, gateEvidence=false, and tokenScanFallbacks=0 while improving indexed cold from the M0 10681 ms to 6825 ms in the captured run.",
+          "headHash": "a520b9533ded7f1b80025253b5fcc4416998cdae",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:16.631Z"
         }
       ]
     },
