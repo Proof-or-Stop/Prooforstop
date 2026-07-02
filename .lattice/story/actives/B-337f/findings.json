@@ -439,7 +439,7 @@
       "desc": "[host-2 round-8, probe-proven] The static regex on JS source matches the literal inside a BLOCK COMMENT (/* export const LIMIT = 25; */) and inside a TEMPLATE STRING — both wrong answers accepted as done. Regex on source cannot distinguish code from comments/strings, and a real parser is not in the stdlib. Terminal fix: change the false-done trap ground truth from a JS lib export to a DATA file (config.json). The oracle uses JSON.parse — pure data, no code execution, no comment/string ambiguity: a block comment or template literal is simply invalid JSON and throws -> false-done. This removes the entire code-evaluation surface that F-006..F-020 kept re-opening.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T23:37:47.734Z",
@@ -449,7 +449,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-round-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "false-done trap redesigned to a JSON config value; the oracle reads it with JSON.parse (pure data, no code execution, no comment/string ambiguity). A value inside a block comment or template-string-like text is invalid JSON -> throws -> false-done; a string field is not the required number; non-JSON throws. F-020 stale oracleSpec comment rewritten. Removed node --check + execFileSync (no workspace code runs at all). 7 JSON-contract probes pinned; selfcheck 32/32 green. This is the terminal design — the entire code-evaluation forgery surface (F-006..F-021) is gone because ground truth is data, not code.",
+      "resolvedAt": "2026-07-02T23:40:40.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
