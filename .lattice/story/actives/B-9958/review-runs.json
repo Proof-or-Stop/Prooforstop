@@ -1095,6 +1095,83 @@
         "bindingHash": "230e6377d669764e8657b0eb62bf06040665076b5a29d72acb280e1a83b8dcdd"
       },
       "_hash": "bfff301b6ac3a9ffc62187f2ec555c040dc41a4a364c8316c9ae569478472779"
+    },
+    {
+      "reviewRunId": "B-9958:RR-017",
+      "storyId": "B-9958",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-02T21:44:04.594Z",
+      "startedAt": "2026-07-02T21:44:58.075Z",
+      "headHash": "2977e2beb7a24d1debcce3ed33be7e76593be579",
+      "materialHash": "a03df0cdf528d09421e5468b20f8157bbf23d8e18d160d6f5ec09c6fce64fb3a",
+      "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+      "promptHash": "54c696f11c7e5cf34e1e1e69b3001213944e14fd3109f60c6cd6a73d386c08c1",
+      "scopeBinding": {
+        "scopeContractHash": "c7542510cd761a88c79c5b3bc3cdea680530c1f2d8415c8f279cb020d4badac7",
+        "diffPackHash": "aacb53d2178dc30ab789791131d29004625e217eff214a58dff645943a996c20",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/source-lineage-audit.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "006557b4af8ce76c6ed202699b222ae155491507a8e7e538c5d3fe7e72370df4",
+          "022e1850b9398bb1254ccf1264a4093dedaff798509dc512ce4eb3f5f14dfa03",
+          "081abef1b1ed07743129d42e883a22eb0f4863abc4977e96a68bebeb05d27878",
+          "101fe691b3b08a4b0944f06e374128d3cc51e04951b28227cc34f9b96882cd23",
+          "15c0079ef9d02425e2084108954942f650fe80847980f747485342e75c7e9705",
+          "3e1e30a4fab0846628e6799b15c4eee7fd5420c726e8f94eee615a41a07d3983",
+          "42d5ae4af6ae295aaf5db111826fe8e375f092265f2c4ecbf8f487156c008e06",
+          "45dd62c993e54574b7f8eec3bdbff5ef35c93bfd623f8582810e960070718186",
+          "5fd404baf03c6c5deb0f94c1bb3a28724350cce13941a9797185557045da8060",
+          "666f9deb8f8e03d3be89d3bc49f0fc967eea95fa5993c2d1d80ff5753f513d74",
+          "6ec9eedd256b60810de1f063d7238b0d4cda2d0b1ced886ae85c29480c6e05d0",
+          "7692196e0bee26274121efb7ae5bd48cda289a31d961e79413181a1e23de10ee",
+          "81c569475820033220719d134e1a2fd0e897c67845d6bfd316daeaffd6bff9a2",
+          "8a14dbd07a9f31484b5563c3514e00248de17be3ac04d0298c3012526555a7ac",
+          "8b8d3d652e28eed58665f9907f51853236541390e6890d224f6411e62ea217d9",
+          "8e6e286ec12c92b8194fa8358c8e667d28e26f6a9d0fc680c8bd9c4bc909b9a5",
+          "92a835da3a241b042b20eb4c2d9e8f33fb7de6d4f4eb81f692a93cf072f3daab",
+          "92a8795b905cb147dbbcce163d0b897403d37df0b24c310ee090a1200060fdf2",
+          "941e0c0004decf64ba5b826b2cf4530ec4862979abdb826b143021fe0afeae91",
+          "a6685884faa3084bcb1f63625183b066c55810f092e45a90bebcea39cca59326",
+          "b657169ce818b5cc37a92379616be598dd27e671584940d7b34f5f8fd4d85ef9",
+          "ba263753f052e3e4f1cb899cccfe77dea1fbbc781a35b8e25f05cc44e110dddb",
+          "bdc8bb77b1acfd81edaaae0936ca5b7eba741f0991f37d35402d4e95b97b2495",
+          "ca6c0e1f7cbc740e18ed0bd4d72336712fb583987261417712623fdc0ac81c51",
+          "ca8a563d06e2a568de9a5218cfe11a42e7cd3d7db1e374c9bf0be7339e8ae91e",
+          "d99469e2314546f901f59d4d5d79054a99c0a6c4ade4d7c90b8a63a33e9d02cd",
+          "dd8f18cb3ded55b92cd8d0335b0e4784b8e864e61e8c5b1dad59cbb2dd8f8bdf",
+          "ef41f9d73a218ef0807b350f7da8a1cf0a284003f5d22e4d3b08536b6ce79569",
+          "f705bb833abe60b8f7a04f4a1d8f174c8d833b55561882a38a41f4cb8b699291"
+        ],
+        "bindingHash": "0352b48359f90b567d152f01668c9d88364e3f6d7e5aaa79eaf9bb9693d51286"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9958",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9958",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9958",
+        "workspaceMode": "story-worktree",
+        "headHash": "2977e2beb7a24d1debcce3ed33be7e76593be579",
+        "materialHash": "a03df0cdf528d09421e5468b20f8157bbf23d8e18d160d6f5ec09c6fce64fb3a",
+        "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+        "bindingHash": "38859768a8652d90eef702ce902571bddfe0e57bbf321a6eab1cf21fabebe637"
+      },
+      "_hash": "b0205efcd7fece85304f2a06c9892f38576cab588c069c0815cce57a731d18a3"
     }
   ]
 }
