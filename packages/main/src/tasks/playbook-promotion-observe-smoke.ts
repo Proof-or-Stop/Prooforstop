@@ -197,6 +197,7 @@ try {
     assert.equal(report.candidateGenerated.count, 0);
     assert.equal(report.candidateConsumed.consumedCandidateCount, 0);
     assert.equal(report.candidateConsumed.count, 0);
+    assert.deepEqual(report.candidateConsumed.unconsumedCurrentCandidateIds, []);
     assert.equal(report.recommendationHandling.actionableCount, 0);
     assert.equal(report.authority, 'non_authoritative');
     assert.equal(report.gateEvidence, false);
@@ -219,16 +220,20 @@ try {
     assert.equal(report.candidateGenerated.candidates[0].status, 'candidate');
     assert.equal(report.candidateConsumed.consumedCandidateCount, 0, 'candidate existence alone is not consumption/help');
     assert.equal(report.candidateConsumed.count, 0, 'candidate existence alone is not consumption/help');
+    assert.deepEqual(report.candidateConsumed.unconsumedCurrentCandidateIds, [pb.id]);
     const text = createPlaybookHandlers(ctx).playbook_promotion_observe({ since: SINCE_ISO });
     assert.match(text, /candidateGenerated\.currentCandidates: 1/);
     assert.match(text, /candidateConsumed\.consumedCandidateCount: 0/);
+    assert.match(text, new RegExp(`candidateConsumed\\.unconsumedCurrentCandidateIds: ${pb.id}`));
   });
 
   check('explicit candidate consumption counts and exposureMode none is excluded', () => {
     const root = mkProject(); roots.push(root);
     const ctx = mkCtx(root);
     const pb = candidate('PB-OBS-002');
-    writePlaybooks(root, [pb]);
+    const unconsumedLate = candidate('PB-OBS-002-C');
+    const unconsumedEarly = candidate('PB-OBS-002-A');
+    writePlaybooks(root, [pb, unconsumedLate, unconsumedEarly]);
     appendPlaybookOutcomeEvent(root, outcome(pb, { eventId: 'PBO-consumed', exposureMode: 'candidate-inspection', verdict: 'helped' }));
     appendPlaybookOutcomeEvent(root, outcome(pb, { eventId: 'PBO-none', exposureMode: 'none', verdict: 'neutral' }));
     appendPlaybookOutcomeEvent(root, outcome(pb, { eventId: 'PBO-active', playbookStatusAtObservation: 'active', exposureMode: 'active-advisory', verdict: 'helped' }));
@@ -239,6 +244,7 @@ try {
     assert.equal(report.candidateConsumed.count, 1);
     assert.equal(report.candidateConsumed.rows[0].eventId, 'PBO-consumed');
     assert.equal(report.candidateConsumed.uniquePlaybookCount, 1);
+    assert.deepEqual(report.candidateConsumed.unconsumedCurrentCandidateIds, [unconsumedEarly.id, unconsumedLate.id]);
     assert.equal(report.candidateConsumed.excluded.exposureModeNone, 1);
     assert.equal(report.candidateConsumed.excluded.nonCandidateStatus, 1);
     assert.equal(report.candidateConsumed.excluded.outsideSince, 1);
@@ -288,15 +294,18 @@ try {
     const root = mkProject(); roots.push(root);
     const ctx = mkCtx(root);
     const rejectPb = candidate('PB-OBS-020');
-    const archivePb = candidate('PB-OBS-021');
-    const markPb = candidate('PB-OBS-022');
-    writePlaybooks(root, [rejectPb, archivePb, markPb]);
+    const rejectStalePb = candidate('PB-OBS-021');
+    const archivePb = candidate('PB-OBS-022');
+    const markPb = candidate('PB-OBS-023');
+    writePlaybooks(root, [rejectPb, rejectStalePb, archivePb, markPb]);
     appendPlaybookPromotionDecision(root, decision(rejectPb, 'reject'));
+    appendPlaybookPromotionDecision(root, decision(rejectStalePb, 'reject'));
     appendPlaybookPromotionDecision(root, decision(archivePb, 'archive'));
     appendPlaybookPromotionDecision(root, decision(markPb, 'mark_non_deducible'));
     writePlaybooks(root, readPlaybooks(root).map((row) =>
       row.id === rejectPb.id ? { ...row, status: 'archived' as const }
-        : row.id === archivePb.id ? { ...row, status: 'stale' as const }
+        : row.id === rejectStalePb.id ? { ...row, status: 'stale' as const }
+          : row.id === archivePb.id ? { ...row, status: 'archived' as const }
           : row));
     const source = aggregatePlaybookPromotion(markPb, [], []).source;
     markNonDeducibleSource(root, {
@@ -308,13 +317,31 @@ try {
     });
 
     const report = observe(ctx, { since: SINCE_ISO });
-    assert.equal(report.recommendationHandling.actionableCount, 3);
-    assert.equal(report.recommendationHandling.handledCount, 3);
+    assert.equal(report.recommendationHandling.actionableCount, 4);
+    assert.equal(report.recommendationHandling.handledCount, 4);
     assert.equal(report.recommendationHandling.unhandledCount, 0);
-    const byAction = new Map(report.recommendationHandling.recommendations.map((row) => [row.action, row]));
-    assert.equal(byAction.get('reject')?.handledBy, 'current_status_archived');
-    assert.equal(byAction.get('archive')?.handledBy, 'current_status_stale');
-    assert.equal(byAction.get('mark_non_deducible')?.handledBy, 'non_deducible_after_source_key_present');
+    const byId = new Map(report.recommendationHandling.recommendations.map((row) => [row.playbookId, row]));
+    assert.equal(byId.get(rejectPb.id)?.handledBy, 'current_status_archived');
+    assert.equal(byId.get(rejectStalePb.id)?.handledBy, 'current_status_stale');
+    assert.equal(byId.get(archivePb.id)?.handledBy, 'current_status_archived');
+    assert.equal(byId.get(markPb.id)?.handledBy, 'non_deducible_after_source_key_present');
+  });
+
+  check('archive remains unhandled while current status is stale', () => {
+    const root = mkProject(); roots.push(root);
+    const ctx = mkCtx(root);
+    const pb = candidate('PB-OBS-024');
+    writePlaybooks(root, [pb]);
+    appendPlaybookPromotionDecision(root, decision(pb, 'archive'));
+    writePlaybooks(root, readPlaybooks(root).map((row) =>
+      row.id === pb.id ? { ...row, status: 'stale' as const } : row));
+
+    const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.recommendationHandling.actionableCount, 1);
+    assert.equal(report.recommendationHandling.handledCount, 0);
+    assert.equal(report.recommendationHandling.unhandledCount, 1);
+    assert.equal(report.recommendationHandling.recommendations[0].handlingStatus, 'unhandled');
+    assert.equal(report.recommendationHandling.recommendations[0].handledBy, 'current_status_still_stale');
   });
 
   check('recommend_activate is handled after explicit activation or status update', () => {
@@ -338,6 +365,29 @@ try {
     const byId = new Map(report.recommendationHandling.recommendations.map((row) => [row.playbookId, row]));
     assert.equal(byId.get(activate.id)?.handledBy, 'current_status_active');
     assert.equal(byId.get(statusUpdate.id)?.handledBy, 'current_status_changed');
+  });
+
+  check('recommend_demote is unhandled while active and handled after status change', () => {
+    const root = mkProject(); roots.push(root);
+    const ctx = mkCtx(root);
+    const stillActive = { ...candidate('PB-OBS-030'), status: 'active' as const };
+    const demoted = { ...candidate('PB-OBS-031'), status: 'active' as const };
+    writePlaybooks(root, [stillActive, demoted]);
+    appendPlaybookPromotionDecision(root, decision(stillActive, 'recommend_demote'));
+    appendPlaybookPromotionDecision(root, decision(demoted, 'recommend_demote'));
+    writePlaybooks(root, readPlaybooks(root).map((row) =>
+      row.id === demoted.id ? { ...row, status: 'stale' as const } : row));
+
+    const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.recommendationHandling.actionableCount, 2);
+    assert.equal(report.recommendationHandling.handledCount, 1);
+    assert.equal(report.recommendationHandling.unhandledCount, 1);
+    const byId = new Map(report.recommendationHandling.recommendations.map((row) => [row.playbookId, row]));
+    assert.equal(byId.get(stillActive.id)?.handlingStatus, 'unhandled');
+    assert.equal(byId.get(stillActive.id)?.handledBy, 'current_status_still_active');
+    assert.equal(byId.get(demoted.id)?.handlingStatus, 'handled');
+    assert.equal(byId.get(demoted.id)?.handledBy, 'current_status_changed');
+    assert.equal(byId.get(demoted.id)?.currentPlaybookStatus, 'stale');
   });
 
   check('invalid since diagnostic names playbook_promotion_observe', () => {

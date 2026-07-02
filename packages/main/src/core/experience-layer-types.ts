@@ -407,6 +407,7 @@ export interface PlaybookPromotionObserveReport {
     consumedCandidateCount: number;
     count: number;
     uniquePlaybookCount: number;
+    unconsumedCurrentCandidateIds: string[];
     malformedOutcomeRows: number;
     excluded: {
       exposureModeNone: number;

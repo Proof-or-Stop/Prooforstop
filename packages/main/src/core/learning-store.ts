@@ -1490,7 +1490,7 @@ function classifyRecommendationHandling(
     }
     return { handlingStatus: 'unhandled', handledBy: 'current_status_still_active', currentPlaybookStatus: current.status };
   }
-  if (row.action === 'reject' || row.action === 'archive') {
+  if (row.action === 'reject') {
     if (!current) {
       return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
     }
@@ -1500,12 +1500,32 @@ function classifyRecommendationHandling(
     if (current.status === 'stale') {
       return { handlingStatus: 'handled', handledBy: 'current_status_stale', currentPlaybookStatus: current.status };
     }
-    if (current.status !== 'candidate' && current.status !== 'active') {
-      return { handlingStatus: 'handled', handledBy: 'current_status_no_longer_candidate_or_active', currentPlaybookStatus: current.status };
+    return {
+      handlingStatus: 'unhandled',
+      handledBy: current.status === 'active'
+        ? 'current_status_still_active'
+        : current.status === 'candidate'
+          ? 'current_status_still_candidate'
+          : 'current_status_not_rejected',
+      currentPlaybookStatus: current.status,
+    };
+  }
+  if (row.action === 'archive') {
+    if (!current) {
+      return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
+    }
+    if (current.status === 'archived') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_archived', currentPlaybookStatus: current.status };
     }
     return {
       handlingStatus: 'unhandled',
-      handledBy: current.status === 'active' ? 'current_status_still_active' : 'current_status_still_candidate',
+      handledBy: current.status === 'active'
+        ? 'current_status_still_active'
+        : current.status === 'candidate'
+          ? 'current_status_still_candidate'
+          : current.status === 'stale'
+            ? 'current_status_still_stale'
+            : 'current_status_not_archived',
       currentPlaybookStatus: current.status,
     };
   }
@@ -1585,6 +1605,11 @@ export function buildPlaybookPromotionObserveReport(
     });
   }
   consumedRows.sort((a, b) => a.observedAt.localeCompare(b.observedAt) || a.eventId.localeCompare(b.eventId));
+  const consumedCandidateIds = new Set(consumedRows.map((row) => row.playbookId));
+  const unconsumedCurrentCandidateIds = candidates
+    .map((row) => row.playbookId)
+    .filter((playbookId) => !consumedCandidateIds.has(playbookId))
+    .sort((a, b) => a.localeCompare(b));
 
   const decisionRows = readPlaybookPromotionDecisionRows(projectRoot);
   const nonDeducibleSourceKeys = new Set(readNonDeducibleSourcesRegistry(projectRoot).sources.map((source) => source.source.sourceKey));
@@ -1635,6 +1660,7 @@ export function buildPlaybookPromotionObserveReport(
       consumedCandidateCount: consumedRows.length,
       count: consumedRows.length,
       uniquePlaybookCount: new Set(consumedRows.map((row) => row.playbookId)).size,
+      unconsumedCurrentCandidateIds,
       malformedOutcomeRows: outcomeRows.malformedCount,
       excluded: {
         exposureModeNone: consumedExposureModeNone,

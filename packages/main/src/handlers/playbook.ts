@@ -569,6 +569,7 @@ function renderObserveOutput(report: PlaybookPromotionObserveReport, json?: bool
     `candidateConsumed.consumedCandidateCount: ${report.candidateConsumed.consumedCandidateCount}`,
     `candidateConsumed: ${report.candidateConsumed.count}`,
     `candidateConsumed.uniquePlaybooks: ${report.candidateConsumed.uniquePlaybookCount}`,
+    `candidateConsumed.unconsumedCurrentCandidateIds: ${report.candidateConsumed.unconsumedCurrentCandidateIds.join(', ') || 'none'}`,
     `candidateConsumed.excluded.exposureModeNone: ${report.candidateConsumed.excluded.exposureModeNone}`,
     `candidateConsumed.excluded.nonCandidateStatus: ${report.candidateConsumed.excluded.nonCandidateStatus}`,
     `candidateConsumed.excluded.outsideSince: ${report.candidateConsumed.excluded.outsideSince}`,
