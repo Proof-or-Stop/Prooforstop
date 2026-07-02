@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-6b39",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:63ecc62ad27a06e79dfebe9ec1ed5c0d4fb7da8327c25ceba581a47d8b22780d",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "acceptanceClaim": "git diff main...HEAD touches only docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, and all three freeze-rule passages (S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo) state the N-maximizing-baseline rule with no remaining lower-bound-freeze wording.",
+      "note": "Single docs-only checklist item covers all three passages of the same doc."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-001 has no verificationIntentRefs."
+    },
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Express docs-only story: one acceptance claim bound to the single checklist item CHK-001.",
+  "createdAt": "2026-07-02T21:33:33.644Z",
+  "updatedAt": "2026-07-02T21:33:33.644Z"
+}

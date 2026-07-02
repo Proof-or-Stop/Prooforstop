@@ -10,7 +10,30 @@
       "userSees": "git diff main...HEAD touches only the plan doc; the S7 paragraph reads freeze the powered N at the N-maximizing baseline within the Wilson 95% CI and grep -i \"lower bound of\" no longer matches a freeze-rule sentence in that doc",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All three freeze-rule passages (S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo) state the corrected N-maximizing-baseline rule; grep transcript shows the new wording at all three locations",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No stale lower-bound freeze wording remains anywhere in the doc: grep -in for lower-bound freeze phrasing over the plan doc returns no freeze-rule matches",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Nothing else changed: git diff main...HEAD --stat lists only docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, and the diff contains only the three freeze-rule passages; doc remains entirely English (no CJK characters introduced)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

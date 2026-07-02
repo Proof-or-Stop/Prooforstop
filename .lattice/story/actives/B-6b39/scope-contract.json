@@ -1,0 +1,18 @@
+{
+  "storyId": "B-6b39",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/experience-ablation/**",
+    "packages/**"
+  ],
+  "scopeChangeReason": "Remove the docs/requirements/decisions/*.md glob from explicitExcludes: it contradicted allowedModify by matching the one plan doc this story amends. allowedModify already restricts changes to exactly that file.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T21:33:40.285Z",
+  "updatedAt": "2026-07-02T21:33:52.958Z"
+}
