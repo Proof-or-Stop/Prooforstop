@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add V1 aggregate evaluator and decision metadata stores",
+      "context": "Covers M4 plus the decision-log/non-deducible storage parts of sections 12 and 13. Implement pure aggregation from explicit PlaybookOutcomeEvent rows, pure evaluatePlaybookPromotion thresholds, aggregate digest/reason codes, decision log row validation, non-deducible registry helpers, retention/health diagnostics, and tests that prove neutral/unknown cannot promote and harmful/wrong-claim prevents activation recommendation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-v1-aggregation-and-evaluator"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add playbook_promotion_sweep dry-run and apply",
+      "context": "Covers M5 and sections 15.2, 16, 17, and 18. Default dry-run must write nothing; apply is feature-flag gated, idempotent, appends auditable decision rows, preserves unrelated playbooks, can recommend activation/recommend demotion/reject/archive/mark non-deducible, and must never activate candidates or write lifecycle evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-commands"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Guard playbook_propose with non-deducible source registry",
+      "context": "Covers M5.5 and section 13.4. playbook_propose must consult non-deducible source records before writing proposals; marked sources refuse unless an explicit override flag and reason are supplied; override events must be auditable and unmarked sources keep current behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-4-non-deducible"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add non-blocking post-DONE learning settlement hook",
+      "context": "Covers M3 and section 8. After DONE proof is durable, run a best-effort, timeout-bounded, idempotent settlement that can append neutral or explicit structured outcomes only where allowed. Settlement failure must be visible through promotion status/health but must not block DONE, mutate story phase, or create gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#8-done-trigger-contract"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add playbook_promotion_status inspection surface",
+      "context": "Covers M6 and section 15.3. Status should show candidates, active playbooks with negative signals, latest decisions, non-deducible sources, pending settlement/health counts, retention warnings, and feature-flag state. Candidates must be clearly labeled pending learning material and must not appear in active runtime memory guidance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-3-playbook-promotion-status"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
