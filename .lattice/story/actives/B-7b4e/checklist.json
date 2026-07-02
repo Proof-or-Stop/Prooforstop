@@ -196,9 +196,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:02:53.928Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:04:28.536Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Valid Q5 and Q12 receipts advance only when active identity and receipt bindings match.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:28.850Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Deterministic Q4 path proves optional conditional fields are required only when claim flags make them applicable.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:29.187Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks hamiltonianHash, gridHash, verifierScriptHash mismatches plus unbound solver output and unbound plot/table evidence.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:29.489Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
