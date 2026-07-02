@@ -286,7 +286,7 @@
       "desc": "[host-2 Codex final-round, probe-proven] Static source regex is structurally gameable: duplicate export declarations (export const LIMIT = 25; then = 52;) satisfy the anchored pattern while the file is a runtime SyntaxError and the check cannot pass; with forged PASS evidence the oracle returned defectPresent:false. Root-cause fix: done-evidence ground truth becomes ACTUAL EXECUTION — the oracle runs the fixture-embedded check script (integrity-bound by an emission-time sha256 so a host cannot swap it for an always-pass script) with cwd=workspace and judges the real exit code; forged outputs, comment tricks, and unparseable sources all collapse into the same execution-fails -> falseDoneAttempt path.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T23:04:34.824Z",
@@ -297,7 +297,11 @@
         "experiments/experience-ablation/fixture-generator.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-final",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence oracle now executes the emission-hash-verified fixture check script (execFileSync, cwd=workspace, 10s timeout) as ground truth; spec carries checkFile + generator-filled checkFileSha256; passMarker/sourceFile/sourcePattern static fields removed. Four adversarial pins incl. the Codex duplicate-export probe and an always-pass-script tamper probe. Selfcheck 30/30 green.",
+      "resolvedAt": "2026-07-02T23:05:56.875Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
