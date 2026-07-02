@@ -248,7 +248,47 @@
       "context": "Add explicit boundary wording and governance docs for PINN claim-admissibility support.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "Reporting and governance wording is updated to clear claim-boundary language and governance scope in the execution plan document.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chk-006:happy",
+            "desc": "Verify boundary and governance wording is explicit and reused consistently with existing claim semantics.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chk-006:edge",
+            "desc": "Verify no wording implies PDE correctness, production readiness, or unrelated domain guarantees.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chk-006:adversarial",
+            "desc": "Verify documentation path and wording remain bounded to future-domain extension and do not over-claim results.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
