@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-337f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. All three new files are additions only. Checked: (a) IN_STORE_CLASSES = [stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane] matches plan S5.1 six exactly; selfcheck line 58 hardcodes the same PLAN_SIX; held-out classes [tmp-absolute-path, silent-catch] are disjoint; TRAP_GROUPS in_store|held_out|clean match pair-ledger.mjs. (b) LEAKAGE_STRIP_LIST covers classNames (8 hyphenated names), lessonPhrases, answerProse, toolNames (residue/oracle executables), and meta ([trap]); leakageAudit scans prompt.md + workspace/ only (oracle.mjs is host-hidden by design); fixtureId regex fx-<8hex>-<n> enforces no class-name embedding in directory names. (c) Oracle output fields {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details} match the four S10 boolean fields plus a debug string; repeatDefectPresent is a run-level scorer field not a per-fixture oracle field per S6.2. (d) Schema version proofbound.experience-ablation-fixture.v1 follows the proofbound.<domain>-<object>.v1 convention. (e) No CJK characters found in any of the three files. (f) Temptation-vs-answer asymmetry confirmed on host-policy (agy old habit), false-done (mark things finished), reviewer-lane (two green checks usually plenty) — none embeds corrective knowledge. 0 findings.",
+      "createdAt": "2026-07-02T22:41:40.351Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-002",
+      "_hash": "ae36b7c8c84c82faa887ded9c05bb5af26c25227150fd0eea3469dd93d397972"
+    }
+  ]
+}
