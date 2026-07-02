@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-009",
       "_hash": "bae6c10a7da29df09b2bb6a440685316f25c0d08aa0b95b255800cb1a2386757"
+    },
+    {
+      "id": "B-047f:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. F-014 fix is exactly a 2-line file-header comment change in sample-size.mjs (1 deletion, 2 insertions). The old phrase \"freeze N at the Wilson 95% CI LOWER bound\" is gone; replaced by the corrected wording referencing the N-maximizing baseline and F-001. No residue of the stale phrase found anywhere in .ts/.mjs/.md/.json outside .git/. Wording is consistent with the implementation at lines 134, 152, and 286 of sample-size.mjs. Concept residue check: clean.",
+      "createdAt": "2026-07-02T21:39:43.326Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-010",
+      "_hash": "18d3a6f313f2c0869d9e694c28c2f168c93a9f93977a323b15126bcae84582c3"
     }
   ]
 }
