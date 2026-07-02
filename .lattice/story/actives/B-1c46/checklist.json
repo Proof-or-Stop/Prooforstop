@@ -204,7 +204,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M5 outputs a full-profile performance smoke transcript with PASS only when indexedWarmCacheMs <= 2000ms, parity is true, cache is fresh, and memory remains non-authoritative advisory context."
+      "userSees": "Expected transcript includes `playbook-runtime-memory performance smoke passed`, `recordCount=1000000`, `parityPass=true`, `indexedWarmCacheMs<=2000`, and `targetWarmMs=2000`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The full-profile performance smoke passes only when parityPass=true and indexedWarmCacheMs is at or below targetWarmMs=2000.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The performance smoke reports referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, p50/p95 or equivalent repeated-query latency, peak RSS, and cache hit rate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The performance smoke exits non-zero when parity fails, advisory metadata changes, or indexedWarmCacheMs exceeds targetWarmMs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
