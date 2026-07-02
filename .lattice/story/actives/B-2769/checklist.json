@@ -261,9 +261,9 @@
       "id": "CHK-004",
       "title": "M3 Gate policy and transition engine",
       "context": "Implement lifecycle gate predicates and fail-closed transition behavior (advance/repair/degrade/stop).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T16:39:48.931Z",
-      "endTime": null,
+      "endTime": "2026-07-02T16:39:55.687Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
@@ -304,7 +304,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "chk-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Lifecycle gate state path and policy are documented with fail-closed behavior and transition verbs.",
+          "headHash": "bbff986eac6d97cf6708fbb6e696a701b990eb65",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:55.815Z"
+        },
+        {
+          "intentRef": "chk-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Transition policy states required evidence must be current, hash-bound, and missing/stale evidence must not advance.",
+          "headHash": "bbff986eac6d97cf6708fbb6e696a701b990eb65",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:55.942Z"
+        },
+        {
+          "intentRef": "chk-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"support|improve solver|prove\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No bypass-like language that would imply unsupported transition or production claims.",
+          "headHash": "bbff986eac6d97cf6708fbb6e696a701b990eb65",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:56.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
