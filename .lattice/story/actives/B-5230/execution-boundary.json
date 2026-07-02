@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5230",
+  "allowedCommands": [
+    "apply_patch",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "lattice"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git",
+    "node",
+    "npm",
+    "python"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Work is documentation hardening only; no runtime compilation or code execution.",
+  "createdAt": "2026-07-02T17:17:23.880Z",
+  "updatedAt": "2026-07-02T17:17:23.880Z",
+  "_hash": "629f298316a92d40b774baa2e7dd403698bcf87e83fb6c343b0450c6633b898d"
+}
