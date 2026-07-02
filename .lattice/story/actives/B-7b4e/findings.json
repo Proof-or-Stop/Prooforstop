@@ -162,6 +162,25 @@
       "resolvedAt": "2026-07-02T21:13:46.711Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-008",
+      "desc": "Top-level receipt.outputDigest mismatches are only checked for solver-run receipts. Repro: buildCompleteQuantumEvidence(Q5) or Q12, mutate receipts[0].outputDigest to a different digest, then evaluateQuantumClaim returns allowed=true, nextAction=advance, reasons=[] even though every evidence receipt must bind outputDigest to the active identity. This leaves non-solver required receipts fail-open despite the fail-closed receipt identity rule.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:15:59.507Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-021",
+      "_hash": "a1fd0d69592783a5f4fd50f585f4efc3d151cd38f589adbfe0539c1c04083d34",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|level-receipt-outputdigest",
+      "signatureTagSource": "auto"
     }
   ]
 }
