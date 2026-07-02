@@ -63,7 +63,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice playbook_promotion_observe --since=14d --json emits host-neutral JSON with candidateGenerated, candidateConsumed, recommendationHandling, authority=non_authoritative, and gateEvidence=false.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Relative since windows such as 14d are accepted and invalid since values fail with a clear playbook_promotion_observe diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command policy and process-fact metadata classify playbook_promotion_observe as readOnly/L0 and not a Codex/Claude adapter namespace command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
