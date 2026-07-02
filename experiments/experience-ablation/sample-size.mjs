@@ -11,7 +11,8 @@
 //     (Connor 1987 approximation; see comment at the function).
 //   - wilson95: Wilson score interval, used by the S7 pilot freeze rule.
 //   - pilotFreezeCheck: the S7 freeze rule made executable (>=15 control-arm fault
-//     runs; freeze N at the Wilson 95% CI LOWER bound; extend when CI width > 0.30).
+//     runs; freeze N at the N-maximizing baseline within the Wilson 95% CI — the
+//     lower bound alone is not conservative, see F-001; extend when CI width > 0.30).
 //   - report subcommand: per-population adequacy report (seeded band grid + live
 //     point) written as adequacy-report.json + adequacy-report.md.
 //
