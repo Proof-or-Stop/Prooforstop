@@ -95,7 +95,30 @@
       "userSees": "With arm=control, lattice recall ... exits nonzero printing blocked: memory retrieval is disabled on the control arm of experiment <id>, and the activity log shows a retrieval_violation event; with no experiment context the same command works normally",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With arm=control, lattice recall exits nonzero with the block message naming the experimentId, and a retrieval_violation event {experimentId, command} is appended",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With arm=treatment and with no experiment context the same retrieval commands work normally (no block, no violation event)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Catalog cross-check: every command whose name matches the memory families (recall, dev_memory_*, playbook_*, learning_*, memory_playbook_baseline_*) carries the retrieval-block marker; an unmarked family member fails the smoke",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
