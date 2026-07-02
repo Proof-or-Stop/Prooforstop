@@ -138,7 +138,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User can run one smoke command that proves the Quantum M0-M1 slice is fail-closed.",
+      "userSees": "Command output ends with: \"quantum claim-admissibility smoke passed\".",
       "files": {
         "modify": [
           "packages/main/package.json"
