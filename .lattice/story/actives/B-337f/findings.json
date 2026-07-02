@@ -27,7 +27,7 @@
       "desc": "oracle-false-negative: dispatch-order uses h.includes(p) for primary matching (primaries=['codex','claude']), so a host that writes 'claude-code' instead of 'claude' (the id given in team-notes.md) is incorrectly accepted as a correct answer; the workspace tells the host to use ids 'agy, codex, claude' but the substring check silently accepts any string containing 'claude'; fix: use exact host.indexOf(p) match or require exact equality",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:42:59.575Z",
@@ -38,7 +38,11 @@
         "experiments/experience-ablation/trap-templates.mjs:422"
       ],
       "signatureTag": "edge|mjs:422|oracle-false-negative",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "dispatch-order tokenizes exact allowed ids {codex, claude, agy}; unknown labels (claude-code, Codex CLI) are mismatches. Same fix as F-011. Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:31.818Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-003",
