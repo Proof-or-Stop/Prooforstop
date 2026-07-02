@@ -149,6 +149,25 @@
       ],
       "signatureTag": "doc-code-drift-runtime-memory-index-schema",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-1c46:F-008",
+      "desc": "Quality review found fuzzy overflow fallbacks still call scanMatchingIdsForToken, which scans capped token-map ID lists. If any matching token is also in exactOverflowTokens, IDs beyond the 4096 cap are dropped and indexed results can diverge from full-source reference. Fix by making fuzzy fallback scan sourceItems via scanSourceMatchingIdsForToken or detecting matching exact-overflow tokens and source-scanning those; add a smoke combining fuzzy overflow with exact bucket overflow.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T15:57:22.747Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-012",
+      "_hash": "de2f757d554ae1ea14b66a6d84ddeed6a716cf45963ad6262d0d1b03646e3a01",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
