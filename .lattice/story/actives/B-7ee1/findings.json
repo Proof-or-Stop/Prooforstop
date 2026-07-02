@@ -125,7 +125,7 @@
       "desc": "B-7ee1:F-001 resolved: docs no longer describe advisory auto-promotion as future/default-off/feature-flag gated. The touched decision docs now state promotion sweep remains recommendation-only and playbook_auto_promotion_apply is the separate evidence-activated, non-authoritative apply path.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "Stale wording removed/updated in commit a09ef69f and c22e761; rg no longer finds PLAYBOOK_AUTO_ACTIVE/default-off/future-only wording in the two touched docs except test guard references elsewhere.",
@@ -144,7 +144,11 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
       "signatureTag": "spec-boundary-docs-stale-resolved",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded/cleanup: F-006 was an accidental disproven counter-evidence finding created by the main agent before finding_resolve was identified. The original F-001 is resolved directly; F-006 is not an independent issue.",
+      "resolvedAt": "2026-07-02T23:01:00.061Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
