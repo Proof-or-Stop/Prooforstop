@@ -93,6 +93,25 @@
       "resolvedAt": "2026-07-02T19:31:07.421Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-db1b:F-005",
+      "desc": "pinn_report_render still returns caller-supplied top-level overclaim fields from benchmarkJson/benchmarkPath in JSON mode when their values are non-boolean true. normalizeBenchmarkReport only rejects rawReport[field] === true or claims[field] === true, then returns { ...report, claims: SAFE_REPORT_CLAIMS, boundary: PINN_BOUNDARY_PARAGRAPH }, preserving extra top-level deploymentReadyClaim/externalCompletionClaim/terminalCompletionClaim/pdeCorrectnessClaim and retired productionDone/authorityDone/fullAuthorityDone fields. Verified by direct handler invocation against packages/main/dist: a supplied benchmark with those top-level fields set to string \"true\" returns them unchanged in the JSON result, even though nested claims are false and boundary is normalized. This violates the round-2 concept boundary that pinn_report_render must no longer render or return caller-supplied overclaim fields from benchmarkJson/benchmarkPath.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T19:49:54.020Z",
+      "reviewRound": "2026-07-02T19:30:39.568Z",
+      "reviewRunId": "B-db1b:RR-005",
+      "_hash": "73718ab4f8b8c97390fd7ae3911623680d1ac296444ee3100c19265ec3fb79f2",
+      "files": [
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "packages/main/src/core/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|pinn-report-render-json-overclaim-fields",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
