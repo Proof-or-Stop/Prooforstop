@@ -40,6 +40,28 @@
       ],
       "signatureTag": "missing|ts|9958-lacks-enough",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9958:F-003",
+      "desc": "Command docs/catalog surfaces still lead with legacy non-deducible wording instead of the B-9958 canonical non_promotable wording. The decision doc establishes non_promotable as the operator-facing term and says legacy non_deducible / mark_non_deducible are compatibility spellings (docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:157-161), and the text status renderer adds non_promotableSources with legacy storage noted (packages/main/src/handlers/playbook.ts:1116-1118). However playbook_promotion_status help/catalog still renders non-deducible sources (packages/main/src/cli/command-catalog.ts:1878), command-policy still says non-deducible source registry (packages/main/src/core/command-policy.ts:246), and process-fact levels still say non-deducible sources (packages/main/src/core/process-fact-levels.ts:156). This leaves the changed docs/catalog output inconsistent with the B-9958 terminology requirement; update these surfaces to lead with non_promotable while explicitly noting legacy non_deducible storage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T20:42:35.838Z",
+      "reviewRound": "2026-07-02T20:39:07.457Z",
+      "reviewRunId": "B-9958:RR-004",
+      "_hash": "45541f56d391642d18d0b07ed624f5634f6a610123d9af86fec7c339d4ff8e7d",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|ts|command-docs-catalog",
+      "signatureTagSource": "auto"
     }
   ]
 }
