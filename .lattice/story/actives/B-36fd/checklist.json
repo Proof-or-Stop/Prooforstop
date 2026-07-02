@@ -100,14 +100,15 @@
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "waiver",
-          "verdict": "waived",
+          "kind": "docs_check",
+          "verdict": "success",
           "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
-          "note": "Semantic trace check (every rev-1-to-rev-2 delta maps to one of the 12 adjudicated findings; no un-reviewed design content introduced) requires reading comprehension against the adjudication record and the preserved rev-1 semantics; not mechanically automatable. Deferred to the REVIEW lanes (docs + behavior reviewers) which re-verify delta-to-finding traceability; the commit message enumerates the 12 findings for that audit.",
-          "headHash": "6acc17e5ca9d49805d97e332d33c3465ce93541b",
-          "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486",
-          "storyFilesHash": "28b0f0c476fee49842f8f27a982e0dceaec151c2d151d72b4f0380c0292f373b",
-          "timestamp": "2026-07-02T19:09:27.694Z"
+          "result": "pass",
+          "note": "Semantic delta-to-finding trace VERIFIED by the completed review record (supersedes the earlier deferral waiver): concept lane RP-003 (run RR-005) verified no rev-1 concept resurrection and that both fix commits (3d666c058, 78988815b) introduce only content tracing to registered findings F-001..F-006; quality lane RP-004 (run RR-006) verified provenance states the 12 adjudicated findings, all 6 registered findings resolved, no stale pre-fix numbers remain, and independently recomputed the statistics; test-coverage lane RP-005 (run RR-007) re-ran all mechanical intent evidence on the final text; independent host-2 Codex re-verdict PASS verified each of its P2/P3 findings fixed with no new contradictions in S7/S11/M6/S17. Every substantive rev-2 delta therefore maps to an adjudicated correction or a registered-and-resolved review finding; no un-reviewed design content entered the decision doc.",
+          "headHash": "17a25a6cf903260cf8d5d42e8db018bbe2de9af6",
+          "materialHash": "94651410b30b28aa3a01ea5e645ce11d5e5cceb1bbc100ec7819deb7c4696e85",
+          "storyFilesHash": "4f977cd409381f090b4c5e2e4d37ab533e03340e1c026a8632da99dbecad64f3",
+          "timestamp": "2026-07-02T19:45:13.156Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
