@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1c46",
+  "mode": "feature",
+  "allowed": [
+    "Create docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md for the M0-M6 execution plan and measured results.",
+    "Modify existing playbook runtime memory smoke tasks and create a focused performance smoke under packages/main/src/tasks/.",
+    "Modify packages/main/src/core/playbook-runtime-baseline.ts for profiling, repeated-query performance reporting, and 1,000,000-record benchmark parity metrics.",
+    "Modify packages/main/src/core/playbook-runtime-memory-cache.ts for persistent/durable cache support with strict binding and invalidation.",
+    "Modify packages/main/src/core/playbook-runtime-memory-index.ts for exact-token and bounded fuzzy candidate lookup optimization.",
+    "Modify packages/main/src/core/playbook-runtime-memory.ts only to consume the optimized index/cache while preserving MemoryFreshnessPack semantics.",
+    "Update command catalog/config only if required to expose or validate the new smoke command through existing validate paths."
+  ],
+  "excluded": [
+    "Do not change REVIEW/TEST/DONE gate semantics except adding performance smoke evidence for this story.",
+    "Do not claim the 1-2s target unless the full-profile performance smoke passes with indexedWarmCacheMs <= 2000ms.",
+    "Do not make runtime memory authoritative or gate evidence; authority must remain non_authoritative and gateEvidence=false.",
+    "Do not remove semantic parity behaviors for exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases.",
+    "Do not touch unrelated paper, README, recovery-runner, or existing user-dirty files."
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "User explicitly approved executing the M0-M6 performance optimization sequence until DONE after the current 1,000,000-record warm/cache path measured above the 1-2s target.",
+  "createdAt": "2026-07-02T14:19:58.769Z",
+  "updatedAt": "2026-07-02T14:19:58.769Z",
+  "_hash": "79aab7804070decdd906bc236037434e293cb420706bb801ae3ec42aafc16f5c"
+}
