@@ -1,0 +1,34 @@
+{
+  "storyId": "B-db1b",
+  "checkedAt": "2026-07-02T18:40:19.347Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-02T18:40:19.347Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-02T18:40:19.347Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex tool policy does not allow spawning subagents unless the user explicitly asks for subagents; manual INIT review checked scope boundary, execution boundary, M0-M5 checklist coverage, excluded PDE/production/Authority claims, and planned file ownership. No critical or high INIT issues found.",
+    "evidenceRefs": [
+      "lattice init_preflight --storyId=B-db1b --format=json",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "lattice checklist_get --storyId=B-db1b"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-d105e010db50a277",
+    "attestedAt": "2026-07-02T18:40:19.347Z",
+    "headHash": "b649983327e405356daa1a3aa85a3dc6b941bf99",
+    "materialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8"
+  },
+  "_hash": "00510883b67cc9c12b2513f32a14812e4ac34807ea074647bfbfeb1f38c5d2c6"
+}
