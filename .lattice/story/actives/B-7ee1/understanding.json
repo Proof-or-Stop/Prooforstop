@@ -1,0 +1,36 @@
+{
+  "task": "Implement evidence-driven advisory playbook activation so operators approve policy/thresholds once and the CLI activates only candidates whose lineage, recommendation, exposure, outcome, digest, and rollback evidence satisfy the contract.",
+  "outcome": "When a qualified candidate exists, running lattice playbook_auto_promotion_apply --apply --json returns activatedCount: 1, lists the activated playbook id, keeps authority: non_authoritative and gateEvidence: false, and playbook_runtime_consumption_verify --json shows that active playbook is consumed while ineligible candidates remain blocked with explicit reasons.",
+  "facts": [
+    "B-9958 completed seed observe, batch proposal, candidate approval, outcome recording, promotion sweep, and runtime verification.",
+    "Current playbook_auto_promotion_apply is guard-only: activationImplemented is false and --apply throws even when guards pass.",
+    "Manual playbook_activate exists but requires a human to pick candidate ids and digests one by one.",
+    "Playbook learning artifacts are advisory and non-authoritative; they must never satisfy story DONE, review, or receipt gates.",
+    "DONE success alone must never count as helped evidence for activation."
+  ],
+  "constraints": [
+    "Do not use an always-off environment flag as the ordinary activation boundary.",
+    "Require reviewed activation policy and qualifying evidence before --apply writes active status.",
+    "Preserve digest binding and idempotency so stale candidates or repeated applies cannot corrupt playbooks.",
+    "Keep active playbooks advisory and reversible; never delete candidate/outcome/decision evidence.",
+    "Follow existing learning-store/playbook write-lock patterns."
+  ],
+  "unknowns": [
+    "Whether existing promotion decision rows contain enough digest material for idempotent activation or need a new activation audit row shape.",
+    "Whether rollback should be implemented as a status change command, a demotion recommendation, or both.",
+    "Whether the existing smoke has reusable fixtures for constructing candidate/outcome/decision rows."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+  ],
+  "timestamp": "2026-07-02T22:17:38.427Z"
+}

@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Evidence, not human blame, decides advisory activation.",
+    "Activation must be usable via explicit CLI apply when evidence and reviewed policy are present, not permanently default-off.",
+    "Learning remains non-authoritative and never becomes gate evidence.",
+    "Every activation must be digest-bound, idempotent, auditable, and reversible.",
+    "Do not optimize arbitrarily; only close the real correctness gap between recommendation and runtime consumption."
+  ],
+  "drivers": [
+    "Hundreds of historical experiences make per-candidate manual activation unscalable.",
+    "Bad automatic activation can mislead future agents, so evidence thresholds and rollback are mandatory.",
+    "Existing B-9958 V1 artifacts should be reused instead of inventing a new learning store."
+  ],
+  "options": [
+    {
+      "name": "manual-activation-only",
+      "pros": [
+        "Smallest code change",
+        "Existing playbook_activate already works"
+      ],
+      "cons": [
+        "Keeps human-blame bottleneck",
+        "Does not solve the user problem",
+        "Does not scale to hundreds of experiences"
+      ]
+    },
+    {
+      "name": "blanket-auto-active",
+      "pros": [
+        "No manual work",
+        "Simple mental model"
+      ],
+      "cons": [
+        "Activates weak or duplicated candidates",
+        "Violates evidence-first design",
+        "Risky runtime guidance pollution"
+      ]
+    },
+    {
+      "name": "evidence-activated-apply",
+      "pros": [
+        "Solves manual bottleneck with evidence",
+        "Keeps activation explicit, auditable, digest-bound, and reversible",
+        "Reuses V1 seed/outcome/promotion lineage"
+      ],
+      "cons": [
+        "Requires careful test fixtures and policy checks",
+        "Slightly more implementation surface"
+      ]
+    }
+  ],
+  "chosen": "evidence-activated-apply",
+  "rationale": "Choose a real evidence-activated apply path: the CLI should activate eligible advisory playbooks when the policy and evidence pass, while blocking weak or stale candidates with precise reasons.",
+  "preMortem": [
+    {
+      "scenario": "Weak candidate is activated because neutral observations are counted as evidence.",
+      "trigger": "Aggregation denominator includes neutral or unknown outcomes.",
+      "consequence": "Runtime guidance becomes noisy and agents may repeat bad advice.",
+      "mitigation": "Keep decisiveSamples equal helped + dismissed + harmful and add tests proving neutral/unknown/DONE settlement cannot activate."
+    },
+    {
+      "scenario": "Stale or duplicated candidate is activated.",
+      "trigger": "Apply ignores candidate digest or source-lineage duplicate blockers.",
+      "consequence": "Wrong playbook becomes active or duplicate lessons pollute runtime memory.",
+      "mitigation": "Require current digest, clean lineage, and idempotency keys; add stale/duplicate negative tests."
+    },
+    {
+      "scenario": "Auto activation becomes another default-off fake feature.",
+      "trigger": "Implementation keeps requiring an unset environment flag or throws after guards pass.",
+      "consequence": "User still cannot use the activation path and V1 remains incomplete.",
+      "mitigation": "Make reviewed policy plus qualifying evidence sufficient for explicit --apply in local CLI tests; remove the always-off activationImplemented=false blocker."
+    },
+    {
+      "scenario": "Rollback loses evidence.",
+      "trigger": "Demotion deletes rows or overwrites original activation/outcome history.",
+      "consequence": "Auditing cannot explain why a playbook was active or removed.",
+      "mitigation": "Use append-only audit/provenance and status transitions; never delete playbook/outcome/decision rows."
+    }
+  ],
+  "timestamp": "2026-07-02T22:17:38.958Z"
+}
