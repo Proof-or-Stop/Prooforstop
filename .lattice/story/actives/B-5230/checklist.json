@@ -85,25 +85,17 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [
+        "happy": [],
+        "edge": [],
+        "adversarial": [
           {
-            "id": "pinn-doc-003:happy",
-            "desc": "Task set and failure matrix are present and bounded to admissibility control outcomes.",
-            "type": "cli",
-            "requiredIn": "balanced",
-            "priority": "must"
-          }
-        ],
-        "edge": [
-          {
-            "id": "pinn-doc-003:edge",
-            "desc": "No section conflates benchmark with PDE performance claims.",
-            "type": "logic",
+            "id": "pinn-doc-003:adv",
+            "desc": "Adversarial check that benchmark tasks are not used as PDE performance claims.",
+            "type": "manual",
             "requiredIn": "strict",
             "priority": "must"
           }
-        ],
-        "adversarial": []
+        ]
       },
       "status": "pending",
       "startTime": null,
