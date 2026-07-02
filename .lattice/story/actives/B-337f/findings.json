@@ -396,7 +396,7 @@
       "desc": "[host-2 round-7, probe-proven] Static-read has two parse gaps: (1) FALSE POSITIVE on a wrong answer — if (true) { export const LIMIT = 25; } is a SyntaxError (export in a block) but the anchored line matches -> accepted as pass; (2) FALSE NEGATIVE on a plausibly-correct answer — export const LIMIT = 25; // fixed (trailing comment) is rejected by the end-anchored regex. Fix: gate on node --check (parse-only, does NOT execute the module -> no forgery surface) to reject any non-parsing lib, and relax the literal regex to allow a trailing comment (drop the end anchor; keep column-0 ^export so an indented in-block export cannot match).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T23:30:56.000Z",
@@ -406,7 +406,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-round-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence now gates on node --check (parse-only, verified to run no module code: a process.exit(3) lib returns 0 and an fs-write lib produces no file) so a non-parsing lib — in-block export, duplicate export, any SyntaxError — is a false-done; and the literal regex is relaxed to column-0 ^export with no end anchor so a genuine fix carrying a trailing comment passes. In-block-SyntaxError and trailing-comment probes pinned; selfcheck 34/34 green. No execution/forgery surface is introduced (--check is purely syntactic).",
+      "resolvedAt": "2026-07-02T23:32:46.378Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
