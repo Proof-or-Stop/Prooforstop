@@ -76,7 +76,7 @@
       "desc": "M6 million-record parity does not prove the real optimized runtime index/cache path: the full-profile smoke calls runPlaybookRuntimeOptimizedParityReport, whose indexedCold branch is a local recordsRaw shortlist scan and whose warm cache is a one-entry Map of the prior digest. It never drives buildMemoryFreshnessPack/rebuildRuntimeMemoryIndex/getRuntimeMemoryPackCacheHit on the 1,000,000-record corpus, so cache/runtime parity can pass while the shipped optimized runtime path is broken at scale. Source refs: packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:334, packages/main/src/core/playbook-runtime-baseline.ts:1119, packages/main/src/core/playbook-runtime-baseline.ts:1150, packages/main/src/core/playbook-runtime-baseline.ts:1177.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T12:16:12.725Z",
@@ -88,7 +88,11 @@
         "packages/main/src/core/playbook-runtime-baseline.ts"
       ],
       "signatureTag": "missing|ts|million-record-parity",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M6 million-record proof now drives MemoryFreshnessPack through real reference/indexed/cache paths and full baseline smoke validates exact 1,000,000 records. Test-coverage pass B-6048:RP-006 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:09.050Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6048:F-005",
