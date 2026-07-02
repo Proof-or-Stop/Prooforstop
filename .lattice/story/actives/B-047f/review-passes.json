@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-004",
       "_hash": "38f0f05a4273e656cd25e1297b1dfc8c6da8b616a12e55e39f21decb69ef7c83"
+    },
+    {
+      "id": "B-047f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 verificationIntents have passing evidence (no must-gap, no waiver). Three selfchecks confirmed: protocol 15/15, pair-ledger 19/19, sample-size 29/29 PASS, all exit 0. CHK-003:edge:1 ratio-fixed monotonicity now literally exercised (pd 0.40->0.20 at 3:1 ratio: 77->155 pairs, decreasing, resolving F-012). CHK-003:edge:0 freeze-rule intent maps to N-maximizing semantics incl. the F-001 counterexample case (36/60 -> 62/arm, not the lower-bound 56). Evidence hash staleness from the two new commits is expected and will be refreshed by the owner before TEST.",
+      "createdAt": "2026-07-02T21:29:50.894Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-005",
+      "_hash": "0affb46da1a7936cf6d43b93fc1d10e4bb22ead3dd11066a5b394eb07bc95f6b"
     }
   ]
 }
