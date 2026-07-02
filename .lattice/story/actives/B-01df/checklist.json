@@ -51,8 +51,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T19:24:00.598Z",
       "endTime": null
     },
     {
@@ -159,6 +159,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T19:24:00.598Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
+      "agent": "main-agent"
     }
   ]
 }
