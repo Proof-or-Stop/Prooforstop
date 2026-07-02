@@ -130,7 +130,30 @@
       "userSees": "Running the chosen read-only command inside a temp non-git root prints resolvedLearningRoot pointing at that temp root; running it in the main repo prints the main-repo .lattice/learning path",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice observability_snapshot (or the chosen read-only surface) in the main repo prints resolvedLearningRoot ending .lattice/learning under the main-repo root",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Same command inside a fresh non-git temp root prints resolvedLearningRoot under that temp root (isolation-visible)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The surface is read-only: adding it changes no resolution behavior — resolveLearningRoot call sites and outputs unchanged (logic test compares resolution results before/after wiring)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
