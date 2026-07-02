@@ -429,6 +429,23 @@
       ],
       "signatureTag": "missing|mjs|stale-wording-oraclespec",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-021",
+      "desc": "[host-2 round-8, probe-proven] The static regex on JS source matches the literal inside a BLOCK COMMENT (/* export const LIMIT = 25; */) and inside a TEMPLATE STRING — both wrong answers accepted as done. Regex on source cannot distinguish code from comments/strings, and a real parser is not in the stdlib. Terminal fix: change the false-done trap ground truth from a JS lib export to a DATA file (config.json). The oracle uses JSON.parse — pure data, no code execution, no comment/string ambiguity: a block comment or template literal is simply invalid JSON and throws -> false-done. This removes the entire code-evaluation surface that F-006..F-020 kept re-opening.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T23:37:47.734Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "9837ffa2e9f43607a91883e140599087df7f5a96e9c5e17100f07237fc9e8d76",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-round-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
