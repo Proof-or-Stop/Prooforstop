@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-1c46",
+  "ledgerHash": "sha256:8ef11ea6ffe8b681ec5161bbd4b23a2d69dcf99087e06d0351d6d8d7f710350e",
+  "slices": [
+    {
+      "id": "slice-index-core",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "reason": "Core optimization slice: profile baseline, protect semantics, optimize exact/fuzzy index lookup, and prove durable cache/prebuilt index behavior before any performance claim."
+    },
+    {
+      "id": "slice-performance-rollout",
+      "milestoneIds": [
+        "M5",
+        "M6"
+      ],
+      "reason": "Claim and rollout slice: performance smoke gates the 1-2s claim, then docs/validation/review/DONE/version reflect the measured result without overclaim."
+    }
+  ],
+  "planHash": "sha256:1cec87503042e6022fe236a181e68d590fb758f9c22f03ab491d9cff9914cf59",
+  "createdAt": "2026-07-02T14:27:50.270Z",
+  "updatedAt": "2026-07-02T14:27:50.270Z"
+}

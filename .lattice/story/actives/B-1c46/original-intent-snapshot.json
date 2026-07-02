@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1c46",
+  "sourceText": "User agreed to execute the M0-M6 runtime-memory performance optimization sequence until DONE after the current 1,000,000-record indexed warm/cache path measured above the 1-2s target.",
+  "normalizedOutcome": "The full-profile runtime memory performance smoke passes on 1,000,000 records with parityPass=true and indexedWarmCacheMs<=2000 while memory remains non_authoritative and gateEvidence=false.",
+  "acceptanceClaim": "B-1c46 is complete only when M0-M6 are all closed and the user-visible full-profile performance smoke proves or explicitly blocks the 1-2s hot-path claim with exact timings.",
+  "keyRequirementIds": [
+    "REQ-M0-PROFILE",
+    "REQ-M1-PARITY",
+    "REQ-M2-EXACT",
+    "REQ-M3-FUZZY",
+    "REQ-M4-DURABLE-CACHE",
+    "REQ-M5-PERF-GATE",
+    "REQ-M6-ROLLOUT"
+  ],
+  "requestHash": "sha256:2d1ab04d6dc2803c9aa28bb475d08f7388ac56816f47661d3c37f71eb403ae61",
+  "createdAt": "2026-07-02T14:26:36.606Z",
+  "updatedAt": "2026-07-02T14:26:36.606Z"
+}

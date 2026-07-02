@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-1c46",
+  "state": "confirmed",
+  "ledgerHash": "sha256:8ef11ea6ffe8b681ec5161bbd4b23a2d69dcf99087e06d0351d6d8d7f710350e",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-M0-PROFILE",
+      "claim": "Profile and red baseline prove the current 1,000,000-record hot path target is unmet or unproven before optimization.",
+      "doneMeans": "A transcript reports referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, targetWarmMs=2000, and targetStatus for the full profile.",
+      "requiredEvidence": [
+        "profile_transcript",
+        "red_evidence"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1-PARITY",
+      "claim": "Semantic parity guard protects exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap behavior.",
+      "doneMeans": "Reference and optimized MemoryFreshnessPack digests match across the golden matrix and candidate false surface is zero.",
+      "requiredEvidence": [
+        "parity_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-M2-EXACT",
+      "claim": "Exact-token matching uses a fast indexed path without semantic drift.",
+      "doneMeans": "Exact fast-path counters are present, parity passes, and token scan timing improves versus M0.",
+      "requiredEvidence": [
+        "index_smoke",
+        "profile_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-M3-FUZZY",
+      "claim": "Fuzzy/includes matching uses a bounded auxiliary index instead of normal all-token scans.",
+      "doneMeans": "Fuzzy index hit/fallback counters are visible and full parity still passes.",
+      "requiredEvidence": [
+        "index_smoke",
+        "parity_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4-DURABLE-CACHE",
+      "claim": "Runtime memory cache or prebuilt index is reusable across CLI process boundaries with strict freshness binding.",
+      "doneMeans": "A transcript proves crossProcessCacheHit=true for fresh inputs and staleMutationMiss=true for changed inputs.",
+      "requiredEvidence": [
+        "cross_process_smoke",
+        "stale_mutation_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5-PERF-GATE",
+      "claim": "A performance smoke gates the 1-2s claim on the full 1,000,000-record profile.",
+      "doneMeans": "The performance smoke passes only when parityPass=true and indexedWarmCacheMs<=2000, otherwise exits non-zero.",
+      "requiredEvidence": [
+        "performance_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-M6-ROLLOUT",
+      "claim": "Docs, validation, review assurance, DONE, and version bump accurately reflect the measured result.",
+      "doneMeans": "DONE summary includes exact before/after timing, full-3x2 review assurance, new CLI version, and no overclaim.",
+      "requiredEvidence": [
+        "docs_check",
+        "validate",
+        "review_assurance",
+        "done_summary"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T14:26:53.569Z",
+  "updatedAt": "2026-07-02T14:27:06.450Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "B-1c46-intent-totality",
+    "acceptedInterpretationHash": "sha256:8f5c77beeee4f1a5816f6a632157568c69eb69b303507a9a038f774810a97d4a",
+    "acceptedAt": "2026-07-02T14:27:06.450Z"
+  }
+}
