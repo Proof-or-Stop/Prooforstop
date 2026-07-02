@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-02T13:27:36.648Z",
       "reviewRunId": "B-6048:RR-010",
       "_hash": "bd3fcd584f56673af26b9672f281b6389d2d7a1d0f81dfb05ee4860a0f17f1d2"
+    },
+    {
+      "id": "B-6048:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-006 is closed by code and executable evidence. Verified npm --prefix packages/main run build, node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js, and node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js. Index smoke covers unrelated append-only memory churn as stale-irrelevant. M3-M6 smoke covers candidateLimit cache identity, lifecycle consumer coverage including story_advance, stale-relevant/stale-irrelevant matrix, and real 1,000,000-record MemoryFreshnessPack parity with report-first timings only. Scope ack for index-smoke test expansion is explicit and bounded to F-006/F-007 regression coverage; no overclaim detected.",
+      "createdAt": "2026-07-02T13:32:14.271Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-013",
+      "_hash": "215874a9c6fa73fa4ff287a5101fc47305167f1dddb877b175e8eb9805639ac6"
     }
   ]
 }
