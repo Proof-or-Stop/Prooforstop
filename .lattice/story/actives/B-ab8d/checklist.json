@@ -399,6 +399,18 @@
           "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb",
           "storyFilesHash": "2b05b74d50dbf96233950be1de1e22b93b1e7fe029925a8b21b9fa353e3f2776",
           "timestamp": "2026-07-02T23:59:18.077Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js",
+          "result": "pass",
+          "note": "Poisoned paths green: partial env ignored with warning naming the ignored var (d); resolveReviewPromptHash byte-identical across control/treatment/no-env (g); control-arm block recorded as retrieval_violation before refusal for recall/dev_memory_search/dev_memory_start via real CLI (e/b); deliberately unmarked dev_memory_unmarked_fake FAILS the catalog cross-check (f)",
+          "headHash": "c159d11c9bd89081c1b7dd413bd9475a1e2d7dfb",
+          "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb",
+          "storyFilesHash": "2b05b74d50dbf96233950be1de1e22b93b1e7fe029925a8b21b9fa353e3f2776",
+          "timestamp": "2026-07-02T23:59:29.056Z"
         }
       ]
     }
