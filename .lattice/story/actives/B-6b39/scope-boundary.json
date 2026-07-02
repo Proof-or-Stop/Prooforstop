@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6b39",
+  "mode": "maintenance",
+  "allowed": [
+    "Amend docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md: S7 freeze-rule paragraph wording",
+    "Amend the same doc: S13 M6 exit-criteria row freeze-rule wording",
+    "Amend the same doc: S17 step 2 parenthetical echo of the S7 freeze rule"
+  ],
+  "excluded": [
+    "Any code or tooling changes (sample-size.mjs already implements the corrected rule on the B-047f branch)",
+    "Any non-English text (doc must stay entirely English)",
+    "Any other passages of the plan doc or any other documents"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-02: author a small docs-only Lattice story that amends the plan S7 freeze-rule wording (and the S13 M6 exit-criteria row + S17 step 2 echo) to the N-maximizing-baseline rule; keep everything else unchanged; doc stays entirely English.",
+  "createdAt": "2026-07-02T21:30:21.983Z",
+  "updatedAt": "2026-07-02T21:30:21.983Z",
+  "_hash": "d3545a82d6873a6abd5d090687e1f402ed84aa72de141a2e080de1ab5708e70a"
+}
