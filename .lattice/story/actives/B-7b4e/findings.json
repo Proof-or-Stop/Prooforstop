@@ -131,6 +131,25 @@
       ],
       "signatureTag": "adversarial|ts|malformed-receipt-identity-crash",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-7b4e:F-007",
+      "desc": "Blocking test-coverage gap: the quantum smoke does not cover mismatched top-level receipt.outputDigest or missing receipt.identity, both within the M0-M1 missing/mismatched/unbound evidence boundary. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:143-148 deletes both identity.outputDigest and receipt.outputDigest for unbound solver output, but has no case where receipt.outputDigest differs while identity.outputDigest remains bound; repro returns allowed=true,nextAction=advance,reasons=[]. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 covers missing active codeHash, not missing receipt identity, while packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity; repro deleting receipt.identity throws Cannot read properties of undefined (reading codeHash) instead of returning stable fail-closed reasons.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T21:07:31.736Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-020",
+      "_hash": "75794954f28f0c17156eefb1284bfebc22613e6db4310880b48cd19ee8194330",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
