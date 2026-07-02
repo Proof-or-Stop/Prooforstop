@@ -87,9 +87,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T14:54:35.017Z",
       "userSees": "Expected transcript includes `semanticParity=pass`, `referenceResultDigest=<sha256>`, `optimizedResultDigest=<same sha256>`, and `candidateFalseSurface=0`.",
       "files": {
         "modify": [
@@ -123,7 +123,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M6 report shows referenceResultDigest and optimizedResultDigest both 19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8 with semanticParity=pass.",
+          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:35.250Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Semantic guard reports candidateFalseSurfaceRate=0 supersededFalseSurfaceRate=0 deprecatedFalseSurfaceRate=0 malformedRowsSkipped=5 and render line-cap checks passed.",
+          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:35.481Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Candidate, stale, superseded, deprecated residue, and malformed playbook cases are exercised by M5/M6 and fail the smoke on drift; current run passed TOTAL 8 PASS 8 FAIL 0.",
+          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:35.711Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
