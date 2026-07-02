@@ -33,7 +33,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experiment-arm-smoke.ts",
+          "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
+          "result": "pass",
+          "note": "Both env vars valid (control and treatment) resolve to {experimentId, arm} with whitespace trimmed and no warning; neither set resolves to silent null (production mode). 11/11 checks pass.",
+          "headHash": "fd23f1bbaf5312400cd0b856cfbc8a8ac89b4a96",
+          "materialHash": "c4cf0074e2c9f0562265aa4ca33002f02cc4f78a3673948ef73bfab6a81233eb",
+          "storyFilesHash": "a85b34d6742d428a3bc1df22232f9ce1478ddcf274240db95f9326993d4adaa5",
+          "timestamp": "2026-07-02T23:09:40.826Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
