@@ -122,7 +122,7 @@
       "desc": "Blocking quality issue: malformed receipts without an identity object crash the evaluator instead of failing closed with stable reason codes. packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity through hasField/fieldValue without defaulting or validating it. Repro: deleting buildCompleteQuantumEvidence(\"Q5\").receipts[0].identity throws Cannot read properties of undefined (reading codeHash) rather than returning allowed=false with missing identity reasons, which violates the M0-M1 malformed/missing evidence fail-closed requirement. The smoke covers missing active core fields at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 but not missing receipt identity.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:06:19.065Z",
@@ -134,7 +134,11 @@
         "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|malformed-receipt-identity-crash",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by validating missing or malformed receipt.identity without throwing and returning stable fail-closed reasons; npm --prefix packages/main run test:quantum-claim-admissibility now reports missing receipt identity: BLOCK.",
+      "resolvedAt": "2026-07-02T21:13:39.584Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b4e:F-007",
