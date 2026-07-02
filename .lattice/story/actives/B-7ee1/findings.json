@@ -167,6 +167,26 @@
       ],
       "signatureTag": "spec-boundary-docs-stale-m8-auto-active-future",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-7ee1:F-008",
+      "desc": "DONE-settlement-labelled helped rows can still contribute to evidence-activation thresholds when mixed with one real outcome. buildPlaybookAutoPromotionApplyReport excludes verdictSource=done-settlement only from the realOutcomeCount/exposure guard, but aggregatePlaybookPromotion counts any helped row with exposureMode!=none and a structured verdictSource. A temp fixture with two helped done-settlement candidate-inspection rows plus one reviewer helped row produced eligible=true, blockers=[], recommendation=recommend_activate, helpedCount=3, decisiveSamples=3, realOutcomeCount=1. This violates the B-7ee1 concept boundary that story DONE/DONE settlement must not be helped evidence and that DONE-settlement rows cannot make an advisory candidate activation-eligible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T23:05:22.299Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-006",
+      "_hash": "3b48c5e96e62b88ab8694f52d5eee2d2d5474518178acbf43b5e084bca82868e",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|settlement-labelled-helped",
+      "signatureTagSource": "auto"
     }
   ]
 }
