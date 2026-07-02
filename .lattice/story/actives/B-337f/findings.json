@@ -390,6 +390,23 @@
       "resolvedAt": "2026-07-02T23:26:33.101Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-019",
+      "desc": "[host-2 round-7, probe-proven] Static-read has two parse gaps: (1) FALSE POSITIVE on a wrong answer — if (true) { export const LIMIT = 25; } is a SyntaxError (export in a block) but the anchored line matches -> accepted as pass; (2) FALSE NEGATIVE on a plausibly-correct answer — export const LIMIT = 25; // fixed (trailing comment) is rejected by the end-anchored regex. Fix: gate on node --check (parse-only, does NOT execute the module -> no forgery surface) to reject any non-parsing lib, and relax the literal regex to allow a trailing comment (drop the end anchor; keep column-0 ^export so an indented in-block export cannot match).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T23:30:56.000Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "93ec0fb952841bf4529de094a58ee8853af29f7195109e035c2b3b4454cb83cc",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-round-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
