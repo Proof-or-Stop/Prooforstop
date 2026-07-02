@@ -52,7 +52,7 @@
       "desc": "Duplicate verifier receipts for the same adapter are silently collapsed by Map construction in packages/main/src/core/pinn-claim-admissibility.ts:385, so an evidence payload containing a stale/failing residual receipt followed by a clean residual receipt advances with allowed=true and no reasons. This violates the fail-closed/ambiguous-evidence boundary for the PINN claim-admissibility pack; duplicate adapter receipts should be rejected before selecting a receipt.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T19:22:24.213Z",
@@ -63,7 +63,11 @@
         "packages/main/src/core/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "adversarial|ts|duplicate-verifier-receipts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by detecting duplicate adapter receipts before receipt selection and adding duplicate_receipt fail-closed reason. Smoke now covers stale/failing residual followed by clean duplicate and requires allowed=false.",
+      "resolvedAt": "2026-07-02T19:31:02.197Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-004",
