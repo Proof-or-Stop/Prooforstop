@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-5118:F-001",
+      "desc": "Framework doc still says Quantum is a future design contract, not a delivered runtime implementation, but B-5118 registers a read-only quantum ClaimAdmissibilityPack by default through QUANTUM_CLAIM_ADMISSIBILITY_PACK and DEFAULT_CLAIM_ADMISSIBILITY_PACKS. Update wording to distinguish full future pack/gate integration from the now-implemented M2 read-only descriptor and normalization pack.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T23:32:35.647Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-002",
+      "_hash": "078c8c863564a2e648231b0515d28d8f5a5d0acc13e5a5efd993139bbcfd4776",
+      "files": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "packages/main/src/core/claim-admissibility/pack-framework.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|framework-still-says",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
