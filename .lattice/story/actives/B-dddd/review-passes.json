@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-dddd:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: B-dddd stays within docs/requirements/decisions/playbook-promotion-worker-execution-plan.md V1/M0-M2 foundation scope. Diff adds playbook_outcome_record plus outcome ledger primitives only; no playbook_promotion_sweep/status/DONE-settlement hook or auto candidate->active path was added. Runtime active guidance still rejects non-active playbooks at packages/main/src/core/playbook-runtime-memory.ts:318. Outcome schema/validation keeps candidate/active as observation status only, requires authority=non_authoritative and gateEvidence=false, and rejects helped with exposureMode=none at packages/main/src/core/learning-store.ts:761, packages/main/src/core/learning-store.ts:799, packages/main/src/core/learning-store.ts:808, packages/main/src/core/learning-store.ts:811. Command catalog keeps host/hostProvider/hostCapabilityId open strings and says DONE completion alone is not helped at packages/main/src/cli/command-catalog.ts:1830, packages/main/src/cli/command-catalog.ts:1839, packages/main/src/cli/command-catalog.ts:1840, packages/main/src/cli/command-catalog.ts:1841. Smoke coverage asserts DONE alone writes no outcome, neutral/unknown are not positive helped, candidate remains candidate, and no Codex/Claude-specific command namespace exists at packages/main/src/tasks/experience-layer-playbook-smoke.ts:516, packages/main/src/tasks/experience-layer-playbook-smoke.ts:549, packages/main/src/tasks/experience-layer-playbook-smoke.ts:587, packages/main/src/tasks/experience-layer-playbook-smoke.ts:650.",
+      "createdAt": "2026-07-02T03:17:39.835Z",
+      "reviewRound": "2026-07-02T03:14:49.647Z",
+      "reviewRunId": "B-dddd:RR-001",
+      "_hash": "4b57c5f86e6ffeaa275b9f2eac63b05698516e94894c62810f3d6611a4780edb"
+    }
+  ]
+}
