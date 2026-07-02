@@ -459,6 +459,17 @@
           "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
           "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
           "timestamp": "2026-07-02T16:40:25.412Z"
+        },
+        {
+          "intentRef": "chk-004:adversarial",
+          "kind": "manual_transcript",
+          "command": "rg -n \"bypass\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No bypass path is documented for progression.",
+          "headHash": "4a0923bc894b6dc47f4688a480c00a4938876ca1",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:40:25.972Z"
         }
       ]
     },
