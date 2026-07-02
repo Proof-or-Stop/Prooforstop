@@ -1,0 +1,53 @@
+{
+  "storyId": "B-047f",
+  "checkedAt": "2026-07-02T21:55:38.442Z",
+  "headHash": "f4b7a21b5afc81558df7b67ad0e7d48483f4ffe2",
+  "materialHash": "fd0d5a11398fc06308b39db4889e5e731759e915ac4b966b2d97a1f67a45b328",
+  "storyFilesHash": "bba02429e067f41811ebcaca3e4d9fc60a7b43e2d2499eef01fd9611000f11d9",
+  "reviewRound": "2026-07-02T21:09:57.567Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-047f/plan.md#CHK-001",
+      "promise": "protocol.mjs: M0 machine-validated protocol.json with sha256 protocolHash, canonical serialization (sorted keys, createdAt excluded from hash), freeze/validate/hash CLI subcommands, memory-snapshot-hash.json sidecar, and hermetic protocol-selfcheck.mjs",
+      "status": "verified",
+      "verifiedBy": "diff + direct re-run",
+      "evidence": "experiments/experience-ablation/protocol.mjs (274 lines) exports freezeProtocol/validateFrozenProtocol/computeProtocolHash/canonicalStringify/hashDirectorySnapshot; protocol-selfcheck.mjs: 15 hermetic cases all PASS (reviewer re-ran, exit 0). Sidecar protocolHash cross-check (F-005). All-pairs overlap rejection inStore/heldOut/clean (F-004). Per-subcommand usage lines (F-008)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-047f/plan.md#CHK-002",
+      "promise": "pair-ledger.mjs: M2 immutable pair ledger with deterministic seeded run order, guardFrozenProtocol, guardImmutable, validateMembership (protocol-membership binding), atomic writes, hermetic pair-ledger-selfcheck.mjs",
+      "status": "verified",
+      "verifiedBy": "diff + direct re-run + live refusal re-verify",
+      "evidence": "experiments/experience-ablation/pair-ledger.mjs (275 lines) exports buildLedger/verifyLedger/seededShuffle/validateManifest/validateMembership; pair-ledger-selfcheck.mjs: 19 hermetic cases all PASS (reviewer re-ran, exit 0). validateMembership against frozen protocol group (F-002). Double guardImmutable before writes (F-006). Refusal: ERROR + exit=1 independently confirmed by reviewer."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-047f/plan.md#CHK-003",
+      "promise": "sample-size.mjs: M5 calculator with twoProportionNPerArm (reduction direction), mcnemarDiscordantPairs, wilson95, pilotFreezeCheck (N-maximizing-within-CI per F-001), report subcommand producing adequacy-report.json+.md; anchors 294/62/27/58; McNemar paired sizing 296/65; hermetic sample-size-selfcheck.mjs",
+      "status": "verified",
+      "verifiedBy": "diff + direct re-run",
+      "evidence": "experiments/experience-ablation/sample-size.mjs (337 lines); sample-size-selfcheck.mjs: 29 hermetic cases all PASS (reviewer re-ran, exit 0). All 4 anchors pinned. Direction trap (356 vs 294) verified. McNemar paired sizing in report: live 296 pairs, seeded 65 pairs (F-003). Corrected freeze rule in header, pilotFreezeCheck output, and renderAdequacyMarkdown (F-001/F-013/F-014). writeAtomic for output files (F-010). try/catch in main() (F-009)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "protocol-selfcheck.mjs: 15 hermetic cases — freeze->validate pass, createdAt outside hash payload, key-order invariance, canonicalStringify nested keys, same config at different createdAt same hash, tampered field hash mismatch, missing memorySnapshotHash named, malformed perPopulation named, in-store/held-out overlap rejected, clean/in-store overlap rejected, wrong schemaVersion rejected, sidecar mismatch detected, sidecar protocolHash mismatch detected, directory snapshot deterministic+content-sensitive, validate without frozen protocol NO_FROZEN_PROTOCOL. Reviewer re-ran: exit 0. Live CLI transcript step 1: freeze + validate PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "pair-ledger-selfcheck.mjs: 19 hermetic cases — seededShuffle deterministic/seed-sensitive/permutation, build-without-protocol refused (M0), build writes 3 files, runOrder covers all armRuns exactly once, same-seed rebuild byte-identical, different-seed different order, verify passes, unregistered trapClass refused, wrong-group class refused, verify catches tampered ledger row, tampered run order, protocol drift after build, verify passes after restores, build refused after score-records.jsonl, manifest missing trapGroup refused, duplicate fixtureId refused, invalid trapGroup refused. Reviewer re-ran: exit 0. Refusal exit=1 independently re-verified by reviewer (no-protocol root direct run)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "sample-size-selfcheck.mjs: 29 hermetic cases — normalQuantile sanity (2), all 4 anchor values 294/62/27/58, direction trap (356 vs 294), band max 62 at 0.625/0.25, band max location, band min 27, wilson95 CI bounds and width (3), freeze-rule n<15 rejected, extend flag when CI width>0.30, N-maximizing-within-CI freeze, conservative N vs point estimate, F-001 counterexample 36/60->62 vs buggy 56, mcnemar monotonicity (3), zero asymmetry rejected, report CLI assertions (7 incl. live 294/arm, seeded max 62, direction, stdout summary, live paired 296 pairs, seeded paired 65 pairs, paired naming in md). Reviewer re-ran: exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises verified: protocol.mjs (M0), pair-ledger.mjs (M2), and sample-size.mjs (M5) implement all claimed behaviors. 63 hermetic selfcheck cases re-ran by reviewer (15+19+29, all exit 0). 14 review findings (F-001 through F-014) all fixed and resolved. Key correctness fix F-001 (N-maximizing pilotFreezeCheck rule) and F-002 (protocol-membership binding) confirmed in code and tests. No TODOs in production files. Transcript exit-code re-capture for no-protocol refusal independently verified (exit=1 confirmed directly by reviewer)."
+  },
+  "_hash": "5b2e61420ad512f2e7d0bd26e423f84c9040ea8547208c1f63082038466df90f"
+}

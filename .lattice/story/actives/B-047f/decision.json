@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reuse proven experiment patterns (recovery-runner conventions) without coupling to product code",
+    "Every numeric constant in a selfcheck traces to a plan-reviewed anchor value",
+    "Immutability and gating by mechanical refusal, not documentation",
+    "Hash stability first: nothing time- or order-dependent enters a hashed payload",
+    "Hermetic selfchecks are the acceptance evidence and the red test"
+  ],
+  "drivers": [
+    "The plan's M0/M2/M5 exit criteria are already fixed and reviewed - implementation must satisfy them verbatim",
+    "The experiment dir must stay self-contained like recovery-runner (no imports from packages/*/src)",
+    "Operator chose single-host DEV + standard Lattice lifecycle (no dual-write)"
+  ],
+  "options": [
+    {
+      "name": "self-contained-mjs-tools",
+      "pros": [
+        "Mirrors the committed recovery-runner layout exactly (plain .mjs + selfchecks, no build step)",
+        "No coupling to packages/* so no product-code review floor",
+        "Formulas are small closed-form; local re-implementation with plan-anchored selfchecks is verifiable"
+      ],
+      "cons": [
+        "Small formula duplication vs analyze.mjs (mitigated by anchor-value selfchecks)"
+      ]
+    },
+    {
+      "name": "import-analyze-mjs-primitives",
+      "pros": [
+        "Zero formula duplication"
+      ],
+      "cons": [
+        "Cross-directory coupling between two experiment suites; recovery-runner internals were not designed as a public API",
+        "Refactoring analyze.mjs later would silently affect ablation tools",
+        "Contradicts the self-containment convention both experiment dirs follow"
+      ]
+    },
+    {
+      "name": "typescript-in-packages-lab",
+      "pros": [
+        "Type safety; shared with product tooling"
+      ],
+      "cons": [
+        "Turns an experiments-side story into a product-code story (build step, floor review, version bumps)",
+        "The plan S13 explicitly scopes these as experiment tooling reusing recovery-runner patterns"
+      ]
+    }
+  ],
+  "chosen": "self-contained-mjs-tools",
+  "rationale": "Matches the plan's S13 reuse framing (pattern reuse, not module import), keeps S1 out of product-code review floors, and the known risk (formula drift) is neutralized by selfcheck anchors that were triple-verified during the B-36fd review.",
+  "preMortem": [
+    {
+      "scenario": "Sample-size formula direction or variant drifts from the plan-reviewed numbers",
+      "trigger": "Implementing treatment = baseline + MDE, or an unpooled/continuity-corrected variant",
+      "consequence": "The M5 adequacy report mis-sizes M7 and contradicts the decision doc; a future powered run is over- or under-sized",
+      "mitigation": "Selfcheck asserts the four anchor values (294/62/27/58) and the in-band maximum location; any variant change breaks the selfcheck; the direction is stated in a comment and in the report output"
+    },
+    {
+      "scenario": "Protocol hash is unstable across key order or environments",
+      "trigger": "Hashing JSON.stringify of an object with nondeterministic key order, or including createdAt/timestamps in the payload",
+      "consequence": "Same protocol produces different hashes; ledger/protocol binding breaks; false tamper alarms",
+      "mitigation": "Canonical serialization (sorted keys, hash field excluded, timestamps outside the hashed payload); selfcheck asserts hash stability across key reordering and hash change on any field tamper"
+    },
+    {
+      "scenario": "Immutability refusal has a race or bypass",
+      "trigger": "build checks score-records.jsonl then writes non-atomically, or a mutating path forgets the check",
+      "consequence": "A ledger silently changes after outcomes exist - the exact pre-registration violation the plan forbids",
+      "mitigation": "Single guard function called by every mutating entry point; write-temp-then-rename; selfcheck covers refusal-after-score-record and verify-detects-tamper"
+    },
+    {
+      "scenario": "Selfchecks depend on repo state and rot when unrelated files move",
+      "trigger": "Selfcheck reading recovery-runner files or the real .lattice store",
+      "consequence": "S1 selfchecks fail on unrelated repo changes; flaky gate evidence",
+      "mitigation": "Hermetic temp-dir experiment roots only; no reads outside the new directory and its temp roots"
+    }
+  ],
+  "timestamp": "2026-07-02T20:53:13.709Z"
+}

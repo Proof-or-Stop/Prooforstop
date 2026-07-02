@@ -1,0 +1,56 @@
+{
+  "storyId": "B-047f",
+  "changes": "Created experiments/experience-ablation/ with the three S1 tools of the ablation program (plan M0+M2+M5): protocol.mjs (freeze/validate/hash a machine-checked protocol.json — canonical sorted-key sha256 protocolHash with createdAt outside the payload, all-pairs task-class overlap rejection, frozen memorySnapshotHash + verified sidecar); pair-ledger.mjs (build/verify a full-factorial pair ledger — deterministic xmur3+mulberry32+Fisher-Yates run order, refusal without a frozen protocol, trapClass membership binding against the frozen groups, sealHash-bound files, immutability once score-records.jsonl exists); sample-size.mjs (pooled two-proportion sizing in the reduction direction with plan anchors 294/62/27/58, Connor McNemar paired sizing, Wilson 95% CI, the corrected pilot freeze rule at the N-maximizing baseline within the CI, per-population adequacy report json+md). Three hermetic selfchecks: 15+19+29 cases.",
+  "usage": "node experiments/experience-ablation/protocol.mjs freeze --root=<root> --config=<cfg.json>; then pair-ledger.mjs build --root=<root> --experimentId=<id> --manifest=<fixtures.json> --seed=<s>; then sample-size.mjs report --config=<protocol.json> --out=<dir>. Selfchecks: node experiments/experience-ablation/*-selfcheck.mjs.",
+  "expectedOutcome": "Three runnable CLIs with passing hermetic selfchecks; ledger mechanically refuses without a frozen protocol and after any score record; calculator reproduces the plan-reviewed anchors and prints the adequacy report with paired sizing.",
+  "actualTranscript": "Real-machine acceptance at .lattice/story/actives/B-047f/evidence/transcript-diff.md: freeze->validate PASS with stable hash; same-seed rebuild identical + verify PASS; three refusals exit 1 (no-protocol / unregistered trapClass / post-score) re-captured directly and independently re-run by the delivery reviewer; adequacy report live 294/arm (paired 296), band 27-62/arm max at 0.625/0.25; selfchecks 15/19/29 all exit 0.",
+  "outcomeDiff": "One deliberate deviation from the PLAN letter, fully disclosed: the pilot freeze rule is implemented at the N-maximizing baseline within the Wilson 95% CI instead of the plan S7 lower-bound wording, because host-2 Codex proved the lower bound is not conservative (F-001; counterexample 36/60 -> 56/arm vs required 62). The plan S7 amendment is tracked as follow-up chip task_36a80fa5. Everything else matches expectations exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Tools are experiment-side only; fixtures do not exist yet (M1), no runner/scorer (M4/M6), no product-code arm switch (M3). Seal hashes are tamper-evidence, not adversary-proof — external anchoring of protocolHash into run evidence is the M6/M7 runner responsibility (documented in code). McNemar paired sizing uses the independence approximation unless the protocol overrides discordant cells.",
+  "pitfalls": "Fourteen review findings across five rounds, all fixed: Codex host-2 found the two P1s — the Wilson-lower freeze rule is NOT conservative under the pooled two-proportion formula (n peaks at p*=0.5+mde/2; the plan itself shares the flaw — docs follow-up chip filed) and the ledger did not bind task-class membership to the frozen protocol. Codex then caught a regression MY OWN fix introduced (report template prose still said lower bound, F-013) and quality caught the same residue in the file header (F-014) — prose alignment needs a repo-wide grep after semantic corrections, not spot fixes. Codex read-only sandbox cannot mkdtemp: selfcheck-running re-verdicts need --sandbox workspace-write or they false-FAIL. Transcript exit-code capture through a pipe reads the pipe exit, not the CLI exit — re-capture directly and document the correction inline.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 156104
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 2390
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 639407
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 423585
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2424522
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 366066
+    }
+  },
+  "totalDurationMs": 4013250,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T21:56:28.156Z",
+  "updatedAt": "2026-07-02T21:56:28.156Z"
+}
