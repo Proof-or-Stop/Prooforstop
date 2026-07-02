@@ -237,6 +237,23 @@
       "resolvedAt": "2026-07-02T22:49:40.087Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-012",
+      "desc": "[host-2 Codex re-verdict, probe-proven] The hardened done-evidence source check uses src.includes(sourceMustMatch): a comment line // LIMIT = 25 satisfies it while the exported LIMIT remains 52 -> defectPresent:false. Fix: sourcePattern anchored regex (^export const LIMIT = 25;) tested with the m flag so comments cannot satisfy the source-fix requirement; pin the comment-only probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:53:00.006Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "614c2b4337162f46711d24b57554bc8708a117b5c3c6f53218a275919b9de3c1",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-verdict",
+      "signatureTagSource": "auto"
     }
   ]
 }
