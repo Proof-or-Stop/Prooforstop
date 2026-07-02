@@ -181,6 +181,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:27:09.411Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/control-arm-retrieval-gate.test.mjs",
+          "command": "node packages/main/tests/control-arm-retrieval-gate.test.mjs",
+          "result": "pass",
+          "note": "Catalog cross-check ALL PASS: every MAIN_TOOLS/COMMAND_POLICIES command matching the declared MEMORY_RETRIEVAL_COMMAND_FAMILIES (recall, dev_memory_*, playbook_*, learning_scan/validate/effectiveness, memory_playbook_baseline_*) carries memoryRetrieval:true (28 commands, both directions, strict boolean check); non-family sentinels (story_list, memory_benchmark_run) unmarked; gate unit checks cover control block+event, treatment/no-env pass, invalid arm treated as no experiment.",
+          "headHash": "12cb44d5871c7f63225c054d43d10a9840492d2a",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:27:11.123Z"
         }
       ]
     },
