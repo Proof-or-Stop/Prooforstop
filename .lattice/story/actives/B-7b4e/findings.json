@@ -19,6 +19,25 @@
       ],
       "signatureTag": "missing|ts|blocking-test-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b4e:F-002",
+      "desc": "Blocking quality issue: basisOrGrid claims are specified as accepting a basis-set or grid identity, but buildRequiredIdentityFields always adds gridHash for basisOrGrid claims. A valid basis-set-only Q2/Q5/Q9/Q10 receipt with matching basisSetHash and no gridHash will be blocked by identity_mismatch/missing receipt field handling, contradicting the M1 schema/API semantics and making the evaluator over-specific to grid workflows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:10:17.556Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-002",
+      "_hash": "95c6426c26972195a8ee5eaf72d7a2645970600641776345caab82c999237742",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|ts|blocking-quality-issue",
+      "signatureTagSource": "auto"
     }
   ]
 }
