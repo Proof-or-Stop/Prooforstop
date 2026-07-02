@@ -50,9 +50,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T22:38:52.108Z",
-      "endTime": null
+      "endTime": "2026-07-02T22:38:59.836Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves a candidate with applied recommend_activate, decisive helped samples, concrete exposure, structured reviewer verdict, clean lineage, and current digest is eligible and activated.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:00.092Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Smoke keeps DONE settlement/neutral rows out of helped evidence and decisive activation denominators.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:00.366Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves missing real outcome evidence fails closed and duplicate/missing lineage blockers from the seed loop remain enforced.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:00.626Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -212,6 +247,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T22:38:59.836Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Policy and threshold contract implemented and proven by B-7ee1 smoke."
     }
   ]
 }
