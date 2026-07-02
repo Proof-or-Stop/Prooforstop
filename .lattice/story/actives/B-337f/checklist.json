@@ -170,9 +170,9 @@
           "experiments/experience-ablation/fixture-generator-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T22:34:00.625Z",
       "userSees": "Each fixture's oracle.mjs exports classify(workspaceDir) returning {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; applying the fixture's reference-bad/ overlay and running the oracle sets defectPresent true with the class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch for the rest); applying reference-good/ yields defectPresent false; the oracle output shape is documented as the M4 scorer input contract.",
       "verificationIntent": {
         "happy": [
