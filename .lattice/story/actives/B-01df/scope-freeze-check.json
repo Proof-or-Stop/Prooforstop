@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-01df",
+  "checkedAt": "2026-07-02T18:52:15.364Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "376c38d4650b2f0da7736dc9a423ad8a41cc269262e75cf884f4be27443b4dd0",
+  "executionBoundaryHash": "4daa21a182aa7455100867fcb6d8a7895392b9c26bca8b59ece4e46e50dff0d4",
+  "freshnessHash": "9adf6c48d57aedf5037b677ba38ccb71f879196abc36a69861089f2c4919d10e",
+  "effectiveExcludedKeywords": [
+    "automatic candidate-to-active promotion",
+    "batch historical playbook proposal creation",
+    "candidate approval",
+    "default enabling PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+    "runtime blocking policy"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "automatic candidate-to-active promotion",
+      "source": "scopeBoundary.excluded",
+      "text": "automatic candidate-to-active promotion",
+      "excluded": true
+    },
+    {
+      "keyword": "batch historical playbook proposal creation",
+      "source": "scopeBoundary.excluded",
+      "text": "batch historical playbook proposal creation",
+      "excluded": true
+    },
+    {
+      "keyword": "candidate approval",
+      "source": "checklist.excludes",
+      "text": "candidate approval",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "candidate approval",
+      "source": "scopeBoundary.excluded",
+      "text": "candidate approval",
+      "excluded": true
+    },
+    {
+      "keyword": "default enabling PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "source": "scopeBoundary.excluded",
+      "text": "default enabling PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime blocking policy",
+      "source": "checklist.excludes",
+      "text": "runtime blocking policy",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime blocking policy",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime blocking policy",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7496ce21b78990d3976065c56b36f2b098970ae4255af559fbc02d730cf1e453"
+}

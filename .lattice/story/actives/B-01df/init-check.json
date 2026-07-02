@@ -1,0 +1,29 @@
+{
+  "storyId": "B-01df",
+  "checkedAt": "2026-07-02T18:52:34.427Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-02T18:52:34.427Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-02T18:52:34.427Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Subagent spawning is not explicitly authorized in this turn, so independent INIT reviewers cannot be run through the available tool policy. I manually verified the story scope is limited to read-only source_lineage_audit M1, excludes batch proposal, candidate approval, auto-promotion, PLAYBOOK_DONE_SETTLEMENT default-on, and runtime blocking policy; later PLAN/DEV/REVIEW/TEST gates remain required.",
+    "actor": "Harmonygo",
+    "session": "sess-d105e010db50a277",
+    "attestedAt": "2026-07-02T18:52:34.427Z",
+    "headHash": "ff85215ab8e4a2ce59c3f6145ea009f7210a70d9",
+    "materialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8"
+  },
+  "_hash": "da5c92a7575d6d245648a688d70aeaf766aa28d5d159d8553d0402d3bb855c2e"
+}
