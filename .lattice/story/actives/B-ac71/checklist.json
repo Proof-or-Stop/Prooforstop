@@ -6,7 +6,90 @@
       "context": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md: trust anchor (pinned manifest, verify-against-pinned-not-self), independence definition + honest ceiling (cross-vendor, same-operator), the fail-closed rule table (which become the M1/M2 RED tests), and key gen/pin/rotate/revoke.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a pinned-key trust anchor section: verdicts are verified against the PINNED manifest key for the claimed hostId, never the self-reported key in the bundle — reviewer confirms this is stated unambiguously",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Independence definition section states cross-vendor (Claude vs Codex, distinct model families and keys) but same-operator ceiling, with allowed vs forbidden paper wording spelled out explicitly",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed rule table covers all 6 attack vectors: forged verdict, same-key masquerade, stale materialHash, replay, omission, key compromise — each row names detection mechanism and fail-closed response",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key lifecycle section covers generation, pinning, rotation, and revocation procedures as separate subsections with concrete steps",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc has its own Section 6 acceptance checklist and a reader can derive every fail-closed rule and the independence boundary without external context",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc references the code-verified current state: CLI-only chain (no Authority server), Ed25519 sign/verify, quorum evaluator in receipt-bundle.ts, decision-doc-quorum.ts, verdicts.ts",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Independence ceiling section explicitly distinguishes what the paper MAY claim (cross-vendor independence) vs what it MUST NOT claim (mutually-distrusting multi-party) — the boundary is unambiguous with concrete forbidden phrases listed",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed table entries are derivable as M1/M2 RED tests: each row names a concrete attack scenario that can be implemented as a test without requiring further threat-model interpretation",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key rotation procedure addresses the transition window where both old and new keys must be valid, and revocation addresses delayed discovery of compromise (not just immediate revocation)",
+            "type": "docs",
+            "priority": "should"
+          },
+          {
+            "desc": "Trust anchor section addresses the bootstrap problem: how the initial pinned manifest is established and by whom, and what happens if the manifest itself is corrupted",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does NOT contain over-claimed independence wording: phrases like mutually-distrusting parties, fully independent hosts, zero-trust multi-party, or trustless multi-party are absent — grep for these exact phrases must return zero matches",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT assume a central Authority server exists for signing or reconciliation — the server is deprecated and the chain is CLI-only; any reference to Authority must be historical or explicitly marked deprecated",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed table does NOT have a catch-all pass-through, allow-by-default, or best-effort entry — every unrecognized or unhandled case must fail closed",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key compromise row does NOT assume compromise is detectable in real-time — must address the delayed-discovery case where a key was compromised but the operator does not yet know",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT conflate key independence (distinct Ed25519 keys) with model independence (distinct vendor/model families) — both are separately required for the cross-vendor claim and named as distinct conditions",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
