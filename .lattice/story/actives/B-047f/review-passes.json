@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-005",
       "_hash": "0affb46da1a7936cf6d43b93fc1d10e4bb22ead3dd11066a5b394eb07bc95f6b"
+    },
+    {
+      "id": "B-047f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Final-round concept re-verification after fix commit c562db46e (F-001..F-012). Shadow: only as rejected negative-test input in selfcheck; ARMS=[control,treatment] only. Full-factorial both-arms: confirmed. Reduction direction: p2=baseline-mde throughout including McNemar pairedAt, direction field=reduction:treatment=baseline-mde, p01>p10 consistent. TRAP_GROUPS enum unchanged. S12 filenames unchanged. Schema versions unchanged (proofbound.*.v1). No CJK. F-001 freeze: wilson95Lower token still required by protocol schema guard; implementation freezes at N-maximizing baseline within CI (clamp p*=0.5+mde/2 to [lower,upper]); interpretation string recorded in result; no silent schema redefinition. F-002 membership: GROUP_FIELD={in_store->inStore,held_out->heldOut,clean->clean} matches protocol.mjs taskClasses fields exactly; called in both build and verify paths. F-003 McNemar: p1=baseline,p2=baseline-mde reduction convention. All three selfchecks pass: protocol 15, pair-ledger 19, sample-size 29. No concept drift.",
+      "createdAt": "2026-07-02T21:30:28.522Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-006",
+      "_hash": "85edee7c1e1bbf9e33ce13c38d0f1ae154e62a14518a583451a6f17c8ced80d3"
     }
   ]
 }
