@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-02T19:14:06.340Z",
       "reviewRunId": "B-36fd:RR-003",
       "_hash": "82334943893511fd50a2b650ef256e41657eb4888271b1eae312478369f1f17b"
+    },
+    {
+      "id": "B-36fd:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Final round re-verification after fix commits 3d666c058 (F-001/2/3) and 78988815b (F-004/5/6). All round-1 pass items confirmed still clean: no Shadow C arm allocated, 5-factor blocking cited as design rationale only, no live reviewer in seeded primary, .proof-or-stop confined to S12 rev-1 note. New fix content verified: Wilson-CI freeze rule consistent across S7/M6/S17 (>=15 runs, lower-bound freeze, extend-if-width>0.30); S11.1 decision rule complete (BOTH H1a and H1b, CI upper bound below 0, RR excluded); N band 27-62 with corner/interior explanation consistent in S7/S8/S17; old vague wording fully removed; M6/M7 gitignored-scratch note accurate. No new rev-1 resurrection or terminology drift introduced.",
+      "createdAt": "2026-07-02T19:35:59.412Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-005",
+      "_hash": "9a3c51f8713e564679c354e55bb5bce424e464f15d904fb59e95cd2183316263"
     }
   ]
 }
