@@ -1,7 +1,7 @@
 # Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan
 
 Status: formal story source of truth for B-7b4e
-Runtime status: Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.
+Runtime status: Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending.
 Created: 2026-07-02
 Scope: local computational quantum-mechanics claim-admissibility controls
 
@@ -18,16 +18,17 @@ evidence to advance across lifecycle stages.
 
 ## Current Implementation Slice
 
-B-7b4e implements only Milestones 0 and 1:
+B-7b4e and B-5118 implement Milestones 0 through 2:
 
 - M0: scope, policy, non-goals, claim IDs, boundary semantics, and fail-closed
   reason vocabulary.
 - M1: local claim/evidence schema and deterministic identity binding checks for
   stale, missing, mismatched, weak, or unbound evidence.
+- M2: read-only verifier adapter descriptors plus deterministic normalization
+  from supplied adapter output into local quantum verifier receipts.
 
-M2 through M5 remain pending:
+M3 through M5 remain pending:
 
-- no verifier adapter pack;
 - no lifecycle transition engine integration;
 - no benchmark harness or failure-injection runner;
 - no reporting/governance integration beyond the local smoke task.
@@ -289,9 +290,15 @@ Acceptance:
 
 ### Milestone 2 - Verifier adapter pack
 
-Pending. Future work may add verifier scripts/adapters for Hamiltonian/spec,
-basis/grid, solver output, normalization, invariant checks, convergence,
-reference comparison, reproducibility, and provenance.
+Implemented as a read-only descriptor and normalization slice. The M2 pack lists
+typed verifier adapter descriptors for Hamiltonian/spec, basis/grid, solver
+output, normalization, unitarity/probability conservation, convergence,
+reference comparison, reproducibility, and figure/table provenance. It accepts
+supplied adapter output only, normalizes valid output into local receipts, and
+fails closed for unknown adapters, unsupported output versions, missing or
+mismatched identity, stale/failing output, verifier-script mismatches, and
+output-digest mismatches. It does not run verifier commands, create storage or
+lifecycle gates, or claim full quantum validation.
 
 ### Milestone 3 - Gate policy and transition engine updates
 

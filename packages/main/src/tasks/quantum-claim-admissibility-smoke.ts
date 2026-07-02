@@ -2,10 +2,26 @@ import assert from 'node:assert/strict';
 import {
   buildCompleteQuantumEvidence,
   evaluateQuantumClaim,
+  listQuantumVerifierAdapterDescriptors,
+  normalizeQuantumVerifierAdapterOutput,
   renderQuantumClaimCheckText,
+  QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION,
+  type QuantumEvidenceIdentity,
+  type QuantumEvidenceKind,
+  type QuantumVerifierAdapterId,
+  type QuantumVerifierAdapterOutput,
+  type QuantumVerifierNormalizationFailureCode,
+  type QuantumVerifierReceipt,
   type QuantumClaimCheckInput,
   type QuantumClaimCheckResult,
 } from '../core/claim-admissibility/quantum.js';
+import {
+  CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID,
+  QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID,
+  getClaimAdmissibilityPack,
+  listClaimAdmissibilityPacks,
+  validateClaimAdmissibilityPacks,
+} from '../core/claim-admissibility/pack-framework.js';
 
 function hasReason(result: QuantumClaimCheckResult, code: string): boolean {
   return result.reasons.some((reason) => reason === code || reason.startsWith(`${code}:`));
@@ -13,6 +29,67 @@ function hasReason(result: QuantumClaimCheckResult, code: string): boolean {
 
 function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function expectUnique(label: string, values: readonly string[]): void {
+  assert.equal(new Set(values).size, values.length, `${label} should not contain duplicate ids: ${values.join(', ')}`);
+}
+
+function requireActiveIdentity(input: QuantumClaimCheckInput): Partial<QuantumEvidenceIdentity> {
+  assert.ok(input.activeIdentity, 'test fixture should include active identity');
+  return input.activeIdentity;
+}
+
+function adapterOutput(
+  adapterId: QuantumVerifierAdapterId,
+  evidenceKind: QuantumEvidenceKind,
+  identity: Partial<QuantumEvidenceIdentity>,
+  overrides: Partial<QuantumVerifierAdapterOutput> = {},
+): QuantumVerifierAdapterOutput {
+  return {
+    adapterId,
+    outputVersion: QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION,
+    evidenceKind,
+    status: 'pass',
+    exitCode: 0,
+    identity: { ...identity },
+    verifierScriptHash: identity.verifierScriptHash,
+    outputDigest: identity.outputDigest,
+    observedAt: '2026-07-02T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
+function expectNormalizedPass(
+  label: string,
+  output: QuantumVerifierAdapterOutput,
+  activeIdentity: Partial<QuantumEvidenceIdentity>,
+): QuantumVerifierReceipt {
+  const normalized = normalizeQuantumVerifierAdapterOutput(output, activeIdentity);
+  const blockedReasons = normalized.ok ? 'none' : normalized.reasons.join(', ');
+  assert.equal(normalized.ok, true, `${label} should normalize: ${blockedReasons}`);
+  if (!normalized.ok) throw new Error(`${label} unexpectedly blocked`);
+  assert.equal(normalized.receipt.status, 'pass', `${label} returns a passing receipt`);
+  assert.equal(normalized.receipt.exitCode, 0, `${label} returns a zero-exit receipt`);
+  console.log(`${label}: NORMALIZED`);
+  return normalized.receipt;
+}
+
+function expectNormalizedBlock(
+  label: string,
+  output: QuantumVerifierAdapterOutput,
+  activeIdentity: Partial<QuantumEvidenceIdentity>,
+  reasonCode: QuantumVerifierNormalizationFailureCode,
+): void {
+  const normalized = normalizeQuantumVerifierAdapterOutput(output, activeIdentity);
+  assert.equal(normalized.ok, false, `${label} should fail closed`);
+  if (normalized.ok) throw new Error(`${label} unexpectedly normalized`);
+  assert.equal(normalized.reason, reasonCode, `${label} should block with ${reasonCode}; got ${normalized.reason}`);
+  assert.ok(
+    normalized.reasons.some((reason) => reason === reasonCode || reason.startsWith(`${reasonCode}:`)),
+    `${label} should include deterministic ${reasonCode}; got ${normalized.reasons.join(', ')}`,
+  );
+  console.log(`${label}: NORMALIZATION BLOCK`);
 }
 
 function checkPass(label: string, input: QuantumClaimCheckInput): QuantumClaimCheckResult {
@@ -37,9 +114,146 @@ function checkBlock(label: string, input: QuantumClaimCheckInput, reasonCode: st
   return result;
 }
 
+{
+  const expectedAdapters: readonly [QuantumVerifierAdapterId, readonly QuantumEvidenceKind[]][] = [
+    ['quantum.hamiltonian-spec', ['hamiltonian-freeze']],
+    ['quantum.basis-grid', ['basis-grid-freeze']],
+    ['quantum.solver-output', ['solver-run', 'energy-eigenvalue']],
+    ['quantum.normalization', ['normalization']],
+    ['quantum.unitarity-probability-conservation', ['unitarity']],
+    ['quantum.convergence', ['convergence']],
+    ['quantum.reference-comparison', ['reference-comparison']],
+    ['quantum.reproducibility', ['reproducibility']],
+    ['quantum.figure-table-provenance', ['figure-table-provenance']],
+  ];
+  const adapters = listQuantumVerifierAdapterDescriptors();
+  assert.deepEqual(adapters.map((adapter) => adapter.id), expectedAdapters.map(([id]) => id), 'known M2 adapter ids remain stable');
+  for (const [adapterId, evidenceKinds] of expectedAdapters) {
+    const adapter = adapters.find((candidate) => candidate.id === adapterId);
+    assert.ok(adapter, `${adapterId} descriptor is listed`);
+    assert.deepEqual(
+      adapter.evidenceProfiles.map((profile) => profile.evidenceKind),
+      evidenceKinds,
+      `${adapterId} evidence kinds remain stable`,
+    );
+    assert.equal(adapter.executionBoundary, 'read-receipt-only', `${adapterId} is descriptor/read-only receipt ingestion`);
+    assert.deepEqual(adapter.supportedOutputVersions, [QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION], `${adapterId} has stable output version`);
+    assert.equal('commandSpec' in adapter, false, `${adapterId} does not declare an external command`);
+    assert.equal(adapter.claimBoundary.quantumTheoryClaim, false, `${adapterId} must not claim theory proof`);
+    assert.equal(adapter.claimBoundary.hardwareValidationClaim, false, `${adapterId} must not claim hardware validation`);
+    assert.equal(adapter.claimBoundary.solverImprovementClaim, false, `${adapterId} must not claim solver improvement`);
+    assert.equal(adapter.claimBoundary.productionClaim, false, `${adapterId} must not claim production`);
+    assert.equal(adapter.claimBoundary.authorityClaim, false, `${adapterId} must not claim Authority`);
+  }
+  expectUnique('quantum adapter descriptors', adapters.map((adapter) => adapter.id));
+  console.log('quantum verifier adapter descriptors listed');
+}
+
+{
+  const packs = listClaimAdmissibilityPacks();
+  const packIds = packs.map((pack) => pack.id);
+  assert.ok(packIds.includes(CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID), 'registry lists code-runtime pack');
+  assert.ok(packIds.includes(QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID), 'registry lists quantum pack');
+  assert.equal(validateClaimAdmissibilityPacks().ok, true, 'default pack registry validates');
+
+  const lookup = getClaimAdmissibilityPack(QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID);
+  assert.equal(lookup.status, 'found', 'quantum pack resolves from registry');
+  if (lookup.status !== 'found') throw new Error('quantum pack lookup unexpectedly failed');
+  const quantumPack = lookup.pack;
+  assert.equal(Object.isFrozen(quantumPack), true, 'quantum pack descriptor is frozen/read-only');
+  assert.equal(quantumPack.boundary.mutation, 'read-only', 'quantum pack is read-only');
+  assert.equal(quantumPack.boundary.declaration, 'declarative-only', 'quantum pack is declarative-only');
+  assert.equal(quantumPack.boundary.createsStorage, false, 'quantum pack creates no storage');
+  assert.equal(quantumPack.boundary.createsLedger, false, 'quantum pack creates no ledger');
+  assert.equal(quantumPack.boundary.createsLifecycleGate, false, 'quantum pack creates no lifecycle gates');
+  assert.equal(quantumPack.boundary.completionEligible, false, 'quantum pack cannot make completion claims');
+  assert.equal(quantumPack.gatePolicies.length, 0, 'quantum pack has no lifecycle gate policies');
+  assert.equal(quantumPack.proofSurfaces.length, 0, 'quantum pack does not add proof-surface storage roots');
+  assert.ok(quantumPack.verifierAdapters.length > 0, 'quantum pack exposes verifier adapters');
+  assert.ok(
+    quantumPack.verifierAdapters.every((adapter) => adapter.executionBoundary === 'read-receipt-only' && adapter.commandSpec === undefined),
+    'quantum pack adapters do not execute external commands',
+  );
+  expectUnique('quantum pack adapter ids', quantumPack.verifierAdapters.map((adapter) => adapter.id));
+  expectUnique('quantum pack claim schema ids', quantumPack.claimSchemas.map((schema) => schema.id));
+  expectUnique('quantum pack evidence schema ids', quantumPack.evidenceSchemas.map((schema) => schema.id));
+  const quantumPackJson = JSON.stringify(quantumPack);
+  assert.equal(quantumPackJson.includes('storageRoot'), false, 'quantum pack advertises no storage root');
+  assert.equal(quantumPackJson.includes('storageRoots'), false, 'quantum pack advertises no storage roots');
+  assert.equal(quantumPackJson.includes('"completionEligible":true'), false, 'quantum pack advertises no completion claim');
+  assert.equal(quantumPackJson.includes('"createsLifecycleGate":true'), false, 'quantum pack advertises no lifecycle gate');
+  console.log('quantum pack registry descriptor is read-only');
+}
+
+{
+  const normalizedEnergy = buildCompleteQuantumEvidence('Q5');
+  const activeIdentity = requireActiveIdentity(normalizedEnergy);
+  const baseOutput = adapterOutput('quantum.solver-output', 'energy-eigenvalue', activeIdentity);
+  const normalizedReceipt = expectNormalizedPass('valid quantum adapter output', baseOutput, activeIdentity);
+  checkPass('normalized Q5 adapter receipt', {
+    ...normalizedEnergy,
+    receipts: [normalizedReceipt],
+  });
+
+  expectNormalizedBlock(
+    'unknown quantum adapter id',
+    { ...baseOutput, adapterId: 'quantum.unknown' },
+    activeIdentity,
+    'unknown_adapter_id',
+  );
+  expectNormalizedBlock(
+    'unsupported quantum adapter output version',
+    { ...baseOutput, outputVersion: 'lattice.quantum_verifier_adapter_output.v0' },
+    activeIdentity,
+    'unsupported_output_version',
+  );
+  expectNormalizedBlock(
+    'missing quantum adapter output identity',
+    { ...baseOutput, identity: undefined },
+    activeIdentity,
+    'missing_output_identity',
+  );
+  expectNormalizedBlock(
+    'stale quantum adapter output',
+    { ...baseOutput, stale: true },
+    activeIdentity,
+    'stale_output',
+  );
+  expectNormalizedBlock(
+    'failing quantum adapter output',
+    { ...baseOutput, status: 'fail' },
+    activeIdentity,
+    'output_status_not_pass',
+  );
+  expectNormalizedBlock(
+    'mismatched adapter hamiltonianHash',
+    { ...baseOutput, identity: { ...activeIdentity, hamiltonianHash: 'sha256:mismatched-hamiltonian' } },
+    activeIdentity,
+    'identity_mismatch',
+  );
+  expectNormalizedBlock(
+    'mismatched adapter gridHash',
+    { ...baseOutput, identity: { ...activeIdentity, gridHash: 'sha256:mismatched-grid' } },
+    activeIdentity,
+    'identity_mismatch',
+  );
+  expectNormalizedBlock(
+    'mismatched adapter verifierScriptHash',
+    { ...baseOutput, verifierScriptHash: 'sha256:mismatched-verifier-script' },
+    activeIdentity,
+    'verifier_script_mismatch',
+  );
+  expectNormalizedBlock(
+    'mismatched adapter outputDigest',
+    { ...baseOutput, outputDigest: 'sha256:mismatched-output' },
+    activeIdentity,
+    'output_digest_mismatch',
+  );
+}
+
 const validEnergy = buildCompleteQuantumEvidence('Q5');
 const validEnergyResult = checkPass('valid Q5 energy evidence', validEnergy);
-assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending\./);
+assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending\./);
 
 const validBasisOnlyEnergy = buildCompleteQuantumEvidence('Q5');
 delete validBasisOnlyEnergy.activeIdentity?.gridHash;
@@ -212,4 +426,4 @@ const productionOverclaim = buildCompleteQuantumEvidence('Q5');
 productionOverclaim.requestedStrength = 'production';
 checkBlock('production boundary overclaim', productionOverclaim, 'claim_boundary_violation');
 
-console.log('quantum claim-admissibility smoke passed');
+console.log('quantum M2 verifier adapter pack passed');
