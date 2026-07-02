@@ -4,6 +4,7 @@
   "allowedModify": [
     "packages/main/src/core/playbook-runtime-memory.ts",
     "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/core/lattice-handoff.ts",
     "packages/main/src/handlers/story-create.ts",
     "packages/main/src/handlers/transition-orchestrator.ts",
     "packages/main/src/handlers/session.ts",
@@ -34,8 +35,8 @@
     "packages/main/src/core/learning-store.ts",
     "packages/main/src/core/hint-mode.ts"
   ],
-  "scopeChangeReason": "CHK-001 implementer followed the repo logic-test convention (src/tasks smokes, no *.test.ts runner exists) instead of packages/main/tests; add experiment-arm-smoke.ts to allowedCreate/allowedTest. No scope expansion beyond the test artifact location.",
+  "scopeChangeReason": "CHK-002 implementer discovered an eighth pack-summary surface: core/lattice-handoff.ts line ~1540 prints memoryPackDigest/topHitIds lines in handoff_worktree_create text output, bypassing the shared render gate. Hiding pack summary lines on the control arm is required by the M3 exit criterion (control hides pack), so the file joins allowedModify.",
   "acknowledgements": [],
   "createdAt": "2026-07-02T22:59:36.578Z",
-  "updatedAt": "2026-07-02T23:10:39.093Z"
+  "updatedAt": "2026-07-02T23:29:48.167Z"
 }
