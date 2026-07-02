@@ -66,7 +66,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice playbook_promotion_sweep defaults to dry-run, apply is feature-flag gated, and repeated apply is idempotent.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-002:happy:0 dry-run evaluates candidate and active playbooks and prints decisions while writing no decision rows or status mutations.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:happy:1 apply with PLAYBOOK_PROMOTION_SWEEP_ENABLED=1 writes one applied decision row per idempotency key and preserves unrelated playbooks.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-002:edge:0 repeated apply with the same aggregate digest appends no duplicate applied decision row.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:edge:1 apply fails closed when the feature flag is absent/malformed/off while dry-run remains available.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-002:adversarial:0 recommend_activate decision records recommendation only and does not call playbook_activate or set status active.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:adversarial:1 sweep cannot create or mutate review, validation, delivery, or DONE evidence artifacts.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
