@@ -1870,6 +1870,11 @@ Behavior:
     since: z.string().optional().describe('Optional ISO timestamp; only outcomes observed at/after this time are counted.'),
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
+  { name: 'playbook_promotion_observe', description: 'Read-only promotion observation for candidates, explicit candidate consumption, and recommendation handling', schema: {
+    since: z.string().optional().describe('Optional ISO timestamp or relative duration like 14d; only outcome and recommendation rows at/after this time are counted.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
   { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non-deducible sources, health, flags', schema: {
     playbookId: z.string().optional().describe('Optional playbook id filter.'),
     limit: z.coerce.number().int().optional().describe('Maximum latest decisions/health rows to render (default 10, max 50).'),
