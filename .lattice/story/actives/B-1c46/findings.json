@@ -51,7 +51,7 @@
       "desc": "Caller-supplied runtimeIndexSourceDigests can turn a stale cached pack into a fresh-looking pack. BuildMemoryFreshnessPackOptions exports runtimeIndexSourceDigests (packages/main/src/core/playbook-runtime-memory.ts:159-174), and resolveRuntimeIndexForPack accepts the runtimeIndex whenever that caller-supplied tuple equals the index manifest, without reading current sources (lines 613-624). On cache hit, getRuntimeMemoryPackCacheHit computes currentSourceDigests via sourceDigestsFor; when a runtimeIndex is present that function uses context.runtimeIndex.manifest.sourceDigests instead of readRuntimeMemorySourceDigests (packages/main/src/core/playbook-runtime-memory-cache.ts:226-228, 426-436). Thus a caller holding an old runtimeIndex plus its manifest tuple can get stale relevant cache content returned as freshness.class=fresh before contribution refs are rechecked. The benchmark passes runtimeIndex.manifest.sourceDigests as this tuple (packages/main/src/core/playbook-runtime-baseline.ts:1449-1467), so the optimization is not bound to an independently current digest proof. This conflicts with the pack contract that freshness reflects current source digests at consumption time, even though authority remains non_authoritative/gateEvidence=false.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T15:02:23.889Z",
@@ -64,7 +64,11 @@
         "packages/main/src/core/playbook-runtime-baseline.ts"
       ],
       "signatureTag": "runtime-memory-stale-cache-proof-boundary",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6c4e7c0a4: removed public runtimeIndexSourceDigests, cache freshness now derives from current source digests read at consumption time, and the benchmark uses buildMemoryFreshnessPacksWithRuntimeIndex internal batch helper that reads current source digests once and reuses the runtime index only when current digests match its manifest. Added M3 regression proving old runtimeIndex plus changed source misses cache and rebuilds fresh pack. Verified with build, M3-M6 full smoke, performance full smoke, baseline full smoke, and rg shows runtimeIndexSourceDigests removed.",
+      "resolvedAt": "2026-07-02T15:28:05.555Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
