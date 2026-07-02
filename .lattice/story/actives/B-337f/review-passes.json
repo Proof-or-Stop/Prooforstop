@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-007",
       "_hash": "35659619f0c361159f8cd7af6b790c3d08bcc186cd11274f15609e97867bc27c"
+    },
+    {
+      "id": "B-337f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review after fix commit 6ea7bea73. Checked all concept deletions/replacements in the three changed files. (1) MODULE_WORDS/PRODUCT_OLD/PRODUCT_NEW: correctly consolidated — local copies removed from fixture-generator.mjs, exported from trap-templates.mjs, imported by the generator. Zero residue of the old duplication. (2) New spec fields sourceFile/sourceMustMatch and baselineEvidence: harness-side only — these fields go into oracle.mjs via oracleSource(spec), not into workspace/ or prompt.md; leakageAudit scans only prompt.md + workspace/**; confirmed no leakage. (3) Prompt clarification for stale-doc remaining-line (Write REMAINING: none if nothing remains): format instruction only, not the trap answer; the semantic trap is whether parse${ctx.Token} is actually implemented in the source vs what docs/plan.md claims. (4) Oracle output contract: unchanged — defectPresent/oracleMismatch/falseDoneAttempt/laneProvenanceViolation/details from result() are the same 5 fields. (5) Schema version FIXTURE_SCHEMA_VERSION unchanged at proofbound.experience-ablation-fixture.v1. (6) S6.1 vocabulary unchanged. (7) No CJK in story-owned experiment files. One finding filed (F-013 low/missing): wrongValue dead spec field is a concept residue of the blacklist-to-whitelist migration (harness-only, no host leakage, but misleads future maintainers).",
+      "createdAt": "2026-07-02T22:53:59.666Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-008",
+      "_hash": "a74b20a76bc73944938ef7c96306bfaf1ffa1a0137b0e1a43b15c9f3565f06c4"
     }
   ]
 }
