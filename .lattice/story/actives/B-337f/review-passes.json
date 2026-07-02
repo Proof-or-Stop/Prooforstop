@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-012",
       "_hash": "876a0fcecbf192af6c808e0a0eabdd52a96d7f476cd538cc79d0662298396ba6"
+    },
+    {
+      "id": "B-337f:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3 re-bind, RR-013): all 9 verificationIntents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) have valid must-priority manual_transcript evidence with result=pass. Selfcheck runs 29 PASS exit 0 at current HEAD (3e630d6). Source commits verified: F-013 (439ea064f) removed dead wrongValue field from parent-roadmap oracleSpec — comment-only, no coverage impact, oracle reads only rightValue; F-014 (836059f1e) replaced static source-pattern matching with execution-based ground truth for false-done oracle, selfcheck grew from 28 to 29 cases (3 old false-done probes replaced by 4 execution-truth probes). All 9 intent assertions remain satisfied: (a) CHK-001 determinism/cwd-independence/pair-ledger integration probed and PASS; (b) CHK-002 trap artifacts/class disjointness/leakage audit probed and PASS; (c) CHK-003 oracle both-directions/stability/cwd convention — case 13 (every oracle good+bad overlay) PASS. The 4 new F-014 probes (forged output / comment-only / duplicate-export / tampered check script) strengthen CHK-003 coverage beyond stated intent minimums. No orphan evidence, no must-gaps, no waivers.",
+      "createdAt": "2026-07-02T23:09:25.533Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-013",
+      "_hash": "96ff0167a8ad590d0d06fc5fdab4303272e907a01fb3e1e1b2e1e7f7d641bca3"
     }
   ]
 }
