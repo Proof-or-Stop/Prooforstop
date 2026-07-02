@@ -238,7 +238,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "lattice playbook_promotion_status displays pending learning candidates, latest decisions, non-deducible sources, settlement health, and disabled flags without presenting candidates as active guidance.",
+      "userSees": "playbook_promotion_status output includes \"pendingLearning\", \"latestDecisions\", \"nonDeducibleSources\", and \"gateEvidence: false\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
