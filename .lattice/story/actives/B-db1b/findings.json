@@ -401,7 +401,7 @@
       "desc": "pinn_* command schemas omit productionReadyClaim from the explicit z.never refusal flags even though the handlers list it in UNSUPPORTED_FLAGS. Repro: node bin/lattice.js pinn_claim_check --format=json --productionReadyClaim=true exits 0 with allowed=true,nextAction=advance,productionReadyClaim=false; node bin/lattice.js pinn_benchmark_run --format=json --productionReadyClaim=true and node bin/lattice.js pinn_report_render --format=json --productionReadyClaim=true also exit 0. Contrast node bin/lattice.js pinn_claim_check --format=json --deploymentReadyClaim=true, which fails CLI validation with expected never. This silently drops an explicit production-readiness overclaim before the handler boundary, so command policy/registration is not fail-closed for productionReadyClaim and the handler refusal path is bypassed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:30:48.378Z",
@@ -414,7 +414,11 @@
         "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "pinn-production-ready-cli-overclaim-flag",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by adding productionReadyClaim z.never() to pinn_claim_check, pinn_benchmark_run, and pinn_report_render CLI schemas, plus smoke coverage that invokes all three commands with --productionReadyClaim=true and requires CLI validation failure naming productionReadyClaim. Verified by npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, direct CLI probes for all three commands returning Argument validation failed/expected never, and full lattice validate PASS with 18/18 covered.",
+      "resolvedAt": "2026-07-02T22:42:18.270Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
