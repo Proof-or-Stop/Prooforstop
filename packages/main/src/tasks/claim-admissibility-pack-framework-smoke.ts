@@ -91,6 +91,11 @@ function smokePack(
         version: '1.0.0',
         displayName: `${id} claims`,
         claimIds,
+        boundary: {
+          claimScope: 'claim-admissibility-only',
+          completionEligible: false,
+          externalGateControl: false,
+        },
       },
     ],
     evidenceSchemas: [
@@ -133,6 +138,12 @@ function expectBlockingIssue(
     assert.equal(lookup.pack.boundary.mutation, 'read-only', 'code-runtime pack is read-only');
     assert.equal(lookup.pack.boundary.declaration, 'declarative-only', 'code-runtime pack is declarative');
     assert.equal(lookup.pack.boundary.completionEligible, false, 'code-runtime pack cannot declare completion');
+    for (const claimSchema of lookup.pack.claimSchemas) {
+      assert.ok(claimSchema.boundary, `${claimSchema.id} declares a claim boundary`);
+      assert.equal(claimSchema.boundary.claimScope, 'claim-admissibility-only', `${claimSchema.id} remains claim-admissibility only`);
+      assert.equal(claimSchema.boundary.completionEligible, false, `${claimSchema.id} cannot declare completion eligibility`);
+      assert.equal(claimSchema.boundary.externalGateControl, false, `${claimSchema.id} cannot control external gates`);
+    }
     assert.ok(lookup.pack.proofSurfaces.length > 0, 'code-runtime pack exposes proof surfaces');
     assert.equal(lookup.pack.benchmarkHarnesses, undefined, 'benchmarkHarnesses are optional and absent');
   }

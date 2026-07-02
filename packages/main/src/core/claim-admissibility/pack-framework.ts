@@ -54,8 +54,8 @@ export interface ClaimAdmissibilityPackBoundary {
 
 export interface ClaimAdmissibilityClaimBoundary {
   readonly claimScope: ClaimAdmissibilityPackClaimScope;
-  readonly completionEligible: boolean;
-  readonly externalGateControl: boolean;
+  readonly completionEligible: false;
+  readonly externalGateControl: false;
 }
 
 export interface DomainClaimSchema {
