@@ -1,0 +1,56 @@
+{
+  "storyId": "B-36fd",
+  "changes": "Created docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md (rev 2, 18 sections, ~600 lines): the corrected execution plan for the experience-layer A/B ablation causal-validation study, re-authored after the untracked rev-1 draft was deleted from disk mid-review. Integrates all 12 adjudicated corrections from the 2026-07-02 two-round adversarial review: held-out negative-control traps + circularity disclosure (S2/S5.1/S15/S16), mandatory mkdtemp store isolation + frozen memory snapshot (S12), per-trap in-tree answer-source stripping + M6 fixture-leakage audit (S9), per-population sample sizing on the fault stratum only (S7), full-factorial matched-pairs geometry with a complete CI-based decision rule (S8/S11), reuse-over-rebuild milestone mapping (S13), no allocated shadow arm (S4), deterministic reviewer-free primary endpoint (S6), .lattice artifact root (S12), live-phase reuse of the existing hint-mode substrate (S5.2/M8), Wilson-CI pilot freeze rule (S7/M6/S17), and a shared-resource scheduling note (S17). Docs-only: no code, gate, or schema changes.",
+  "usage": "Read the plan before building any ablation milestone: open docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md; each M0-M9 milestone row names the existing component to reuse and its exit criteria; S7+M6 define the sample-size freeze rule; S15 bounds what any result may claim.",
+  "expectedOutcome": "Opening the doc shows the rev-2 header with revision provenance, the S7 per-population table (seeded ~27-62 per arm vs live ~294), S8 titled Study Geometry: Matched Pairs, S4 stating there is no separately allocated shadow arm, S12 with .lattice/experiments root + store-isolation + memory-freeze subsections, and S15 with four disallowed claims plus the circularity disclosure.",
+  "actualTranscript": "Real-machine acceptance transcript at .lattice/story/actives/B-36fd/evidence/transcript-diff.md: 8/8 userSees expectations matched by live grep/sed commands on the committed file; 5 mechanical evidence commands re-verified by the test-coverage lane on final material; delivery reviewer independently re-executed the acceptance greps (19/19 promises verified).",
+  "outcomeDiff": "No difference on any userSees expectation. Post-PLAN deltas are all review-driven and traced to registered findings F-001..F-006 (N band 27-62 with in-band-maximum wording, 54-124 arm-runs restatement, gitignored-scratch disclosure for the campaign runner, CI-based decision rule, Wilson-CI freeze rule).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The plan is a design document: M0-M9 remain unbuilt (future stories). The campaign-resume runner it plans to reuse exists only as gitignored scratch and must be committed in M6. Reference N values are planning-band approximations; the binding N comes from the M5 calculator + M6 pilot freeze rule.",
+  "pitfalls": "Six review findings were filed and fixed across two rounds: Claude quality lane caught the stale N band, an incoherent S17 task count, and the gitignored-scratch citation; Codex host-2 caught the incomplete statistical decision rule and the untestable pilot exit criteria (plus the corners-vs-interior band wording). Codex initially FAILed round-2 arithmetic by computing MDE as an increase (baseline+MDE) instead of the documented reduction (baseline-MDE) - prompt arithmetic checks must state the direction. The ProofStory enforce gate required intent snapshot/collision/red-evidence/acceptance-binding before DEV; red evidence acceptanceTargetRef must be a binding id (AB-001), not a bare checklist id. Validate lock from a timed-out shell survived and blocked re-validation; wait for the pid to exit rather than takeover.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 214316
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14678
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1043252
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 373377
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2398864
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1569486
+    }
+  },
+  "totalDurationMs": 5614377,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T20:20:14.690Z",
+  "updatedAt": "2026-07-02T20:20:14.690Z"
+}
