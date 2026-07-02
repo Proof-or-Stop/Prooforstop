@@ -134,6 +134,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:28:22.105Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/experience-pack-surface.ts",
+          "command": "LATTICE_EXPERIMENT_ID=exp-chk002 LATTICE_EXPERIMENT_ARM=control node packages/main/dist/cli.js session_brief && grep experience_pack_surfaced .lattice/activity.jsonl",
+          "result": "pass",
+          "note": "Control session_brief output contains 0 occurrences of \"## Memory Runtime Preflight\" (grep -c = 0); activity log appended experience_pack_surfaced {experimentId:exp-chk002, arm:control, consumer:session_brief, storyId:B-ab8d, roundKey:DEV, packDigest:cfbf64a8..., topHitIds:[9890b83,...]} carrying the full would-have-surfaced digest. done_closure on control likewise hides the section and logs {consumer:done_closure, packDigest:1a0074eb...}.",
+          "headHash": "a361260538a2f8d939353d62d9020cef486a3ac0",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:36.255Z"
         }
       ]
     },
