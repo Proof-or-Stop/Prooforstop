@@ -85,8 +85,24 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "pinn-doc-003:happy",
+            "desc": "Task set and failure matrix are present and bounded to admissibility control outcomes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-003:edge",
+            "desc": "No section conflates benchmark with PDE performance claims.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "pinn-doc-003:adv",
