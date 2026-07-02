@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-011",
       "_hash": "8f03538ed03875d0f406120891cb27890b94747e7d24c459935f6b07ef17e9e0"
+    },
+    {
+      "id": "B-337f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 re-bind. Verified F-012 (anchored regex ^export const LIMIT = 25; with m flag, replaces includes()): anchored pattern cannot be satisfied by a comment-only line, confirmed by selfcheck probe comment-only fix text still fires. Verified F-013 (wrongValue field removed from verdict-line oracleSpec): only rightValue remains, ORACLE_RUNTIME reads rightValue for strict whitelist. Selfcheck: 28 PASS, exit 0. referenceGood lib content (export const LIMIT = 25;) matches the anchored pattern. No new dead code, type safety violations, or I/O isolation issues introduced by either commit. No doc-promise-undelivered gaps found.",
+      "createdAt": "2026-07-02T23:02:49.410Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-012",
+      "_hash": "876a0fcecbf192af6c808e0a0eabdd52a96d7f476cd538cc79d0662298396ba6"
     }
   ]
 }
