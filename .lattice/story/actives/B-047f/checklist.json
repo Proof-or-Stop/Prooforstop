@@ -130,11 +130,16 @@
             "desc": "wilson95(9,15) -> lower < 0.6 < upper with width reported; pilotFreezeCheck(defects,n<15) -> rejects with min-runs message; pilotFreezeCheck with CI width > 0.30 -> extend flag true; WHY: the S7 freeze rule must be executable, not prose",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "mcnemar discordant-pair sizing is monotonic: increasing the discordant probability (p01+p10) while holding the ratio fixed does not increase the required pair count; formula variant (Connor or Miettinen) documented in a source comment; WHY: monotonicity is a sanity invariant that catches formula transcription errors without depending on a disputed literature constant",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "direction trap: an increase-direction computation (treatment = baseline + MDE) at (0.30,0.10) would give 356 not 294 - the selfcheck asserts 294 so any direction flip fails; mcnemar sizing is monotonic (more discordance -> fewer pairs needed) with its formula variant documented; WHY: the exact mistake Codex made in B-36fd review round 2 must be structurally impossible to ship",
+            "desc": "direction trap: an increase-direction computation (treatment = baseline + MDE) at (0.30,0.10) would give 356 not 294 - the selfcheck asserts 294 so any direction flip fails; WHY: the exact mistake Codex made in B-36fd review round 2 must be structurally impossible to ship",
             "type": "cli",
             "priority": "must"
           }
