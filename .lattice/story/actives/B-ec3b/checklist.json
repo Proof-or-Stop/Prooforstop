@@ -122,7 +122,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding RuntimeMemoryIndex types and rebuild helpers.",
+          "headHash": "b2bb9435ad9205e6744c7f11205a79741d3da816",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:38.728Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "M1 line observed: atomicIndexRebuild=true indexVersion=8b25417c0aeb562408a94bffeb4b3c828d3beb73b55327c0d0271ab3673410fa.",
+          "headHash": "b2bb9435ad9205e6744c7f11205a79741d3da816",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:38.835Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "M1 adversarial line observed: partialIndexReadPrevented=true; malformed temp index was rejected and prior active index stayed readable.",
+          "headHash": "b2bb9435ad9205e6744c7f11205a79741d3da816",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:38.940Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
