@@ -172,6 +172,24 @@
       ],
       "signatureTag": "edge|mjs|sample-size-uses",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-011",
+      "desc": "protocol-selfcheck.mjs leaks three temporary directories that are not cleaned up in the finally block: (1) the h1 root created at line 68 via mkdtempSync for the 'same config at different createdAt -> same protocolHash' test; (2) the h2 root created at line 69 for the same test; (3) snapDir created at line 107 for the directory-snapshot hashing test. Only the main 'tmp' root is cleaned via rmSync in the finally block (line 121). pair-ledger-selfcheck.mjs correctly wraps all secondary roots in their own try/finally blocks. Impact is minor (OS temp cleanup on reboot), but inconsistent with the hermetic selfcheck requirement.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:29.083Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "2df68ea2c0774b976d53841fe6e0e0def1a73176d14346ea10198705399b1982",
+      "files": [
+        "experiments/experience-ablation/protocol-selfcheck.mjs"
+      ],
+      "signatureTag": "edge|mjs|protocol-selfcheck-leaks",
+      "signatureTagSource": "auto"
     }
   ]
 }
