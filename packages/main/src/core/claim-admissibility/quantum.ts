@@ -499,11 +499,14 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
     if (receipt.exitCode !== 0) reasons.push(reason('receipt_exit_nonzero', evidenceKind));
     if (receipt.status !== 'pass') reasons.push(reason('receipt_status_not_pass', evidenceKind));
     if (receipt.stale === true) reasons.push(reason('stale_evidence', evidenceKind));
-    if (!isNonEmptyString(receipt.outputDigest)) reasons.push(reason('output_digest_missing', evidenceKind));
+    const receiptIdentityOutputDigest = fieldValue(receiptIdentity, 'outputDigest');
+    const receiptOutputDigest = isNonEmptyString(receipt.outputDigest) ? receipt.outputDigest : undefined;
+    if (!receiptOutputDigest || !receiptIdentityOutputDigest) reasons.push(reason('output_digest_missing', evidenceKind));
+    if (receiptOutputDigest && receiptIdentityOutputDigest && receiptOutputDigest !== receiptIdentityOutputDigest) {
+      reasons.push(reason('output_digest_mismatch', evidenceKind));
+    }
     if (evidenceKind === 'solver-run') {
       const activeOutputDigest = fieldValue(identity, 'outputDigest');
-      const receiptIdentityOutputDigest = fieldValue(receiptIdentity, 'outputDigest');
-      const receiptOutputDigest = isNonEmptyString(receipt.outputDigest) ? receipt.outputDigest : undefined;
       if (!receiptIdentityOutputDigest || !receiptOutputDigest) {
         reasons.push('unbound_solver_output');
       }

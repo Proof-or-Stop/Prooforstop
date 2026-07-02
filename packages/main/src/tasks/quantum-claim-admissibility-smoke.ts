@@ -159,6 +159,30 @@ const mismatchedSolverOutputDigestResult = checkBlock(
 assert.equal(mismatchedSolverOutputDigestResult.nextAction, 'stop', 'mismatched solver output digest must stop');
 assert.equal(mismatchedSolverOutputDigestResult.scopedClaim, false, 'mismatched solver output digest must not expose scoped claim');
 
+const mismatchedEnergyOutputDigest = buildCompleteQuantumEvidence('Q5');
+if (mismatchedEnergyOutputDigest.receipts?.[0]) {
+  mismatchedEnergyOutputDigest.receipts[0].outputDigest = 'sha256:mismatched-energy-output';
+}
+const mismatchedEnergyOutputDigestResult = checkBlock(
+  'mismatched top-level energy output digest',
+  mismatchedEnergyOutputDigest,
+  'output_digest_mismatch',
+);
+assert.equal(mismatchedEnergyOutputDigestResult.nextAction, 'stop', 'mismatched energy output digest must stop');
+assert.equal(mismatchedEnergyOutputDigestResult.scopedClaim, false, 'mismatched energy output digest must not expose scoped claim');
+
+const mismatchedFigureOutputDigest = buildCompleteQuantumEvidence('Q12');
+if (mismatchedFigureOutputDigest.receipts?.[0]) {
+  mismatchedFigureOutputDigest.receipts[0].outputDigest = 'sha256:mismatched-figure-output';
+}
+const mismatchedFigureOutputDigestResult = checkBlock(
+  'mismatched top-level figure provenance output digest',
+  mismatchedFigureOutputDigest,
+  'output_digest_mismatch',
+);
+assert.equal(mismatchedFigureOutputDigestResult.nextAction, 'stop', 'mismatched figure output digest must stop');
+assert.equal(mismatchedFigureOutputDigestResult.scopedClaim, false, 'mismatched figure output digest must not expose scoped claim');
+
 const missingReceiptIdentity = buildCompleteQuantumEvidence('Q4');
 const receiptWithoutIdentity = missingReceiptIdentity.receipts?.[0] as { identity?: unknown } | undefined;
 if (receiptWithoutIdentity) {
