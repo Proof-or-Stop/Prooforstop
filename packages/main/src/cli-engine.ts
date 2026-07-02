@@ -312,6 +312,7 @@ export type { ToolDef };
  * name: 'signature_registry_list'
  * name: 'signature_registry_set'
  * name: 'status'
+ * name: 'source_lineage_audit'
  * name: 'story_advance'
  * name: 'story_create'
  * name: 'story_discard'

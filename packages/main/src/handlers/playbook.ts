@@ -77,6 +77,10 @@ import {
   writeProposal,
 } from '../core/learning-store.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import {
+  buildLearningSourceLineageAudit,
+  renderSourceLineageAuditReport,
+} from '../core/source-lineage-audit.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
@@ -377,6 +381,11 @@ type PlaybookPromotionStatusArgs = {
 
 type PlaybookPromotionObserveArgs = {
   since?: string;
+  json?: boolean;
+};
+
+type SourceLineageAuditArgs = {
+  domain?: string;
   json?: boolean;
 };
 
@@ -1032,6 +1041,24 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...health.warnings.map((warning) => `  - ${warning}`),
         'candidatesAreRuntimeGuidance: false',
       ].join('\n');
+    },
+
+    /**
+     * B-01df M1: host-neutral, read-only source lineage audit for learning
+     * artifacts. It only reads existing stores and cannot propose seeds, approve
+     * candidates, promote playbooks, enable settlement, or block runtime paths.
+     */
+    source_lineage_audit(args: SourceLineageAuditArgs = {}): string {
+      const domain = typeof args.domain === 'string' ? args.domain.trim() : '';
+      if (domain !== 'learning') {
+        throw new Error(`source_lineage_audit: unsupported domain ${JSON.stringify(domain || '<missing>')} (supported: learning)`);
+      }
+      const report = buildLearningSourceLineageAudit({
+        projectRoot: ctx.root,
+        store: ctx.store,
+      });
+      if (args.json) return JSON.stringify(report, null, 2);
+      return renderSourceLineageAuditReport(report);
     },
 
     /** Discard a staged proposal. Clear error when the proposal is absent. */
