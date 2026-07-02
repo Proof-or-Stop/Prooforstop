@@ -241,6 +241,21 @@ const ALL_REASON_PREFIXES = [
 ] as const;
 export type QuantumReasonPrefix = typeof ALL_REASON_PREFIXES[number];
 
+const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
+  'unknown_claim',
+  'claim_boundary_violation',
+  'missing_required_receipt',
+  'duplicate_receipt',
+  'receipt_exit_nonzero',
+  'receipt_status_not_pass',
+  'stale_evidence',
+  'output_digest_missing',
+  'unbound_solver_output',
+  'unbound_plot_table',
+  'verifier_script_mismatch',
+  'identity_mismatch',
+];
+
 function isKnownClaim(claimId: string): claimId is QuantumClaimId {
   return (QUANTUM_CLAIM_IDS as readonly string[]).includes(claimId);
 }
@@ -321,12 +336,10 @@ function requestedStrengthOverclaims(input: QuantumClaimCheckInput): string | un
 function classifyNextAction(reasons: readonly string[]): QuantumClaimCheckResult['nextAction'] {
   if (reasons.length === 0) return 'advance';
   if (reasons.some((item) => item.startsWith('unsupported_schema_version'))) return 'escalate';
-  if (reasons.some((item) => item.startsWith('weak_evidence_overclaim'))) return 'degrade';
-  if (
-    reasons.some((item) => /^(unknown_claim|claim_boundary_violation|identity_mismatch|verifier_script_mismatch|duplicate_receipt|receipt_exit_nonzero|receipt_status_not_pass|stale_evidence|unbound_solver_output|unbound_plot_table)/.test(item))
-  ) {
+  if (reasons.some((item) => HARD_STOP_REASON_PREFIXES.some((prefix) => item === prefix || item.startsWith(`${prefix}:`)))) {
     return 'stop';
   }
+  if (reasons.some((item) => item.startsWith('weak_evidence_overclaim'))) return 'degrade';
   return 'repair';
 }
 

@@ -108,6 +108,16 @@ if (staleEvidence.receipts?.[0]) {
 }
 checkBlock('stale evidence', staleEvidence, 'stale_evidence');
 
+const staleOverclaim = buildCompleteQuantumEvidence('Q5');
+staleOverclaim.requestedStrength = 'ground-state';
+if (staleOverclaim.receipts?.[0]) {
+  staleOverclaim.receipts[0].stale = true;
+}
+const staleOverclaimResult = checkBlock('weak ground-state overclaim with stale evidence', staleOverclaim, 'stale_evidence');
+assert.ok(hasReason(staleOverclaimResult, 'weak_evidence_overclaim'), 'combined stale overclaim should retain weak_evidence_overclaim reason');
+assert.equal(staleOverclaimResult.nextAction, 'stop', 'stale evidence must stop even when weak overclaim is present');
+assert.equal(staleOverclaimResult.scopedClaim, false, 'stale evidence must not expose scoped degradation');
+
 const unboundSolverOutput = buildCompleteQuantumEvidence('Q4');
 if (unboundSolverOutput.receipts?.[0]) {
   delete unboundSolverOutput.receipts[0].identity.outputDigest;
