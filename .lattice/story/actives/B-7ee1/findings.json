@@ -177,7 +177,7 @@
       "desc": "DONE-settlement-labelled helped rows can still contribute to evidence-activation thresholds when mixed with one real outcome. buildPlaybookAutoPromotionApplyReport excludes verdictSource=done-settlement only from the realOutcomeCount/exposure guard, but aggregatePlaybookPromotion counts any helped row with exposureMode!=none and a structured verdictSource. A temp fixture with two helped done-settlement candidate-inspection rows plus one reviewer helped row produced eligible=true, blockers=[], recommendation=recommend_activate, helpedCount=3, decisiveSamples=3, realOutcomeCount=1. This violates the B-7ee1 concept boundary that story DONE/DONE settlement must not be helped evidence and that DONE-settlement rows cannot make an advisory candidate activation-eligible.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T23:05:22.299Z",
@@ -190,7 +190,11 @@
         "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|settlement-labelled-helped",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 277fe1596. DONE-settlement verdictSource rows are excluded from promotion decisive/helped/dismissed/harmful/wrong-claim evidence and candidate consumption evidence. Smoke now proves helped done-settlement rows with concrete exposure plus one real neutral reviewer exposure cannot produce recommend_activate or eligible=true. Verified by npm --prefix packages/main run test:playbook-evidence-activation (14/14).",
+      "resolvedAt": "2026-07-02T23:10:42.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-009",
