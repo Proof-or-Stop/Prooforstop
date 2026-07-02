@@ -276,10 +276,45 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T12:11:02.062Z",
-      "endTime": null,
-      "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first."
+      "endTime": "2026-07-02T12:11:11.891Z",
+      "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline PASS: profile=full recordCount=1000000 fullProfileExactMillion=true; optimized parity report matched required IDs/freshness and digest parity.",
+          "headHash": "b0261e4a59d7744a0c8d1c2f1028d77ddb1731eb",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:11:12.076Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline PASS reported referenceFullScanMs=17867 indexedColdMs=16607 indexedWarmCacheMs=0 performancePolicy=report-first; SLO remains report-only.",
+          "headHash": "b0261e4a59d7744a0c8d1c2f1028d77ddb1731eb",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:11:12.231Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full && node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Full baseline and M3-M6 smoke PASS: candidate false-surface, supersession, deprecated-term, malformed-row, maxLines, and omittedCount divergence would fail; authority remains non_authoritative and gateEvidence=false.",
+          "headHash": "b0261e4a59d7744a0c8d1c2f1028d77ddb1731eb",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:11:12.381Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -345,6 +380,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M6 million parity evidence closure."
+    },
+    {
+      "timestamp": "2026-07-02T12:11:11.891Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M6 full million parity report committed and verified after digest fix."
     }
   ]
 }
