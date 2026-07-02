@@ -1,0 +1,22 @@
+{
+  "storyId": "B-dddd",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T02:56:28.692Z",
+  "updatedAt": "2026-07-02T02:56:28.692Z"
+}
