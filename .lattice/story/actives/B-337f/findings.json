@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-337f:F-001",
+      "desc": "oracle-false-positive: remaining-line uses line.includes(doneItem) which fires on a correct verbose answer like 'REMAINING: none (parseMeadow done)' — a plausible LLM output that mentions the completed item parenthetically; the oracle incorrectly scores it as oracleMismatch:true; fix: check if doneItem appears as a standalone token outside the 'none' branch, or require that the parsed items list (comma-split before any paren) contains the doneItem",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:42:51.778Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-001",
+      "_hash": "8acefee58a7a7387c5284af1e3e962b2a0c7168c48b651b95aee21faf8a9e566",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs:407"
+      ],
+      "signatureTag": "edge|mjs:407|oracle-false-positive",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
