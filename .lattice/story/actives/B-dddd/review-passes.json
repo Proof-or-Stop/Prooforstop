@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-02T03:14:49.647Z",
       "reviewRunId": "B-dddd:RR-001",
       "_hash": "4b57c5f86e6ffeaa275b9f2eac63b05698516e94894c62810f3d6611a4780edb"
+    },
+    {
+      "id": "B-dddd:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage pass: verified 9/9 verification intents have matching evidence and reran current-HEAD coverage. playbook_outcome_record help output is registered and host-neutral; command-catalog, command-ownership, and lifecycle-registry smokes pass. Full experience-layer playbook smoke fails only in the known decision-doc-promotion-smoke.js:346 path, which reproduces on canonical main, while all new outcome ledger checks pass before that baseline failure.",
+      "createdAt": "2026-07-02T03:19:04.432Z",
+      "reviewRound": "2026-07-02T03:14:49.647Z",
+      "reviewRunId": "B-dddd:RR-003",
+      "_hash": "8ff3ecb2f29918f839c83ffc76407e1772fd810141688cdc990624634310d0d0"
     }
   ]
 }
