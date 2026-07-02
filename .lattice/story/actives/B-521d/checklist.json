@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "User sees candidateGenerated, candidateConsumed, actionableRecommendations, handledRecommendations, and unhandledRecommendations in observation output.",
+      "userSees": "JSON/text output includes \"candidateGenerated.currentCandidates\", \"candidateConsumed.consumedCandidateCount\", and \"candidateConsumed.unconsumedCurrentCandidateIds\" based only on explicit learning rows.",
       "excludes": [
         "traffic experiment serving",
         "timer registration",
@@ -18,7 +18,9 @@
       "endTime": null,
       "files": {
         "modify": [
-          "packages/main/src/handlers/playbook.ts"
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/experience-layer-types.ts"
         ],
         "create": [],
         "test": [
