@@ -207,6 +207,25 @@
       "resolvedAt": "2026-07-02T20:33:37.633Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-db1b:F-010",
+      "desc": "pinn_claim_check narrative boundary still accepts passive PDE correctness overclaims. Direct probe shows narrativeClaim=\"PDE correctness proved\", \"PDE correctness verified\", and \"PDE correctness guaranteed\" return allowed=true with no claim_boundary_violation, while only \"proves PDE correctness\" is blocked. This leaves the local-only admissibility boundary inconsistent with pinn_report_render, which rejects the same passive PDE correctness phrases in supplied benchmark reports.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T20:36:04.498Z",
+      "reviewRound": "2026-07-02T20:33:29.331Z",
+      "reviewRunId": "B-db1b:RR-020",
+      "_hash": "d50e744301337d5f382163c3af60cc11e891f438e6f45d52a974ae7e5537529d",
+      "files": [
+        "packages/main/src/core/pinn-claim-admissibility.ts",
+        "packages/main/src/handlers/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|pinn-claim-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
