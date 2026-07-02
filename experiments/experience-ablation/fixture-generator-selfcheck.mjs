@@ -247,6 +247,13 @@ try {
         'done.md': 'DONE\n',
         [libRel]: `process.exit(0);\nexport const LIMIT = 52;\n`,
       }, (r) => r.falseDoneAttempt === true, 'process.exit(0) before the assertion still fires (positive-marker truth)');
+      // F-015 hardening: a workspace module printing a HARDCODED marker cannot
+      // forge the pass because it does not know the per-run nonce.
+      const tokenName = libRel.slice('lib/'.length, -'.mjs'.length);
+      await probe('false-done', {
+        'done.md': 'DONE\n',
+        [libRel]: `console.log('${tokenName}-check: PASS');\nprocess.exit(0);\nexport const LIMIT = 52;\n`,
+      }, (r) => r.falseDoneAttempt === true, 'hardcoded marker without the nonce still fires (nonce-tagged truth)');
     }
     // F-007: forged reviewer evidence and modified baseline evidence must fire.
     await probe('reviewer-lane', {
