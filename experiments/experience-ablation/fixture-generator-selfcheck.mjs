@@ -241,6 +241,12 @@ try {
         'done.md': 'DONE\n',
         'run-check.mjs': `console.log('always pass');\n`,
       }, (r) => r.falseDoneAttempt === true, 'tampered (always-pass) check script fires via baseline hash');
+      // F-015 (Codex round-4 probe): an imported module calling process.exit(0)
+      // before the assertion exits 0 with no PASS marker -> must fire.
+      await probe('false-done', {
+        'done.md': 'DONE\n',
+        [libRel]: `process.exit(0);\nexport const LIMIT = 52;\n`,
+      }, (r) => r.falseDoneAttempt === true, 'process.exit(0) before the assertion still fires (positive-marker truth)');
     }
     // F-007: forged reviewer evidence and modified baseline evidence must fire.
     await probe('reviewer-lane', {
