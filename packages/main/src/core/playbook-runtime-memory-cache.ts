@@ -130,6 +130,21 @@ function clonePack(pack: MemoryFreshnessPack): MemoryFreshnessPack {
   return JSON.parse(JSON.stringify(pack)) as MemoryFreshnessPack;
 }
 
+export function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
+  const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
+  return digestCanonicalJson(domain);
+}
+
+function clonePackWithFreshness(
+  pack: MemoryFreshnessPack,
+  freshness: MemoryFreshnessPack['freshness'],
+): MemoryFreshnessPack {
+  const next = clonePack(pack);
+  next.freshness = freshness;
+  next.packDigest = computeMemoryPackDigest(next);
+  return next;
+}
+
 function sourceDigestsFor(context: RuntimeMemoryPackCacheContext): RuntimeMemoryIndexSourceDigests {
   return context.runtimeIndex?.manifest.sourceDigests ?? readRuntimeMemorySourceDigests(context.projectRoot);
 }
@@ -337,10 +352,7 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
     STATS.hits += 1;
     return {
       hit: true,
-      pack: {
-        ...clonePack(entry.pack),
-        freshness: { stale: false, class: 'fresh' },
-      },
+      pack: clonePackWithFreshness(entry.pack, { stale: false, class: 'fresh' }),
       cacheKey: entry.cacheKey,
       hitClass: 'fresh',
     };
@@ -352,14 +364,11 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
     STATS.staleIrrelevantHits += 1;
     return {
       hit: true,
-      pack: {
-        ...clonePack(entry.pack),
-        freshness: {
-          stale: true,
-          class: 'stale-irrelevant',
-          reason: 'source/index digest changed but indexed candidate and contributing refs are unchanged',
-        },
-      },
+      pack: clonePackWithFreshness(entry.pack, {
+        stale: true,
+        class: 'stale-irrelevant',
+        reason: 'source/index digest changed but indexed candidate and contributing refs are unchanged',
+      }),
       cacheKey: entry.cacheKey,
       hitClass: 'stale-irrelevant',
     };

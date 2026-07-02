@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
 import { resolveGlobalMemoryPath, resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from '../core/dev-memory.js';
+import { digestCanonicalJson } from '../core/digest.js';
 import type { Playbook } from '../core/experience-layer-types.js';
 import { writePlaybooks, writeSignatureRegistry } from '../core/learning-store.js';
 import { runPlaybookRuntimeOptimizedParityReport } from '../core/playbook-runtime-baseline.js';
@@ -15,6 +16,7 @@ import {
   classifyMemoryFreshnessPack,
   renderMemoryFreshnessPack,
   type BuildMemoryFreshnessPackOptions,
+  type MemoryFreshnessPack,
   type RuntimeConsumer,
 } from '../core/playbook-runtime-memory.js';
 import {
@@ -168,6 +170,15 @@ function assertSameRelevantResults(left: ReturnType<typeof buildPack>, right: Re
   assert.deepEqual(right.results.deprecatedTermHits, left.results.deprecatedTermHits);
 }
 
+function expectedPackDigest(pack: MemoryFreshnessPack): string {
+  const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
+  return digestCanonicalJson(domain);
+}
+
+function assertPackDigestMatchesContent(pack: MemoryFreshnessPack): void {
+  assert.equal(pack.packDigest, expectedPackDigest(pack));
+}
+
 async function run(): Promise<void> {
   const roots: string[] = [];
   const previousGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
@@ -229,8 +240,12 @@ async function run(): Promise<void> {
         ),
       ]);
       const second = buildPack(root);
-      assert.equal(second.packDigest, first.packDigest);
       assert.equal(second.freshness.class, 'stale-irrelevant');
+      assertSameRelevantResults(first, second);
+      assertPackDigestMatchesContent(second);
+      assert.notEqual(second.packDigest, first.packDigest);
+      assert.equal(second.authority, 'non_authoritative');
+      assert.equal(second.gateEvidence, false);
       assert.equal(getRuntimeMemoryPackCacheStats().staleIrrelevantHits, 1);
     });
 

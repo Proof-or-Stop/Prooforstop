@@ -32,6 +32,7 @@ import {
 } from './playbook-runtime-memory-index.js';
 import {
   buildRuntimeMemoryPackCacheContext,
+  computeMemoryPackDigest,
   getRuntimeMemoryPackCacheHit,
   rememberRuntimeMemoryPackCache,
 } from './playbook-runtime-memory-cache.js';
@@ -417,11 +418,6 @@ function collectDeprecatedTermHits(projectRoot: string, query: string, signature
   return { hits: uniqueSorted(hits), refs: uniqueSorted(refs) };
 }
 
-function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
-  const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
-  return digestCanonicalJson(domain);
-}
-
 export function runtimeMemoryTopHits(pack: MemoryFreshnessPack, limit = 8): RuntimeMemoryTopHits {
   const playbookIds = pack.results.playbookIds.slice(0, Math.max(0, limit));
   const devMemoryEntryIds = pack.results.devMemoryEntryIds.slice(0, Math.max(0, limit));
@@ -786,14 +782,18 @@ export function classifyMemoryFreshnessPack(
   });
 
   if (sameSourceDigests(pack.sourceDigests, current.sourceDigests)) {
-    return {
+    const freshPack: MemoryFreshnessPack = {
       ...pack,
       freshness: { stale: false, class: 'fresh' },
+    };
+    return {
+      ...freshPack,
+      packDigest: computeMemoryPackDigest(freshPack),
     };
   }
 
   const relevant = !sameRelevantResults(pack, current);
-  return {
+  const stalePack: MemoryFreshnessPack = {
     ...pack,
     freshness: {
       stale: true,
@@ -802,6 +802,10 @@ export function classifyMemoryFreshnessPack(
         ? 'source digest changed and surfaced/suppressed/runtime refs changed'
         : 'source digest changed but surfaced runtime refs are unchanged',
     },
+  };
+  return {
+    ...stalePack,
+    packDigest: computeMemoryPackDigest(stalePack),
   };
 }
 
