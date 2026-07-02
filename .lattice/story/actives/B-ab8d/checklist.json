@@ -45,7 +45,45 @@
       "userSees": "With arm=control any lifecycle command prints no Memory Runtime Preflight section but the activity log gains an experience_pack_surfaced event with arm=control and the full would-have-surfaced pack digest; with arm=treatment output is byte-identical to no-experiment mode plus the same event with arm=treatment",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With arm=treatment each entrypoint renders the pack section exactly as no-experiment mode AND appends experience_pack_surfaced {experimentId, arm:treatment, consumer, packDigest}",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "With arm=control each entrypoint renders NO pack section AND appends experience_pack_surfaced {arm:control} with the full would-have-surfaced digest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No-experiment mode output byte-identical to pre-change behavior at all seven entrypoints (regression guard)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "done-prepare summary render shape (renderMemoryFreshnessPackSummary via runbook.pack) gated identically to the six full-render sites",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Arm never alters resolveReviewPromptHash or any gate/blocker output (byte-compare across arms)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Event dedup: repeated same-consumer calls in one round append exactly one experience_pack_surfaced event",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
