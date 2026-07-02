@@ -22,6 +22,13 @@ import {
   type SignatureTagEntry,
 } from './learning-store.js';
 import type { Playbook } from './experience-layer-types.js';
+import {
+  isRuntimeMemoryIndexFresh,
+  readRuntimeMemoryIndex,
+  selectRuntimeMemoryIndexCandidates,
+  type RuntimeMemoryIndex,
+  type RuntimeMemoryIndexCandidates,
+} from './playbook-runtime-memory-index.js';
 
 export type RuntimePlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
 export type RuntimeSeverity = 'advisory' | 'warn' | 'blocking';
@@ -151,6 +158,8 @@ export interface BuildMemoryFreshnessPackOptions {
   maxPlaybooks?: number;
   maxLines?: number;
   generatedAt?: string;
+  useIndex?: boolean;
+  runtimeIndex?: RuntimeMemoryIndex;
 }
 
 interface PlaybookMatch {
@@ -366,12 +375,12 @@ function matchActivePlaybook(
   return { playbook, reasons: uniqueSorted(reasons), score, confidence };
 }
 
-export function matchRuntimePlaybooks(options: BuildMemoryFreshnessPackOptions): PlaybookMatch[] {
+export function matchRuntimePlaybooks(options: BuildMemoryFreshnessPackOptions, candidatePlaybooks?: Playbook[]): PlaybookMatch[] {
   const query = options.query ?? '';
   const consumer = options.consumer ?? 'session_brief';
   const touchedPaths = options.touchedPaths ?? [];
   const matches: PlaybookMatch[] = [];
-  for (const raw of readPlaybooks(options.projectRoot)) {
+  for (const raw of candidatePlaybooks ?? readPlaybooks(options.projectRoot)) {
     const validation = validatePlaybook(raw);
     if (!validation.ok) continue;
     const match = matchActivePlaybook(validation.playbook, {
@@ -386,11 +395,11 @@ export function matchRuntimePlaybooks(options: BuildMemoryFreshnessPackOptions):
   return matches.sort((a, b) => b.score - a.score || a.playbook.id.localeCompare(b.playbook.id));
 }
 
-function collectDeprecatedTermHits(projectRoot: string, query: string): { hits: string[]; refs: string[] } {
-  const registry = readSignatureRegistry(projectRoot);
+function collectDeprecatedTermHits(projectRoot: string, query: string, signatureTags?: SignatureTagEntry[]): { hits: string[]; refs: string[] } {
+  const tags = signatureTags ?? readSignatureRegistry(projectRoot).tags;
   const hits: string[] = [];
   const refs: string[] = [];
-  for (const tag of registry.tags) {
+  for (const tag of tags) {
     if (tag.status !== 'deprecated') continue;
     const terms = [tag.tag, ...tag.aliases];
     if (terms.some((term) => containsTerm(query, term))) {
@@ -600,17 +609,17 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
   const maxLines: 60 = RENDER_MAX_LINES;
 
-  const projectEntries = readProjectMemoryEntries(options.projectRoot);
-  const globalEntries = readGlobalMemoryEntries();
-  const allEntries = mergeEntries(projectEntries, globalEntries);
+  const indexed = resolveIndexedCandidates(options, query, maxEntries, maxPlaybooks);
+  const allEntries = indexed?.devMemoryEntries
+    ?? mergeEntries(readProjectMemoryEntries(options.projectRoot), readGlobalMemoryEntries());
   const { selected, suppressed } = selectDevMemoryEntries(allEntries, query, maxEntries);
   const playbookMatches = matchRuntimePlaybooks({
     ...options,
     query,
     consumer: options.consumer ?? 'session_brief',
     maxPlaybooks,
-  }).slice(0, maxPlaybooks);
-  const deprecated = collectDeprecatedTermHits(options.projectRoot, query);
+  }, indexed?.playbooks).slice(0, maxPlaybooks);
+  const deprecated = collectDeprecatedTermHits(options.projectRoot, query, indexed?.signatureTags);
 
   const contributingSourceRefs = uniqueSorted([
     ...selected.map(entrySourceRef),
@@ -669,6 +678,26 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
   pack.render.omittedCount = omittedCountFor(pack);
   pack.packDigest = computeMemoryPackDigest(pack);
   return pack;
+}
+
+function resolveIndexedCandidates(
+  options: BuildMemoryFreshnessPackOptions,
+  query: string,
+  maxEntries: number,
+  maxPlaybooks: number,
+): RuntimeMemoryIndexCandidates | null {
+  if (options.useIndex === false) return null;
+  const index = options.runtimeIndex ?? readRuntimeMemoryIndex(options.projectRoot);
+  if (!index || !isRuntimeMemoryIndexFresh(index, options.projectRoot)) return null;
+  return selectRuntimeMemoryIndexCandidates(index, {
+    query,
+    consumer: options.consumer ?? 'session_brief',
+    storyPhase: options.storyPhase,
+    touchedPaths: options.touchedPaths ?? [],
+    host: options.host,
+    maxEntries,
+    maxPlaybooks,
+  });
 }
 
 function sameValues(a: string[], b: string[]): boolean {
