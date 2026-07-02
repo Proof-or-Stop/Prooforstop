@@ -53,7 +53,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the index smoke print that a derived runtime memory index was rebuilt through temp-build, manifest validation, and atomic swap, with no reader observing a partial index.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Index rebuild creates a validated manifest and active index version from source memory and playbook files.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A malformed or incomplete temp index is rejected and the previous complete index remains readable.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Readers never consume a partially written index during rebuild; they see either previous complete index or new complete index.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
