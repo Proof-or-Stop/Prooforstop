@@ -1,0 +1,66 @@
+{
+  "storyId": "B-6241",
+  "checkedAt": "2026-07-02T03:44:16.060Z",
+  "features": [
+    {
+      "feature": "M4 aggregate/evaluator plus decision metadata stores",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-v1-aggregation-and-evaluator"
+    },
+    {
+      "feature": "M5 playbook_promotion_sweep dry-run/apply",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-2-playbook-promotion-sweep"
+    },
+    {
+      "feature": "M5.5 non-deducible playbook_propose guard",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-4-non-deducible"
+    },
+    {
+      "feature": "M3 post-DONE non-blocking learning settlement",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#8-done-trigger-contract"
+    },
+    {
+      "feature": "M6 playbook_promotion_status candidate inspection surface",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-3-playbook-promotion-status"
+    },
+    {
+      "feature": "M7 trial/matched-control serving",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Execution plan marks M7 as future spike, not V1 acceptance",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#19-milestones"
+    },
+    {
+      "feature": "M8 timer/auto-active advisory activation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Execution plan marks M8 as future rollout, not V1 acceptance",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#19-milestones"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "15ba1a51e9b23488d67d8b39702724db142bd9e8f9e287f8255d5507e19313e0",
+  "openQuestions": []
+}

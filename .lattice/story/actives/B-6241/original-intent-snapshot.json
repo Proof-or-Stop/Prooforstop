@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6241",
+  "sourceText": "User requested completing all implementable work in docs/requirements/decisions/playbook-promotion-worker-execution-plan.md until DONE.",
+  "normalizedOutcome": "The remaining V1 playbook promotion worker loop is implemented through Lattice DONE: aggregate/evaluator, sweep dry-run/apply, non-deducible proposal guard, non-blocking DONE settlement, and promotion status inspection, while future M7/M8 auto-active/timer/trial work remains out of scope.",
+  "acceptanceClaim": "B-6241 is DONE with fresh validation evidence proving V1 promotion worker commands and learning-only settlement work without automatic activation or lifecycle proof mutation.",
+  "keyRequirementIds": [
+    "REQ-ASSESSMENT-NOT-ACTIVATION",
+    "REQ-LEARNING-NOT-PROOF",
+    "REQ-V1-PROMOTION-WORKER"
+  ],
+  "requestHash": "sha256:b556f8dff82f6ce365fc6a0734cb03528fea3a77aa3b1fd874d074653104c6b4",
+  "createdAt": "2026-07-02T03:43:18.997Z",
+  "updatedAt": "2026-07-02T03:43:18.997Z"
+}
