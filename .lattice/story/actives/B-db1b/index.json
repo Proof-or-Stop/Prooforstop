@@ -4,7 +4,7 @@
   "title": "Implement runtime Proof-or-Stop PINN claim-admissibility pack",
   "description": "Deliver the runtime counterpart to the existing PINN execution plan: schema validation, verifier adapter checks, fail-closed gate transitions, deterministic A1-A4/B1-B15 benchmark reporting, and bounded governance/reporting commands without claiming PDE correctness or production authority.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "pinn",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-07-02T18:39:26.408Z",
   "startedAt": "2026-07-02T18:39:26.408Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T23:27:17.000Z",
   "events": [
     {
       "phase": "INIT",
@@ -323,12 +323,25 @@
       "user": "Harmonygo",
       "sessionId": "sess-17887693928b4c2d",
       "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:26:00.477Z",
+      "branch": "story/B-db1b",
+      "user": "Harmonygo",
+      "sessionId": "sess-17887693928b4c2d",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:27:17.000Z",
+      "branch": "story/B-db1b",
+      "user": "Harmonygo",
+      "sessionId": "sess-17887693928b4c2d",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-db1b",
-    "branch": "story/B-db1b",
-    "createdAt": "2026-07-02T18:40:23.340Z"
-  },
   "currentReviewRound": "2026-07-02T23:22:39.503Z"
 }
