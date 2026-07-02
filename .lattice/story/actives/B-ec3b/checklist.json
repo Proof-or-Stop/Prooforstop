@@ -43,7 +43,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed for the runtime-memory index slice.",
+          "headHash": "9094ab88baeef77cb6d69ac1e66d7037891d9f64",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:27.746Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "M0 line observed: m0ProfilingRecorded=true runtimePackElapsedMs=112 authority=non_authoritative gateEvidence=false; smoke summary TOTAL 5 PASS 5 FAIL 0.",
+          "headHash": "9094ab88baeef77cb6d69ac1e66d7037891d9f64",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:27.842Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline passed with recordCount=1000000 fullProfileExactMillion=true elapsedMs=19934 peakRssBytes=1062748160; recorded as report-only baseline, not gate evidence.",
+          "headHash": "9094ab88baeef77cb6d69ac1e66d7037891d9f64",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:27.937Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
