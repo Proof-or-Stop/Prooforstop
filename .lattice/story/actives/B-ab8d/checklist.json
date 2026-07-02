@@ -169,6 +169,18 @@
           "materialHash": "c84586398d160cfdaa6507435e5cc361a4a42f4286e56751525b0019baaef7fa",
           "storyFilesHash": "98da603ed07cd0689551e2871e378798e8258dc962b0a794754023cf339a6e90",
           "timestamp": "2026-07-02T23:26:53.044Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "LATTICE_EXPERIMENT_ID=exp-m3-manual LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js recall '{\"query\":\"experiment arm\"}'",
+          "result": "pass",
+          "note": "Treatment arm: recall exits 0 with normal ranked output; no-experiment mode: recall exits 0; control arm + non-memory command (story_list) exits 0. Activity log retrieval_violation event count unchanged across all three runs (no false violations).",
+          "headHash": "dc507dd3c643867270ef50b1a609c60771c12f90",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:27:09.411Z"
         }
       ]
     },
