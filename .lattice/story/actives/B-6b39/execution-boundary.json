@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6b39",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "lattice *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed -n *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only story: the only file that may change is the ablation execution plan doc (three freeze-rule passages: S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo). Read-only inspection of experiments/experience-ablation/sample-size.mjs on the B-047f branch is allowed for cross-checking wording; no code changes.",
+  "createdAt": "2026-07-02T21:30:51.150Z",
+  "updatedAt": "2026-07-02T21:30:51.150Z",
+  "_hash": "d31217afd409451dbdb128bcb7039434e06482f2c63935ef957f9da9b979a7c3"
+}
