@@ -373,6 +373,24 @@
       "resolvedAt": "2026-07-02T22:12:08.283Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-db1b:F-017",
+      "desc": "Docs blocker: the target PINN decision doc lists M0-M5 and preserves the local-only/non-production/PDE non-claim boundary, but it does not explicitly mention the delivered A3=14 / A4=15 benchmark facts required for this docs review. Evidence: rg of the target doc shows A3/A4 regime text and A4 B1-B15 success criteria at lines 160-216 plus the M4 delivery row at line 303, but no A3=14/A4=15 or acceptedCount=14/rejectedInjectionCount=15; story checklist evidence records A3 verifier-only acceptedCount=14/unsupportedAcceptanceCount=14 and A4 rejects all 15 at checklist.json:249 and A4=15 at checklist.json:488.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:28:42.665Z",
+      "reviewRound": "2026-07-02T22:26:42.145Z",
+      "reviewRunId": "B-db1b:RR-039",
+      "_hash": "400c2ab4d88d48fdb323623fb39984d379d166882f9feec94848e84da00511d4",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-blocker-target",
+      "signatureTagSource": "auto"
     }
   ]
 }
