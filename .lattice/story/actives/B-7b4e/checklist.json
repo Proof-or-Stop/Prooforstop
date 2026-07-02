@@ -116,9 +116,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:02:52.965Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:04:17.354Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke output includes valid Q5 energy evidence: PASS with complete core and conditional identity fields.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:17.934Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke output includes deterministic optional fields: PASS after randomSeed and timeStepHash are omitted from a deterministic Q4 solver-run claim.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:18.494Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks missing core fields, unknown claim IDs, and omitted conditional identity fields with stable reason-code assertions.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:19.053Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
