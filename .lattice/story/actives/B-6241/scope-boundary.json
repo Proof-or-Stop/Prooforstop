@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6241",
+  "mode": "feature",
+  "allowed": [
+    "Add or extend focused smoke tests proving V1 behavior and authority boundaries",
+    "Complete V1 playbook promotion worker only: aggregate/evaluator, dry-run/apply sweep, status, non-deducible proposal guard, and best-effort post-DONE settlement",
+    "Touch playbook learning types/store/handler/command metadata/process facts/config only as needed for V1 acceptance",
+    "Wire post-DONE settlement only after durable DONE proof and keep it non-blocking"
+  ],
+  "excluded": [
+    "No automatic candidate-to-active promotion",
+    "No changes to B-ec3b runtime-memory-index scope files unless mechanically required and explicitly reviewed",
+    "No lifecycle gate evidence consumption from playbook promotion",
+    "No matched-control or trial traffic serving",
+    "No timer/daemon registration"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User asked to develop the whole playbook promotion worker execution plan through DONE; this boundary maps that request to the document V1 acceptance criteria while excluding future M7/M8 tracks.",
+  "createdAt": "2026-07-02T03:38:01.564Z",
+  "updatedAt": "2026-07-02T03:38:01.564Z",
+  "_hash": "08417520fae3f2ad8517219d9e65e762bc4828706c533afc81d5930d15c4d589"
+}
