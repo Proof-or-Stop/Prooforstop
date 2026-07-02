@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
 import {
   PINN_BOUNDARY_PARAGRAPH,
+  PINN_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN,
   buildCompletePinnEvidence,
   buildInjectedPinnEvidence,
   evaluatePinnClaim,
@@ -77,7 +78,6 @@ const RETIRED_REPORT_CLAIM_FIELDS = [
 const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 const REPORT_OVERCLAIM_FIELDS = [...REPORT_CLAIM_FIELDS, ...RETIRED_REPORT_CLAIM_FIELDS] as const;
 const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${REPORT_OVERCLAIM_FIELDS.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
-const REPORT_NARRATIVE_OVERCLAIM_PATTERN = /\b(?:proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:proved|verified|validated|guaranteed|complete)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i;
 const BENCHMARK_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility_benchmark.v1' as const;
 const REPORT_INJECTION_CLASSES = ['missing', 'stale', 'unsafe', 'overclaim'] as const;
 const REPORT_ARM_IDS = ['A1', 'A2', 'A3', 'A4'] as const;
@@ -122,7 +122,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isUnsafeReportText(value: string): boolean {
   if (value === PINN_BOUNDARY_PARAGRAPH) return false;
-  return REPORT_FIELD_OVERCLAIM_PATTERN.test(value) || REPORT_NARRATIVE_OVERCLAIM_PATTERN.test(value);
+  return REPORT_FIELD_OVERCLAIM_PATTERN.test(value) || PINN_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN.test(value);
 }
 
 function pushUnique(values: string[], value: string): void {

@@ -82,6 +82,22 @@ const duplicateResult = evaluatePinnClaim(duplicateResidual);
 assert.equal(duplicateResult.allowed, false, 'duplicate adapter receipts fail closed');
 assert.ok(hasReason(duplicateResult, 'duplicate_receipt'), 'duplicate adapter receipts have explicit reason');
 
+const malformedReceipts = buildCompletePinnEvidence('C9') as unknown as Record<string, unknown>;
+malformedReceipts.receipts = { adapterId: 'spec-freeze' };
+const malformedReceiptsResult = evaluatePinnClaim(malformedReceipts as any);
+assert.equal(malformedReceiptsResult.allowed, false, 'non-array receipts fail closed');
+assert.equal(malformedReceiptsResult.nextAction, 'stop', 'non-array receipts stop deterministically');
+assert.ok(hasReason(malformedReceiptsResult, 'malformed_receipts'), 'non-array receipts have explicit reason');
+
+const missingReceiptIdentity = buildCompletePinnEvidence('C9');
+const missingIdentityReceipt = missingReceiptIdentity.receipts?.find((receipt) => receipt.adapterId === 'residual');
+assert.ok(missingIdentityReceipt, 'fixture has residual receipt for malformed identity regression');
+(missingIdentityReceipt as any).identity = null;
+const missingReceiptIdentityResult = evaluatePinnClaim(missingReceiptIdentity);
+assert.equal(missingReceiptIdentityResult.allowed, false, 'receipt identity missing/not object fails closed');
+assert.equal(missingReceiptIdentityResult.nextAction, 'stop', 'receipt identity malformed stops deterministically');
+assert.ok(hasReason(missingReceiptIdentityResult, 'malformed_receipt_identity'), 'receipt identity malformed has explicit reason');
+
 const lowLoss = buildCompletePinnEvidence('C9');
 lowLoss.trainingLossLow = true;
 lowLoss.receipts = lowLoss.receipts?.filter((receipt) => receipt.adapterId === 'spec-freeze' || receipt.adapterId === 'training');
@@ -167,6 +183,24 @@ for (const text of [benchmarkText, reportText]) {
 const handlers = createPinnClaimAdmissibilityHandlers({} as any);
 const handlerCheck = handlers.pinn_claim_check({ injection: 'B10', format: 'json' }) as ReturnType<typeof evaluatePinnClaim>;
 assert.equal(handlerCheck.allowed, false, 'handler exposes claim check result');
+const handlerMalformedReceipts = handlers.pinn_claim_check({
+  evidenceJson: JSON.stringify({ ...buildCompletePinnEvidence('C9'), receipts: { adapterId: 'spec-freeze' } }),
+  format: 'json',
+}) as ReturnType<typeof evaluatePinnClaim>;
+assert.equal(handlerMalformedReceipts.allowed, false, 'handler evidenceJson non-array receipts fail closed');
+assert.equal(handlerMalformedReceipts.nextAction, 'stop', 'handler evidenceJson non-array receipts stop deterministically');
+assert.ok(hasReason(handlerMalformedReceipts, 'malformed_receipts'), 'handler evidenceJson non-array receipts have explicit reason');
+const handlerMissingIdentityEvidence = buildCompletePinnEvidence('C9');
+handlerMissingIdentityEvidence.receipts = handlerMissingIdentityEvidence.receipts?.map((receipt) => (
+  receipt.adapterId === 'residual' ? { ...receipt, identity: null as any } : receipt
+));
+const handlerMissingReceiptIdentity = handlers.pinn_claim_check({
+  evidenceJson: JSON.stringify(handlerMissingIdentityEvidence),
+  format: 'json',
+}) as ReturnType<typeof evaluatePinnClaim>;
+assert.equal(handlerMissingReceiptIdentity.allowed, false, 'handler evidenceJson malformed receipt identity fails closed');
+assert.equal(handlerMissingReceiptIdentity.nextAction, 'stop', 'handler evidenceJson malformed receipt identity stops deterministically');
+assert.ok(hasReason(handlerMissingReceiptIdentity, 'malformed_receipt_identity'), 'handler evidenceJson malformed receipt identity has explicit reason');
 const handlerBenchmark = handlers.pinn_benchmark_run({ format: 'json' }) as ReturnType<typeof runPinnClaimBenchmark>;
 assert.equal(handlerBenchmark.suiteStatus, 'PASS', 'handler exposes benchmark result');
 const handlerReport = handlers.pinn_report_render({ format: 'text' }) as string;
@@ -317,7 +351,7 @@ try {
     artifactIndex: [
       {
         ...benchmark.artifactIndex[0],
-        digest: 'PDE correctness proved by supplied report',
+        digest: 'PDE correctness is proved by supplied report',
       },
       ...benchmark.artifactIndex.slice(1),
     ],

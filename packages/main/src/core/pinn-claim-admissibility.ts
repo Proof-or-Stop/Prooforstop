@@ -362,6 +362,9 @@ const RETIRED_BOUNDARY_FIELDS = [
   ['full', 'Authority', 'Done'].join(''),
 ] as const;
 
+export const PINN_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN =
+  /\b(?:proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:is\s+)?(?:proved|verified|guaranteed|validated|complete)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i;
+
 function isUnsafeBoundaryValue(value: unknown): boolean {
   if (value === true) return true;
   if (value === 1) return true;
@@ -376,19 +379,51 @@ function fieldOverclaimPattern(fields: readonly string[]): RegExp {
 const ACTIVE_FIELD_OVERCLAIM_PATTERN = fieldOverclaimPattern(CLAIM_BOUNDARY_FIELDS);
 const RETIRED_FIELD_OVERCLAIM_PATTERN = fieldOverclaimPattern(RETIRED_BOUNDARY_FIELDS);
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 function boundaryViolation(input: PinnClaimCheckInput): boolean {
   const record = input as unknown as Record<string, unknown>;
   if (CLAIM_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
   if (RETIRED_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
   const text = input.narrativeClaim ?? '';
-  return /\b(proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:is\s+)?(?:proved|verified|guaranteed|validated)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i.test(text)
+  return PINN_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN.test(text)
     || ACTIVE_FIELD_OVERCLAIM_PATTERN.test(text)
     || RETIRED_FIELD_OVERCLAIM_PATTERN.test(text);
 }
 
+function receiptSubject(receipt: Record<string, unknown>, index: number): string {
+  const adapterId = receipt.adapterId;
+  return typeof adapterId === 'string' && adapterId.trim() !== '' ? adapterId : `receipts[${index}]`;
+}
+
+function normalizedReceipts(input: PinnClaimCheckInput, reasons: string[]): PinnVerifierReceipt[] {
+  const receiptValue = (input as unknown as Record<string, unknown>).receipts;
+  if (receiptValue === undefined) return [];
+  if (!Array.isArray(receiptValue)) {
+    reasons.push('malformed_receipts');
+    return [];
+  }
+  const receipts: PinnVerifierReceipt[] = [];
+  receiptValue.forEach((receipt, index) => {
+    if (!isRecord(receipt)) {
+      reasons.push(reason('malformed_receipt', `receipts[${index}]`));
+      return;
+    }
+    if (!isRecord(receipt.identity)) {
+      reasons.push(reason('malformed_receipt_identity', receiptSubject(receipt, index)));
+      receipts.push({ ...receipt, identity: {} } as unknown as PinnVerifierReceipt);
+      return;
+    }
+    receipts.push(receipt as unknown as PinnVerifierReceipt);
+  });
+  return receipts;
+}
+
 function classifyNextAction(reasons: readonly string[]): PinnClaimCheckResult['nextAction'] {
   if (reasons.length === 0) return 'advance';
-  if (reasons.some((item) => /^(unsupported_|claim_boundary_violation|identity_mismatch|verifier_script_mismatch|verifier_threshold_mismatch|metric_mismatch|output_digest_mismatch|duplicate_receipt|receipt_exit_nonzero|receipt_status_not_pass)/.test(item))) {
+  if (reasons.some((item) => /^(malformed_|unsupported_|claim_boundary_violation|identity_mismatch|verifier_script_mismatch|verifier_threshold_mismatch|metric_mismatch|output_digest_mismatch|duplicate_receipt|receipt_exit_nonzero|receipt_status_not_pass)/.test(item))) {
     return 'stop';
   }
   if (reasons.some((item) => item.startsWith('stale_evidence'))) return 'degrade';
@@ -426,7 +461,7 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
   const missingAdapters: PinnAdapterId[] = [];
   const checkedAdapters: PinnAdapterId[] = [];
   const receiptByAdapter = new Map<PinnAdapterId, PinnVerifierReceipt>();
-  for (const receipt of input.receipts ?? []) {
+  for (const receipt of normalizedReceipts(input, reasons)) {
     if (!receiptByAdapter.has(receipt.adapterId)) {
       receiptByAdapter.set(receipt.adapterId, receipt);
       continue;
@@ -445,14 +480,14 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
     if (receipt.exitCode !== 0) reasons.push(reason('receipt_exit_nonzero', adapterId));
     if (receipt.status !== 'pass') reasons.push(reason('receipt_status_not_pass', adapterId));
     if (receipt.stale === true) reasons.push(reason('stale_evidence', adapterId));
-    if (!receipt.outputDigest || receipt.outputDigest.trim() === '') reasons.push(reason('output_digest_missing', adapterId));
+    if (typeof receipt.outputDigest !== 'string' || receipt.outputDigest.trim() === '') reasons.push(reason('output_digest_missing', adapterId));
     if (receipt.thresholdVersion && receipt.thresholdVersion !== 'thresholds:v1') {
       reasons.push(reason('verifier_threshold_mismatch', adapterId));
     }
     if (receipt.metricName && receipt.metricName !== adapterId) {
       reasons.push(reason('metric_mismatch', adapterId));
     }
-    if (!receipt.verifierScriptHash || receipt.verifierScriptHash !== identity.verifierScriptHash) {
+    if (typeof receipt.verifierScriptHash !== 'string' || receipt.verifierScriptHash !== identity.verifierScriptHash) {
       reasons.push(reason('verifier_script_mismatch', adapterId));
     }
     for (const field of PINN_IDENTITY_FIELDS) {
