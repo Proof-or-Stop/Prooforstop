@@ -228,10 +228,14 @@ never pooled into the powering baseline.
 The seeded-population baseline defect rate must be validated in the M6 pilot
 before the powered N is frozen. Freeze rule: run at least 15 control-arm
 fault-task runs in the pilot; compute the Wilson 95% CI of the observed
-control-arm defect rate; freeze the powered N computed at the LOWER bound of
-that CI (conservative). If the Wilson CI is wider than 0.30, extend the pilot
-before freezing. If the pilot baseline falls outside the planning band,
-recompute and re-freeze N before M7.
+control-arm defect rate; freeze the powered N at the N-maximizing baseline
+within the Wilson 95% CI of the pilot rate (equivalently max over the CI;
+the lower bound alone is not conservative, because n(baseline, mde) peaks
+where the pooled mean baseline - mde/2 is nearest 0.5 — the analytic
+maximizer is p* = 0.5 + mde/2 clamped to the CI, as implemented by
+`sample-size.mjs` pilotFreezeCheck). If the Wilson CI is wider than 0.30,
+extend the pilot before freezing. If the pilot baseline falls outside the
+planning band, recompute and re-freeze N before M7.
 
 Minimum rules:
 
@@ -466,7 +470,7 @@ pieces are built new.
 | M3 Arm switch for the full pack | Extend the EXISTING render-gate (`experience-hint-surface.ts` + `hint-mode.ts`) from review-entrypoint hints to the full runtime memory pack at all lifecycle entrypoints, under an `experimentId` override; add mechanical control-arm retrieval blocking. | Production arm switch + both-arms `experience_hint_surfaced` logging + `experience-layer-ab-shadow-gate-smoke.ts`. | Control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded. |
 | M4 Deterministic scoring oracle | Structured scoring from validation evidence, DONE rows, `final_response_check`, ground-truth oracles, and lane-provenance facts. No live reviewer in the seeded-phase primary. | `adjudicate.mjs` outcome state machine; `checks.mjs`; `packages/lab` scoring core; `ground-truth.mjs` pattern. | Known positive/negative fixtures score correctly, deterministically, on replay. |
 | M5 Sample-size calculator | Per-population adequacy report (unpaired reference + McNemar paired sizing). | Statistical primitives in `analyze.mjs` (two-proportion, Wilson CI, bootstrap, BH-FDR). | Report shows planned N per population, assumptions, and detectable effect; seeded N re-frozen after the M6 baseline estimate. |
-| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Committed engine (`run-driver.mjs` / `live-engine.mjs`). The identity-keyed campaign-resume runner proven by the recovery powered campaign exists only as gitignored scratch under `experiments/recovery-runner/powered/`; committing a campaign runner is part of this milestone. | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated from >=15 control-arm fault-task runs and the powered N frozen at the lower bound of its Wilson 95% CI (pilot extended if that CI is wider than 0.30 — the S7 freeze rule); campaign runner committed. |
+| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Committed engine (`run-driver.mjs` / `live-engine.mjs`). The identity-keyed campaign-resume runner proven by the recovery powered campaign exists only as gitignored scratch under `experiments/recovery-runner/powered/`; committing a campaign runner is part of this milestone. | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated from >=15 control-arm fault-task runs and the powered N frozen at the N-maximizing baseline within its Wilson 95% CI (equivalently max over the CI; the lower bound alone is not conservative; pilot extended if that CI is wider than 0.30 — the S7 freeze rule); campaign runner committed. |
 | M7 Powered controlled study | Full-factorial paired run at the frozen N. | The campaign scaffolding PATTERN (session-guard/watchdog/identity-keyed resume) that carried the 9,240-cell ~49h recovery campaign; note those scripts are currently gitignored scratch under `experiments/recovery-runner/powered/` and must be committed via M6 before M7 starts. | Analysis report includes paired primary and secondary outcomes with CI; all score records assert isolated storeRoot. |
 | M8 Live shadow readout | Extend the EXISTING production assignment (`resolveHintMode`) + `learning_effectiveness` observational readout; exploratory only. | Production hint-mode substrate; `experience-effectiveness.ts` computeArmComparison. | Report separates live exploratory results from controlled causal results; no second live assignment system exists. |
 | M9 Paper-ready evidence map | Claim-to-artifact table + no-overclaim summary incl. the circularity disclosure. | Claim-map conventions of the existing paper evidence sections. | Paper section can cite protocol, ledger, score records, leakage audit, and analysis report. |
@@ -559,7 +563,8 @@ experiment.
 1. Implement M0-M5 (mostly wiring of named existing components).
 2. Run the M6 pilot: at least 5 fixtures per trap group through both arms,
    plus at least 15 control-arm fault-task runs to estimate the baseline rate
-   (the S7 Wilson-CI freeze rule).
+   (the S7 freeze rule: powered N frozen at the N-maximizing baseline within
+   the Wilson 95% CI).
 3. Fix leakage/isolation/scoring issues and re-freeze N before any powered
    claim.
 4. Run M7 with the frozen per-population N from M5/M6.

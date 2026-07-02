@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-ac71:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. The change is purely additive: two new documentation files added (tier-c-crosshost-quorum-execution-plan.md and tier-c-crosshost-quorum-threat-model.md) plus story metadata. No existing concept words were deleted or renamed. Concept residue check: N/A (no deletions to scan for). Closing self-check: docs-only story; no CLAUDE.md/README handler schema fields, ENV variables, or behavior paragraphs promised but undelivered — both docs are standalone decision artifacts with no runtime code promises. No blocker.",
+      "createdAt": "2026-07-02T22:12:35.869Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-001",
+      "_hash": "22aae2197ed6a50c874bcc2f2e4d45c9f7a38ab4b07bbfdfc1aaf582821eccd4"
+    },
+    {
+      "id": "B-ac71:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Documentation-only diff (two decision docs). Dead code/type-safety/IO checks N/A. Doc soundness checks: (1) all code-state claims in the execution plan cross-checked against verdicts.ts, quorum-submit.ts, authority-signing.ts, receipt-bundle.ts — accurate (HostVerdict has no signature field, quorum-submit derives labels not crypto keys, receiptId not a verified sig, F-005 null-elision defense exists); (2) independence ceiling is honest — same-operator orchestration explicitly stated in threat-model §3, forbidden paper phrasings listed; (3) fail-closed rules table (§4) correctly frames M1/M2 defenses as future requirements, not current; (4) key-management decisions (§5) consistent with generateEd25519KeyPair in authority-signing.ts; (5) CHK-001 and CHK-002 acceptance criteria fully satisfied; (6) closing self-check: no promised-but-undelivered doc claims. Zero findings.",
+      "createdAt": "2026-07-02T22:13:45.749Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-002",
+      "_hash": "43eeacff9f66a45e8efea353e53e87db5f1cf7b97043100b3fe8c406175be312"
+    },
+    {
+      "id": "B-ac71:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 29 verificationIntent entries across CHK-001 (15: happy:0-5, edge:0-3, adversarial:0-4) and CHK-002 (14: happy:0-4, edge:0-3, adversarial:0-4) each have a corresponding docs_check/pass verificationEvidence bound to the correct doc. No must-gap. One low finding (B-ac71:F-003) filed for CHK-001:adversarial:0 evidence note being too generic to document how the reviewer resolved the literal-grep vs contextual-meta-use tension (the phrase mutually-distrusting parties appears once in the threat-model doc as a named forbidden phrase, not as an assertion). All should-priority edge intents have defensible coverage. Validate passes. No blocker.",
+      "createdAt": "2026-07-02T22:16:29.739Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-004",
+      "_hash": "9a186a60ba0aba324ccdefab16f20b0808d6f67a53003ed077032b7ca98c3910"
+    },
+    {
+      "id": "B-ac71:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Both story-owned files are purely additive (new files, zero deletions from main). No concept was deleted or replaced en masse, so the concept-residue scan has no trigger condition. The only occurrence of the previously-flagged phrase mutually-distrusting appears in tier-c-crosshost-quorum-threat-model.md §3 explicitly as a FORBIDDEN wording boundary — not a residual over-claim. M0-M5 label uses in other decision docs are pre-existing and unrelated to this story. No residue blocker.",
+      "createdAt": "2026-07-02T22:31:38.951Z",
+      "reviewRound": "2026-07-02T22:30:34.362Z",
+      "reviewRunId": "B-ac71:RR-006",
+      "_hash": "17578fdbe67522282c560dba8d2d5fd9fb2953315162c6484e05e7d3adcd5d69"
+    },
+    {
+      "id": "B-ac71:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 (pure docs diff). 0 symbols extracted (Step 1). Full-text scan of both touchpoint .md files: 2 paragraphs set under review. F-001 verified fixed: \"mutually-distrusting\" removed from execution-plan.md §1; only retained in threat-model.md §3 as the explicit FORBIDDEN wording guard (correct). F-002 verified fixed: all 4 autopilot references in execution-plan.md now use capability names (checkpoint/resume, health-aware pause/resume, adaptive-throttle, process-pool parallelism); the sole remaining \"M4\" is qualified \"Tier-C milestone M4\"; zero bare autopilot M-numbers remain. Internal consistency across both docs clean: independence wording (\"independent vendor hosts\" / \"cross-vendor, same-operator\") is aligned; cross-references (M0/M1/M2/M5 pointers between docs) are consistent; forbidden-wording guard only in threat-model §3 where it belongs. No new inconsistencies introduced.",
+      "createdAt": "2026-07-02T22:32:14.767Z",
+      "reviewRound": "2026-07-02T22:30:34.362Z",
+      "reviewRunId": "B-ac71:RR-008",
+      "_hash": "30581155b16149484f8b5e725abe48f2067c4da5c08618218ca04190ca2974ff"
+    },
+    {
+      "id": "B-ac71:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Both docs pass quality audit. Internal consistency verified: (1) F-001 fix confirmed — threat-model §1 and §3 explicitly disclaim mutually-hostile trust boundary and list mutually-distrusting as forbidden M5 wording; (2) F-002 fix confirmed — execution-plan §0 autopilot note explicitly states autopilot internal milestones are named by capability to avoid colliding with M0-M5; (3) all file references resolve (receipt-bundle.ts, verdicts.ts, decision-doc-quorum.ts, authority-signing.ts, quorum-submit.ts, lattice-experiment-protocol.md, main.tex); (4) code-verified claims match source (3-round x 2-host in decision-doc-quorum.ts, string-template derivedSession/derivedKey in quorum-submit.ts, no required signature on HostVerdict in verdicts.ts, F-005 null-elision defense in receipt-bundle.ts, generateEd25519KeyPair in authority-signing.ts); (5) cross-references between the two docs are bidirectional and consistent; (6) H1/H2/H3-only experiment protocol confirmed — H4 amendment claim is accurate; (7) milestone dependency chain M0→M1→M2→M3→M4→M5 is consistent across both docs; (8) acceptance criteria in threat-model §6 all addressed in the document body. No dead references, no contradictions, no milestone-label collisions found.",
+      "createdAt": "2026-07-02T22:34:34.694Z",
+      "reviewRound": "2026-07-02T22:30:34.362Z",
+      "reviewRunId": "B-ac71:RR-005",
+      "_hash": "1c184004538381df1f4d0921f1db8307b1f092f643d7a9ba89188f470ea57a42"
+    },
+    {
+      "id": "B-ac71:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 29 intents (CHK-001: 15 intents, CHK-002: 14 intents). No must-gaps, no waivers. CHK-001:adversarial:0 (the F-003 focus): rewritten note in commit aaf994e is concrete — it names the exact grep result (4/5 forbidden phrases = zero matches; mutually-distrusting parties = exactly 1 match at threat-model.md line 36 inside the §3 forbidden-phrases definition list), explains the meta-use distinction explicitly, and confirms the prior F-001 over-claim was removed in 367b05322. Independent grep confirmed. Note is no longer a generic template — the F-003 tension is fully resolved.",
+      "createdAt": "2026-07-02T22:36:12.661Z",
+      "reviewRound": "2026-07-02T22:30:34.362Z",
+      "reviewRunId": "B-ac71:RR-007",
+      "_hash": "fa6ed7e1b56a7f7a5948cf6768a096d194d2117eb2107299aa194b6383ecaa59"
+    }
+  ]
+}

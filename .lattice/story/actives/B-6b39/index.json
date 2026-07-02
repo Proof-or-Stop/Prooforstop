@@ -4,11 +4,11 @@
   "title": "Docs: amend ablation plan S7 freeze rule to N-maximizing baseline (Wilson CI)",
   "description": "Codex host-2 review of story B-047f proved the current S7 freeze-rule wording in docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md is wrong: freezing the powered N at the LOWER bound of the pilot Wilson 95% CI is NOT conservative under the pooled two-proportion formula. n(baseline, mde) peaks where the pooled mean (baseline - mde/2) is nearest 0.5, so a Wilson lower bound below 0.5 + mde/2 yields a SMALLER n than the observed baseline (counterexample: pilot 36/60 defects, Wilson lower 0.47366 -> 56/arm, while the observed 0.60 baseline needs 62/arm at mde 0.25). The merged S1 tooling (experiments/experience-ablation/sample-size.mjs pilotFreezeCheck, story B-047f) already implements the corrected rule: freeze at the N-maximizing baseline within the Wilson 95% CI (analytic maximizer p* = 0.5 + mde/2 clamped to the CI). Amend the S7 freeze-rule paragraph, the S13 M6 exit-criteria row, and the S17 step 2 echo to match: freeze the powered N at the N-maximizing baseline within the Wilson 95% CI of the pilot rate (equivalently max over the CI; the lower bound alone is not conservative). Docs-only change; everything else in the doc stays unchanged and entirely English.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-07-02T21:27:01.554Z",
   "startedAt": "2026-07-02T21:27:01.554Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T22:25:26.114Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,52 @@
       "user": "Harmonygo",
       "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:32:23.793Z",
+      "branch": "story/B-6b39",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:35:07.480Z",
+      "branch": "story/B-6b39",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:37:38.733Z",
+      "branch": "story/B-6b39",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:56:34.860Z",
+      "branch": "story/B-6b39",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:25:26.115Z",
+      "branch": "story/B-6b39",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6b39",
-    "branch": "story/B-6b39",
-    "createdAt": "2026-07-02T21:31:12.927Z"
-  }
+  "currentReviewRound": "2026-07-02T21:37:38.733Z"
 }

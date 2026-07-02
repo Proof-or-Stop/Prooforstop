@@ -1,0 +1,38 @@
+{
+  "storyId": "B-337f",
+  "checkedAt": "2026-07-02T22:23:36.716Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 selfcheck specifies oracle purity via chdir-independence (two invocations byte-identical under chdir). This test confirms determinism under path change but does not mechanically prevent reads outside the fixture dir — it relies on convention, not sandboxing, matching the recovery-runner ground-truth.mjs pattern. No action required; the plan does not mandate sandboxing, but the description should not imply chdir-independence proves external-read absence."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-003 introduces reference-bad/ and reference-good/ as subdirectories inside the fixture dir (outside workspace/). This is a net-new pattern not directly inherited from recovery-runner, which uses reference-solution.mjs and subtle-wrong-output.mjs as flat files. The design is valid for binary oracle testing but the checklist presents it as a structural continuation of the recovery-runner precedent without calling out this divergence."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-02T22:22:50.875Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-02T22:23:36.716Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 selfcheck specifies oracle purity via chdir-independence (two invocations byte-identical under chdir). This test confirms determinism under path change but does not mechanically prevent reads outside the fixture dir — it relies on convention, not sandboxing, matching the recovery-runner ground-truth.mjs pattern. No action required; the plan does not mandate sandboxing, but the description should not imply chdir-independence proves external-read absence."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-003 introduces reference-bad/ and reference-good/ as subdirectories inside the fixture dir (outside workspace/). This is a net-new pattern not directly inherited from recovery-runner, which uses reference-solution.mjs and subtle-wrong-output.mjs as flat files. The design is valid for binary oracle testing but the checklist presents it as a structural continuation of the recovery-runner precedent without calling out this divergence."
+        }
+      ]
+    }
+  ],
+  "_hash": "be707c1cfc91b5e917135128a4548c1ed0f2ffb3cd346262db730ee8df0dc680"
+}

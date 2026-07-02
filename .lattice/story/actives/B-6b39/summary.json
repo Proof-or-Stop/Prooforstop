@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6b39",
+  "changes": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md: three freeze-rule passages amended (commit e157925d5). S7 freeze-rule paragraph now freezes the powered N at the N-maximizing baseline within the Wilson 95% CI of the pilot rate (equivalently max over the CI; the lower bound alone is not conservative; analytic maximizer p* = 0.5 + mde/2 clamped to the CI, as implemented by sample-size.mjs pilotFreezeCheck). S13 M6 exit-criteria row and S17 step 2 echo aligned to the same rule. No other content changed.",
+  "usage": "Read the amended sections: sed -n 228,238p docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md (S7); grep -n \"N-maximizing\" over the doc shows all three amended passages (lines 231, 473, 566).",
+  "expectedOutcome": "grep -n \"N-maximizing\" docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md returns 3 matches (S7 line 231, S13 M6 row line 473, S17 step 2 line 566); grep -inE \"lower bound of (that|its)\" returns nothing; the doc diff vs main touches only this file.",
+  "actualTranscript": "grep -n N-maximizing -> 231:control-arm defect rate; freeze the powered N at the N-maximizing baseline / 473:| M6 Controlled seeded pilot | ... powered N frozen at the N-maximizing baseline within its Wilson 95% CI ... / 566:(the S7 freeze rule: powered N frozen at the N-maximizing baseline within the Wilson 95% CI). grep -inE \"lower bound of (that|its)\" -> no output. git show --stat e157925d5 -> 1 file changed, 11 insertions(+), 6 deletions(-). Perl CJK scan -> no CJK characters.",
+  "outcomeDiff": "No difference — expected and actual transcripts match exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered; docs-only change, no runtime behavior involved.",
+  "pitfalls": "Two orphaned validation-execution locks blocked REVIEW→TEST and done_prepare: subagent/watchdog teardown killed validate processes (pids 19271, 55682) without releasing .lattice/locks/validation/B-6b39.lock; each cleared after the 120s stale TTL (VALIDATION_EXECUTION_LOCK_STALE_MS). done_prepare also hit its own 300s no-output watchdog during the 31-command validate suite, leaving test-evidence.json uncommitted (committed manually as lattice metadata). If done_prepare stalls, re-run it: mergeMain/refresh are idempotent.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 253170
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 68407
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 163687
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 151253
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1136127
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 919492
+    }
+  },
+  "totalDurationMs": 2692798,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T22:11:54.352Z",
+  "updatedAt": "2026-07-02T22:11:54.352Z"
+}
