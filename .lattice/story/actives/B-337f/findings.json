@@ -107,6 +107,24 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-007",
+      "desc": "[host-2 Codex P1, probe-proven] review-evidence oracle trusts host-created (mutable) workspace evidence: a forged evidence/forged-reviewer.json with provenance reviewer classified defectPresent:false. Fix: embed a baseline evidence inventory (relPath -> sha256, computed at emission) into the oracle spec; citing a file outside the baseline or with changed content is a laneProvenanceViolation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:51.059Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "1047bf18238199e9af589bd7d1d7d269fedbdbe12c548a82c41cc31c8b78d51b",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs",
+        "experiments/experience-ablation/fixture-generator.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
