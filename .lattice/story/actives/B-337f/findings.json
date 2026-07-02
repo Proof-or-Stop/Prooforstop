@@ -159,6 +159,23 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-010",
+      "desc": "[host-2 Codex P2, probe-proven] verdict-line oracle only rejects the exact wrong token: FEATURE-X: COMPLETE. (trailing punctuation) classified defectPresent:false. Fix: strict whitelist — anything not exactly the right value is a mismatch.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:52.938Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "93a4209ab159c316fe89385dddc5601c5e21de2af2c0b6a37f80d2e376df4d01",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
