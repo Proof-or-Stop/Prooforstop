@@ -46,6 +46,25 @@
       "resolvedAt": "2026-07-02T20:14:09.913Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-003",
+      "desc": "Hard-stop fail-closed reasons are masked by weak_evidence_overclaim in classifyNextAction. In packages/main/src/core/claim-admissibility/quantum.ts:321-330, the function returns degrade whenever any weak_evidence_overclaim reason exists before checking stop-class reasons such as identity_mismatch, verifier_script_mismatch, stale_evidence, unbound_solver_output, or claim_boundary_violation. A Q5 input that both overclaims ground-state and has mismatched or stale evidence remains allowed=false, but nextAction becomes degrade and scopedClaim becomes true, implying a weaker scoped claim can survive even though the evidence is not bound/current. This conflicts with the M0-M1 fail-closed requirement and is not covered by packages/main/src/tasks/quantum-claim-admissibility-smoke.ts, which only tests weak overclaim with otherwise valid evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:31:48.541Z",
+      "reviewRound": "2026-07-02T20:30:05.600Z",
+      "reviewRunId": "B-7b4e:RR-006",
+      "_hash": "eabdeefc9dfa3e7351a1a972ac9a04b77d89bfdd6e55350a434ff7b5561338c1",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|hard-stop-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
