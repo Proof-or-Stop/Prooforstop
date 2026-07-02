@@ -6,7 +6,49 @@
       "context": "Finalize scope boundaries, non-goals, and baseline fairness rules for PINN claim control.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        ".lattice/story/actives/B-2769/scope-boundary.json",
+        ".lattice/story/actives/B-2769/execution-boundary.json"
+      ],
+      "userSees": "Scope lock artifact shows allowed scope and explicit exclusions, and scope freeze check remains green before DEV starts.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chk-001:happy",
+            "desc": "Verify scope lock and policy boundaries are explicitly documented, including explicit exclusions and stop conditions.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chk-001:edge",
+            "desc": "Verify excluded items remain blocked in scope checks and do not drift into allowed scope during plan design.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chk-001:adversarial",
+            "desc": "Verify no hidden production/Authority/PDE-correctness promises are introduced under M0 scope lock.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2769",
+  "records": [
+    {
+      "id": "RED-20260702163346",
+      "trigger": "Regression-risked high-assurance extension work",
+      "acceptanceTargetRef": "CHK-004",
+      "baselineHeadHash": "72ce68e4f5fc4d43700a55b0320c7a8fbf8eb2a3",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "A stale or mismatched evidence tuple could previously allow lifecycle transition to advance.",
+      "failingCommand": "lattice transition_oracle --storyId=B-2769 --dryRun",
+      "expectedGreenCommand": "lattice transition_oracle --storyId=B-2769 --validate",
+      "greenRelation": {
+        "targetRef": "CHK-004",
+        "relation": "replacement",
+        "command": "lattice transition_oracle --storyId=B-2769 --validate"
+      },
+      "note": "Captured pre-fix red evidence to satisfy high-assurance ProofStory preconditions for benchmark and gate changes.",
+      "createdAt": "2026-07-02T16:33:46.497Z"
+    }
+  ],
+  "createdAt": "2026-07-02T16:33:46.497Z",
+  "updatedAt": "2026-07-02T16:33:46.497Z"
+}

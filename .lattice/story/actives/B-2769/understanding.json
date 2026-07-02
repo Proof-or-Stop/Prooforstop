@@ -1,28 +1,27 @@
 {
-  "task": "Build a future-domain Proof-or-Stop PINN claim-admissibility extension with explicit evidence-bound lifecycle gate and benchmark controls.",
-  "outcome": "Proof-or-Stop supports a PINN domain pack with bounded claim schema, gates, benchmark evidence, and reusable governance language without claiming PDE correctness.",
+  "task": "Build a future-domain Proof-or-Stop PINN claim-admissibility extension with explicit evidence-bound lifecycle control and reproducible benchmark checks.",
+  "outcome": "After this story, users can point Proof-or-Stop at PINN lifecycle claims and get deterministic admission/repair/degrade/stop results that block stale or mismatched evidence from advancing the claim, with a concrete benchmark report comparing A4 against A1/A2/A3.",
   "facts": [
-    "Proof-or-Stop currently lacks PINN-specific claim/evidence schemas",
-    "No prior production implementation for PINN domain pack exists in this repo",
-    "Existing lifecycle gate mechanics and verificationEvidence infrastructure already exist",
-    "CLI drift and bootstrap issues should be handled via standard story/worktree flow"
+    "Proof-or-Stop can host reusable claim/evidence schemas",
+    "PINN lifecycle transitions require explicit claim-boundary mechanics",
+    "Existing benchmark harness patterns already cover regime comparison"
   ],
   "constraints": [
-    "No claim about PDE mathematical correctness or solver performance",
-    "Control semantics must be evidence/identity-bound",
-    "Benchmark must compare control regimes (A1/A2/A3/A4) with identical task settings",
-    "No API changes beyond required PINN domain extension scope"
+    "No claim about PDE correctness or scientific accuracy",
+    "No external Authority-server feature changes",
+    "Benchmark must keep task settings identical across A1/A2/A3/A4",
+    "Proof docs must preserve boundary language"
   ],
   "unknowns": [
-    "Where to persist benchmark artifacts under story artifact layout",
-    "Exact command/receipt identity required for new evidence rows",
-    "Whether existing schema registry has suitable extension points for PINN fields"
+    "Exact story artifact paths for PINN schema and benchmark fixtures",
+    "Whether to reuse existing admissibility schema or add new registries",
+    "Any existing registry constraints for new evidence type registration"
   ],
   "touchpoints": [
-    "packages/main/src/core/evidence schema layer (or equivalent)",
-    "workflow validation hooks for lifecycle gating",
-    "benchmark or experiment harness for claim-control regimes",
-    "docs/requirements/decisions/ and related doc navigation"
+    "packages/main/src/core/claim schema layer",
+    "packages/main/src/commands for gate logic",
+    "docs/requirements/decisions and source-of-truth nav",
+    "story artifacts under .lattice/story/actives/B-2769"
   ],
-  "timestamp": "2026-07-02T16:31:53.532Z"
+  "timestamp": "2026-07-02T16:32:34.809Z"
 }
