@@ -323,6 +323,27 @@
       "resolvedAt": "2026-07-02T21:27:37.786Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-db1b:F-015",
+      "desc": "pinn_claim_check and pinn_report_render still miss production-readiness narrative overclaims. Direct probe: evaluatePinnClaim on complete C9 evidence with narrativeClaim=\"Production readiness is proved for this PINN result.\" returns allowed=true,nextAction=advance,reasons=[]; pinn_report_render with a supplied benchmark artifactIndex digest=\"Production readiness is proved by supplied report.\" returns text containing that production-readiness claim. The delivery/checklist/docs boundary promises local claim-control only and no production readiness/PDE correctness claim, so production-readiness strings should be rejected or sanitized the same way deployment/PDE/completion overclaims are.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T22:08:26.446Z",
+      "reviewRound": "2026-07-02T22:05:42.879Z",
+      "reviewRunId": "B-db1b:RR-037",
+      "_hash": "4a13f0f70c181258b1f26d456d5d384060588039b2f221ec69d4b578e55afd76",
+      "files": [
+        "packages/main/src/core/pinn-claim-admissibility.ts",
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|ts|pinn-production-readiness-overclaim",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
