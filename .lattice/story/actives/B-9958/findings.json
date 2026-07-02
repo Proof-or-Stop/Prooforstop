@@ -84,6 +84,26 @@
       ],
       "signatureTag": "missing|ts|read-playbook-commands",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9958:F-005",
+      "desc": "Finding-signal seeds are treated as proposable based only on example IDs and lineage. source-lineage-audit.ts:270-291 projects every signal with exampleFindingIds/storyIds into finding_signal records, and playbook-seed.ts:434-490 only blocks missing lineage, already represented sources, or non_promotable sources. The execution plan requires finding-signals to have support above a configured threshold and valid anchors before they can become proposal material. As implemented, a low-support or anchorless signal with one exampleFindingId can pass observe/propose and become an inert candidate, so the seed loop is not actually threshold-gated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T20:43:24.881Z",
+      "reviewRound": "2026-07-02T20:39:07.457Z",
+      "reviewRunId": "B-9958:RR-001",
+      "_hash": "17fe0c7634a5fccdbd565df76b89efd807e6a4f25b25b45a755cee8a1d3acf5f",
+      "files": [
+        "packages/main/src/core/source-lineage-audit.ts",
+        "packages/main/src/core/playbook-seed.ts",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|finding-signal-seeds",
+      "signatureTagSource": "auto"
     }
   ]
 }
