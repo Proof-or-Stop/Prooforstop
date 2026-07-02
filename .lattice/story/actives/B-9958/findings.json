@@ -153,7 +153,7 @@
       "desc": "B-9958 still treats stale finding-signal anchors as valid seed material. collectFindingSignals copies any non-empty anchorFiles into anchorRefs without checking whether the anchors still exist or pass the existing revalidation contract (packages/main/src/core/source-lineage-audit.ts:281-305), and findingSignalQualityBlockReasons only blocks finding_signal records when anchorRefs is empty (packages/main/src/core/playbook-seed.ts:395-401). The repo already defines valid anchored signals as having at least one present anchor file, with all-missing anchors classified as stale (packages/main/src/core/experience-revalidation.ts:46-77), and the B-9958 plan requires finding-signals to have support above threshold and valid anchors (docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:145-146). A signal with support >= 1 and anchorFiles=[\"no/such/file.ts\"] can therefore pass observe/propose as proposable even though its anchors are stale, so F-005 is only partially fixed and anchor quality does not fail closed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T20:57:44.716Z",
@@ -167,7 +167,11 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
       "signatureTag": "finding-signal-anchor-quality",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed collectFindingSignals to include only currently present anchor refs and block all-missing/stale anchors from proposable seed material; verified by playbook seed promotion smoke.",
+      "resolvedAt": "2026-07-02T21:18:36.617Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9958:F-008",
