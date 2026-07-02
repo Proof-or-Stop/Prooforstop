@@ -214,6 +214,18 @@
           "materialHash": "f9172fe3998906ac4b3d08246d5bfda023a0e7309f583efe71ec061058c89daa",
           "storyFilesHash": "5d9894cb7539160f5d16285260eb0d59327a1134477283e604890e3947455377",
           "timestamp": "2026-07-02T23:11:35.285Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/observability-snapshot-learning-root.test.mjs",
+          "command": "node packages/main/tests/observability-snapshot-learning-root.test.mjs",
+          "result": "pass",
+          "note": "Test asserts handler field is byte-equal to existing resolveLearningDir(root) (delegation, no re-implementation). Resolution call sites unchanged: git diff main...HEAD -- packages/main/src/core/learning-store.ts is empty (0 lines); existing observability-snapshot-smoke still passes.",
+          "headHash": "764a39301ca79a6fced722f0bb4fd7dc2b44c1b5",
+          "materialHash": "f9172fe3998906ac4b3d08246d5bfda023a0e7309f583efe71ec061058c89daa",
+          "storyFilesHash": "5d9894cb7539160f5d16285260eb0d59327a1134477283e604890e3947455377",
+          "timestamp": "2026-07-02T23:11:44.124Z"
         }
       ]
     },
