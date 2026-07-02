@@ -3,7 +3,7 @@
   "changes": "Implemented the B-ec3b indexed runtime memory M0-M2 slice: profiling/report-only baseline, derived playbook memory index with atomic rebuild/read validation, and indexed two-stage candidate retrieval wired into MemoryFreshnessPack generation while preserving gateEvidence=false.",
   "usage": "Runtime memory consumers continue calling existing playbook memory pack/session/handoff paths; the indexed path is an internal acceleration layer validated by playbook-runtime-memory-index-smoke.js and related MVP smokes.",
   "expectedOutcome": "Proofbound can consume active playbook memory through a validated derived index without making memory authoritative proof, with stale or malformed index data falling back safely.",
-  "actualTranscript": "Build PASS; playbook-runtime-memory-index-smoke PASS for M0/M1/M2; MVP1 smoke PASS 11/11; MVP2 smoke PASS 9/9; baseline smoke PASS; health smoke PASS; story_advance TEST ran configured validate commands and passed; done_prepare validation passed after merge-main.",
+  "actualTranscript": "Build PASS; playbook-runtime-memory-index-smoke PASS for M0/M1/M2; MVP1 smoke PASS 11/11; MVP2 smoke PASS 9/9; baseline smoke PASS; health smoke PASS; story_advance TEST ran configured validate commands and passed; done_prepare validation passed after merge-main. Post-DONE correction: Claude CLI was verified with claude --print and returned a B-ec3b PASS review.",
   "outcomeDiff": "No difference for B-ec3b scope: M0-M2 are implemented and verified. M3-M8 rollout/cache/enforcement milestones remain outside this story and are not claimed here.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
@@ -11,8 +11,8 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "This story completes only M0-M2 indexed runtime memory. It does not claim M3-M8 consumer rollout/enforcement, full 1M optimized parity as a mandatory DONE gate, or Authority Server completion semantics.",
-  "pitfalls": "Claude CLI was unavailable because it was not logged in, and agy did not return a usable B-ec3b verdict, so DONE review-assurance uses the one-host local floor only; one earlier autopilot_review_submit lacked binding digests and is ignored by the gate.",
+  "limitations": "This story completes only M0-M2 indexed runtime memory. It does not claim M3-M8 consumer rollout/enforcement, full 1M optimized parity as a mandatory DONE gate, or retired remote-server completion semantics.",
+  "pitfalls": "Earlier summary incorrectly said Claude CLI was not logged in. Root cause was my use of claude --print --bare, which bypasses the interactive OAuth/keychain login state. Corrected evidence: claude --print returned CLAUDE_CLI_OK, then Claude read-only post-DONE review returned PASS. DONE itself used the one-host local floor at the time; this correction does not retroactively claim 3x2 quorum.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,14 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 508491
+      "durationMs": 681518
+    },
+    "DONE": {
+      "count": 1,
+      "durationMs": 0
     }
   },
-  "totalDurationMs": 26944385,
+  "totalDurationMs": 27117412,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +56,5 @@
     "open": 0
   },
   "createdAt": "2026-07-02T10:26:39.824Z",
-  "updatedAt": "2026-07-02T10:26:39.824Z"
+  "updatedAt": "2026-07-02T10:39:19.180Z"
 }
