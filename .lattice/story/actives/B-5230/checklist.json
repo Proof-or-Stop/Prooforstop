@@ -232,25 +232,17 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [
+        "happy": [],
+        "edge": [],
+        "adversarial": [
           {
-            "id": "pinn-doc-006:happy",
-            "desc": "Milestone axis and implementation status are unambiguous in the plan.",
-            "type": "cli",
-            "requiredIn": "balanced",
-            "priority": "must"
-          }
-        ],
-        "edge": [
-          {
-            "id": "pinn-doc-006:edge",
-            "desc": "No milestone claims runtime modules already implemented.",
+            "id": "pinn-doc-006:adv",
+            "desc": "Adversarial review ensures milestone axis cannot be misread as runtime implementation completion.",
             "type": "logic",
             "requiredIn": "strict",
             "priority": "must"
           }
-        ],
-        "adversarial": []
+        ]
       },
       "status": "pending",
       "startTime": null,
