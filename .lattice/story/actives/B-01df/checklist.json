@@ -194,9 +194,46 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T19:24:01.112Z",
-      "endTime": null
+      "endTime": "2026-07-02T19:24:04.448Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers duplicate source grouping, empty-store read-only posture, and no writes while auditing.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:04.950Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs state B-01df implements M1 only and that source_lineage_audit does not create seeds, proposals, candidates, outcomes, promotion decisions, active playbooks, runtime blocking policy, or DONE settlement rows.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:05.472Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts audit output cannot satisfy lifecycle gate evidence and leaves stores unchanged.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:05.935Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -238,6 +275,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:04.448Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Smoke and docs cover the M1-only boundary.",
       "agent": "main-agent"
     }
   ]
