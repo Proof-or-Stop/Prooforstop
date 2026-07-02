@@ -1,0 +1,25 @@
+{
+  "storyId": "B-5230",
+  "mode": "shadow",
+  "allowedModify": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/**/*",
+    "scripts/**/*",
+    ".lattice/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js"
+  ],
+  "scopeChangeReason": "Documentation-hardening scope for Proof-or-Stop PINN execution plan only; no runtime code changes in this story.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T17:23:36.744Z",
+  "updatedAt": "2026-07-02T17:23:36.744Z"
+}

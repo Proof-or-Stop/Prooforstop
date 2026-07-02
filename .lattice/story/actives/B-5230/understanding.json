@@ -1,0 +1,22 @@
+{
+  "task": "Harden proof-or-stop PINN execution plan wording and benchmarks",
+  "outcome": "After DONE, users get a clear, bounded Proof-or-Stop PINN execution plan document with explicit terminology, benchmark fairness constraints, task/injection set, and implementation-status axis so future code stories can run without claim drift or over-promising.",
+  "facts": [
+    "Current doc is design-first and scoped to future-domain extension.",
+    "Core risk is semantic ambiguity around authority/PDE claim boundaries.",
+    "Control-regime comparisons (A1–A4) currently need fixed baseline parameters to be valid.",
+    "Milestone progress must distinguish docs-implemented work from runtime implementation."
+  ],
+  "constraints": [
+    "No runtime module changes in this story.",
+    "No new APIs or dependencies.",
+    "No assertion of PDE correctness/proof claims.",
+    "Milestone comparisons must remain reproducible and bounded."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-07-02T17:18:26.787Z"
+}

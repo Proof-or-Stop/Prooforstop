@@ -1,0 +1,76 @@
+{
+  "storyId": "B-5230",
+  "checkedAt": "2026-07-02T17:28:25.469Z",
+  "headHash": "5192d12d0f4bf831f9357cc88fd45812f8f3daf7",
+  "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+  "reviewRound": "2026-07-02T17:23:54.690Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "User sees that the plan vocabulary and status framing now consistently distinguish design intent from runtime evidence/implementation.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Verified by updated plan text and checklist CHK-001 verification evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Document now lists fixed cross-regime baseline constraints (PDE/domain/model/budget/seed/grid/verifier) so A1-A4 comparisons are constrained to one control variable.",
+      "status": "verified",
+      "verifiedBy": "logic",
+      "evidence": "Verified by CHK-002 and 21/21 verification evidence entries in checklist.json."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Document now includes a bounded benchmark task set and B1-B15 injection matrix for admissibility-control evaluation.",
+      "status": "verified",
+      "verifiedBy": "logic",
+      "evidence": "Checked in CHK-003 section; file updated and test evidence recorded."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Terminology is normalized to Proof-or-Stop and non-goals/limitations are explicit in boundary paragraphs.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Reviewed modified sections and related docs; non-goals explicitly documented in CHK-004 and CHK-006."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Success criteria now specify explicit metrics, comparison axes, and confidence-interval reporting expectations.",
+      "status": "verified",
+      "verifiedBy": "logic",
+      "evidence": "Confirmed in CHK-005 text and supporting verification intent entries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Governance boundary and publication posture are explicit and aligned with future-domain claim-control scope.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "CHK-006 and CHK-007 reviewed and marked pass in checklist.json."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Milestone axis is explicit: M0–M5 are docs artifacts in this story; runtime implementation is explicitly out-of-scope.",
+      "status": "verified",
+      "verifiedBy": "logic",
+      "evidence": "Verified milestone section and scope contract text; docs-path only changes in this story."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-007",
+      "transcript": "lattice story_advance to TEST succeeded; validate --lint/build pass. done_required_validate passed (npm --prefix packages/main run build, npm test). No functional runtime code changed in this story."
+    },
+    {
+      "featureId": "TEST-suite",
+      "transcript": "Done-required validation pass: PASS for packages/main build and root npm test at 2026-07-02T17:27:06.923Z."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs edits only for Proof-or-Stop PINN execution-plan wording and benchmark structure; no unresolved TODOs; validation suite passed in TEST."
+  },
+  "_hash": "ed192393d99fcf948186f9cd17ace63ec53a7dad3ce540438ac2a894359196ab"
+}

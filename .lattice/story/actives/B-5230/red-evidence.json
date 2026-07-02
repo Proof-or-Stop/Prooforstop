@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5230",
+  "records": [
+    {
+      "id": "RED-20260702172212",
+      "trigger": "High-assurance doc-only plan work can still accidentally imply production-ready claim behavior if wording/benchmarks are misread.",
+      "acceptanceTargetRef": "sha256:eb440f6f1f128fed335fb71f07f18646ac3871d9f533791cf97458ff4df02fa3",
+      "baselineHeadHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+      "baselineMaterialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+      "observedFailure": "Prior to this story, milestone and boundary wording could be interpreted as runtime implementation or claim strength beyond current scope.",
+      "failingCommand": "bash -lc \"exit 1\"",
+      "expectedGreenCommand": "rg -n \"Status: implementation-ready design draft|Scope: future-domain extension; not a delivered implementation|This plan defines how` `Proof-or-Stop` can be extended\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "sha256:eb440f6f1f128fed335fb71f07f18646ac3871d9f533791cf97458ff4df02fa3",
+        "relation": "regression_to_green",
+        "command": "rg -n \"Status: implementation-ready design draft|Scope: future-domain extension; not a delivered implementation|This plan defines how` `Proof-or-Stop` can be extended\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      },
+      "note": "This story remains docs-only; red evidence is anchored to scope-boundary claims and the green check is the current scoped wording document scan.",
+      "createdAt": "2026-07-02T17:22:12.040Z"
+    }
+  ],
+  "createdAt": "2026-07-02T17:22:12.040Z",
+  "updatedAt": "2026-07-02T17:22:12.040Z"
+}

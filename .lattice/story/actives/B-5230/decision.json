@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "Keep claim control boundaries explicit and reproducible.",
+    "Do not mix runtime implementation status with documentation contract status.",
+    "Prefer precise, measurable criteria over narrative claims."
+  ],
+  "drivers": [
+    "Terminology drift can still imply production-grade or scientific proof.",
+    "Benchmark fairness omissions make control experiments non-comparable.",
+    "No milestone axis leads to duplicate or prematurely assumed implementation."
+  ],
+  "options": [
+    {
+      "name": "Doc-hardening completion in this story",
+      "pros": [
+        "Low-risk with immediate governance value",
+        "Prevents overstatement and reduces future implementation ambiguity"
+      ],
+      "cons": [
+        "No runtime hardening shipped yet"
+      ]
+    },
+    {
+      "name": "Delay wording fixes to first runtime story",
+      "pros": [
+        "One story does all contract and code together"
+      ],
+      "cons": [
+        "Increases chance of overclaim in interim work; harder to test alignment."
+      ]
+    }
+  ],
+  "chosen": "Doc-hardening completion in this story",
+  "rationale": "Documenting the contract boundary and benchmark baseline now reduces downstream variance and creates a reliable target for future implementation stories.",
+  "preMortem": [
+    {
+      "scenario": "Terminology still leaks proof-of-correctness claims",
+      "trigger": "Ambiguous wording copied into future stories",
+      "consequence": "Downstream overpromise and misuse",
+      "mitigation": "Keep boundary wording and publication posture explicit in decision docs and docs promises."
+    },
+    {
+      "scenario": "Baseline axes stay implicit",
+      "trigger": "Different test settings across A1–A4",
+      "consequence": "Invalid conclusions from future comparisons",
+      "mitigation": "Enforce fixed PDE/domain/model/budget/config/seed/grid/verifier controls in-plan."
+    },
+    {
+      "scenario": "Milestone axis becomes ambiguous",
+      "trigger": "No docs-vs-runtime status line",
+      "consequence": "Future stories duplicate or block execution based on wrong assumptions",
+      "mitigation": "Preserve explicit M0–M5 docs-done status with runtime-out-of-scope note."
+    }
+  ],
+  "timestamp": "2026-07-02T17:18:24.226Z"
+}
