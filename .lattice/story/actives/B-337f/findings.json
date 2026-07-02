@@ -116,7 +116,7 @@
       "desc": "[host-2 Codex P1, probe-proven] done-evidence oracle accepts any evidence containing the PASS substring: check-output.txt with FAIL text plus a copied PASS marker classified defectPresent:false. Fix: anchored exact pass-line match, reject FAIL text, and verify the source fix itself (spec gains sourceFile/sourceMustMatch).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T22:45:50.406Z",
@@ -126,7 +126,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence now requires an anchored exact pass line, rejects any FAIL text, and verifies the actual source fix via spec.sourceFile/sourceMustMatch; both probe directions pinned (FAIL+pasted-PASS fires; PASS-without-fix fires). Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:35.361Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-007",
