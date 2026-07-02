@@ -147,6 +147,27 @@ if (unboundSolverOutput.receipts?.[0]) {
 }
 checkBlock('unbound solver output', unboundSolverOutput, 'unbound_solver_output');
 
+const mismatchedSolverOutputDigest = buildCompleteQuantumEvidence('Q4');
+if (mismatchedSolverOutputDigest.receipts?.[0]) {
+  mismatchedSolverOutputDigest.receipts[0].outputDigest = 'sha256:mismatched-solver-output';
+}
+const mismatchedSolverOutputDigestResult = checkBlock(
+  'mismatched top-level solver output digest',
+  mismatchedSolverOutputDigest,
+  'output_digest_mismatch',
+);
+assert.equal(mismatchedSolverOutputDigestResult.nextAction, 'stop', 'mismatched solver output digest must stop');
+assert.equal(mismatchedSolverOutputDigestResult.scopedClaim, false, 'mismatched solver output digest must not expose scoped claim');
+
+const missingReceiptIdentity = buildCompleteQuantumEvidence('Q4');
+const receiptWithoutIdentity = missingReceiptIdentity.receipts?.[0] as { identity?: unknown } | undefined;
+if (receiptWithoutIdentity) {
+  delete receiptWithoutIdentity.identity;
+}
+const missingReceiptIdentityResult = checkBlock('missing receipt identity', missingReceiptIdentity, 'missing_receipt_identity');
+assert.equal(missingReceiptIdentityResult.nextAction, 'stop', 'missing receipt identity must stop');
+assert.equal(missingReceiptIdentityResult.scopedClaim, false, 'missing receipt identity must not expose scoped claim');
+
 const unboundPlotTable = buildCompleteQuantumEvidence('Q12');
 if (unboundPlotTable.receipts?.[0]) {
   delete unboundPlotTable.receipts[0].identity.sourceRunId;

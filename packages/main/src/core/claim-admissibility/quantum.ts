@@ -232,7 +232,9 @@ const ALL_REASON_PREFIXES = [
   'receipt_exit_nonzero',
   'receipt_status_not_pass',
   'stale_evidence',
+  'missing_receipt_identity',
   'output_digest_missing',
+  'output_digest_mismatch',
   'unbound_solver_output',
   'unbound_plot_table',
   'verifier_script_mismatch',
@@ -253,7 +255,9 @@ const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
   'receipt_exit_nonzero',
   'receipt_status_not_pass',
   'stale_evidence',
+  'missing_receipt_identity',
   'output_digest_missing',
+  'output_digest_mismatch',
   'unbound_solver_output',
   'unbound_plot_table',
   'verifier_script_mismatch',
@@ -270,6 +274,10 @@ function isKnownEvidenceKind(evidenceKind: string): evidenceKind is QuantumEvide
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim() !== '';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 function reason(code: QuantumReasonPrefix, subject?: string): string {
@@ -355,11 +363,12 @@ function artifactIndexFor(input: QuantumClaimCheckInput, checkedReceipts: readon
   ];
 }
 
-function hasField(identity: Partial<QuantumEvidenceIdentity>, field: QuantumIdentityField): boolean {
-  return isNonEmptyString(identity[field]);
+function hasField(identity: unknown, field: QuantumIdentityField): boolean {
+  return fieldValue(identity, field) !== undefined;
 }
 
-function fieldValue(identity: Partial<QuantumEvidenceIdentity>, field: QuantumIdentityField): string | undefined {
+function fieldValue(identity: unknown, field: QuantumIdentityField): string | undefined {
+  if (!isRecord(identity)) return undefined;
   const value = identity[field];
   return isNonEmptyString(value) ? value : undefined;
 }
@@ -483,16 +492,31 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
       continue;
     }
     checkedReceipts.push(evidenceKind);
+    const receiptIdentity = isRecord(receipt.identity) ? receipt.identity : undefined;
+    if (!receiptIdentity) {
+      reasons.push(reason('missing_receipt_identity', evidenceKind));
+    }
     if (receipt.exitCode !== 0) reasons.push(reason('receipt_exit_nonzero', evidenceKind));
     if (receipt.status !== 'pass') reasons.push(reason('receipt_status_not_pass', evidenceKind));
     if (receipt.stale === true) reasons.push(reason('stale_evidence', evidenceKind));
     if (!isNonEmptyString(receipt.outputDigest)) reasons.push(reason('output_digest_missing', evidenceKind));
-    if (evidenceKind === 'solver-run' && (!hasField(receipt.identity, 'outputDigest') || !isNonEmptyString(receipt.outputDigest))) {
-      reasons.push('unbound_solver_output');
+    if (evidenceKind === 'solver-run') {
+      const activeOutputDigest = fieldValue(identity, 'outputDigest');
+      const receiptIdentityOutputDigest = fieldValue(receiptIdentity, 'outputDigest');
+      const receiptOutputDigest = isNonEmptyString(receipt.outputDigest) ? receipt.outputDigest : undefined;
+      if (!receiptIdentityOutputDigest || !receiptOutputDigest) {
+        reasons.push('unbound_solver_output');
+      }
+      if (
+        (receiptOutputDigest && activeOutputDigest && receiptOutputDigest !== activeOutputDigest)
+        || (receiptOutputDigest && receiptIdentityOutputDigest && receiptOutputDigest !== receiptIdentityOutputDigest)
+      ) {
+        reasons.push(reason('output_digest_mismatch', evidenceKind));
+      }
     }
     if (
       evidenceKind === 'figure-table-provenance'
-      && (!hasField(receipt.identity, 'sourceRunId') || !hasField(receipt.identity, 'plotScriptHash') || !hasField(receipt.identity, 'plotConfigHash'))
+      && (!hasField(receiptIdentity, 'sourceRunId') || !hasField(receiptIdentity, 'plotScriptHash') || !hasField(receiptIdentity, 'plotConfigHash'))
     ) {
       reasons.push('unbound_plot_table');
     }
@@ -502,7 +526,7 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
     for (const field of requiredIdentityFields) {
       const expected = fieldValue(identity, field);
       if (!expected) continue;
-      if (fieldValue(receipt.identity, field) !== expected) {
+      if (receiptIdentity && fieldValue(receiptIdentity, field) !== expected) {
         reasons.push(reason('identity_mismatch', `${evidenceKind}.${field}`));
       }
     }
