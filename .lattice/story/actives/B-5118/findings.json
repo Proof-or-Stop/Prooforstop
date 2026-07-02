@@ -5,7 +5,7 @@
       "desc": "Framework doc still says Quantum is a future design contract, not a delivered runtime implementation, but B-5118 registers a read-only quantum ClaimAdmissibilityPack by default through QUANTUM_CLAIM_ADMISSIBILITY_PACK and DEFAULT_CLAIM_ADMISSIBILITY_PACKS. Update wording to distinguish full future pack/gate integration from the now-implemented M2 read-only descriptor and normalization pack.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T23:32:35.647Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/claim-admissibility/pack-framework.ts"
       ],
       "signatureTag": "doc-code-drift|md|framework-still-says",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed doc/code drift by updating claim-admissibility-adapter-pack-framework.md to state Quantum M2 read-only descriptor/normalization pack is implemented and default-registered while full gate policy, benchmarks, reporting/governance, production, Authority, hardware, and theory claims remain pending/non-goals. Verified by npm --prefix packages/main run test:quantum-claim-admissibility and full lattice validate PASS.",
+      "resolvedAt": "2026-07-02T23:42:25.722Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5118:F-002",
