@@ -203,6 +203,17 @@
           "materialHash": "f9172fe3998906ac4b3d08246d5bfda023a0e7309f583efe71ec061058c89daa",
           "storyFilesHash": "5d9894cb7539160f5d16285260eb0d59327a1134477283e604890e3947455377",
           "timestamp": "2026-07-02T23:11:27.299Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "cd $(mktemp -d .../obs-root-XXXXXX) && node /Users/jek/Documents/Work/proofbound/.worktrees/B-ab8d/packages/main/dist/cli.js observability_snapshot (text and --json)",
+          "result": "pass",
+          "note": "Fresh mkdtemp non-git dir obs-root-7uYg7s: both text and JSON print resolvedLearningRoot = <tempRoot>/.lattice/learning, i.e. under the temp root itself, not the shared main-repo store.",
+          "headHash": "fc428cd34c0c1683bc10499408e8156abfe9a9c3",
+          "materialHash": "f9172fe3998906ac4b3d08246d5bfda023a0e7309f583efe71ec061058c89daa",
+          "storyFilesHash": "5d9894cb7539160f5d16285260eb0d59327a1134477283e604890e3947455377",
+          "timestamp": "2026-07-02T23:11:35.285Z"
         }
       ]
     },
