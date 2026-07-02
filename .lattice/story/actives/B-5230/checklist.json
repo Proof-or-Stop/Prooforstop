@@ -53,8 +53,24 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "pinn-doc-002:happy",
+            "desc": "Verify baseline fairness constraints are fully enumerated and fixed.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-002:edge",
+            "desc": "Verify no regime comparison can alter PDE/domain/model/budget/seed/grid/verifier parameters.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "pinn-doc-002:adv",
