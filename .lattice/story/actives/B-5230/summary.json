@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5230",
+  "changes": "Edited docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md and .lattice/story/actives/B-5230 artifacts (proofstory and scope-contract) to normalize Proof-or-Stop wording, pin benchmark controls, define failure matrix, and make success criteria measurable.",
+  "usage": "Use this document as the execution/benchmark planning baseline for future Proof-or-Stop claim-admissibility studies; cite the milestone axis and governance boundaries in research notes.",
+  "expectedOutcome": "Readers should see a plan that distinguishes design intent from runtime evidence, defines fixed comparability conditions, and specifies non-performance claims and publication boundaries.",
+  "actualTranscript": "README + plan text check confirmed terminology and milestone updates; `lattice story_advance --phase=TEST` and `done_required_validate` both pass, plus validation artifacts in test-evidence.json are current.",
+  "outcomeDiff": "Compared to prior draft, abstract naming was replaced with Proof-or-Stop-only terms; baseline-fairness variables (PDE/domain/model/budget/seed/grid/verifier/failure injections) are explicitly pinned; benchmark task scope and B1-B15 matrix are added; success criteria include explicit rates and confidence-interval reporting.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story is docs-only and does not include runtime benchmark execution or code changes; claims are planning/measurement-control scope and are not PDE correctness guarantees.",
+  "pitfalls": "No runtime execution claims are made; avoid citing this as verified solver correctness. Keep milestone labels and scope boundaries aligned if the plan is extended into implementation stories.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 54910
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 24321
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 324634
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 12929
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 193041
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 80042
+    }
+  },
+  "totalDurationMs": 690093,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T17:28:27.773Z",
+  "updatedAt": "2026-07-02T17:28:27.773Z"
+}
