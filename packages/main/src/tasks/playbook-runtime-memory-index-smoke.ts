@@ -252,6 +252,39 @@ async function run(): Promise<void> {
       ].join(' '));
     });
 
+    check('M2 fuzzy overflow falls back instead of trusting capped buckets', () => {
+      const root = mkRoot(); roots.push(root);
+      const count = 4_120;
+      writeEntries(resolveProjectMemoryPath(root), Array.from({ length: count }, (_, index) => memoryEntry(
+        `mem-overflow-${String(index).padStart(4, '0')}`,
+        {
+          summary: `Overflow fuzzy token row ${index}`,
+          trigger: `overflowneedle${String(index).padStart(4, '0')} runtime memory`,
+          lesson: 'Fuzzy overflow fallback must scan token map instead of trusting capped buckets',
+          reusePrompt: `overflowneedle${String(index).padStart(4, '0')} runtime memory`,
+        },
+      )));
+      writePlaybooks(root, []);
+      writeSignatureRegistry(root, { tags: [] });
+      const index = rebuildRuntimeMemoryIndex(root, NOW);
+      const candidates = selectRuntimeMemoryIndexCandidates(index, {
+        query: 'overflowneedle runtime memory',
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: 0,
+        candidateLimit: count,
+      });
+      const ids = candidates.devMemoryEntries.map((entry) => entry.id);
+      assert.ok(ids.includes('mem-overflow-4119'), 'candidate beyond fuzzy cap must still surface');
+      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'overflow query must record token-map fallback');
+      assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'overflow fallback must scan token map');
+      console.log([
+        'fuzzyOverflowFallback=true',
+        `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
+        `tokenMapScannedEntries=${candidates.stats.tokenMapScannedEntries}`,
+      ].join(' '));
+    });
+
     check('M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics', () => {
       clearRuntimeMemoryPackCache();
       const root = mkRoot(); roots.push(root); seed(root);

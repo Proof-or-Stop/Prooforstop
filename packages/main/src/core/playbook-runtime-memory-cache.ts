@@ -46,6 +46,7 @@ export interface RuntimeMemoryPackCacheContext {
   maxLines: number;
   candidateLimit?: number;
   runtimeIndex?: RuntimeMemoryIndex | null;
+  currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
 }
 
 export interface RuntimeMemoryPackContributionDigest {
@@ -224,7 +225,7 @@ function clonePackWithFreshness(
 }
 
 function sourceDigestsFor(context: RuntimeMemoryPackCacheContext): RuntimeMemoryIndexSourceDigests {
-  return context.runtimeIndex?.manifest.sourceDigests ?? readRuntimeMemorySourceDigests(context.projectRoot);
+  return context.currentSourceDigests ?? readRuntimeMemorySourceDigests(context.projectRoot);
 }
 
 function sameSourceDigests(a: RuntimeMemoryIndexSourceDigests, b: RuntimeMemoryIndexSourceDigests): boolean {
@@ -526,6 +527,7 @@ export function buildRuntimeMemoryPackCacheContext(
     maxLines: number;
     candidateLimit?: number;
     runtimeIndex?: RuntimeMemoryIndex | null;
+    currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
   },
 ): RuntimeMemoryPackCacheContext {
   return {
@@ -541,5 +543,6 @@ export function buildRuntimeMemoryPackCacheContext(
     maxLines: normalized.maxLines,
     ...(normalized.candidateLimit !== undefined ? { candidateLimit: normalized.candidateLimit } : {}),
     runtimeIndex: normalized.runtimeIndex ?? null,
+    ...(normalized.currentSourceDigests ? { currentSourceDigests: normalized.currentSourceDigests } : {}),
   };
 }

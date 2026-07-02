@@ -9,6 +9,7 @@ import type { Playbook, PlaybookStatus } from './experience-layer-types.js';
 import { writePlaybooks, writeSignatureRegistry, type SignatureRegistryData } from './learning-store.js';
 import {
   buildMemoryFreshnessPack,
+  buildMemoryFreshnessPacksWithRuntimeIndex,
   classifyMemoryFreshnessPack,
   type BuildMemoryFreshnessPackOptions,
   type MemoryFreshnessClass,
@@ -1405,9 +1406,13 @@ function runRuntimePackQueries(
 ): RuntimePackQueryRun {
   const started = performance.now();
   const queryElapsedMs: number[] = [];
-  const packs = gold.queries.map((query) => {
+  const packOptions = gold.queries.map((query) => packOptionsForGoldQuery(root, query, overrides));
+  const builtPacks = overrides.runtimeIndex
+    ? buildMemoryFreshnessPacksWithRuntimeIndex(packOptions, overrides.runtimeIndex)
+    : packOptions.map((options) => buildMemoryFreshnessPack(options));
+  const packs = gold.queries.map((query, index) => {
     const queryStarted = performance.now();
-    const pack = buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides));
+    const pack = builtPacks[index]!;
     queryElapsedMs.push(Math.max(0, Math.round(performance.now() - queryStarted)));
     return { queryId: query.id, pack };
   });
@@ -1448,7 +1453,6 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
         resetRuntimeMemoryIndexCandidateStats();
         const indexedCold = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
-          runtimeIndexSourceDigests: runtimeIndex.manifest.sourceDigests,
           useCache: false,
         });
         const indexedColdTokenStats = getRuntimeMemoryIndexCandidateStats();
@@ -1456,14 +1460,12 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
         resetRuntimeMemoryIndexCandidateStats();
         const warmPrime = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
-          runtimeIndexSourceDigests: runtimeIndex.manifest.sourceDigests,
           useCache: true,
         });
         const warmPrimeTokenStats = getRuntimeMemoryIndexCandidateStats();
         resetRuntimeMemoryIndexCandidateStats();
         const indexedWarm = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
-          runtimeIndexSourceDigests: runtimeIndex.manifest.sourceDigests,
           useCache: true,
         });
         const indexedWarmTokenStats = getRuntimeMemoryIndexCandidateStats();

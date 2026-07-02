@@ -26,6 +26,7 @@ import {
   buildRuntimeMemoryIndex,
   isRuntimeMemoryIndexFresh,
   readRuntimeMemoryIndex,
+  readRuntimeMemorySourceDigests,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
   type RuntimeMemoryIndexCandidates,
@@ -170,8 +171,11 @@ export interface BuildMemoryFreshnessPackOptions {
   useIndex?: boolean;
   useCache?: boolean;
   runtimeIndex?: RuntimeMemoryIndex;
-  runtimeIndexSourceDigests?: RuntimeMemoryIndexSourceDigests;
   candidateLimit?: number;
+}
+
+interface BuildMemoryFreshnessPackInternalOptions extends BuildMemoryFreshnessPackOptions {
+  currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
 }
 
 interface PlaybookMatch {
@@ -610,18 +614,22 @@ function omittedCountFor(pack: MemoryFreshnessPack): number {
   return lineCount > RENDER_MAX_LINES ? lineCount - RENDER_MAX_LINES + 1 : 0;
 }
 
-function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackOptions): RuntimeMemoryIndex | null {
+function sameRuntimeMemoryIndexSourceDigests(
+  a: RuntimeMemoryIndexSourceDigests,
+  b: RuntimeMemoryIndexSourceDigests,
+): boolean {
+  return a.projectDevMemoryDigest === b.projectDevMemoryDigest
+    && a.globalDevMemoryDigest === b.globalDevMemoryDigest
+    && a.playbookDigest === b.playbookDigest
+    && a.signatureRegistryDigest === b.signatureRegistryDigest;
+}
+
+function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOptions): RuntimeMemoryIndex | null {
   if (options.useIndex === false) return null;
   if (options.runtimeIndex) {
-    if (options.runtimeIndexSourceDigests) {
+    if (options.currentSourceDigests) {
       const expected = options.runtimeIndex.manifest.sourceDigests;
-      const actual = options.runtimeIndexSourceDigests;
-      return expected.projectDevMemoryDigest === actual.projectDevMemoryDigest
-        && expected.globalDevMemoryDigest === actual.globalDevMemoryDigest
-        && expected.playbookDigest === actual.playbookDigest
-        && expected.signatureRegistryDigest === actual.signatureRegistryDigest
-        ? options.runtimeIndex
-        : null;
+      return sameRuntimeMemoryIndexSourceDigests(expected, options.currentSourceDigests) ? options.runtimeIndex : null;
     }
     return isRuntimeMemoryIndexFresh(options.runtimeIndex, options.projectRoot) ? options.runtimeIndex : null;
   }
@@ -634,7 +642,7 @@ function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackOptions): R
   }
 }
 
-export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOptions): MemoryFreshnessPack {
+function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInternalOptions): MemoryFreshnessPack {
   const query = options.query?.trim() ?? '';
   const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
@@ -655,6 +663,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
       maxLines,
       candidateLimit,
       runtimeIndex,
+      ...(options.currentSourceDigests ? { currentSourceDigests: options.currentSourceDigests } : {}),
     });
   if (cacheContext) {
     const cached = getRuntimeMemoryPackCacheHit(cacheContext);
@@ -738,6 +747,32 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
   pack.packDigest = computeMemoryPackDigest(pack);
   if (cacheContext) rememberRuntimeMemoryPackCache(cacheContext, pack);
   return pack;
+}
+
+export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOptions): MemoryFreshnessPack {
+  return buildMemoryFreshnessPackInternal(options);
+}
+
+export function buildMemoryFreshnessPacksWithRuntimeIndex(
+  packs: BuildMemoryFreshnessPackOptions[],
+  runtimeIndex: RuntimeMemoryIndex,
+): MemoryFreshnessPack[] {
+  if (packs.length === 0) return [];
+  const projectRoot = packs[0]!.projectRoot;
+  for (const options of packs) {
+    if (options.projectRoot !== projectRoot) {
+      throw new Error('buildMemoryFreshnessPacksWithRuntimeIndex requires one projectRoot per batch');
+    }
+  }
+  const currentSourceDigests = readRuntimeMemorySourceDigests(projectRoot);
+  const runtimeIndexIsFresh = sameRuntimeMemoryIndexSourceDigests(
+    runtimeIndex.manifest.sourceDigests,
+    currentSourceDigests,
+  );
+  return packs.map((options) => buildMemoryFreshnessPackInternal({
+    ...options,
+    ...(runtimeIndexIsFresh ? { runtimeIndex, currentSourceDigests } : {}),
+  }));
 }
 
 function resolveIndexedCandidates(

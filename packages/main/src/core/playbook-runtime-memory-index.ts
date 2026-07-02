@@ -529,15 +529,20 @@ function rarestNeedleForToken(
   let bestSize = Number.MAX_SAFE_INTEGER;
   let sawOverflow = false;
   for (const needle of needles) {
-    if (overflowNeedles.has(needle)) sawOverflow = true;
+    const needleOverflow = overflowNeedles.has(needle);
+    if (needleOverflow) sawOverflow = true;
     const list = fuzzyTokenMap[needle];
     if (!list || list.length === 0) continue;
+    // A capped fuzzy bucket is incomplete by construction. Never use it as a
+    // complete proof of membership; fall back to the token map if every usable
+    // needle is overflowed.
+    if (needleOverflow) continue;
     if (list.length < bestSize) {
       bestNeedle = needle;
       bestSize = list.length;
     }
   }
-  return { needle: bestNeedle, overflow: sawOverflow && bestNeedle === undefined };
+  return { needle: bestNeedle, overflow: bestNeedle === undefined && sawOverflow };
 }
 
 function fuzzyTokensContaining(
@@ -547,7 +552,8 @@ function fuzzyTokensContaining(
 ): { tokens: string[]; fallback: boolean } {
   if (token.length < 2) return { tokens: [], fallback: false };
   const rarest = rarestNeedleForToken(token, fuzzyTokenMap, overflowNeedles);
-  if (!rarest.needle) return { tokens: [], fallback: rarest.overflow };
+  if (rarest.overflow) return { tokens: [], fallback: true };
+  if (!rarest.needle) return { tokens: [], fallback: false };
   return {
     tokens: uniqueInOrder((fuzzyTokenMap[rarest.needle] ?? []).filter((indexedToken) => indexedToken.includes(token))),
     fallback: false,

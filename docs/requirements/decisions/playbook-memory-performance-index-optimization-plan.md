@@ -106,10 +106,11 @@ playbook-runtime-memory performance smoke passed profile=full recordCount=100000
   config digest, policy version, limits, and index version. A changed
   contributing source misses; irrelevant broad source churn can downgrade to
   stale-irrelevant.
-- `playbook-runtime-memory.ts` accepts a prevalidated runtime index source digest
-  tuple for repeated hot-path calls. The full-profile benchmark passes the
-  source digests from the just-built index, avoiding repeated million-row source
-  digest work before each warm cache hit.
+- `playbook-runtime-memory.ts` does not accept caller-supplied source digests.
+  Repeated hot-path benchmark calls use an internal batch helper that reads the
+  current source digest tuple once, reuses the runtime index only if that tuple
+  matches the index manifest, and keeps cache freshness derived from current
+  sources rather than caller-writable metadata.
 - `playbook-runtime-memory-performance-smoke.ts` is the user-visible gate. It
   exits non-zero unless semantic parity, advisory metadata, and
   `indexedWarmCacheMs <= targetWarmMs` all pass.
