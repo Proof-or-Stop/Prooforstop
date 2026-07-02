@@ -58,6 +58,25 @@
       ],
       "signatureTag": "missing|ts|coverage-incomplete-lifecycle",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6048:F-004",
+      "desc": "M6 million-record parity does not prove the real optimized runtime index/cache path: the full-profile smoke calls runPlaybookRuntimeOptimizedParityReport, whose indexedCold branch is a local recordsRaw shortlist scan and whose warm cache is a one-entry Map of the prior digest. It never drives buildMemoryFreshnessPack/rebuildRuntimeMemoryIndex/getRuntimeMemoryPackCacheHit on the 1,000,000-record corpus, so cache/runtime parity can pass while the shipped optimized runtime path is broken at scale. Source refs: packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:334, packages/main/src/core/playbook-runtime-baseline.ts:1119, packages/main/src/core/playbook-runtime-baseline.ts:1150, packages/main/src/core/playbook-runtime-baseline.ts:1177.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T12:16:12.725Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-002",
+      "_hash": "7161b7dc61236bdb9b4ff0523164189ff09ad35063db2e231a703cbfe8a4fab8",
+      "files": [
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+        "packages/main/src/core/playbook-runtime-baseline.ts"
+      ],
+      "signatureTag": "missing|ts|million-record-parity",
+      "signatureTagSource": "auto"
     }
   ]
 }
