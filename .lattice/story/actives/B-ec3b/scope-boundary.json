@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ec3b",
+  "mode": "feature",
+  "allowed": [
+    "Add focused tests for active/candidate/superseded/stale/deprecated/malformed boundaries touched by M0-M2",
+    "M0 profiling baseline and representative runtime pack cost recording",
+    "M1 derived local runtime memory index schema and atomic rebuild semantics",
+    "M2 indexed two-stage retrieval with small-fixture parity against existing full-scan runtime pack behavior",
+    "Preserve MemoryFreshnessPack authority=non_authoritative and gateEvidence=false"
+  ],
+  "excluded": [
+    "automatic ranking optimization beyond bounded indexed candidate retrieval",
+    "blocking memory policy",
+    "daemon/background optimizer",
+    "M3 pack cache implementation",
+    "M4 consumer rollout beyond existing buildMemoryFreshnessPack integration points",
+    "M5/M6 full correctness matrix and million baseline parity enforcement beyond recording current baseline",
+    "M7 health observability expansion",
+    "M8 warn/enforce rollout",
+    "running 1,000,000-record baseline on normal session_brief or hot path"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved starting development after the optimization document was finalized, explicitly limiting the first batch to M0 Red/profiling baseline, M1 index schema, and M2 indexed retrieval; later cache, rollout, parity, health, and enforce work are deferred.",
+  "createdAt": "2026-07-02T02:57:58.565Z",
+  "updatedAt": "2026-07-02T02:57:58.565Z",
+  "_hash": "1956e72892c1d02548aa5c571043640f677a0d6c344c54c0e00948f541db1813"
+}

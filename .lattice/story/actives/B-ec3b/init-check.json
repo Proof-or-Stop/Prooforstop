@@ -1,0 +1,35 @@
+{
+  "storyId": "B-ec3b",
+  "checkedAt": "2026-07-02T02:59:16.143Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-02T02:59:16.143Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-02T02:59:16.143Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "This side conversation explicitly forbids subagents, so the two independent INIT reviewers cannot be spawned here. Manual check verified the story background, scope boundary, execution boundary, and scope freeze: the story is limited to M0 profiling, M1 atomic derived index, and M2 indexed retrieval parity, with cache, rollout, enforce, daemon, blocking policy, and normal-session 1M baseline excluded.",
+    "evidenceRefs": [
+      "lattice init_preflight B-ec3b showed only missing init-check after scope freeze passed",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md defines M0-M2 first-slice scope",
+      "scope boundary hash 1956e72892c1d02548aa5c571043640f677a0d6c344c54c0e00948f541db1813",
+      "execution boundary hash e78b3811338f88724d634ede54a64f109c5f68a8d0b7cca73e9f79c3285196eb"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-3f3045fee8f99f65",
+    "attestedAt": "2026-07-02T02:59:16.143Z",
+    "headHash": "d10aac116396980f9fe5efe89b6f80e9d468c0f7",
+    "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef"
+  },
+  "_hash": "59e7c7077c39893329bb5cef00d09f5c8f06853a51edee6831570c4b0c0d2bc0"
+}

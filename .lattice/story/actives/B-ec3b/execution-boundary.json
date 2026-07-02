@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ec3b",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status --short",
+    "lattice checklist_update *",
+    "lattice story_advance *",
+    "lattice validate --story=B-ec3b",
+    "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js",
+    "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+    "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+    "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js",
+    "node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Codex CLI",
+    "Lattice CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts"
+  ],
+  "excludedCommands": [
+    "* .omx *",
+    "*daemon*",
+    "*enforce*",
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "agy-cli",
+    "Claude CLI",
+    "omx",
+    "subagent"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".omx/",
+    "docs/story/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Execution is limited to M0-M2: profiling evidence, derived runtime memory index with atomic rebuild semantics, and indexed two-stage retrieval parity. No cache rollout, daemon, blocking policy, normal-session 1M baseline, or enforce work in this story.",
+  "createdAt": "2026-07-02T02:58:16.693Z",
+  "updatedAt": "2026-07-02T02:58:16.693Z",
+  "_hash": "e78b3811338f88724d634ede54a64f109c5f68a8d0b7cca73e9f79c3285196eb"
+}
