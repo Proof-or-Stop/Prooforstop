@@ -9,6 +9,7 @@ Short name: Proof-or-Stop PINN Claim-Admissibility Pack
 
 - Story B-db1b delivers the local executable runtime pack for M0-M5, pending lifecycle review.
 - Runtime commands are `pinn_claim_check`, `pinn_benchmark_run`, and `pinn_report_render`.
+- Delivered local benchmark facts: the A3 verifier-only arm records `acceptedCount=14` and `unsupportedAcceptanceCount=14`, while A4 rejects `15/15` B1-B15 injections. These are local claim-admissibility diagnostics only.
 - Scope remains claim admissibility only: no scientific PINN solver, no PDE correctness proof, no evidence-producing verifier scripts, no lifecycle transition mutation, no external Authority production verification, and no remote release.
 
 ## Purpose

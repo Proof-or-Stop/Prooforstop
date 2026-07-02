@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   PINN_FAILURE_INJECTIONS,
   buildCompletePinnEvidence,
@@ -21,6 +23,33 @@ function assertBlocks(injectionId: string, reasonCode: string): void {
   const result = evaluatePinnClaim(buildInjectedPinnEvidence(injectionId));
   assert.equal(result.allowed, false, `${injectionId} must be blocked`);
   assert.ok(hasReason(result, reasonCode), `${injectionId} must include ${reasonCode}; got ${result.reasons.join(', ')}`);
+}
+
+const here = dirname(fileURLToPath(import.meta.url));
+const packageRoot = join(here, '..', '..');
+const repoRoot = join(packageRoot, '..', '..');
+const cliPath = join(packageRoot, 'dist', 'cli.js');
+
+function assertCliRejectsProductionReadyClaim(command: string): void {
+  const result = spawnSync(process.execPath, [
+    cliPath,
+    '--root',
+    repoRoot,
+    command,
+    '--format=json',
+    '--productionReadyClaim=true',
+  ], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      LATTICE_NO_HOOKS: '1',
+    },
+    encoding: 'utf8',
+  });
+  const output = `${result.stderr}\n${result.stdout}`;
+  assert.notEqual(result.status, 0, `${command} must reject productionReadyClaim at CLI validation`);
+  assert.match(output, /Argument validation failed/, `${command} rejection must come from CLI validation`);
+  assert.match(output, /productionReadyClaim/, `${command} validation error must name productionReadyClaim`);
 }
 
 const complete = evaluatePinnClaim(buildCompletePinnEvidence('C9'));
@@ -410,5 +439,8 @@ assert.throws(
   /refuses unsupported/,
   'commands reject deployment readiness overclaim flags',
 );
+for (const command of ['pinn_claim_check', 'pinn_benchmark_run', 'pinn_report_render']) {
+  assertCliRejectsProductionReadyClaim(command);
+}
 
 console.log('pinn claim-admissibility smoke passed');
