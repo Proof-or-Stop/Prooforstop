@@ -58,6 +58,18 @@
           "materialHash": "c4cf0074e2c9f0562265aa4ca33002f02cc4f78a3673948ef73bfab6a81233eb",
           "storyFilesHash": "a85b34d6742d428a3bc1df22232f9ce1478ddcf274240db95f9326993d4adaa5",
           "timestamp": "2026-07-02T23:09:48.213Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experiment-arm-smoke.ts",
+          "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
+          "result": "pass",
+          "note": "Invalid arm value (e.g. uppercase CONTROL) returns null with one warning naming accepted values control|treatment; module-level once-latch proves repeated misconfigured resolutions warn exactly once per process (resetExperimentArmWarnLatch test hook).",
+          "headHash": "0319993ec2e0dd4b5690df41c5ff918cdec21d31",
+          "materialHash": "c4cf0074e2c9f0562265aa4ca33002f02cc4f78a3673948ef73bfab6a81233eb",
+          "storyFilesHash": "a85b34d6742d428a3bc1df22232f9ce1478ddcf274240db95f9326993d4adaa5",
+          "timestamp": "2026-07-02T23:09:55.949Z"
         }
       ]
     },
