@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "M3: implement pack cache with freshness-safe invalidation",
       "context": "Add a derived MemoryFreshnessPack cache keyed by schemaVersion, consumer, normalized query/context, contributing source digest tuple, runtime config digest, consumer policy version, top-k/line cap, and indexVersion. Preserve authority=non_authoritative and gateEvidence=false. Related plan section: playbook-memory-entry-layer-optimization-plan.md M3.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T11:45:18.893Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M3 Pack Cache Detailed Checklist"
@@ -175,6 +175,17 @@
       "startTime": null,
       "endTime": null,
       "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T11:45:18.893Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M3 pack cache implementation."
     }
   ]
 }
