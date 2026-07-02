@@ -28,7 +28,7 @@
       "desc": "Evidence-activation smoke is not wired into the routine test surfaces: neither packages/main/package.json nor packages/main/smoke-manifest.json references playbook-evidence-activation-smoke or the delegated playbook-seed-promotion-loop smoke, so the new coverage can be skipped by normal package smoke commands/run-all-smokes despite the file existing.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T22:42:52.364Z",
@@ -42,7 +42,11 @@
         "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
       ],
       "signatureTag": "missing|json|evidence-activation-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f by adding package script test:playbook-evidence-activation and smoke-manifest entry playbook-evidence-activation. Verified with npm --prefix packages/main run test:playbook-evidence-activation and node packages/main/dist/tasks/run-all-smokes.js --select playbook-evidence-activation --jobs 1.",
+      "resolvedAt": "2026-07-02T23:00:44.827Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-003",
