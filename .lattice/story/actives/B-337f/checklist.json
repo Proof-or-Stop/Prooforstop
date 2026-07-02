@@ -59,7 +59,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "trap-templates.mjs exports TRAP_CLASSES (six in-store: stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane; held-out: tmp-absolute-path, silent-catch; clean) and LEAKAGE_STRIP_LIST (per-class grep markers); every emitted fixture workspace embeds its trap (or none for clean) while prompt.md states only the task; the selfcheck leakage audit greps every workspace/+prompt.md against the strip-list markers and reports zero hits.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "emitted corpus covers all classes: 6 in_store + 2 held_out + 1 clean template families instantiate, each workspace contains its class-specific trap artifact (stale plan doc / open child rows / deprecated host label / retired brand token / missing evidence file / implementer-provenance evidence / hardcoded absolute path temptation / swallowed-error temptation); WHY: S5.1 trap coverage is the corpus contract",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "in-store and held-out class-name sets are disjoint and the in-store set equals the plan S5.1 six exactly; WHY: held-out disjointness is the H2 mechanism-specificity precondition",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "leakage audit: grep of every workspace/ and prompt.md against LEAKAGE_STRIP_LIST markers (trap-class names, lesson signature phrases like memory pack or non_authoritative, answer-stating sentences, residue-oracle script names) -> zero matches; WHY: plan S9 — a fixture tree that states the answer nulls or inverts the treatment effect",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
