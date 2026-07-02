@@ -52,7 +52,8 @@
       "node packages/main/dist/tasks/quorum-submit-smoke.js",
       "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
       "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
-      { "command": "node", "args": ["packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"], "focus": ["fast"] }
+      { "command": "node", "args": ["packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"], "focus": ["fast"] },
+      { "command": "node", "args": ["packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"], "timeoutMs": 180000 }
     ]
   },
   "doneRequiredCommands": [
