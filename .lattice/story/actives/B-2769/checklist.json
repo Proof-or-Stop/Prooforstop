@@ -92,8 +92,8 @@
       "id": "CHK-002",
       "title": "M1 Claim/evidence schema",
       "context": "Define PINN claim/evidence schema and binding/identity checks for lifecycle transitions.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T16:39:43.549Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
@@ -102,12 +102,10 @@
       "files": {
         "modify": [
           "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
-          "packages/main/src/core",
+          "docs/requirements/NAV.md",
           ".lattice/story/actives/B-2769"
         ],
-        "create": [
-          "packages/main/src/core/claim schema layer"
-        ],
+        "create": [],
         "test": []
       },
       "verificationIntent": {
