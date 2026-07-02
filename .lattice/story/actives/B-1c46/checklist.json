@@ -89,7 +89,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:54:35.017Z",
+      "endTime": "2026-07-02T14:57:07.797Z",
       "userSees": "Expected transcript includes `semanticParity=pass`, `referenceResultDigest=<sha256>`, `optimizedResultDigest=<same sha256>`, and `candidateFalseSurface=0`.",
       "files": {
         "modify": [
@@ -130,33 +130,33 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "M6 report shows referenceResultDigest and optimizedResultDigest both 19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8 with semanticParity=pass.",
-          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:35.250Z"
+          "note": "M6 report shows semanticParity=pass with referenceResultDigest and optimizedResultDigest both 19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8.",
+          "headHash": "11516ca9785606dc707430927776ee4b68b87f6d",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:08.037Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Semantic guard reports candidateFalseSurfaceRate=0 supersededFalseSurfaceRate=0 deprecatedFalseSurfaceRate=0 malformedRowsSkipped=5 and render line-cap checks passed.",
-          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:35.481Z"
+          "note": "Semantic guard reports candidateFalseSurfaceRate=0 supersededFalseSurfaceRate=0 deprecatedFalseSurfaceRate=0 malformedRowsSkipped=5 and preserves maxLines/omittedCount in the result digest.",
+          "headHash": "11516ca9785606dc707430927776ee4b68b87f6d",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:08.258Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "Candidate, stale, superseded, deprecated residue, and malformed playbook cases are exercised by M5/M6 and fail the smoke on drift; current run passed TOTAL 8 PASS 8 FAIL 0.",
-          "headHash": "f7482ae2499384807f194d9400d003098538ae10",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:35.711Z"
+          "note": "Candidate, stale, superseded, deprecated residue, malformed row, maxLines, and omittedCount cases are covered; current run passed TOTAL 8 PASS 8 FAIL 0.",
+          "headHash": "11516ca9785606dc707430927776ee4b68b87f6d",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:08.484Z"
         }
       ]
     },
