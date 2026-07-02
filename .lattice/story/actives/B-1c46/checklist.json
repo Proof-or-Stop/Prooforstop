@@ -10,7 +10,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M0 outputs a baseline/profile transcript naming referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, warmCacheHits, and why the 1-2s target is not yet met."
+      "userSees": "Expected transcript includes `targetStatus=unmet`, `recordCount=1000000`, `indexedWarmCacheMs=<number>`, and `targetWarmMs=2000`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full-profile baseline reports current reference/indexed/warm timings and targetStatus=unmet when indexedWarmCacheMs exceeds 2000ms.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Profile output includes enough breakdown to distinguish token matching, pack build, cache, index build, and query count timing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M0 cannot be marked green by report-first wording alone; it must record the concrete unmet target or pass/fail status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
