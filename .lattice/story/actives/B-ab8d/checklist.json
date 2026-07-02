@@ -387,6 +387,18 @@
           "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb",
           "storyFilesHash": "2b05b74d50dbf96233950be1de1e22b93b1e7fe029925a8b21b9fa353e3f2776",
           "timestamp": "2026-07-02T23:59:08.008Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Full lattice validate exit 0; output shows configured validate.commands[31]: node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js with TOTAL 23 | PASS 23 | FAIL 0 and ALL PASS",
+          "headHash": "58c51a83a688c85738b5809c4262a9c1973a5386",
+          "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb",
+          "storyFilesHash": "2b05b74d50dbf96233950be1de1e22b93b1e7fe029925a8b21b9fa353e3f2776",
+          "timestamp": "2026-07-02T23:59:18.077Z"
         }
       ]
     }
