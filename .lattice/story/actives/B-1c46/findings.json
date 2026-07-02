@@ -98,7 +98,7 @@
       "desc": "Fuzzy/substring overflow fallback still scans capped tokenMap via scanMatchingIdsForToken. When the fuzzy needle overflows and a matching exact token bucket is also over 4096, candidates beyond the exact cap are lost, diverging from full-source reference. Temp repro reported exactOverflow=true, fuzzyOverflow=true, referenceCount=8217, indexedCount=8193, indexedHasBeyondCap=false, parity=false. Fix by making fuzzy fallback scan uncapped sourceItems or otherwise detect matching exact-overflow tokens and source-scan them; add smoke combining fuzzy overflow with exact bucket overflow.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T15:56:33.487Z",
@@ -110,14 +110,18 @@
         "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
       ],
       "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: fuzzy fallback paths now scan uncapped sourceItems via scanSourceMatchingIdsForToken instead of capped tokenMap buckets. Added combined fuzzy+exact overflow smoke proving referenceCount=8217 indexedCount=8217, referencePlaybooks=8217 indexedPlaybooks=8217, indexedHasBeyondCap=true, parity=true. Verified build, index smoke TOTAL 9 PASS, M3-M6 full targetStatus=met indexedWarmCacheMs=263, performance full targetStatus=met indexedWarmCacheMs=233, and corrected ad-hoc parity 8217/8217.",
+      "resolvedAt": "2026-07-02T16:09:49.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1c46:F-006",
       "desc": "Substring exact-overflow coverage is dev-memory-only: the smoke writes no playbooks and uses maxPlaybooks:0, so indexed/reference playbook parity and beyond-cap playbook IDs are vacuous for substring overflow. Fix by seeding overflowing active playbooks with the same exact token, setting maxPlaybooks=count, asserting exactOverflowPlaybookTokens, asserting a beyond-cap playbook ID, and comparing indexed/reference playbookIds.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T15:56:45.974Z",
@@ -129,14 +133,18 @@
         "packages/main/src/core/playbook-runtime-memory-index.ts"
       ],
       "signatureTag": "runtime-memory-substring-overflow-playbook-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: substring exact-overflow smoke now seeds overflowing active playbooks as well as dev-memory, uses maxPlaybooks=count, asserts exactOverflowPlaybookTokens, asserts playbookBeyondCap=true, and compares indexed/reference playbookIds. Index smoke reports referenceIds=4120 indexedIds=4120 referencePlaybooks=4120 indexedPlaybooks=4120, playbookBeyondCap=true.",
+      "resolvedAt": "2026-07-02T16:09:50.032Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1c46:F-007",
       "desc": "Performance index doc still says runtime index schema v2, but playbook-runtime-memory-index.ts now exports proofbound.runtime-memory-index.v3 and validates v3 after exact/fuzzy overflow fields were added. Fix by updating schema references to v3 and mentioning exact-overflow fallback/source-scan behavior in the latest index shape notes.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T15:57:13.752Z",
@@ -148,14 +156,18 @@
         "packages/main/src/core/playbook-runtime-memory-index.ts"
       ],
       "signatureTag": "doc-code-drift-runtime-memory-index-schema",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: playbook-memory-performance-index-optimization-plan.md now names runtime index schema v3 and documents exact-overflow token metadata plus exact-overflow/fuzzy-overflow source-scan fallback behavior. rg confirms no schema v2 reference remains in the performance index doc.",
+      "resolvedAt": "2026-07-02T16:09:50.012Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1c46:F-008",
       "desc": "Quality review found fuzzy overflow fallbacks still call scanMatchingIdsForToken, which scans capped token-map ID lists. If any matching token is also in exactOverflowTokens, IDs beyond the 4096 cap are dropped and indexed results can diverge from full-source reference. Fix by making fuzzy fallback scan sourceItems via scanSourceMatchingIdsForToken or detecting matching exact-overflow tokens and source-scanning those; add a smoke combining fuzzy overflow with exact bucket overflow.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T15:57:22.747Z",
@@ -167,7 +179,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
       ],
       "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019, same root as F-005: both fuzzy fallback branches now scan uncapped sourceItems rather than capped tokenMap ID lists, and combined fuzzy+exact overflow smoke covers the regression. Verified build, index smoke, M3-M6 full, performance full, and corrected ad-hoc parity.",
+      "resolvedAt": "2026-07-02T16:09:50.017Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
