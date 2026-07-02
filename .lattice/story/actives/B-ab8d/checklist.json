@@ -170,6 +170,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:28:56.072Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/review-run.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js; grep -rln experiment packages/main/src/core/review-run.ts; diff of done_closure blocker output across arms",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke green (TOTAL 14 PASS 14 FAIL 0) including \"resolveReviewPromptHash byte-identical regardless of hints (and arm)\". Isolation grep: core/review-run.ts (resolveReviewPromptHash), core/machine.ts, core/guard-utils.ts contain zero references/imports of experiment-arm or experience-pack-surface. done_closure blocker/gate rows byte-identical between no-env, control, and treatment runs (only the advisory memory section differs on control).",
+          "headHash": "829518c2c7ba46df1a44a51f5fede2380646949f",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:56.991Z"
         }
       ]
     },
