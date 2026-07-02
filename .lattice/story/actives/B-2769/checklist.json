@@ -273,10 +273,12 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "Reporting and governance wording is updated to clear claim-boundary language and governance scope in the execution plan document.",
+      "userSees": "User sees: \"Boundary/gov section includes Ready-to-Quote wording and explicit non-goals without PDE correctness or production claims.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/NAV.md",
+          ".lattice/story/actives/B-2769"
         ],
         "create": [],
         "test": []
