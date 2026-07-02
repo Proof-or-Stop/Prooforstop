@@ -28,7 +28,7 @@
       "desc": "Quantum pack read-only descriptors are only shallow-frozen: QUANTUM_CLAIM_IDS and QUANTUM_EVIDENCE_KINDS are exported as const arrays in quantum.ts lines 13-29, then reused directly as claimIds and artifactKinds in pack-framework.ts lines 454 and 470. freezeItems at pack-framework.ts lines 218-220 freezes only the schema object and containing array, not those nested arrays, so consumers can mutate listClaimAdmissibilityPacks()[quantum].claimSchemas[0].claimIds or evidenceSchemas[0].artifactKinds at runtime despite the read-only/declarative boundary. Freeze or defensive-copy these nested arrays before exposing the pack descriptor.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T23:33:39.534Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/claim-admissibility/pack-framework.ts"
       ],
       "signatureTag": "edge|ts|quantum-pack-read",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed shallow immutability by defensively copying and Object.freeze-ing direct array fields in pack descriptor items before exposing registry descriptors. Added quantum smoke assertions that listClaimAdmissibilityPacks()[quantum].claimSchemas[0].claimIds and evidenceSchemas[0].artifactKinds are runtime-frozen and reject mutation. Verified by build, quantum smoke, pack-framework smoke, git diff --check, and full lattice validate PASS.",
+      "resolvedAt": "2026-07-02T23:42:33.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
