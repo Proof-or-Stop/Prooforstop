@@ -97,7 +97,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees indexed retrieval parity PASS: active guidance surfaces, candidate guidance stays inert, superseded/default-stale/deprecated/malformed cases match the reference runtime pack, and authority remains non_authoritative with gateEvidence=false.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Indexed two-stage retrieval returns the same required playbook and dev-memory ids as the reference full-scan runtime pack on small fixtures.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Superseded, stale-irrelevant, deprecated-term, and malformed rows preserve existing classification and suppression behavior.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Candidate playbooks and malformed playbooks never leak into active runtime guidance through the indexed path.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
