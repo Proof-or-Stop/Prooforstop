@@ -107,6 +107,15 @@
       "reviewRound": "2026-07-02T20:44:40.430Z",
       "reviewRunId": "B-db1b:RR-023",
       "_hash": "d80605de587ac5b8bc6123e7c0e3dead5cc3c09eaa533cb8b5f6007f78bf4c5d"
+    },
+    {
+      "id": "B-db1b:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "PASS: confirmed F-011 fixed. Direct numeric true-ish active field terminalCompletionClaim=1 and dynamic legacy numeric field are blocked with claim_boundary_violation. Rechecked F-006 string/bool true-ish direct and narrative overclaims, F-009 quoted JSON-like assignment strings, F-008 deep supplied-report sanitization across JSON/text and benchmarkPath, and duplicate receipt fail-closed. Verification: npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, retired-authority-vocabulary-guard smoke, plus direct dist API/handler probes.",
+      "createdAt": "2026-07-02T20:47:16.756Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-024",
+      "_hash": "ec9ede47a6d10040131f2e12ade9dc5a9db08ebe4bf84269c65f67eef09e7b7d"
     }
   ]
 }
