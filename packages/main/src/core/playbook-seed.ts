@@ -45,6 +45,7 @@ const SEED_KIND_PRIORITY: Record<PlaybookSeedSourceKind, number> = {
   finding_signal: 2,
   finding: 3,
 };
+const FINDING_SIGNAL_MIN_SUPPORT = 1;
 const REPRESENTED_KINDS = new Set<SourceLineageArtifactKind>(['playbook_proposal', 'playbook']);
 const RUNTIME_VERIFY_CONSUMERS: RuntimeConsumer[] = [
   'session_brief',
@@ -242,6 +243,7 @@ export interface BuildPlaybookSeedProposalBatchOptions extends BuildPlaybookSeed
 
 export interface BuildPlaybookCandidateBatchOptions {
   projectRoot: string;
+  store: PlaybookSeedStorePort;
   apply?: boolean;
   limit?: number;
   manifestDigest?: string;
@@ -390,6 +392,16 @@ function nonPromotableForSeed(
   return registrySources.find((record) => sourceKeys.has(record.source.sourceKey));
 }
 
+function findingSignalQualityBlockReasons(record: SourceLineageAuditRecord): string[] {
+  if (record.artifactKind !== 'finding_signal') return [];
+  const support = typeof record.support === 'number' && Number.isFinite(record.support) ? record.support : 0;
+  const anchors = record.anchorRefs ?? [];
+  const reasons: string[] = [];
+  if (support < FINDING_SIGNAL_MIN_SUPPORT) reasons.push('finding_signal_insufficient_support');
+  if (anchors.length === 0) reasons.push('finding_signal_missing_valid_anchors');
+  return reasons;
+}
+
 function computeObserveDigest(report: Omit<PlaybookSeedObserveReport, 'observeDigest'>): string {
   return digestCanonicalJson({
     audit: report.audit,
@@ -443,6 +455,14 @@ export function buildPlaybookSeedObservation(opts: BuildPlaybookSeedObservationO
           ...(!record.sourceStoryId ? ['missing_source_story_id'] : []),
           ...(!record.sourceFindingId ? ['missing_source_finding_id'] : []),
         ],
+      });
+      continue;
+    }
+    const findingSignalQualityBlocks = findingSignalQualityBlockReasons(record);
+    if (findingSignalQualityBlocks.length > 0) {
+      blockingSeeds.push({
+        ...toSeedCandidate(record),
+        blockReasons: findingSignalQualityBlocks,
       });
       continue;
     }
@@ -717,7 +737,49 @@ function buildCandidateManifestRows(projectRoot: string, limit: number): {
       title: proposal.title,
     });
   }
+  const rowsByCanonical = new Map<string, PlaybookCandidateBatchManifestRow[]>();
+  for (const row of rows) {
+    const canonicalSourceKey = row.canonicalSourceKey.trim();
+    if (!canonicalSourceKey) continue;
+    const list = rowsByCanonical.get(canonicalSourceKey) ?? [];
+    list.push(row);
+    rowsByCanonical.set(canonicalSourceKey, list);
+  }
+  for (const [canonicalSourceKey, duplicates] of rowsByCanonical) {
+    if (duplicates.length <= 1) continue;
+    for (const row of duplicates) {
+      invalid.push({
+        proposalId: row.proposalId,
+        reason: `duplicate canonicalSourceKey in manifest: ${canonicalSourceKey}`,
+      });
+    }
+  }
   return { rows, invalid };
+}
+
+function representedCanonicalSourceConflicts(
+  opts: BuildPlaybookCandidateBatchOptions,
+  rows: PlaybookCandidateBatchManifestRow[],
+): Array<{ proposalId: string; reason: string }> {
+  const proposalIds = new Set(rows.map((row) => row.proposalId));
+  const audit = buildLearningSourceLineageAudit({
+    projectRoot: opts.projectRoot,
+    store: opts.store,
+    now: 'deterministic-candidate-batch-approval-time',
+  });
+  const conflicts: Array<{ proposalId: string; reason: string }> = [];
+  for (const row of rows) {
+    const represented = audit.records.filter((record) =>
+      record.canonicalSourceKey === row.canonicalSourceKey
+      && REPRESENTED_KINDS.has(record.artifactKind)
+      && !(record.artifactKind === 'playbook_proposal' && proposalIds.has(record.artifactId)));
+    if (represented.length === 0) continue;
+    conflicts.push({
+      proposalId: row.proposalId,
+      reason: `canonicalSourceKey already represented: ${row.canonicalSourceKey}`,
+    });
+  }
+  return conflicts;
 }
 
 function candidateManifestDigest(rows: PlaybookCandidateBatchManifestRow[], invalid: Array<{ proposalId: string; reason: string }>): string {
@@ -732,7 +794,8 @@ export function buildPlaybookCandidateBatchManifest(opts: BuildPlaybookCandidate
   const apply = opts.apply === true;
   const limit = clampLimit(opts.limit, 50);
   const { rows, invalid } = buildCandidateManifestRows(opts.projectRoot, limit);
-  const manifestDigest = candidateManifestDigest(rows, invalid);
+  const allInvalid = [...invalid, ...representedCanonicalSourceConflicts(opts, rows)];
+  const manifestDigest = candidateManifestDigest(rows, allInvalid);
   const expectedManifestDigest = (opts.manifestDigest ?? '').trim();
   if (apply && !expectedManifestDigest) {
     throw new Error('playbook_candidate_batch_approve requires --manifestDigest when --apply is set');
@@ -740,8 +803,8 @@ export function buildPlaybookCandidateBatchManifest(opts: BuildPlaybookCandidate
   if (apply && expectedManifestDigest !== manifestDigest) {
     throw new Error(`playbook_candidate_batch_approve: manifestDigest drift; expected ${expectedManifestDigest}, current ${manifestDigest}`);
   }
-  if (apply && invalid.length > 0) {
-    throw new Error(`playbook_candidate_batch_approve: manifest contains invalid proposals: ${invalid.map((row) => `${row.proposalId}:${row.reason}`).join(', ')}`);
+  if (apply && allInvalid.length > 0) {
+    throw new Error(`playbook_candidate_batch_approve: manifest contains invalid proposals: ${allInvalid.map((row) => `${row.proposalId}:${row.reason}`).join(', ')}`);
   }
 
   if (apply) {
@@ -768,7 +831,7 @@ export function buildPlaybookCandidateBatchManifest(opts: BuildPlaybookCandidate
     ...(expectedManifestDigest ? { expectedManifestDigest } : {}),
     proposalCount: rows.length,
     proposals: rows,
-    invalidProposals: invalid,
+    invalidProposals: allInvalid,
     candidatePlaybookIds: rows.map((row) => row.proposalId),
     authority: 'non_authoritative',
     gateEvidence: false,

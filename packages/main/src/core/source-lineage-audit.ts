@@ -65,6 +65,8 @@ interface LineageInput {
   sourceFindingId?: string;
   sourceSignature?: string;
   rawSourceKey?: string;
+  support?: number;
+  anchorRefs?: string[];
 }
 
 const FINDING_REF_RE = /\b(B-[A-Za-z0-9][A-Za-z0-9._-]*:F-[0-9]+)\b/;
@@ -139,6 +141,8 @@ function makeRecord(input: LineageInput & { sourceRef: string }): SourceLineageA
   const sourceFindingId = normalizeFindingId(sourceStoryId, trim(input.sourceFindingId));
   const sourceSignature = trim(input.sourceSignature);
   const rawSourceKey = trim(input.rawSourceKey) ?? sourceKeyFromLineage({ sourceStoryId, sourceFindingId, sourceSignature });
+  const support = typeof input.support === 'number' && Number.isFinite(input.support) ? Math.max(0, Math.floor(input.support)) : undefined;
+  const anchorRefs = stringArray(input.anchorRefs);
   const canonical = canonicalSourceKey({
     artifactKind: input.artifactKind,
     artifactId: input.artifactId,
@@ -158,6 +162,8 @@ function makeRecord(input: LineageInput & { sourceRef: string }): SourceLineageA
     ...(sourceStoryId ? { sourceStoryId } : {}),
     ...(sourceFindingId ? { sourceFindingId } : {}),
     ...(sourceSignature ? { sourceSignature } : {}),
+    ...(support !== undefined ? { support } : {}),
+    ...(anchorRefs.length > 0 ? { anchorRefs } : {}),
     lineagePresent: canonical !== null,
     authority: 'non_authoritative',
     gateEvidence: false,
@@ -272,11 +278,16 @@ function collectFindingSignals(projectRoot: string, records: SourceLineageAuditR
     const findingIds = stringArray((signal as { exampleFindingIds?: unknown }).exampleFindingIds);
     const storyIds = stringArray((signal as { exampleStoryIds?: unknown }).exampleStoryIds);
     const sourceSignature = trim((signal as { signatureTag?: unknown }).signatureTag);
+    const rawSupport = (signal as { support?: unknown }).support;
+    const support = typeof rawSupport === 'number' && Number.isFinite(rawSupport) ? rawSupport : undefined;
+    const anchorRefs = stringArray((signal as { anchorFiles?: unknown }).anchorFiles);
     if (findingIds.length === 0 && storyIds.length === 0) {
       records.push(makeRecord({
         artifactKind: 'finding_signal',
         artifactId: localSignature,
         sourceRef: `${path}#signals[${index}]`,
+        support,
+        anchorRefs,
       }));
       return;
     }
@@ -290,6 +301,8 @@ function collectFindingSignals(projectRoot: string, records: SourceLineageAuditR
         sourceStoryId: storyId,
         sourceFindingId: ref.includes(':') ? ref : undefined,
         sourceSignature,
+        support,
+        anchorRefs,
       }));
     });
   });

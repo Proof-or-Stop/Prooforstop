@@ -1176,6 +1176,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       if (apply && dryRunFlag) throw new Error('playbook_candidate_batch_approve: pass either apply or dryRun, not both');
       const run = (): string => renderPlaybookCandidateBatchManifest(buildPlaybookCandidateBatchManifest({
         projectRoot: ctx.root,
+        store: ctx.store,
         apply,
         limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
         manifestDigest: args.manifestDigest,

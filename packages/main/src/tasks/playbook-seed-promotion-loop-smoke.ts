@@ -7,10 +7,13 @@
  */
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+import { READ_ONLY_COMMANDS } from '../cli/activity-policy.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { isCommandAllowed, loadConfig, resetConfigCache } from '../core/config.js';
@@ -19,15 +22,18 @@ import type {
   FindingSignalsCache,
   Playbook,
   PlaybookOutcomeEvent,
+  PlaybookProposal,
 } from '../core/experience-layer-types.js';
 import {
   aggregatePlaybookPromotion,
   buildPlaybookSourceReference,
+  computePlaybookProposalDigest,
   listProposals,
   markNonDeducibleSource,
   readPlaybooks,
   readProposal,
   resolveFindingSignalsPath,
+  writeProposal,
   writePlaybooks,
 } from '../core/learning-store.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
@@ -39,6 +45,7 @@ import { createPlaybookHandlers } from '../handlers/playbook.js';
 const NOW = '2026-07-02T00:00:00.000Z';
 const STORY_ID = 'B-seed1';
 const FINDING_ID = `${STORY_ID}:F-001`;
+const CLI_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 
 let total = 0;
 let passed = 0;
@@ -202,6 +209,22 @@ function parseJson<T>(text: string): T {
   return JSON.parse(text) as T;
 }
 
+function runCli(root: string, args: string[]): string {
+  return execFileSync(process.execPath, [CLI_PATH, '--root', root, ...args], {
+    cwd: root,
+    env: {
+      ...process.env,
+      LATTICE_NO_HOOKS: '1',
+    },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
+function runCliJson<T>(root: string, args: string[]): T {
+  return parseJson<T>(runCli(root, args));
+}
+
 function approveSeedCandidate(root: string, handlers: ReturnType<typeof createPlaybookHandlers>): Playbook {
   const observe = parseJson<any>(handlers.playbook_seed_observe({ json: true }));
   const propose = parseJson<any>(handlers.playbook_seed_propose_batch({
@@ -286,6 +309,67 @@ function run(): void {
       assert.ok(report.duplicateSeedGroups.length >= 1, 'duplicate seed group reported');
       assert.ok(report.missingLineage.length >= 1, 'missing lineage reported');
       assert.match(report.observeDigest, /^[a-f0-9]{64}$/);
+      const findingSignalReport = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({
+        source: 'finding-signals',
+        json: true,
+      }));
+      assert.equal(findingSignalReport.proposableSeeds[0].sourceArtifactKind, 'finding_signal');
+    });
+
+    check('M2 finding-signal seeds require support and valid anchors before proposal', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedStory(store);
+      const weakSignals: FindingSignalsCache = {
+        ...findingSignals(),
+        signals: [{
+          ...findingSignals().signals[0],
+          localSignature: 'missing||ts|weak',
+          support: 0,
+          anchorFiles: [],
+        }],
+      };
+      write(root, resolveFindingSignalsPath(root).slice(root.length + 1), JSON.stringify(weakSignals, null, 2));
+      const report = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({
+        source: 'finding-signals',
+        json: true,
+      }));
+      assert.equal(report.proposableSeeds.length, 0, 'weak finding-signal is not proposable');
+      assert.ok(report.blockingSeeds.some((seed: any) =>
+        seed.sourceArtifactKind === 'finding_signal'
+        && seed.blockReasons.includes('finding_signal_insufficient_support')
+        && seed.blockReasons.includes('finding_signal_missing_valid_anchors')));
+    });
+
+    check('M3/M4/M8 default dry-run writer surfaces do not mutate learning stores', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedLearning(root, store);
+      const handlers = createPlaybookHandlers(ctx);
+
+      const beforeProposeDryRun = snapshotDir(root, '.lattice');
+      const proposeDryRun = parseJson<any>(handlers.playbook_seed_propose_batch({ json: true }));
+      assert.equal(proposeDryRun.dryRun, true);
+      assert.equal(proposeDryRun.applied, false);
+      assert.equal(snapshotDir(root, '.lattice'), beforeProposeDryRun, 'default propose dry-run must not write');
+
+      const observe = parseJson<any>(handlers.playbook_seed_observe({ json: true }));
+      handlers.playbook_seed_propose_batch({ apply: true, observeDigest: observe.observeDigest, json: true });
+      const beforeApproveDryRun = snapshotDir(root, '.lattice');
+      const approveDryRun = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      assert.equal(approveDryRun.dryRun, true);
+      assert.equal(approveDryRun.applied, false);
+      assert.equal(snapshotDir(root, '.lattice'), beforeApproveDryRun, 'default approve dry-run must not write candidates or clear proposals');
+
+      const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      handlers.playbook_candidate_batch_approve({ apply: true, manifestDigest: manifest.manifestDigest, json: true });
+      const beforeAutoDryRun = snapshotDir(root, '.lattice');
+      const autoDryRun = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      assert.equal(autoDryRun.dryRun, true);
+      assert.equal(autoDryRun.applied, false);
+      assert.equal(snapshotDir(root, '.lattice'), beforeAutoDryRun, 'default auto-promotion dry-run must not write');
     });
 
     check('M3 observeDigest drift fails closed without proposal writes', () => {
@@ -342,6 +426,63 @@ function run(): void {
       const playbooks = readPlaybooks(root);
       assert.ok(playbooks.length > 0, 'candidate written');
       assert.ok(playbooks.every((row) => row.status === 'candidate'), 'batch approval never activates');
+    });
+
+    check('M4 batch approval rejects duplicate canonicalSourceKey proposal rows', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedLearning(root, store);
+      const handlers = createPlaybookHandlers(ctx);
+      const observe = parseJson<any>(handlers.playbook_seed_observe({ json: true }));
+      const proposed = parseJson<any>(handlers.playbook_seed_propose_batch({
+        apply: true,
+        observeDigest: observe.observeDigest,
+        json: true,
+      }));
+      const original = readProposal(root, proposed.proposals[0].proposalId);
+      assert.ok(original, 'original proposal exists');
+      const duplicate: PlaybookProposal = {
+        ...original!,
+        id: 'PBP-999',
+        proposalDigest: '',
+      };
+      duplicate.proposalDigest = computePlaybookProposalDigest(duplicate);
+      writeProposal(root, duplicate);
+
+      const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      assert.ok(manifest.invalidProposals.some((row: any) => /duplicate canonicalSourceKey/.test(row.reason)));
+      assert.throws(
+        () => handlers.playbook_candidate_batch_approve({ apply: true, manifestDigest: manifest.manifestDigest, json: true }),
+        /duplicate canonicalSourceKey/,
+      );
+      assert.equal(readPlaybooks(root).length, 0, 'duplicate canonical proposals cannot become duplicate candidates');
+      assert.equal(listProposals(root).length, 2, 'failed approval leaves proposals staged for operator review');
+    });
+
+    check('M4 batch approval rejects proposals whose canonical source is already represented', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedLearning(root, store);
+      const handlers = createPlaybookHandlers(ctx);
+      const observe = parseJson<any>(handlers.playbook_seed_observe({ json: true }));
+      handlers.playbook_seed_propose_batch({
+        apply: true,
+        observeDigest: observe.observeDigest,
+        json: true,
+      });
+      const represented = playbook('PB-existing', 'candidate', 'represented-seed');
+      delete represented.lineage.sourceSignature;
+      writePlaybooks(root, [represented]);
+
+      const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      assert.ok(manifest.invalidProposals.some((row: any) => /canonicalSourceKey already represented/.test(row.reason)));
+      assert.throws(
+        () => handlers.playbook_candidate_batch_approve({ apply: true, manifestDigest: manifest.manifestDigest, json: true }),
+        /canonicalSourceKey already represented/,
+      );
+      assert.equal(readPlaybooks(root).length, 1, 'represented source approval does not add a second candidate');
     });
 
     check('M5 non_promotable blocks future seed promotion while preserving non_deducible storage', () => {
@@ -435,6 +576,37 @@ function run(): void {
       assert.ok(readPlaybooks(root).every((row) => row.status !== 'active'), 'auto guard did not activate');
     });
 
+    check('M7 CLI status/readiness and read-only command surfaces execute through dist CLI', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { store } = mkCtx(root);
+      seedLearning(root, store);
+
+      const beforeObserveCli = snapshotDir(root, '.lattice');
+      const observe = runCliJson<any>(root, ['playbook_seed_observe', '--json']);
+      assert.match(observe.observeDigest, /^[a-f0-9]{64}$/);
+      assert.equal(snapshotDir(root, '.lattice'), beforeObserveCli, 'CLI playbook_seed_observe is read-only');
+
+      const beforeRuntimeCli = snapshotDir(root, '.lattice');
+      const runtime = runCliJson<any>(root, ['playbook_runtime_consumption_verify', '--json']);
+      assert.equal(runtime.authority, 'non_authoritative');
+      assert.equal(runtime.gateEvidence, false);
+      assert.equal(snapshotDir(root, '.lattice'), beforeRuntimeCli, 'CLI playbook_runtime_consumption_verify is read-only');
+
+      const status = runCliJson<any>(root, ['playbook_promotion_status', '--json']);
+      assert.equal(status.authority, 'non_authoritative');
+      assert.equal(status.gateEvidence, false);
+      assert.match(status.seedPromotionReadiness.v1.observeDigest, /^[a-f0-9]{64}$/);
+      assert.equal(typeof status.seedPromotionReadiness.v1.proposableSeeds, 'number');
+      assert.equal(status.seedPromotionReadiness.v2.autoPromotionDefaultEnabled, false);
+      assert.equal(status.seedPromotionReadiness.v2.activationImplemented, false);
+      assert.equal(status.seedPromotionReadiness.v2.posture, 'disabled-by-default/fail-closed');
+
+      const statusText = runCli(root, ['playbook_promotion_status']);
+      assert.match(statusText, /seedPromotionReadiness\.v1\.proposableSeeds:/);
+      assert.match(statusText, /seedPromotionReadiness\.v2\.posture: disabled-by-default\/fail-closed/);
+    });
+
     check('command policy, fact levels, and phase allowlist classify new commands', () => {
       const names = [
         'playbook_seed_observe',
@@ -451,6 +623,8 @@ function run(): void {
       }
       assert.equal(COMMAND_POLICIES.playbook_seed_observe.ownershipClass, 'readOnly');
       assert.equal(COMMAND_POLICIES.playbook_runtime_consumption_verify.ownershipClass, 'readOnly');
+      assert.equal(READ_ONLY_COMMANDS.has('playbook_seed_observe'), true);
+      assert.equal(READ_ONLY_COMMANDS.has('playbook_runtime_consumption_verify'), true);
       assert.equal(COMMAND_POLICIES.playbook_seed_propose_batch.ownershipClass, 'mainSharedMutating');
       assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_seed_observe')?.level, 'L0');
       assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_candidate_batch_approve')?.level, 'L2');

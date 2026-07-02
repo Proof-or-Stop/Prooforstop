@@ -613,6 +613,8 @@ export interface SourceLineageAuditRecord {
   sourceStoryId?: string;
   sourceFindingId?: string;
   sourceSignature?: string;
+  support?: number;
+  anchorRefs?: string[];
   lineagePresent: boolean;
   authority: SourceLineageAuthority;
   gateEvidence: false;

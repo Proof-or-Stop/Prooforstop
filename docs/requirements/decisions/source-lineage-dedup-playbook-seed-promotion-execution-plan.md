@@ -251,6 +251,7 @@ Reports:
 - raw findings without distilled experience;
 - duplicate seed groups;
 - seeds blocked by missing lineage;
+- finding-signal seeds blocked by insufficient support or missing valid anchors;
 - seeds blocked by `non_promotable`;
 - seeds already represented by a proposal / candidate / active playbook;
 - `observeDigest` over the reviewed seed set.
@@ -268,6 +269,8 @@ lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --obs
 Rules:
 
 - uses the primary source selected by `playbook_seed_observe`;
+- treats finding-signal seeds as proposable only when the source-lineage audit
+  carries enough support and valid anchors; absent quality data fails closed;
 - records the seed source and canonical source key;
 - `--apply` requires `--observeDigest` from `playbook_seed_observe`;
 - `--apply` fails if the current observe digest differs from the reviewed
@@ -278,7 +281,27 @@ Rules:
 - refuses duplicate canonical sources unless the existing artifact is stale or
   archived and the command records a replacement reason.
 
-### 8.4 Promotion And Auto-Promotion
+### 8.4 `playbook_candidate_batch_approve`
+
+Command for converting staged seed proposals into candidate playbooks. Default
+is dry-run (implemented by B-9958).
+
+```bash
+lattice playbook_candidate_batch_approve --dryRun --limit=50
+lattice playbook_candidate_batch_approve --apply --manifestDigest=<digest>
+```
+
+Rules:
+
+- `--apply` requires the reviewed manifest digest;
+- duplicate `canonicalSourceKey` rows in the manifest are invalid and fail
+  closed;
+- approval re-runs source-lineage checks and rejects proposals whose canonical
+  source is already represented by another proposal, candidate, active, stale,
+  or archived playbook;
+- writes candidate playbooks only, never active playbooks or gate evidence.
+
+### 8.5 Promotion And Auto-Promotion
 
 Existing promotion commands remain part of the loop:
 

@@ -1875,7 +1875,7 @@ Behavior:
     json: z.boolean().optional().describe('Emit structured JSON.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
-  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non-deducible sources, health, flags', schema: {
+  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non_promotable sources (legacy storage: non_deducible), health, flags', schema: {
     playbookId: z.string().optional().describe('Optional playbook id filter.'),
     limit: z.coerce.number().int().optional().describe('Maximum latest decisions/health rows to render (default 10, max 50).'),
     json: z.boolean().optional().describe('Emit structured JSON.'),
