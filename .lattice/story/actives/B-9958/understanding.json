@@ -1,0 +1,36 @@
+{
+  "task": "Complete the remaining source-lineage dedup and playbook seed promotion loop after B-01df, from read-only seed observation through digest-guarded candidate creation, promotion readiness, runtime consumption verification, and disabled-by-default auto-promotion guard.",
+  "outcome": "The user can run `lattice playbook_seed_observe --json` and see real historical learning seeds with an observeDigest, then run digest-guarded batch proposal/approval commands that create inert candidate playbooks only from the reviewed seed set; `lattice playbook_runtime_consumption_verify --json` proves active playbooks can be consumed while candidates stay out of runtime guidance; `lattice playbook_auto_promotion_apply --apply` fails closed unless explicit V2 safety gates are present.",
+  "facts": [
+    "B-01df already shipped read-only `source_lineage_audit --domain=learning` and version 0.3.138.",
+    "The execution plan still lists M2-M8 as incomplete.",
+    "Existing single-playbook commands include playbook_propose, playbook_approve, playbook_activate, outcome recording, promotion sweep, observe, and status.",
+    "`buildLearningSourceLineageAudit` is exported and already records canonicalSourceKeyVersion plus canonicalizationPolicyHash.",
+    "learning-store exports proposal, candidate, outcome, promotion-decision, non_deducible registry, and health helpers that can be reused.",
+    "Runtime playbook health already exists; runtime consumption verification can be a read-only adjacent playbook diagnostic.",
+    "Learning and playbook artifacts are advisory, non-authoritative, and must not become lifecycle gate evidence.",
+    "Candidates must remain inert until explicit activation or a future disabled-by-default V2 path passes safety guards."
+  ],
+  "constraints": [
+    "Do not enable PLAYBOOK_DONE_SETTLEMENT_ENABLED by default.",
+    "Do not infer helped outcomes from DONE success alone.",
+    "Do not add default automatic candidate-to-active mutation.",
+    "Use digest guards for reviewed observe/proposal/approval sets to fail closed on drift.",
+    "Keep CLI surfaces host-neutral and project-neutral where possible."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-07-02T20:16:05.156Z"
+}

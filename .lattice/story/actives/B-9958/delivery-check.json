@@ -1,0 +1,79 @@
+{
+  "storyId": "B-9958",
+  "checkedAt": "2026-07-02T21:41:45.217Z",
+  "headHash": "53ca80200791caa3da2b1b124d6dd3cf158f4baa",
+  "materialHash": "a03df0cdf528d09421e5468b20f8157bbf23d8e18d160d6f5ec09c6fce64fb3a",
+  "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+  "reviewRound": "2026-07-02T21:14:27.294Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-9958/checklist.json",
+      "promise": "playbook_seed_observe reports deduped seed candidates and observeDigest without writing stores",
+      "status": "verified",
+      "verifiedBy": "live_smoke_transcript plus playbook_seed_observe JSON run",
+      "evidence": "observeDigest 5295b9e0b3ea79149bde7d153cd7fc7e59edcd7c34740b195875525225216025; authority non_authoritative; gateEvidence false; proposableSeeds 596"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9958/checklist.json",
+      "promise": "batch proposal dry-run shows proposal manifest and apply paths require digests",
+      "status": "verified",
+      "verifiedBy": "live_smoke_transcript and B-9958 smoke",
+      "evidence": "playbook_seed_propose_batch --dryRun --limit=3 produced proposalManifestDigest 36df665fd29332ed016d4bb597468f6a7f042b8889298f002533ce9e11074981 with applied false; smoke covers observeDigest and manifestDigest drift fail-closed"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9958/checklist.json",
+      "promise": "promotion status and observe show recommendations and non_promotable state tied to canonical seed sources",
+      "status": "verified",
+      "verifiedBy": "playbook-seed-promotion-loop smoke and CLI status coverage",
+      "evidence": "smoke covers canonical nonPromotable status output, non_promotable blocking, and legacy non_deducible storage compatibility"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9958/checklist.json",
+      "promise": "playbook_runtime_consumption_verify reports active runtime checks and candidate inertness",
+      "status": "verified",
+      "verifiedBy": "built CLI command and smoke",
+      "evidence": "runtime verify returned authority non_authoritative, gateEvidence false, status warn with no_active_playbooks_to_verify because no active playbooks are present in this story"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9958/checklist.json",
+      "promise": "health/status shows V1 readiness and playbook_auto_promotion_apply dry-run explains V2 disabled posture",
+      "status": "verified",
+      "verifiedBy": "playbook-seed-promotion-loop smoke and built CLI command",
+      "evidence": "auto-promotion apply remains dry-run/non-authoritative by default; smoke verifies --apply fails closed without explicit flag/reviewed policy"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/cli.js playbook_seed_observe --json returned observeDigest 5295b9e0b3ea79149bde7d153cd7fc7e59edcd7c34740b195875525225216025, authority non_authoritative, gateEvidence false, and proposableSeeds 596."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice live_smoke_transcript captured node packages/main/dist/cli.js playbook_seed_propose_batch --dryRun --limit=3 --json exiting 0 with dryRun true, applied false, proposalCount 3, observeDigest 5295b9e0b3ea79149bde7d153cd7fc7e59edcd7c34740b195875525225216025, and proposalManifestDigest 36df665fd29332ed016d4bb597468f6a7f042b8889298f002533ce9e11074981."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js passed all B-9958 assertions, including no helped outcome from DONE success alone and non_authoritative/gateEvidence false learning outputs."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/cli.js playbook_runtime_consumption_verify --json returned authority non_authoritative, gateEvidence false, status warn, diagnostics no_active_playbooks_to_verify; candidate material remains inert because this story does not activate playbooks."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node packages/main/dist/cli.js playbook_auto_promotion_apply --json returned dry-run/non-authoritative posture; smoke verifies apply fails closed without explicit auto-promotion prerequisites."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "lattice done_required_validate --storyId=B-9958 passed: packages/main build exitCode 0 durationMs 21827 and root full test suite npm test exitCode 0 durationMs 105543."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified docs promises against implemented CLI surfaces, smoke coverage, live transcript evidence, full validate, and DONE-required validation. No unresolved delivery TODOs remain; V2 auto-promotion remains intentionally disabled."
+  },
+  "_hash": "2b6ca80b74a5db3333e807bdd274d6e433068f13aa4fe05ec13369ee743407ee"
+}

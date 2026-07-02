@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9958",
+  "sourceText": "User requested completing all remaining work in docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md until DONE, after B-01df implemented only M1 source_lineage_audit. The target is M2-M8: seed observe, digest-guarded batch proposal and candidate approval, promotion evidence loop, runtime consumption verification, health/readiness, and disabled-by-default auto-promotion guard.",
+  "normalizedOutcome": "B-9958 reaches DONE with commands for deduped seed observation, digest-guarded batch proposal/approval, runtime consumption verification, and fail-closed auto-promotion guard implemented and verified, while learning remains non-authoritative and candidates remain inert until explicit activation.",
+  "acceptanceClaim": "The story is accepted when Lattice validation evidence shows M2-M8 commands and smoke coverage pass, checklist CHK-001 through CHK-005 are done, and DONE merges B-9958 without enabling default DONE settlement or default automatic activation.",
+  "keyRequirementIds": [
+    "B-9958-M2",
+    "B-9958-M3",
+    "B-9958-M4",
+    "B-9958-M5",
+    "B-9958-M6",
+    "B-9958-M7",
+    "B-9958-M8"
+  ],
+  "requestHash": "sha256:8a25fc6fd8c09011ee614eaffcae725e437828dd97d56502ffb5b0e79b46a96b",
+  "createdAt": "2026-07-02T20:16:35.626Z",
+  "updatedAt": "2026-07-02T20:16:35.626Z"
+}

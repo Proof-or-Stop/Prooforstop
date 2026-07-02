@@ -1,0 +1,96 @@
+{
+  "storyId": "B-9958",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-9958/checklist.json",
+      ".lattice/story/actives/B-9958/decision.json",
+      ".lattice/story/actives/B-9958/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-9958/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-9958/findings.json",
+      ".lattice/story/actives/B-9958/index.json",
+      ".lattice/story/actives/B-9958/intent-collision.json",
+      ".lattice/story/actives/B-9958/milestone-ledger.json",
+      ".lattice/story/actives/B-9958/original-intent-snapshot.json",
+      ".lattice/story/actives/B-9958/plan.md",
+      ".lattice/story/actives/B-9958/process-events.jsonl",
+      ".lattice/story/actives/B-9958/process-metrics.json",
+      ".lattice/story/actives/B-9958/proofstory.json",
+      ".lattice/story/actives/B-9958/review-passes.json",
+      ".lattice/story/actives/B-9958/review-runs.json",
+      ".lattice/story/actives/B-9958/review.json",
+      ".lattice/story/actives/B-9958/scope-check.json",
+      ".lattice/story/actives/B-9958/scope-contract.json",
+      ".lattice/story/actives/B-9958/test-evidence.json",
+      ".lattice/story/actives/B-9958/understanding.json",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "packages/main/src/cli/activity-policy.ts",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/experience-layer-types.ts",
+      "packages/main/src/core/playbook-seed.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/source-lineage-audit.ts",
+      "packages/main/src/handlers/playbook.ts",
+      "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+      "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-9958/checklist.json       |  232 +++-\n .lattice/story/actives/B-9958/decision.json        |   80 ++\n .../B-9958/evidence/live-smoke-transcript.json     |   21 +\n .../actives/B-9958/evidence/transcript-diff.md     |   49 +\n .lattice/story/actives/B-9958/findings.json        |  228 ++++\n .lattice/story/actives/B-9958/index.json           |   95 +-\n .../story/actives/B-9958/intent-collision.json     |   14 +\n .../story/actives/B-9958/milestone-ledger.json     |  152 +++\n .../actives/B-9958/original-intent-snapshot.json   |   19 +\n .lattice/story/actives/B-9958/plan.md              |   96 ++\n .lattice/story/actives/B-9958/process-events.jsonl |   35 +\n .lattice/story/actives/B-9958/process-metrics.json |  359 ++++++\n .lattice/story/actives/B-9958/proofstory.json      |   94 ++\n .lattice/story/actives/B-9958/review-passes.json   |   67 ++\n .lattice/story/actives/B-9958/review-runs.json     |  946 ++++++++++++++++\n .lattice/story/actives/B-9958/review.json          |   67 ++\n .lattice/story/actives/B-9958/scope-check.json     |   59 +\n .lattice/story/actives/B-9958/scope-contract.json  |  100 ++\n .lattice/story/actives/B-9958/test-evidence.json   |  332 ++++++\n .lattice/story/actives/B-9958/understanding.json   |   36 +\n .../playbook-promotion-worker-execution-plan.md    |   76 +-\n ...dedup-playbook-seed-promotion-execution-plan.md |   46 +-\n packages/main/src/cli/activity-policy.ts           |    2 +\n packages/main/src/cli/command-catalog.ts           |   31 +-\n packages/main/src/core/command-policy.ts           |    9 +-\n packages/main/src/core/config.ts                   |    2 +-\n packages/main/src/core/experience-layer-types.ts   |   21 +\n packages/main/src/core/playbook-seed.ts            | 1137 ++++++++++++++++++++\n packages/main/src/core/process-fact-levels.ts      |    9 +-\n packages/main/src/core/source-lineage-audit.ts     |   17 +\n packages/main/src/handlers/playbook.ts             |  177 ++-\n .../src/tasks/playbook-promotion-worker-smoke.ts   |    2 +-\n .../tasks/playbook-seed-promotion-loop-smoke.ts    |  688 ++++++++++++\n 33 files changed, 5229 insertions(+), 69 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "lattice playbook_seed_observe --json reports seed candidates and observeDigest without writing stores."
+    },
+    {
+      "source": "userSees",
+      "promise": "batch proposal dry-run shows proposed playbook proposal manifest; apply fails if observeDigest drifted; candidate approval fails if manifest digest drifted."
+    },
+    {
+      "source": "userSees",
+      "promise": "promotion status/observe can show recommendations and non_promotable state tied back to canonical seed sources."
+    },
+    {
+      "source": "userSees",
+      "promise": "lattice playbook_runtime_consumption_verify --json reports active runtime consumption checks and candidate inertness."
+    },
+    {
+      "source": "userSees",
+      "promise": "health/status shows V1 readiness and playbook_auto_promotion_apply dry-run explains why V2 auto activation is disabled by default."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "git diff --check",
+      "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-02T21:36:31.720Z",
+    "headHash": "59287f4fc70f403f96d992d713812961048c0e57",
+    "materialHash": "a03df0cdf528d09421e5468b20f8157bbf23d8e18d160d6f5ec09c6fce64fb3a",
+    "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da"
+  },
+  "reviewRound": "2026-07-02T21:14:27.294Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

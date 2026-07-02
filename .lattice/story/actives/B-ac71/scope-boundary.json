@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ac71",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+  ],
+  "excluded": [
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md (another host WIP)",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md (another host WIP)",
+    "packages/ (no runtime code in M0)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved Tier-C M0 documentation scope (execution plan + threat model) on 2026-07-02; excludes runtime code and other hosts' domain-pack WIP.",
+  "createdAt": "2026-07-02T21:48:24.591Z",
+  "updatedAt": "2026-07-02T21:48:24.591Z",
+  "_hash": "015a4bc5fc5a9d62cbf8375c064547a6617871c79d3fc3636f943042dff87f9a"
+}
