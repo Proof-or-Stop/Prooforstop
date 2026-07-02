@@ -5,7 +5,7 @@
       "desc": "M6 parity report does not exercise the actual optimized runtime path. CHK-004 promises reference full-scan, indexed runtime, and cached runtime gold queries, but runPlaybookRuntimeOptimizedParityReport reads records.jsonl and calls local report helpers instead: runIndexedColdScan still iterates every raw record and computes a local shortlist (packages/main/src/core/playbook-runtime-baseline.ts:1119), while runIndexedWarmCache only returns a digest from a new one-entry Map (packages/main/src/core/playbook-runtime-baseline.ts:1150). That path never drives buildMemoryFreshnessPack through RuntimeMemoryIndex/selectRuntimeMemoryIndexCandidates or the M3 cache get/remember boundary (packages/main/src/core/playbook-runtime-memory.ts:623, packages/main/src/core/playbook-runtime-memory-cache.ts:336, packages/main/src/core/playbook-runtime-memory-cache.ts:381), so the actual M3/M4 consumer index/cache could regress while the million parity report stays green. The M6 evidence should either run the real optimized runtime pack/cache path at the million-record boundary or downgrade the claim so it is not used as proof of indexed/cached runtime parity.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T12:14:16.919Z",
@@ -19,7 +19,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
       ],
       "signatureTag": "missing|ts|parity-report-exercise",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M6 optimized parity now materializes the full 1,000,000-record runtime corpus and compares real MemoryFreshnessPack reference, indexed cold RuntimeMemoryIndex, and indexed warm cache results. Round-3 concept pass B-6048:RP-004 and test-coverage pass B-6048:RP-006 verified the fix.",
+      "resolvedAt": "2026-07-02T13:35:54.456Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6048:F-002",
