@@ -63,7 +63,36 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node experiments/experience-ablation/pair-ledger.mjs build --root=<tmp> --experimentId=exp1 --manifest=<fixtures.json> --seed=s1 writes fixture-manifest.jsonl, pair-ledger.jsonl (one pending control+treatment slot pair per fixture), and run-order-seed.json with a deterministic runOrder; rerunning build with the same seed prints an identical runOrder; build without a frozen protocol.json exits non-zero with a refusal message naming M0; build or any mutating call after score-records.jsonl exists exits non-zero with an immutability refusal; node pair-ledger.mjs verify re-derives the order and exits non-zero on any tampered row; node experiments/experience-ablation/pair-ledger-selfcheck.mjs prints a per-case PASS list and exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "build on a frozen protocol root with a 6-fixture manifest -> three files written, runOrder covers every armRun exactly once, same seed rebuild -> byte-identical runOrder; WHY: M2 exit criterion same seed reproduces assignments",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "different seed -> different runOrder (and a permutation of the same armRun set); manifest row missing trapGroup -> build refuses naming the field; WHY: the order must be seed-driven and the manifest schema machine-enforced",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build without protocol.json (or with protocolHash mismatch) -> refusal naming the frozen-protocol requirement; WHY: mechanically enforces M0 no-task-without-protocol-hash",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after touching score-records.jsonl in the experiment root, build and any mutating operation refuse; verify on a hand-tampered pair-ledger.jsonl row exits non-zero; WHY: M2 exit criterion assignment cannot change after a score exists",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
