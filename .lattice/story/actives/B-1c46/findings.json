@@ -28,7 +28,7 @@
       "desc": "Fuzzy overflow can silently break reference/full-scan parity. buildFuzzyTokenIndex caps each fuzzy needle at 4096 tokens and records overflowNeedles (packages/main/src/core/playbook-runtime-memory-index.ts:268-288), but rarestNeedleForToken returns overflow=true only when no bucket exists (lines 520-540). fuzzyTokensContaining then uses the capped bucket and reports fallback=false (lines 543-554), so matchingIds does not run scanMatchingIdsForToken and keeps tokenScanFallbacks at 0 (lines 586-599). The pre-optimization matcher scanned all token-map entries for indexedToken.includes(token) / token.includes(indexedToken) (main:packages/main/src/core/playbook-runtime-memory-index.ts:393-403). This means any query whose selected n-gram bucket overflowed can miss valid full-scan matches while the performance proof still reports no fallback; tests appear to assert normal counters but do not cover fuzzyOverflowDevMemoryTokens or fuzzyOverflowPlaybookTokens overflow behavior.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T15:02:06.176Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
       ],
       "signatureTag": "runtime-memory-fuzzy-overflow-parity",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6c4e7c0a4: overflowed fuzzy buckets are no longer trusted as complete membership proof; rarestNeedleForToken skips capped buckets and fuzzyTokensContaining falls back to token-map scan when every usable fuzzy needle overflowed. Added M2 regression in playbook-runtime-memory-index-smoke proving 4,120 overflowneedle rows still surface candidate mem-overflow-4119 with tokenScanFallbacks>0/tokenMapScannedEntries>0. Verified with build, index smoke, M3-M6 full smoke, performance full smoke, and baseline full smoke.",
+      "resolvedAt": "2026-07-02T15:27:45.306Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1c46:F-003",
