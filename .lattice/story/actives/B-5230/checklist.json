@@ -165,8 +165,24 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "pinn-doc-004:happy",
+            "desc": "Success criteria include explicit metrics and comparison rules.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-004:edge",
+            "desc": "Any rate/cost metric includes reproducible output and comparison axes.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "pinn-doc-004:adv",
