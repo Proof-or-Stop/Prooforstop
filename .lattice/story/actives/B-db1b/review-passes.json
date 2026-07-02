@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-02T20:20:52.762Z",
       "reviewRunId": "B-db1b:RR-014",
       "_hash": "9d05b129306adbf2efa738036468721245021eb3a08a64508caf07dc181d9a39"
+    },
+    {
+      "id": "B-db1b:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane PASS after deep supplied-report sanitization change: M0-M5 remain explicitly listed as six completed milestones with checkmarks; decision doc and command wording keep the local-only/read-only claim-admissibility boundary; no PDE correctness, deployment readiness, evidence-producing verifier scripts, lifecycle mutation, remote release, or external terminal completion is promised. Read-only worktree CLI/handler probes confirm normal report output keeps all claim fields false and nested supplied-report overclaims are rejected rather than rendered.",
+      "createdAt": "2026-07-02T20:23:12.523Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-013",
+      "_hash": "9a79c45f91bdc14bd643dffcde9da69be96a053c2521013dd5a5b8c40248fcaf"
     }
   ]
 }
