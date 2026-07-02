@@ -192,7 +192,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M4 outputs a transcript proving first process writes durable cache/prebuilt index, second process reuses it, stale changes invalidate or downgrade safely, and authority remains non_authoritative with gateEvidence=false."
+      "userSees": "Expected transcript includes `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, `staleMutationMiss=true`, and `gateEvidence=false`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A second CLI/process can reuse a durable cache or prebuilt index for the same bound query/context and produces the same pack digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Source/config/policy/indexVersion/limit/projectRoot changes invalidate or downgrade cache reuse safely.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale durable cache entry cannot be consumed as fresh after contributing source mutation or cache key shape drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
