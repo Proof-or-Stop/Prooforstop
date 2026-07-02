@@ -182,9 +182,9 @@
           "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T03:13:23.975Z",
       "verificationIntent": {
         "happy": [
           {
@@ -205,7 +205,42 @@
           }
         ]
       },
-      "userSees": "User runs lattice playbook_outcome_record and sees Playbook outcome recorded, outcome: <value>, authority: non_authoritative, gateEvidence: false."
+      "userSees": "User runs lattice playbook_outcome_record and sees Playbook outcome recorded, outcome: <value>, authority: non_authoritative, gateEvidence: false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_outcome_record --help and focused outcome PASS-line check",
+          "result": "pass",
+          "note": "Built CLI help exposes host-neutral lattice playbook_outcome_record and the focused check confirmed output includes non-authoritative outcome recording semantics: authority non_authoritative and gateEvidence false.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.129Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "focused outcome PASS-line check over npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "The focused check confirmed the new outcome assertion PASS line: candidate status remains candidate; no activation, rejection, or runtime surfacing occurs.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.281Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract plus focused outcome PASS-line check",
+          "result": "pass",
+          "note": "Command catalog, ownership, and lifecycle registry tests passed; focused outcome check confirmed no Codex/Claude-specific namespace and process facts classify playbook_outcome_record as audit-only non-gate metadata.",
+          "headHash": "d88dcefdb73a5e1ea80de29e39601f211ee30bcb",
+          "materialHash": "74845d59d7ff1e555c764c2ada222a7db2ac1f7a031738e8a5693c4af32a2df2",
+          "storyFilesHash": "b37a520cfa2865884c219fe2d851bcda0098520baf83b939cfa636d5c21af707",
+          "timestamp": "2026-07-02T03:13:24.449Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -226,6 +261,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Record focused outcome verification for CHK-002 after implementer commit 2e8ad04c7."
+    },
+    {
+      "timestamp": "2026-07-02T03:13:23.975Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Record focused outcome verification for CHK-003 after implementer commit 2e8ad04c7."
     }
   ]
 }
