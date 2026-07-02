@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-02T20:54:16.119Z",
       "reviewRunId": "B-9958:RR-006",
       "_hash": "d1b619a44f56aad750cef7f9b25118c00870210515c5b7096a2b2359a283bb9a"
+    },
+    {
+      "id": "B-9958:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept pass: scoped to F-007 plus concept regressions. Current source_lineage_audit filters finding-signal anchorRefs through currently present project files before seed observation, so stale all-missing anchors are blocked as missing valid anchors. Existing playbook-seed support threshold remains enforced via finding_signal_insufficient_support, and duplicate canonicalSourceKey protection remains fail-closed for duplicate manifest rows plus already represented canonical sources. Existing dist smoke passed: node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js (13/13).",
+      "createdAt": "2026-07-02T21:08:57.327Z",
+      "reviewRound": "2026-07-02T21:05:57.267Z",
+      "reviewRunId": "B-9958:RR-010",
+      "_hash": "1253e82bb8cb4b9c0db93563a931247ff28045eee5125743b35f47c1aa16418b"
     }
   ]
 }
