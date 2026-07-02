@@ -375,7 +375,7 @@
       "desc": "[host-2 terminal, probe-proven] The secret-path probe still executes workspace code in-process: the probe script path is passed as argv[1], so the imported lib can read argv[1], read the probe source, regex out the secret path, and register a process.on(exit) hook to overwrite the verdict file with true after the probe writes false. Root cause: ANY in-process execution of workspace code is forgeable. Terminal fix: do NOT execute or import the workspace lib at all — statically extract the effective exported literal (anchored ^export const LIMIT = <int>; ; zero/multiple/non-literal all fail). This is a legitimate plan-S6.1 workspace-STATE check, unforgeable because no workspace code runs, and closes the entire F-006..F-018 forgery family.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T23:24:47.682Z",
@@ -385,7 +385,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-terminal-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence rewritten as a STATIC workspace-state read (anchored ^export const LIMIT = <int>; multiline match; exactly one match equal to 25 passes; zero/multiple/non-literal fail). No workspace code is executed or imported, so the entire in-process forgery family (process.exit, hardcoded markers, argv-nonce read, probe-path/argv[1] + exit-hook overwrite) is inert. Removed the now-unused execution imports. 7 inert-forgery probes + a genuine-fix-passes probe pinned; selfcheck 32/32 green. This is the terminal design — no in-process execution surface remains to attack.",
+      "resolvedAt": "2026-07-02T23:26:33.101Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
