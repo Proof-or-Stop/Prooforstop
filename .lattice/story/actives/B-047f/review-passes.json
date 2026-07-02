@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-010",
       "_hash": "18d3a6f313f2c0869d9e694c28c2f168c93a9f93977a323b15126bcae84582c3"
+    },
+    {
+      "id": "B-047f:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 re-bind pass. F-014 fix verified: sample-size.mjs file-header (lines 13-15) now states the N-maximizing-within-CI rule with the F-001 pointer. Lower-bound mentions at lines 131/134 are inside the F-001 explanation comment quoting plan wording to refute it — intentional context, not stale assertions. All three selfchecks pass clean: protocol 15/15, pair-ledger 19/19, sample-size 29/29 (exit 0). No new quality findings.",
+      "createdAt": "2026-07-02T21:39:54.738Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-011",
+      "_hash": "06bda74a22e1bf083c2c1b8fefab79e8045a328139fd3055e5ca19c7fa919325"
     }
   ]
 }
