@@ -1,0 +1,81 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add red/repro coverage for the missing playbook outcome lifecycle",
+      "context": "M0 from playbook-promotion-worker-execution-plan.md. Prove that candidate outcomes need explicit recording and that ordinary story completion must not imply candidate usefulness.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "excludes": [
+        "automatic candidate activation",
+        "DONE settlement hook"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core",
+          "packages/main/src/handlers"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks",
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement learning-store outcome ledger primitives with safe write discipline",
+      "context": "M1-M2 foundation. Add append-only outcome records, validation, deterministic IDs or digests, and store-specific locking without changing runtime playbook activation semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "excludes": [
+        "automatic candidate activation",
+        "scheduled promotion worker"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/experience-layer-types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose a host-neutral outcome recording command and smoke coverage",
+      "context": "Add a CLI/handler surface for explicit playbook outcome recording. The command must remain host-neutral and reject candidate helped outcomes without concrete exposure and structured verdict source.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "excludes": [
+        "Codex-specific command namespace",
+        "Claude-specific command namespace"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

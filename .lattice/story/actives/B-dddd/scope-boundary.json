@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-dddd",
+  "mode": "feature",
+  "allowed": [
+    "M0 red/repro tests for playbook promotion outcome lifecycle",
+    "M1 learning-store write discipline needed by outcome ledger",
+    "M2 append-only outcome ledger and host-neutral recording command",
+    "smoke/regression tests and docs alignment for the implemented M0-M2 behavior",
+    "version/build updates required by changed CLI/runtime behavior"
+  ],
+  "excluded": [
+    "automatic candidate to active mutation",
+    "DONE settlement hook",
+    "matched-control or trial-traffic serving",
+    "remote GitHub publishing or branch pushes",
+    "runtime MemoryFreshnessPack candidate surfacing",
+    "scheduled promotion worker/timer"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved starting development after the reviewed V1 plan; implementation is limited to M0-M2 to avoid arbitrary optimization.",
+  "createdAt": "2026-07-02T02:48:48.801Z",
+  "updatedAt": "2026-07-02T02:48:48.801Z",
+  "_hash": "68a65915ca93333469762e569601e65a362b61387dbf1f5ef60624e395c5ef0d"
+}

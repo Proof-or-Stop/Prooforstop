@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-dddd",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git merge *",
+    "git status *",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main *",
+    "npm test *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "Claude CLI",
+    "Codex CLI",
+    "Lattice CLI",
+    "local shell"
+  ],
+  "allowedPaths": [
+    ".lattice",
+    ".worktrees",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/story",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Keep all changes in canonical proofbound; do not write to the retired Orchestrate root and do not touch the unrelated memory-entry optimization draft.",
+  "createdAt": "2026-07-02T02:48:48.801Z",
+  "updatedAt": "2026-07-02T02:48:48.801Z",
+  "_hash": "3065afd5ef0d97c02c2b9904b74c2a034df45b1a755e86cd86e026690f3e4418"
+}
