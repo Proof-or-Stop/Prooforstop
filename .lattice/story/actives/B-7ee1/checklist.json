@@ -314,9 +314,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T22:39:34.023Z",
-      "endTime": null
+      "endTime": "2026-07-02T22:39:44.868Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Dedicated B-7ee1 smoke executes the full local path from seed/proposal/candidate through outcomes, promotion sweep recommend_activate, auto apply activation, runtime consumption, and demotion recommendation.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:45.186Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Seed-promotion loop smoke keeps mixed eligible/ineligible surfaces: blocked seeds/proposals remain blocked while only the qualified candidate activates.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:45.529Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Negative controls prove DONE-style settlement, missing evidence, duplicate lineage/proposal blockers, and old default-off flag regressions cannot produce activation.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:45.894Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -346,6 +381,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Demotion recommendation and non-destructive audit provenance verified."
+    },
+    {
+      "timestamp": "2026-07-02T22:39:44.868Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "End-to-end B-7ee1 evidence activation smoke added and passed."
     }
   ]
 }
