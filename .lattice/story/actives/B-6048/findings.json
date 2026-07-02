@@ -53,7 +53,7 @@
       "desc": "M4 coverage is incomplete: the lifecycle consumer smoke enumerates session_brief, host_handoff, story_create, done_prepare, done_closure, and final_response_check, but omits the story_advance consumer even though transition-orchestrator renders memory with consumer='story_advance'. This leaves the checklist's story_advance optimized/advisory-only consumer promise untested. Source refs: packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:255, packages/main/src/handlers/transition-orchestrator.ts:291.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T12:16:05.886Z",
@@ -65,7 +65,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|coverage-incomplete-lifecycle",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M4 consumer matrix now includes story_advance along with session_brief, host_handoff, story_create, done_prepare, done_closure, and final_response_check. Test-coverage pass B-6048:RP-006 verified the consumer coverage.",
+      "resolvedAt": "2026-07-02T13:36:08.532Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6048:F-004",
