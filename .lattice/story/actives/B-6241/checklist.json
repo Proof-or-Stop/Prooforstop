@@ -10,11 +10,12 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Promotion aggregate/evaluator tests show recommend_activate, reject, hold, archive, recommend_demote, and mark_non_deducible decisions from explicit outcome evidence only.",
+      "userSees": "Smoke output includes \"recommend_activate\", \"reject\", \"hold\", \"archive\", \"recommend_demote\", and \"mark_non_deducible\" decision lines.",
       "files": {
         "modify": [
           "packages/main/src/core/experience-layer-types.ts",
-          "packages/main/src/core/learning-store.ts"
+          "packages/main/src/core/learning-store.ts",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
         ],
         "create": [
           "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
