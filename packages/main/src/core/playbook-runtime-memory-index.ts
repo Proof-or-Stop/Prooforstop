@@ -609,6 +609,32 @@ function scanSourceMatchingIdsForToken<T extends { id: string }>(
   return uniqueInOrder(ids);
 }
 
+function appendIndexedTokenIds<T extends { id: string }>(
+  ids: string[],
+  stats: RuntimeMemoryIndexCandidateStats,
+  tokenMap: Record<string, string[]>,
+  overflowExactTokens: Set<string>,
+  sourceItems: T[],
+  textForItem: (item: T) => string,
+  queryToken: string,
+  indexedTokens: string[],
+): void {
+  const overflowedIndexedTokens: string[] = [];
+  for (const indexedToken of indexedTokens) {
+    if (overflowExactTokens.has(indexedToken)) {
+      overflowedIndexedTokens.push(indexedToken);
+    } else {
+      appendValues(ids, tokenMap[indexedToken] ?? []);
+    }
+  }
+  if (overflowedIndexedTokens.length === 0) return;
+
+  stats.exactOverflowFallbacks += uniqueInOrder(overflowedIndexedTokens).length;
+  stats.tokenScanFallbacks += 1;
+  stats.tokenMapScannedEntries += sourceItems.length;
+  appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, queryToken));
+}
+
 function matchingIds<T extends { id: string }>(
   tokenMap: Record<string, string[]>,
   exactOverflowTokens: string[],
@@ -649,9 +675,16 @@ function matchingIds<T extends { id: string }>(
     }
     if (containingTokens.tokens.length > 0) {
       stats.fuzzyIndexHits += 1;
-      for (const indexedToken of containingTokens.tokens) {
-        appendValues(ids, tokenMap[indexedToken] ?? []);
-      }
+      appendIndexedTokenIds(
+        ids,
+        stats,
+        tokenMap,
+        overflowExactTokens,
+        sourceItems,
+        textForItem,
+        token,
+        containingTokens.tokens,
+      );
     }
 
     const containedTokens = substringTokens(token, tokenMap);
@@ -664,9 +697,16 @@ function matchingIds<T extends { id: string }>(
     }
     if (containedTokens.tokens.length > 0) {
       stats.fuzzyIndexHits += 1;
-      for (const indexedToken of containedTokens.tokens) {
-        appendValues(ids, tokenMap[indexedToken] ?? []);
-      }
+      appendIndexedTokenIds(
+        ids,
+        stats,
+        tokenMap,
+        overflowExactTokens,
+        sourceItems,
+        textForItem,
+        token,
+        containedTokens.tokens,
+      );
     }
   }
   return { ids: uniqueInOrder(ids), stats };

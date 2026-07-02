@@ -355,6 +355,74 @@ async function run(): Promise<void> {
       ].join(' '));
     });
 
+    check('M2 substring query over exact-overflow token scans uncapped sources for parity', () => {
+      const root = mkRoot(); roots.push(root);
+      const count = 4_120;
+      const sharedToken = 'sharedexacttoken';
+      const substringQuery = 'sharedexact';
+      writeEntries(resolveProjectMemoryPath(root), Array.from({ length: count }, (_, index) => memoryEntry(
+        `mem-substring-overflow-${String(index).padStart(4, '0')}`,
+        {
+          summary: `Substring overflow row ${index} ${sharedToken}`,
+          trigger: `${sharedToken} runtime memory`,
+          lesson: `Substring fallback must find ${sharedToken} rows beyond the capped bucket`,
+          reusePrompt: `${sharedToken} runtime memory`,
+        },
+      )));
+      writePlaybooks(root, []);
+      writeSignatureRegistry(root, { tags: [] });
+      const index = rebuildRuntimeMemoryIndex(root, NOW);
+      assert.ok(index.exactOverflowDevMemoryTokens.includes(sharedToken), 'dev-memory exact overflow should be recorded');
+
+      const candidates = selectRuntimeMemoryIndexCandidates(index, {
+        query: substringQuery,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: 0,
+        candidateLimit: count,
+      });
+      const devIds = candidates.devMemoryEntries.map((entry) => entry.id);
+      assert.ok(devIds.includes('mem-substring-overflow-4119'), 'substring candidate beyond exact cap must surface');
+      assert.ok(candidates.stats.exactOverflowFallbacks > 0, 'substring overflow query must record exact overflow fallback');
+      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'substring overflow query must record scan fallback');
+      assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'substring overflow fallback must record scanned source entries');
+
+      const reference = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: substringQuery,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: 0,
+        candidateLimit: count,
+        useIndex: false,
+        generatedAt: NOW,
+      });
+      const indexed = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: substringQuery,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: 0,
+        candidateLimit: count,
+        runtimeIndex: index,
+        generatedAt: NOW,
+      });
+      assert.equal(reference.results.devMemoryEntryIds.length, count);
+      assert.deepEqual(indexed.results.devMemoryEntryIds, reference.results.devMemoryEntryIds);
+      assert.deepEqual(indexed.results.playbookIds, reference.results.playbookIds);
+      assert.equal(indexed.authority, 'non_authoritative');
+      assert.equal(indexed.gateEvidence, false);
+      console.log([
+        'substringExactOverflowFallback=true',
+        `exactOverflowFallbacks=${candidates.stats.exactOverflowFallbacks}`,
+        `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
+        `tokenMapScannedEntries=${candidates.stats.tokenMapScannedEntries}`,
+        `devBeyondCap=${devIds.includes('mem-substring-overflow-4119')}`,
+        `referenceIds=${reference.results.devMemoryEntryIds.length}`,
+        `indexedIds=${indexed.results.devMemoryEntryIds.length}`,
+      ].join(' '));
+    });
+
     check('M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics', () => {
       clearRuntimeMemoryPackCache();
       const root = mkRoot(); roots.push(root); seed(root);
