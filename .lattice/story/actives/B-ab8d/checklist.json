@@ -182,6 +182,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:28:56.991Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/experience-pack-surface.ts",
+          "command": "grep -c experience_pack_surfaced .lattice/activity.jsonl before/after repeated control session_brief",
+          "result": "pass",
+          "note": "Dedup key (experimentId, consumer, storyId-or-global, roundKey) via readActivityLogTail(root,1000): first control session_brief appended one event (count 0->1); second identical control run appended none (before=1 after=1). Treatment run with the SAME experimentId+key also deduped (no second event); a fresh experimentId (exp-chk002-t) correctly fired its own event.",
+          "headHash": "9f93066717d36afa9c39356d8ddd73344a357938",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:57.896Z"
         }
       ]
     },
