@@ -19,7 +19,37 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These files are command-generated ProofStory governance metadata created during PLAN to preserve original intent, milestone ledger, intent collision checks, and ProofStory contract; they are not source-scope expansion.",
+      "timestamp": "2026-07-02T03:14:12.237Z",
+      "paths": [
+        ".lattice/story/actives/B-ec3b/intent-collision.json",
+        ".lattice/story/actives/B-ec3b/milestone-ledger.json",
+        ".lattice/story/actives/B-ec3b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-ec3b/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-ec3b/intent-collision.json",
+        ".lattice/story/actives/B-ec3b/milestone-ledger.json",
+        ".lattice/story/actives/B-ec3b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-ec3b/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "743b4a6d53b590355b7a7ec49e81508c6c33c745",
+      "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+      "anchors": [
+        "proofstory_governance_metadata",
+        "original_intent_snapshot",
+        "milestone_ledger",
+        "intent_collision",
+        "proofstory_contract"
+      ]
+    }
+  ],
   "createdAt": "2026-07-02T03:13:17.748Z",
-  "updatedAt": "2026-07-02T03:13:17.748Z"
+  "updatedAt": "2026-07-02T03:14:12.237Z"
 }
