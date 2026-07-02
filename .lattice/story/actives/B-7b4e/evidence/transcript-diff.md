@@ -38,6 +38,10 @@ missing required receipt: BLOCK
 stale evidence: BLOCK
 weak ground-state overclaim with stale evidence: BLOCK
 unbound solver output: BLOCK
+mismatched top-level solver output digest: BLOCK
+mismatched top-level energy output digest: BLOCK
+mismatched top-level figure provenance output digest: BLOCK
+missing receipt identity: BLOCK
 unbound plot/table: BLOCK
 weak single-run energy evidence cannot prove stronger ground-state claim: BLOCK
 weak single-run energy evidence cannot prove stronger convergence claim: BLOCK
@@ -48,7 +52,7 @@ quantum claim-admissibility smoke passed
 
 ## Diff
 
-No behavior gap observed. The actual transcript matches the expected M0-M1 proof-or-stop behavior: valid bound evidence passes, while stale, missing, mismatched, unbound, and over-broad evidence blocks or degrades only when safe.
+No behavior gap observed. The actual transcript matches the expected M0-M1 proof-or-stop behavior: valid bound evidence passes, while stale, missing, mismatched, unbound, and over-broad evidence blocks or degrades only when safe. The current transcript also covers reviewer-driven hardening for top-level receipt `outputDigest` mismatches across solver, energy, and figure/table receipts, plus missing receipt identity.
 
 ## Source Artifact
 
