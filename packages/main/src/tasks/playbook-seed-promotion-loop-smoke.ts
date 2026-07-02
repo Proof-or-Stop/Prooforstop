@@ -27,6 +27,7 @@ import type {
 } from '../core/experience-layer-types.js';
 import {
   aggregatePlaybookPromotion,
+  appendPlaybookOutcomeEvent,
   appendPlaybookAutoActivationEvent,
   buildPlaybookSourceReference,
   computePlaybookDigest,
@@ -815,6 +816,34 @@ function run(): void {
       recordHelpedOutcome(handlers, candidate.id, 1, { host: 'codex-a', trigger: 'claim-boundary' });
       recordHelpedOutcome(handlers, candidate.id, 2, { host: 'claude-b', trigger: 'stale-authority-wording' });
       recordHelpedOutcome(handlers, candidate.id, 3, { host: 'codex-c', trigger: 'claim-boundary' });
+      const duplicateOutcome = {
+        ...readPlaybookOutcomeEvents(root).find((row) => row.idempotencyKey === 'activate-helped-1')!,
+        eventId: 'PBO-ACTIVATE-1-DUPLICATE',
+        observedAt: '2026-07-02T00:04:00.000Z',
+      };
+      const duplicateAppendBefore = readPlaybookOutcomeEvents(root).length;
+      appendPlaybookOutcomeEvent(root, duplicateOutcome);
+      assert.equal(
+        readPlaybookOutcomeEvents(root).length,
+        duplicateAppendBefore,
+        'duplicate outcome idempotency keys no-op at append time',
+      );
+      const duplicatedRowsAggregate = aggregatePlaybookPromotion(candidate, [
+        duplicateOutcome,
+        duplicateOutcome,
+        {
+          ...duplicateOutcome,
+          eventId: 'PBO-ACTIVATE-1-DUPLICATE-HISTORICAL',
+          observedAt: '2026-07-02T00:05:00.000Z',
+        },
+      ], []);
+      assert.equal(duplicatedRowsAggregate.helpedCount, 1, 'historical duplicate idempotency rows count once');
+      assert.equal(duplicatedRowsAggregate.decisiveSamples, 1, 'historical duplicate idempotency rows remain one decisive sample');
+      assert.notEqual(
+        evaluatePlaybookPromotion(duplicatedRowsAggregate).action,
+        'recommend_activate',
+        'duplicate idempotency rows alone cannot satisfy activation thresholds',
+      );
       const noDecisionDry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
       const noDecisionGuard = noDecisionDry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
       assert.equal(noDecisionGuard?.recommendation, 'recommend_activate');

@@ -966,6 +966,9 @@ export function readPlaybookOutcomeEvents(projectRoot: string): PlaybookOutcomeE
 export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookOutcomeEvent): string {
   const validated = validatePlaybookOutcomeEvent(event);
   if (!validated.ok) throw new Error(`appendPlaybookOutcomeEvent: ${validated.error}`);
+  if (readPlaybookOutcomeEvents(projectRoot).some((row) => row.idempotencyKey === validated.event.idempotencyKey)) {
+    return resolvePlaybookOutcomesPath(projectRoot);
+  }
   return atomicAppendCanonicalJsonLine(resolvePlaybookOutcomesPath(projectRoot), validated.event);
 }
 
@@ -1066,7 +1069,13 @@ export function aggregatePlaybookPromotion(
   priorDecisions: PlaybookPromotionDecisionRow[] = [],
 ): PlaybookPromotionAggregate {
   const source = buildPlaybookSourceReference(playbook.lineage);
-  const relevant = events.filter((event) => event.playbookId === playbook.id);
+  const seenOutcomeKeys = new Set<string>();
+  const relevant = events.filter((event) => {
+    if (event.playbookId !== playbook.id) return false;
+    if (seenOutcomeKeys.has(event.idempotencyKey)) return false;
+    seenOutcomeKeys.add(event.idempotencyKey);
+    return true;
+  });
   let helpedCount = 0;
   let dismissedCount = 0;
   let harmfulCount = 0;

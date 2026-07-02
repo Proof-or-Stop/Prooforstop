@@ -1005,8 +1005,9 @@ order is to establish concurrency and outcome validation before wiring DONE.
 4. What retention limit is acceptable for local raw outcome ledgers?
 5. Should candidate inspection appear in `session_brief`, or only in
    `playbook_promotion_status`?
-6. What review path is required before enabling automatic active advisory
-   promotion?
+6. What review path should future timer-driven, trial-serving, or materially
+   different promotion policies require before they can change active advisory
+   behavior?
 
 ## 23. Relationship To Existing Plans
 
