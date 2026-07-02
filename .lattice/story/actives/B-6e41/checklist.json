@@ -123,9 +123,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:40:58.202Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke validates the default registry, lists the built-in code-runtime pack, and resolves it by id.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.379Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke asserts registry.resolve(missing-pack) returns deterministic not_found instead of throwing.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.547Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke constructs duplicate pack ids, claim schema ids, evidence schema ids, artifact kinds, aliases, and claim ids and verifies each produces blocking validation issues.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.704Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -222,6 +260,15 @@
       "timestamp": "2026-07-02T22:40:48.305Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
+    },
+    {
+      "timestamp": "2026-07-02T22:40:58.202Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
