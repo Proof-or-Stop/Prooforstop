@@ -276,12 +276,115 @@ async function run(): Promise<void> {
       });
       const ids = candidates.devMemoryEntries.map((entry) => entry.id);
       assert.ok(ids.includes('mem-overflow-4119'), 'candidate beyond fuzzy cap must still surface');
-      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'overflow query must record token-map fallback');
-      assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'overflow fallback must scan token map');
+      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'overflow query must record source fallback');
+      assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'overflow fallback must scan source entries');
       console.log([
         'fuzzyOverflowFallback=true',
         `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
         `tokenMapScannedEntries=${candidates.stats.tokenMapScannedEntries}`,
+      ].join(' '));
+    });
+
+    check('M2 fuzzy fallback scans uncapped sources when matching exact token also overflows', () => {
+      const root = mkRoot(); roots.push(root);
+      const exactCount = 4_120;
+      const uniqueCount = 4_097;
+      const totalCount = exactCount + uniqueCount;
+      const queryToken = 'abc';
+      const exactToken = 'abcsharedexact';
+      const devEntries = [
+        ...Array.from({ length: exactCount }, (_, index) => memoryEntry(
+          `mem-combined-exact-${String(index).padStart(4, '0')}`,
+          {
+            summary: `Combined overflow exact row ${index} ${exactToken}`,
+            trigger: `${exactToken} runtime memory`,
+            lesson: `Fuzzy fallback must not trust capped exact bucket ${exactToken}`,
+            reusePrompt: `${exactToken} runtime memory`,
+          },
+        )),
+        ...Array.from({ length: uniqueCount }, (_, index) => {
+          const uniqueToken = `abcunique${String(index).padStart(4, '0')}`;
+          return memoryEntry(
+            `mem-combined-unique-${String(index).padStart(4, '0')}`,
+            {
+              summary: `Combined overflow fuzzy row ${index} ${uniqueToken}`,
+              trigger: `${uniqueToken} runtime memory`,
+              lesson: `Unique token ${uniqueToken} forces fuzzy needle overflow`,
+              reusePrompt: `${uniqueToken} runtime memory`,
+            },
+          );
+        }),
+      ];
+      const activePlaybooks = [
+        ...Array.from({ length: exactCount }, (_, index) => (
+          playbook(`PB-combined-exact-${String(index).padStart(4, '0')}`, 'active', exactToken)
+        )),
+        ...Array.from({ length: uniqueCount }, (_, index) => (
+          playbook(`PB-combined-unique-${String(index).padStart(4, '0')}`, 'active', `abcunique${String(index).padStart(4, '0')}`)
+        )),
+      ];
+      writeEntries(resolveProjectMemoryPath(root), devEntries);
+      writePlaybooks(root, activePlaybooks);
+      writeSignatureRegistry(root, { tags: [] });
+      const index = rebuildRuntimeMemoryIndex(root, NOW);
+      assert.ok(index.exactOverflowDevMemoryTokens.includes(exactToken), 'dev-memory exact overflow should be recorded');
+      assert.ok(index.exactOverflowPlaybookTokens.includes(exactToken), 'playbook exact overflow should be recorded');
+      assert.ok(index.fuzzyOverflowDevMemoryTokens.includes(queryToken), 'dev-memory fuzzy needle overflow should be recorded');
+      assert.ok(index.fuzzyOverflowPlaybookTokens.includes(queryToken), 'playbook fuzzy needle overflow should be recorded');
+
+      const candidates = selectRuntimeMemoryIndexCandidates(index, {
+        query: queryToken,
+        consumer: 'session_brief',
+        maxEntries: totalCount,
+        maxPlaybooks: totalCount,
+        candidateLimit: totalCount,
+      });
+      const devIds = candidates.devMemoryEntries.map((entry) => entry.id);
+      const playbookIds = candidates.playbooks.map((item) => item.id);
+      assert.ok(devIds.includes('mem-combined-exact-4119'), 'dev-memory exact bucket beyond cap must surface through fuzzy fallback');
+      assert.ok(playbookIds.includes('PB-combined-exact-4119'), 'playbook exact bucket beyond cap must surface through fuzzy fallback');
+      assert.ok(candidates.stats.fuzzyFallbacks > 0, 'combined overflow query must record fuzzy fallback');
+      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'combined overflow query must record source fallback');
+      assert.ok(candidates.stats.tokenMapScannedEntries >= totalCount, 'combined overflow fallback must scan source entries');
+
+      const reference = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: queryToken,
+        consumer: 'session_brief',
+        maxEntries: totalCount,
+        maxPlaybooks: totalCount,
+        candidateLimit: totalCount,
+        useIndex: false,
+        generatedAt: NOW,
+      });
+      const indexed = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: queryToken,
+        consumer: 'session_brief',
+        maxEntries: totalCount,
+        maxPlaybooks: totalCount,
+        candidateLimit: totalCount,
+        runtimeIndex: index,
+        generatedAt: NOW,
+      });
+      assert.equal(reference.results.devMemoryEntryIds.length, totalCount);
+      assert.equal(reference.results.playbookIds.length, totalCount);
+      assert.deepEqual(indexed.results.devMemoryEntryIds, reference.results.devMemoryEntryIds);
+      assert.deepEqual(indexed.results.playbookIds, reference.results.playbookIds);
+      assert.equal(indexed.authority, 'non_authoritative');
+      assert.equal(indexed.gateEvidence, false);
+      console.log([
+        'combinedFuzzyExactOverflowFallback=true',
+        `exactOverflowDevMemory=${index.exactOverflowDevMemoryTokens.includes(exactToken)}`,
+        `exactOverflowPlaybooks=${index.exactOverflowPlaybookTokens.includes(exactToken)}`,
+        `fuzzyOverflowDevMemory=${index.fuzzyOverflowDevMemoryTokens.includes(queryToken)}`,
+        `fuzzyOverflowPlaybooks=${index.fuzzyOverflowPlaybookTokens.includes(queryToken)}`,
+        `referenceCount=${reference.results.devMemoryEntryIds.length}`,
+        `indexedCount=${indexed.results.devMemoryEntryIds.length}`,
+        `referencePlaybooks=${reference.results.playbookIds.length}`,
+        `indexedPlaybooks=${indexed.results.playbookIds.length}`,
+        `indexedHasBeyondCap=${devIds.includes('mem-combined-exact-4119') && playbookIds.includes('PB-combined-exact-4119')}`,
+        `parity=${indexed.results.devMemoryEntryIds.length === reference.results.devMemoryEntryIds.length && indexed.results.playbookIds.length === reference.results.playbookIds.length}`,
       ].join(' '));
     });
 
@@ -369,20 +472,25 @@ async function run(): Promise<void> {
           reusePrompt: `${sharedToken} runtime memory`,
         },
       )));
-      writePlaybooks(root, []);
+      writePlaybooks(root, Array.from({ length: count }, (_, index) => (
+        playbook(`PB-substring-overflow-${String(index).padStart(4, '0')}`, 'active', sharedToken)
+      )));
       writeSignatureRegistry(root, { tags: [] });
       const index = rebuildRuntimeMemoryIndex(root, NOW);
       assert.ok(index.exactOverflowDevMemoryTokens.includes(sharedToken), 'dev-memory exact overflow should be recorded');
+      assert.ok(index.exactOverflowPlaybookTokens.includes(sharedToken), 'playbook exact overflow should be recorded');
 
       const candidates = selectRuntimeMemoryIndexCandidates(index, {
         query: substringQuery,
         consumer: 'session_brief',
         maxEntries: count,
-        maxPlaybooks: 0,
+        maxPlaybooks: count,
         candidateLimit: count,
       });
       const devIds = candidates.devMemoryEntries.map((entry) => entry.id);
+      const playbookIds = candidates.playbooks.map((item) => item.id);
       assert.ok(devIds.includes('mem-substring-overflow-4119'), 'substring candidate beyond exact cap must surface');
+      assert.ok(playbookIds.includes('PB-substring-overflow-4119'), 'substring playbook beyond exact cap must surface');
       assert.ok(candidates.stats.exactOverflowFallbacks > 0, 'substring overflow query must record exact overflow fallback');
       assert.ok(candidates.stats.tokenScanFallbacks > 0, 'substring overflow query must record scan fallback');
       assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'substring overflow fallback must record scanned source entries');
@@ -392,7 +500,7 @@ async function run(): Promise<void> {
         query: substringQuery,
         consumer: 'session_brief',
         maxEntries: count,
-        maxPlaybooks: 0,
+        maxPlaybooks: count,
         candidateLimit: count,
         useIndex: false,
         generatedAt: NOW,
@@ -402,12 +510,13 @@ async function run(): Promise<void> {
         query: substringQuery,
         consumer: 'session_brief',
         maxEntries: count,
-        maxPlaybooks: 0,
+        maxPlaybooks: count,
         candidateLimit: count,
         runtimeIndex: index,
         generatedAt: NOW,
       });
       assert.equal(reference.results.devMemoryEntryIds.length, count);
+      assert.equal(reference.results.playbookIds.length, count);
       assert.deepEqual(indexed.results.devMemoryEntryIds, reference.results.devMemoryEntryIds);
       assert.deepEqual(indexed.results.playbookIds, reference.results.playbookIds);
       assert.equal(indexed.authority, 'non_authoritative');
@@ -418,8 +527,11 @@ async function run(): Promise<void> {
         `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
         `tokenMapScannedEntries=${candidates.stats.tokenMapScannedEntries}`,
         `devBeyondCap=${devIds.includes('mem-substring-overflow-4119')}`,
+        `playbookBeyondCap=${playbookIds.includes('PB-substring-overflow-4119')}`,
         `referenceIds=${reference.results.devMemoryEntryIds.length}`,
         `indexedIds=${indexed.results.devMemoryEntryIds.length}`,
+        `referencePlaybooks=${reference.results.playbookIds.length}`,
+        `indexedPlaybooks=${indexed.results.playbookIds.length}`,
       ].join(' '));
     });
 

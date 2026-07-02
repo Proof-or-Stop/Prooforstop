@@ -27,8 +27,8 @@ entrypoint. M7 health and M8 rollout remain separate work in the parent plan.
 |---|---|---|
 | M0 profile/red baseline | Full-profile smoke records reference, indexed-cold, warm-cache, target, peak RSS, cache, index, query, and counter timings. | Initial red profile: `indexedWarmCacheMs=2971`, `targetWarmMs=2000`, target unmet. Final baseline exposes `targetStatus=met`. |
 | M1 semantic parity guard | Result digests and semantic guard compare reference and optimized `MemoryFreshnessPack` outputs. | Full profile reports matching digest, `semanticParity=pass`, and false-surface rates all 0. |
-| M2 exact-token fast path | Runtime index schema v2 adds exact lookup counters and direct token-id selection. | `exactFastPathHits=100` on full M6 report. |
-| M3 fuzzy auxiliary index | Runtime index schema v2 adds bounded fuzzy token maps and visible fallback counters. | `fuzzyIndexHits=126`, `fuzzyFallbacks=0`, `tokenScanFallbacks=0` on full M6 report. |
+| M2 exact-token fast path | Runtime index schema v3 adds exact lookup counters, direct token-id selection, and exact-overflow source fallback. | `exactFastPathHits=100` on full M6 report. |
+| M3 fuzzy auxiliary index | Runtime index schema v3 adds bounded fuzzy token maps, exact-overflow token metadata, and visible fallback counters. | `fuzzyIndexHits=126`, `fuzzyFallbacks=0`, `tokenScanFallbacks=0` on full M6 report. |
 | M4 durable pack cache | Pack cache persists lookup-bound entries under the learning runtime cache and reuses them across processes. | M4 smoke proves `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, and `staleMutationMiss=true`. |
 | M5 performance gate | New full-profile performance smoke hard-fails if semantic parity, advisory metadata, or the 2,000 ms target fails. | `node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000` passed with `indexedWarmCacheMs=1`. |
 | M6 million-record parity | Full profile compares reference, indexed cold, and indexed warm/cache result digests. | M6 report: 1,000,000 records, matching digest, warm cache at target. |
@@ -97,8 +97,11 @@ playbook-runtime-memory performance smoke passed profile=full recordCount=100000
 
 ## 6. Implementation Notes
 
-- `playbook-runtime-memory-index.ts` uses schema v2 with exact token maps plus
-  bounded fuzzy token maps. Normal full-profile queries report no token scan
+- `playbook-runtime-memory-index.ts` uses schema v3 with exact token maps,
+  exact-overflow token metadata, and bounded fuzzy token maps. Exact-overflow,
+  fuzzy-overflow, and substring-overflow fallback paths scan uncapped source
+  records rather than capped token buckets, preserving reference parity for IDs
+  beyond the per-token cap. Normal full-profile queries report no token scan
   fallback.
 - `playbook-runtime-memory-cache.ts` persists pack cache entries under the
   learning runtime cache. Cache keys bind project root, schema version,

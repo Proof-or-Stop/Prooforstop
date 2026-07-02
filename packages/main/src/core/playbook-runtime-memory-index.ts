@@ -585,16 +585,6 @@ function tokenMatchesQuery(indexedToken: string, token: string): boolean {
   return indexedToken === token || indexedToken.includes(token) || token.includes(indexedToken);
 }
 
-function scanMatchingIdsForToken(tokenMap: Record<string, string[]>, token: string): string[] {
-  const ids: string[] = [];
-  for (const [indexedToken, indexedIds] of Object.entries(tokenMap)) {
-    if (tokenMatchesQuery(indexedToken, token)) {
-      appendValues(ids, indexedIds);
-    }
-  }
-  return uniqueInOrder(ids);
-}
-
 function scanSourceMatchingIdsForToken<T extends { id: string }>(
   sourceItems: T[],
   textForItem: (item: T) => string,
@@ -669,8 +659,8 @@ function matchingIds<T extends { id: string }>(
     if (containingTokens.fallback) {
       stats.fuzzyFallbacks += 1;
       stats.tokenScanFallbacks += 1;
-      stats.tokenMapScannedEntries += Object.keys(tokenMap).length;
-      appendValues(ids, scanMatchingIdsForToken(tokenMap, token));
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
       continue;
     }
     if (containingTokens.tokens.length > 0) {
@@ -691,8 +681,8 @@ function matchingIds<T extends { id: string }>(
     if (containedTokens.overflow) {
       stats.fuzzyFallbacks += 1;
       stats.tokenScanFallbacks += 1;
-      stats.tokenMapScannedEntries += Object.keys(tokenMap).length;
-      appendValues(ids, scanMatchingIdsForToken(tokenMap, token));
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
       continue;
     }
     if (containedTokens.tokens.length > 0) {
