@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-9958:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage pass: F-001/F-002 fixes verified. node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js passed 13/13 and now covers default dry-run no-write snapshots for propose/approve/auto-promotion, dist CLI execution for seed observe/runtime verify/promotion status, M7 V1/V2 readiness status fields, duplicate canonicalSourceKey and already-represented rejection, and READ_ONLY_COMMANDS/command-policy classification for new read-only commands.",
+      "createdAt": "2026-07-02T20:58:27.837Z",
+      "reviewRound": "2026-07-02T20:54:16.119Z",
+      "reviewRunId": "B-9958:RR-007",
+      "_hash": "c1a7e7ffc687554e42723143863842a9caa1090c4e667907bd45425aa3c35cf6"
+    },
+    {
+      "id": "B-9958:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality pass: F-004 fixed by adding playbook_seed_observe and playbook_runtime_consumption_verify to READ_ONLY_COMMANDS; local dist CLI activity occurrence probe stayed 4->4 and focused smoke passed 13/13. Reviewed locks, digests, and fail-closed semantics.",
+      "createdAt": "2026-07-02T20:59:23.654Z",
+      "reviewRound": "2026-07-02T20:54:16.119Z",
+      "reviewRunId": "B-9958:RR-006",
+      "_hash": "d1b619a44f56aad750cef7f9b25118c00870210515c5b7096a2b2359a283bb9a"
+    },
+    {
+      "id": "B-9958:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept pass: scoped to F-007 plus concept regressions. Current source_lineage_audit filters finding-signal anchorRefs through currently present project files before seed observation, so stale all-missing anchors are blocked as missing valid anchors. Existing playbook-seed support threshold remains enforced via finding_signal_insufficient_support, and duplicate canonicalSourceKey protection remains fail-closed for duplicate manifest rows plus already represented canonical sources. Existing dist smoke passed: node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js (13/13).",
+      "createdAt": "2026-07-02T21:08:57.327Z",
+      "reviewRound": "2026-07-02T21:05:57.267Z",
+      "reviewRunId": "B-9958:RR-010",
+      "_hash": "1253e82bb8cb4b9c0db93563a931247ff28045eee5125743b35f47c1aa16418b"
+    },
+    {
+      "id": "B-9958:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 docs review for F-009: inspected playbook-promotion worker decision doc plus command-policy/process-fact-level rationale. The reviewed operator-facing docs/prose and policy/fact wording now use non_promotable as canonical, with remaining non_deducible mentions explicitly limited to legacy storage/path/action compatibility.",
+      "createdAt": "2026-07-02T21:16:20.027Z",
+      "reviewRound": "2026-07-02T21:14:27.294Z",
+      "reviewRunId": "B-9958:RR-011",
+      "_hash": "9b34b718767b50429f235eed31a810c0e3d4ed32ac893cb0b117575ddc44f5d4"
+    },
+    {
+      "id": "B-9958:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: implementation preserves host-neutral Lattice workflow boundaries, keeps playbook learning non-authoritative, avoids automatic activation in V1, and keeps candidate material separate from runtime active guidance.",
+      "createdAt": "2026-07-02T21:18:54.068Z",
+      "reviewRound": "2026-07-02T21:14:27.294Z",
+      "reviewRunId": "B-9958:RR-012",
+      "_hash": "8f78717c1af96dfc7bbc2e65dd5cc2e677301f55e19a29238f8b64fb6c01b7e2"
+    },
+    {
+      "id": "B-9958:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: dry-run paths are covered by no-write assertions, digest guards fail closed without partial writes, duplicate canonical sources are blocked, and non_promotable wording is consistent with legacy storage compatibility.",
+      "createdAt": "2026-07-02T21:19:06.194Z",
+      "reviewRound": "2026-07-02T21:14:27.294Z",
+      "reviewRunId": "B-9958:RR-013",
+      "_hash": "f3b74474c60c8da489ca7a1d0dc357dcd877b56758935a2fd1000b7689f65174"
+    },
+    {
+      "id": "B-9958:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: B-9958 smoke covers all new command surfaces through direct handler and built CLI paths, including dry-run no-write, digest drift, status output, runtime consumption verify, and disabled auto-promotion apply guard.",
+      "createdAt": "2026-07-02T21:19:18.610Z",
+      "reviewRound": "2026-07-02T21:14:27.294Z",
+      "reviewRunId": "B-9958:RR-014",
+      "_hash": "9ea37ebab16c803db37b3b96ea41bfd2a6ed5c727a9e40dab3d272e452286929"
+    },
+    {
+      "id": "B-9958:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review passed after delivery evidence scope acknowledgement: no business logic changed, source-lineage/playbook seed design remains non-authoritative, and V2 auto-promotion remains disabled.",
+      "createdAt": "2026-07-02T21:44:53.164Z",
+      "reviewRound": "2026-07-02T21:44:04.594Z",
+      "reviewRunId": "B-9958:RR-015",
+      "_hash": "894297ae79ac4f80baf5c8135438b8435ca8c3c110c310ce78d5a402e7ba5d8a"
+    },
+    {
+      "id": "B-9958:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review passed after delivery evidence scope acknowledgement: only closure metadata/scope evidence changed, and dry-run no-write plus digest fail-closed behavior remains covered.",
+      "createdAt": "2026-07-02T21:44:56.857Z",
+      "reviewRound": "2026-07-02T21:44:04.594Z",
+      "reviewRunId": "B-9958:RR-016",
+      "_hash": "0a0cb77adec9af50b3c42804b58c0f7cc282eaf2aaf604374cca3b74b92b99bb"
+    },
+    {
+      "id": "B-9958:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage re-review passed after delivery evidence scope acknowledgement: live transcript, DONE-required validation, B-9958 smoke, and full validate evidence remain sufficient.",
+      "createdAt": "2026-07-02T21:45:00.252Z",
+      "reviewRound": "2026-07-02T21:44:04.594Z",
+      "reviewRunId": "B-9958:RR-017",
+      "_hash": "60a45aed6a479f350e7f7e62b47266827060450586e8f64db50b34fe8354580a"
+    },
+    {
+      "id": "B-9958:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed after delivery evidence scope acknowledgement: docs promises remain consistent with implemented CLI surfaces and delivery-context evidence.",
+      "createdAt": "2026-07-02T21:45:03.657Z",
+      "reviewRound": "2026-07-02T21:44:04.594Z",
+      "reviewRunId": "B-9958:RR-018",
+      "_hash": "565e7ff561c85bb11e7a4057d99c2857a886890aa4eb58a892b74234394b442d"
+    }
+  ]
+}

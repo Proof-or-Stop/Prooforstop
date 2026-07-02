@@ -17,9 +17,9 @@ Proofbound already has the first half of the playbook learning loop:
 
 The missing half is lifecycle governance after a candidate is created. If
 candidate playbooks depend on a human remembering to activate, reject, archive,
-or mark them non-deducible, the system keeps the same failure shape that
-runtime memory was designed to fix: useful experience exists on disk, but the
-workflow does not reliably consume or curate it.
+or mark their source non-promotable, the system keeps the same failure shape
+that runtime memory was designed to fix: useful experience exists on disk, but
+the workflow does not reliably consume or curate it.
 
 This document defines a scoped promotion-worker plan that closes that loop
 without weakening Proofbound's evidence model.
@@ -28,7 +28,7 @@ Short version:
 
 > Story DONE should trigger non-blocking learning settlement. A promotion worker
 > should then use explicit outcome evidence to recommend activation, reject,
-> archive, recommend demotion, or mark playbook sources as non-deducible. The
+> archive, recommend demotion, or mark playbook sources as non-promotable. The
 > first version uses a simple absolute-threshold evaluator. Matched control
 > groups, trial traffic, timers, and auto-active promotion are future
 > extensions, not V1 requirements.
@@ -88,7 +88,7 @@ The practical failure modes are:
 - "Raw-counter bias": a playbook can look successful simply because it was
   present during easy or unrelated work.
 - "Repeated bad distillation": the same source experience can keep generating
-  rejected candidates unless the source is marked non-deducible.
+  rejected candidates unless the source is marked non-promotable.
 
 ## 4. Design Principles
 
@@ -123,7 +123,7 @@ V1 supports:
 - candidate surfacing in read-only inspection/status surfaces;
 - explicit outcome recording;
 - deterministic absolute-threshold evaluation;
-- reject / archive / demote / mark non-deducible;
+- reject / archive / demote / mark non-promotable;
 - optional explicit activation through existing `playbook_activate`;
 - promotion recommendation rows for candidates that look strong enough.
 
@@ -182,10 +182,11 @@ V1 can use the existing `PlaybookStatus` plus adjacent promotion metadata:
 | `active` | Advisory runtime guidance | May surface in runtime packs |
 | `rejected` | Evaluated as not useful or harmful | Never surfaced; row retained |
 | `archived` | No longer applicable or superseded | Never surfaced; row retained |
-| `non_deducible` source | Source is not suitable for playbook abstraction | Prevents repeated generation from that source |
+| `non_promotable` source | Source is not suitable for playbook abstraction | Prevents repeated generation from that source |
 
 If direct `PlaybookStatus` expansion is too disruptive, V1 may store
-`rejected`, `archived`, and `non_deducible` in a promotion metadata file while
+`rejected` and `archived` in promotion metadata, and may preserve the legacy
+storage/action name `non_deducible` for non-promotable source records, while
 leaving existing playbook rows intact.
 
 ### 7.2 Candidate Surfacing In V1
@@ -471,20 +472,24 @@ Each row records:
 - evaluated status;
 - aggregate digest;
 - action: `recommend_activate`, `reject`, `hold`, `archive`,
-  `recommend_demote`, `mark_non_deducible`;
+  `recommend_demote`, plus non-promotable source marking through the legacy
+  compatibility action `mark_non_deducible`;
 - reason codes;
 - before and after metadata;
 - worker version;
 - dry-run or applied;
 - no PII, no prompt text, no secret material.
 
-### 12.3 Non-Deducible Source Registry
+### 12.3 Non-Promotable Source Registry
 
 Add a small registry keyed by source experience/finding signature:
 
 ```text
 .lattice/learning/non-deducible-sources.json
 ```
+
+The file path keeps the legacy compatibility name `non_deducible`; operator
+docs and output should describe the concept as `non_promotable`.
 
 Purpose:
 
@@ -547,7 +552,7 @@ type PromotionDecision =
   | 'hold'
   | 'archive'
   | 'recommend_demote'
-  | 'mark_non_deducible';
+  | 'mark_non_deducible'; // legacy compatibility action for non_promotable source marking
 ```
 
 V1 promotion recommendation criteria:
@@ -589,9 +594,9 @@ Recommend demotion or archive for active playbooks when:
 - source has been superseded;
 - repeated dismissals show the active guidance is now noise.
 
-### 13.4 Non-Deducible
+### 13.4 Non-Promotable Sources
 
-Mark a source as non-deducible when:
+Mark a source as non-promotable when:
 
 - the same source experience/finding has produced 3 rejected candidates; or
 - reviewers repeatedly judge the abstraction too vague, too local, or not
@@ -599,10 +604,12 @@ Mark a source as non-deducible when:
 - the source is a one-off environment/tool incident that should remain
   dev-memory rather than a process playbook.
 
-`playbook_propose` must consult the non-deducible source registry before
-creating a new proposal. When the source signature is marked non-deducible, it
-must refuse or warn instead of silently generating another candidate, unless the
-caller supplies an explicit override flag and reason.
+`playbook_propose` must consult the non-promotable source registry before
+creating a new proposal. The registry may remain stored at the legacy
+compatibility path `.lattice/learning/non-deducible-sources.json`. When the
+source signature is marked non-promotable, the command must refuse or warn
+instead of silently generating another candidate, unless the caller supplies an
+explicit override flag and reason.
 
 ## 14. Future Matched-Control Track
 
@@ -653,7 +660,8 @@ Rules:
 - apply is idempotent;
 - apply writes a decision log row for every evaluated idempotency key;
 - V1 apply may write recommendations, rejected/archive metadata, demotion
-  recommendations, and non-deducible source records;
+  recommendations, and non-promotable source records stored under the legacy
+  compatibility naming/path;
 - V1 apply does not automatically activate candidates unless a later feature
   flag/story enables that behavior;
 - apply cannot mutate story lifecycle state;
@@ -669,7 +677,7 @@ Output:
 - active playbooks with recent negative signals;
 - pending settlement / queue count;
 - latest decisions;
-- rejected/non-deducible sources;
+- rejected/non-promotable sources;
 - retention/compaction warnings;
 - disabled feature-flag state.
 
@@ -743,7 +751,7 @@ Deliverables:
   runtime consumers;
 - red test showing no promotion decision log exists;
 - red test showing source experiences can be repeatedly distilled without a
-  non-deducible stop condition.
+  non-promotable stop condition.
 
 Exit criteria:
 
@@ -812,7 +820,7 @@ Tests:
 ### M4. V1 Aggregate And Evaluator
 
 Goal: decide recommend_activate/reject/hold/archive/recommend_demote/
-non_deducible from explicit outcomes.
+non_promotable source marking from explicit outcomes.
 
 Deliverables:
 
@@ -829,7 +837,7 @@ Tests:
 - hold due to low sample;
 - archive due to superseded source;
 - recommend_demote for harmful active playbook;
-- non-deducible after repeated rejected candidates;
+- non-promotable after repeated rejected candidates;
 - harmful/wrong-claim prevents activation recommendation.
 
 ### M5. Sweep Command
@@ -851,20 +859,21 @@ Tests:
 - stale candidate digest fails closed;
 - unrelated playbooks are preserved.
 
-### M5.5. Proposal Guard For Non-Deducible Sources
+### M5.5. Proposal Guard For Non-Promotable Sources
 
 Goal: stop repeated failed distillation at the proposal boundary.
 
 Deliverables:
 
-- `playbook_propose` consults the non-deducible source registry;
+- `playbook_propose` consults the non-promotable source registry, stored under
+  the legacy compatibility path/name `non_deducible`;
 - marked sources refuse or warn before proposal creation;
 - override requires an explicit flag and reason;
 - override events are auditable.
 
 Tests:
 
-- non-deducible source blocks or warns on new proposal;
+- non-promotable source blocks or warns on new proposal;
 - explicit override with reason succeeds;
 - override without reason rejects;
 - unmarked source keeps existing proposal behavior.
@@ -883,7 +892,7 @@ Tests:
 
 - candidate appears in status but not runtime memory active hits;
 - active playbook still appears in runtime memory pack;
-- rejected/archived/non-deducible never surface as active guidance.
+- rejected/archived/non-promotable sources never surface as active guidance.
 
 ### M7. Future Trial / Matched-Control Spike
 
@@ -929,17 +938,19 @@ V1 is complete when:
 4. Outcome verdict sources are explicit and validated.
 5. Unknown/neutral rows cannot promote a playbook by themselves.
 6. The evaluator can recommend activation, reject, hold, archive, recommend
-   demotion, and mark non-deducible.
+   demotion, and mark sources non-promotable.
 7. Dry-run and apply modes are deterministic and idempotent.
 8. Applied decisions are auditable.
 9. No promotion path can satisfy review, validation, delivery, DONE, receipt,
    release, or production authority.
 10. Rejected and archived rows are retained.
 11. Repeated bad distillation from the same source is stopped by
-    `non_deducible`.
+    `non_promotable` source records, stored under the legacy compatibility
+    name/path `non_deducible`.
 12. Candidate playbooks never enter active runtime memory pack results.
-13. `playbook_propose` consults non-deducible source records and requires an
-    explicit override reason to bypass them.
+13. `playbook_propose` consults non-promotable source records and requires an
+    explicit override reason to bypass them; the storage/API compatibility name
+    may remain `non_deducible`.
 
 Future completion for V2+ requires separate acceptance criteria for trial
 serving, matched control, timers, and auto-active advisory promotion.
@@ -963,8 +974,9 @@ order is to establish concurrency and outcome validation before wiring DONE.
 
 ## 22. Open Questions
 
-1. Should rejected/archive/non-deducible state extend `PlaybookStatus` directly,
-   or live in adjacent promotion metadata?
+1. Should rejected/archive/non-promotable state extend `PlaybookStatus`
+   directly, or live in adjacent promotion metadata with legacy storage
+   compatibility?
 2. What minimum explicit signal should count as `helped` without adding reviewer
    burden?
 3. Should local-only learning be enough for V1, or is an export/import summary

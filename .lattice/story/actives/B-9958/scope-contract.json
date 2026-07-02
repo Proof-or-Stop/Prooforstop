@@ -1,0 +1,116 @@
+{
+  "storyId": "B-9958",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-seed.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Generated ProofStory metadata for this story was created by Lattice story setup and checklist flow; acknowledging metadata-only scope coverage so source review can proceed.",
+      "timestamp": "2026-07-02T20:33:08.491Z",
+      "paths": [
+        ".lattice/story/actives/B-9958/intent-collision.json",
+        ".lattice/story/actives/B-9958/milestone-ledger.json",
+        ".lattice/story/actives/B-9958/original-intent-snapshot.json",
+        ".lattice/story/actives/B-9958/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9958/intent-collision.json",
+        ".lattice/story/actives/B-9958/milestone-ledger.json",
+        ".lattice/story/actives/B-9958/original-intent-snapshot.json",
+        ".lattice/story/actives/B-9958/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "adaad5e786e9d9a3cb10e44fc845221a37fea558",
+      "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer-requested fixes F-004 and F-005 require these files: activity-policy.ts must mark new L0 read-only commands as CLI read-only to prevent activity side effects; source-lineage-audit.ts must expose finding-signal support/anchor quality metadata so seed promotion can enforce the documented threshold.",
+      "timestamp": "2026-07-02T20:53:46.683Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/source-lineage-audit.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/source-lineage-audit.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "8de373648a87a7c610c7f472420bb684668685e0",
+      "materialHash": "ab8730a13c8e7a9f13166910634f406467c269a571ce183c0d6bad2189393c93"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round-2 docs fix F-008 changed playbook_promotion_status canonical wording from nonDeducibleSources to nonPromotableSources; existing promotion worker smoke assertion needed matching wording update to keep coverage aligned with the operator-visible status output.",
+      "timestamp": "2026-07-02T21:05:40.060Z",
+      "paths": [
+        "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba3335dacf2e59ec5c46874c474495d6dc857730",
+      "materialHash": "520f2a2e9d2a2d9fb59e673a3838372b4d9c65301c6662376581778e42507428"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Docs reviewer F-009 found this related playbook promotion plan still presented non_deducible as canonical operator wording; updating it is required to keep the public decision docs consistent with the B-9958 non_promotable canonical terminology and legacy non_deducible storage boundary.",
+      "timestamp": "2026-07-02T21:14:09.850Z",
+      "paths": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5405fe2ec3e49e6d22f206cb7e0189b0953f9a55",
+      "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery context pack is command-generated closure evidence required for the lattice-review-delivery reviewer to verify docs promises and real-machine tests before DONE.",
+      "timestamp": "2026-07-02T21:43:36.126Z",
+      "paths": [
+        ".lattice/story/actives/B-9958/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9958/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4670bf4e725e4edf691786ea7026f9c4447852d3",
+      "materialHash": "a03df0cdf528d09421e5468b20f8157bbf23d8e18d160d6f5ec09c6fce64fb3a"
+    }
+  ],
+  "createdAt": "2026-07-02T20:16:16.031Z",
+  "updatedAt": "2026-07-02T21:43:36.126Z"
+}

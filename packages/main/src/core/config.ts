@@ -275,7 +275,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'memory_playbook_baseline_*', 'playbook_runtime_health', 'final_response_check',
     'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
     'signature_backfill',  // B-17a9: WRITING Experience Layer maintenance command; fills empty finding signatureTags from a committed map (source='backfill'); dry-run default; declared allowedPhases:all mainSharedMutating in command-policy; writes audit-only fields after _hash; never recomputes _hash; no gate reads it
-    'playbook_*',  // B-8387/B-cc94: audit-only staged Process Playbook lifecycle; propose/diff/approve/activate/reject declared allowedPhases:all in command-policy; never files findings/touches gates; no gate reads it
+    'playbook_*',  // B-8387/B-cc94/B-9958: audit-only staged Process Playbook lifecycle plus deduped seed promotion diagnostics/batch writers; declared allowedPhases:all in command-policy; never files findings/touches gates; no gate reads it
     'source_lineage_audit', // B-01df M1: read-only learning source lineage audit; diagnostics only, no store creation/promotion/runtime blocking
     'recall',  // B-7561: read-only structured-field Story Recall over the existing story_list scan (Experience Layer Phase 3); declared allowedPhases:all readOnly in command-policy; writes nothing / no derived index; no gate reads it
     'learning_validate',  // B-a2e3: read-only / advisory Experience Layer referential re-validation (valid-rate / drift-rate vs HEAD); declared allowedPhases:all readOnly in command-policy; writes nothing / no persist; no gate reads it

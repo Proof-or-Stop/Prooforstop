@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-9958",
+  "state": "confirmed",
+  "ledgerHash": "sha256:0a766c3bb852876b8f23ae84b868cd3b18faf3fbe0e3c711a826cb34d4d02cff",
+  "milestones": [
+    {
+      "id": "M2",
+      "sourceRequirementId": "B-9958-M2",
+      "claim": "Read-only deduped playbook seed observation is implemented.",
+      "doneMeans": "playbook_seed_observe reports proposable/blocking seeds and observeDigest without writes.",
+      "requiredEvidence": [
+        "logic-smoke",
+        "cli-smoke",
+        "command-policy"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "B-9958-M3",
+      "claim": "Digest-guarded batch proposal from reviewed seed observation is implemented.",
+      "doneMeans": "playbook_seed_propose_batch dry-run is no-write and apply requires matching observeDigest.",
+      "requiredEvidence": [
+        "logic-smoke",
+        "digest-drift-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "B-9958-M4",
+      "claim": "Digest-guarded batch approval creates only candidate playbooks.",
+      "doneMeans": "playbook_candidate_batch_approve dry-run emits a manifest and apply requires matching manifest digest before candidate-only persistence.",
+      "requiredEvidence": [
+        "logic-smoke",
+        "digest-drift-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "B-9958-M5",
+      "claim": "Promotion evidence loop respects explicit outcomes and non_promotable sources.",
+      "doneMeans": "promotion observe/status link recommendations to lineage while DONE success alone cannot write helped outcomes.",
+      "requiredEvidence": [
+        "promotion-smoke",
+        "no-done-helped-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "B-9958-M6",
+      "claim": "Runtime consumption verification proves active playbook consumption and candidate inertness.",
+      "doneMeans": "playbook_runtime_consumption_verify reports active consumption diagnostics and keeps candidates out of active runtime guidance.",
+      "requiredEvidence": [
+        "runtime-consumption-smoke",
+        "command-policy"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "B-9958-M7",
+      "claim": "Promotion health/readiness reports V1 closure and V2 posture.",
+      "doneMeans": "status/readiness output names seed/candidate/recommendation health and disabled auto-promotion posture.",
+      "requiredEvidence": [
+        "cli-smoke",
+        "status-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "B-9958-M8",
+      "claim": "Auto-promotion apply is present only as a disabled-by-default fail-closed guard.",
+      "doneMeans": "playbook_auto_promotion_apply dry-run explains missing prerequisites and apply fails closed without explicit flag, real outcomes, reviewed policy, lineage, exposure, and safety checks.",
+      "requiredEvidence": [
+        "fail-closed-smoke",
+        "command-policy"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "assignedStory": "B-9958",
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-02T20:17:12.900Z",
+  "updatedAt": "2026-07-02T20:17:28.846Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702201640",
+    "acceptedInterpretationHash": "sha256:8bcf80e4b42141f0daa4431440404fccbd9a5814156e6e1f3a7f0c94f8ccb2a0",
+    "acceptedAt": "2026-07-02T20:17:28.846Z"
+  }
+}
