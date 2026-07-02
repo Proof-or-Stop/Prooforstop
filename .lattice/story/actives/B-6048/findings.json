@@ -77,6 +77,26 @@
       ],
       "signatureTag": "missing|ts|million-record-parity",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6048:F-005",
+      "desc": "doc-code-drift: docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md:24-30 and :334-335 still say the indexed/cached million hot path is NOT YET PROVEN / only claimable after future M6 latency reporting, but this branch implements and tests a full-profile optimized parity report at packages/main/src/core/playbook-runtime-baseline.ts:1278-1323 and packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:335-367. Update the docs to state the current report-first result with full reference baseline plus indexed/cached parity timings, while still not claiming 1-2s million-record runtime performance is proven.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T13:09:15.202Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-007",
+      "_hash": "96c664519209f5114546612bac57394da878a4ae4d46aa13c8260aaeadf81ace",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
