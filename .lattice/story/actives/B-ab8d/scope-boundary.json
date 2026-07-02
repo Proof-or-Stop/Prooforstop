@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ab8d",
+  "mode": "feature",
+  "allowed": [
+    "Activity-log event kinds experience_pack_surfaced and retrieval_violation",
+    "Experiment-arm retrieval gate in packages/main/src/cli-engine.ts next to enforceStoryOwnerLeaseGate + block-list constant near the command catalog classification",
+    "New core leaf packages/main/src/core/experiment-arm.ts (experimentId + arm context resolver)",
+    "New shared pack-surface leaf (e.g. packages/main/src/core/experience-pack-surface.ts) gating renderMemoryFreshnessPack output",
+    "New smoke task packages/main/src/tasks/experience-pack-arm-switch-smoke.ts + validate.commands registration",
+    "Read-only resolved-learning-root inspection surface (observability_snapshot field or equivalent)",
+    "Wiring the seven existing pack render call sites (story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory handlers) through the shared leaf"
+  ],
+  "excluded": [
+    "Any change to gate decisions, issues/blocker computation, resolveReviewPromptHash, or reviewer evidence semantics",
+    "Any change to resolveLearningRoot resolution behavior itself",
+    "experiments/ directory (M1 fixture generator territory, story B-337f)",
+    "M4 scorer, M6 campaign runner, M8 live readout",
+    "Memory pack content/ranking changes (buildMemoryFreshnessPack internals stay untouched)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-02: execute the experience-layer ablation plan milestones to DONE; M3 scope is the plan section 13 M3 row (arm switch for the full pack under experimentId override + mechanical control-arm retrieval blocking), reusing the production render-gate mechanism.",
+  "createdAt": "2026-07-02T22:54:39.988Z",
+  "updatedAt": "2026-07-02T22:54:39.988Z",
+  "_hash": "282e9db26a42d340565e3043003778f2ed57feb64960ece7e7a4160528022b5e"
+}
