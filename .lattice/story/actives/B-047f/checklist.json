@@ -45,7 +45,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/protocol.mjs freeze --root=$TMPR --config=$TMPR/cfg.json --createdAt=2026-07-03T00:00:00Z && node experiments/experience-ablation/protocol.mjs validate --root=$TMPR --experimentId=exp-cli-demo",
+          "result": "pass",
+          "note": "Live CLI run: freeze printed protocolHash ed4c18c5... and wrote protocol.json + memory-snapshot-hash.json under the experiment root; validate exited 0 printing PASS with the same hash. Also covered by protocol-selfcheck case freeze->validate.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/protocol-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck cases: key-order invariance (reversed insertion order -> identical protocolHash) and tampered field -> validate hash mismatch (PROTOCOL_HASH_MISMATCH). 13/13 cases pass.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/protocol-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck cases: missing memorySnapshotHash named; malformed perPopulation (inverted baselineBand) named; in-store/held-out overlap rejected; wrong schemaVersion rejected — every required field enforced with the offending field in the error.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/protocol-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck case: same config frozen at createdAt 2026-01-01 vs 2026-12-31 -> identical protocolHash, and createdAt stored outside the hashed payload (extractPayload drops it).",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -97,7 +143,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/pair-ledger.mjs build --root=$TMPR --experimentId=exp-cli-demo --manifest=$TMPR/manifest.json --seed=s1 (twice) && diff outputs && node experiments/experience-ablation/pair-ledger.mjs verify --root=$TMPR --experimentId=exp-cli-demo",
+          "result": "pass",
+          "note": "Live CLI: two same-seed builds produced identical runOrder+sealHash (diff empty); verify PASS with 6 arm-runs bound to the protocol hash. Selfcheck additionally proves runOrder covers every armRun exactly once (17/17 cases).",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/pair-ledger-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck cases: different seed -> different order over the same armRun permutation set; manifest row missing trapGroup refused naming the field; duplicate fixtureId and invalid trapGroup also refused.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/pair-ledger.mjs build --root=$TMPR2 --experimentId=exp-cli-demo --manifest=$TMPR/manifest.json --seed=s1",
+          "result": "pass",
+          "note": "Live CLI on a root with NO frozen protocol: exit 1 with 'frozen-protocol requirement not met ... M0 requires a valid frozen protocol.json' — the M0 no-task-without-hash exit criterion enforced mechanically. Selfcheck covers the same plus hash-mismatch refusal.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/pair-ledger-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck case: protocol.json tampered AFTER a valid build -> verify exits non-zero (protocolHash no longer matches the frozen protocol); restores -> verify passes again.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "touch <expRoot>/score-records.jsonl && node experiments/experience-ablation/pair-ledger.mjs build ... --seed=s2",
+          "result": "pass",
+          "note": "Live CLI: after score-records.jsonl exists, build exits 1 with 'the ledger is immutable once the first score record exists (plan S8/M2)'. Selfcheck also proves verify catches a hand-tampered pair-ledger.jsonl row and a tampered run-order-seed.json (sealHash).",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -144,7 +247,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/sample-size-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck asserts the plan-reviewed S7 anchors exactly: n(0.30,0.10)=294, n(0.625,0.25)=62, n(0.5,0.35)=27, n(0.5,0.25)=58 (ceil, pooled two-sided z, alpha .05, power .80, reduction direction), and the band-scan maximum 62 at (0.625, 0.25). 24/24 cases pass.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/sample-size-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck cases: wilson95(9,15) lower<0.6<upper with width>0.30 driving the extend flag; pilotFreezeCheck rejects n<15 with min_runs; extend flagged when width>0.30; tight-CI case freezes at the Wilson lower bound with a conservative frozen N.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/sample-size-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck cases: mcnemar larger asymmetry at fixed total discordance -> fewer pairs; same asymmetry with more discordance -> more pairs; zero asymmetry rejected. Formula variant documented in-code (Connor 1987 reference comment).",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/sample-size-selfcheck.mjs",
+          "result": "pass",
+          "note": "Direction-trap case: the deliberately wrong increase-direction math (baseline+MDE) reproduces 356 while the tool computes 294 — any direction flip in the implementation fails the 294 assertion. The report CLI also states the reduction direction in json and md.",
+          "headHash": "75b51f124a2f75e4cfa49e4efa2db1a50d8cda99",
+          "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6",
+          "storyFilesHash": "17db1b41fbd97c551c1712516957bf826b22c942f82c02ec1e74eac7a28c99d2",
+          "timestamp": "2026-07-02T21:04:25.931Z"
+        }
+      ]
     }
   ]
 }

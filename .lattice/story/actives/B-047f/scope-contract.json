@@ -1,0 +1,24 @@
+{
+  "storyId": "B-047f",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/experience-ablation/protocol.mjs",
+    "experiments/experience-ablation/protocol-selfcheck.mjs",
+    "experiments/experience-ablation/pair-ledger.mjs",
+    "experiments/experience-ablation/pair-ledger-selfcheck.mjs",
+    "experiments/experience-ablation/sample-size.mjs",
+    "experiments/experience-ablation/sample-size-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/protocol-selfcheck.mjs",
+    "experiments/experience-ablation/pair-ledger-selfcheck.mjs",
+    "experiments/experience-ablation/sample-size-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T21:02:12.630Z",
+  "updatedAt": "2026-07-02T21:02:12.630Z"
+}

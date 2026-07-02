@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-047f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:17b46baf439a20d23a3a45d5eea25a4c47d218c841408b71de40c5c68327e1b0",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Protocol freeze tool: machine-validated protocol.json with canonical sha256 protocolHash and frozen memorySnapshotHash",
+      "doneMeans": "node experiments/experience-ablation/protocol-selfcheck.mjs exits 0 (freeze->validate pass, key-order invariance, per-field tamper detection, createdAt outside hash, snapshot sidecar consistency)",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Immutable pair ledger with deterministic seeded run order, refusing to build without a frozen protocol and refusing all mutation once a score record exists",
+      "doneMeans": "node experiments/experience-ablation/pair-ledger-selfcheck.mjs exits 0 (same-seed reproducibility, seed sensitivity, frozen-protocol refusal, post-score immutability, tamper + protocol-drift detection by verify)",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Per-population sample-size calculator reproducing the plan-reviewed S7 anchors with the executable Wilson-CI pilot freeze rule and adequacy report",
+      "doneMeans": "node experiments/experience-ablation/sample-size-selfcheck.mjs exits 0 (anchors 294/62/27/58, band max location, direction trap, wilson95 sanity, freeze-rule rejections, mcnemar invariants, report CLI end-to-end)",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T21:02:41.611Z",
+  "updatedAt": "2026-07-02T21:02:52.952Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702210210",
+    "acceptedInterpretationHash": "sha256:f03e7782be343c970ff1c93ef1e1892e6318be0f3353dca44d5151ec43488442",
+    "acceptedAt": "2026-07-02T21:02:52.952Z"
+  }
+}

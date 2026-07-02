@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-047f",
+  "sourceText": "Operator request (2026-07-03, translated from Chinese chat): Do not use dual-host parallel implementation; develop under the standard Lattice CLI workflow. Start with S1 (of the milestone slicing proposed from the merged rev-2 ablation execution plan: S1 = M0 protocol freeze + M2 pair ledger + M5 sample-size calculator, the experiment-side pure-tooling cluster).",
+  "normalizedOutcome": "Three runnable experiment tools with passing hermetic selfchecks exist under experiments/experience-ablation/ on main after a full Lattice lifecycle: protocol.mjs (freeze/validate a machine-checked protocol.json with canonical sha256 protocolHash + frozen memorySnapshotHash), pair-ledger.mjs (deterministic seeded run order; refuses without a frozen protocol; immutable once a score record exists), sample-size.mjs (per-population adequacy report reproducing the plan-reviewed S7 anchors and the executable Wilson-CI pilot freeze rule).",
+  "acceptanceClaim": "node experiments/experience-ablation/protocol-selfcheck.mjs && node experiments/experience-ablation/pair-ledger-selfcheck.mjs && node experiments/experience-ablation/sample-size-selfcheck.mjs all exit 0 on the story branch, with the sample-size selfcheck asserting the four plan-reviewed anchor values (294/62/27/58) and the pair-ledger selfcheck proving the frozen-protocol refusal and post-score immutability.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:3f79ffcf829d03d5ac7d8bc88a84fcbd8334072c4c9cf7bd4da051ec4a4e3ce0",
+  "createdAt": "2026-07-02T21:01:44.147Z",
+  "updatedAt": "2026-07-02T21:01:44.147Z"
+}
