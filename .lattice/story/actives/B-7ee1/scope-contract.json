@@ -1,0 +1,61 @@
+{
+  "storyId": "B-7ee1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-evidence-activation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/evidence-collector.ts",
+    "packages/main/src/core/verification-context-pack.ts",
+    "packages/main/src/core/done-oracle.ts"
+  ],
+  "explicitExcludes": [
+    "Authority Server integration",
+    "production receipt verification",
+    "lifecycle gate evidence semantics",
+    "story DONE settlement default-on",
+    "blanket activation of historical experience"
+  ],
+  "scopeChangeReason": "B-7ee1 only closes the advisory playbook recommendation-to-runtime activation gap. It may update learning/playbook metadata, CLI help/policy text, and smoke tests; it must not alter Authority, DONE, receipt, or production gate semantics.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate in enforce mode required these intent and acceptance-binding metadata artifacts before entering DEV. They are story-scoped lifecycle evidence for this story only, not business-code scope expansion.",
+      "timestamp": "2026-07-02T22:30:58.582Z",
+      "paths": [
+        ".lattice/story/actives/B-7ee1/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7ee1/intent-collision.json",
+        ".lattice/story/actives/B-7ee1/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7ee1/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7ee1/intent-collision.json",
+        ".lattice/story/actives/B-7ee1/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e8285c7d8b072cc18ebc3907d38e3c2f4f3f6560",
+      "materialHash": "da565ee5db5b3864547b04f5088755fec836c7a60efc76e31c99a4ac6b0c6ae9"
+    }
+  ],
+  "createdAt": "2026-07-02T22:30:00.157Z",
+  "updatedAt": "2026-07-02T22:30:58.582Z"
+}

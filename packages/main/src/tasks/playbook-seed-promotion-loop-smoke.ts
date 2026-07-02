@@ -30,6 +30,7 @@ import {
   computePlaybookProposalDigest,
   listProposals,
   markNonDeducibleSource,
+  readPlaybookAutoActivationEvents,
   readPlaybooks,
   readProposal,
   resolveFindingSignalsPath,
@@ -287,6 +288,52 @@ function doneSettlementOutcome(playbookId: string): PlaybookOutcomeEvent {
     authority: 'non_authoritative',
     gateEvidence: false,
   };
+}
+
+function recordHelpedOutcome(
+  handlers: ReturnType<typeof createPlaybookHandlers>,
+  playbookId: string,
+  index: number,
+  patch: { host?: string; trigger?: string } = {},
+): void {
+  handlers.playbook_outcome_record({
+    eventId: `PBO-ACTIVATE-${index}`,
+    idempotencyKey: `activate-helped-${index}`,
+    observedAt: `2026-07-02T00:0${index}:00.000Z`,
+    storyId: STORY_ID,
+    playbookId,
+    exposureMode: 'candidate-inspection',
+    consumer: 'reviewer',
+    context: {
+      storyPhase: 'REVIEW',
+      storyType: 'feature',
+      fileKinds: ['ts'],
+      triggerClasses: [patch.trigger ?? `activation-${index}`],
+      host: patch.host ?? `host-${index}`,
+      hostProvider: 'codex',
+      hostCapabilityId: `cap-${index}`,
+    },
+    outcome: {
+      verdict: 'helped',
+      verdictSource: 'reviewer',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: true,
+      note: 'Candidate prevented a repeated claim boundary error after explicit inspection.',
+    },
+    bindings: {},
+  } as any);
+}
+
+function withSweepEnabled<T>(fn: () => T): T {
+  const prior = process.env.PLAYBOOK_PROMOTION_SWEEP_ENABLED;
+  process.env.PLAYBOOK_PROMOTION_SWEEP_ENABLED = 'true';
+  try {
+    return fn();
+  } finally {
+    if (prior === undefined) delete process.env.PLAYBOOK_PROMOTION_SWEEP_ENABLED;
+    else process.env.PLAYBOOK_PROMOTION_SWEEP_ENABLED = prior;
+  }
 }
 
 function run(): void {
@@ -597,21 +644,98 @@ function run(): void {
       assert.ok(report.candidateInertness.some((row: any) => row.playbookId === 'PB-candidate' && row.inert));
     });
 
-    check('M8 auto-promotion guard is disabled by default and apply fails closed', () => {
+    check('M8 evidence activation fails closed without evidence and activates qualified candidates', () => {
       const root = mkProject();
       roots.push(root);
       const { ctx, store } = mkCtx(root);
       seedLearning(root, store);
       const handlers = createPlaybookHandlers(ctx);
-      approveSeedCandidate(root, handlers);
-      const dry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
-      assert.equal(dry.activationImplemented, false);
-      assert.ok(dry.globalBlockers.includes('PLAYBOOK_AUTO_ACTIVE_ENABLED_not_enabled'));
+      const candidate = approveSeedCandidate(root, handlers);
+
+      const noEvidenceDry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      assert.equal(noEvidenceDry.activationImplemented, true);
+      assert.equal(noEvidenceDry.activatedCount, 0);
+      assert.ok(noEvidenceDry.candidateGuards.some((guard: any) =>
+        guard.playbookId === candidate.id
+        && guard.blockers.includes('no_real_candidate_consumption_outcomes')
+        && guard.blockers.includes('promotion_recommendation_hold')));
       assert.throws(
         () => handlers.playbook_auto_promotion_apply({ apply: true, json: true }),
         /fail-closed/,
       );
-      assert.ok(readPlaybooks(root).every((row) => row.status !== 'active'), 'auto guard did not activate');
+      assert.ok(readPlaybooks(root).every((row) => row.status !== 'active'), 'no-evidence apply did not activate');
+
+      recordHelpedOutcome(handlers, candidate.id, 1, { host: 'codex-a', trigger: 'claim-boundary' });
+      recordHelpedOutcome(handlers, candidate.id, 2, { host: 'claude-b', trigger: 'stale-authority-wording' });
+      recordHelpedOutcome(handlers, candidate.id, 3, { host: 'codex-c', trigger: 'claim-boundary' });
+      const sweep = withSweepEnabled(() => parseJson<any>(handlers.playbook_promotion_sweep({ apply: true, json: true })));
+      assert.ok(sweep.decisions.some((row: any) => row.playbookId === candidate.id && row.action === 'recommend_activate' && row.applied));
+
+      const originalPlaybooks = readPlaybooks(root);
+      writePlaybooks(root, originalPlaybooks.map((row) =>
+        row.id === candidate.id ? { ...row, check: `${row.check} Extra stale edit after recommendation.` } : row));
+      const staleDecisionDry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      const staleGuard = staleDecisionDry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
+      assert.ok(staleGuard?.blockers.includes('applied_recommend_activate_decision_digest_mismatch'));
+      assert.throws(
+        () => handlers.playbook_auto_promotion_apply({ apply: true, json: true }),
+        /fail-closed/,
+      );
+      writePlaybooks(root, originalPlaybooks);
+
+      const eligibleDry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      const guard = eligibleDry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
+      assert.ok(guard?.eligible, 'candidate became eligible after explicit outcome + recommend_activate evidence');
+      assert.match(guard.promotionDecisionDigest, /^[a-f0-9]{64}$/);
+      assert.equal(eligibleDry.globalBlockers.length, 0);
+      assert.equal(eligibleDry.activationPolicy.policyId, 'proofbound.evidence-activated-advisory-playbook.v1');
+      assert.doesNotMatch(JSON.stringify(eligibleDry), /PLAYBOOK_AUTO_ACTIVE_ENABLED/, 'old default-off env flag is not part of the activation contract');
+
+      const applied = parseJson<any>(handlers.playbook_auto_promotion_apply({ apply: true, json: true }));
+      assert.equal(applied.applied, true);
+      assert.equal(applied.activatedCount, 1);
+      assert.equal(applied.activatedPlaybooks[0].playbookId, candidate.id);
+      assert.match(applied.activatedPlaybooks[0].promotionDecisionDigest, /^[a-f0-9]{64}$/);
+      assert.equal(applied.authority, 'non_authoritative');
+      assert.equal(applied.gateEvidence, false);
+      assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'active');
+      const activationRows = readPlaybookAutoActivationEvents(root).filter((row) => row.playbookId === candidate.id);
+      assert.equal(activationRows.length, 1);
+      assert.match(activationRows[0].evidence.decisionDigest, /^[a-f0-9]{64}$/);
+      assert.equal(activationRows[0].authority, 'non_authoritative');
+      assert.equal(activationRows[0].gateEvidence, false);
+
+      const runtime = parseJson<any>(handlers.playbook_runtime_consumption_verify({ json: true }));
+      assert.ok(runtime.activeChecks.some((row: any) => row.playbookId === candidate.id && row.consumedByAll));
+
+      const second = parseJson<any>(handlers.playbook_auto_promotion_apply({ apply: true, json: true }));
+      assert.equal(second.applied, true);
+      assert.equal(second.activatedCount, 0, 'second apply is idempotent after candidate is active');
+      assert.equal(readPlaybookAutoActivationEvents(root).filter((row) => row.playbookId === candidate.id).length, 1);
+
+      handlers.playbook_outcome_record({
+        eventId: 'PBO-ACTIVE-HARMFUL',
+        idempotencyKey: 'active-harmful',
+        observedAt: '2026-07-02T00:10:00.000Z',
+        storyId: STORY_ID,
+        playbookId: candidate.id,
+        exposureMode: 'active-advisory',
+        consumer: 'final_response_check',
+        context: { storyPhase: 'DONE', storyType: 'feature', fileKinds: ['ts'], triggerClasses: ['claim-boundary'], host: 'codex-a' },
+        outcome: {
+          verdict: 'harmful',
+          verdictSource: 'reviewer',
+          causedNoise: true,
+          causedWrongClaim: true,
+          preventedRepeatFinding: false,
+        },
+        bindings: {},
+      } as any);
+      const demote = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      assert.ok(demote.demotionRecommendations.some((row: any) =>
+        row.playbookId === candidate.id
+        && row.recommendation === 'recommend_demote'
+        && row.autoActivated === true));
     });
 
     check('M7 CLI status/readiness and read-only command surfaces execute through dist CLI', () => {
@@ -641,13 +765,13 @@ function run(): void {
       assert.equal(status.compatibility.legacyStorage, 'non_deducible');
       assert.match(status.seedPromotionReadiness.v1.observeDigest, /^[a-f0-9]{64}$/);
       assert.equal(typeof status.seedPromotionReadiness.v1.proposableSeeds, 'number');
-      assert.equal(status.seedPromotionReadiness.v2.autoPromotionDefaultEnabled, false);
-      assert.equal(status.seedPromotionReadiness.v2.activationImplemented, false);
-      assert.equal(status.seedPromotionReadiness.v2.posture, 'disabled-by-default/fail-closed');
+      assert.equal(status.seedPromotionReadiness.v2.activationImplemented, true);
+      assert.equal(status.seedPromotionReadiness.v2.posture, 'evidence-activated/apply-eligible-candidates');
+      assert.match(status.seedPromotionReadiness.v2.activationPolicyDigest, /^[a-f0-9]{64}$/);
 
       const statusText = runCli(root, ['playbook_promotion_status']);
       assert.match(statusText, /seedPromotionReadiness\.v1\.proposableSeeds:/);
-      assert.match(statusText, /seedPromotionReadiness\.v2\.posture: disabled-by-default\/fail-closed/);
+      assert.match(statusText, /seedPromotionReadiness\.v2\.posture: evidence-activated\/apply-eligible-candidates/);
       assert.match(statusText, /^nonPromotableSources: \d+ \(legacy storage: non_deducible\)$/m);
       assert.doesNotMatch(statusText, /^nonDeducibleSources:/m);
     });

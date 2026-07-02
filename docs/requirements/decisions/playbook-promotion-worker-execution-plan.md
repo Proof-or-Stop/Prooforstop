@@ -679,7 +679,7 @@ Output:
 - latest decisions;
 - rejected/non-promotable sources;
 - retention/compaction warnings;
-- disabled feature-flag state.
+- evidence-activation readiness and blocker state.
 
 ## 16. Feature Flags And Rollout
 
@@ -696,7 +696,13 @@ Future flags:
 |---|---|---|
 | `PLAYBOOK_TRIAL_SERVING_ENABLED` | off | Allows trial playbooks to surface at bounded traffic |
 | `PLAYBOOK_PROMOTION_TIMER_ENABLED` | off | Allows periodic timer registration |
-| `PLAYBOOK_AUTO_ACTIVE_ENABLED` | off | Allows automatic `candidate/trial -> active` advisory promotion |
+
+Evidence-activated advisory promotion is not controlled by a default-off
+ordinary-use flag. `playbook_auto_promotion_apply --apply` may activate only
+candidate playbooks that satisfy the reviewed activation policy, current
+candidate digest, applied `recommend_activate` decision, explicit exposure,
+structured outcome evidence, clean source lineage, and rollback/demotion
+readiness. It remains non-authoritative and never writes gate evidence.
 
 Fail-closed rules:
 

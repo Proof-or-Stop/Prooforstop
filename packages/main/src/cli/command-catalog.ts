@@ -1904,9 +1904,9 @@ Behavior:
     json: z.boolean().optional().describe('Emit structured JSON.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
-  { name: 'playbook_auto_promotion_apply', description: 'Disabled-by-default V2 auto-promotion guard; dry-run explains prerequisites and --apply fails closed', schema: {
-    dryRun: z.boolean().optional().describe('Explain V2 auto-promotion prerequisites without writing. Default true unless apply=true.'),
-    apply: z.boolean().optional().describe('Fail-closed unless future V2 prerequisites and feature flags are satisfied; this story does not activate playbooks.'),
+  { name: 'playbook_auto_promotion_apply', description: 'Evidence-activated advisory promotion; dry-run explains eligibility and --apply activates only qualifying candidates', schema: {
+    dryRun: z.boolean().optional().describe('Explain evidence activation eligibility without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Activate only evidence-qualified advisory candidates; writes active status plus append-only activation audit rows.'),
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {

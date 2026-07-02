@@ -4,9 +4,9 @@ Status: execution plan
 Created: 2026-07-02
 Current implementation: B-01df implements M1, the read-only
 `source_lineage_audit --domain=learning` audit. B-9958 implements the M2-M7 V1
-seed/proposal/candidate/runtime diagnostics and exposes the M8 auto-promotion
-guard as disabled-by-default/fail-closed; it does not implement automatic
-activation.
+seed/proposal/candidate/runtime diagnostics. B-7ee1 implements M8 as a guarded
+evidence-activated apply path for advisory candidates with reviewed policy,
+decision, digest, lineage, outcome, and rollback checks.
 
 Naming note: public project naming is Proof-or-Stop. Current internal documents
 may still use Proofbound, and the current CLI binary and storage paths may still
@@ -320,8 +320,8 @@ V1 behavior:
 - It may recommend activation, reject, archive, recommend demotion, or mark a
   source as `non_promotable`.
 
-V2 controlled advisory auto-promotion remains future-only. B-9958 exposes only
-the disabled-by-default/fail-closed guard:
+V2 controlled advisory auto-promotion is implemented by B-7ee1 as an
+evidence-activated apply surface, not as a default-off placeholder guard:
 
 ```bash
 lattice playbook_auto_promotion_apply --dryRun
@@ -330,23 +330,27 @@ lattice playbook_auto_promotion_apply --apply
 
 Allowed only when:
 
-- `PLAYBOOK_AUTO_ACTIVE_ENABLED=true`;
+- the reviewed evidence activation policy is present;
+- an applied `recommend_activate` decision matches the current aggregate and
+  candidate digest;
 - the candidate has explicit exposure records;
 - decisive samples meet the configured threshold;
 - helped / dismissed / harmful counts meet evaluator thresholds;
 - no unresolved harmful / wrong-claim signal exists;
 - source lineage audit has no duplicate-source or missing-lineage blocker for
   that candidate;
-- activation writes only advisory `active` playbook status, never gate evidence.
+- activation writes only advisory `active` playbook status plus append-only
+  activation audit rows, never gate evidence.
 
 Execution phase boundary:
 
-- V1 implementation stops at recommendation rows and runtime-consumption
-  verification.
-- V2 auto-promotion must remain disabled until V1 has real outcome records and a
-  human-reviewed threshold policy.
-- First-stage development must not enable automatic `candidate -> active`
-  mutation.
+- Promotion sweep still stops at recommendation rows and runtime-consumption
+  verification. Evidence activation is a separate apply command that consumes
+  those rows after the candidate evidence passes.
+- Evidence activation must fail closed until V1 has real outcome records and a
+  reviewed threshold policy.
+- `candidate -> active` writes are allowed only through the guarded apply path
+  with those inputs; blanket default-on activation remains disallowed.
 
 ## 9. Runtime Consumer Closure
 

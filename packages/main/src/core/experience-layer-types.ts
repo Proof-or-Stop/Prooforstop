@@ -284,6 +284,7 @@ export interface PlaybookOutcomeEvent {
 // explicitly non-authoritative and must never be consumed as lifecycle evidence.
 
 export type PlaybookPromotionDecisionSchemaVersion = 'proofbound.playbook-promotion-decision.v1';
+export type PlaybookAutoActivationSchemaVersion = 'proofbound.playbook-auto-activation.v1';
 export type NonDeducibleSourceSchemaVersion = 'proofbound.non-deducible-sources.v1';
 export type PlaybookPromotionHealthSchemaVersion = 'proofbound.playbook-promotion-health.v1';
 
@@ -359,6 +360,46 @@ export interface PlaybookPromotionDecisionRow {
   dryRun: boolean;
   applied: boolean;
   alreadyApplied: boolean;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export interface PlaybookAutoActivationEvent {
+  schemaVersion: PlaybookAutoActivationSchemaVersion;
+  activationId: string;
+  idempotencyKey: string;
+  activatedAt: string;
+  playbookId: string;
+  before: {
+    playbookStatus: 'candidate';
+    playbookDigest: string;
+  };
+  after: {
+    playbookStatus: 'active';
+    playbookDigest: string;
+  };
+  policy: {
+    policyId: string;
+    policyDigest: string;
+    reviewedBy: string;
+  };
+  evidence: {
+    aggregateDigest: string;
+    decisionId: string;
+    decisionIdempotencyKey: string;
+    decisionDigest: string;
+    recommendation: 'recommend_activate';
+    reasonCodes: string[];
+    decisiveSamples: number;
+    helpedCount: number;
+    dismissedCount: number;
+    harmfulCount: number;
+    wrongClaimCount: number;
+    contextClassCount: number;
+    realOutcomeCount: number;
+    exposureCount: number;
+    lineageCanonicalSourceKey: string;
+  };
   authority: 'non_authoritative';
   gateEvidence: false;
 }
