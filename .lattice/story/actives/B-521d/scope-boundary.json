@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-521d",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+  ],
+  "excluded": [
+    "automatic candidate activation",
+    "DONE gate evidence changes",
+    "runtime memory active guidance changes",
+    "timer registration",
+    "traffic experiment serving"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested a script/command to prove candidate generation, consumption, and recommendation handling before considering later automation.",
+  "createdAt": "2026-07-02T17:13:34.903Z",
+  "updatedAt": "2026-07-02T17:13:34.903Z",
+  "_hash": "881c18dd1b684f8994f654f591f1e80f7308e4f427084ad8ac8827fa0e36c231"
+}

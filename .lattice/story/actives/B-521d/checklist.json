@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add observation aggregation for candidate generation consumption and recommendation handling",
+      "context": "Compute read-only counts from real .lattice/learning playbooks, outcome ledger, decision log, and non-deducible registry. Treat hold as non-actionable and classify recommend_activate/reject/archive/recommend_demote/mark_non_deducible as handled or unhandled from current store state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "User sees candidateGenerated, candidateConsumed, actionableRecommendations, handledRecommendations, and unhandledRecommendations in observation output.",
+      "excludes": [
+        "traffic experiment serving",
+        "timer registration",
+        "automatic candidate activation"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose host-neutral playbook_promotion_observe command",
+      "context": "Register a read-only command with --since and --json. It must support relative windows such as 14d, write nothing, and report authority=non_authoritative plus gateEvidence=false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "User runs lattice playbook_promotion_observe --since=14d --json and sees JSON proof without mutations.",
+      "excludes": [
+        "runtime memory guidance changes",
+        "gate evidence changes"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused smoke coverage and documentation note",
+      "context": "Cover empty real-store posture and synthetic candidate/outcome/recommendation cases, including consumed/unconsumed candidate and handled/unhandled recommend_activate. Document that observation is evidence gathering, not automatic promotion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "Smoke output includes playbook promotion observe smoke passed and observation says to automate only when real backlog exists.",
+      "excludes": [
+        "automatic candidate activation"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

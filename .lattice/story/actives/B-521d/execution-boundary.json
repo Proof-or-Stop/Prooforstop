@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-521d",
+  "allowedCommands": [
+    "lattice done_required_validate --storyId=<story>",
+    "lattice playbook_promotion_observe --since=14d --json",
+    "lattice validate --story=<story>",
+    "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+  ],
+  "excludedCommands": [
+    "lattice playbook_activate"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/learning/playbook-outcomes.jsonl",
+    ".lattice/learning/playbook-promotion-decisions.jsonl",
+    ".lattice/learning/playbooks.json"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "This story may read learning artifacts but must not mutate them outside temporary smoke fixtures.",
+  "createdAt": "2026-07-02T17:13:34.903Z",
+  "updatedAt": "2026-07-02T17:13:34.903Z",
+  "_hash": "fde78c401af9921aad1f91bf7d8d6ab3d5e0e250affa328657f90a97f3428908"
+}
