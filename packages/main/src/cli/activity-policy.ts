@@ -74,6 +74,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_review',
   'learning_validate',
   'learning_effectiveness',
+  'source_lineage_audit',
 ]);
 
 export function resolveActivitySource(): string {

@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 72 files
+> 73 files
 
 ## evidence
 
@@ -65,6 +65,7 @@
 - [Missing Scope Check Guidance Execution Plan](decisions/scope-check-missing-guidance-execution-plan.md)
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)
 - [Slim / Fields Token Savings Execution Plan](decisions/slim-fields-token-savings-execution-plan.md)
+- [Source Lineage Dedup And Historical Playbook Seed Promotion Execution Plan](decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md)
 - [Claude Code / Codex × Superpowers × Proofbound Layering Notes (draft)](decisions/stack-layering.md)
 - [Stash Split Execution Plan](decisions/stash-split-execution-plan.md)
 - [Story Lifecycle](decisions/story-lifecycle.md)

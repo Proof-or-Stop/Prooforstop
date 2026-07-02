@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-01df:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Local explicit concept review pass after subagent quota failure. Verified B-01df implements only M1 read-only source_lineage_audit, remains host-neutral, emits authority=non_authoritative/gateEvidence=false, and does not add seed proposal, candidate approval, auto-promotion, DONE settlement default-on, runtime blocking, or gate evidence behavior.",
+      "createdAt": "2026-07-02T19:28:33.188Z",
+      "reviewRound": "2026-07-02T19:24:29.393Z",
+      "reviewRunId": "B-01df:RR-003",
+      "_hash": "58b41ee7c97717e9f24d2480a0cbdb3dfc344b44917763b8fff08bdfa2deb072"
+    },
+    {
+      "id": "B-01df:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Local explicit quality review pass after subagent quota failure. Reviewed source-lineage-audit.ts, handler registration, command policy/config/activity policy integration, and smoke code. The production audit path uses read-only parsing/stat/list/read helpers and reports diagnostics for absent or malformed stores; no blocking quality issue found.",
+      "createdAt": "2026-07-02T19:28:34.266Z",
+      "reviewRound": "2026-07-02T19:24:29.393Z",
+      "reviewRunId": "B-01df:RR-002",
+      "_hash": "d73b4091689b997124486ab1d2f666a0f17846ab1556fbe8c30fde9341978f54"
+    },
+    {
+      "id": "B-01df:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Local explicit test-coverage review pass after subagent quota failure. Smoke covers duplicate canonical source grouping, missing/malformed lineage diagnostics, non-authoritative gate boundary, empty-store read-only posture, unsupported domain failure, command readOnly/L0 policy, no host namespace alias, plus dist CLI transcript evidence.",
+      "createdAt": "2026-07-02T19:28:35.099Z",
+      "reviewRound": "2026-07-02T19:24:29.393Z",
+      "reviewRunId": "B-01df:RR-004",
+      "_hash": "633d6a749ba12ae479abd9ccc47926291d76549669ede6a3c57414ae339b8db2"
+    },
+    {
+      "id": "B-01df:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Local explicit docs review pass after subagent quota failure. Reviewed execution plan and NAV. Docs state B-01df implements M1 only and do not claim seed observe, batch proposal, candidate approval, automatic promotion, PLAYBOOK_DONE_SETTLEMENT default-on, runtime blocking, or gate evidence completion.",
+      "createdAt": "2026-07-02T19:28:35.817Z",
+      "reviewRound": "2026-07-02T19:24:29.393Z",
+      "reviewRunId": "B-01df:RR-001",
+      "_hash": "c8e2fa9140aadb51e151e5c3c450aca72788698bd0f0b20fa490e2fd5211acb1"
+    },
+    {
+      "id": "B-01df:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 scope-only review after acknowledging .lattice/story/actives/B-01df/evidence/host-review-transcripts.md. review_incremental_context for lattice-review-docs reported scopeChanged=false and changedFiles=[]; finding_list is empty. The host review transcript evidence is story-scoped DONE review assurance evidence, not feature scope expansion.",
+      "createdAt": "2026-07-02T20:02:28.403Z",
+      "reviewRound": "2026-07-02T20:01:58.760Z",
+      "reviewRunId": "B-01df:RR-005",
+      "_hash": "0df6ac7d87118816c4b5d818c8089824dd22512c691278f010dd5c90f613457c"
+    }
+  ]
+}

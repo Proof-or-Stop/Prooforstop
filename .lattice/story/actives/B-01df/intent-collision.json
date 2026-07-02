@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-01df",
+  "id": "IC-20260702190424",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement only M1 of the source-lineage/dedup playbook seed plan: a host-neutral read-only learning source lineage audit command and smoke/docs coverage. This story must not implement seed observe, batch proposal apply, candidate approval, automatic activation, runtime blocking policy, or PLAYBOOK_DONE_SETTLEMENT_ENABLED default-on.",
+  "acceptedInterpretationHash": "sha256:00ef458138ac28101b33b3a440cb764d25e53f3c2ace68c2d511b27bb52e35e0",
+  "notes": "The potentially broader user goal includes historical experience batch-to-candidate and automatic promotion, but this story intentionally accepts the narrow read-only audit milestone first so later mutating promotion work has lineage evidence and cannot double-count sources.",
+  "ledgerHashBeforeDecision": "sha256:e35b675ab456d66d3a8f06936597657092cf54632fd866cd5b7403c9bc46a883",
+  "confirmedLedgerHash": "sha256:e35b675ab456d66d3a8f06936597657092cf54632fd866cd5b7403c9bc46a883",
+  "createdAt": "2026-07-02T19:04:24.205Z",
+  "updatedAt": "2026-07-02T19:04:24.205Z"
+}
