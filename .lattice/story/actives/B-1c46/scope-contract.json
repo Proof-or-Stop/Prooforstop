@@ -32,9 +32,38 @@
     "packages/main/src/core/review-assurance-floor.ts"
   ],
   "scopeChangeReason": "B-1c46 is scoped to runtime-memory performance index/cache optimization and its dedicated smokes/docs only; lifecycle gate semantics and unrelated docs remain protected.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory control artifacts are required to execute the user-requested B-5082 governed milestone ledger, red evidence, intent snapshot, and slice-plan workflow for B-1c46; they do not widen the business/code implementation scope.",
+      "timestamp": "2026-07-02T14:58:14.130Z",
+      "paths": [
+        ".lattice/story/actives/B-1c46/intent-collision.json",
+        ".lattice/story/actives/B-1c46/milestone-ledger.json",
+        ".lattice/story/actives/B-1c46/original-intent-snapshot.json",
+        ".lattice/story/actives/B-1c46/parent-ledger-rollup.json",
+        ".lattice/story/actives/B-1c46/proofstory.json",
+        ".lattice/story/actives/B-1c46/red-evidence.json",
+        ".lattice/story/actives/B-1c46/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-1c46/intent-collision.json",
+        ".lattice/story/actives/B-1c46/milestone-ledger.json",
+        ".lattice/story/actives/B-1c46/original-intent-snapshot.json",
+        ".lattice/story/actives/B-1c46/parent-ledger-rollup.json",
+        ".lattice/story/actives/B-1c46/proofstory.json",
+        ".lattice/story/actives/B-1c46/red-evidence.json",
+        ".lattice/story/actives/B-1c46/slice-plan.json"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "1225927ba4756b559c647f20113774a17ffecc0a",
+      "materialHash": "e98210510384c971bd5702f39805ab4d858dd8066083df5ac269cb86be79c9f8"
+    }
+  ],
   "createdAt": "2026-07-02T14:27:50.270Z",
-  "updatedAt": "2026-07-02T14:27:50.270Z",
+  "updatedAt": "2026-07-02T14:58:14.130Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
