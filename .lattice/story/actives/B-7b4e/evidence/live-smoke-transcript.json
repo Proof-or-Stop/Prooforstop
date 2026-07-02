@@ -1,0 +1,20 @@
+{
+  "storyId": "B-7b4e",
+  "expected": "Terminal/doc output includes: \"Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.\"",
+  "actual": {
+    "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.138 test:quantum-claim-admissibility\n> node dist/tasks/quantum-claim-admissibility-smoke.js\n\nvalid Q5 energy evidence: PASS\nvalid Q5 basis-set-only evidence: PASS\nvalid figure provenance: PASS\ndeterministic optional fields: PASS\nmissing core fields: BLOCK\nunknown claim: BLOCK\nomitted conditional field: BLOCK\nmismatched hamiltonianHash: BLOCK\nmismatched gridHash: BLOCK\nmismatched basisSetHash: BLOCK\nmissing basis/grid identity: BLOCK\nmissing basis/grid identity with weak overclaim: BLOCK\nmismatched verifierScriptHash: BLOCK\nmissing required receipt: BLOCK\nstale evidence: BLOCK\nweak ground-state overclaim with stale evidence: BLOCK\nunbound solver output: BLOCK\nunbound plot/table: BLOCK\nweak single-run energy evidence cannot prove stronger ground-state claim: BLOCK\nweak single-run energy evidence cannot prove stronger convergence claim: BLOCK\nweak single-run energy evidence cannot prove stronger quantum-advantage claim: BLOCK\nproduction boundary overclaim: BLOCK\nquantum claim-admissibility smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-02T20:52:45.903Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "392fa79a62c07853d3b607d9ecd998ee8c015d97",
+  "materialHash": "4d1cb3be3c421261c0ded25fd8b5ce7e1719bf3342e2366706d11336dfc48864"
+}
