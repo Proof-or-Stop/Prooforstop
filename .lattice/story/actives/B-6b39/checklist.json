@@ -33,7 +33,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "command": "grep -n \"N-maximizing\" docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "result": "pass",
+          "note": "Three matches at the three amended passages: line 231 (S7 freeze-rule paragraph: freeze the powered N at the N-maximizing baseline), line 473 (S13 M6 exit-criteria row: powered N frozen at the N-maximizing baseline within its Wilson 95% CI), line 566 (S17 step 2 echo: powered N frozen at the N-maximizing baseline within the Wilson 95% CI). Commit e157925d5.",
+          "headHash": "e157925d5a101719eaf1cbaf4659a7012edab355",
+          "materialHash": "4a27ba23071c7ecc75dec8785488a258f3f965ba9cb5e11c28d6b14c5508e91e",
+          "storyFilesHash": "8e305037b7a193df3510f182e815b2b1700efc3bf90a14370f403c605e9cf3c2",
+          "timestamp": "2026-07-02T21:37:01.842Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "command": "grep -inE \"lower bound of (that|its)\" docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "result": "pass",
+          "note": "No matches — the stale freeze-at-lower-bound wording is fully removed. Remaining mentions of the lower bound only state that the lower bound alone is not conservative, which is the corrected rule wording.",
+          "headHash": "e157925d5a101719eaf1cbaf4659a7012edab355",
+          "materialHash": "4a27ba23071c7ecc75dec8785488a258f3f965ba9cb5e11c28d6b14c5508e91e",
+          "storyFilesHash": "8e305037b7a193df3510f182e815b2b1700efc3bf90a14370f403c605e9cf3c2",
+          "timestamp": "2026-07-02T21:37:01.842Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "command": "git show --stat e157925d5; git diff main...HEAD -- docs/; perl -ne \"exit 1 if /[\\x{4E00}-\\x{9FFF}]/\" <plan doc>",
+          "result": "pass",
+          "note": "Commit e157925d5 touches only the plan doc (1 file changed, 11 insertions, 6 deletions); the diff hunks are exactly the S7 paragraph, the S13 M6 row, and the S17 step 2 echo. Perl scan for CJK characters over the whole doc returned none — the doc stays entirely English.",
+          "headHash": "e157925d5a101719eaf1cbaf4659a7012edab355",
+          "materialHash": "4a27ba23071c7ecc75dec8785488a258f3f965ba9cb5e11c28d6b14c5508e91e",
+          "storyFilesHash": "8e305037b7a193df3510f182e815b2b1700efc3bf90a14370f403c605e9cf3c2",
+          "timestamp": "2026-07-02T21:37:01.842Z"
+        }
+      ]
     }
   ]
 }

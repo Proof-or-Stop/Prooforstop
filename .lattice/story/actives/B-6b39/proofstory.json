@@ -22,39 +22,18 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "git diff main...HEAD touches only docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, and all three freeze-rule passages (S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo) state the N-maximizing-baseline rule with no remaining lower-bound-freeze wording.",
-      "note": "Single docs-only checklist item covers all three passages of the same doc."
+      "note": "Single docs-only checklist item covers all three passages of the same doc; intents verify new wording present, old wording absent, and diff confined to the one doc."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-001 has no verificationIntentRefs."
-    },
-    {
-      "code": "missing_intent_collision",
-      "severity": "warn",
-      "artifact": "intent-collision.json",
-      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
-      "triggeredBy": [
-        "collision_required_standard"
-      ]
-    },
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
-    }
-  ],
-  "note": "Express docs-only story: one acceptance claim bound to the single checklist item CHK-001.",
+  "diagnosticGaps": [],
+  "note": "Express docs-only story: one acceptance claim bound to CHK-001 and its three must intents.",
   "createdAt": "2026-07-02T21:33:33.644Z",
-  "updatedAt": "2026-07-02T21:33:33.644Z"
+  "updatedAt": "2026-07-02T21:34:32.312Z"
 }
