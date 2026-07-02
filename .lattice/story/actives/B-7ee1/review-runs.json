@@ -279,6 +279,76 @@
         "bindingHash": "3f90e77ab1b7a17dc2ef327e4f82420942f8801ee0d0029dafa9558fa179a99b"
       },
       "_hash": "1a4702a1ab4567cd7210689c81e829765c345124b9dcbe4565b5a824075e0f93"
+    },
+    {
+      "reviewRunId": "B-7ee1:RR-005",
+      "storyId": "B-7ee1",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "startedAt": "2026-07-02T22:43:02.555Z",
+      "headHash": "3051dca7af83561b3446d5ab4d963dc4f644941d",
+      "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+      "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "bec89e267b3ca7b6b3fe2347fb7c8849ecc843768efda6e99c0ca5ebb7709c0b",
+        "diffPackHash": "6328e458b48ca0e1168c96f4ee429a73ca256a9862c385397b49bd071d2ca5cf",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "06258a26a9577828a8c89933320c130848af87d615ac6f5a58e9e5ddc2a38e24",
+          "07887c3dabc64e5950c1ca0193820ebe44d43b32323dcb9672d3f7514f98ad82",
+          "19fe7142b1603ea2c8c677d1cac8f6ad5e667d6d6922987e7d3ced447bfc2390",
+          "25996b561deae6b39d5ae064db75d4fbf170cd577926d471cedee1b51fa01251",
+          "31f1ea4b9d125c68573fb174ae7737cfe3a6e48ae043420e72b9b004bfb973cc",
+          "36954a3ccf738227ae5fff88b84a66b37cb5013f5bf8d22f9833533c070d67c1",
+          "415ff0498df95515563ea4bdee7dae9251d05aad63087e99ac2cd7caf486f823",
+          "4b914089e6f0d00900c9b0abe59ecbdcf2686dc92926ef95a7038b4c6650251e",
+          "59e8770607796d0bcc0f41c9e3fea90626120794c0492f1575282c580d5ba82f",
+          "6a0d0ff186382c98932fe03f52a12b557c2aa65d73fbfbd1d8244152f57d10c7",
+          "7c2fec39de8092063ebdbf507603cb280d8f013a81da03f17eead18406048b5e",
+          "90d9bacf90b3d32ee86fc9e2ce7a0a79f2265eb69a1d91224ce782c00d6a8fa2",
+          "9a145e277e2c06d1f88024af83e51ecbe38518d15f6c58378f261a700f5e8547",
+          "9f9cced1464384317212e5a382bc2e82b59f8afabbee5ec589c3173fdae0c2a8",
+          "b0d23228212d364f2fd272a92bf0f9e99d9c6678a3b68f48acb874da60d1be26",
+          "b5f3473e0bd0f7c633cb364534035b9c523260fbebe38746d5e0eb7a0237eac3",
+          "bd5431ae835fdb9fa2c5096f38923f90539edffef8e02d10c9a2c0f27454b51a",
+          "c8ea984ae29b25d3a5e9573046150abf13fd0a20245315503ddb8a761ecee717",
+          "cd0780dd8b387386e96a670e18c569d98f0af468254c82819c32a25507012fea",
+          "da7ad5da360c1f710938a24e60b9d2aa2f432a4a91c75150c50cf5fffabd7d5f",
+          "ebc3c0fa492a95ba4b351e6b3ad916ae5c9aaf49aba53413f1ea853d22525cb4",
+          "f13eb2e76bce6c43acdc5972da18dc70b95c3fc7cd8e18759cbede9a87cb048d",
+          "fa48d0998050fc0b6cc63828a9652bbe6002d89cf15d458030a44a7fb9e3101a",
+          "fdf5066d457cff80fcb2001b8b68701532f5f1965f881d8bece47d5bde7f706e"
+        ],
+        "bindingHash": "c7dc90c015f651cc3665eef883ea766526d7806c88df0db905bd5f49d923f0d6"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7ee1",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7ee1",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7ee1",
+        "workspaceMode": "story-worktree",
+        "headHash": "3051dca7af83561b3446d5ab4d963dc4f644941d",
+        "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+        "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+        "bindingHash": "dc6780262e97d951a2e974c43979dbb8712cc5a47cb9a9ec47ab59a5b1351e27"
+      },
+      "_hash": "84a025a9d676dbfda63bd793c9876f72d9e5456bb1f045a4448402002e3d3baa"
     }
   ]
 }

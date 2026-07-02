@@ -39,6 +39,25 @@
       ],
       "signatureTag": "missing|json|evidence-activation-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ee1:F-003",
+      "desc": "M8 coverage does not exercise the fail-closed path where a candidate has enough real helped/exposure outcomes to evaluate as recommend_activate but no applied recommend_activate decision row exists. The smoke records three helped outcomes and immediately runs playbook_promotion_sweep before calling playbook_auto_promotion_apply, so a regression that activated on outcomes alone would not be caught. The same block also only checks second-apply idempotency after the playbook is already active, not the digest-bound activation idempotency/audit key branch for an already-recorded activation row while the candidate remains candidate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:43:15.162Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-001",
+      "_hash": "03af27a8c55aebb2dff9ab2d7fb564abbaded20f294bd23db3d716c265ed05d8",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/core/playbook-seed.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-exercise-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
