@@ -1,0 +1,39 @@
+{
+  "storyId": "B-6b39",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/experience-ablation/**",
+    "packages/**"
+  ],
+  "scopeChangeReason": "Remove the docs/requirements/decisions/*.md glob from explicitExcludes: it contradicted allowedModify by matching the one plan doc this story amends. allowedModify already restricts changes to exactly that file.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are ProofStory lifecycle metadata artifacts written by the lattice CLI itself (original_intent_snapshot_set, intent_collision_set, proofstory_contract_set) as required by the enforce-mode ProofStory DEV gate for this story; they are not hand-edited product files and carry no doc/code content.",
+      "timestamp": "2026-07-02T21:37:37.508Z",
+      "paths": [
+        ".lattice/story/actives/B-6b39/intent-collision.json",
+        ".lattice/story/actives/B-6b39/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6b39/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6b39/intent-collision.json",
+        ".lattice/story/actives/B-6b39/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6b39/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "b4b73c0c1ea305d254455c3378fe7ce884bfa00b",
+      "materialHash": "4a27ba23071c7ecc75dec8785488a258f3f965ba9cb5e11c28d6b14c5508e91e"
+    }
+  ],
+  "createdAt": "2026-07-02T21:33:40.285Z",
+  "updatedAt": "2026-07-02T21:37:37.508Z"
+}

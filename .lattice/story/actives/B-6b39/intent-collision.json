@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6b39",
+  "id": "IC-20260702213338",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Amend exactly three freeze-rule passages in docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md — the S7 freeze-rule paragraph, the S13 M6 exit-criteria row, and the S17 step 2 parenthetical echo — so each states: freeze the powered N at the N-maximizing baseline within the Wilson 95% CI of the pilot rate (equivalently max over the CI; the lower bound alone is not conservative), consistent with sample-size.mjs pilotFreezeCheck (p* = 0.5 + mde/2 clamped to the CI). No code changes, no other doc changes, doc stays entirely English.",
+  "acceptedInterpretationHash": "sha256:8eb8e97573913c509825f7b8b3d63e693612997036b20d040c10078d9bd4c468",
+  "notes": "User request is explicit and single-deliverable; the only interpretation choice is how far to echo the corrected rule in S13/S17 — resolved as: full corrected wording in S7 and S13, minimal aligned echo in S17 step 2.",
+  "createdAt": "2026-07-02T21:33:38.612Z",
+  "updatedAt": "2026-07-02T21:33:38.612Z"
+}
