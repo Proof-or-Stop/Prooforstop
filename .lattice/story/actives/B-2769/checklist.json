@@ -191,8 +191,8 @@
       "id": "CHK-004",
       "title": "M3 Gate policy and transition engine",
       "context": "Implement lifecycle gate predicates and fail-closed transition behavior (advance/repair/degrade/stop).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T16:39:48.931Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
@@ -201,14 +201,9 @@
       "files": {
         "modify": [
           "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
-          "packages/main/src/core",
-          "packages/main/src/cli",
           ".lattice/story/actives/B-2769"
         ],
-        "create": [
-          "packages/main/src/core/cli for gate logic handlers",
-          "packages/main/src/cli for gate logic handlers"
-        ],
+        "create": [],
         "test": []
       },
       "verificationIntent": {
