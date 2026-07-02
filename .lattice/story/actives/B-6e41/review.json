@@ -1,0 +1,37 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-02T22:23:08.607Z",
+      "issueCount": 5,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Define ClaimAdmissibilityPack and related adapter contract types + Implement a read-only pack registry with fail-closed validation are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Whether future pack manifests will come from config or code remains open and is not solved in this story.; Whether domain schemas are JSON Schema or TypeScript-first remains deferred to M2.; Whether verifier adapters execute commands or normalize existing receipts remains deferred to M3."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-6e41 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "acc22f989d6457357669b688c4a984289e3d0f33112e73244de465321c5859c2"
+    }
+  ]
+}

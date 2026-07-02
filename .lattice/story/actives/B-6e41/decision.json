@@ -1,0 +1,62 @@
+{
+  "principles": [
+    "Represent adapter packs as declarative metadata, not executable lifecycle control.",
+    "Reuse the existing proof-admissibility vocabulary and registry surface instead of duplicating it.",
+    "Fail closed on duplicate ids, duplicate schemas, duplicate artifact surfaces, and unknown pack lookups.",
+    "Keep production, Authority, scientific-truth, and physical-validation claims outside local pack descriptors."
+  ],
+  "drivers": [
+    "M1 must make future Quantum/PINN packs pluggable without changing gate semantics.",
+    "Existing proof-admissibility consumers must remain the source of lifecycle truth.",
+    "The smoke must prove both happy path inventory and adversarial duplicate rejection."
+  ],
+  "options": [
+    {
+      "name": "declarative-read-only-registry",
+      "pros": [
+        "Small M1 slice with low gate risk",
+        "Directly matches the framework document",
+        "Creates a shared extension point for future domain packs"
+      ],
+      "cons": [
+        "Does not yet load external schema files",
+        "Does not execute verifier adapters"
+      ]
+    },
+    {
+      "name": "full-pack-runtime-now",
+      "pros": [
+        "Would expose more future functionality immediately",
+        "Could combine schema, verifier, gate policy, and benchmark work"
+      ],
+      "cons": [
+        "Too broad for one lifecycle story",
+        "Risks duplicating proof manager or gate semantics",
+        "Would mix Quantum/PINN future milestones into M1"
+      ]
+    }
+  ],
+  "chosen": "declarative-read-only-registry",
+  "rationale": "Choose the read-only declarative registry because M1 needs a safe extension contract first; schema loading, verifier execution, gate policy, and benchmarks belong in later stories.",
+  "preMortem": [
+    {
+      "scenario": "The pack registry becomes a second proof manager",
+      "trigger": "Registry starts storing evidence or lifecycle decisions",
+      "consequence": "Proofbound has competing truth sources",
+      "mitigation": "Keep registry read-only and test that no ledger/storage/gate exports are added"
+    },
+    {
+      "scenario": "Packs overclaim production or scientific truth",
+      "trigger": "Descriptor fields imply productionDone, Authority, quantum truth, or solver improvement",
+      "consequence": "Domain packs weaken proof-or-stop boundaries",
+      "mitigation": "Smoke checks forbidden claim terminology and productionDone absence"
+    },
+    {
+      "scenario": "Duplicate pack surfaces cause ambiguous evaluation",
+      "trigger": "Two packs claim the same artifactKind, alias, schema id, or claim id",
+      "consequence": "Consumers cannot know which policy applies",
+      "mitigation": "Registry validation rejects duplicates deterministically"
+    }
+  ],
+  "timestamp": "2026-07-02T22:21:48.832Z"
+}
