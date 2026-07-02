@@ -1,6 +1,6 @@
 {
   "task": "Build a future-domain Proof-or-Stop PINN claim-admissibility extension with explicit evidence-bound lifecycle control and reproducible benchmark checks.",
-  "outcome": "After this story, users can point Proof-or-Stop at PINN lifecycle claims and get deterministic admission/repair/degrade/stop results that block stale or mismatched evidence from advancing the claim, with a concrete benchmark report comparing A4 against A1/A2/A3.",
+  "outcome": "After this story, users can run a bounded proof-or-stop extension path for PINN claims that mechanically blocks stale/mismatched evidence from advancing lifecycle transitions.",
   "facts": [
     "Proof-or-Stop can host reusable claim/evidence schemas",
     "PINN lifecycle transitions require explicit claim-boundary mechanics",
@@ -10,7 +10,8 @@
     "No claim about PDE correctness or scientific accuracy",
     "No external Authority-server feature changes",
     "Benchmark must keep task settings identical across A1/A2/A3/A4",
-    "Proof docs must preserve boundary language"
+    "Proof docs must preserve boundary language",
+    "Do not include production-readiness or external API claims in this story"
   ],
   "unknowns": [
     "Exact story artifact paths for PINN schema and benchmark fixtures",
@@ -19,9 +20,9 @@
   ],
   "touchpoints": [
     "packages/main/src/core/claim schema layer",
-    "packages/main/src/commands for gate logic",
+    "packages/main/src/cli for gate logic handlers",
     "docs/requirements/decisions and source-of-truth nav",
     "story artifacts under .lattice/story/actives/B-2769"
   ],
-  "timestamp": "2026-07-02T16:32:34.809Z"
+  "timestamp": "2026-07-02T16:35:35.336Z"
 }

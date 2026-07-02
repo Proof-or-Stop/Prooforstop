@@ -12,10 +12,13 @@
         ".lattice/story/actives/B-2769/scope-boundary.json",
         ".lattice/story/actives/B-2769/execution-boundary.json"
       ],
-      "userSees": "Scope lock artifact shows allowed scope and explicit exclusions, and scope freeze check remains green before DEV starts.",
+      "userSees": "User sees: \"Scope lock validated: docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md and scope boundary/execution boundary files include explicit excluded keywords.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          ".lattice/story/actives/B-2769/scope-boundary.json",
+          ".lattice/story/actives/B-2769/execution-boundary.json",
+          "docs/requirements/NAV.md"
         ],
         "create": [],
         "test": []
