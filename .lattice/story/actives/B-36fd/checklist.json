@@ -18,32 +18,38 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "File exists at the allowed path, is valid markdown with 18 numbered sections, and each of the 12 adjudicated corrections is present at its designated section (checked one by one against the correction list in CHK-001 context)",
-            "type": "logic"
+            "desc": "File exists at docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, is valid markdown with 18 numbered sections, and each of the 12 adjudicated corrections is present at its designated section (checked one by one against the correction list in CHK-001 context) -> file present, 18 sections enumerable, all 12 corrections verifiable at their section numbers; WHY: the entire deliverable is the corrected document — completeness of the 12 corrections is the primary acceptance criterion",
+            "type": "logic",
+            "priority": "must"
           },
           {
-            "desc": "Every existing-component claim in the doc matches source: hint-mode.ts sha256 parity, experience-hint-surface.ts both-arms compute+log/render-gate, learning-store.ts resolveLearningRoot worktree canonicalization, recovery-runner mkdtemp + analyze.mjs Wilson CI/cluster bootstrap/benjaminiHochberg exports",
-            "type": "logic"
+            "desc": "Every existing-component claim in the doc matches source: hint-mode.ts sha256 parity, experience-hint-surface.ts both-arms compute+log/render-gate, learning-store.ts resolveLearningRoot worktree canonicalization, recovery-runner mkdtemp + analyze.mjs Wilson CI/cluster bootstrap/benjaminiHochberg exports -> each named component exists at the claimed path and exhibits the claimed behavior; WHY: the plan depends on reuse of existing infrastructure — a misstated fact would lead a future milestone story to build against a wrong integration point",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Document contains zero CJK characters (grep for Unicode CJK ranges returns nothing) so the english-open-source-surface gate passes",
-            "type": "logic"
+            "desc": "grep -Pn '[\\x{3000}-\\x{9FFF}\\x{F900}-\\x{FAFF}\\x{FE30}-\\x{FE4F}\\x{FF00}-\\x{FFEF}]' on the document -> zero matches (exit code 1, no output); WHY: english-open-source-surface gate blocks DONE on CJK characters in docs/requirements/decisions/",
+            "type": "cli",
+            "priority": "must"
           },
           {
-            "desc": "The doc references no nonexistent paths: .proof-or-stop/ appears only inside the explicit rev-1 correction note, and every referenced repo path (scripts/verify-lattice-residue.mjs, experiments/recovery-runner/tasks, packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts) exists",
-            "type": "logic"
+            "desc": "Every referenced repo path (scripts/verify-lattice-residue.mjs, experiments/recovery-runner/tasks, packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts, and any other repo paths cited in the doc) checked via test -e -> all exist; .proof-or-stop/ appears only inside the explicit rev-1 correction note, not as a live artifact root; WHY: dangling path references undermine the plan's credibility as a decision doc and would break future milestone build stories",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "No substantive design content beyond the 12 adjudicated corrections was introduced: diff rev-2 section-by-section against the preserved rev-1 semantics and confirm every delta maps to a numbered finding (guards against un-reviewed design entering a decision doc)",
-            "type": "logic"
+            "desc": "No substantive design content beyond the 12 adjudicated corrections was introduced: diff rev-2 section-by-section against the preserved rev-1 semantics and confirm every delta maps to a numbered finding -> zero un-adjudicated design deltas found; WHY: guards against un-reviewed design entering a decision doc under a docs-only story that bypasses adversarial review",
+            "type": "logic",
+            "priority": "must"
           },
           {
-            "desc": "The no-overclaim rule survives intact and strengthened: sections 2/15/16 still forbid the four disallowed claims and now additionally disclose the answer-key circularity limitation",
-            "type": "logic"
+            "desc": "The no-overclaim rule survives intact and strengthened: sections 2/15/16 still forbid the four disallowed claims and now additionally disclose the answer-key circularity limitation -> all four disallowed claims present in the no-overclaim section, plus the circularity disclosure sentence; WHY: the no-overclaim rule is the plan's honesty scaffolding — if it is weakened or the circularity is hidden, the plan overpromises causal validity it cannot deliver",
+            "type": "logic",
+            "priority": "must"
           }
         ]
       }
