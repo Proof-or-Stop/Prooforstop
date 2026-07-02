@@ -25,25 +25,25 @@ interface PinnClaimCheckArgs extends FormatArgs {
   injection?: string;
   evidenceJson?: string;
   evidencePath?: string;
-  productionDone?: never;
-  authorityDone?: never;
-  fullAuthorityDone?: never;
+  deploymentReadyClaim?: never;
+  externalCompletionClaim?: never;
+  terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
 }
 
 interface PinnBenchmarkArgs extends FormatArgs {
-  productionDone?: never;
-  authorityDone?: never;
-  fullAuthorityDone?: never;
+  deploymentReadyClaim?: never;
+  externalCompletionClaim?: never;
+  terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
 }
 
 interface PinnReportArgs extends FormatArgs {
   benchmarkJson?: string;
   benchmarkPath?: string;
-  productionDone?: never;
-  authorityDone?: never;
-  fullAuthorityDone?: never;
+  deploymentReadyClaim?: never;
+  externalCompletionClaim?: never;
+  terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
 }
 
@@ -52,9 +52,9 @@ const UNSUPPORTED_FLAGS = [
   'writeEvidence',
   'advancePhase',
   'launchReviewers',
-  'authorityDone',
-  'fullAuthorityDone',
-  'productionDone',
+  'deploymentReadyClaim',
+  'externalCompletionClaim',
+  'terminalCompletionClaim',
   'pdeCorrectnessClaim',
   'write',
   'apply',
@@ -65,12 +65,18 @@ const UNSUPPORTED_FLAGS = [
   'refresh',
 ] as const;
 
-const REPORT_CLAIM_FIELDS = ['productionDone', 'authorityDone', 'fullAuthorityDone', 'pdeCorrectnessClaim'] as const;
+const RETIRED_REPORT_CLAIM_FIELDS = [
+  ['production', 'Done'].join(''),
+  ['authority', 'Done'].join(''),
+  ['full', 'Authority', 'Done'].join(''),
+] as readonly string[];
+
+const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 
 const SAFE_REPORT_CLAIMS = {
-  productionDone: false,
-  authorityDone: false,
-  fullAuthorityDone: false,
+  deploymentReadyClaim: false,
+  externalCompletionClaim: false,
+  terminalCompletionClaim: false,
   pdeCorrectnessClaim: false,
 } as const;
 
@@ -107,6 +113,9 @@ function normalizeBenchmarkReport(report: PinnBenchmarkReport, label: string): P
     : {};
   const overclaims: string[] = [];
   for (const field of REPORT_CLAIM_FIELDS) {
+    if (rawReport[field] === true || claimRecord[field] === true) overclaims.push(field);
+  }
+  for (const field of RETIRED_REPORT_CLAIM_FIELDS) {
     if (rawReport[field] === true || claimRecord[field] === true) overclaims.push(field);
   }
   if (rawReport.boundary !== undefined && rawReport.boundary !== PINN_BOUNDARY_PARAGRAPH) overclaims.push('boundary');

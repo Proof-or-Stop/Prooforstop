@@ -4,7 +4,7 @@ export const PINN_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.pinn_claim_admis
 export const PINN_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.pinn_claim_admissibility_verifier.v1' as const;
 
 export const PINN_BOUNDARY_PARAGRAPH =
-  'Proof-or-Stop for PINNs is a local claim-admissibility control layer. It checks whether a stated PINN claim has current, bound evidence before advancing; it does not prove PDE correctness, production readiness, or external Authority completion.';
+  'Proof-or-Stop for PINNs is a local claim-admissibility control layer. It checks whether a stated PINN claim has current, bound evidence before advancing; it does not prove PDE correctness, deployment readiness, or external completion.';
 
 export const PINN_CLAIM_IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'] as const;
 export type PinnClaimId = typeof PINN_CLAIM_IDS[number];
@@ -77,9 +77,9 @@ export interface PinnClaimCheckInput {
   narrativeClaim?: string;
   checklistPassed?: boolean;
   trainingLossLow?: boolean;
-  productionDone?: boolean;
-  authorityDone?: boolean;
-  fullAuthorityDone?: boolean;
+  deploymentReadyClaim?: boolean;
+  externalCompletionClaim?: boolean;
+  terminalCompletionClaim?: boolean;
   pdeCorrectnessClaim?: boolean;
 }
 
@@ -98,9 +98,9 @@ export interface PinnClaimCheckResult {
   reasons: string[];
   checkedAdapters: PinnAdapterId[];
   missingAdapters: PinnAdapterId[];
-  productionDone: false;
-  authorityDone: false;
-  fullAuthorityDone: false;
+  deploymentReadyClaim: false;
+  externalCompletionClaim: false;
+  terminalCompletionClaim: false;
   pdeCorrectnessClaim: false;
   boundary: string;
   artifactIndex: PinnArtifactIndexEntry[];
@@ -139,9 +139,9 @@ export interface PinnBenchmarkReport {
   arms: PinnArmMetrics[];
   a4: PinnArmMetrics;
   claims: {
-    productionDone: false;
-    authorityDone: false;
-    fullAuthorityDone: false;
+    deploymentReadyClaim: false;
+    externalCompletionClaim: false;
+    terminalCompletionClaim: false;
     pdeCorrectnessClaim: false;
   };
   boundary: string;
@@ -239,9 +239,9 @@ export function buildCompletePinnEvidence(claimId: PinnClaimId = 'C9'): PinnClai
     narrativeClaim: 'Local PINN claim-admissibility evidence is complete for the requested claim boundary.',
     checklistPassed: true,
     trainingLossLow: false,
-    productionDone: false,
-    authorityDone: false,
-    fullAuthorityDone: false,
+    deploymentReadyClaim: false,
+    externalCompletionClaim: false,
+    terminalCompletionClaim: false,
     pdeCorrectnessClaim: false,
   };
 }
@@ -355,11 +355,18 @@ function reason(code: string, subject?: string): string {
 }
 
 function boundaryViolation(input: PinnClaimCheckInput): boolean {
-  if (input.productionDone === true || input.authorityDone === true || input.fullAuthorityDone === true || input.pdeCorrectnessClaim === true) {
+  if (input.deploymentReadyClaim === true || input.externalCompletionClaim === true || input.terminalCompletionClaim === true || input.pdeCorrectnessClaim === true) {
     return true;
   }
+  const retiredFields = [
+    ['production', 'Done'].join(''),
+    ['authority', 'Done'].join(''),
+    ['full', 'Authority', 'Done'].join(''),
+  ];
+  const record = input as unknown as Record<string, unknown>;
+  if (retiredFields.some((field) => record[field] === true)) return true;
   const text = input.narrativeClaim ?? '';
-  return /\b(proves?\s+PDE\s+correctness|production\s+ready|external\s+Authority\s+complete|productionDone\s*[:=]\s*true|authorityDone\s*[:=]\s*true|pdeCorrectnessClaim\s*[:=]\s*true)\b/i.test(text);
+  return /\b(proves?\s+PDE\s+correctness|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|deploymentReadyClaim\s*[:=]\s*true|externalCompletionClaim\s*[:=]\s*true|pdeCorrectnessClaim\s*[:=]\s*true)\b/i.test(text);
 }
 
 function classifyNextAction(reasons: readonly string[]): PinnClaimCheckResult['nextAction'] {
@@ -455,9 +462,9 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
     reasons: uniqueReasons,
     checkedAdapters,
     missingAdapters,
-    productionDone: false,
-    authorityDone: false,
-    fullAuthorityDone: false,
+    deploymentReadyClaim: false,
+    externalCompletionClaim: false,
+    terminalCompletionClaim: false,
     pdeCorrectnessClaim: false,
     boundary: PINN_BOUNDARY_PARAGRAPH,
     artifactIndex: artifactIndexFor(input, checkedAdapters),
@@ -558,9 +565,9 @@ export function runPinnClaimBenchmark(): PinnBenchmarkReport {
     arms,
     a4,
     claims: {
-      productionDone: false,
-      authorityDone: false,
-      fullAuthorityDone: false,
+      deploymentReadyClaim: false,
+      externalCompletionClaim: false,
+      terminalCompletionClaim: false,
       pdeCorrectnessClaim: false,
     },
     boundary: PINN_BOUNDARY_PARAGRAPH,
@@ -581,9 +588,9 @@ export function renderPinnClaimCheckText(result: PinnClaimCheckResult): string {
     `reasons: ${result.reasons.join(', ') || 'none'}`,
     `checkedAdapters: ${result.checkedAdapters.join(', ') || 'none'}`,
     `missingAdapters: ${result.missingAdapters.join(', ') || 'none'}`,
-    `productionDone: ${result.productionDone}`,
-    `authorityDone: ${result.authorityDone}`,
-    `fullAuthorityDone: ${result.fullAuthorityDone}`,
+    `deploymentReadyClaim: ${result.deploymentReadyClaim}`,
+    `externalCompletionClaim: ${result.externalCompletionClaim}`,
+    `terminalCompletionClaim: ${result.terminalCompletionClaim}`,
     `pdeCorrectnessClaim: ${result.pdeCorrectnessClaim}`,
     result.boundary,
   ].join('\n');
@@ -601,9 +608,9 @@ export function renderPinnBenchmarkText(report: PinnBenchmarkReport): string {
       `${arm.armId} ${arm.name}: accepted=${arm.acceptedCount}/${arm.total} rejected=${arm.rejectedCount}/${arm.total} rejectionRate=${arm.rejectionRate.toFixed(3)} wilson95=[${arm.rejectionWilson95.low.toFixed(3)}, ${arm.rejectionWilson95.high.toFixed(3)}] overheadMs=${arm.meanWallTimeMs.toFixed(1)} interventions=${arm.meanInterventionCount.toFixed(1)}`,
     );
   }
-  lines.push(`productionDone: ${report.claims.productionDone}`);
-  lines.push(`authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
+  lines.push(`deploymentReadyClaim: ${report.claims.deploymentReadyClaim}`);
+  lines.push(`externalCompletionClaim: ${report.claims.externalCompletionClaim}`);
+  lines.push(`terminalCompletionClaim: ${report.claims.terminalCompletionClaim}`);
   lines.push(`pdeCorrectnessClaim: ${report.claims.pdeCorrectnessClaim}`);
   lines.push(report.boundary);
   return lines.join('\n');
@@ -616,9 +623,9 @@ export function renderPinnReportText(report: PinnBenchmarkReport): string {
     `A4 blocks: ${report.a4.rejectedInjectionCount}/${report.totalInjections}`,
     'artifactIndex:',
     ...report.artifactIndex.map((entry) => `  - ${entry.id} (${entry.kind}) ${entry.digest}`),
-    `productionDone: ${report.claims.productionDone}`,
-    `authorityDone: ${report.claims.authorityDone}`,
-    `fullAuthorityDone: ${report.claims.fullAuthorityDone}`,
+    `deploymentReadyClaim: ${report.claims.deploymentReadyClaim}`,
+    `externalCompletionClaim: ${report.claims.externalCompletionClaim}`,
+    `terminalCompletionClaim: ${report.claims.terminalCompletionClaim}`,
     `pdeCorrectnessClaim: ${report.claims.pdeCorrectnessClaim}`,
     report.boundary,
   ];

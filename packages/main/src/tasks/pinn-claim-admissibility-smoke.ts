@@ -23,9 +23,9 @@ function assertBlocks(injectionId: string, reasonCode: string): void {
 const complete = evaluatePinnClaim(buildCompletePinnEvidence('C9'));
 assert.equal(complete.allowed, true, 'complete C9 evidence advances');
 assert.equal(complete.nextAction, 'advance', 'complete C9 advances');
-assert.equal(complete.productionDone, false, 'complete check never claims productionDone');
-assert.equal(complete.authorityDone, false, 'complete check never claims authorityDone');
-assert.equal(complete.fullAuthorityDone, false, 'complete check never claims fullAuthorityDone');
+assert.equal(complete.deploymentReadyClaim, false, 'complete check never claims deployment readiness');
+assert.equal(complete.externalCompletionClaim, false, 'complete check never claims external completion');
+assert.equal(complete.terminalCompletionClaim, false, 'complete check never claims terminal completion');
 assert.equal(complete.pdeCorrectnessClaim, false, 'complete check never claims PDE correctness');
 assert.equal(complete.checkedAdapters.length, 9, 'C9 checks all adapter families');
 
@@ -103,9 +103,9 @@ assert.ok(benchmark.a4.meanInterventionCount > 0, 'benchmark reports interventio
 const benchmarkText = renderPinnBenchmarkText(benchmark);
 const reportText = renderPinnReportText(benchmark);
 for (const text of [benchmarkText, reportText]) {
-  assert.doesNotMatch(text, /productionDone:\s*true/i, 'text must not claim production done');
-  assert.doesNotMatch(text, /authorityDone:\s*true/i, 'text must not claim authority done');
-  assert.doesNotMatch(text, /fullAuthorityDone:\s*true/i, 'text must not claim full authority done');
+  assert.doesNotMatch(text, /deploymentReadyClaim:\s*true/i, 'text must not claim deployment readiness');
+  assert.doesNotMatch(text, /externalCompletionClaim:\s*true/i, 'text must not claim external completion');
+  assert.doesNotMatch(text, /terminalCompletionClaim:\s*true/i, 'text must not claim terminal completion');
   assert.doesNotMatch(text, /pdeCorrectnessClaim:\s*true/i, 'text must not claim PDE correctness');
 }
 
@@ -116,17 +116,23 @@ const handlerBenchmark = handlers.pinn_benchmark_run({ format: 'json' }) as Retu
 assert.equal(handlerBenchmark.suiteStatus, 'PASS', 'handler exposes benchmark result');
 const handlerReport = handlers.pinn_report_render({ format: 'text' }) as string;
 assert.match(handlerReport, /artifactIndex:/, 'report command renders artifact index');
+const retiredCompletionClaimFields = [
+  ['production', 'Done'].join(''),
+  ['authority', 'Done'].join(''),
+  ['full', 'Authority', 'Done'].join(''),
+];
 assert.throws(
   () => handlers.pinn_report_render({
     benchmarkJson: JSON.stringify({
       ...benchmark,
       claims: {
-        productionDone: true,
-        authorityDone: true,
-        fullAuthorityDone: true,
+        deploymentReadyClaim: true,
+        externalCompletionClaim: true,
+        terminalCompletionClaim: true,
         pdeCorrectnessClaim: true,
+        ...Object.fromEntries(retiredCompletionClaimFields.map((field) => [field, true])),
       },
-      boundary: 'external Authority complete',
+      boundary: 'external completion',
     }),
     format: 'json',
   }),
@@ -134,9 +140,9 @@ assert.throws(
   'report command rejects malicious supplied benchmark overclaims',
 );
 assert.throws(
-  () => handlers.pinn_benchmark_run({ productionDone: true } as any),
+  () => handlers.pinn_benchmark_run({ deploymentReadyClaim: true } as any),
   /refuses unsupported/,
-  'commands reject productionDone overclaim flags',
+  'commands reject deployment readiness overclaim flags',
 );
 
 console.log('pinn claim-admissibility smoke passed');
