@@ -68,7 +68,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "lattice playbook_promotion_sweep defaults to dry-run, apply is feature-flag gated, and repeated apply is idempotent.",
+      "userSees": "CLI output includes \"dryRun: true\", \"applied: false\", and repeated apply reports \"alreadyApplied\" without activating candidates.",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
