@@ -119,6 +119,23 @@
       ],
       "signatureTag": "cleanup|mjs|host-codex-protocol",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-008",
+      "desc": "[host-2 Codex P3] protocol.mjs usage line is inaccurate per subcommand (hash needs only --config; validate needs no --config; freeze takes experimentId from the config). Fix: per-subcommand usage output.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:09.460Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "02fa3b9310a821fd7e52a8008823517e67b91b88fc85a3a01fa13307a51f2910",
+      "files": [
+        "experiments/experience-ablation/protocol.mjs"
+      ],
+      "signatureTag": "cleanup|mjs|host-codex-protocol",
+      "signatureTagSource": "auto"
     }
   ]
 }
