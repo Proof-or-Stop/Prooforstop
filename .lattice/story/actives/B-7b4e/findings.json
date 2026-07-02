@@ -52,7 +52,7 @@
       "desc": "Hard-stop fail-closed reasons are masked by weak_evidence_overclaim in classifyNextAction. In packages/main/src/core/claim-admissibility/quantum.ts:321-330, the function returns degrade whenever any weak_evidence_overclaim reason exists before checking stop-class reasons such as identity_mismatch, verifier_script_mismatch, stale_evidence, unbound_solver_output, or claim_boundary_violation. A Q5 input that both overclaims ground-state and has mismatched or stale evidence remains allowed=false, but nextAction becomes degrade and scopedClaim becomes true, implying a weaker scoped claim can survive even though the evidence is not bound/current. This conflicts with the M0-M1 fail-closed requirement and is not covered by packages/main/src/tasks/quantum-claim-admissibility-smoke.ts, which only tests weak overclaim with otherwise valid evidence.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:31:48.541Z",
@@ -64,7 +64,11 @@
         "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|hard-stop-fail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 90a4493f by prioritizing hard-stop reasons over weak_evidence_overclaim in classifyNextAction; smoke now covers weak ground-state overclaim combined with stale_evidence and asserts BLOCK/stop/no scoped claim. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:quantum-claim-admissibility.",
+      "resolvedAt": "2026-07-02T20:34:56.171Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
