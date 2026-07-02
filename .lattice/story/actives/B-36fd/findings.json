@@ -93,7 +93,7 @@
       "desc": "[host-2 Codex P2] S11.1 primary decision rule is incomplete: H1 is supported only when the risk difference is negative — a negative point estimate is not an alpha=0.05 decision rule, and the co-primary H1a/H1b pass condition is not explicit. Fix: define support as the paired risk-difference two-sided 95% CI upper bound < 0 for BOTH H1a and H1b on the fault-bearing in-store stratum (equivalently McNemar rejects at alpha=0.05 with a negative point estimate); RR stays descriptive-only.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T19:31:58.322Z",
@@ -103,7 +103,11 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "signatureTag": "edge|md|host-codex-primary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "S11.1 decision rule completed in 78988815b: H1 supported only when the paired risk-difference two-sided 95% CI upper bound is below 0 (alpha=0.05) for BOTH co-primary H1a and H1b on the fault-bearing in-store stratum, equivalently McNemar rejection at alpha=0.05 with a negative point estimate; RR never enters the decision.",
+      "resolvedAt": "2026-07-02T19:33:28.930Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-36fd:F-006",
