@@ -215,8 +215,16 @@ interface SeenLocation {
   readonly path: string;
 }
 
+function freezeDescriptorItem<T extends object>(item: T): T {
+  const descriptor = { ...item } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(descriptor)) {
+    if (Array.isArray(value)) descriptor[key] = Object.freeze([...value]);
+  }
+  return Object.freeze(descriptor) as T;
+}
+
 function freezeItems<T extends object>(items: readonly T[]): readonly T[] {
-  return Object.freeze(items.map((item) => Object.freeze(item)));
+  return Object.freeze(items.map((item) => freezeDescriptorItem(item)));
 }
 
 function uniqueSorted<T extends string>(values: readonly T[]): readonly T[] {

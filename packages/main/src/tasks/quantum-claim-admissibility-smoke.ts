@@ -35,6 +35,20 @@ function expectUnique(label: string, values: readonly string[]): void {
   assert.equal(new Set(values).size, values.length, `${label} should not contain duplicate ids: ${values.join(', ')}`);
 }
 
+function expectRuntimeFrozenArray(label: string, values: readonly string[] | undefined, mutationValue: string): void {
+  assert.ok(values, `${label} should be exposed`);
+  const original = [...values];
+  assert.equal(Object.isFrozen(values), true, `${label} should be frozen at runtime`);
+  assert.throws(
+    () => {
+      (values as unknown as string[]).push(mutationValue);
+    },
+    TypeError,
+    `${label} should reject mutation through registry descriptors`,
+  );
+  assert.deepEqual(values, original, `${label} should remain unchanged after mutation attempt`);
+}
+
 function requireActiveIdentity(input: QuantumClaimCheckInput): Partial<QuantumEvidenceIdentity> {
   assert.ok(input.activeIdentity, 'test fixture should include active identity');
   return input.activeIdentity;
@@ -155,6 +169,10 @@ function checkBlock(label: string, input: QuantumClaimCheckInput, reasonCode: st
   assert.ok(packIds.includes(CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID), 'registry lists code-runtime pack');
   assert.ok(packIds.includes(QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID), 'registry lists quantum pack');
   assert.equal(validateClaimAdmissibilityPacks().ok, true, 'default pack registry validates');
+  const listedQuantumPack = packs.find((pack) => pack.id === QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID);
+  assert.ok(listedQuantumPack, 'listClaimAdmissibilityPacks exposes quantum pack');
+  expectRuntimeFrozenArray('listed quantum claimIds', listedQuantumPack.claimSchemas[0]?.claimIds, 'Q-mutated');
+  expectRuntimeFrozenArray('listed quantum artifactKinds', listedQuantumPack.evidenceSchemas[0]?.artifactKinds, 'mutated-kind');
 
   const lookup = getClaimAdmissibilityPack(QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID);
   assert.equal(lookup.status, 'found', 'quantum pack resolves from registry');
