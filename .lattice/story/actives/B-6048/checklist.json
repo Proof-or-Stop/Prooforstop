@@ -121,10 +121,45 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T12:10:30.998Z",
-      "endTime": null,
-      "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false."
+      "endTime": "2026-07-02T12:10:39.675Z",
+      "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: session_brief, host_handoff, story_create, done_prepare, done_closure, and final_response_check consumers share optimized cached packs with stable digest and non-authoritative metadata.",
+          "headHash": "bb8c073144ea3bddefea002a5458ef94b0aa1bf5",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:39.829Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: story/DONE/final response consumers use the optimized shared API without relying on memory as proof.",
+          "headHash": "bb8c073144ea3bddefea002a5458ef94b0aa1bf5",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:39.993Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: every consumer pack keeps authority=non_authoritative and gateEvidence=false; memory text cannot become REVIEW/TEST/DONE/release evidence.",
+          "headHash": "bb8c073144ea3bddefea002a5458ef94b0aa1bf5",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:40.147Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -239,6 +274,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M4 consumer rollout evidence closure after shared optimized API implementation."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:39.675Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M4 shared optimized consumer path committed and verified by M3-M6 smoke."
     }
   ]
 }
