@@ -80,7 +80,7 @@
       "desc": "New read-only playbook commands are missing from READ_ONLY_COMMANDS, so invoking playbook_seed_observe or playbook_runtime_consumption_verify through the CLI still runs preCommand/postCommand hooks and appends .lattice/activity.jsonl by default. Both commands are declared readOnly in COMMAND_POLICIES and L0 in PROCESS_FACT_LEVELS, and their handlers assert no write/apply flags, but cli-engine.ts gates hook execution and shouldWriteActivityLog on cli/activity-policy.ts READ_ONLY_COMMANDS. Because the new read-only names were not added there, the documented read-only/non-mutating guarantee is false for normal CLI execution and reviewer read-only mode can still trigger hook side effects.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:43:12.185Z",
@@ -95,7 +95,11 @@
         "packages/main/src/handlers/playbook.ts"
       ],
       "signatureTag": "missing|ts|read-playbook-commands",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by registering playbook_seed_observe and playbook_runtime_consumption_verify as read-only activity-policy commands so read-only diagnostics are not incorrectly owner-gated as mutating actions; verified by command ownership contract smoke.",
+      "resolvedAt": "2026-07-02T21:18:34.121Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9958:F-005",
