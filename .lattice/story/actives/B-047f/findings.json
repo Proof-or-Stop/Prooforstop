@@ -68,7 +68,7 @@
       "desc": "[host-2 Codex P2] Protocol validation rejects only inStore/heldOut overlap; a class can be in clean AND a fault group although clean tasks must never pool into the fault baseline. Fix: reject pairwise overlap across all three groups; add selfcheck case.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:06.068Z",
@@ -78,7 +78,11 @@
         "experiments/experience-ablation/protocol.mjs"
       ],
       "signatureTag": "edge|mjs|host-codex-protocol",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All-pairs overlap rejection across inStore/heldOut/clean with the offending classes named; selfcheck case clean/in-store overlap. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:25.644Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-005",
