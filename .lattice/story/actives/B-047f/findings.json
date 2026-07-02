@@ -111,7 +111,7 @@
       "desc": "[host-2 Codex P3] guardImmutable has a TOCTOU window between the guard and the three renames. Fix: re-check the guard immediately before the writes (narrows the window; single-host tooling tier documented).",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:07.771Z",
@@ -121,7 +121,11 @@
         "experiments/experience-ablation/pair-ledger.mjs"
       ],
       "signatureTag": "edge|mjs|host-codex-guardimmutable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "guardImmutable re-checked immediately before the three ledger writes, narrowing the TOCTOU window; single-host tooling tier documented in the comment. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:27.802Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-007",
