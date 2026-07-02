@@ -132,10 +132,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after adding story_advance to M4 lifecycle consumer coverage and preserving non_authoritative/gateEvidence=false runtime packs.",
-          "headHash": "c4231f7f35bc1a4e3366dbbd602290be3f1ee10e",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:15.798Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,10 +143,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
           "note": "M4 consumer matrix includes session_brief, host_handoff, story_create, story_advance, done_prepare, done_closure, and final_response_check; all consumers remain advisory-only MemoryFreshnessPack outputs.",
-          "headHash": "c4231f7f35bc1a4e3366dbbd602290be3f1ee10e",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:15.990Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,10 +154,10 @@
           "command": "git show --stat --oneline c4231f7f3",
           "result": "pass",
           "note": "Fix commit c4231f7f3 closes F-003 by making story_advance part of the shared optimized runtime consumer smoke instead of relying on partial consumer coverage.",
-          "headHash": "c4231f7f35bc1a4e3366dbbd602290be3f1ee10e",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:16.180Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         }
       ]
     },
@@ -209,10 +209,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
           "note": "M3-M6 smoke PASS: optimized path matches reference path for active playbook and required IDs on matrix fixtures.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -220,10 +220,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
           "note": "M3-M6 smoke PASS: superseded suppression, stale-relevant/stale-irrelevant classification, and render line cap/omittedCount behavior are verified.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,10 +231,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
           "note": "M3-M6 smoke PASS: candidate and stale playbooks do not surface, deprecated brand residue is only recorded as residue, and malformed rows do not crash or surface as current guidance.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         }
       ]
     },
@@ -287,10 +287,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after replacing synthetic M6 parity with real MemoryFreshnessPack reference/indexed/cache report path.",
-          "headHash": "0328b6cde57909bad6bab9b6d70a524c7d86f8bd",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:24.171Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -298,10 +298,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
           "note": "M6 smoke passed with recordCount=1000000, resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, indexedCold runtime index counts matching corpus, and warmCacheHits=8/8.",
-          "headHash": "0328b6cde57909bad6bab9b6d70a524c7d86f8bd",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:24.359Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -309,10 +309,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline smoke passed profile=full with exact 1,000,000 records, MemoryFreshnessPack parity, reference/indexed/cache digests equal, warmCacheHits=8/8, and performancePolicy=report-first; this closes F-001/F-002/F-004 without claiming 1-2s optimized runtime.",
-          "headHash": "0328b6cde57909bad6bab9b6d70a524c7d86f8bd",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:24.547Z"
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
         }
       ]
     }
