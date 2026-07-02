@@ -165,7 +165,30 @@
       "userSees": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js prints per-case PASS lines ending experience-pack-arm-switch-smoke: ALL PASS with exit 0, and lattice validate lists it green",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js prints per-case PASS lines ending experience-pack-arm-switch-smoke: ALL PASS, exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice validate runs the smoke via validate.commands and reports it green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke covers the poisoned paths: partial env context ignored with warning; hash invariance across arms; control-arm block recorded; a deliberately unmarked memory-family command name fails the catalog cross-check case",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
