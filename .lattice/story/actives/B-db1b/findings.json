@@ -74,7 +74,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md now states M0-M5 local runtime artifacts are delivered (lines 294-297) and says M0-M3 cover verifier adapters/gate transitions, but the unchanged Milestone 2/3 text still promises verifier scripts/adapters that write machine-readable evidence and transition enforcement (lines 247-267). The delivered runtime is read-only: handlers only consume evidenceJson/evidencePath or deterministic fixtures (packages/main/src/handlers/pinn-claim-admissibility.ts lines 85-95, 100-113), core fixtures synthesize receipts in-process (packages/main/src/core/pinn-claim-admissibility.ts lines 218-246), and command policy says the commands write nothing/cannot satisfy DONE or release readiness (packages/main/src/core/command-policy.ts lines 215-217). Update the doc/status language to say receipt schema/adapter receipt checks and diagnostic nextAction reporting were delivered, or deliver actual receipt-producing verifier scripts and lifecycle gate integration before TEST.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T19:22:29.254Z",
@@ -88,7 +88,11 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed decision doc wording to describe delivered read-only runtime scope: receipt checks, deterministic fixtures/benchmark, diagnostic nextAction/reporting, sanitized reports; explicitly out of scope are evidence-producing verifier scripts, lifecycle mutation, PDE correctness proof, production Authority, and remote release.",
+      "resolvedAt": "2026-07-02T19:31:07.421Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
