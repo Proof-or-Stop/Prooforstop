@@ -53,9 +53,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:18:31.364Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:31:11.142Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies dev-memory is selected as preferred seed source for a shared canonical source.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:11.640Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies missing lineage and non_promotable sources are reported as blocked without mutation.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:12.085Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies observe is read-only/non-authoritative/gateEvidence=false and rejects write-shaped flags through command schema/handler.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:12.519Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
