@@ -24,7 +24,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test demonstrates explicit playbook outcome recording exists and can be asserted as a regression target.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE/story completion alone is not accepted as a helped outcome without explicit exposure and verdict source.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A candidate helped outcome with exposureMode=none or missing structured verdictSource is rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

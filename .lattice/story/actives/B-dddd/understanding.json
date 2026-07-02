@@ -1,0 +1,29 @@
+{
+  "task": "Implement the M0-M2 foundation for explicit playbook outcome recording without changing candidate activation semantics.",
+  "outcome": "After a candidate playbook is explicitly evaluated, the user can run lattice playbook_outcome_record and see: Playbook outcome recorded; outcome: helped|dismissed|harmful|neutral|unknown; authority: non_authoritative; gateEvidence: false.",
+  "facts": [
+    "Existing playbook lifecycle commands are playbook_propose, playbook_diff, playbook_approve, playbook_activate, and playbook_reject.",
+    "playbook_approve creates candidate playbooks; playbook_activate is already the explicit activation boundary.",
+    "Learning data is stored under .lattice/learning/ via packages/main/src/core/learning-store.ts and resolves linked worktrees back to the main owner root.",
+    "Existing playbook commands are audit-only and must not satisfy DONE, review, release, or proof evidence gates.",
+    "The reviewed execution plan limits V1 to assessment/outcome ledger foundation and explicitly excludes automatic activation."
+  ],
+  "constraints": [
+    "Do not add automatic candidate to active mutation.",
+    "Do not surface candidate playbooks in MemoryFreshnessPack.results.playbookIds or active runtime guidance.",
+    "Do not treat DONE success alone as helped outcome.",
+    "Keep command namespace host-neutral; no Codex- or Claude-specific playbook workflow command.",
+    "Only fix real correctness issues and keep the implementation consistent with existing playbook and learning-store patterns."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "timestamp": "2026-07-02T02:51:08.182Z"
+}
