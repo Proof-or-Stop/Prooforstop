@@ -121,8 +121,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T12:10:30.998Z",
       "endTime": null,
       "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false."
     },
@@ -230,6 +230,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M3 cache implementation committed in 26f747766 and digest fix in 2d2e8c30; build and M3-M6 smoke passed."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:30.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M4 consumer rollout evidence closure after shared optimized API implementation."
     }
   ]
 }
