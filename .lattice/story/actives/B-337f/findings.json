@@ -53,6 +53,24 @@
       ],
       "signatureTag": "edge|mjs:447|oracle-purity-violation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-004",
+      "desc": "oracle-silent-catch: module-count oracle has an empty catch {} on line 478 of trap-templates.mjs that swallows the readdirSync error when srcDir is absent; actual stays 0; if a host writes 'MODULES: 0' the oracle returns ok even though srcDir is missing (false-negative for a malformed workspace); this also violates type-safety rule (empty catch swallowing errors); fix: treat the caught error as oracleMismatch:true or propagate it",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:15.729Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-001",
+      "_hash": "8ed8e8bff55050226f442a770ce2710efd40b73fbca5a7d129194ad8f92e9fe0",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs:478"
+      ],
+      "signatureTag": "edge|mjs:478|oracle-silent-catch",
+      "signatureTagSource": "auto"
     }
   ]
 }
