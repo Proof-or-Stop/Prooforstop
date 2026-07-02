@@ -88,6 +88,7 @@ import {
   acquireDoneMainMergeLock,
   runDonePreMergeGate,
   applyDoneMergeEffects,
+  runPostDoneLearningSettlement,
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
@@ -659,6 +660,18 @@ async function runStoryTransitionInner(
       const doneEffects = await applyDoneMergeEffects(args.storyId, store, story, doneRenderedChecklist);
       doneChecklistPrefix = doneEffects.doneChecklistPrefix;
       doneMergeReport = doneEffects.doneMergeReport;
+
+      // B-6241 M3: post-DONE learning settlement runs only after durable DONE
+      // effects, and only after the lifecycle main write lock is released. The
+      // helper is best-effort and returns a status line instead of throwing.
+      doneMainMergeLock?.release();
+      doneMainMergeLock = undefined;
+      const settlement = runPostDoneLearningSettlement(doneEffects.mainMergeRoot ?? ctx.root, args.storyId);
+      const settlementLine =
+        `playbook learning settlementStatus: ${settlement.settlementStatus}; ` +
+        `alreadyApplied: ${settlement.alreadyApplied}; ${settlement.message}; ` +
+        'authority: non_authoritative; gateEvidence: false';
+      doneMergeReport += `${doneMergeReport ? '\n' : '\n\n'}${settlementLine}`;
     }
 
     // Baseline risk warning: show dirty/untracked files before worktree creation.

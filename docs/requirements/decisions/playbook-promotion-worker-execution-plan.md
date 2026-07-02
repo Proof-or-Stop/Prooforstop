@@ -1,6 +1,8 @@
 # Playbook Promotion Worker Execution Plan
 
-Status: revised draft after Claude CLI + agy CLI audit
+Status: revised draft after Claude CLI + agy CLI audit; V1 M3-M6 plus M5.5
+implemented by B-6241. M7/M8 trial serving, matched-control serving, timers,
+and automatic candidate-to-active mutation remain future work.
 
 ## 1. Why This Document Exists
 

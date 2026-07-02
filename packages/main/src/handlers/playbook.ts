@@ -30,24 +30,46 @@
 import { randomUUID } from 'node:crypto';
 
 import type {
+  NonDeducibleOverrideEvent,
   Playbook,
   PlaybookLineage,
   PlaybookOutcomeEvent,
+  PlaybookPromotionAggregate,
+  PlaybookPromotionDecisionAction,
+  PlaybookPromotionDecisionRow,
   PlaybookProposal,
   PlaybookTrigger,
 } from '../core/experience-layer-types.js';
 import {
+  aggregatePlaybookPromotion,
+  appendPlaybookPromotionDecision,
   appendPlaybookOutcomeEvent,
   appendPlaybook,
+  buildPlaybookSourceReference,
+  collectPlaybookPromotionLearningHealth,
   computePlaybookDigest,
+  computeNonDeducibleOverrideReasonDigest,
   computePlaybookProposalDigest,
   deleteProposal,
+  evaluatePlaybookPromotion,
+  findNonDeducibleSource,
+  hasAppliedPlaybookPromotionDecision,
   listProposals,
+  markNonDeducibleSource,
+  readNonDeducibleSourcesRegistry,
   readPlaybooks,
+  readPlaybookOutcomeEventsWithDiagnostics,
+  readPlaybookPromotionDecisionRows,
+  readPlaybookPromotionHealthEvents,
   readProposal,
   resolveLearningOwnerRoot,
+  resolveNonDeducibleSourcesPath,
+  resolvePlaybookPromotionDecisionsPath,
+  resolvePlaybookPromotionHealthPath,
   resolvePlaybookOutcomesPath,
+  recordNonDeducibleOverride,
   validatePlaybook,
+  withLearningStoreLock,
   writePlaybooks,
   writeProposal,
 } from '../core/learning-store.js';
@@ -329,6 +351,199 @@ function buildOutcomeEvent(args: PlaybookOutcomeRecordArgs, playbook: Playbook):
   };
 }
 
+type PlaybookProposeArgs = {
+  finding: string;
+  storyId?: string;
+  overrideNonDeducible?: boolean;
+  nonDeducibleOverrideReason?: string;
+};
+
+type PlaybookPromotionSweepArgs = {
+  dryRun?: boolean;
+  apply?: boolean;
+  playbookId?: string;
+  since?: string;
+  json?: boolean;
+};
+
+type PlaybookPromotionStatusArgs = {
+  playbookId?: string;
+  limit?: number;
+  json?: boolean;
+};
+
+function envFlagEnabled(name: string): { enabled: boolean; raw: string } {
+  const raw = (process.env[name] ?? '').trim();
+  return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
+}
+
+function normalizeOptionalBoolean(value: unknown): boolean {
+  return value === true;
+}
+
+function nonEmptyReason(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function isUsefulOverrideReason(reason: string): boolean {
+  return reason.length >= 12 && /[A-Za-z0-9]/.test(reason);
+}
+
+function filterOutcomesSince(events: PlaybookOutcomeEvent[], since?: string): PlaybookOutcomeEvent[] {
+  if (!since) return events;
+  const start = Date.parse(since);
+  if (!Number.isFinite(start)) throw new Error(`playbook_promotion_sweep: since must be a valid ISO timestamp: ${since}`);
+  return events.filter((event) => {
+    const observed = Date.parse(event.observedAt);
+    return Number.isFinite(observed) && observed >= start;
+  });
+}
+
+function ensurePromotionTargetPlaybooks(playbooks: Playbook[], playbookId?: string): Playbook[] {
+  const eligible = playbooks.filter((playbook) =>
+    playbook.status === 'candidate' || playbook.status === 'active' || playbook.status === 'stale');
+  if (!playbookId) return eligible;
+  const matched = eligible.find((playbook) => playbook.id === playbookId);
+  if (!matched) throw new Error(`playbook_promotion_sweep: playbook not found or not promotion-evaluable: ${playbookId}`);
+  return [matched];
+}
+
+function validatePromotionPlaybooks(playbooks: Playbook[]): void {
+  for (const playbook of playbooks) {
+    const validation = validatePlaybook(playbook);
+    if (!validation.ok) {
+      throw new Error(`playbook_promotion_sweep: malformed playbook ${playbook?.id ?? '<unknown>'}: ${validation.error}`);
+    }
+  }
+}
+
+function promotionDecisionIdempotencyKey(
+  aggregate: PlaybookPromotionAggregate,
+  action: PlaybookPromotionDecisionAction,
+): string {
+  return [
+    'playbook-promotion-v1',
+    action,
+    aggregate.playbookId,
+    aggregate.aggregateDigest,
+    aggregate.source.sourceKey,
+  ].join(':');
+}
+
+function buildPromotionDecisionRow(
+  playbook: Playbook,
+  aggregate: PlaybookPromotionAggregate,
+  action: PlaybookPromotionDecisionAction,
+  reasonCodes: string[],
+  opts: { dryRun: boolean; applied: boolean; alreadyApplied?: boolean; decidedAt?: string },
+): PlaybookPromotionDecisionRow {
+  const nonDeducibleSourceKey = action === 'mark_non_deducible' ? aggregate.source.sourceKey : undefined;
+  return {
+    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    decisionId: `PBD-${randomUUID()}`,
+    idempotencyKey: promotionDecisionIdempotencyKey(aggregate, action),
+    decidedAt: opts.decidedAt ?? new Date().toISOString(),
+    playbookId: playbook.id,
+    evaluatedStatus: playbook.status,
+    action,
+    reasonCodes,
+    aggregateDigest: aggregate.aggregateDigest,
+    aggregate,
+    before: {
+      playbookStatus: playbook.status,
+      playbookDigest: computePlaybookDigest(playbook),
+      sourceKey: aggregate.source.sourceKey,
+    },
+    after: {
+      playbookStatus: playbook.status,
+      recommendation: action,
+      ...(nonDeducibleSourceKey ? { nonDeducibleSourceKey } : {}),
+    },
+    workerVersion: 'playbook-promotion-worker-v1',
+    dryRun: opts.dryRun,
+    applied: opts.applied,
+    alreadyApplied: opts.alreadyApplied ?? false,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function renderPromotionDecisionLine(row: PlaybookPromotionDecisionRow): string {
+  const suffix = row.alreadyApplied ? ' alreadyApplied: true' : '';
+  return [
+    `${row.action} playbook=${row.playbookId}`,
+    `status=${row.evaluatedStatus}`,
+    `decisiveSamples=${row.aggregate.decisiveSamples}`,
+    `helped=${row.aggregate.helpedCount}`,
+    `dismissed=${row.aggregate.dismissedCount}`,
+    `harmful=${row.aggregate.harmfulCount}`,
+    `wrongClaim=${row.aggregate.wrongClaimCount}`,
+    `contextClasses=${row.aggregate.contextClassCount}`,
+    `aggregateDigest=${row.aggregateDigest}`,
+    `reasons=${row.reasonCodes.join(',')}${suffix}`,
+  ].join(' ');
+}
+
+function evaluatePlaybookRows(
+  playbooks: Playbook[],
+  events: PlaybookOutcomeEvent[],
+  priorDecisions: PlaybookPromotionDecisionRow[],
+  opts: { dryRun: boolean; applied: boolean; decidedAt?: string },
+): PlaybookPromotionDecisionRow[] {
+  return playbooks.map((playbook) => {
+    const aggregate = aggregatePlaybookPromotion(playbook, events, priorDecisions);
+    const evaluation = evaluatePlaybookPromotion(aggregate);
+    return buildPromotionDecisionRow(playbook, aggregate, evaluation.action, evaluation.reasonCodes, opts);
+  });
+}
+
+function renderSweepOutput(payload: {
+  dryRun: boolean;
+  applied: boolean;
+  decisions: PlaybookPromotionDecisionRow[];
+  decisionLogPath: string;
+  nonDeducibleRegistryPath: string;
+  outcomeMalformedRows: number;
+  decisionMalformedRows: number;
+  featureFlag: { raw: string; enabled: boolean };
+  json?: boolean;
+}): string {
+  if (payload.json) {
+    return JSON.stringify({
+      dryRun: payload.dryRun,
+      applied: payload.applied,
+      decisions: payload.decisions,
+      outcomeMalformedRows: payload.outcomeMalformedRows,
+      decisionMalformedRows: payload.decisionMalformedRows,
+      decisionLogPath: payload.decisionLogPath,
+      nonDeducibleRegistryPath: payload.nonDeducibleRegistryPath,
+      featureFlags: { PLAYBOOK_PROMOTION_SWEEP_ENABLED: payload.featureFlag },
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    }, null, 2);
+  }
+  return [
+    'Playbook promotion sweep',
+    `dryRun: ${payload.dryRun}`,
+    `applied: ${payload.applied}`,
+    `featureFlag.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${payload.featureFlag.enabled} (${payload.featureFlag.raw || 'unset'})`,
+    `decisionLog: ${payload.decisionLogPath}`,
+    `nonDeducibleRegistry: ${payload.nonDeducibleRegistryPath}`,
+    `malformedOutcomeRows: ${payload.outcomeMalformedRows}`,
+    `malformedDecisionRows: ${payload.decisionMalformedRows}`,
+    ...payload.decisions.map(renderPromotionDecisionLine),
+    'authority: non_authoritative',
+    'gateEvidence: false',
+  ].join('\n');
+}
+
+function latestDecisions(rows: PlaybookPromotionDecisionRow[], limit: number): PlaybookPromotionDecisionRow[] {
+  return rows
+    .slice()
+    .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt))
+    .slice(0, limit);
+}
+
 export function createPlaybookHandlers(ctx: HandlerContext) {
   return {
     /**
@@ -336,7 +551,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
      * through the store read port (never files one). The optional `storyId`
      * narrows the search; otherwise the storyId is parsed from the finding id.
      */
-    playbook_propose(args: { finding: string; storyId?: string }): string {
+    playbook_propose(args: PlaybookProposeArgs): string {
       const findingId = typeof args.finding === 'string' ? args.finding.trim() : '';
       if (!findingId) throw new Error('playbook_propose requires --finding <findingId>');
 
@@ -355,6 +570,22 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         sourceFindingId: finding.id,
         ...(finding.signatureTag ? { sourceSignature: finding.signatureTag } : {}),
       };
+      const source = buildPlaybookSourceReference(lineage);
+      const nonDeducible = findNonDeducibleSource(ctx.root, source.sourceKey);
+      const overrideRequested = normalizeOptionalBoolean(args.overrideNonDeducible);
+      const overrideReason = nonEmptyReason(args.nonDeducibleOverrideReason);
+      if (nonDeducible && !overrideRequested) {
+        throw new Error(
+          `playbook_propose: source is marked non_deducible (${source.sourceKey}); ` +
+          'pass overrideNonDeducible=true with a sufficient nonDeducibleOverrideReason to create an audited override.',
+        );
+      }
+      if (nonDeducible && overrideRequested && !isUsefulOverrideReason(overrideReason)) {
+        throw new Error('playbook_propose: non_deducible override requires a useful reason of at least 12 characters');
+      }
+      if (!nonDeducible && overrideRequested) {
+        throw new Error('playbook_propose: overrideNonDeducible was supplied, but the source is not marked non_deducible');
+      }
 
       const desc = (finding.desc ?? '').trim();
       const proposal: PlaybookProposal = {
@@ -373,11 +604,29 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       proposal.proposalDigest = computePlaybookProposalDigest(proposal);
 
       writeProposal(ctx.root, proposal);
+      let overrideLine = '';
+      if (nonDeducible && overrideRequested) {
+        const acceptedAt = new Date().toISOString();
+        const reasonDigest = computeNonDeducibleOverrideReasonDigest(overrideReason);
+        const event: NonDeducibleOverrideEvent = {
+          overrideId: `PBO-OVERRIDE-${randomUUID()}`,
+          acceptedAt,
+          sourceKey: source.sourceKey,
+          sourceFindingId: finding.id,
+          reasonDigest,
+          reasonLength: overrideReason.length,
+          proposalId: proposal.id,
+        };
+        recordNonDeducibleOverride(ctx.root, source.sourceKey, event);
+        overrideLine = `override accepted: non_deducible source ${source.sourceKey} reasonDigest: ${reasonDigest}`;
+      }
       return [
         `Playbook proposal ${proposal.id} staged`,
         `sourceFinding: ${lineage.sourceFindingId}`,
         `sourceStory: ${lineage.sourceStoryId}`,
         ...(lineage.sourceSignature ? [`sourceSignature: ${lineage.sourceSignature}`] : []),
+        `sourceKey: ${source.sourceKey}`,
+        ...(overrideLine ? [overrideLine] : []),
         `proposalDigest: ${proposal.proposalDigest}`,
       ].join('\n');
     },
@@ -559,6 +808,173 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
           `gateEvidence: false`,
         ].join('\n');
       });
+    },
+
+    /**
+     * Evaluate promotion posture. Dry-run is the default and writes nothing.
+     * Apply appends idempotent recommendation rows only; it never activates a
+     * candidate and never writes lifecycle evidence.
+     */
+    playbook_promotion_sweep(args: PlaybookPromotionSweepArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_promotion_sweep: pass either apply or dryRun, not both');
+      const dryRun = !apply;
+      const featureFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
+      if (apply && !featureFlag.enabled) {
+        throw new Error('playbook_promotion_sweep: PLAYBOOK_PROMOTION_SWEEP_ENABLED is disabled; dry-run remains available');
+      }
+
+      const run = (): string => {
+        const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(ctx.root);
+        const decisionRows = readPlaybookPromotionDecisionRows(ctx.root);
+        const playbooks = ensurePromotionTargetPlaybooks(readPlaybooks(ctx.root), args.playbookId?.trim());
+        validatePromotionPlaybooks(playbooks);
+        const events = filterOutcomesSince(outcomeRows.events, args.since);
+        const decisions = evaluatePlaybookRows(playbooks, events, decisionRows.decisions, {
+          dryRun,
+          applied: apply,
+        });
+
+        if (apply) {
+          const existingKeys = new Set(
+            readPlaybookPromotionDecisionRows(ctx.root).decisions
+              .filter((row) => row.applied)
+              .map((row) => row.idempotencyKey),
+          );
+          for (const row of decisions) {
+            if (existingKeys.has(row.idempotencyKey) || hasAppliedPlaybookPromotionDecision(ctx.root, row.idempotencyKey)) {
+              row.alreadyApplied = true;
+              row.applied = true;
+              continue;
+            }
+            appendPlaybookPromotionDecision(ctx.root, row);
+            existingKeys.add(row.idempotencyKey);
+            if (row.action === 'mark_non_deducible') {
+              markNonDeducibleSource(ctx.root, {
+                source: row.aggregate.source,
+                reasonCodes: row.reasonCodes,
+                reason: 'promotion sweep marked source non_deducible after repeated rejected siblings',
+                sourceRejectedSiblingCount: row.aggregate.sourceRejectedSiblingCount,
+                aggregateDigest: row.aggregateDigest,
+                latestDecisionId: row.decisionId,
+                markedAt: row.decidedAt,
+              });
+            }
+          }
+        }
+
+        return renderSweepOutput({
+          dryRun,
+          applied: apply,
+          decisions,
+          decisionLogPath: resolvePlaybookPromotionDecisionsPath(ctx.root),
+          nonDeducibleRegistryPath: resolveNonDeducibleSourcesPath(ctx.root),
+          outcomeMalformedRows: outcomeRows.malformedCount,
+          decisionMalformedRows: decisionRows.malformedCount,
+          featureFlag,
+          json: args.json,
+        });
+      };
+
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-promotion-sweep', run);
+    },
+
+    /**
+     * Read-only posture surface. Candidates are labelled pending learning and
+     * never rendered as active runtime guidance.
+     */
+    playbook_promotion_status(args: PlaybookPromotionStatusArgs = {}): string {
+      const playbookId = args.playbookId?.trim();
+      const limit = Math.max(1, Math.min(50, Number.isFinite(args.limit) ? Number(args.limit) : 10));
+      const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(ctx.root);
+      const decisionRows = readPlaybookPromotionDecisionRows(ctx.root);
+      const events = outcomeRows.events;
+      const registry = readNonDeducibleSourcesRegistry(ctx.root);
+      const healthRows = readPlaybookPromotionHealthEvents(ctx.root);
+      const health = collectPlaybookPromotionLearningHealth(ctx.root);
+      const playbooks = readPlaybooks(ctx.root).filter((playbook) => !playbookId || playbook.id === playbookId);
+      validatePromotionPlaybooks(playbooks.filter((playbook) => playbook.status === 'candidate' || playbook.status === 'active' || playbook.status === 'stale'));
+      const promotionPlaybooks = ensurePromotionTargetPlaybooks(playbooks, undefined);
+      const aggregates = promotionPlaybooks.map((playbook) => ({
+        playbook,
+        aggregate: aggregatePlaybookPromotion(playbook, events, decisionRows.decisions),
+      }));
+      const pendingLearning = aggregates
+        .filter((row) => row.playbook.status === 'candidate')
+        .map((row) => ({
+          playbookId: row.playbook.id,
+          status: row.playbook.status,
+          label: 'pending learning material; not active runtime guidance',
+          aggregateDigest: row.aggregate.aggregateDigest,
+          decisiveSamples: row.aggregate.decisiveSamples,
+        }));
+      const activeNegativeSignals = aggregates
+        .filter((row) => row.playbook.status === 'active')
+        .map((row) => ({ row, evaluation: evaluatePlaybookPromotion(row.aggregate) }))
+        .filter((entry) => entry.evaluation.action === 'recommend_demote')
+        .map((entry) => ({
+          playbookId: entry.row.playbook.id,
+          action: entry.evaluation.action,
+          reasonCodes: entry.evaluation.reasonCodes,
+          harmfulCount: entry.row.aggregate.harmfulCount,
+          dismissedCount: entry.row.aggregate.dismissedCount,
+          wrongClaimCount: entry.row.aggregate.wrongClaimCount,
+        }));
+      const latest = latestDecisions(decisionRows.decisions, limit);
+      const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
+      const settlementFlag = envFlagEnabled('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+      const latestSettlement = latestDecisions([], 1); // keep status payload shape stable below.
+      void latestSettlement;
+
+      const payload = {
+        pendingLearning,
+        activeNegativeSignals,
+        latestDecisions: latest,
+        nonDeducibleSources: registry.sources,
+        settlementHealth: {
+          latest: healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit),
+          malformedRows: healthRows.malformedCount,
+        },
+        health,
+        featureFlags: {
+          PLAYBOOK_PROMOTION_SWEEP_ENABLED: sweepFlag,
+          PLAYBOOK_DONE_SETTLEMENT_ENABLED: settlementFlag,
+        },
+        paths: {
+          decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
+          nonDeducibleSources: resolveNonDeducibleSourcesPath(ctx.root),
+          settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
+        },
+        authority: 'non_authoritative',
+        gateEvidence: false,
+      };
+      if (args.json) return JSON.stringify(payload, null, 2);
+
+      return [
+        'Playbook promotion status',
+        'authority: non_authoritative',
+        'gateEvidence: false',
+        `featureFlags.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${sweepFlag.enabled} (${sweepFlag.raw || 'unset'})`,
+        `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'})`,
+        `pendingLearning: ${pendingLearning.length}`,
+        ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
+        `activeNegativeSignals: ${activeNegativeSignals.length}`,
+        ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
+        `latestDecisions: ${latest.length}`,
+        ...latest.map((row) => `  - ${row.decidedAt} ${row.action} ${row.playbookId} aggregateDigest=${row.aggregateDigest} applied=${row.applied}`),
+        `nonDeducibleSources: ${registry.sources.length}`,
+        ...registry.sources.map((source) => `  - ${source.source.sourceKey} finding=${source.source.sourceFindingId} reasons=${source.reasonCodes.join(',')}`),
+        `settlementHealth: ${healthRows.events.length}`,
+        ...healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit)
+          .map((event) => `  - ${event.observedAt} settlementStatus: ${event.settlementStatus ?? 'n/a'} story=${event.storyId ?? 'n/a'} ${event.message}`),
+        `retentionWarnings: ${health.retentionWarnings.length}`,
+        ...health.retentionWarnings.map((warning) => `  - ${warning}`),
+        `healthWarnings: ${health.warnings.length}`,
+        ...health.warnings.map((warning) => `  - ${warning}`),
+        'candidatesAreRuntimeGuidance: false',
+      ].join('\n');
     },
 
     /** Discard a staged proposal. Clear error when the proposal is absent. */

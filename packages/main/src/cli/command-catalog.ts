@@ -1814,6 +1814,8 @@ Behavior:
   { name: 'playbook_propose', description: 'Stage a Playbook proposal distilled from a resolved finding (audit-only; never files a finding)', schema: {
     finding: z.string().describe('Source finding id (e.g. B-xxx:F-001) to distil into a playbook proposal.'),
     storyId: z.string().optional().describe('Optional story id; defaults to the prefix parsed from the finding id.'),
+    overrideNonDeducible: z.boolean().optional().describe('Explicitly override a marked non_deducible source. Requires nonDeducibleOverrideReason and records audit metadata.'),
+    nonDeducibleOverrideReason: z.string().optional().describe('Required with overrideNonDeducible=true; a useful reason whose digest is recorded for audit.'),
   }},
   { name: 'playbook_diff', description: 'Read-only render of the candidate Playbook that approve would write (no mutation)', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to render.'),
@@ -1860,6 +1862,18 @@ Behavior:
     eventId: z.string().optional().describe('Caller-provided event id; defaults to PBO-<uuid>.'),
     authority: z.literal('non_authoritative').optional().describe('Only non_authoritative is accepted; omitted values are recorded as non_authoritative.'),
     gateEvidence: z.literal(false).optional().describe('Only false is accepted; this command can never create gate evidence.'),
+  }},
+  { name: 'playbook_promotion_sweep', description: 'Evaluate candidate/active playbooks and optionally append idempotent non-authoritative promotion recommendation rows', schema: {
+    dryRun: z.boolean().optional().describe('Preview decisions without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Append idempotent decision rows. Requires PLAYBOOK_PROMOTION_SWEEP_ENABLED=true/1/yes. Never activates candidates.'),
+    playbookId: z.string().optional().describe('Optional playbook id to evaluate.'),
+    since: z.string().optional().describe('Optional ISO timestamp; only outcomes observed at/after this time are counted.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
+  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non-deducible sources, health, flags', schema: {
+    playbookId: z.string().optional().describe('Optional playbook id filter.'),
+    limit: z.coerce.number().int().optional().describe('Maximum latest decisions/health rows to render (default 10, max 50).'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
     proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
