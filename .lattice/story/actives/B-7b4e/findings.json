@@ -99,7 +99,7 @@
       "desc": "Blocking quality issue: top-level receipt outputDigest is only checked for presence and is never compared to the active identity. In packages/main/src/core/claim-admissibility/quantum.ts:489 the evaluator only records output_digest_missing when receipt.outputDigest is empty, while packages/main/src/core/claim-admissibility/quantum.ts:502-507 compares active outputDigest only against receipt.identity.outputDigest. Repro: setting buildCompleteQuantumEvidence(\"Q5\").receipts[0].outputDigest = \"sha256:mismatched-output\" returns allowed=true, nextAction=advance, reasons=[], so mismatched solver output can advance despite the fail-closed output identity requirement. The smoke case at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:143-148 deletes both digest fields and does not catch this mismatch.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:06:10.818Z",
@@ -111,7 +111,11 @@
         "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|output-digest-binding-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by binding top-level receipt.outputDigest against the active identity and receipt identity outputDigest for solver-run receipts; npm --prefix packages/main run test:quantum-claim-admissibility now reports mismatched top-level solver output digest: BLOCK.",
+      "resolvedAt": "2026-07-02T21:13:32.509Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b4e:F-006",
