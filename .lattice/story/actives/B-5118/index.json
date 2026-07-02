@@ -4,7 +4,7 @@
   "title": "Quantum M2: add verifier adapter pack for claim-admissibility receipts",
   "description": "Implement the pending Quantum Milestone 2 from proof-or-stop-quantum-claim-admissibility-execution-plan.md. The story adds deterministic verifier adapter definitions and receipt-normalization helpers for computational quantum claim-admissibility, building on the existing M0-M1 quantum schema/evaluator and the generic ClaimAdmissibilityPack registry. It must not add lifecycle gate policy, benchmark harnesses, reporting/governance integration, hardware validation, solver improvement claims, production claims, or Authority claims.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "quantum",
@@ -42,6 +42,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:07:36.324Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
       "agent": "main"
     }
   ],
