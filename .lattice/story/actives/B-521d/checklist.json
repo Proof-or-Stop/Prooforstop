@@ -113,7 +113,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke covers empty store, synthetic candidate generation, candidate consumption, unhandled recommendation, and handled recommendation after explicit activation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation states playbook_promotion_observe is evidence gathering for M7/M8 readiness, not automatic activation, trial traffic, timer registration, or DONE gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves unexposed candidate outcomes and mere candidate existence do not satisfy consumed/helped evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
