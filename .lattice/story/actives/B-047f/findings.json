@@ -33,6 +33,23 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-buildledger",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-003",
+      "desc": "[host-2 Codex P2] The adequacy report includes only unpaired reference sizing; M5 requires unpaired reference + McNemar paired sizing. Fix: add a paired section (McNemar nPairs at the live point and the seeded band max, discordant cells derived under the documented independence approximation p01=p1(1-p2), p10=p2(1-p1), with optional explicit override in config) to adequacy-report.json and .md; add selfcheck case.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:05.087Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "5164c2b260d43669175ff04e5cc589b7c223a11fedc20a18840498641aaf3328",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "missing|mjs|host-codex-adequacy",
+      "signatureTagSource": "auto"
     }
   ]
 }
