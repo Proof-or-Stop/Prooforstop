@@ -329,7 +329,7 @@
       "desc": "pinn_claim_check and pinn_report_render still miss production-readiness narrative overclaims. Direct probe: evaluatePinnClaim on complete C9 evidence with narrativeClaim=\"Production readiness is proved for this PINN result.\" returns allowed=true,nextAction=advance,reasons=[]; pinn_report_render with a supplied benchmark artifactIndex digest=\"Production readiness is proved by supplied report.\" returns text containing that production-readiness claim. The delivery/checklist/docs boundary promises local claim-control only and no production readiness/PDE correctness claim, so production-readiness strings should be rejected or sanitized the same way deployment/PDE/completion overclaims are.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T22:08:26.446Z",
@@ -343,14 +343,18 @@
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|ts|pinn-production-readiness-overclaim",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by extending the shared PINN claim-boundary scanner to productionReadyClaim and production-readiness/production-ready narratives, and by reusing that scanner in pinn_report_render supplied-report sanitization. Added smoke coverage for direct production-readiness narratives, direct productionReadyClaim fields, and supplied benchmark artifact text. Verified with npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, and a direct dist probe returning allowed=false,nextAction=stop,claim_boundary_violation plus reportRejected=true.",
+      "resolvedAt": "2026-07-02T22:12:08.257Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-016",
       "desc": "Test coverage blocker: the PINN smoke/CLI regression corpus covers B1-B15, A1-A4, malformed evidence, duplicate receipts, report sanitization, and prior F-001..F-014 cases, but it still omits production-readiness narrative overclaims. Current dist repro: evaluatePinnClaim(buildCompletePinnEvidence('C9') with narrativeClaim='Production readiness is proved for this PINN result.') returns allowed=true,nextAction=advance,reasons=[]; pinn_report_render accepts supplied benchmark artifactIndex digest='Production readiness is proved by supplied report.' and renders that text. The smoke only searches/asserts deploymentReadyClaim/terminalCompletionClaim/PDE correctness/legacy productionDone-style tokens, so validation and DONE-required evidence can pass while this production-readiness boundary regression remains untested. Add smoke/CLI probes that require claim checks and report rendering to reject or sanitize production-readiness narrative text before this lane can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T22:09:53.976Z",
@@ -364,7 +368,11 @@
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
       "signatureTag": "pinn-production-readiness-overclaim-test-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by adding explicit regression coverage for the production-readiness overclaim gap in the PINN smoke suite: direct narrative strings, direct productionReadyClaim field, and supplied report artifact digest now fail closed. Verified with npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, and a direct dist probe returning allowed=false,nextAction=stop,claim_boundary_violation plus reportRejected=true.",
+      "resolvedAt": "2026-07-02T22:12:08.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
