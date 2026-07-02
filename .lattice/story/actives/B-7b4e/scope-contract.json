@@ -16,7 +16,32 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge story-local Lattice lifecycle evidence artifacts produced by DEV gate commands for B-7b4e; these files record proofstory, red-evidence, intent collision, and milestone binding metadata and do not expand the Quantum runtime product scope.",
+      "timestamp": "2026-07-02T20:07:51.811Z",
+      "paths": [
+        ".lattice/story/actives/B-7b4e/intent-collision.json",
+        ".lattice/story/actives/B-7b4e/milestone-ledger.json",
+        ".lattice/story/actives/B-7b4e/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7b4e/proofstory.json",
+        ".lattice/story/actives/B-7b4e/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7b4e/intent-collision.json",
+        ".lattice/story/actives/B-7b4e/milestone-ledger.json",
+        ".lattice/story/actives/B-7b4e/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7b4e/proofstory.json",
+        ".lattice/story/actives/B-7b4e/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e7bb2602bb72fb5c1a7879e79fb52a14d4d9f4cb",
+      "materialHash": "7fb53f319175bb5f4c5b55aaad69c628bedcbed6a3b712b83bccf0d936835f7f"
+    }
+  ],
   "createdAt": "2026-07-02T19:58:10.369Z",
-  "updatedAt": "2026-07-02T19:58:10.369Z"
+  "updatedAt": "2026-07-02T20:07:51.811Z"
 }
