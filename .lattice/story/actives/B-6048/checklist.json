@@ -276,7 +276,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-02T12:11:02.062Z",
       "endTime": "2026-07-02T12:11:11.891Z",
       "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first.",
@@ -398,6 +398,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopen M4 to address test-coverage finding B-6048:F-003: story_advance consumer omitted from smoke."
+    },
+    {
+      "timestamp": "2026-07-02T12:17:14.915Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen M6 to address findings B-6048:F-001/F-002/F-004: full parity must exercise real runtime index/cache path."
     }
   ]
 }
