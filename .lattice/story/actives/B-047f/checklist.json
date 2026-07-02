@@ -110,7 +110,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node experiments/experience-ablation/sample-size.mjs report --config=<protocol.json> --out=<dir> writes adequacy-report.json and adequacy-report.md showing per population (seeded band grid + live point) the planned N per arm, assumptions (alpha, power, direction: treatment = baseline minus MDE), detectable effect, and the in-band maximum with its location; the md report states 294 for the live point and 62 as the seeded in-band maximum near baseline 0.625 / MDE 0.25; node experiments/experience-ablation/sample-size-selfcheck.mjs prints a per-case PASS list and exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "anchor values: nPerArm(0.30,0.10)=294, nPerArm(0.625,0.25)=62, nPerArm(0.5,0.35)=27, nPerArm(0.5,0.25)=58 (ceil, pooled two-sided z, alpha .05, power .80, reduction direction); band scan maximum = 62 near baseline 0.625/MDE 0.25; WHY: these are the plan-reviewed S7 anchors, triple-verified in the B-36fd review",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wilson95(9,15) -> lower < 0.6 < upper with width reported; pilotFreezeCheck(defects,n<15) -> rejects with min-runs message; pilotFreezeCheck with CI width > 0.30 -> extend flag true; WHY: the S7 freeze rule must be executable, not prose",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "direction trap: an increase-direction computation (treatment = baseline + MDE) at (0.30,0.10) would give 356 not 294 - the selfcheck asserts 294 so any direction flip fails; mcnemar sizing is monotonic (more discordance -> fewer pairs needed) with its formula variant documented; WHY: the exact mistake Codex made in B-36fd review round 2 must be structurally impossible to ship",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
