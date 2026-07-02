@@ -130,6 +130,25 @@
       ],
       "signatureTag": "runtime-memory-substring-overflow-playbook-coverage",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-1c46:F-007",
+      "desc": "Performance index doc still says runtime index schema v2, but playbook-runtime-memory-index.ts now exports proofbound.runtime-memory-index.v3 and validates v3 after exact/fuzzy overflow fields were added. Fix by updating schema references to v3 and mentioning exact-overflow fallback/source-scan behavior in the latest index shape notes.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T15:57:13.752Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-011",
+      "_hash": "4747e356b841329700fa09d16356c82f2bef1472c8a2742764411570f9a96442",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+        "packages/main/src/core/playbook-runtime-memory-index.ts"
+      ],
+      "signatureTag": "doc-code-drift-runtime-memory-index-schema",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
