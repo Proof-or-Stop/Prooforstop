@@ -182,7 +182,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "DONE settlement is attempted only after durable DONE proof and failures are advisory in playbook_promotion_status, not DONE blockers.",
+      "userSees": "DONE/health output includes \"settlementStatus: disabled|recorded|failed\" and never changes the DONE result.",
       "files": {
         "modify": [
           "packages/main/src/handlers/transition-orchestrator.ts",
