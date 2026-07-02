@@ -90,6 +90,23 @@
       ],
       "signatureTag": "missing|mjs:66|dead-code-module",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-006",
+      "desc": "[host-2 Codex P1, probe-proven] done-evidence oracle accepts any evidence containing the PASS substring: check-output.txt with FAIL text plus a copied PASS marker classified defectPresent:false. Fix: anchored exact pass-line match, reject FAIL text, and verify the source fix itself (spec gains sourceFile/sourceMustMatch).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:50.406Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "0d3a6dc478443e56ce5f93157b1802ea0c469eec4980b7c8c915b6cf07f73c5f",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
