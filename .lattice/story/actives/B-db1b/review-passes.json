@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-02T20:20:52.762Z",
       "reviewRunId": "B-db1b:RR-016",
       "_hash": "e6056773c27d0dc900ed816f4a09670f4876dfbf4ae12a5d6967e306d14288ac"
+    },
+    {
+      "id": "B-db1b:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: verified current dist smoke covers F-009 quoted JSON-like assignment regressions for claim narrative (double/single-quoted terminalCompletionClaim and legacy completion fields) and supplied report strings (quoted artifact digest, quoted suiteStatus, nested injection field, benchmarkPath narrative). Existing smoke still asserts B1-B15 corpus, A4 rejects all 15 injections, weaker arms expose unsafe/stale acceptance, duplicate receipts fail closed, and deep supplied-report sanitization strips arbitrary nested fields. npm run test:pinn-claim-admissibility passed.",
+      "createdAt": "2026-07-02T20:34:56.251Z",
+      "reviewRound": "2026-07-02T20:33:29.331Z",
+      "reviewRunId": "B-db1b:RR-017",
+      "_hash": "6f932da970abca601c2efcdba9874946e491c1de63943a13be4f31ae313a2872"
     }
   ]
 }
