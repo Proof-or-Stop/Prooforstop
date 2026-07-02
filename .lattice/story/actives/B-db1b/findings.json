@@ -112,6 +112,25 @@
       ],
       "signatureTag": "spec-boundary|ts|pinn-report-render-json-overclaim-fields",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-db1b:F-006",
+      "desc": "pinn_claim_check still accepts narrative completion overclaims. The boundaryViolation text matcher rejects deploymentReadyClaim/externalCompletionClaim/PDE wording and direct boolean fields, but it omits terminalCompletionClaim/terminal completion and retired narrative tokens such as productionDone/fullAuthorityDone. A complete evidence payload supplied via --evidencePath with narrativeClaim=\"terminalCompletionClaim: true\" or \"productionDone: true\" returns allowed=true,nextAction=advance instead of claim_boundary_violation, so legacy/new completion overclaims can bypass the local claim boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:51:06.338Z",
+      "reviewRound": "2026-07-02T19:30:39.568Z",
+      "reviewRunId": "B-db1b:RR-006",
+      "_hash": "a474d00c658b7c1b51c6c3ba14db4c717f09f24e5ab677282a0c4fbe880bd40e",
+      "files": [
+        "packages/main/src/core/pinn-claim-admissibility.ts",
+        "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|pinn-claim-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
