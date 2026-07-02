@@ -99,7 +99,7 @@
       "desc": "pinn_report_render still returns caller-supplied top-level overclaim fields from benchmarkJson/benchmarkPath in JSON mode when their values are non-boolean true. normalizeBenchmarkReport only rejects rawReport[field] === true or claims[field] === true, then returns { ...report, claims: SAFE_REPORT_CLAIMS, boundary: PINN_BOUNDARY_PARAGRAPH }, preserving extra top-level deploymentReadyClaim/externalCompletionClaim/terminalCompletionClaim/pdeCorrectnessClaim and retired productionDone/authorityDone/fullAuthorityDone fields. Verified by direct handler invocation against packages/main/dist: a supplied benchmark with those top-level fields set to string \"true\" returns them unchanged in the JSON result, even though nested claims are false and boundary is normalized. This violates the round-2 concept boundary that pinn_report_render must no longer render or return caller-supplied overclaim fields from benchmarkJson/benchmarkPath.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T19:49:54.020Z",
@@ -111,7 +111,11 @@
         "packages/main/src/core/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "spec-boundary|ts|pinn-report-render-json-overclaim-fields",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by rejecting true-ish supplied report overclaim fields and returning an allowlisted sanitized report shape without arbitrary caller top-level fields; smoke and direct probes cover string top-level overclaims, and full lattice validate passed with 18/18 story verification intents covered.",
+      "resolvedAt": "2026-07-02T20:21:08.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-006",
