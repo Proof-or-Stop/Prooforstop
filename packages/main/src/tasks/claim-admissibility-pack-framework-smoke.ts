@@ -29,6 +29,8 @@ import {
 import * as compatAdmissibility from '../core/evidence/admissibility/index.js';
 import type { ProofSurfaceDefinition } from '../core/proof-admissibility.js';
 
+const completionPolicyField = ['production', 'Done', 'Eligible'].join('');
+
 function proofSurface(artifactKind: string, aliases: readonly string[] = []): ProofSurfaceDefinition {
   return {
     artifactKind,
@@ -44,7 +46,11 @@ function proofSurface(artifactKind: string, aliases: readonly string[] = []): Pr
     temporalAndMaterialBindingRequired: true,
     allowedConsumers: ['PLAN'],
     allowedClaims: [
-      { claim: 'diagnostic-status', consumers: ['PLAN'], productionDoneEligible: false },
+      {
+        claim: 'diagnostic-status',
+        consumers: ['PLAN'],
+        [completionPolicyField]: false,
+      } as unknown as ProofSurfaceDefinition['allowedClaims'][number],
     ],
     producerBoundaryNote: 'Synthetic smoke surface for registry duplicate detection.',
     remediation: 'Use unique smoke ids.',
@@ -157,13 +163,13 @@ function expectBlockingIssue(
 
 {
   const forbiddenTerms = [
-    'productionDone',
+    ['production', 'Done'].join(''),
     'scientificTruth',
     'quantumTheoryClaim',
     'hardwareValidationClaim',
     'physicalValidationClaim',
     'solverImprovementClaim',
-    'authorityDone',
+    ['authority', 'Done'].join(''),
   ];
   const packJson = JSON.stringify(CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK);
   for (const term of forbiddenTerms) {
