@@ -306,7 +306,7 @@
       "desc": "pinn_claim_check accepts arbitrary evidenceJson objects but evaluatePinnClaim assumes receipts is iterable and every required receipt has an identity object. Malformed supplied evidence throws generic runtime errors instead of returning allowed=false with deterministic reason codes. Repro after build: call createPinnClaimAdmissibilityHandlers({}).pinn_claim_check({format:\"json\", evidenceJson: JSON.stringify({claimId:\"C1\", activeIdentity:{}, receipts:[{adapterId:\"spec-freeze\",status:\"pass\",exitCode:0}]})}) and it throws Cannot read properties of undefined (reading pdeSpecHash); with receipts as an object it throws object is not iterable. This weakens the fail-closed/CLI-validation contract for missing or unsafe verifier receipts and should be fixed with runtime evidence-shape validation plus smoke coverage.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:19:00.599Z",
@@ -318,7 +318,11 @@
         "packages/main/src/handlers/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "edge|ts|pinn-claim-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed malformed evidence handling by normalizing receipts before evaluation: non-array receipts now yield malformed_receipts, malformed receipt objects yield malformed_receipt, and missing/non-object receipt identity yields malformed_receipt_identity with nextAction=stop instead of throwing. Added core and handler smoke coverage plus direct dist probes for the reviewer repros. Verified with npm --prefix packages/main run build and npm run test:pinn-claim-admissibility.",
+      "resolvedAt": "2026-07-02T21:27:37.786Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
