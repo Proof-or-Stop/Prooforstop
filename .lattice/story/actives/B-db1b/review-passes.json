@@ -278,6 +278,15 @@
       "reviewRound": "2026-07-02T23:14:20.832Z",
       "reviewRunId": "B-db1b:RR-047",
       "_hash": "97d2c1351fd8e8dd7a3de0b1e2880221753d866d69c1a7fdb3794b988e438869"
+    },
+    {
+      "id": "B-db1b:RP-032",
+      "agent": "lattice-review-docs",
+      "note": "PASS Round 13 narrow docs: parent-ledger-rollup covers exactly M0-M5, matches slice-plan ledger/plan hashes and M0-M3/M4-M5 grouping, and every child carries summary/test/done-required/delivery/quorum evidenceRefs. milestone ledger and decision doc still mark M0-M5 covered/complete; boundary remains local-only with no PDE correctness, production readiness, external completion, production Authority, lifecycle mutation, or remote release claim. done_intent_equivalence_check passed strict_milestone with no gaps.",
+      "createdAt": "2026-07-02T23:24:57.169Z",
+      "reviewRound": "2026-07-02T23:22:39.503Z",
+      "reviewRunId": "B-db1b:RR-050",
+      "_hash": "d8f655dd9ca77ce1464479ff419207cbca9c7286ff57bea9c4af0ff6239d4022"
     }
   ]
 }
