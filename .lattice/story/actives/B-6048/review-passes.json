@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-02T12:11:23.267Z",
       "reviewRunId": "B-6048:RR-003",
       "_hash": "e2444101f3db18b665d848d2172102f63d9790738b84b21a3e4b667a0c7a5688"
+    },
+    {
+      "id": "B-6048:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage PASS for F-001/F-002/F-003/F-004. Inspected M4 consumer smoke and M6 parity implementation: story_advance is in the lifecycle consumer matrix; runPlaybookRuntimeOptimizedParityReport materializes the exact 1,000,000-record runtime corpus and drives buildMemoryFreshnessPack for reference useIndex=false/useCache=false, indexed cold runtimeIndex/useCache=false, and warmed cache runtimeIndex/useCache=true. Smokes passed with resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, reference/indexed/cache digests equal, and warmCacheHits=8/8. Commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full.",
+      "createdAt": "2026-07-02T13:13:38.588Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-006",
+      "_hash": "f89c506535ef23b162d4e2da31c079d561794aca9cf7e2ef5a4c9b1bed6cf1b7"
     }
   ]
 }
