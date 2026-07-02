@@ -218,7 +218,7 @@ an order-of-magnitude different baseline:
 | Power | 0.80 | 0.80 |
 | Baseline defect rate | pilot-estimated; planning band 0.5-0.8 (traps are authored to trip the host) | 0.30 |
 | Minimum detectable absolute reduction | 0.25-0.35 | 0.10 |
-| Reference N per arm (unpaired two-proportion) | ~27-62 over the corners of the planning band | ~294 |
+| Reference N per arm (unpaired two-proportion) | ~27-62 over the full planning band (corner values 27-58; the ~62 maximum occurs inside the band near baseline 0.625 / MDE 0.25) | ~294 |
 | Design | full-factorial matched pairs (both arms per fixture) | randomized per story |
 
 The powered N and the primary test apply to the FAULT-BEARING seeded stratum
@@ -226,9 +226,12 @@ only. Clean tasks are sized and analyzed separately for overhead (H5) and are
 never pooled into the powering baseline.
 
 The seeded-population baseline defect rate must be validated in the M6 pilot
-(including enough control-arm fault tasks to estimate it) before the powered N
-is frozen; if the pilot baseline falls outside the planning band, recompute
-and re-freeze N before M7.
+before the powered N is frozen. Freeze rule: run at least 15 control-arm
+fault-task runs in the pilot; compute the Wilson 95% CI of the observed
+control-arm defect rate; freeze the powered N computed at the LOWER bound of
+that CI (conservative). If the Wilson CI is wider than 0.30, extend the pilot
+before freezing. If the pilot baseline falls outside the planning band,
+recompute and re-freeze N before M7.
 
 Minimum rules:
 
@@ -352,10 +355,12 @@ Paired comparison of the deterministic primary defect outcome within fixtures:
 - risk difference (treatment minus control) with a 95% CI from a
   paired/cluster bootstrap.
 
-Decision criterion: `risk_difference` is the SOLE primary decision criterion.
-H1 is supported only when the risk difference is negative under the
-predeclared criterion, with confidence intervals reported in the same
-direction.
+Decision criterion: `risk_difference` is the SOLE primary decision
+criterion. H1 is supported only when, for BOTH co-primary outcomes H1a and
+H1b on the fault-bearing in-store stratum, the paired risk difference is
+negative AND its two-sided 95% CI upper bound is below 0 (alpha = 0.05;
+equivalently, the McNemar test rejects at alpha = 0.05 with a negative point
+estimate). Relative risk never enters the decision.
 
 Relative risk is reported for descriptive purposes only. When a cell's
 denominator defect count is zero — expected in per-trap-class and clean-task
@@ -461,7 +466,7 @@ pieces are built new.
 | M3 Arm switch for the full pack | Extend the EXISTING render-gate (`experience-hint-surface.ts` + `hint-mode.ts`) from review-entrypoint hints to the full runtime memory pack at all lifecycle entrypoints, under an `experimentId` override; add mechanical control-arm retrieval blocking. | Production arm switch + both-arms `experience_hint_surfaced` logging + `experience-layer-ab-shadow-gate-smoke.ts`. | Control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded. |
 | M4 Deterministic scoring oracle | Structured scoring from validation evidence, DONE rows, `final_response_check`, ground-truth oracles, and lane-provenance facts. No live reviewer in the seeded-phase primary. | `adjudicate.mjs` outcome state machine; `checks.mjs`; `packages/lab` scoring core; `ground-truth.mjs` pattern. | Known positive/negative fixtures score correctly, deterministically, on replay. |
 | M5 Sample-size calculator | Per-population adequacy report (unpaired reference + McNemar paired sizing). | Statistical primitives in `analyze.mjs` (two-proportion, Wilson CI, bootstrap, BH-FDR). | Report shows planned N per population, assumptions, and detectable effect; seeded N re-frozen after the M6 baseline estimate. |
-| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Committed engine (`run-driver.mjs` / `live-engine.mjs`). The identity-keyed campaign-resume runner proven by the recovery powered campaign exists only as gitignored scratch under `experiments/recovery-runner/powered/`; committing a campaign runner is part of this milestone. | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated (enough control fault-tasks, ~12-15, to bound the rate); powered N frozen; campaign runner committed. |
+| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Committed engine (`run-driver.mjs` / `live-engine.mjs`). The identity-keyed campaign-resume runner proven by the recovery powered campaign exists only as gitignored scratch under `experiments/recovery-runner/powered/`; committing a campaign runner is part of this milestone. | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated from >=15 control-arm fault-task runs and the powered N frozen at the lower bound of its Wilson 95% CI (pilot extended if that CI is wider than 0.30 — the S7 freeze rule); campaign runner committed. |
 | M7 Powered controlled study | Full-factorial paired run at the frozen N. | The campaign scaffolding PATTERN (session-guard/watchdog/identity-keyed resume) that carried the 9,240-cell ~49h recovery campaign; note those scripts are currently gitignored scratch under `experiments/recovery-runner/powered/` and must be committed via M6 before M7 starts. | Analysis report includes paired primary and secondary outcomes with CI; all score records assert isolated storeRoot. |
 | M8 Live shadow readout | Extend the EXISTING production assignment (`resolveHintMode`) + `learning_effectiveness` observational readout; exploratory only. | Production hint-mode substrate; `experience-effectiveness.ts` computeArmComparison. | Report separates live exploratory results from controlled causal results; no second live assignment system exists. |
 | M9 Paper-ready evidence map | Claim-to-artifact table + no-overclaim summary incl. the circularity disclosure. | Claim-map conventions of the existing paper evidence sections. | Paper section can cite protocol, ledger, score records, leakage audit, and analysis report. |
@@ -553,7 +558,8 @@ experiment.
 
 1. Implement M0-M5 (mostly wiring of named existing components).
 2. Run the M6 pilot: at least 5 fixtures per trap group through both arms,
-   plus enough control-arm fault tasks (~12-15) to estimate the baseline rate.
+   plus at least 15 control-arm fault-task runs to estimate the baseline rate
+   (the S7 Wilson-CI freeze rule).
 3. Fix leakage/isolation/scoring issues and re-freeze N before any powered
    claim.
 4. Run M7 with the frozen per-population N from M5/M6.
