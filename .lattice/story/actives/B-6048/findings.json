@@ -97,6 +97,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6048:F-006",
+      "desc": "M3/M5 freshness semantics are not clean: the existing indexed freshness smoke still fails after M3-M6. Repro: `node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js` exits 1 at packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:236-281 because an unrelated append-only project memory row is expected to classify the prior indexed pack as `stale-irrelevant`, but classifyMemoryFreshnessPack returns `stale-relevant`. This contradicts the M3 cache/freshness and M5 matrix concept that unchanged surfaced refs under irrelevant source churn remain a soft stale-irrelevant hit.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T13:12:43.584Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-009",
+      "_hash": "f8ed18dd20bd6c0e701bdaab027282cf70ca4bfb34982500e0c92baca1bb0fc4",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|freshness-semantics-clean",
+      "signatureTagSource": "auto"
     }
   ]
 }
