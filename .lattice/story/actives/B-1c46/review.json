@@ -258,6 +258,29 @@
         }
       ],
       "_hash": "98330e6990b00352c267f84b0a8badefcfc95f0a5d256a3d4cccd613bda720d4"
+    },
+    {
+      "timestamp": "2026-07-02T14:29:05.565Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when M0 profile and red performance baseline + M1 semantic parity guard are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-1c46\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_parent_ledger_rollup: Parent ledger roll-up is missing child-story coverage for milestone(s): M0, M1, M2, M3, M4, M5, M6. Parent roll-up is checked by DONE equivalence when slice plans exist."
+        }
+      ],
+      "_hash": "c6e13ba58756b435bab36b8fb845b6ddb0d535f3dfd65078325f1619b24d3938"
     }
   ]
 }
