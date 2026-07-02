@@ -166,6 +166,27 @@
       ],
       "signatureTag": "doc-code-drift|md|partially-fixed-catalog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9958:F-009",
+      "desc": "F-008 fixed the direct playbook_promotion_status surface: status JSON now exposes nonPromotableSources/paths.nonPromotableSources and the text renderer prints nonPromotableSources with legacy storage noted parenthetically. However adjacent docs/prose still present the legacy non_deducible terminology outside the allowed legacy-storage compatibility boundary. The B-9958 source-lineage plan makes non_promotable canonical and limits non_deducible / mark_non_deducible to compatibility spellings, but docs/requirements/decisions/playbook-promotion-worker-execution-plan.md still describes operator-visible state/output/acceptance as non_deducible or non-deducible sources at lines 185, 188, 656, 672, 815, 932-942, 966, and 974. The policy/fact rationale for playbook_promotion_sweep also says non-deducible metadata rather than non_promotable source registry with legacy storage noted (packages/main/src/core/command-policy.ts:244, packages/main/src/core/process-fact-levels.ts:154). This leaves docs surfaces inconsistent with the round-3 boundary that non_deducible should appear only as legacy storage compatibility wording/path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T21:08:24.539Z",
+      "reviewRound": "2026-07-02T21:05:57.267Z",
+      "reviewRunId": "B-9958:RR-009",
+      "_hash": "57f82ad5275ccabee3f4561ecd2b29c2f3ee4e17dd16d020ce7aaa26b63afb12",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|legacy-non-deducible-docs-regression",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
