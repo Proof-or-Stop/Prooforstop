@@ -69,6 +69,26 @@
       "resolvedAt": "2026-07-02T20:34:56.171Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-004",
+      "desc": "Blocking quality issue after F-003: classifyNextAction hard-stop priority still excludes missing identity reasons. packages/main/src/core/claim-admissibility/quantum.ts:244-257 omits missing_core_identity_field, missing_conditional_identity_field, missing_claim_field, and missing_basis_or_grid_identity from HARD_STOP_REASON_PREFIXES, so packages/main/src/core/claim-admissibility/quantum.ts:336-343 returns degrade when any of those missing-identity reasons appears together with weak_evidence_overclaim. The result remains allowed=false, but packages/main/src/core/claim-admissibility/quantum.ts:512-520 then exposes nextAction=degrade and scopedClaim=true, implying a weaker scoped claim can survive even though required evidence identity is missing. This conflicts with the M0-M1 plan requirement that missing evidence fail closed, and the smoke only asserts hard-stop priority for stale_evidence plus weak overclaim at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:111-119, leaving missing-core/conditional/basis-grid plus overclaim untested.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:40:42.245Z",
+      "reviewRound": "2026-07-02T20:34:46.642Z",
+      "reviewRunId": "B-7b4e:RR-010",
+      "_hash": "0f2bcfe02eade4b2ec6d232da01668de1360ec98736442f2c74dd4b273c557a9",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|missing-identity-hard-stop",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
