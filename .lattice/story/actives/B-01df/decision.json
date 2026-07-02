@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Host-neutral workflow commands stay outside adapter namespaces.",
+    "Read-only audit first; mutations require later evidence and explicit gates.",
+    "Lineage metadata must be versioned so future canonicalization changes remain auditable.",
+    "Derived learning artifacts must not masquerade as independent gate evidence.",
+    "Fix real correctness/observability gaps without speculative optimization."
+  ],
+  "drivers": [
+    "User needs to know whether historical experience is actually consumable by playbook promotion without duplicate source counting.",
+    "Current Lattice gates do not audit learning source lineage or dedup priority.",
+    "The safest first increment is a read-only command that proves scope before seed creation or auto-promotion."
+  ],
+  "options": [
+    {
+      "name": "Read-only generic source_lineage_audit M1",
+      "pros": [
+        "Proves duplicate and missing lineage issues without changing runtime behavior",
+        "Keeps command host-neutral and reusable beyond Proofbound learning",
+        "Gives later seed/promotion stories a stable evidence surface"
+      ],
+      "cons": [
+        "Does not itself generate candidates or activate playbooks",
+        "Requires later stories for seed observe and runtime consumer closure"
+      ]
+    },
+    {
+      "name": "Playbook-specific seed promotion implementation now",
+      "pros": [
+        "Could move historical experience toward candidates faster",
+        "Directly targets the visible playbook backlog question"
+      ],
+      "cons": [
+        "Risks double-counting sources before lineage is understood",
+        "Mixes read-only diagnosis with mutating proposal creation and promotion policy"
+      ]
+    },
+    {
+      "name": "Do nothing until auto-promotion design is complete",
+      "pros": [
+        "Avoids partial learning infrastructure",
+        "No immediate code churn"
+      ],
+      "cons": [
+        "Leaves duplicate lineage blind spot in place",
+        "Keeps historical experience disconnected from auditable promotion evidence"
+      ]
+    }
+  ],
+  "chosen": "Read-only generic source_lineage_audit M1",
+  "rationale": "Choose the read-only generic audit because it addresses the real blind spot first, preserves Proofbound evidence boundaries, and creates a reusable host-neutral foundation for later seed proposal and promotion work.",
+  "preMortem": [
+    {
+      "scenario": "Audit accidentally writes learning data",
+      "trigger": "Collector reuses mutating store helpers or initializes files eagerly",
+      "consequence": "A read-only diagnostic changes project evidence state",
+      "mitigation": "Use read-only readers, test empty-store posture, and classify command readOnly/L0"
+    },
+    {
+      "scenario": "Canonical keys drift without traceability",
+      "trigger": "Normalization rules change but records do not carry version/hash",
+      "consequence": "Old lineage cannot be interpreted or compared reliably",
+      "mitigation": "Emit canonicalSourceKeyVersion and canonicalizationPolicyHash for every record"
+    },
+    {
+      "scenario": "Derived artifacts look like gate evidence",
+      "trigger": "Audit output omits authority/gateEvidence boundary",
+      "consequence": "Learning diagnostics could be mistaken for lifecycle proof",
+      "mitigation": "Set authority=non_authoritative and gateEvidence=false and smoke-test that boundary"
+    }
+  ],
+  "timestamp": "2026-07-02T19:02:58.574Z"
+}

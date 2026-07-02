@@ -1,0 +1,35 @@
+{
+  "task": "Add a read-only learning-domain source lineage audit so Proofbound can see duplicate or missing source lineage before playbook seed promotion.",
+  "outcome": "lattice source_lineage_audit --domain=learning --json reports canonical source keys, versioned canonicalization metadata, duplicate groups, missing lineage diagnostics, and non-authoritative gateEvidence=false without mutating learning stores.",
+  "facts": [
+    "The execution plan calls for generic source lineage/dedup before seed proposal or auto-promotion.",
+    "Current playbook proposal is not yet backed by a generic lineage audit command.",
+    "The first deliverable is M1 read-only audit only, not proposal creation, candidate approval, or automatic promotion.",
+    "Learning artifacts may include dev-memory, finding-signals, playbook proposals, candidates, outcomes, decisions, and raw finding-backed sources where discoverable."
+  ],
+  "constraints": [
+    "Host-neutral command namespace: use lattice source_lineage_audit, not codex/claude-specific aliases.",
+    "Audit output is non-authoritative and must not count as lifecycle gate evidence.",
+    "Do not enable PLAYBOOK_DONE_SETTLEMENT_ENABLED by default.",
+    "Do not create proposals, candidates, outcomes, decisions, or active playbooks in this story.",
+    "Keep the implementation scoped to real correctness and observability gaps, not arbitrary optimization."
+  ],
+  "unknowns": [
+    "Exact current store APIs for dev-memory and finding-signals collectors.",
+    "Whether the existing learning-store helper exports all playbook outcome/decision readers needed by the audit.",
+    "What smoke fixture shape best proves duplicate grouping and missing lineage without depending on global project state."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/source-lineage-audit.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-07-02T19:02:58.410Z"
+}
