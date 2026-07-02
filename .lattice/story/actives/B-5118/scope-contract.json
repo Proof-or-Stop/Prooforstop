@@ -1,0 +1,33 @@
+{
+  "storyId": "B-5118",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/package.json",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/**",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/tasks/*benchmark*"
+  ],
+  "explicitExcludes": [
+    "M3 lifecycle gate policy or transition engine updates",
+    "M4 benchmark harness or failure-injection runner",
+    "M5 reporting/governance integration",
+    "Quantum hardware/lab/physical-validation claims",
+    "Solver improvement, production, Authority, or terminal completion claims"
+  ],
+  "scopeChangeReason": "Initial enforce scope contract for B-5118: bounded Quantum M2 verifier adapter pack implementation only.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T23:14:39.766Z",
+  "updatedAt": "2026-07-02T23:14:39.766Z"
+}
