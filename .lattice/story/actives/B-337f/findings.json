@@ -254,6 +254,24 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-verdict",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-013",
+      "desc": "concept-cleanup: verdict-line oracle migrated from wrongValue blacklist to rightValue whitelist (F-010) but wrongValue field retained in oracleSpec at trap-templates.mjs:143 alongside rightValue; the ORACLE_RUNTIME reads only spec.rightValue and never spec.wrongValue, making wrongValue a dead spec field; the field is harness-only (oracle.mjs, not workspace/) so there is no host leakage, but it misleads future maintainers about what the oracle checks and creates silent divergence risk if wrongValue is later edited expecting it to take effect",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T22:53:07.299Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-005",
+      "_hash": "929d9156e42b963db689742bbbbc3af1ec73d8c8cd92ae2e1143d5998658f254",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-verdict",
+      "signatureTagSource": "auto"
     }
   ]
 }
