@@ -146,6 +146,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:28:36.255Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/experience-pack-surface.ts",
+          "command": "node packages/main/dist/cli.js session_brief / dev_memory_start (no experiment env), diffed against pre-change baseline captures",
+          "result": "pass",
+          "note": "Baselines captured from pre-change dist (commit 213cc5631 build). After change with no env: dev_memory_start byte-identical (diff exit 0); session_brief Memory Runtime Preflight section byte-identical (awk-extracted section diff empty; remaining diff lines are live-state only: heartbeat age, recent activity tail, dirty-file list from parallel CHK-003 commits). No experience_pack_surfaced event appended on no-env runs. Full seven-entrypoint fixture regression is covered by the CHK-005 smoke per plan.",
+          "headHash": "ca5412e958a76751193f84537ffbb421f54f9363",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:37.218Z"
         }
       ]
     },
