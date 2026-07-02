@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-007",
       "_hash": "701b355ff2bea9d8709e647bc5f12fbac1565799744f4da8ded37295dd86131d"
+    },
+    {
+      "id": "B-047f:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 re-bind quality review of the single F-013 fix commit (b441fd601). Verified: (a) diff touches only 4 template lines in renderAdequacyMarkdown — lines 284-287 of sample-size.mjs — no dead code, no type-safety changes, no I/O isolation impact; (b) node experiments/experience-ablation/sample-size-selfcheck.mjs exits 0 (29/29 PASS); generated adequacy-report.md via CLI to scratchpad confirms lines 18-22 carry corrected rule (N-maximizing baseline, no stale lower-bound freeze text); (c) protocol-selfcheck and pair-ledger-selfcheck both exit 0; no doc-promise-undelivered pattern found. One low/edge finding F-014 raised: module-header docstring at line 14 still carries stale lower-bound wording (pre-existing from c562db46e, not introduced by F-013; comment only, not user-facing; implementation and selfcheck are correct).",
+      "createdAt": "2026-07-02T21:35:07.306Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-008",
+      "_hash": "a392ddd25ddb82e94ebd66f4f64dbbe497f87839778416bae70c39dc27453cd8"
     }
   ]
 }
