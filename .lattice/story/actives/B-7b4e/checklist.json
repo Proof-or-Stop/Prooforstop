@@ -8,7 +8,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User sees that this story is M0-M1 only, with M2-M5 explicitly pending.",
+      "userSees": "Terminal/doc output includes: \"Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.\"",
       "files": {
         "modify": [
           "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
@@ -39,9 +39,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T19:58:44.361Z",
+      "endTime": "2026-07-02T20:04:06.050Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Quantum plan registered as formal story source of truth with explicit M0-M1 implemented and M2-M5 pending runtime status.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Document states the runtime status and future pending milestones so M2-M5 are not treated as delivered.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts boundary booleans remain false for quantum theory, hardware validation, solver improvement, production, and Authority claims.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -50,7 +85,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "User sees deterministic schema errors for malformed Quantum evidence receipts.",
+      "userSees": "Smoke output includes: \"valid Q5 energy evidence: PASS\" and malformed receipts report stable reason codes.",
       "files": {
         "modify": [],
         "create": [
@@ -81,9 +116,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T20:02:52.965Z",
+      "endTime": "2026-07-02T20:04:17.354Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke output includes valid Q5 energy evidence: PASS with complete core and conditional identity fields.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke output includes deterministic optional fields: PASS after randomSeed and timeStepHash are omitted from a deterministic Q4 solver-run claim.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks missing core fields, unknown claim IDs, and omitted conditional identity fields with stable reason-code assertions.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -93,7 +163,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "packages/main/src/core/proof-admissibility-binding.ts"
       ],
-      "userSees": "User sees stable reason codes for mismatched Quantum evidence bindings.",
+      "userSees": "Smoke output includes: \"mismatched hamiltonianHash: BLOCK\", \"mismatched gridHash: BLOCK\", and \"mismatched verifierScriptHash: BLOCK\".",
       "files": {
         "modify": [
           "packages/main/src/core/claim-admissibility/quantum.ts"
@@ -126,9 +196,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T20:02:53.928Z",
+      "endTime": "2026-07-02T20:04:28.536Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Valid Q5 and Q12 receipts advance only when active identity and receipt bindings match.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Deterministic Q4 path proves optional conditional fields are required only when claim flags make them applicable.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks hamiltonianHash, gridHash, verifierScriptHash mismatches plus unbound solver output and unbound plot/table evidence.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -138,7 +243,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User can run one smoke command that proves the Quantum M0-M1 slice is fail-closed.",
+      "userSees": "Command output ends with: \"quantum claim-admissibility smoke passed\".",
       "files": {
         "modify": [
           "packages/main/package.json"
@@ -171,9 +276,55 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T20:02:54.884Z",
+      "endTime": "2026-07-02T20:04:38.282Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke passes valid Hamiltonian-bound Q5 energy evidence and valid Q12 figure provenance evidence.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks single-run Q5 energy evidence from proving stronger ground-state, convergence, or quantum-advantage claims and degrades to scoped evidence.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke demonstrates rejection for unbound solver output, unbound plot/table, and Hamiltonian/grid/verifierScriptHash mismatch.",
+          "headHash": "71a0a470bd50a62c4037dfff621fc634c6e9f49d",
+          "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+          "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+          "timestamp": "2026-07-02T21:54:36.417Z"
+        },
+        {
+          "intentRef": "CHK-004:build:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build compiles the new Quantum schema, evaluator, smoke task, and package script.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:39.480Z"
+        }
+      ]
     }
   ]
 }

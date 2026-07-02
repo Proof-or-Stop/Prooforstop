@@ -1,0 +1,60 @@
+{
+  "storyId": "B-7b4e",
+  "checkedAt": "2026-07-02T22:01:03.146Z",
+  "headHash": "b2ac5761646d1b31b7cdd046ce77462d3545368c",
+  "materialHash": "1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a",
+  "storyFilesHash": "92a9e1f7b5a319038bb34775aff03fd58e409db437b01d03d1bf567f1474f3a6",
+  "reviewRound": "2026-07-02T21:21:31.774Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "M0-M1 only: quantum claim/evidence schema plus local identity binding are delivered while M2-M5 remain pending.",
+      "status": "verified",
+      "verifiedBy": "doc/source review",
+      "evidence": "Plan states M0-M1 implemented and M2-M5 pending; quantum.ts exports the same runtime status, Q1-Q12 claim IDs, evidence kinds, core and conditional identity fields, and local-only boundary text."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "Fail-closed identity binding blocks missing, stale, mismatched, unbound, malformed, duplicate, failed, or nonzero evidence.",
+      "status": "verified",
+      "verifiedBy": "source/smoke/evidence review",
+      "evidence": "quantum.ts hard-stop reasons include missing_required_receipt, duplicate_receipt, receipt_status_not_pass, receipt_exit_nonzero, stale_evidence, missing_receipt_identity, verifier_script_mismatch, identity_mismatch, unbound_solver_output, unbound_plot_table, output_digest_missing, and output_digest_mismatch; test evidence covers these paths."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "Top-level receipt outputDigest and receipt identity outputDigest must match, and missing receipt identity is a hard stop.",
+      "status": "verified",
+      "verifiedBy": "source/smoke/evidence review",
+      "evidence": "quantum.ts compares receipt.outputDigest with receipt.identity.outputDigest for all checked receipts and stops missing receipt identity; smoke covers solver, energy, and figure/table top-level outputDigest mismatches plus missing receipt identity."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "The implementation does not claim quantum theory proof, physical or hardware validation, solver improvement, production completion, Authority DONE, or broad scientific correctness.",
+      "status": "verified",
+      "verifiedBy": "doc/source/smoke review",
+      "evidence": "Plan non-goals state these exclusions; quantum.ts boundary booleans are hardcoded false; smoke asserts false quantum theory, hardware, solver improvement, production, and Authority boundaries."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-7b4e --json PASS at 2026-07-02T21:58:50.453Z with materialHash 1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a and 12/12 required verification intents covered."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "done_required_validate PASS ended 2026-07-02T21:54:23.200Z; required receipts include packages/main build PASS and root full test suite PASS bound to materialHash 1b23d5140ab561dcc2ca6449212f52b04baa7a8bd743aa80a2d3cfc559eefd6a."
+    },
+    {
+      "featureId": "quantum-smoke",
+      "transcript": "Reviewed npm --prefix packages/main run test:quantum-claim-admissibility transcript and smoke source: valid Q5/Q12 evidence passes; missing core/conditional/receipt identity, stale evidence, mismatched hamiltonian/grid/verifier, unbound solver/plot, outputDigest mismatches, and over-broad production or stronger energy claims block or degrade as intended."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fresh delivery review over current material 1b23d514 verified the bounded M0-M1 promises against the decision doc, quantum evaluator, smoke task, validation evidence, done-required evidence, summary, and transcripts. No business files were edited; no TODO/FIXME markers were found in the touched plan/source/smoke delivery surface. Non-goals remain explicit: no M2-M5 runtime, quantum theory/hardware/solver improvement/Authority/production claims."
+  },
+  "_hash": "6c4097eabaa0c338bf7f45d6360067faa47ce86e4bd50e6848b6bc21eb4ec2c8"
+}

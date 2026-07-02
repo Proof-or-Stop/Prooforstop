@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-047f",
+  "id": "IC-20260702210210",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Build exactly the M0+M2+M5 tooling cluster as self-contained .mjs CLIs with hermetic selfchecks under experiments/experience-ablation/ (the S1 slice the operator chose), single-host DEV under the standard Lattice lifecycle with genuine two-host review. NOT building: M1 fixtures, the M3 product-code arm switch, M4 scorer, or any M6-M9 runs; NOT importing from packages/*/src or recovery-runner internals (pattern reuse only); NOT running any experiment.",
+  "acceptedInterpretationHash": "sha256:f03e7782be343c970ff1c93ef1e1892e6318be0f3353dca44d5151ec43488442",
+  "notes": "Rejected interpretations: (a) starting with M3 because it is product code - operator explicitly picked S1 first; (b) dual-host parallel implementation - operator explicitly declined (measured 1.8x cost, no wall-clock gain); (c) treating S1 as including a first pilot run - M6 is a separate milestone/story. Interpretation matches decision chosen=self-contained-mjs-tools and plan.md non-goals.",
+  "ledgerHashBeforeDecision": "sha256:17b46baf439a20d23a3a45d5eea25a4c47d218c841408b71de40c5c68327e1b0",
+  "confirmedLedgerHash": "sha256:17b46baf439a20d23a3a45d5eea25a4c47d218c841408b71de40c5c68327e1b0",
+  "createdAt": "2026-07-02T21:02:10.930Z",
+  "updatedAt": "2026-07-02T21:02:52.952Z"
+}

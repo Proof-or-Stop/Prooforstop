@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-047f",
+  "records": [
+    {
+      "id": "RED-20260702210211",
+      "trigger": "Feature claim: the three S1 tools and their selfchecks must exist and pass; at baseline none of the six files exist, so the acceptance selfchecks cannot run.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "eed84bea92d21b4371c8bb23c15de6c9737d0a55",
+      "baselineMaterialHash": "19cb6ef68ec24e1fa79237f9108df35331e2ed1fd982d7af20053c0cc32df33a",
+      "observedFailure": "node experiments/experience-ablation/sample-size-selfcheck.mjs exits 1 with MODULE_NOT_FOUND (Cannot find module .../experiments/experience-ablation/sample-size-selfcheck.mjs) - the S1 deliverables are absent from the story branch, so the acceptance claim is unmet before implementation.",
+      "failingCommand": "node experiments/experience-ablation/sample-size-selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/experience-ablation/protocol-selfcheck.mjs && node experiments/experience-ablation/pair-ledger-selfcheck.mjs && node experiments/experience-ablation/sample-size-selfcheck.mjs",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/protocol-selfcheck.mjs && node experiments/experience-ablation/pair-ledger-selfcheck.mjs && node experiments/experience-ablation/sample-size-selfcheck.mjs"
+      },
+      "note": "Red = deliverables absent (selfcheck import fails); green = all three hermetic selfchecks pass after implementation, incl. the plan-anchored values 294/62/27/58, the frozen-protocol refusal, and post-score immutability. Spike proof: the full implementation + selfchecks were validated in the session scratchpad before DEV (24/24 + 13/13 + 20/20 cases passing).",
+      "createdAt": "2026-07-02T21:02:11.563Z"
+    }
+  ],
+  "createdAt": "2026-07-02T21:02:11.563Z",
+  "updatedAt": "2026-07-02T21:02:11.563Z"
+}
