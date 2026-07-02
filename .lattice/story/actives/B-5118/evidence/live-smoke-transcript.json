@@ -1,0 +1,20 @@
+{
+  "storyId": "B-5118",
+  "expected": "Quantum M2 exposes named verifier adapters with explicit evidence kind, required identity fields, and deterministic fail-closed boundaries.",
+  "actual": {
+    "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.140 test:quantum-claim-admissibility\n> node dist/tasks/quantum-claim-admissibility-smoke.js\n\nquantum verifier adapter descriptors listed\nquantum pack registry descriptor is read-only\nvalid quantum adapter output: NORMALIZED\nnormalized Q5 adapter receipt: PASS\nunknown quantum adapter id: NORMALIZATION BLOCK\nunsupported quantum adapter output version: NORMALIZATION BLOCK\nmissing quantum adapter output identity: NORMALIZATION BLOCK\nstale quantum adapter output: NORMALIZATION BLOCK\nfailing quantum adapter output: NORMALIZATION BLOCK\nmismatched adapter hamiltonianHash: NORMALIZATION BLOCK\nmismatched adapter gridHash: NORMALIZATION BLOCK\nmismatched adapter verifierScriptHash: NORMALIZATION BLOCK\nmismatched adapter outputDigest: NORMALIZATION BLOCK\nvalid Q5 energy evidence: PASS\nvalid Q5 basis-set-only evidence: PASS\nvalid figure provenance: PASS\ndeterministic optional fields: PASS\nmissing core fields: BLOCK\nunknown claim: BLOCK\nomitted conditional field: BLOCK\nmismatched hamiltonianHash: BLOCK\nmismatched gridHash: BLOCK\nmismatched basisSetHash: BLOCK\nmissing basis/grid identity: BLOCK\nmissing basis/grid identity with weak overclaim: BLOCK\nmismatched verifierScriptHash: BLOCK\nmissing required receipt: BLOCK\nstale evidence: BLOCK\nweak ground-state overclaim with stale evidence: BLOCK\nunbound solver output: BLOCK\nmismatched top-level solver output digest: BLOCK\nmismatched top-level energy output digest: BLOCK\nmismatched top-level figure provenance output digest: BLOCK\nmissing receipt identity: BLOCK\nunbound plot/table: BLOCK\nweak single-run energy evidence cannot prove stronger ground-state claim: BLOCK\nweak single-run energy evidence cannot prove stronger convergence claim: BLOCK\nweak single-run energy evidence cannot prove stronger quantum-advantage claim: BLOCK\nproduction boundary overclaim: BLOCK\nquantum M2 verifier adapter pack passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-02T23:49:54.239Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "7f06ff00ec3730ae8c3984db80ea4f429d6dec57",
+  "materialHash": "a5e891e40fc11a2f3741a7085367710ef3ff9ea63dc2581d4628b85691fe524a"
+}
