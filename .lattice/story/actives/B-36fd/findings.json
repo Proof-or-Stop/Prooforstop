@@ -27,7 +27,7 @@
       "desc": "numeric-inconsistency: S7 planning table states reference N \"~29-58 per arm\" for the seeded controlled stratum (baseline 0.5-0.8, MDE 0.25-0.35), but a two-proportion z-test (alpha=0.05, power=0.80) across that full parameter band yields 25-59 per arm; the lower bound is 25, not 29 — verified by computing n at (baseline=0.5, MDE=0.35) = 25 and (baseline=0.55, MDE=0.35) = 27; only (baseline=0.5, MDE=0.33) or (baseline=0.55, MDE=0.34) yields n=29; the stated lower bound overstates required N at the most favorable parameter extreme by 14%",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T19:21:22.462Z",
@@ -38,7 +38,11 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "signatureTag": "edge|md|numeric-inconsistency-planning",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "S7 reference band corrected to ~27-62 over the corners of the planning band (recomputed pooled two-proportion: min 27 at baseline 0.5/MDE 0.35, max 62; S8 usage updated to 27-62 as well). Commit 3d666c058.",
+      "resolvedAt": "2026-07-02T19:26:42.724Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-36fd:F-003",
