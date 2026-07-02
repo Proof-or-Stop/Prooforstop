@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Preserve advisory-only memory boundaries",
+    "Prove index parity before cache or rollout",
+    "Keep the first slice small and reversible"
+  ],
+  "drivers": [
+    "Full baseline latency is too high for a default entrypoint",
+    "Current runtime memory semantics already have passing smoke coverage",
+    "The optimization must not create false proof or stale hidden behavior"
+  ],
+  "options": [
+    {
+      "name": "A: Add derived index helper and keep buildMemoryFreshnessPack as the stable public entrypoint",
+      "pros": [
+        "Smallest integration surface",
+        "Existing consumers keep the same API",
+        "Index behavior can be covered by focused smoke tests"
+      ],
+      "cons": [
+        "The first slice may still compute source digests directly",
+        "Cache and broader consumer rollout remain later work"
+      ]
+    },
+    {
+      "name": "B: Rewrite runtime memory around a new service object now",
+      "pros": [
+        "Cleaner long-term layering for index plus cache plus health",
+        "Could centralize all future runtime memory behavior at once"
+      ],
+      "cons": [
+        "Too much change for M0-M2",
+        "Higher risk of breaking existing consumers",
+        "Would mix cache/rollout design into the first slice"
+      ]
+    }
+  ],
+  "chosen": "A: Add derived index helper and keep buildMemoryFreshnessPack as the stable public entrypoint",
+  "rationale": "Choose A because M0-M2 needs proof of indexed retrieval parity without widening the public runtime memory contract or changing every consumer at once.",
+  "preMortem": [
+    {
+      "scenario": "Index returns candidate playbooks as active guidance",
+      "trigger": "Status filtering happens after ranking or is skipped in the index path",
+      "consequence": "Runtime memory could surface unapproved guidance",
+      "mitigation": "Index schema includes status buckets and smoke asserts candidate false-surface remains zero"
+    },
+    {
+      "scenario": "Reader observes a half-built index",
+      "trigger": "Rebuild writes directly to active index path",
+      "consequence": "session_brief could show missing or inconsistent memory hits",
+      "mitigation": "Rebuild writes to temporary path, validates manifest/digest, and atomically renames into the active index path"
+    },
+    {
+      "scenario": "Indexed path diverges from full-scan semantics",
+      "trigger": "Candidate filtering uses token index but misses supersession or deprecated-term side effects",
+      "consequence": "Optimization appears fast but changes correctness",
+      "mitigation": "Add small fixture parity checks for selected ids, suppressed ids, deprecated hits, freshness class, gateEvidence=false, and render bounds"
+    }
+  ],
+  "timestamp": "2026-07-02T03:00:03.078Z"
+}

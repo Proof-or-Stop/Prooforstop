@@ -1,0 +1,28 @@
+{
+  "task": "Implement the first playbook memory entry-layer optimization slice: M0 profiling, M1 atomic derived index, and M2 indexed retrieval parity.",
+  "outcome": "After this story, running the new playbook runtime index smoke and existing runtime memory smokes prints PASS, and the terminal shows that indexed lookup matches the existing runtime pack on active/candidate/superseded/stale/deprecated/malformed fixtures while memory remains authority=non_authoritative and gateEvidence=false.",
+  "facts": [
+    "Existing runtime memory smokes already verify active playbooks surface, candidates stay inert, superseded memory is suppressed, and stale-relevant/stale-irrelevant classes work.",
+    "The full 1,000,000-record baseline passed but took about 20.7 seconds, so it is a correctness path rather than a session hot path.",
+    "buildMemoryFreshnessPack currently reads and searches source memory/playbook files directly.",
+    "searchEntries returns sorted entries rather than exposed scores, so the indexed path should first narrow candidates and then reuse the existing search/supersession semantics on that candidate set.",
+    "The first approved slice is M0-M2 only; cache, rollout, health expansion, and enforce are deferred."
+  ],
+  "constraints": [
+    "Do not make memory gate evidence.",
+    "Do not run a 1,000,000-record baseline on normal runtime entrypoints.",
+    "Do not introduce cache in this slice.",
+    "Index rebuild must write temp, validate, then atomically swap active indexVersion.",
+    "Indexed retrieval must preserve existing runtime-pack semantics on small fixtures."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+  ],
+  "timestamp": "2026-07-02T03:00:56.101Z"
+}

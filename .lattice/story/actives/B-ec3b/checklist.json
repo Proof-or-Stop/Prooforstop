@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js and sees a PASS line that includes current full-baseline timing and representative runtime-pack timing as report-only non-authoritative profiling evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "M0 profiling records current full-baseline and runtime-pack costs as report-only metrics without changing gate semantics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Profiling output remains non-authoritative and does not set gateEvidence or lifecycle completion proof.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A failed or slow full baseline cannot be used as a normal session_brief path or as gate evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
