@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-02T20:43:41.513Z",
       "reviewRunId": "B-7b4e:RR-014",
       "_hash": "a21b177c5a15c08078cfd74db9ca0447785c0cff5f407f95561aeb8e3c64535a"
+    },
+    {
+      "id": "B-7b4e:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review clean. Verified F-004: missing core, conditional, and basis/grid identity reasons combined with weak_evidence_overclaim return allowed=false, nextAction=stop, scopedClaim=false; hard-stop list also includes missing_claim_field. Sanity-checked F-003 stale+overclaim remains stop/no scoped degradation and basis/grid semantics allow basis-set-only evidence while rejecting missing/mismatched basis/grid. Ran npm --prefix packages/main run build and npm --prefix packages/main run test:quantum-claim-admissibility plus direct runtime probes.",
+      "createdAt": "2026-07-02T20:49:55.558Z",
+      "reviewRound": "2026-07-02T20:43:41.513Z",
+      "reviewRunId": "B-7b4e:RR-013",
+      "_hash": "2008de14c2b6b450dfd4b2278c80a74817b577a97d40fab9e26f6d2a861fa094"
     }
   ]
 }
