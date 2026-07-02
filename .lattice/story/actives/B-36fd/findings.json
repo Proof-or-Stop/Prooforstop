@@ -65,6 +65,24 @@
       "resolvedAt": "2026-07-02T19:26:44.218Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-004",
+      "desc": "arithmetic-incoherent: S7 table (line 221) and S8/S17 cite ~27-62 as the corners-of-planning-band range for the unpaired two-proportion reference N, but 27 and 62 come from two different formulas. Under the standard pooled two-sided z-test (the formula labeled unpaired two-proportion in the table), the four-corner range is 27-58 (min: p=0.5/MDE=0.35 => N=27; max: p=0.5/MDE=0.25 => N=58). The value 62 only emerges from the Fleiss continuity-corrected variant at p=0.8/MDE=0.25 (N=62), but that same formula gives min=33, not 27. Mixing the uncorrected minimum with the continuity-corrected maximum produces an incoherent band. The correct uncorrected-formula range to cite is ~27-58; if continuity correction is intended, cite ~33-66 and label it as such.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:29:58.981Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-004",
+      "_hash": "7faa460e448280a5e370e16952e17929d476801919f4eed7ead6a5927e003bed",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md:221"
+      ],
+      "signatureTag": "edge|md:221|arithmetic-incoherent-table",
+      "signatureTagSource": "auto"
     }
   ]
 }
