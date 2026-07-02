@@ -1,9 +1,9 @@
 {
   "task": "Implement playbook memory M3-M6 optimized runtime path",
-  "outcome": "M3 pack cache, M4 consumer rollout, M5 correctness matrix, and M6 million-record indexed/cached parity are implemented and verified without making memory gate evidence.",
+  "outcome": "User can run node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js and see playbook-runtime-memory M3-M6 smoke passed with cache hit/miss, consumer rollout, correctness matrix, and million parity report fields recordCount=1000000, referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, performancePolicy=report-first; every rendered runtime memory pack remains authority=non_authoritative and gateEvidence=false.",
   "facts": [
     "B-ec3b completed M0-M2 safe indexing and small-fixture parity only.",
-    "The optimization plan marks indexed/cached million hot path as NOT YET PROVEN.",
+    "The optimization plan marks indexed/cached million hot path as NOT YET PROVEN before M6.",
     "Memory Runtime Preflight must remain authority=non_authoritative and gateEvidence=false.",
     "Performance SLO is report-first until correctness parity is green."
   ],
@@ -12,9 +12,7 @@
     "Do not make memory proof for review, validation, DONE, release, or delivery gates.",
     "Use existing B-ec3b index and pack builder patterns instead of replacing the memory system."
   ],
-  "unknowns": [
-    "Exact API surface for pack cache and whether all consumers need code changes or can share one optimized default path."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/playbook-runtime-memory.ts",
     "packages/main/src/core/playbook-runtime-memory-index.ts",
@@ -28,5 +26,5 @@
     "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
     "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
   ],
-  "timestamp": "2026-07-02T11:16:49.772Z"
+  "timestamp": "2026-07-02T11:39:36.701Z"
 }
