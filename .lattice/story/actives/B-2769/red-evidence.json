@@ -18,8 +18,59 @@
       },
       "note": "Captured pre-fix red evidence to satisfy high-assurance ProofStory preconditions for benchmark and gate changes.",
       "createdAt": "2026-07-02T16:33:46.497Z"
+    },
+    {
+      "id": "RED-20260702163658",
+      "trigger": "Regression-risked high-assurance extension work",
+      "acceptanceTargetRef": "CHK-004",
+      "baselineHeadHash": "8519ac1df2e3da70703496413e4eea3bd6fdf501",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "A stale or mismatched evidence tuple could previously allow lifecycle transition to advance.",
+      "failingCommand": "lattice transition_oracle --storyId=B-2769 --dryRun",
+      "expectedGreenCommand": "lattice transition_oracle --storyId=B-2769 --validate",
+      "greenRelation": {
+        "targetRef": "CHK-004",
+        "relation": "replacement",
+        "command": "lattice transition_oracle --storyId=B-2769 --validate"
+      },
+      "note": "Captured refreshed red evidence after planning artifact edits and touchpoint alignment.",
+      "createdAt": "2026-07-02T16:36:58.479Z"
+    },
+    {
+      "id": "RED-20260702163712",
+      "trigger": "Regression-risked high-assurance extension work",
+      "acceptanceTargetRef": "CHK-004",
+      "baselineHeadHash": "8519ac1df2e3da70703496413e4eea3bd6fdf501",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "A stale or mismatched evidence tuple could previously allow lifecycle transition to advance.",
+      "failingCommand": "lattice transition_oracle --storyId=B-2769 --dryRun",
+      "expectedGreenCommand": "lattice transition_oracle --storyId=B-2769 --validate",
+      "greenRelation": {
+        "targetRef": "CHK-004",
+        "relation": "replacement",
+        "command": "lattice transition_oracle --storyId=B-2769 --validate"
+      },
+      "note": "Refresh after latest PLAN pass so baseline material stays in sync.",
+      "createdAt": "2026-07-02T16:37:12.506Z"
+    },
+    {
+      "id": "RED-20260702163734",
+      "trigger": "Regression-risked high-assurance extension work",
+      "acceptanceTargetRef": "sha256:5adb4e8ec19554c83d763c7f0a18adbb5af13aacaf09bef2961549821a42442c",
+      "baselineHeadHash": "8519ac1df2e3da70703496413e4eea3bd6fdf501",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "A stale or mismatched evidence tuple could previously allow lifecycle transition to advance.",
+      "failingCommand": "lattice transition_oracle --storyId=B-2769 --dryRun",
+      "expectedGreenCommand": "lattice transition_oracle --storyId=B-2769 --validate",
+      "greenRelation": {
+        "targetRef": "sha256:5adb4e8ec19554c83d763c7f0a18adbb5af13aacaf09bef2961549821a42442c",
+        "relation": "same_acceptance",
+        "command": "lattice transition_oracle --storyId=B-2769 --validate"
+      },
+      "note": "Use request-hash acceptance target to satisfy current ProofStory diagnostic binding expectations.",
+      "createdAt": "2026-07-02T16:37:34.249Z"
     }
   ],
   "createdAt": "2026-07-02T16:33:46.497Z",
-  "updatedAt": "2026-07-02T16:33:46.497Z"
+  "updatedAt": "2026-07-02T16:37:34.249Z"
 }

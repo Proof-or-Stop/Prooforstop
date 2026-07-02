@@ -1,0 +1,28 @@
+{
+  "storyId": "B-2769",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    ".lattice/story/actives/B-2769/scope-boundary.json",
+    ".lattice/story/actives/B-2769/execution-boundary.json",
+    "docs/requirements/NAV.md",
+    "packages/main/src/core",
+    ".lattice/story/actives/B-2769",
+    "packages/main/src/cli"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/claim schema layer",
+    "packages/main/src/tasks/proof-or-stop-pinn-adapter-list.ts",
+    "packages/main/src/core/cli for gate logic handlers",
+    "packages/main/src/cli for gate logic handlers",
+    "story artifacts under .lattice/story/actives/B-2769",
+    "docs/requirements/decisions and source-of-truth nav"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T16:37:43.003Z",
+  "updatedAt": "2026-07-02T16:37:43.003Z"
+}
