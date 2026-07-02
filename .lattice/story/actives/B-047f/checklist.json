@@ -83,6 +83,11 @@
             "desc": "build without protocol.json (or with protocolHash mismatch) -> refusal naming the frozen-protocol requirement; WHY: mechanically enforces M0 no-task-without-protocol-hash",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "verify after protocol.json is modified post-build -> exits non-zero with protocolHash mismatch; WHY: verify must detect protocol drift after ledger creation, not only at build time",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
