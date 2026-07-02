@@ -152,7 +152,47 @@
       "context": "Implement lifecycle gate predicates and fail-closed transition behavior (advance/repair/degrade/stop).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "Lifecycle gate plan shows a fail-closed transition table with explicit advance/repair/degrade/stop semantics and reason codes.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chk-004:happy",
+            "desc": "Verify gate policy defines all state transitions and blocked outcomes for advance/repair/degrade/stop.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chk-004:edge",
+            "desc": "Verify transition rejection includes deterministic reason codes for stale/missing/mismatch conditions.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chk-004:adversarial",
+            "desc": "Verify no transition path bypasses evidence binding or permits unsupported upgrades.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
