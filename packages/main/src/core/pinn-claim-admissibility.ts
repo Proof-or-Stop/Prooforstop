@@ -364,6 +364,7 @@ const RETIRED_BOUNDARY_FIELDS = [
 
 function isUnsafeBoundaryValue(value: unknown): boolean {
   if (value === true) return true;
+  if (value === 1) return true;
   if (typeof value !== 'string') return false;
   return TRUEISH_BOUNDARY_VALUES.has(value.trim().toLowerCase());
 }
@@ -380,7 +381,7 @@ function boundaryViolation(input: PinnClaimCheckInput): boolean {
   if (CLAIM_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
   if (RETIRED_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
   const text = input.narrativeClaim ?? '';
-  return /\b(proves?\s+PDE\s+correctness|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i.test(text)
+  return /\b(proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:is\s+)?(?:proved|verified|guaranteed|validated)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i.test(text)
     || ACTIVE_FIELD_OVERCLAIM_PATTERN.test(text)
     || RETIRED_FIELD_OVERCLAIM_PATTERN.test(text);
 }

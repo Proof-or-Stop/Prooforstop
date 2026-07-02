@@ -103,6 +103,31 @@ assert.equal(legacyNarrativeResult.allowed, false, 'legacy completion field narr
 assert.ok(hasReason(legacyNarrativeResult, 'claim_boundary_violation'), 'legacy completion field narrative has boundary reason');
 
 for (const narrativeClaim of [
+  'PDE correctness proved',
+  'PDE correctness verified',
+  'PDE correctness guaranteed',
+  'PDE correctness validated',
+]) {
+  const passivePdeNarrative = buildCompletePinnEvidence('C9');
+  passivePdeNarrative.narrativeClaim = narrativeClaim;
+  const passivePdeNarrativeResult = evaluatePinnClaim(passivePdeNarrative);
+  assert.equal(passivePdeNarrativeResult.allowed, false, `passive PDE narrative is blocked: ${narrativeClaim}`);
+  assert.ok(hasReason(passivePdeNarrativeResult, 'claim_boundary_violation'), `passive PDE narrative has boundary reason: ${narrativeClaim}`);
+}
+
+const numericTerminalClaim = buildCompletePinnEvidence('C9');
+(numericTerminalClaim as unknown as Record<string, unknown>).terminalCompletionClaim = 1;
+const numericTerminalClaimResult = evaluatePinnClaim(numericTerminalClaim);
+assert.equal(numericTerminalClaimResult.allowed, false, 'numeric terminal completion field is blocked');
+assert.ok(hasReason(numericTerminalClaimResult, 'claim_boundary_violation'), 'numeric terminal completion field has boundary reason');
+
+const numericLegacyClaim = buildCompletePinnEvidence('C9');
+(numericLegacyClaim as unknown as Record<string, unknown>)[legacyDoneField] = 1;
+const numericLegacyClaimResult = evaluatePinnClaim(numericLegacyClaim);
+assert.equal(numericLegacyClaimResult.allowed, false, 'numeric legacy completion field is blocked');
+assert.ok(hasReason(numericLegacyClaimResult, 'claim_boundary_violation'), 'numeric legacy completion field has boundary reason');
+
+for (const narrativeClaim of [
   '"terminalCompletionClaim": true',
   "'terminalCompletionClaim': true",
   'terminalCompletionClaim = yes',
