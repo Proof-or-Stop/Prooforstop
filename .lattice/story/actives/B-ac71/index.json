@@ -4,7 +4,7 @@
   "title": "Tier-C cross-host quorum: threat model + key-management decision (M0)",
   "description": "M0 of the Tier-C cross-host quorum execution plan: fix the soundness rules (pinned-key trust anchor, cross-vendor/same-operator independence ceiling, fail-closed rule table) and key generation/pinning/rotation/revocation, before any M1/M2 build. Documentation only; no runtime code (repro-first exempt).",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "createdAt": "2026-07-02T21:40:43.020Z",
   "startedAt": "2026-07-02T21:40:43.020Z",
@@ -24,6 +24,15 @@
       "action": "advance",
       "timestamp": "2026-07-02T21:49:24.266Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:49:54.037Z",
+      "branch": "story/B-ac71",
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
