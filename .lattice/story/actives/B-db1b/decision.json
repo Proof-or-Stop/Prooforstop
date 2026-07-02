@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Local proof controls must be mechanical and deterministic, not prose-only.",
+    "PINN domain support must never imply PDE correctness, solver quality, production readiness, or external Authority completion.",
+    "Schema, adapters, gate decisions, benchmark metrics, and report wording must share one runtime model to avoid drift.",
+    "Failure modes must fail closed with stable reason codes and visible remediation.",
+    "Verification must be runnable from the story worktree and bind to current source."
+  ],
+  "drivers": [
+    "The user asked for all M0-M5 milestones to become DONE, not just documented.",
+    "Existing Proofbound command and policy registries require explicit CLI catalog and ownership entries for new commands.",
+    "The plan requires A1-A4/B1-B15 deterministic benchmark comparison and bounded governance wording."
+  ],
+  "options": [
+    {
+      "name": "docs-only hardening",
+      "pros": [
+        "Fast",
+        "Low code risk"
+      ],
+      "cons": [
+        "Would repeat B-2769 and fail the user request for runtime DONE",
+        "Cannot mechanically detect stale or mismatched evidence"
+      ]
+    },
+    {
+      "name": "large scientific PINN implementation",
+      "pros": [
+        "Could run real PDE/PINN experiments eventually",
+        "Might be closer to research workflow tooling"
+      ],
+      "cons": [
+        "Out of scope",
+        "Would risk false PDE correctness claims",
+        "Too broad for Proofbound claim-control layer"
+      ]
+    },
+    {
+      "name": "bounded local runtime claim-control pack",
+      "pros": [
+        "Directly implements schema, adapters, gate, benchmark, and report contracts",
+        "Keeps no-PDE-correctness boundary explicit",
+        "Fits existing CLI/handler/smoke architecture"
+      ],
+      "cons": [
+        "Benchmark uses deterministic control fixtures rather than real PINN training",
+        "Future scientific integrations still need separate stories"
+      ]
+    }
+  ],
+  "chosen": "bounded local runtime claim-control pack",
+  "rationale": "This is the smallest honest implementation that makes M0-M5 executable while preserving the plan boundary and Proofbound local assurance rules.",
+  "preMortem": [
+    {
+      "scenario": "Generated commands accidentally imply PDE correctness or production readiness.",
+      "trigger": "Report wording or JSON fields expose productionDone=true, authorityDone=true, or PDE-correctness language.",
+      "consequence": "Users could overclaim scientific or production proof from a local diagnostic pack.",
+      "mitigation": "Hard-code productionDone=false/authorityDone=false, include boundary paragraph in all reports, and test wording/JSON adversarially."
+    },
+    {
+      "scenario": "Schema accepts stale or mismatched evidence because only adapter pass status is checked.",
+      "trigger": "A receipt has exitCode=0 but carries a changed pdeSpecHash, grid hash, verifier hash, checkpoint hash, or output digest.",
+      "consequence": "Unsupported PINN claim advancement would still occur despite the domain pack.",
+      "mitigation": "Evaluate identity binding before adapter pass, require claim-specific identity fields, and pin B1-B15 injection tests to stable reason codes."
+    },
+    {
+      "scenario": "Benchmark is gamed by making A4 perfect but hiding overhead or false stops.",
+      "trigger": "Harness reports only pass/fail counts and omits wall-time, intervention, repair/degrade/stop, or confidence intervals.",
+      "consequence": "The result overstates claim-control quality and violates the plan success criteria.",
+      "mitigation": "Benchmark report includes unsupported-advance, stale acceptance, boundary violation, reproducibility, false-stop, repair, intervention, overhead, and Wilson intervals."
+    },
+    {
+      "scenario": "CLI integration drifts from registry or command policy.",
+      "trigger": "Handler exists but command catalog or ownership policy lacks the new command, causing help/owner gates/build checks to fail.",
+      "consequence": "The feature works only through imports, not as a user-visible Proofbound command.",
+      "mitigation": "Add command-catalog schemas, command policies, registry wiring, package scripts, smoke coverage, and build verification."
+    }
+  ],
+  "timestamp": "2026-07-02T18:41:36.337Z"
+}

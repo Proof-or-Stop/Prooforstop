@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-db1b",
+  "records": [
+    {
+      "id": "RED-20260702184148",
+      "trigger": "PINN runtime command is absent before implementation",
+      "acceptanceTargetRef": "REQ-M0-M5",
+      "baselineHeadHash": "789d130a518633f2f796828e8fc60f9b049ff293",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "Before this story, the canonical repository has only a documentation-only PINN plan; running local PINN claim admissibility commands does not produce the requested schema/gate/benchmark/report behavior.",
+      "failingCommand": "node bin/lattice.js pinn_benchmark_run --format=json",
+      "expectedGreenCommand": "node bin/lattice.js pinn_benchmark_run --format=json",
+      "greenRelation": {
+        "targetRef": "REQ-M0-M5",
+        "relation": "same_acceptance",
+        "command": "node bin/lattice.js pinn_benchmark_run --format=json"
+      },
+      "note": "The pre-fix failure is command/runtime absence, not a scientific PINN solver failure.",
+      "createdAt": "2026-07-02T18:41:48.008Z"
+    }
+  ],
+  "createdAt": "2026-07-02T18:41:48.008Z",
+  "updatedAt": "2026-07-02T18:41:48.008Z"
+}
