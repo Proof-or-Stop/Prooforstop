@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-5230",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:eb440f6f1f128fed335fb71f07f18646ac3871d9f533791cf97458ff4df02fa3",
+  "acceptanceBindings": [
+    {
+      "id": "acc-b5230-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "pinn-doc-000:happy",
+        "pinn-doc-000:edge",
+        "pinn-doc-000:adv",
+        "pinn-doc-002:happy",
+        "pinn-doc-002:edge",
+        "pinn-doc-002:adv",
+        "pinn-doc-003:happy",
+        "pinn-doc-003:edge",
+        "pinn-doc-003:adv",
+        "pinn-doc-001:happy",
+        "pinn-doc-001:edge",
+        "pinn-doc-001:adv",
+        "pinn-doc-004:happy",
+        "pinn-doc-004:edge",
+        "pinn-doc-004:adv",
+        "pinn-doc-005:happy",
+        "pinn-doc-005:edge",
+        "pinn-doc-005:adv",
+        "pinn-doc-006:happy",
+        "pinn-doc-006:edge",
+        "pinn-doc-006:adv"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "This story demonstrates a documented, bounded design handoff and proves no runtime implementation claim is accidentally implied."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Bound acceptanceClaim to all checklist/intent artifacts for this docs-only proof-or-stop hardening story.",
+  "createdAt": "2026-07-02T17:23:37.001Z",
+  "updatedAt": "2026-07-02T17:23:37.001Z"
+}
