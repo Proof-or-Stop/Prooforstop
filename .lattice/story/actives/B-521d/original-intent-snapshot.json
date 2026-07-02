@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-521d",
+  "sourceText": "Build a read-only script/CLI command that can prove three situations for playbook promotion learning: whether real candidates are produced, whether candidates are consumed, and whether recommendations are handled.",
+  "normalizedOutcome": "Proofbound exposes a host-neutral read-only playbook_promotion_observe command with --since and --json that reports candidate generation, candidate consumption, and recommendation handling/backlog from existing learning-store records without mutating learning state or enabling automatic promotion.",
+  "acceptanceClaim": "The story is accepted when playbook_promotion_observe reads playbooks, outcome events, promotion decisions, and non-deducible registry rows to report candidateGenerated, candidateConsumed, and recommendationHandling, with smoke coverage proving empty-store, explicit exposure, unexposed candidate, unhandled recommendation, handled recommendation, and read-only/non-authoritative boundaries.",
+  "keyRequirementIds": [
+    "REQ-OBSERVE-CANDIDATE-CONSUMPTION",
+    "REQ-OBSERVE-CANDIDATE-GENERATION",
+    "REQ-OBSERVE-RECOMMENDATION-HANDLING",
+    "REQ-READONLY-HOST-NEUTRAL"
+  ],
+  "requestHash": "sha256:86380e12c7c85278ee194e23aaf8cbda71037983bf72fd932da12bab76b1f80c",
+  "createdAt": "2026-07-02T17:22:32.078Z",
+  "updatedAt": "2026-07-02T17:22:32.078Z"
+}

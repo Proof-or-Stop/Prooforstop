@@ -65,6 +65,34 @@
         }
       ],
       "_hash": "74b9afd4d706f6d702b33b1df3dc42fbdc00c5fb1b11debc0af06179ec8dd1a9"
+    },
+    {
+      "timestamp": "2026-07-02T17:22:08.434Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add observation aggregation for candidate generation consumption and recommendation handling + Expose host-neutral playbook_promotion_observe command are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-521d is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7c359fed45b48879ea40515c4e37aeef988e5fcf74d2ab039d16cd49ef3b4e02"
     }
   ]
 }
