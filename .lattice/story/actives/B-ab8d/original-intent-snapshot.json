@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-ab8d",
+  "sourceText": "User (2026-07-02): execute the experience-layer ablation causal-validation plan (docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md) milestone by milestone until all are DONE. This story is milestone M3 (plan section 13): Arm switch for the full pack — extend the EXISTING render-gate (experience-hint-surface.ts + hint-mode.ts) from review-entrypoint hints to the full runtime memory pack at all lifecycle entrypoints, under an experimentId override; add mechanical control-arm retrieval blocking. Exit criteria: Control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded.",
+  "normalizedOutcome": "With the experiment env context set to control, lifecycle commands render no Memory Runtime Preflight section, memory retrieval commands are refused with a recorded retrieval_violation event, and experience_pack_surfaced events log the would-have-surfaced pack on both arms; with treatment, rendering is byte-identical to no-experiment mode; with no context, everything is byte-identical to today; a registered smoke test proves all of it and lattice validate stays green.",
+  "acceptanceClaim": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js prints experience-pack-arm-switch-smoke: ALL PASS (exit 0) covering: control hides+logs pack at all seven entrypoints, treatment shows+logs, retrieval blocked+recorded on control only, no-experiment byte-identical regression, and prompt-hash invariance across arms.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:5504871a9b1e79c6b64476dbfb77ff225df7b265151bce5d77a821c85c99c23f",
+  "createdAt": "2026-07-02T22:59:35.765Z",
+  "updatedAt": "2026-07-02T22:59:35.765Z"
+}

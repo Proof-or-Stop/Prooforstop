@@ -1,0 +1,37 @@
+{
+  "storyId": "B-ab8d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    ".lattice/validate.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experiment-arm.ts",
+    "packages/main/src/core/experience-pack-surface.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/**",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/hint-mode.ts"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T22:59:36.578Z",
+  "updatedAt": "2026-07-02T22:59:36.578Z"
+}

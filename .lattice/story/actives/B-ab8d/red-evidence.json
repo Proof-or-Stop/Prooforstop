@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-ab8d",
+  "records": [
+    {
+      "id": "RED-20260702230020",
+      "trigger": "M3 behavior change: experiment arm context must gate the runtime memory pack render and block control-arm retrieval; today it does neither",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "57706b104cb67318dec9efea64c5be0a42587cf2",
+      "baselineMaterialHash": "fdc17b21611ec33fe14a1a9d86c855b8a7fc636914983a4b7c3f7319066a35b2",
+      "observedFailure": "With LATTICE_EXPERIMENT_ID=exp-red-probe LATTICE_EXPERIMENT_ARM=control set: lattice session_brief still renders the \"## Memory Runtime Preflight\" section (grep count 1), lattice recall exits 0 (not blocked, no retrieval_violation event), and packages/main/dist/tasks/experience-pack-arm-switch-smoke.js does not exist (ls: No such file or directory).",
+      "failingCommand": "LATTICE_EXPERIMENT_ID=exp-red-probe LATTICE_EXPERIMENT_ARM=control lattice session_brief | grep -c \"Memory Runtime Preflight\" # prints 1 (should be 0 on control after M3); and node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js # ENOENT",
+      "expectedGreenCommand": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js # prints experience-pack-arm-switch-smoke: ALL PASS, exit 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js # prints experience-pack-arm-switch-smoke: ALL PASS, exit 0"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-ab8d before any M3 code exists; proves the experiment env context is inert today.",
+      "createdAt": "2026-07-02T23:00:20.814Z"
+    }
+  ],
+  "createdAt": "2026-07-02T23:00:20.814Z",
+  "updatedAt": "2026-07-02T23:00:20.814Z"
+}
