@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-db1b:F-001",
+      "desc": "pinn_report_render trusts caller-supplied benchmarkJson/benchmarkPath and returns or renders report claims unchanged. handlers/pinn-claim-admissibility.ts:92-95 casts parsed JSON as PinnBenchmarkReport, and :110-113 returns it directly for JSON or passes it to renderPinnReportText. core/pinn-claim-admissibility.ts:580-591 then prints report.claims.productionDone/authorityDone/fullAuthorityDone/pdeCorrectnessClaim and report.boundary as supplied. Verified by direct handler invocation: a supplied report with those flags true renders productionDone: true, authorityDone: true, fullAuthorityDone: true, pdeCorrectnessClaim: true, and a caller-controlled external Authority completion boundary. This violates the pack boundary that local reporting must not claim PDE correctness, production readiness, or external Authority completion; supplied reports need validation/normalization or rejection before rendering.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T19:22:08.794Z",
+      "reviewRound": "2026-07-02T19:15:34.521Z",
+      "reviewRunId": "B-db1b:RR-003",
+      "_hash": "a25cf8d6c894894d94248fbc0323835c854d6b014742992a65fce9493cde894b",
+      "files": [
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "packages/main/src/core/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|pinn-report-render",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
