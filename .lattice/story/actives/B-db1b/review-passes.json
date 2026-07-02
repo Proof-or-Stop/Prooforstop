@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-02T20:06:35.258Z",
       "reviewRunId": "B-db1b:RR-012",
       "_hash": "45c78d028e9dcb14988f51a14babe7799a101f9ea97e59927eef4a94beba6ec1"
+    },
+    {
+      "id": "B-db1b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current-round scope changed since prior pass, so re-reviewed packages/main/src/core/pinn-claim-admissibility.ts, packages/main/src/handlers/pinn-claim-admissibility.ts, and packages/main/src/tasks/pinn-claim-admissibility-smoke.ts. Committed smoke asserts B1-B15 exact plan alignment, A4 rejects all 15 while weaker arms expose unsupported/stale acceptance, duplicate_receipt fail-closed, malicious supplied benchmarkJson overclaim rejection/sanitization, and terminal/dynamic legacy narrative overclaim rejection. I ran npm run test:pinn-claim-admissibility successfully and an additional read-only Node probe confirming direct terminalCompletionClaim/dynamic legacy true-ish fields reject, benchmarkJson rejects top-level+claims true-ish strings and dynamic legacy fields, and benchmarkPath via /dev/stdin rejects the same malicious report through normalizeBenchmarkReport.",
+      "createdAt": "2026-07-02T20:10:00.483Z",
+      "reviewRound": "2026-07-02T20:06:35.258Z",
+      "reviewRunId": "B-db1b:RR-010",
+      "_hash": "cad439acda1cc2f277c0f97d4b302cb21ed5f792881821c3d793e8ac6e1fdc92"
     }
   ]
 }
