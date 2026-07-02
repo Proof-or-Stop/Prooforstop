@@ -102,6 +102,20 @@ const legacyNarrativeResult = evaluatePinnClaim(legacyNarrative);
 assert.equal(legacyNarrativeResult.allowed, false, 'legacy completion field narrative is blocked');
 assert.ok(hasReason(legacyNarrativeResult, 'claim_boundary_violation'), 'legacy completion field narrative has boundary reason');
 
+for (const narrativeClaim of [
+  '"terminalCompletionClaim": true',
+  "'terminalCompletionClaim': true",
+  'terminalCompletionClaim = yes',
+  `${legacyDoneField}: on`,
+  `"${legacyDoneField}": true`,
+]) {
+  const quotedNarrative = buildCompletePinnEvidence('C9');
+  quotedNarrative.narrativeClaim = narrativeClaim;
+  const quotedNarrativeResult = evaluatePinnClaim(quotedNarrative);
+  assert.equal(quotedNarrativeResult.allowed, false, `quoted/assignment narrative is blocked: ${narrativeClaim}`);
+  assert.ok(hasReason(quotedNarrativeResult, 'claim_boundary_violation'), `quoted/assignment narrative has boundary reason: ${narrativeClaim}`);
+}
+
 const benchmark = runPinnClaimBenchmark();
 assert.equal(benchmark.suiteStatus, 'PASS', 'benchmark suite passes');
 assert.equal(benchmark.totalInjections, 15, 'benchmark has B1-B15 injections');
@@ -224,6 +238,34 @@ assert.throws(
   }),
   /refuses benchmark report overclaims/,
   'report text command rejects nested supplied benchmark overclaim strings',
+);
+assert.throws(
+  () => handlers.pinn_report_render({
+    benchmarkJson: JSON.stringify({
+      ...benchmark,
+      artifactIndex: [
+        {
+          ...benchmark.artifactIndex[0],
+          digest: '"terminalCompletionClaim": true',
+        },
+        ...benchmark.artifactIndex.slice(1),
+      ],
+    }),
+    format: 'text',
+  }),
+  /refuses benchmark report overclaims/,
+  'report text command rejects quoted supplied benchmark artifact overclaim strings',
+);
+assert.throws(
+  () => handlers.pinn_report_render({
+    benchmarkJson: JSON.stringify({
+      ...benchmark,
+      suiteStatus: `'${legacyDoneField}': true`,
+    }),
+    format: 'json',
+  }),
+  /refuses benchmark report overclaims/,
+  'report JSON command rejects quoted supplied benchmark status overclaim strings',
 );
 assert.throws(
   () => handlers.pinn_report_render({

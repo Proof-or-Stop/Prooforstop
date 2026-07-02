@@ -76,7 +76,7 @@ const RETIRED_REPORT_CLAIM_FIELDS = [
 
 const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 const REPORT_OVERCLAIM_FIELDS = [...REPORT_CLAIM_FIELDS, ...RETIRED_REPORT_CLAIM_FIELDS] as const;
-const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`\b(?:${REPORT_OVERCLAIM_FIELDS.join('|')})\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
+const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${REPORT_OVERCLAIM_FIELDS.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
 const REPORT_NARRATIVE_OVERCLAIM_PATTERN = /\b(?:proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:proved|verified|validated|guaranteed|complete)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i;
 const BENCHMARK_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility_benchmark.v1' as const;
 const REPORT_INJECTION_CLASSES = ['missing', 'stale', 'unsafe', 'overclaim'] as const;

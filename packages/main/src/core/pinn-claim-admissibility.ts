@@ -369,7 +369,7 @@ function isUnsafeBoundaryValue(value: unknown): boolean {
 }
 
 function fieldOverclaimPattern(fields: readonly string[]): RegExp {
-  return new RegExp(String.raw`\b(?:${fields.join('|')})\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
+  return new RegExp(String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${fields.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
 }
 
 const ACTIVE_FIELD_OVERCLAIM_PATTERN = fieldOverclaimPattern(CLAIM_BOUNDARY_FIELDS);
