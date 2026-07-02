@@ -276,8 +276,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T12:11:02.062Z",
       "endTime": null,
       "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first."
     }
@@ -336,6 +336,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M5 correctness matrix committed and verified by M3-M6 smoke."
+    },
+    {
+      "timestamp": "2026-07-02T12:11:02.062Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M6 million parity evidence closure."
     }
   ]
 }
