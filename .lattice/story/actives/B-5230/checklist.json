@@ -6,7 +6,37 @@
       "context": "Normalize scope and boundary wording and remove over-claiming language.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees that the plan vocabulary and status framing now consistently distinguish design intent from runtime evidence/implementation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-000:happy",
+            "desc": "Terminology and status framing aligns with Proof-or-Stop-only claims.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-000:edge",
+            "desc": "Scope framing prevents interpreting doc updates as shipped runtime code.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "pinn-doc-000:adv",
+            "desc": "Review text to ensure no overstatement remains in term/status framing.",
+            "type": "manual",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
