@@ -1,0 +1,41 @@
+{
+  "storyId": "B-6b39",
+  "checkedAt": "2026-07-02T21:29:31.602Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "Background says the S1 tooling was merged via B-047f, but B-047f is currently in INIT_CHECK phase, not DONE/merged. The corrected code exists on the B-047f branch (commit 75b51f124) but has not been merged to main. This does not affect the validity of the docs amendment itself -- the mathematical correction stands regardless -- but the background prose is factually inaccurate about the merge status."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-02T21:28:55.129Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights states \"The merged S1 tooling (experiments/experience-ablation/sample-size.mjs pilotFreezeCheck) already implements the corrected rule\" but story B-047f is in INIT_CHECK phase (not merged to main); git show HEAD:experiments/experience-ablation/sample-size.mjs confirms the file does not exist in the main branch. The word \"merged\" is a factual inaccuracy — should say \"committed in branch B-047f\" or similar."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Key Insights uses the abbreviation \"mde\" (in \"n(baseline, mde)\" and \"baseline - mde/2\") without expanding it on first appearance. Standard statistics term, but not defined in the background text."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-02T21:29:31.602Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Background says the S1 tooling was merged via B-047f, but B-047f is currently in INIT_CHECK phase, not DONE/merged. The corrected code exists on the B-047f branch (commit 75b51f124) but has not been merged to main. This does not affect the validity of the docs amendment itself -- the mathematical correction stands regardless -- but the background prose is factually inaccurate about the merge status."
+        }
+      ]
+    }
+  ],
+  "_hash": "6d8320bfad1d2a3a170ac4d4c101363145f9b7400d85fb1d1c638fd82547b725"
+}
