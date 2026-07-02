@@ -26,7 +26,7 @@
       "desc": "[host-2 Codex P1] buildLedger binds only the protocolHash, not the frozen task-class MEMBERSHIP: validateManifest accepts trapClass not-in-protocol with trapGroup in_store, so unregistered fixtures can enter the run under a valid protocol hash. Fix: consume doc.taskClasses from guardFrozenProtocol and reject rows whose trapClass is not a member of the frozen group matching its trapGroup; add selfcheck case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:04.120Z",
@@ -36,7 +36,11 @@
         "experiments/experience-ablation/pair-ledger.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-buildledger",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "validateMembership added and called from build AND verify: every manifest row trapClass must be a member of the frozen protocol group matching its trapGroup; selfcheck cases: unregistered class refused, clean class declared in_store refused. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:23.617Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-003",
