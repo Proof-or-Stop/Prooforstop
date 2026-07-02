@@ -430,9 +430,9 @@
       "id": "CHK-006",
       "title": "M5 Reporting and governance integration",
       "context": "Add explicit boundary wording and governance docs for PINN claim-admissibility support.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T16:39:49.917Z",
-      "endTime": null,
+      "endTime": "2026-07-02T16:39:59.831Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
@@ -474,7 +474,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "chk-006:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Boundary and governance wording now include clear non-goal clauses and publication posture guidance.",
+          "headHash": "ae11b18aa09d400527fad7642d15e5f127037af7",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:59.954Z"
+        },
+        {
+          "intentRef": "chk-006:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Publication posture explicitly avoids PDE correctness and production-readiness wording in this extension.",
+          "headHash": "ae11b18aa09d400527fad7642d15e5f127037af7",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:40:00.075Z"
+        },
+        {
+          "intentRef": "chk-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"correctness|production ready|production-ready\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No wording over-claims results; language stays bounded to future claim-admissibility extension and readiness framing.",
+          "headHash": "ae11b18aa09d400527fad7642d15e5f127037af7",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:40:00.196Z"
+        }
+      ]
     }
   ]
 }
