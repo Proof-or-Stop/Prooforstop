@@ -63,10 +63,12 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "PINN claim/evidence schema in PLAN includes explicit identity fields and deterministic mismatch/absence handling guidance.",
+      "userSees": "User sees: \"Plan now defines a claim/evidence schema section with explicit identity fields and deterministic BLOCK rules.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "packages/main/src/core",
+          ".lattice/story/actives/B-2769"
         ],
         "create": [],
         "test": []
