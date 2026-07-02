@@ -115,7 +115,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The host-neutral lattice playbook_outcome_record command records an explicit outcome and prints authority=non_authoritative plus gateEvidence=false.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The command leaves candidate status unchanged and does not activate, reject, or surface runtime guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No Codex-specific or Claude-specific namespace is introduced for outcome recording; command policy and process facts classify it as audit-only metadata.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
