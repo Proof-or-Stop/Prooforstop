@@ -188,6 +188,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-034",
       "_hash": "88321c45682df732abf29cc76b44f85f176333cc2d036077b93e1a88e804dd61"
+    },
+    {
+      "id": "B-337f:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001..CHK-003, 3 lanes each, all priority=must) have concrete verificationEvidence (manual_transcript, result=pass, behavior-specific notes). Live selfcheck: 34 PASS, exit 0 — covers determinism+S1-integration (CHK-001), trap artifact + leakage audit zero hits (CHK-002), oracle both-direction falsifiability + oracle double-invocation stability (CHK-003). false-done adversarial probes pin 8 vectors: 6 inert-forgery (F-006 forged-pass-output, F-012 comment-only, F-014 duplicate-export, F-015 process.exit inert, F-016 hardcoded-marker inert, F-017+F-018 argv/exit-hook inert) + in-block-SyntaxError fires via node --check (F-019) + trailing-comment-passes (genuine fix tolerance). No orphaned intents. M1 milestone ledger state=confirmed. Evidence notes are behavior-specific (not generic validate-passed text).",
+      "createdAt": "2026-07-02T23:49:15.236Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-036",
+      "_hash": "498345b3a54e1cd14769a235fbf202c0325c2cf78e4e013081c567304ccde7ce"
     }
   ]
 }
