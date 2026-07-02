@@ -5,7 +5,7 @@
       "desc": "pinn_report_render trusts caller-supplied benchmarkJson/benchmarkPath and returns or renders report claims unchanged. handlers/pinn-claim-admissibility.ts:92-95 casts parsed JSON as PinnBenchmarkReport, and :110-113 returns it directly for JSON or passes it to renderPinnReportText. core/pinn-claim-admissibility.ts:580-591 then prints report.claims.productionDone/authorityDone/fullAuthorityDone/pdeCorrectnessClaim and report.boundary as supplied. Verified by direct handler invocation: a supplied report with those flags true renders productionDone: true, authorityDone: true, fullAuthorityDone: true, pdeCorrectnessClaim: true, and a caller-controlled external Authority completion boundary. This violates the pack boundary that local reporting must not claim PDE correctness, production readiness, or external Authority completion; supplied reports need validation/normalization or rejection before rendering.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T19:22:08.794Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "spec-boundary|ts|pinn-report-render",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by normalizing/rejecting caller-supplied benchmark reports before pinn_report_render returns or renders them; malicious true completion/correctness claims and caller-controlled boundary now throw. Verified by npm run test:pinn-claim-admissibility and CLI pinn_report_render claims=false/boundary fixed.",
+      "resolvedAt": "2026-07-02T19:30:53.114Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-002",
