@@ -19,6 +19,25 @@
       ],
       "signatureTag": "missing|ts|verificationintent-checklist-requires",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-521d:F-002",
+      "desc": "playbook_promotion_observe treats an archive recommendation as handled when the current playbook status is still stale. The evaluator emits action=\"archive\" specifically when aggregate.status === \"stale\" (learning-store.ts:1121-1125), but classifyRecommendationHandling returns handled/current_status_stale for row.action === \"archive\" or \"reject\" (learning-store.ts:1493-1502). That makes a newly applied archive recommendation disappear from unhandled backlog without any archive transition or archived metadata being present; the smoke test encodes this optimistic case at playbook-promotion-observe-smoke.ts:297-317. Archive should remain unhandled while current status is stale, and only become handled when current status/metadata actually records archived (or whatever explicit archive sink is chosen).",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T17:41:12.647Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-002",
+      "_hash": "488e165b9ce7229adcde66d4f1d3114556d04cf14a8ea7342768d9cc1dcd2fe1",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-promotion-observe",
+      "signatureTagSource": "auto"
     }
   ]
 }
