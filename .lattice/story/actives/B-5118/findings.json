@@ -18,6 +18,25 @@
       ],
       "signatureTag": "doc-code-drift|md|framework-still-says",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5118:F-002",
+      "desc": "Quantum pack read-only descriptors are only shallow-frozen: QUANTUM_CLAIM_IDS and QUANTUM_EVIDENCE_KINDS are exported as const arrays in quantum.ts lines 13-29, then reused directly as claimIds and artifactKinds in pack-framework.ts lines 454 and 470. freezeItems at pack-framework.ts lines 218-220 freezes only the schema object and containing array, not those nested arrays, so consumers can mutate listClaimAdmissibilityPacks()[quantum].claimSchemas[0].claimIds or evidenceSchemas[0].artifactKinds at runtime despite the read-only/declarative boundary. Freeze or defensive-copy these nested arrays before exposing the pack descriptor.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:33:39.534Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-004",
+      "_hash": "552d271bf0cc4213fce00b6cc5863cfd8814942e2f55ed781a9eaf14116cd554",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/core/claim-admissibility/pack-framework.ts"
+      ],
+      "signatureTag": "edge|ts|quantum-pack-read",
+      "signatureTagSource": "auto"
     }
   ]
 }
