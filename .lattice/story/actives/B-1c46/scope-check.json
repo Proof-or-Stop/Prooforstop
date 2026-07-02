@@ -1,0 +1,66 @@
+{
+  "storyId": "B-1c46",
+  "checkedAt": "2026-07-02T14:24:20.904Z",
+  "features": [
+    {
+      "feature": "M0 profile and red performance baseline",
+      "covered_by": "CHK-001 and plan.md CHK-001 require the full-profile baseline command, red/profile artifact, indexedWarmCacheMs target status, parityPass condition, token/pack/cache/index/query timing fields, referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, warmCacheHits, peak RSS, and explicit unmet target status; scope-boundary allows baseline/profile edits; execution-boundary allows node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-001; plan.md CHK-001; scope-boundary; execution-boundary"
+    },
+    {
+      "feature": "M1 semantic parity guard",
+      "covered_by": "CHK-002 and plan.md CHK-002 require golden parity coverage for exact token, fuzzy/includes, superseded suppression, candidate suppression, stale-relevant, stale-irrelevant, deprecated residue, malformed rows, maxLines, and omittedCount, with reference-vs-optimized MemoryFreshnessPack digest comparison and advisory metadata unchanged; scope-boundary forbids semantic parity removal; execution-boundary allows index/M3-M6 smoke commands and paths.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-002; plan.md CHK-002; scope-boundary; execution-boundary"
+    },
+    {
+      "feature": "M2 exact-token fast path",
+      "covered_by": "CHK-003 and plan.md CHK-003 require O(1) direct tokenToIds exact lookup before fuzzy fallback, ordering/cap preservation, full-profile parityPass=true, improved indexed cold or token-scan timing, profile counters, and no authority/gateEvidence change; scope-boundary/execution-boundary allow playbook-runtime-memory-index.ts and narrow runtime memory wiring.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-003; plan.md CHK-003; scope-boundary; execution-boundary"
+    },
+    {
+      "feature": "M3 prefix or fuzzy auxiliary index",
+      "covered_by": "CHK-004 and plan.md CHK-004 require a bounded prefix/trigram/equivalent fuzzy auxiliary index so normal fuzzy/includes queries avoid full tokenMap scans, retain exact/fuzzy parity and full 1,000,000-record digest parity, and report hit/fallback counts; scope-boundary covers optimized index work and forbids removing fuzzy/deprecated/malformed/line-cap semantics.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-004; plan.md CHK-004; scope-boundary"
+    },
+    {
+      "feature": "M4 persistent cache and prebuilt index lifecycle",
+      "covered_by": "CHK-005 and plan.md CHK-005 require cross-process durable cache/prebuilt index reuse bound to schemaVersion, consumer, normalized query/context, source digests, runtime config digest, policy version, limits, indexVersion, and projectRoot, with stale source/config/policy/index misses or safe downgrade and advisory-only runtime memory; scope/execution boundaries allow cache and runtime integration paths; decision pre-mortem captures stale-cache risk and mitigation.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-005; plan.md CHK-005; scope-boundary; execution-boundary; decision"
+    },
+    {
+      "feature": "M5 performance gate and benchmark report",
+      "covered_by": "CHK-006 and plan.md CHK-006 require a user-visible full-profile performance smoke that fails on false parity, semantic/advisory drift, or indexedWarmCacheMs>2000, and reports referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, p50/p95 where available, peak RSS, cache hit rate, and performance policy; execution-boundary allows node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000 plus build/validate commands.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-006; plan.md CHK-006; execution-boundary"
+    },
+    {
+      "feature": "M6 rollout docs validation and version bump",
+      "covered_by": "CHK-007 and plan.md CHK-007 require creating/updating docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md with implementation path, measured results, risks, and commands; running build, parity/performance/full-profile smokes, review assurance, DONE; and bumping CLI patch version after merge with proven-vs-blocked/report-first final statement; scope-boundary allows the new decision doc and excludes unrelated README/paper/recovery-runner/user-dirty files; execution-boundary allows docs/package files, smokes, review/DONE commands, and blocks omx/destructive commands.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist CHK-007; plan.md CHK-007; scope-boundary; execution-boundary"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0a288acb429280921d6c7934972ab2260d98a3c6df60ddeace729a1aa0957525",
+  "openQuestions": []
+}
