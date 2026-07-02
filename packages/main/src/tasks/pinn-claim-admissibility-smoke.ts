@@ -86,6 +86,19 @@ const lowLossResult = evaluatePinnClaim(lowLoss);
 assert.equal(lowLossResult.allowed, false, 'low training loss alone cannot satisfy result-strength claims');
 assert.ok(hasReason(lowLossResult, 'training_loss_not_solution_evidence'), 'low-loss-only path has explicit reason');
 
+const terminalNarrative = buildCompletePinnEvidence('C9');
+terminalNarrative.narrativeClaim = 'terminalCompletionClaim: true';
+const terminalNarrativeResult = evaluatePinnClaim(terminalNarrative);
+assert.equal(terminalNarrativeResult.allowed, false, 'terminal completion field narrative is blocked');
+assert.ok(hasReason(terminalNarrativeResult, 'claim_boundary_violation'), 'terminal completion field narrative has boundary reason');
+
+const legacyNarrative = buildCompletePinnEvidence('C9');
+const legacyDoneField = ['production', 'Done'].join('');
+legacyNarrative.narrativeClaim = `${legacyDoneField}: true`;
+const legacyNarrativeResult = evaluatePinnClaim(legacyNarrative);
+assert.equal(legacyNarrativeResult.allowed, false, 'legacy completion field narrative is blocked');
+assert.ok(hasReason(legacyNarrativeResult, 'claim_boundary_violation'), 'legacy completion field narrative has boundary reason');
+
 const benchmark = runPinnClaimBenchmark();
 assert.equal(benchmark.suiteStatus, 'PASS', 'benchmark suite passes');
 assert.equal(benchmark.totalInjections, 15, 'benchmark has B1-B15 injections');
@@ -121,10 +134,33 @@ const retiredCompletionClaimFields = [
   ['authority', 'Done'].join(''),
   ['full', 'Authority', 'Done'].join(''),
 ];
+const sanitizedReport = handlers.pinn_report_render({
+  benchmarkJson: JSON.stringify({
+    ...benchmark,
+    deploymentReadyClaim: 'false',
+    externalCompletionClaim: 'no',
+    terminalCompletionClaim: 'off',
+    pdeCorrectnessClaim: 0,
+    unexpectedCallerField: 'must be removed',
+    [legacyDoneField]: 'false',
+  }),
+  format: 'json',
+}) as ReturnType<typeof runPinnClaimBenchmark> & Record<string, unknown>;
+assert.deepEqual(sanitizedReport.claims, {
+  deploymentReadyClaim: false,
+  externalCompletionClaim: false,
+  terminalCompletionClaim: false,
+  pdeCorrectnessClaim: false,
+}, 'report JSON sanitizes claim fields');
+assert.equal(sanitizedReport.deploymentReadyClaim, undefined, 'report JSON omits caller top-level deployment claim');
+assert.equal(sanitizedReport.terminalCompletionClaim, undefined, 'report JSON omits caller top-level terminal claim');
+assert.equal(sanitizedReport[legacyDoneField], undefined, 'report JSON omits caller top-level legacy claim');
+assert.equal(sanitizedReport.unexpectedCallerField, undefined, 'report JSON omits arbitrary caller fields');
 assert.throws(
   () => handlers.pinn_report_render({
     benchmarkJson: JSON.stringify({
       ...benchmark,
+      deploymentReadyClaim: 'true',
       claims: {
         deploymentReadyClaim: true,
         externalCompletionClaim: true,

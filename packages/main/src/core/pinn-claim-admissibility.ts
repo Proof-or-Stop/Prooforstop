@@ -354,19 +354,35 @@ function reason(code: string, subject?: string): string {
   return subject ? `${code}:${subject}` : code;
 }
 
+const TRUEISH_BOUNDARY_VALUES = new Set(['true', '1', 'yes', 'y', 'on']);
+const CLAIM_BOUNDARY_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
+const RETIRED_BOUNDARY_FIELDS = [
+  ['production', 'Done'].join(''),
+  ['authority', 'Done'].join(''),
+  ['full', 'Authority', 'Done'].join(''),
+] as const;
+
+function isUnsafeBoundaryValue(value: unknown): boolean {
+  if (value === true) return true;
+  if (typeof value !== 'string') return false;
+  return TRUEISH_BOUNDARY_VALUES.has(value.trim().toLowerCase());
+}
+
+function fieldOverclaimPattern(fields: readonly string[]): RegExp {
+  return new RegExp(String.raw`\b(?:${fields.join('|')})\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
+}
+
+const ACTIVE_FIELD_OVERCLAIM_PATTERN = fieldOverclaimPattern(CLAIM_BOUNDARY_FIELDS);
+const RETIRED_FIELD_OVERCLAIM_PATTERN = fieldOverclaimPattern(RETIRED_BOUNDARY_FIELDS);
+
 function boundaryViolation(input: PinnClaimCheckInput): boolean {
-  if (input.deploymentReadyClaim === true || input.externalCompletionClaim === true || input.terminalCompletionClaim === true || input.pdeCorrectnessClaim === true) {
-    return true;
-  }
-  const retiredFields = [
-    ['production', 'Done'].join(''),
-    ['authority', 'Done'].join(''),
-    ['full', 'Authority', 'Done'].join(''),
-  ];
   const record = input as unknown as Record<string, unknown>;
-  if (retiredFields.some((field) => record[field] === true)) return true;
+  if (CLAIM_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
+  if (RETIRED_BOUNDARY_FIELDS.some((field) => isUnsafeBoundaryValue(record[field]))) return true;
   const text = input.narrativeClaim ?? '';
-  return /\b(proves?\s+PDE\s+correctness|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|deploymentReadyClaim\s*[:=]\s*true|externalCompletionClaim\s*[:=]\s*true|pdeCorrectnessClaim\s*[:=]\s*true)\b/i.test(text);
+  return /\b(proves?\s+PDE\s+correctness|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i.test(text)
+    || ACTIVE_FIELD_OVERCLAIM_PATTERN.test(text)
+    || RETIRED_FIELD_OVERCLAIM_PATTERN.test(text);
 }
 
 function classifyNextAction(reasons: readonly string[]): PinnClaimCheckResult['nextAction'] {

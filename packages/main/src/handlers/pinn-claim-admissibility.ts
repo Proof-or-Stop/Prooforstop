@@ -80,6 +80,8 @@ const SAFE_REPORT_CLAIMS = {
   pdeCorrectnessClaim: false,
 } as const;
 
+const TRUEISH_OVERCLAIM_VALUES = new Set(['true', '1', 'yes', 'y', 'on']);
+
 function wantsJson(args: FormatArgs = {}): boolean {
   return args.json === true || args.format === 'json';
 }
@@ -98,6 +100,12 @@ function parseJsonObject(text: string, label: string): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
+function isUnsafeOverclaimValue(value: unknown): boolean {
+  if (value === true) return true;
+  if (typeof value !== 'string') return false;
+  return TRUEISH_OVERCLAIM_VALUES.has(value.trim().toLowerCase());
+}
+
 function evidenceFromArgs(args: PinnClaimCheckArgs): PinnClaimCheckInput {
   if (args.evidenceJson) return parseJsonObject(args.evidenceJson, 'evidenceJson') as unknown as PinnClaimCheckInput;
   if (args.evidencePath) return parseJsonObject(readFileSync(args.evidencePath, 'utf-8'), 'evidencePath') as unknown as PinnClaimCheckInput;
@@ -113,19 +121,26 @@ function normalizeBenchmarkReport(report: PinnBenchmarkReport, label: string): P
     : {};
   const overclaims: string[] = [];
   for (const field of REPORT_CLAIM_FIELDS) {
-    if (rawReport[field] === true || claimRecord[field] === true) overclaims.push(field);
+    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) overclaims.push(field);
   }
   for (const field of RETIRED_REPORT_CLAIM_FIELDS) {
-    if (rawReport[field] === true || claimRecord[field] === true) overclaims.push(field);
+    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) overclaims.push(field);
   }
   if (rawReport.boundary !== undefined && rawReport.boundary !== PINN_BOUNDARY_PARAGRAPH) overclaims.push('boundary');
   if (overclaims.length > 0) {
     throw new Error(`${label} refuses benchmark report overclaims: ${overclaims.join(', ')}.`);
   }
   return {
-    ...report,
+    schemaVersion: report.schemaVersion,
+    suiteStatus: report.suiteStatus,
+    generatedAt: report.generatedAt,
+    totalInjections: report.totalInjections,
+    injections: report.injections,
+    arms: report.arms,
+    a4: report.a4,
     claims: { ...SAFE_REPORT_CLAIMS },
     boundary: PINN_BOUNDARY_PARAGRAPH,
+    artifactIndex: report.artifactIndex,
   };
 }
 
