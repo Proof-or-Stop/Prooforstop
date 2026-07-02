@@ -98,9 +98,9 @@
         "runtime memory guidance changes",
         "gate evidence changes"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T17:35:57.459Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
@@ -135,7 +135,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_promotion_observe --since=14d --json",
+          "result": "pass",
+          "note": "Direct CLI JSON emitted candidateGenerated.currentCandidates, candidateConsumed.consumedCandidateCount, recommendationHandling, authority=non_authoritative, and gateEvidence=false against the real current learning store.",
+          "headHash": "87d4b5a2e2f9f20712a784be64009f9fa293f72e",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:57.713Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts relative since values such as 14d parse as relative and invalid since values throw a playbook_promotion_observe diagnostic.",
+          "headHash": "87d4b5a2e2f9f20712a784be64009f9fa293f72e",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:57.947Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts command metadata includes one host-neutral playbook_promotion_observe command, no codex-prefixed alias, readOnly command policy, destructiveRisk=none, and L0 process fact.",
+          "headHash": "87d4b5a2e2f9f20712a784be64009f9fa293f72e",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:58.164Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -196,6 +231,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implementation committed and focused smoke passed"
+    },
+    {
+      "timestamp": "2026-07-02T17:35:57.459Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "CLI registration and metadata verified"
     }
   ]
 }
