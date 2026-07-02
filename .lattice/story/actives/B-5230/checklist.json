@@ -200,8 +200,24 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "pinn-doc-005:happy",
+            "desc": "Boundary paragraph and publication posture are explicit and safe.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-005:edge",
+            "desc": "Search check confirms no PDE-correctness or production-ready overclaim in linked docs.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "pinn-doc-005:adv",
