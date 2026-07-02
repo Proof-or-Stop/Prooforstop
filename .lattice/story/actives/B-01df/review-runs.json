@@ -266,6 +266,68 @@
         "bindingHash": "f0b9f3ff3afa61d58938b3d1bae5239857df0486118360c24f8dc17e4a5a39cd"
       },
       "_hash": "a11d721be8ceb09970cad52a06b7175add51b2af33c25c14b79193952d9704b5"
+    },
+    {
+      "reviewRunId": "B-01df:RR-005",
+      "storyId": "B-01df",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-02T20:01:58.760Z",
+      "startedAt": "2026-07-02T20:02:19.907Z",
+      "headHash": "e91a856eab1c2a77a88c4142ad43e4202b507607",
+      "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+      "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "250481c2eddcd2d3d0b03851414734c22b25ce501d1ffad5bff245336c1fb2a2",
+        "diffPackHash": "e53dde3aa1f3f051658e9c5b88a8b1b7f51dc76e8cc021fd2572997bdef4f347",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/source-lineage-audit.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "007a3580ea6503cad9205339050a02b66cdb5a1e80342b6e7852baeef3a726a8",
+          "00971371b871feaca213cbaf839d9a62b5d7170418de9877dcf62b4ed1be1269",
+          "0802f3c808cd0c6aa7678b2f1f8e39e44056fbed9688efa6d52ee338d7003ba5",
+          "18ba9ead678e97716f21a855fe57d4bf5c6207e9594b4f904274917b2db5d68a",
+          "2192e4efb9785eae6e212322ada3f612bf0a86cf002cc1d9b9c2a283dd6f6aa9",
+          "320a2153fa4f77076fafaf20515a5a0bb524ff2a1717cb9a368ac38a404a5348",
+          "45261d4fa3a2ecaa0be22e3b0ba2ec6b93d77a67909bab69f9e7a509969190ce",
+          "4c9caebb805a785380325655c8fe4fff2fd732157aa0ecac78819740991065d9",
+          "6d5bd0c67e27bc3e07d3e35a1bad909eb5b11da9882e55ec867b4ecba5d17488",
+          "8c9194f431473302752735cd4608ed1e282a33599975684ec649ca504d338543",
+          "b5f8f2c37b876e9bd3a312324a3f2e6e7bbdf260038be0d0b5fe301fe7eb2c7f",
+          "b8814e37b352288173f9dbeac13b787892d84e3df821056fbe4d57183e8e4fc9",
+          "c4df9b9143ff7735297494842eb46d51d29054d86dd698a742cda6dc8927af1f",
+          "cc6fbed90512078223422a4e427fa863fade80a4260e0d2ef230b8dc06b91ab5",
+          "d3bda33b9a3c29cf3556a9847fc84ae086ecd032e4c507779ef68dc1434156e5"
+        ],
+        "bindingHash": "5de394dba23b5453194096dbc4e8a69d41c25a1e8c872f5ea7ba67ae66a8965d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-01df",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-01df",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-01df",
+        "workspaceMode": "story-worktree",
+        "headHash": "e91a856eab1c2a77a88c4142ad43e4202b507607",
+        "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+        "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+        "bindingHash": "84aaf8ce80bbcf4b065a9badc6d17931c03bbf7bb50f699f6462aa0c08fa7007"
+      },
+      "_hash": "99d1488271ee8ef707c037deb568fe2bb91c8b64702acbf422ffd09cc1dd93a8"
     }
   ]
 }
