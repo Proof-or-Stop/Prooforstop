@@ -417,7 +417,7 @@
       "desc": "stale-wording: oracleSpec comment (trap-templates.mjs lines 221-228) still describes the superseded secret-path-probe execution design as current ground truth (\"isolated probe whose output path is a SECRET in the oracle own temp dir\") — but the current ORACLE_RUNTIME uses a static node --check-gated literal read with no workspace execution; this contradicts the bf24369fd comment refresh in fixture-generator.mjs and misrepresents the current design to future readers",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T23:35:51.190Z",
@@ -428,7 +428,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "missing|mjs|stale-wording-oraclespec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "false-done trap redesigned to a JSON config value; the oracle reads it with JSON.parse (pure data, no code execution, no comment/string ambiguity). A value inside a block comment or template-string-like text is invalid JSON -> throws -> false-done; a string field is not the required number; non-JSON throws. F-020 stale oracleSpec comment rewritten. Removed node --check + execFileSync (no workspace code runs at all). 7 JSON-contract probes pinned; selfcheck 32/32 green. This is the terminal design — the entire code-evaluation forgery surface (F-006..F-021) is gone because ground truth is data, not code.",
+      "resolvedAt": "2026-07-02T23:40:39.702Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-021",
