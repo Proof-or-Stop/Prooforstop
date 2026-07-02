@@ -310,6 +310,26 @@ async function run(): Promise<void> {
     assert.equal(optimizedParity.parityPass, true);
     assert.equal(optimizedParity.authority, 'non_authoritative');
     assert.equal(optimizedParity.gateEvidence, false);
+    assert.equal(optimizedParity.resultDigestSource, 'MemoryFreshnessPack');
+    assert.equal(optimizedParity.runtimeCorpus.sourceRecordCount, generated.manifest.recordCount);
+    assert.equal(optimizedParity.runtimeCorpus.fullCorpusMaterialized, true);
+    assert.equal(
+      optimizedParity.runtimeCorpus.devMemoryRecordCount
+        + optimizedParity.runtimeCorpus.playbookRecordCount
+        + optimizedParity.runtimeCorpus.malformedRowsSkipped,
+      optimizedParity.runtimeCorpus.sourceRecordCount,
+    );
+    assert.equal(optimizedParity.indexedColdUsesRuntimeIndex, true);
+    assert.equal(
+      optimizedParity.indexedColdRuntimeIndexRecordCounts.devMemory,
+      optimizedParity.runtimeCorpus.devMemoryRecordCount,
+    );
+    assert.equal(
+      optimizedParity.indexedColdRuntimeIndexRecordCounts.playbooks,
+      optimizedParity.runtimeCorpus.playbookRecordCount,
+    );
+    assert.equal(optimizedParity.warmCacheStats.hits, optimizedParity.queryCount);
+    assert.equal(optimizedParity.warmCacheStats.entries, optimizedParity.queryCount);
     assert.match(optimizedParity.referenceResultDigest, /^[0-9a-f]{64}$/);
     assert.equal(optimizedParity.indexedColdResultDigest, optimizedParity.referenceResultDigest);
     assert.equal(optimizedParity.indexedWarmCacheResultDigest, optimizedParity.referenceResultDigest);
@@ -332,9 +352,12 @@ async function run(): Promise<void> {
       `profile=${verified.profile}`,
       `recordCount=${verified.recordCount}`,
       `fullProfileExactMillion=${verified.fullProfileExactMillion}`,
+      `resultDigestSource=${optimizedParity.resultDigestSource}`,
+      `runtimeCorpusRecords=${optimizedParity.runtimeCorpus.sourceRecordCount}`,
       `referenceFullScanMs=${optimizedParity.referenceFullScanMs}`,
       `indexedColdMs=${optimizedParity.indexedColdMs}`,
       `indexedWarmCacheMs=${optimizedParity.indexedWarmCacheMs}`,
+      `warmCacheHits=${optimizedParity.warmCacheStats.hits}`,
       `performancePolicy=${optimizedParity.performancePolicy}`,
       `elapsedMs=${verified.performance.elapsedMs}`,
       `peakRssBytes=${verified.performance.peakRssBytes}`,

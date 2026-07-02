@@ -256,6 +256,7 @@ async function run(): Promise<void> {
         'session_brief',
         'host_handoff',
         'story_create',
+        'story_advance',
         'done_prepare',
         'done_closure',
         'final_response_check',
@@ -338,14 +339,31 @@ async function run(): Promise<void> {
       assert.equal(report.parityPass, true);
       assert.equal(report.authority, 'non_authoritative');
       assert.equal(report.gateEvidence, false);
+      assert.equal(report.resultDigestSource, 'MemoryFreshnessPack');
+      assert.equal(report.runtimeCorpus.sourceRecordCount, 1_000_000);
+      assert.equal(report.runtimeCorpus.fullCorpusMaterialized, true);
+      assert.equal(
+        report.runtimeCorpus.devMemoryRecordCount
+          + report.runtimeCorpus.playbookRecordCount
+          + report.runtimeCorpus.malformedRowsSkipped,
+        report.runtimeCorpus.sourceRecordCount,
+      );
+      assert.equal(report.indexedColdUsesRuntimeIndex, true);
+      assert.equal(report.indexedColdRuntimeIndexRecordCounts.devMemory, report.runtimeCorpus.devMemoryRecordCount);
+      assert.equal(report.indexedColdRuntimeIndexRecordCounts.playbooks, report.runtimeCorpus.playbookRecordCount);
+      assert.equal(report.warmCacheStats.hits, report.queryCount);
+      assert.equal(report.warmCacheStats.entries, report.queryCount);
       assert.equal(report.indexedColdResultDigest, report.referenceResultDigest);
       assert.equal(report.indexedWarmCacheResultDigest, report.referenceResultDigest);
       console.log([
         'm6Report',
         `recordCount=${report.recordCount}`,
+        `resultDigestSource=${report.resultDigestSource}`,
+        `runtimeCorpusRecords=${report.runtimeCorpus.sourceRecordCount}`,
         `referenceFullScanMs=${report.referenceFullScanMs}`,
         `indexedColdMs=${report.indexedColdMs}`,
         `indexedWarmCacheMs=${report.indexedWarmCacheMs}`,
+        `warmCacheHits=${report.warmCacheStats.hits}`,
         `performancePolicy=${report.performancePolicy}`,
       ].join(' '));
     });

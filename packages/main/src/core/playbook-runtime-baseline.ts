@@ -1,13 +1,28 @@
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 import { resolveGlobalMemoryPath, resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from './dev-memory.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import type { Playbook, PlaybookStatus } from './experience-layer-types.js';
 import { writePlaybooks, writeSignatureRegistry, type SignatureRegistryData } from './learning-store.js';
-import { buildMemoryFreshnessPack, classifyMemoryFreshnessPack, type MemoryFreshnessClass } from './playbook-runtime-memory.js';
+import {
+  buildMemoryFreshnessPack,
+  classifyMemoryFreshnessPack,
+  type BuildMemoryFreshnessPackOptions,
+  type MemoryFreshnessClass,
+  type MemoryFreshnessPack,
+} from './playbook-runtime-memory.js';
+import {
+  clearRuntimeMemoryPackCache,
+  getRuntimeMemoryPackCacheStats,
+  type RuntimeMemoryPackCacheStats,
+} from './playbook-runtime-memory-cache.js';
+import {
+  rebuildRuntimeMemoryIndex,
+  type RuntimeMemoryIndex,
+} from './playbook-runtime-memory-index.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -184,6 +199,17 @@ export interface PlaybookRuntimeOptimizedParityReport {
   referenceResultDigest: string;
   indexedColdResultDigest: string;
   indexedWarmCacheResultDigest: string;
+  resultDigestSource: 'MemoryFreshnessPack';
+  runtimeCorpus: {
+    sourceRecordCount: number;
+    devMemoryRecordCount: number;
+    playbookRecordCount: number;
+    malformedRowsSkipped: number;
+    fullCorpusMaterialized: boolean;
+  };
+  indexedColdUsesRuntimeIndex: boolean;
+  indexedColdRuntimeIndexRecordCounts: RuntimeMemoryIndex['manifest']['recordCounts'];
+  warmCacheStats: RuntimeMemoryPackCacheStats;
   authority: 'non_authoritative';
   gateEvidence: false;
 }
@@ -447,6 +473,8 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} candidate should remain inert scanner input`,
   },
 ];
+
+const GOLD_RECORD_IDS = new Set(GOLD_RECORDS.map((record) => record.id));
 
 const BASELINE_SIGNATURE_REGISTRY: SignatureRegistryData = {
   tags: [
@@ -1084,79 +1112,166 @@ function roundedElapsed(started: number): number {
   return Math.max(0, Math.round(performance.now() - started));
 }
 
-function digestShortlists(shortlists: Map<string, Array<{ record: BaselineRecord; score: number }>>): string {
-  return digestCanonicalJson([...shortlists.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([queryId, rows]) => ({
+interface RuntimeCorpusMaterialization {
+  root: string;
+  sourceRecordCount: number;
+  devMemoryRecordCount: number;
+  playbookRecordCount: number;
+  malformedRowsSkipped: number;
+}
+
+interface RuntimePackQueryRun {
+  elapsedMs: number;
+  resultDigest: string;
+}
+
+function runtimeCorpusMemoryEntry(record: BaselineRecord): DevMemoryEntry {
+  const isGold = GOLD_RECORD_IDS.has(record.id);
+  const text = isGold && record.text.trim().length >= 10
+    ? record.text.trim()
+    : 'baseline noise row';
+  return {
+    id: record.id,
+    createdAt: BASELINE_RUNTIME_FIXED_TIME,
+    sourceAgent: 'baseline',
+    category: 'workflow',
+    scope: 'project',
+    summary: text,
+    trigger: 'base trigger',
+    lesson: 'base lesson',
+    reusePrompt: 'reuse base',
+    ...(isGold && record.supersedes ? { tags: record.supersedes.map((id) => `supersedes-${id}`) } : {}),
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  };
+}
+
+function runtimeCorpusPlaybookFromBaseline(record: BaselineRecord): Playbook {
+  const text = GOLD_RECORD_IDS.has(record.id) ? record.text : `noise playbook ${record.id}`;
+  return {
+    id: record.id,
+    title: `${record.id} baseline playbook`,
+    trigger: {
+      keywords: baselineTokens(`${record.id} ${text}`).slice(0, 20),
+      fileKinds: ['ts'],
+      storyPhases: ['DEV', 'TEST', 'DONE'],
+    },
+    check: text,
+    pitfalls: ['advisory runtime'],
+    verification: ['runtime parity'],
+    lineage: {
+      sourceStoryId: 'B-baseline',
+      sourceFindingId: 'F-baseline',
+      sourceSignature: record.id,
+    },
+    status: playbookStatusFromBaseline(record.status),
+    usage: { surfacedCount: 0, resolvedHits: 0, dismissedHits: 0 },
+  };
+}
+
+function writeRuntimeCorpusMemoryLine(fd: number, record: BaselineRecord, buffer: { value: string }): void {
+  buffer.value += `${JSON.stringify(runtimeCorpusMemoryEntry(record))}\n`;
+  if (buffer.value.length > 1_000_000) {
+    writeSync(fd, buffer.value);
+    buffer.value = '';
+  }
+}
+
+function materializeRuntimeCorpus(recordsRaw: string): RuntimeCorpusMaterialization {
+  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-corpus-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+  }, null, 2) + '\n', 'utf8');
+
+  const memoryPath = resolveProjectMemoryPath(root);
+  mkdirSync(dirname(memoryPath), { recursive: true });
+  const fd = openSync(memoryPath, 'w');
+  const buffer = { value: '' };
+  const playbooks: Playbook[] = [];
+  let sourceRecordCount = 0;
+  let devMemoryRecordCount = 0;
+  let playbookRecordCount = 0;
+  let malformedRowsSkipped = 0;
+
+  try {
+    for (const line of recordsRaw.split('\n')) {
+      if (!line) continue;
+      sourceRecordCount += 1;
+      const record = parseBaselineRecord(line);
+      if (!record) {
+        malformedRowsSkipped += 1;
+        continue;
+      }
+      if (record.kind === 'memory') {
+        writeRuntimeCorpusMemoryLine(fd, record, buffer);
+        devMemoryRecordCount += 1;
+      } else {
+        playbooks.push(runtimeCorpusPlaybookFromBaseline(record));
+        playbookRecordCount += 1;
+      }
+    }
+    if (buffer.value.length > 0) writeSync(fd, buffer.value);
+  } finally {
+    closeSync(fd);
+  }
+
+  writePlaybooks(root, playbooks);
+  writeSignatureRegistry(root, BASELINE_SIGNATURE_REGISTRY);
+  return { root, sourceRecordCount, devMemoryRecordCount, playbookRecordCount, malformedRowsSkipped };
+}
+
+function packOptionsForGoldQuery(
+  root: string,
+  query: BaselineGoldQuery,
+  overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
+): BuildMemoryFreshnessPackOptions {
+  return {
+    projectRoot: root,
+    consumer: 'session_brief',
+    query: query.query,
+    touchedPaths: ['packages/main/src/baseline.ts'],
+    storyPhase: 'TEST',
+    maxEntries: 20,
+    maxPlaybooks: 20,
+    maxLines: 60,
+    generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+    ...overrides,
+  };
+}
+
+function memoryPackResultDigest(packs: Array<{ queryId: string; pack: MemoryFreshnessPack }>): string {
+  const sorted = (values: string[]): string[] => [...new Set(values)].sort();
+  return digestCanonicalJson(packs.map(({ queryId, pack }) => ({
     queryId,
-    ids: rows.map((row) => row.record.id),
-    scores: rows.map((row) => row.score),
+    surfacedIds: sorted([...pack.results.playbookIds, ...pack.results.devMemoryEntryIds]),
+    devMemoryEntryIds: sorted(pack.results.devMemoryEntryIds),
+    playbookIds: sorted(pack.results.playbookIds),
+    suppressedSupersededIds: sorted(pack.results.suppressedSupersededIds),
+    deprecatedTermHits: sorted(pack.results.deprecatedTermHits),
+    omittedCount: pack.render.omittedCount,
+    maxLines: pack.render.maxLines,
+    freshnessClass: pack.freshness.class,
+    authority: pack.authority,
+    gateEvidence: pack.gateEvidence,
   })));
 }
 
-function buildEmptyShortlists(gold: { queries: BaselineGoldQuery[] }): Map<string, Array<{ record: BaselineRecord; score: number }>> {
-  return new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
-}
-
-function runReferenceFullScan(recordsRaw: string, gold: { queries: BaselineGoldQuery[] }): {
-  elapsedMs: number;
-  resultDigest: string;
-} {
+function runRuntimePackQueries(
+  root: string,
+  gold: { queries: BaselineGoldQuery[] },
+  overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
+): RuntimePackQueryRun {
   const started = performance.now();
-  const shortlists = buildEmptyShortlists(gold);
-  for (const line of recordsRaw.split('\n')) {
-    if (!line) continue;
-    const row = parseBaselineRecord(line);
-    if (!row) continue;
-    for (const query of gold.queries) {
-      insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
-    }
-  }
+  const packs = gold.queries.map((query) => ({
+    queryId: query.id,
+    pack: buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides)),
+  }));
   return {
     elapsedMs: roundedElapsed(started),
-    resultDigest: digestShortlists(shortlists),
-  };
-}
-
-function runIndexedColdScan(recordsRaw: string, gold: { queries: BaselineGoldQuery[] }): {
-  elapsedMs: number;
-  resultDigest: string;
-} {
-  const started = performance.now();
-  const shortlists = buildEmptyShortlists(gold);
-  const tokensByQuery = new Map(gold.queries.map((query) => [query.id, new Set(baselineTokens(query.query))]));
-  for (const line of recordsRaw.split('\n')) {
-    if (!line) continue;
-    const row = parseBaselineRecord(line);
-    if (!row) continue;
-    const haystack = `${row.id} ${row.kind} ${row.status} ${row.text}`.toLowerCase();
-    const rowTokens = new Set(baselineTokens(haystack));
-    for (const query of gold.queries) {
-      const queryTokens = tokensByQuery.get(query.id)!;
-      let candidate = false;
-      for (const token of queryTokens) {
-        if (rowTokens.has(token) || haystack.includes(token)) {
-          candidate = true;
-          break;
-        }
-      }
-      if (candidate) insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
-    }
-  }
-  return {
-    elapsedMs: roundedElapsed(started),
-    resultDigest: digestShortlists(shortlists),
-  };
-}
-
-function runIndexedWarmCache(resultDigest: string): {
-  elapsedMs: number;
-  resultDigest: string;
-} {
-  const cache = new Map<string, string>([['baseline-runtime-gold-queries', resultDigest]]);
-  const started = performance.now();
-  const cached = cache.get('baseline-runtime-gold-queries') ?? '';
-  return {
-    elapsedMs: roundedElapsed(started),
-    resultDigest: cached,
+    resultDigest: memoryPackResultDigest(packs),
   };
 }
 
@@ -1174,27 +1289,62 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
     const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
     const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
     const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: BaselineGoldQuery[] };
-    const reference = runReferenceFullScan(recordsRaw, gold);
-    const indexedCold = runIndexedColdScan(recordsRaw, gold);
-    const indexedWarm = runIndexedWarmCache(indexedCold.resultDigest);
-    const parityPass = reference.resultDigest === indexedCold.resultDigest
-      && indexedCold.resultDigest === indexedWarm.resultDigest;
-    return {
-      schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
-      profile: manifest.profile,
-      recordCount: manifest.recordCount,
-      queryCount: gold.queries.length,
-      referenceFullScanMs: reference.elapsedMs,
-      indexedColdMs: indexedCold.elapsedMs,
-      indexedWarmCacheMs: indexedWarm.elapsedMs,
-      performancePolicy: 'report-first',
-      parityPass,
-      referenceResultDigest: reference.resultDigest,
-      indexedColdResultDigest: indexedCold.resultDigest,
-      indexedWarmCacheResultDigest: indexedWarm.resultDigest,
-      authority: 'non_authoritative',
-      gateEvidence: false,
-    };
+    return withIsolatedGlobalMemory(() => {
+      const corpus = materializeRuntimeCorpus(recordsRaw);
+      try {
+        clearRuntimeMemoryPackCache();
+        const reference = runRuntimePackQueries(corpus.root, gold, { useIndex: false, useCache: false });
+        const runtimeIndex = rebuildRuntimeMemoryIndex(corpus.root, BASELINE_RUNTIME_FIXED_TIME);
+        const indexedCold = runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: false,
+        });
+        clearRuntimeMemoryPackCache();
+        runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: true,
+        });
+        const indexedWarm = runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: true,
+        });
+        const warmCacheStats = getRuntimeMemoryPackCacheStats();
+        const parityPass = reference.resultDigest === indexedCold.resultDigest
+          && indexedCold.resultDigest === indexedWarm.resultDigest;
+        return {
+          schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
+          profile: manifest.profile,
+          recordCount: manifest.recordCount,
+          queryCount: gold.queries.length,
+          referenceFullScanMs: reference.elapsedMs,
+          indexedColdMs: indexedCold.elapsedMs,
+          indexedWarmCacheMs: indexedWarm.elapsedMs,
+          performancePolicy: 'report-first',
+          parityPass,
+          referenceResultDigest: reference.resultDigest,
+          indexedColdResultDigest: indexedCold.resultDigest,
+          indexedWarmCacheResultDigest: indexedWarm.resultDigest,
+          resultDigestSource: 'MemoryFreshnessPack',
+          runtimeCorpus: {
+            sourceRecordCount: corpus.sourceRecordCount,
+            devMemoryRecordCount: corpus.devMemoryRecordCount,
+            playbookRecordCount: corpus.playbookRecordCount,
+            malformedRowsSkipped: corpus.malformedRowsSkipped,
+            fullCorpusMaterialized: corpus.sourceRecordCount === manifest.recordCount,
+          },
+          indexedColdUsesRuntimeIndex: runtimeIndex.manifest.recordCounts.devMemory === corpus.devMemoryRecordCount
+            && runtimeIndex.manifest.recordCounts.playbooks === corpus.playbookRecordCount
+            && runtimeIndex.manifest.recordCounts.signatureTags === BASELINE_SIGNATURE_REGISTRY.tags.length,
+          indexedColdRuntimeIndexRecordCounts: runtimeIndex.manifest.recordCounts,
+          warmCacheStats,
+          authority: 'non_authoritative',
+          gateEvidence: false,
+        };
+      } finally {
+        rmSync(corpus.root, { recursive: true, force: true });
+        clearRuntimeMemoryPackCache();
+      }
+    });
   } finally {
     if (generated && args.keepGenerated !== true) {
       rmSync(generated.outputDir, { recursive: true, force: true });

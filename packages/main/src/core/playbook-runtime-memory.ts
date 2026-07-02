@@ -168,6 +168,7 @@ export interface BuildMemoryFreshnessPackOptions {
   useIndex?: boolean;
   useCache?: boolean;
   runtimeIndex?: RuntimeMemoryIndex;
+  candidateLimit?: number;
 }
 
 interface PlaybookMatch {
@@ -738,6 +739,7 @@ function resolveIndexedCandidates(
     host: options.host,
     maxEntries,
     maxPlaybooks,
+    candidateLimit: options.candidateLimit,
   });
 }
 

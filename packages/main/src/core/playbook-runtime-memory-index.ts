@@ -10,6 +10,7 @@
  * - [CHK-002] Add atomic temp-build/validate/swap index rebuild semantics.
  * - [CHK-003] Provide indexed candidate selection for runtime pack parity.
  */
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -36,6 +37,7 @@ import {
 } from './learning-store.js';
 
 export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v1' as const;
+const RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP = 4096;
 
 export interface RuntimeMemoryIndexSourceDigests {
   projectDevMemoryDigest: string | null;
@@ -170,7 +172,6 @@ function playbookText(playbook: Playbook): string {
 
 function devMemoryText(entry: DevMemoryEntry): string {
   return [
-    entry.id,
     entry.summary,
     entry.trigger,
     entry.lesson,
@@ -195,7 +196,7 @@ function signatureText(entry: SignatureTagEntry): string {
 function addTokens(map: Record<string, string[]>, id: string, text: string): void {
   for (const token of tokenize(text)) {
     const list = map[token] ?? [];
-    list.push(id);
+    if (list.length < RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP) list.push(id);
     map[token] = list;
   }
 }
@@ -208,27 +209,49 @@ function normalizeIdLists(map: Record<string, string[]>): Record<string, string[
   return normalized;
 }
 
-function contentDomain(index: RuntimeMemoryIndex): object {
-  return {
-    schemaVersion: index.schemaVersion,
-    sourceDigests: index.manifest.sourceDigests,
-    devMemoryEntries: index.devMemoryEntries,
-    playbooks: index.playbooks,
-    signatureTags: index.signatureTags,
-    tokenToDevMemoryIds: index.tokenToDevMemoryIds,
-    tokenToPlaybookIds: index.tokenToPlaybookIds,
-    playbookStatusIds: index.playbookStatusIds,
-    supersededByDevMemoryIds: index.supersededByDevMemoryIds,
-  };
-}
-
 function manifestDomain(manifest: RuntimeMemoryIndexManifest): object {
   const { manifestDigest: _manifestDigest, ...domain } = manifest;
   return domain;
 }
 
+function digestSequence(items: unknown[]): string {
+  const hash = createHash('sha256');
+  hash.update('[');
+  for (let index = 0; index < items.length; index += 1) {
+    if (index > 0) hash.update(',');
+    hash.update(digestCanonicalJson(items[index]));
+  }
+  hash.update(']');
+  return hash.digest('hex');
+}
+
+function digestIdMap(map: Record<string, string[]>): string {
+  const hash = createHash('sha256');
+  hash.update('{');
+  const keys = Object.keys(map).sort();
+  for (let index = 0; index < keys.length; index += 1) {
+    const key = keys[index];
+    if (index > 0) hash.update(',');
+    hash.update(JSON.stringify(key));
+    hash.update(':');
+    hash.update(digestCanonicalJson(map[key] ?? []));
+  }
+  hash.update('}');
+  return hash.digest('hex');
+}
+
 function computeIndexVersion(index: RuntimeMemoryIndex): string {
-  return digestCanonicalJson(contentDomain(index));
+  return digestCanonicalJson({
+    schemaVersion: index.schemaVersion,
+    sourceDigests: index.manifest.sourceDigests,
+    devMemoryEntriesDigest: digestSequence(index.devMemoryEntries),
+    playbooksDigest: digestSequence(index.playbooks),
+    signatureTagsDigest: digestSequence(index.signatureTags),
+    tokenToDevMemoryIdsDigest: digestIdMap(index.tokenToDevMemoryIds),
+    tokenToPlaybookIdsDigest: digestIdMap(index.tokenToPlaybookIds),
+    playbookStatusIdsDigest: digestIdMap(index.playbookStatusIds),
+    supersededByDevMemoryIdsDigest: digestIdMap(index.supersededByDevMemoryIds),
+  });
 }
 
 function computeManifestDigest(manifest: RuntimeMemoryIndexManifest): string {
@@ -384,6 +407,14 @@ function byId<T extends { id: string }>(items: T[]): Map<string, T> {
   return new Map(items.map((item) => [item.id, item]));
 }
 
+function orderMap<T extends { id: string }>(items: T[]): Map<string, number> {
+  return new Map(items.map((item, idx) => [item.id, idx]));
+}
+
+function byCorpusOrder(ids: string[], order: Map<string, number>): string[] {
+  return ids.slice().sort((a, b) => (order.get(a) ?? Number.MAX_SAFE_INTEGER) - (order.get(b) ?? Number.MAX_SAFE_INTEGER));
+}
+
 function capFromOptions(options: RuntimeMemoryIndexCandidateOptions): number {
   return Math.max(50, Math.floor(options.candidateLimit ?? Math.max(
     (options.maxEntries ?? 5) * 40,
@@ -398,6 +429,7 @@ export function selectRuntimeMemoryIndexCandidates(
 ): RuntimeMemoryIndexCandidates {
   const candidateLimit = capFromOptions(options);
   const devById = byId(index.devMemoryEntries);
+  const devOrder = orderMap(index.devMemoryEntries);
   const playbookById = byId(index.playbooks);
   const queryTokens = tokenize(options.query ?? '');
   const devIds = queryTokens.length === 0
@@ -419,13 +451,21 @@ export function selectRuntimeMemoryIndexCandidates(
   const indexedPlaybookIds = playbookTokens.length === 0
     ? [...activeIds]
     : matchingIds(index.tokenToPlaybookIds, playbookTokens).filter((id) => activeIds.has(id));
-  const playbooks = uniqueInOrder(indexedPlaybookIds)
-    .slice(0, candidateLimit)
+  const contextCanMatchActivePlaybooks = Boolean(options.storyPhase)
+    || (options.touchedPaths?.length ?? 0) > 0;
+  const contextActiveIds = contextCanMatchActivePlaybooks
+    ? [...activeIds].sort((a, b) => a.localeCompare(b))
+    : [];
+  const playbookCandidateIds = uniqueInOrder([
+    ...indexedPlaybookIds,
+    ...contextActiveIds,
+  ]);
+  const playbooks = (contextCanMatchActivePlaybooks ? playbookCandidateIds : playbookCandidateIds.slice(0, candidateLimit))
     .map((id) => playbookById.get(id))
     .filter((item): item is Playbook => Boolean(item));
 
   return {
-    devMemoryEntries: withSuperseding
+    devMemoryEntries: byCorpusOrder(withSuperseding, devOrder)
       .map((id) => devById.get(id))
       .filter((item): item is DevMemoryEntry => Boolean(item)),
     playbooks,
