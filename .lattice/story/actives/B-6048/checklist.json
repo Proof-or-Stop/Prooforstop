@@ -41,7 +41,8 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "userSees": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false."
     },
     {
       "id": "CHK-002",
@@ -68,8 +69,8 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "session_brief and handoff consumers receive optimized indexed/cached packs with stable digest and non-authoritative metadata",
-            "type": "logic"
+            "desc": "session_brief and handoff consumers show optimized indexed/cached packs with stable digest, visible relevant lessons, and non-authoritative metadata",
+            "type": "cli"
           }
         ],
         "edge": [
@@ -87,7 +88,8 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false."
     },
     {
       "id": "CHK-003",
@@ -128,7 +130,8 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The M3-M6 smoke prints a correctness matrix where active, candidate, superseded, stale, deprecated, malformed, and line-cap cases all show PASS for reference and optimized paths."
     },
     {
       "id": "CHK-004",
@@ -169,7 +172,8 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first."
     }
   ]
 }
