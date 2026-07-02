@@ -240,7 +240,7 @@
       "desc": "CHK-003:edge:1 verificationIntent states 'increasing pd while holding the ratio (p01/p10) fixed does not increase the required pair count' (a claim about the ratio-fixed direction, where N decreases: verified - 77 pairs at ratio 3:1, pd=0.40 drops to 50 pairs at ratio 3:1, pd=0.60). However the selfcheck test labeled 'same asymmetry with more total discordance -> more pairs' exercises a DIFFERENT invariant: d fixed at 0.20, pd increases from 0.40 to 0.60 -> 77 to 116 pairs (more pairs, a correct but opposite-direction fact). The McNemar code is mathematically correct; this is a test-specification alignment gap where the selfcheck covers a valid-but-different monotonicity case than the one cited in the checklist.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:18:39.443Z",
@@ -251,7 +251,11 @@
         "experiments/experience-ablation/sample-size-selfcheck.mjs"
       ],
       "signatureTag": "edge|mjs|edge-verificationintent-states",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ratio-fixed monotonicity case added (pd 0.20 vs 0.40 at 3:1 ratio -> 155 vs 77 pairs, decreasing), alongside the existing fixed-d and fixed-pd invariants. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:34.004Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
