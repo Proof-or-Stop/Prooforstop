@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-ec3b",
+  "state": "confirmed",
+  "ledgerHash": "sha256:0e2f1f3e8ecdf4985c934770694f7cf181f186f3b454fc699ab3bf112a52d387",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-M0-PROFILING",
+      "claim": "Current full-baseline and representative hot-path runtime-pack costs are recorded as report-only non-authoritative profiling.",
+      "doneMeans": "The index smoke reports profiling metrics and existing full baseline remains manual/release correctness evidence, not a normal entrypoint path.",
+      "requiredEvidence": [
+        "build",
+        "index_smoke",
+        "baseline_report"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1-ATOMIC-INDEX",
+      "claim": "A derived runtime memory index can be rebuilt atomically from source memory/playbook files.",
+      "doneMeans": "Rebuild writes a temporary index, validates manifest/digest, atomically swaps active indexVersion, and rejects malformed temp output without exposing partial state.",
+      "requiredEvidence": [
+        "build",
+        "index_smoke",
+        "atomic_rebuild_assertions"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-M2-INDEXED-PARITY",
+      "claim": "Indexed two-stage retrieval preserves reference runtime memory semantics on small fixtures.",
+      "doneMeans": "Indexed and reference packs match required active ids, candidate exclusion, supersession suppression, deprecated-term behavior, malformed-row tolerance, freshness classes, render cap, and gateEvidence=false.",
+      "requiredEvidence": [
+        "build",
+        "index_smoke",
+        "mvp1_smoke",
+        "mvp2_smoke",
+        "baseline_small"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-02T03:01:24.088Z",
+  "updatedAt": "2026-07-02T03:01:24.296Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702030124",
+    "acceptedInterpretationHash": "sha256:7741b02522d60e7cca87e4ccf32e5c30cbc27c9501926396488d2abf88519898",
+    "acceptedAt": "2026-07-02T03:01:24.296Z"
+  }
+}

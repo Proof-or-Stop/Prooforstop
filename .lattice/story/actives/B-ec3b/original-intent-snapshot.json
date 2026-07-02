@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-ec3b",
+  "sourceText": "User approved starting development from playbook-memory-entry-layer-optimization-plan with the first slice limited to M0 Red/profiling baseline, M1 Index schema, and M2 Indexed retrieval. Do not continue design loop and do not do full rollout/enforce/cache in this first slice.",
+  "normalizedOutcome": "The first playbook memory optimization slice is implemented and verified: profiling is recorded, a derived atomic index exists, and indexed retrieval matches current runtime-pack semantics on small fixtures while memory remains advisory.",
+  "acceptanceClaim": "M0-M2 are complete when build plus the new index smoke and existing runtime-memory smokes pass, with evidence showing indexed lookup parity and gateEvidence=false.",
+  "keyRequirementIds": [
+    "REQ-M0-PROFILING",
+    "REQ-M1-ATOMIC-INDEX",
+    "REQ-M2-INDEXED-PARITY"
+  ],
+  "requestHash": "sha256:3223bc1eaf2e80660176bd948f4875e905074bbcf426762e7d05bae580d8edf7",
+  "createdAt": "2026-07-02T03:01:23.859Z",
+  "updatedAt": "2026-07-02T03:01:23.859Z"
+}
