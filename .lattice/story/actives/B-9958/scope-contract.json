@@ -1,0 +1,27 @@
+{
+  "storyId": "B-9958",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-seed.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T20:16:16.031Z",
+  "updatedAt": "2026-07-02T20:16:16.031Z"
+}

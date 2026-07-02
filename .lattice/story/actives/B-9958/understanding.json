@@ -5,6 +5,9 @@
     "B-01df already shipped read-only `source_lineage_audit --domain=learning` and version 0.3.138.",
     "The execution plan still lists M2-M8 as incomplete.",
     "Existing single-playbook commands include playbook_propose, playbook_approve, playbook_activate, outcome recording, promotion sweep, observe, and status.",
+    "`buildLearningSourceLineageAudit` is exported and already records canonicalSourceKeyVersion plus canonicalizationPolicyHash.",
+    "learning-store exports proposal, candidate, outcome, promotion-decision, non_deducible registry, and health helpers that can be reused.",
+    "Runtime playbook health already exists; runtime consumption verification can be a read-only adjacent playbook diagnostic.",
     "Learning and playbook artifacts are advisory, non-authoritative, and must not become lifecycle gate evidence.",
     "Candidates must remain inert until explicit activation or a future disabled-by-default V2 path passes safety guards."
   ],
@@ -15,11 +18,7 @@
     "Use digest guards for reviewed observe/proposal/approval sets to fail closed on drift.",
     "Keep CLI surfaces host-neutral and project-neutral where possible."
   ],
-  "unknowns": [
-    "Exact existing helper exports for playbook store and runtime memory consumption must be inspected before implementation.",
-    "Whether existing promotion status needs extension or a new helper can supply M7 readiness without broad refactor will be decided from code shape.",
-    "The final smoke scope may need to use isolated temporary stores if current project data has no real playbook records."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/handlers/playbook.ts",
     "packages/main/src/core/playbook-seed.ts",
@@ -33,5 +32,5 @@
     "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
     "docs/requirements/NAV.md"
   ],
-  "timestamp": "2026-07-02T20:14:49.177Z"
+  "timestamp": "2026-07-02T20:16:05.156Z"
 }
