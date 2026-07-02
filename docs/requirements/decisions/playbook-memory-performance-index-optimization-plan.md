@@ -53,8 +53,8 @@ Latest captured full baseline smoke after B-1c46:
 | Metric | Value |
 |---|---:|
 | Records | 1,000,000 |
-| Reference full scan | 49,347 ms |
-| Indexed cold query path | 6,972 ms |
+| Reference full scan | 39,825 ms |
+| Indexed cold query path | 6,439 ms |
 | Indexed warm/cache hot path | 1 ms |
 | Target warm latency | 2,000 ms |
 | Target status | met |
@@ -65,15 +65,16 @@ Latest captured full baseline smoke after B-1c46:
 | Malformed rows skipped | 5 |
 | Warm cache hits | 8 |
 | Cache hit rate | 0.500 |
-| Index build | 14,132 ms |
-| Warm prime | 11,270 ms |
+| Index build | 12,520 ms |
+| Warm prime | 10,873 ms |
 | p50 warm query | 0 ms |
 | p95 warm query | 0 ms |
 | Exact fast-path hits | 100 |
 | Fuzzy index hits | 126 |
 | Fuzzy fallbacks | 0 |
 | Token scan fallbacks | 0 |
-| Optimized report peak RSS | 3,845,570,560 bytes |
+| Baseline peak RSS | 1,504,083,968 bytes |
+| Optimized report peak RSS | 3,294,199,808 bytes |
 
 Latest captured performance smoke:
 
