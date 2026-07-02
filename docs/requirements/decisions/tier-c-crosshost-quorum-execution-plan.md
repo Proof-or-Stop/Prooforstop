@@ -26,14 +26,16 @@ verifies them offline). Verified against the current CLI:
      supervised-only/scaffolded — Proofbound does not auto-drive host B or collect its signed verdict.
 - **Not covered by pre-reg:** the locked `lattice-experiment-protocol.md` has H1/H2/H3 only; a
   cross-host quorum-formation hypothesis (H4) must be added by amendment.
-- **Autopilot:** M1 (checkpoint/resume) + M2 (429/network health-aware) are production; M3/M4
-  (throttle, process-pool) are gated — needed only for the powered run (M4 below), and the proven
-  `experiments/recovery-runner/powered/` scaffolding can substitute.
+- **Autopilot:** checkpoint/resume + 429/network health-aware pause/resume are production;
+  adaptive-throttle + process-pool parallelism are gated — needed only for the powered campaign
+  (Tier-C milestone M4 below), and the proven `experiments/recovery-runner/powered/` scaffolding can
+  substitute. (Autopilot's own internal milestones are named by capability here to avoid colliding
+  with this plan's M0–M5.)
 
 ## 1. What this closes and what it proves
 
 Today all evidence (Tier-A engine contract, Tier-B powered ablation) is produced on one operator's
-machine — a skeptic must trust the operator. Tier-C makes two **mutually-distrusting vendor hosts**
+machine — a skeptic must trust the operator. Tier-C makes two **independent vendor hosts**
 (Claude + Codex) each emit a **cryptographically signed** verdict on the same code, such that any
 third party can **offline-verify** both signatures and their binding to that exact code. It moves
 trust from "trust the operator" to "trust the math + two independent vendors." This is the strongest
@@ -92,7 +94,7 @@ Objective: turn the mechanism into a rate with a CI. (Do only when a strong exte
   stratified set after a host-agnosticism audit); independence definition; stop-rule.
 - Powered run: N cases × {host A, host B} × k; measure quorum-formation rate + CI, cross-vendor
   agreement rate, and the cross-vendor marginal-finding rate.
-- Reliability: autopilot M1/M2 (production) + the recovery-runner `powered/` scaffolding.
+- Reliability: autopilot checkpoint/resume + health-aware pause/resume (production) + the recovery-runner `powered/` scaffolding.
 Acceptance: a pre-registered, matched-cell rate with a Wilson/bootstrap CI, honestly reported even if
 modest or noisy.
 Risk: real spend + the rate may be unimpressive (two independent vendors can disagree) — report as-is.
