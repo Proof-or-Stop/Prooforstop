@@ -81,6 +81,18 @@ import {
   buildLearningSourceLineageAudit,
   renderSourceLineageAuditReport,
 } from '../core/source-lineage-audit.js';
+import {
+  buildPlaybookAutoPromotionApplyReport,
+  buildPlaybookCandidateBatchManifest,
+  buildPlaybookRuntimeConsumptionVerifyReport,
+  buildPlaybookSeedObservation,
+  buildPlaybookSeedProposalBatch,
+  renderPlaybookAutoPromotionApply,
+  renderPlaybookCandidateBatchManifest,
+  renderPlaybookRuntimeConsumptionVerify,
+  renderPlaybookSeedObservation,
+  renderPlaybookSeedProposalBatch,
+} from '../core/playbook-seed.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
@@ -389,6 +401,46 @@ type SourceLineageAuditArgs = {
   json?: boolean;
 };
 
+type PlaybookSeedObserveArgs = {
+  source?: string;
+  json?: boolean;
+  apply?: boolean;
+  write?: boolean;
+  execute?: boolean;
+  run?: boolean;
+};
+
+type PlaybookSeedProposeBatchArgs = {
+  source?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  observeDigest?: string;
+  json?: boolean;
+};
+
+type PlaybookCandidateBatchApproveArgs = {
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  manifestDigest?: string;
+  json?: boolean;
+};
+
+type PlaybookRuntimeConsumptionVerifyArgs = {
+  json?: boolean;
+  apply?: boolean;
+  write?: boolean;
+  execute?: boolean;
+  run?: boolean;
+};
+
+type PlaybookAutoPromotionApplyArgs = {
+  dryRun?: boolean;
+  apply?: boolean;
+  json?: boolean;
+};
+
 function envFlagEnabled(name: string): { enabled: boolean; raw: string } {
   const raw = (process.env[name] ?? '').trim();
   return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
@@ -396,6 +448,14 @@ function envFlagEnabled(name: string): { enabled: boolean; raw: string } {
 
 function normalizeOptionalBoolean(value: unknown): boolean {
   return value === true;
+}
+
+function assertReadOnlyPlaybookCommand(command: string, args: Record<string, unknown>): void {
+  for (const key of ['apply', 'write', 'execute', 'run']) {
+    if (normalizeOptionalBoolean(args[key])) {
+      throw new Error(`${command}: read-only diagnostic refuses --${key}`);
+    }
+  }
 }
 
 function nonEmptyReason(value: unknown): string {
@@ -991,6 +1051,9 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const latest = latestDecisions(decisionRows.decisions, limit);
       const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
       const settlementFlag = envFlagEnabled('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+      const autoActiveFlag = envFlagEnabled('PLAYBOOK_AUTO_ACTIVE_ENABLED');
+      const seedObservation = buildPlaybookSeedObservation({ projectRoot: ctx.root, store: ctx.store });
+      const runtimeConsumption = buildPlaybookRuntimeConsumptionVerifyReport({ projectRoot: ctx.root });
       const latestSettlement = latestDecisions([], 1); // keep status payload shape stable below.
       void latestSettlement;
 
@@ -998,20 +1061,43 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         pendingLearning,
         activeNegativeSignals,
         latestDecisions: latest,
-        nonDeducibleSources: registry.sources,
+        nonPromotableSources: registry.sources,
         settlementHealth: {
           latest: healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit),
           malformedRows: healthRows.malformedCount,
         },
         health,
+        seedPromotionReadiness: {
+          v1: {
+            observeDigest: seedObservation.observeDigest,
+            proposableSeeds: seedObservation.proposableSeeds.length,
+            blockedSeeds: seedObservation.blockingSeeds.length,
+            nonPromotableSeeds: seedObservation.nonPromotableBlocks.length,
+            alreadyRepresentedSources: seedObservation.alreadyRepresentedSources.length,
+            stagedSeedProposals: listProposals(ctx.root).filter((proposal) => proposal.seed?.canonicalSourceKey).length,
+            candidatePlaybooks: pendingLearning.length,
+            runtimeConsumptionStatus: runtimeConsumption.status,
+            runtimeDiagnostics: runtimeConsumption.diagnostics,
+          },
+          v2: {
+            autoPromotionDefaultEnabled: autoActiveFlag.enabled,
+            activationImplemented: false,
+            posture: 'disabled-by-default/fail-closed',
+          },
+        },
         featureFlags: {
           PLAYBOOK_PROMOTION_SWEEP_ENABLED: sweepFlag,
           PLAYBOOK_DONE_SETTLEMENT_ENABLED: settlementFlag,
+          PLAYBOOK_AUTO_ACTIVE_ENABLED: autoActiveFlag,
         },
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
-          nonDeducibleSources: resolveNonDeducibleSourcesPath(ctx.root),
+          nonPromotableSources: resolveNonDeducibleSourcesPath(ctx.root),
           settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
+        },
+        compatibility: {
+          legacyStorage: 'non_deducible',
+          legacyStoragePath: resolveNonDeducibleSourcesPath(ctx.root),
         },
         authority: 'non_authoritative',
         gateEvidence: false,
@@ -1024,14 +1110,19 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         'gateEvidence: false',
         `featureFlags.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${sweepFlag.enabled} (${sweepFlag.raw || 'unset'})`,
         `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'})`,
+        `featureFlags.PLAYBOOK_AUTO_ACTIVE_ENABLED: ${autoActiveFlag.enabled} (${autoActiveFlag.raw || 'unset'})`,
         `pendingLearning: ${pendingLearning.length}`,
         ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
         `activeNegativeSignals: ${activeNegativeSignals.length}`,
         ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
         `latestDecisions: ${latest.length}`,
         ...latest.map((row) => `  - ${row.decidedAt} ${row.action} ${row.playbookId} aggregateDigest=${row.aggregateDigest} applied=${row.applied}`),
-        `nonDeducibleSources: ${registry.sources.length}`,
+        `nonPromotableSources: ${registry.sources.length} (legacy storage: non_deducible)`,
         ...registry.sources.map((source) => `  - ${source.source.sourceKey} finding=${source.source.sourceFindingId} reasons=${source.reasonCodes.join(',')}`),
+        `seedPromotionReadiness.v1.proposableSeeds: ${seedObservation.proposableSeeds.length}`,
+        `seedPromotionReadiness.v1.blockedSeeds: ${seedObservation.blockingSeeds.length}`,
+        `seedPromotionReadiness.v1.runtimeConsumptionStatus: ${runtimeConsumption.status}`,
+        `seedPromotionReadiness.v2.posture: disabled-by-default/fail-closed`,
         `settlementHealth: ${healthRows.events.length}`,
         ...healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit)
           .map((event) => `  - ${event.observedAt} settlementStatus: ${event.settlementStatus ?? 'n/a'} story=${event.storyId ?? 'n/a'} ${event.message}`),
@@ -1041,6 +1132,86 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...health.warnings.map((warning) => `  - ${warning}`),
         'candidatesAreRuntimeGuidance: false',
       ].join('\n');
+    },
+
+    /**
+     * M2: read-only historical seed view built on the generic source-lineage
+     * audit. It never creates proposals/candidates/outcomes and cannot be gate
+     * evidence.
+     */
+    playbook_seed_observe(args: PlaybookSeedObserveArgs = {}): string {
+      assertReadOnlyPlaybookCommand('playbook_seed_observe', args as Record<string, unknown>);
+      const report = buildPlaybookSeedObservation({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        source: args.source,
+      });
+      return renderPlaybookSeedObservation(report, args.json);
+    },
+
+    /**
+     * M3: default dry-run batch proposal staging from deduped seed observe.
+     * Apply is digest-guarded and writes proposals only.
+     */
+    playbook_seed_propose_batch(args: PlaybookSeedProposeBatchArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_seed_propose_batch: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookSeedProposalBatch(buildPlaybookSeedProposalBatch({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        source: args.source,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+        observeDigest: args.observeDigest,
+      }), args.json);
+      if (!apply) return run();
+      return withPlaybookWriteLock(ctx, 'playbook_seed_propose_batch', run);
+    },
+
+    /**
+     * M4: default dry-run approval manifest for seed proposals. Apply requires
+     * manifest digest and converts proposals to candidate playbooks only.
+     */
+    playbook_candidate_batch_approve(args: PlaybookCandidateBatchApproveArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_candidate_batch_approve: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookCandidateBatchManifest(buildPlaybookCandidateBatchManifest({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+        manifestDigest: args.manifestDigest,
+      }), args.json);
+      if (!apply) return run();
+      return withPlaybookWriteLock(ctx, 'playbook_candidate_batch_approve', run);
+    },
+
+    /**
+     * M6: read-only diagnostic proving active playbooks surface through runtime
+     * memory while candidates remain inert pending learning.
+     */
+    playbook_runtime_consumption_verify(args: PlaybookRuntimeConsumptionVerifyArgs = {}): string {
+      assertReadOnlyPlaybookCommand('playbook_runtime_consumption_verify', args as Record<string, unknown>);
+      const report = buildPlaybookRuntimeConsumptionVerifyReport({ projectRoot: ctx.root });
+      return renderPlaybookRuntimeConsumptionVerify(report, args.json);
+    },
+
+    /**
+     * M8 guard: future V2 auto activation remains disabled-by-default and
+     * fail-closed. Dry-run explains prerequisites; apply never activates here.
+     */
+    playbook_auto_promotion_apply(args: PlaybookAutoPromotionApplyArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_auto_promotion_apply: pass either apply or dryRun, not both');
+      const report = buildPlaybookAutoPromotionApplyReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        apply,
+      });
+      return renderPlaybookAutoPromotionApply(report, args.json);
     },
 
     /**

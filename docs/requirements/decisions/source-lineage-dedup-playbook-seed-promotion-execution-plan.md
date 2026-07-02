@@ -2,9 +2,11 @@
 
 Status: execution plan
 Created: 2026-07-02
-Current implementation: B-01df implements M1 only, the read-only
-`source_lineage_audit --domain=learning` audit. Later milestones in this
-document are not implemented by B-01df unless a later story explicitly says so.
+Current implementation: B-01df implements M1, the read-only
+`source_lineage_audit --domain=learning` audit. B-9958 implements the M2-M7 V1
+seed/proposal/candidate/runtime diagnostics and exposes the M8 auto-promotion
+guard as disabled-by-default/fail-closed; it does not implement automatic
+activation.
 
 Naming note: public project naming is Proof-or-Stop. Current internal documents
 may still use Proofbound, and the current CLI binary and storage paths may still
@@ -233,8 +235,8 @@ must fail clearly.
 
 ### 8.2 `playbook_seed_observe`
 
-Future Proofbound learning-specific read-only view built on top of
-`source_lineage_audit`.
+Proofbound learning-specific read-only view built on top of
+`source_lineage_audit` (implemented by B-9958).
 
 ```bash
 lattice playbook_seed_observe --json
@@ -249,14 +251,15 @@ Reports:
 - raw findings without distilled experience;
 - duplicate seed groups;
 - seeds blocked by missing lineage;
+- finding-signal seeds blocked by insufficient support or missing valid anchors;
 - seeds blocked by `non_promotable`;
 - seeds already represented by a proposal / candidate / active playbook;
 - `observeDigest` over the reviewed seed set.
 
 ### 8.3 `playbook_seed_propose_batch`
 
-Future command for creating proposals from deduped historical seeds. Default
-must be dry-run.
+Command for creating proposals from deduped historical seeds. Default is
+dry-run (implemented by B-9958).
 
 ```bash
 lattice playbook_seed_propose_batch --dryRun --limit=20
@@ -266,6 +269,8 @@ lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --obs
 Rules:
 
 - uses the primary source selected by `playbook_seed_observe`;
+- treats finding-signal seeds as proposable only when the source-lineage audit
+  carries enough support and valid anchors; absent quality data fails closed;
 - records the seed source and canonical source key;
 - `--apply` requires `--observeDigest` from `playbook_seed_observe`;
 - `--apply` fails if the current observe digest differs from the reviewed
@@ -276,7 +281,27 @@ Rules:
 - refuses duplicate canonical sources unless the existing artifact is stale or
   archived and the command records a replacement reason.
 
-### 8.4 Promotion And Auto-Promotion
+### 8.4 `playbook_candidate_batch_approve`
+
+Command for converting staged seed proposals into candidate playbooks. Default
+is dry-run (implemented by B-9958).
+
+```bash
+lattice playbook_candidate_batch_approve --dryRun --limit=50
+lattice playbook_candidate_batch_approve --apply --manifestDigest=<digest>
+```
+
+Rules:
+
+- `--apply` requires the reviewed manifest digest;
+- duplicate `canonicalSourceKey` rows in the manifest are invalid and fail
+  closed;
+- approval re-runs source-lineage checks and rejects proposals whose canonical
+  source is already represented by another proposal, candidate, active, stale,
+  or archived playbook;
+- writes candidate playbooks only, never active playbooks or gate evidence.
+
+### 8.5 Promotion And Auto-Promotion
 
 Existing promotion commands remain part of the loop:
 
@@ -295,7 +320,8 @@ V1 behavior:
 - It may recommend activation, reject, archive, recommend demotion, or mark a
   source as `non_promotable`.
 
-V2 controlled advisory auto-promotion is future-only:
+V2 controlled advisory auto-promotion remains future-only. B-9958 exposes only
+the disabled-by-default/fail-closed guard:
 
 ```bash
 lattice playbook_auto_promotion_apply --dryRun
@@ -337,7 +363,7 @@ done_prepare / done_closure
 final_response_check
 ```
 
-Future minimum closure command:
+Minimum closure command (implemented by B-9958):
 
 ```bash
 lattice playbook_runtime_consumption_verify --json

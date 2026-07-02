@@ -153,6 +153,24 @@ export interface PlaybookTrigger {
 /** Lifecycle status of a Playbook. `active` requires explicit activation. */
 export type PlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
 
+export type PlaybookSeedSourceKind = 'dev_memory' | 'finding_signal' | 'finding';
+
+/**
+ * Additive metadata for proposals created by the historical seed batch flow.
+ * Older hand-authored proposals omit this field and remain valid. Candidate
+ * playbooks keep the existing Playbook shape; source lineage is still carried
+ * through `lineage`.
+ */
+export interface PlaybookSeedReference {
+  sourceArtifactKind: PlaybookSeedSourceKind;
+  sourceArtifactId: string;
+  sourceRef: string;
+  canonicalSourceKey: string;
+  canonicalSourceKeyVersion: string;
+  canonicalizationPolicyHash: string;
+  rawSourceKey?: string;
+}
+
 /**
  * A staged proposal: the pre-approval form of a Playbook, persisted to
  * `.lattice/learning/proposals/<id>.json`. `proposalDigest` binds the proposal
@@ -171,6 +189,7 @@ export interface PlaybookProposal {
   /** How to verify the check was honoured. */
   verification: string[];
   lineage: PlaybookLineage;
+  seed?: PlaybookSeedReference;
   /** Always `proposed` while it lives as a proposal file. */
   status: 'proposed';
   /** sha256 over the canonical proposal domain MINUS this field. */
@@ -594,6 +613,8 @@ export interface SourceLineageAuditRecord {
   sourceStoryId?: string;
   sourceFindingId?: string;
   sourceSignature?: string;
+  support?: number;
+  anchorRefs?: string[];
   lineagePresent: boolean;
   authority: SourceLineageAuthority;
   gateEvidence: false;
