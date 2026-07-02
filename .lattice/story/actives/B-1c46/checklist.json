@@ -411,7 +411,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:55:09.187Z",
+      "endTime": "2026-07-02T14:57:46.592Z",
       "userSees": "Expected transcript includes `playbook-runtime-memory performance smoke passed`, `recordCount=1000000`, `parityPass=true`, `indexedWarmCacheMs<=2000`, and `targetWarmMs=2000`.",
       "files": {
         "modify": [
@@ -453,33 +453,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "Full performance smoke passed with recordCount=1000000 parityPass=true indexedWarmCacheMs=1 targetWarmMs=2000 targetStatus=met.",
-          "headHash": "0f78b6b9a535c588095d9e04beff87232e5b698f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:09.440Z"
+          "note": "Full performance smoke passed with recordCount=1000000 semanticParity=pass parityPass=true indexedWarmCacheMs=1 targetWarmMs=2000 targetStatus=met.",
+          "headHash": "c0c0ac9325bdd5202326a010935acc8745c2690f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:46.846Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "Output reports referenceFullScanMs=52681 indexedColdMs=9977 indexedWarmCacheMs=1 p50WarmMs=0 p95WarmMs=0 peakRssBytes=3528818688 cacheHitRate=0.500 performancePolicy=report-first.",
-          "headHash": "0f78b6b9a535c588095d9e04beff87232e5b698f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:09.675Z"
+          "note": "Output reports referenceFullScanMs=38547 indexedColdMs=6825 indexedWarmCacheMs=1 p50WarmMs=0 p95WarmMs=0 peakRssBytes=3610689536 cacheHitRate=0.500 performancePolicy=report-first.",
+          "headHash": "c0c0ac9325bdd5202326a010935acc8745c2690f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:47.090Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "The smoke gates semanticGuard.pass, parityPass, non_authoritative/gateEvidence=false, and indexedWarmCacheMs<=targetWarmMs; any drift exits non-zero.",
-          "headHash": "0f78b6b9a535c588095d9e04beff87232e5b698f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:09.907Z"
+          "note": "The command exits non-zero unless semanticGuard.pass, parityPass, non_authoritative/gateEvidence=false, and indexedWarmCacheMs<=targetWarmMs all hold.",
+          "headHash": "c0c0ac9325bdd5202326a010935acc8745c2690f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:47.348Z"
         }
       ]
     },
