@@ -238,6 +238,26 @@
       ],
       "signatureTag": "spec-boundary-docs-stale-auto-active-open-question",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-7ee1:F-011",
+      "desc": "Duplicate playbook outcome idempotency keys are counted as distinct promotion evidence. appendPlaybookOutcomeEvent/playbook_outcome_record appends repeated idempotencyKey rows without rejecting or deduping them, and aggregatePlaybookPromotion counts every valid row. I reproduced a temp project with two rows using idempotencyKey=same-key plus one other helped row; aggregate returned helpedCount=3, decisiveSamples=3, contextClassCount=2, and evaluatePlaybookPromotion returned recommend_activate even though there were only two unique outcome keys. This breaks M8 aggregation/idempotency: retries or duplicate outcome submissions can satisfy activation thresholds and then playbook_auto_promotion_apply treats the duplicated rows as real outcome evidence. Count unique idempotency keys, or fail closed on duplicate outcome idempotency keys before aggregation/apply.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:15:43.517Z",
+      "reviewRound": "2026-07-02T23:10:29.584Z",
+      "reviewRunId": "B-7ee1:RR-011",
+      "_hash": "187eb7741eda913557ca9b3752e033903bf931d3afb3390f612411f85abcf64a",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "packages/main/src/core/playbook-seed.ts"
+      ],
+      "signatureTag": "edge|ts|duplicate-playbook-outcome",
+      "signatureTagSource": "auto"
     }
   ]
 }
