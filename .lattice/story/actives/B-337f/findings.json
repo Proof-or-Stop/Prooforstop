@@ -93,7 +93,7 @@
       "desc": "dead-code: MODULE_WORDS, PRODUCT_OLD, PRODUCT_NEW are defined identically in both fixture-generator.mjs (lines 66-68) and trap-templates.mjs (lines 81-83); fixture-generator.mjs uses its own local copies in contextFor() rather than importing them from trap-templates.mjs; the duplication means a future change to the word/brand lists in one file will silently diverge from the other, changing fixture content for in-store trap classes vs clean class; fix: export from trap-templates.mjs and import in fixture-generator.mjs",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:43:22.758Z",
@@ -105,7 +105,11 @@
         "experiments/experience-ablation/trap-templates.mjs:81"
       ],
       "signatureTag": "missing|mjs:66|dead-code-module",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "MODULE_WORDS/PRODUCT_OLD/PRODUCT_NEW exported solely from trap-templates.mjs and imported by the generator; local copies removed. Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:34.403Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-006",
