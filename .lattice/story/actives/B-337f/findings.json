@@ -5,7 +5,7 @@
       "desc": "oracle-false-positive: remaining-line uses line.includes(doneItem) which fires on a correct verbose answer like 'REMAINING: none (parseMeadow done)' — a plausible LLM output that mentions the completed item parenthetically; the oracle incorrectly scores it as oracleMismatch:true; fix: check if doneItem appears as a standalone token outside the 'none' branch, or require that the parsed items list (comma-split before any paren) contains the doneItem",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:42:51.778Z",
@@ -16,7 +16,11 @@
         "experiments/experience-ablation/trap-templates.mjs:407"
       ],
       "signatureTag": "edge|mjs:407|oracle-false-positive",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "remaining-line: none-as-first-token wins regardless of trailing prose; done items count only as standalone comma/semicolon list tokens; prompt clarified to prescribe REMAINING: none. Probe pinned: none-with-parenthetical no longer false-fires; standalone token still fires. Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:30.804Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-002",
