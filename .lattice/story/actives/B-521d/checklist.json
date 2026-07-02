@@ -183,9 +183,9 @@
       "excludes": [
         "automatic candidate activation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T17:36:06.251Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
@@ -219,7 +219,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed 9 checks covering empty store, candidate generation, candidate consumption, unhandled/handled recommend_activate, reject/archive/mark_non_deducible handling, invalid since, and command metadata.",
+          "headHash": "82067ff534d80d78bb5a512b8e6330a730b6f9f4",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:36:06.498Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"playbook_promotion_observe|evidence-gathering surface|does not activate|automatically promote\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "result": "pass",
+          "note": "Decision plan now states playbook_promotion_observe is an evidence-gathering surface for M7/M8 readiness and does not activate, trial-serve, schedule, or automatically promote playbooks.",
+          "headHash": "82067ff534d80d78bb5a512b8e6330a730b6f9f4",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:36:06.710Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves unexposed exposureMode=none rows and mere candidate existence do not satisfy consumed/helped evidence; hold remains non-actionable while reject/archive/mark_non_deducible are classified.",
+          "headHash": "82067ff534d80d78bb5a512b8e6330a730b6f9f4",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:36:06.930Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -240,6 +275,15 @@
       "from": "pending",
       "to": "done",
       "reason": "CLI registration and metadata verified"
+    },
+    {
+      "timestamp": "2026-07-02T17:36:06.251Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Smoke coverage and documentation boundary verified"
     }
   ]
 }
