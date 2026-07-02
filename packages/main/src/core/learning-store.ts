@@ -12,15 +12,26 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
 import type {
   FindingSignalsCache,
+  NonDeducibleOverrideEvent,
+  NonDeducibleSourceRecord,
+  NonDeducibleSourcesRegistry,
   Playbook,
+  PlaybookLineage,
   PlaybookOutcomeEvent,
+  PlaybookPromotionAggregate,
+  PlaybookPromotionConfig,
+  PlaybookPromotionDecisionAction,
+  PlaybookPromotionDecisionRow,
+  PlaybookPromotionEvaluation,
+  PlaybookPromotionHealthEvent,
   PlaybookProposal,
+  PlaybookSourceReference,
 } from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
@@ -47,6 +58,12 @@ export const SIGNATURE_REGISTRY_FILENAME = 'signature-registry.json';
 export const PLAYBOOKS_FILENAME = 'playbooks.json';
 /** B-dddd: append-only explicit playbook outcome observations. */
 export const PLAYBOOK_OUTCOMES_FILENAME = 'playbook-outcomes.jsonl';
+/** B-6241: append-only promotion sweep recommendation/decision rows. */
+export const PLAYBOOK_PROMOTION_DECISIONS_FILENAME = 'playbook-promotion-decisions.jsonl';
+/** B-6241: source experiences judged unsuitable for repeated playbook distillation. */
+export const NON_DEDUCIBLE_SOURCES_FILENAME = 'non-deducible-sources.json';
+/** B-6241: advisory learning settlement/retention/validation health log. */
+export const PLAYBOOK_PROMOTION_HEALTH_FILENAME = 'playbook-promotion-health.jsonl';
 /** B-8387: directory holding one staged proposal file per `<id>.json`. */
 export const PROPOSALS_DIRNAME = 'proposals';
 
@@ -165,6 +182,21 @@ export function resolvePlaybookOutcomesPath(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PLAYBOOK_OUTCOMES_FILENAME);
 }
 
+/** Absolute promotion decision log path under the shared learning root. */
+export function resolvePlaybookPromotionDecisionsPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOK_PROMOTION_DECISIONS_FILENAME);
+}
+
+/** Absolute non-deducible source registry path under the shared learning root. */
+export function resolveNonDeducibleSourcesPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), NON_DEDUCIBLE_SOURCES_FILENAME);
+}
+
+/** Absolute promotion settlement/health log path under the shared learning root. */
+export function resolvePlaybookPromotionHealthPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOK_PROMOTION_HEALTH_FILENAME);
+}
+
 /** Absolute proposals directory (`.lattice/learning/proposals/`) under a root. */
 export function resolveProposalsDir(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PROPOSALS_DIRNAME);
@@ -276,6 +308,44 @@ function atomicAppendCanonicalJsonLine(filePath: string, value: unknown): string
     throw err;
   }
   return filePath;
+}
+
+function safeLockName(label: string): string {
+  const safe = label.trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  return safe || 'learning-store';
+}
+
+/**
+ * Dedicated learning-store serialization. It deliberately lives under
+ * `.lattice/learning/` and does not acquire the lifecycle/main write lock.
+ */
+export function withLearningStoreLock<T>(
+  projectRoot: string,
+  label: string,
+  fn: () => T,
+  opts: { timeoutMs?: number } = {},
+): T {
+  const timeoutMs = Math.max(0, opts.timeoutMs ?? 2000);
+  const locksDir = join(resolveLearningDir(projectRoot), '.locks');
+  const lockDir = join(locksDir, `${safeLockName(label)}.lock`);
+  const started = Date.now();
+  mkdirSync(locksDir, { recursive: true });
+  for (;;) {
+    try {
+      mkdirSync(lockDir);
+      break;
+    } catch (err: any) {
+      if (err?.code !== 'EEXIST' || Date.now() - started >= timeoutMs) {
+        throw new Error(`learning-store lock is held for ${label}; retry later`);
+      }
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
+  }
 }
 
 // ── B-4f46 CHK-003: Experience Layer Phase 1b — signature-registry ────────────
@@ -874,4 +944,777 @@ export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookO
   const validated = validatePlaybookOutcomeEvent(event);
   if (!validated.ok) throw new Error(`appendPlaybookOutcomeEvent: ${validated.error}`);
   return atomicAppendCanonicalJsonLine(resolvePlaybookOutcomesPath(projectRoot), validated.event);
+}
+
+// ── B-6241 M3-M6: promotion worker learning metadata ────────────────────────
+
+const PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION = 'proofbound.playbook-promotion-decision.v1';
+const NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION = 'proofbound.non-deducible-sources.v1';
+const PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION = 'proofbound.playbook-promotion-health.v1';
+const NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION = 'proofbound.non-deducible-source.v1';
+
+const PLAYBOOK_PROMOTION_ACTIONS = new Set([
+  'recommend_activate',
+  'reject',
+  'hold',
+  'archive',
+  'recommend_demote',
+  'mark_non_deducible',
+]);
+
+const PLAYBOOK_PROMOTION_HEALTH_KINDS = new Set(['done-settlement', 'retention', 'validation']);
+const PLAYBOOK_PROMOTION_SETTLEMENT_STATUSES = new Set(['disabled', 'recorded', 'failed']);
+
+export const DEFAULT_PLAYBOOK_PROMOTION_CONFIG: PlaybookPromotionConfig = {
+  minDecisiveSamples: 3,
+  minHelpedCount: 2,
+  minContextClasses: 2,
+  maxDismissalRate: 0.30,
+  maxHarmfulCount: 0,
+  maxWrongClaimCount: 0,
+  nonDeducibleRejectedSiblingThreshold: 3,
+  retentionMaxBytes: 5 * 1024 * 1024,
+};
+
+function promotionConfig(config: Partial<PlaybookPromotionConfig> = {}): PlaybookPromotionConfig {
+  return { ...DEFAULT_PLAYBOOK_PROMOTION_CONFIG, ...config };
+}
+
+function stringSet(values: Iterable<string>): string[] {
+  const out = new Set<string>();
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (trimmed) out.add(trimmed);
+  }
+  return [...out].sort();
+}
+
+export function buildPlaybookSourceReference(lineage: PlaybookLineage): PlaybookSourceReference {
+  const sourceStoryId = lineage.sourceStoryId.trim();
+  const sourceFindingId = lineage.sourceFindingId.trim();
+  const sourceSignature = lineage.sourceSignature?.trim() || undefined;
+  const digest = digestCanonicalJson({ sourceFindingId, sourceSignature, sourceStoryId }).slice(0, 16);
+  return {
+    sourceKey: `PBSRC-${digest}`,
+    sourceStoryId,
+    sourceFindingId,
+    ...(sourceSignature ? { sourceSignature } : {}),
+  };
+}
+
+export function computeNonDeducibleOverrideReasonDigest(reason: string): string {
+  return digestCanonicalJson({ nonDeducibleOverrideReason: reason.trim() });
+}
+
+function contextClass(event: PlaybookOutcomeEvent): string {
+  return digestCanonicalJson({
+    fileKinds: stringSet(event.context.fileKinds),
+    host: event.context.host ?? '',
+    hostCapabilityId: event.context.hostCapabilityId ?? '',
+    hostProvider: event.context.hostProvider ?? '',
+    triggerClasses: stringSet(event.context.triggerClasses),
+  }).slice(0, 16);
+}
+
+function aggregateDigestDomain(aggregate: Omit<PlaybookPromotionAggregate, 'aggregateDigest'>): unknown {
+  return aggregate;
+}
+
+function countRejectedSiblings(
+  sourceKey: string,
+  playbookId: string,
+  decisions: PlaybookPromotionDecisionRow[],
+): number {
+  const siblings = new Set<string>();
+  for (const row of decisions) {
+    if (!row.applied) continue;
+    if (row.action !== 'reject') continue;
+    if (row.playbookId === playbookId) continue;
+    if (row.before.sourceKey !== sourceKey) continue;
+    siblings.add(row.playbookId);
+  }
+  return siblings.size;
+}
+
+export function aggregatePlaybookPromotion(
+  playbook: Playbook,
+  events: PlaybookOutcomeEvent[],
+  priorDecisions: PlaybookPromotionDecisionRow[] = [],
+): PlaybookPromotionAggregate {
+  const source = buildPlaybookSourceReference(playbook.lineage);
+  const relevant = events.filter((event) => event.playbookId === playbook.id);
+  let helpedCount = 0;
+  let dismissedCount = 0;
+  let harmfulCount = 0;
+  let wrongClaimCount = 0;
+  let neutralCount = 0;
+  let unknownCount = 0;
+  const decisiveContextClasses = new Set<string>();
+
+  for (const event of relevant) {
+    if (event.outcome.causedWrongClaim) wrongClaimCount += 1;
+    if (event.outcome.verdict === 'helped' && isPositiveHelpedPlaybookOutcome(event)) {
+      helpedCount += 1;
+      decisiveContextClasses.add(contextClass(event));
+    } else if (event.outcome.verdict === 'dismissed') {
+      dismissedCount += 1;
+      decisiveContextClasses.add(contextClass(event));
+    } else if (event.outcome.verdict === 'harmful') {
+      harmfulCount += 1;
+      decisiveContextClasses.add(contextClass(event));
+    } else if (event.outcome.verdict === 'neutral') {
+      neutralCount += 1;
+    } else {
+      unknownCount += 1;
+    }
+  }
+
+  const decisiveSamples = helpedCount + dismissedCount + harmfulCount;
+  const domain: Omit<PlaybookPromotionAggregate, 'aggregateDigest'> = {
+    playbookId: playbook.id,
+    status: playbook.status,
+    decisiveSamples,
+    helpedCount,
+    dismissedCount,
+    harmfulCount,
+    wrongClaimCount,
+    neutralCount,
+    unknownCount,
+    contextClassCount: decisiveContextClasses.size,
+    sourceRejectedSiblingCount: countRejectedSiblings(source.sourceKey, playbook.id, priorDecisions),
+    source,
+  };
+  return {
+    ...domain,
+    aggregateDigest: digestCanonicalJson(aggregateDigestDomain(domain)),
+  };
+}
+
+export function evaluatePlaybookPromotion(
+  aggregate: PlaybookPromotionAggregate,
+  partialConfig: Partial<PlaybookPromotionConfig> = {},
+): PlaybookPromotionEvaluation {
+  const config = promotionConfig(partialConfig);
+  const reasonCodes: string[] = [];
+  const dismissalRate = aggregate.decisiveSamples > 0 ? aggregate.dismissedCount / aggregate.decisiveSamples : 0;
+
+  if (aggregate.sourceRejectedSiblingCount >= config.nonDeducibleRejectedSiblingThreshold) {
+    return {
+      action: 'mark_non_deducible',
+      reasonCodes: ['source_rejected_sibling_threshold'],
+    };
+  }
+
+  if (aggregate.status === 'stale') {
+    return {
+      action: 'archive',
+      reasonCodes: ['playbook_status_stale'],
+    };
+  }
+
+  if (aggregate.status === 'active') {
+    if (aggregate.harmfulCount > config.maxHarmfulCount || aggregate.wrongClaimCount > config.maxWrongClaimCount) {
+      return {
+        action: 'recommend_demote',
+        reasonCodes: [
+          ...(aggregate.harmfulCount > config.maxHarmfulCount ? ['harmful_outcome_present'] : []),
+          ...(aggregate.wrongClaimCount > config.maxWrongClaimCount ? ['wrong_claim_present'] : []),
+        ],
+      };
+    }
+    if (aggregate.decisiveSamples >= config.minDecisiveSamples && dismissalRate > config.maxDismissalRate) {
+      return {
+        action: 'recommend_demote',
+        reasonCodes: ['dismissal_rate_exceeded'],
+      };
+    }
+    return {
+      action: 'hold',
+      reasonCodes: ['active_no_negative_threshold'],
+    };
+  }
+
+  if (aggregate.status !== 'candidate') {
+    return {
+      action: 'hold',
+      reasonCodes: [`status_${aggregate.status}_not_evaluated`],
+    };
+  }
+
+  if (aggregate.harmfulCount > config.maxHarmfulCount || aggregate.wrongClaimCount > config.maxWrongClaimCount) {
+    return {
+      action: 'reject',
+      reasonCodes: [
+        ...(aggregate.harmfulCount > config.maxHarmfulCount ? ['harmful_outcome_present'] : []),
+        ...(aggregate.wrongClaimCount > config.maxWrongClaimCount ? ['wrong_claim_present'] : []),
+      ],
+    };
+  }
+
+  if (aggregate.decisiveSamples >= config.minDecisiveSamples && dismissalRate > config.maxDismissalRate) {
+    return {
+      action: 'reject',
+      reasonCodes: ['dismissal_rate_exceeded'],
+    };
+  }
+
+  if (aggregate.decisiveSamples < config.minDecisiveSamples) reasonCodes.push('insufficient_decisive_samples');
+  if (aggregate.helpedCount < config.minHelpedCount) reasonCodes.push('insufficient_helped_count');
+  if (aggregate.contextClassCount < config.minContextClasses) reasonCodes.push('insufficient_context_diversity');
+  if (reasonCodes.length > 0) {
+    return { action: 'hold', reasonCodes };
+  }
+
+  return {
+    action: 'recommend_activate',
+    reasonCodes: ['activation_threshold_met'],
+  };
+}
+
+export function readPlaybookOutcomeEventsWithDiagnostics(projectRoot: string): {
+  events: PlaybookOutcomeEvent[];
+  malformedCount: number;
+} {
+  const filePath = resolvePlaybookOutcomesPath(projectRoot);
+  if (!existsSync(filePath)) return { events: [], malformedCount: 0 };
+  const events: PlaybookOutcomeEvent[] = [];
+  let malformedCount = 0;
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookOutcomeEvent(JSON.parse(line));
+      if (validated.ok) events.push(validated.event);
+      else malformedCount += 1;
+    } catch {
+      malformedCount += 1;
+    }
+  }
+  return { events, malformedCount };
+}
+
+function ownNumber(value: Record<string, unknown>, key: string): number | null {
+  const raw = own(value, key);
+  return isNonNegativeNumber(raw) ? raw : null;
+}
+
+function validateSourceReference(raw: unknown, label: string): { ok: true; source: PlaybookSourceReference } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: `${label} must be an object` };
+  const sourceKey = ownString(raw, 'sourceKey');
+  const sourceStoryId = ownString(raw, 'sourceStoryId');
+  const sourceFindingId = ownString(raw, 'sourceFindingId');
+  if (!sourceKey) return { ok: false, error: `${label}.sourceKey must be a non-empty string` };
+  if (!sourceStoryId) return { ok: false, error: `${label}.sourceStoryId must be a non-empty string` };
+  if (!sourceFindingId) return { ok: false, error: `${label}.sourceFindingId must be a non-empty string` };
+  const sourceSignature = optionalOwnString(raw, 'sourceSignature');
+  if (sourceSignature === '') return { ok: false, error: `${label}.sourceSignature must be non-empty when present` };
+  return {
+    ok: true,
+    source: {
+      sourceKey,
+      sourceStoryId,
+      sourceFindingId,
+      ...(sourceSignature ? { sourceSignature } : {}),
+    },
+  };
+}
+
+function validatePromotionAggregate(raw: unknown): { ok: true; aggregate: PlaybookPromotionAggregate } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'aggregate must be an object' };
+  const playbookId = ownString(raw, 'playbookId');
+  if (!playbookId) return { ok: false, error: 'aggregate.playbookId must be a non-empty string' };
+  const status = ownString(raw, 'status');
+  if (!PLAYBOOK_STATUSES.has(status)) return { ok: false, error: 'aggregate.status must be a valid playbook status' };
+  const source = validateSourceReference(own(raw, 'source'), 'aggregate.source');
+  if (!source.ok) return source;
+  const fields = [
+    'decisiveSamples',
+    'helpedCount',
+    'dismissedCount',
+    'harmfulCount',
+    'wrongClaimCount',
+    'neutralCount',
+    'unknownCount',
+    'contextClassCount',
+    'sourceRejectedSiblingCount',
+  ];
+  const numbers: Record<string, number> = {};
+  for (const field of fields) {
+    const value = ownNumber(raw, field);
+    if (value === null) return { ok: false, error: `aggregate.${field} must be a non-negative number` };
+    numbers[field] = value;
+  }
+  const aggregateDigest = ownString(raw, 'aggregateDigest');
+  if (!aggregateDigest) return { ok: false, error: 'aggregate.aggregateDigest must be a non-empty string' };
+  const aggregate: PlaybookPromotionAggregate = {
+    playbookId,
+    status: status as PlaybookPromotionAggregate['status'],
+    decisiveSamples: numbers.decisiveSamples,
+    helpedCount: numbers.helpedCount,
+    dismissedCount: numbers.dismissedCount,
+    harmfulCount: numbers.harmfulCount,
+    wrongClaimCount: numbers.wrongClaimCount,
+    neutralCount: numbers.neutralCount,
+    unknownCount: numbers.unknownCount,
+    contextClassCount: numbers.contextClassCount,
+    sourceRejectedSiblingCount: numbers.sourceRejectedSiblingCount,
+    source: source.source,
+    aggregateDigest,
+  };
+  const { aggregateDigest: _aggregateDigest, ...domain } = aggregate;
+  if (digestCanonicalJson(domain) !== aggregateDigest) {
+    return { ok: false, error: 'aggregate.aggregateDigest is stale or inconsistent' };
+  }
+  return { ok: true, aggregate };
+}
+
+export function validatePlaybookPromotionDecisionRow(raw: unknown): { ok: true; decision: PlaybookPromotionDecisionRow } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'decision row must be an object' };
+  if (ownString(raw, 'schemaVersion') !== PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION}` };
+  }
+  const decisionId = ownString(raw, 'decisionId');
+  const idempotencyKey = ownString(raw, 'idempotencyKey');
+  const decidedAt = ownString(raw, 'decidedAt');
+  const playbookId = ownString(raw, 'playbookId');
+  const evaluatedStatus = ownString(raw, 'evaluatedStatus');
+  const action = ownString(raw, 'action');
+  const aggregateDigest = ownString(raw, 'aggregateDigest');
+  if (!decisionId) return { ok: false, error: 'decisionId must be a non-empty string' };
+  if (!idempotencyKey) return { ok: false, error: 'idempotencyKey must be a non-empty string' };
+  const decidedAtError = validateIsoTimestamp(decidedAt, 'decidedAt');
+  if (decidedAtError) return { ok: false, error: decidedAtError };
+  if (!playbookId) return { ok: false, error: 'playbookId must be a non-empty string' };
+  if (!PLAYBOOK_STATUSES.has(evaluatedStatus)) return { ok: false, error: 'evaluatedStatus must be a valid playbook status' };
+  if (!PLAYBOOK_PROMOTION_ACTIONS.has(action)) return { ok: false, error: 'action must be a valid promotion decision' };
+  const reasonCodes = ownStringArray(raw, 'reasonCodes');
+  if (!reasonCodes || reasonCodes.length === 0) return { ok: false, error: 'reasonCodes must be a non-empty string array' };
+  const aggregate = validatePromotionAggregate(own(raw, 'aggregate'));
+  if (!aggregate.ok) return aggregate;
+  if (aggregate.aggregate.aggregateDigest !== aggregateDigest) return { ok: false, error: 'aggregateDigest must match aggregate.aggregateDigest' };
+
+  const before = own(raw, 'before');
+  if (!isRecord(before)) return { ok: false, error: 'before must be an object' };
+  const beforeStatus = ownString(before, 'playbookStatus');
+  const beforeDigest = ownString(before, 'playbookDigest');
+  const beforeSourceKey = ownString(before, 'sourceKey');
+  if (!PLAYBOOK_STATUSES.has(beforeStatus)) return { ok: false, error: 'before.playbookStatus must be valid' };
+  if (!beforeDigest) return { ok: false, error: 'before.playbookDigest must be non-empty' };
+  if (!beforeSourceKey) return { ok: false, error: 'before.sourceKey must be non-empty' };
+
+  const after = own(raw, 'after');
+  if (!isRecord(after)) return { ok: false, error: 'after must be an object' };
+  const afterStatus = ownString(after, 'playbookStatus');
+  const recommendation = ownString(after, 'recommendation');
+  if (!PLAYBOOK_STATUSES.has(afterStatus)) return { ok: false, error: 'after.playbookStatus must be valid' };
+  if (!PLAYBOOK_PROMOTION_ACTIONS.has(recommendation)) return { ok: false, error: 'after.recommendation must be a valid promotion decision' };
+  const nonDeducibleSourceKey = optionalOwnString(after, 'nonDeducibleSourceKey');
+  if (nonDeducibleSourceKey === '') return { ok: false, error: 'after.nonDeducibleSourceKey must be non-empty when present' };
+
+  if (ownString(raw, 'workerVersion') !== 'playbook-promotion-worker-v1') {
+    return { ok: false, error: 'workerVersion must be playbook-promotion-worker-v1' };
+  }
+  const dryRun = ownBoolean(raw, 'dryRun');
+  if (dryRun === null) return { ok: false, error: 'dryRun must be a boolean' };
+  const applied = ownBoolean(raw, 'applied');
+  if (applied === null) return { ok: false, error: 'applied must be a boolean' };
+  const alreadyApplied = ownBoolean(raw, 'alreadyApplied');
+  if (alreadyApplied === null) return { ok: false, error: 'alreadyApplied must be a boolean' };
+  if (ownString(raw, 'authority') !== 'non_authoritative') return { ok: false, error: 'authority must be non_authoritative' };
+  if (own(raw, 'gateEvidence') !== false) return { ok: false, error: 'gateEvidence must be false' };
+
+  return {
+    ok: true,
+    decision: {
+      schemaVersion: PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION,
+      decisionId,
+      idempotencyKey,
+      decidedAt,
+      playbookId,
+      evaluatedStatus: evaluatedStatus as PlaybookPromotionDecisionRow['evaluatedStatus'],
+      action: action as PlaybookPromotionDecisionAction,
+      reasonCodes,
+      aggregateDigest,
+      aggregate: aggregate.aggregate,
+      before: {
+        playbookStatus: beforeStatus as PlaybookPromotionDecisionRow['before']['playbookStatus'],
+        playbookDigest: beforeDigest,
+        sourceKey: beforeSourceKey,
+      },
+      after: {
+        playbookStatus: afterStatus as PlaybookPromotionDecisionRow['after']['playbookStatus'],
+        recommendation: recommendation as PlaybookPromotionDecisionAction,
+        ...(nonDeducibleSourceKey ? { nonDeducibleSourceKey } : {}),
+      },
+      workerVersion: 'playbook-promotion-worker-v1',
+      dryRun,
+      applied,
+      alreadyApplied,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    },
+  };
+}
+
+export function readPlaybookPromotionDecisionRows(projectRoot: string): {
+  decisions: PlaybookPromotionDecisionRow[];
+  malformedCount: number;
+} {
+  const filePath = resolvePlaybookPromotionDecisionsPath(projectRoot);
+  if (!existsSync(filePath)) return { decisions: [], malformedCount: 0 };
+  const decisions: PlaybookPromotionDecisionRow[] = [];
+  let malformedCount = 0;
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookPromotionDecisionRow(JSON.parse(line));
+      if (validated.ok) decisions.push(validated.decision);
+      else malformedCount += 1;
+    } catch {
+      malformedCount += 1;
+    }
+  }
+  return { decisions, malformedCount };
+}
+
+export function readPlaybookPromotionDecisions(projectRoot: string): PlaybookPromotionDecisionRow[] {
+  return readPlaybookPromotionDecisionRows(projectRoot).decisions;
+}
+
+export function appendPlaybookPromotionDecision(projectRoot: string, decision: PlaybookPromotionDecisionRow): string {
+  const validated = validatePlaybookPromotionDecisionRow(decision);
+  if (!validated.ok) throw new Error(`appendPlaybookPromotionDecision: ${validated.error}`);
+  return atomicAppendCanonicalJsonLine(resolvePlaybookPromotionDecisionsPath(projectRoot), validated.decision);
+}
+
+export function hasAppliedPlaybookPromotionDecision(projectRoot: string, idempotencyKey: string): boolean {
+  return readPlaybookPromotionDecisions(projectRoot).some((row) => row.applied && row.idempotencyKey === idempotencyKey);
+}
+
+function emptyNonDeducibleRegistry(now = new Date().toISOString()): NonDeducibleSourcesRegistry {
+  return {
+    schemaVersion: NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION,
+    updatedAt: now,
+    sources: [],
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function validateOverrideEvent(raw: unknown): { ok: true; event: NonDeducibleOverrideEvent } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'override event must be an object' };
+  const overrideId = ownString(raw, 'overrideId');
+  const acceptedAt = ownString(raw, 'acceptedAt');
+  const sourceKey = ownString(raw, 'sourceKey');
+  const sourceFindingId = ownString(raw, 'sourceFindingId');
+  const reasonDigest = ownString(raw, 'reasonDigest');
+  const reasonLength = ownNumber(raw, 'reasonLength');
+  if (!overrideId) return { ok: false, error: 'overrideId must be non-empty' };
+  const acceptedAtError = validateIsoTimestamp(acceptedAt, 'acceptedAt');
+  if (acceptedAtError) return { ok: false, error: acceptedAtError };
+  if (!sourceKey) return { ok: false, error: 'override sourceKey must be non-empty' };
+  if (!sourceFindingId) return { ok: false, error: 'override sourceFindingId must be non-empty' };
+  if (!reasonDigest) return { ok: false, error: 'override reasonDigest must be non-empty' };
+  if (reasonLength === null) return { ok: false, error: 'override reasonLength must be non-negative number' };
+  const proposalId = optionalOwnString(raw, 'proposalId');
+  if (proposalId === '') return { ok: false, error: 'override proposalId must be non-empty when present' };
+  return {
+    ok: true,
+    event: {
+      overrideId,
+      acceptedAt,
+      sourceKey,
+      sourceFindingId,
+      reasonDigest,
+      reasonLength,
+      ...(proposalId ? { proposalId } : {}),
+    },
+  };
+}
+
+function validateNonDeducibleRecord(raw: unknown): { ok: true; record: NonDeducibleSourceRecord } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'source record must be an object' };
+  if (ownString(raw, 'schemaVersion') !== NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION) {
+    return { ok: false, error: `source record schemaVersion must be ${NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION}` };
+  }
+  const source = validateSourceReference(own(raw, 'source'), 'source');
+  if (!source.ok) return source;
+  const markedAt = ownString(raw, 'markedAt');
+  const markedAtError = validateIsoTimestamp(markedAt, 'markedAt');
+  if (markedAtError) return { ok: false, error: markedAtError };
+  const reasonCodes = ownStringArray(raw, 'reasonCodes');
+  if (!reasonCodes || reasonCodes.length === 0) return { ok: false, error: 'reasonCodes must be a non-empty string array' };
+  const reason = ownString(raw, 'reason');
+  if (!reason) return { ok: false, error: 'reason must be non-empty' };
+  const sourceRejectedSiblingCount = ownNumber(raw, 'sourceRejectedSiblingCount');
+  if (sourceRejectedSiblingCount === null) return { ok: false, error: 'sourceRejectedSiblingCount must be non-negative' };
+  const aggregateDigest = optionalOwnString(raw, 'aggregateDigest');
+  if (aggregateDigest === '') return { ok: false, error: 'aggregateDigest must be non-empty when present' };
+  const latestDecisionId = optionalOwnString(raw, 'latestDecisionId');
+  if (latestDecisionId === '') return { ok: false, error: 'latestDecisionId must be non-empty when present' };
+  const overridesRaw = own(raw, 'overrideEvents');
+  if (!Array.isArray(overridesRaw)) return { ok: false, error: 'overrideEvents must be an array' };
+  const overrideEvents: NonDeducibleOverrideEvent[] = [];
+  for (const entry of overridesRaw) {
+    const validated = validateOverrideEvent(entry);
+    if (!validated.ok) return validated;
+    overrideEvents.push(validated.event);
+  }
+  if (ownString(raw, 'authority') !== 'non_authoritative') return { ok: false, error: 'source authority must be non_authoritative' };
+  if (own(raw, 'gateEvidence') !== false) return { ok: false, error: 'source gateEvidence must be false' };
+  return {
+    ok: true,
+    record: {
+      schemaVersion: NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION,
+      source: source.source,
+      markedAt,
+      reasonCodes,
+      reason,
+      sourceRejectedSiblingCount,
+      ...(aggregateDigest ? { aggregateDigest } : {}),
+      ...(latestDecisionId ? { latestDecisionId } : {}),
+      overrideEvents,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    },
+  };
+}
+
+export function validateNonDeducibleSourcesRegistry(raw: unknown): { ok: true; registry: NonDeducibleSourcesRegistry } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'non-deducible registry must be an object' };
+  if (ownString(raw, 'schemaVersion') !== NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION}` };
+  }
+  const updatedAt = ownString(raw, 'updatedAt');
+  const updatedAtError = validateIsoTimestamp(updatedAt, 'updatedAt');
+  if (updatedAtError) return { ok: false, error: updatedAtError };
+  const sourcesRaw = own(raw, 'sources');
+  if (!Array.isArray(sourcesRaw)) return { ok: false, error: 'sources must be an array' };
+  const sources: NonDeducibleSourceRecord[] = [];
+  for (const source of sourcesRaw) {
+    const validated = validateNonDeducibleRecord(source);
+    if (!validated.ok) return validated;
+    sources.push(validated.record);
+  }
+  if (ownString(raw, 'authority') !== 'non_authoritative') return { ok: false, error: 'authority must be non_authoritative' };
+  if (own(raw, 'gateEvidence') !== false) return { ok: false, error: 'gateEvidence must be false' };
+  return {
+    ok: true,
+    registry: {
+      schemaVersion: NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION,
+      updatedAt,
+      sources,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    },
+  };
+}
+
+export function readNonDeducibleSourcesRegistry(projectRoot: string): NonDeducibleSourcesRegistry {
+  const filePath = resolveNonDeducibleSourcesPath(projectRoot);
+  if (!existsSync(filePath)) return emptyNonDeducibleRegistry();
+  try {
+    const validated = validateNonDeducibleSourcesRegistry(JSON.parse(readFileSync(filePath, 'utf8')));
+    return validated.ok ? validated.registry : emptyNonDeducibleRegistry();
+  } catch {
+    return emptyNonDeducibleRegistry();
+  }
+}
+
+export function writeNonDeducibleSourcesRegistry(projectRoot: string, registry: NonDeducibleSourcesRegistry): string {
+  const validated = validateNonDeducibleSourcesRegistry(registry);
+  if (!validated.ok) throw new Error(`writeNonDeducibleSourcesRegistry: ${validated.error}`);
+  return atomicWriteJson(resolveNonDeducibleSourcesPath(projectRoot), validated.registry);
+}
+
+export function findNonDeducibleSource(projectRoot: string, sourceKey: string): NonDeducibleSourceRecord | undefined {
+  return readNonDeducibleSourcesRegistry(projectRoot).sources.find((source) => source.source.sourceKey === sourceKey);
+}
+
+export function markNonDeducibleSource(
+  projectRoot: string,
+  input: {
+    source: PlaybookSourceReference;
+    reasonCodes: string[];
+    reason: string;
+    sourceRejectedSiblingCount: number;
+    aggregateDigest?: string;
+    latestDecisionId?: string;
+    markedAt?: string;
+  },
+): NonDeducibleSourceRecord {
+  const now = input.markedAt ?? new Date().toISOString();
+  const registry = readNonDeducibleSourcesRegistry(projectRoot);
+  const existing = registry.sources.find((source) => source.source.sourceKey === input.source.sourceKey);
+  if (existing) {
+    existing.reasonCodes = stringSet([...existing.reasonCodes, ...input.reasonCodes]);
+    existing.reason = input.reason || existing.reason;
+    existing.sourceRejectedSiblingCount = Math.max(existing.sourceRejectedSiblingCount, input.sourceRejectedSiblingCount);
+    if (input.aggregateDigest) existing.aggregateDigest = input.aggregateDigest;
+    if (input.latestDecisionId) existing.latestDecisionId = input.latestDecisionId;
+    registry.updatedAt = now;
+    writeNonDeducibleSourcesRegistry(projectRoot, registry);
+    return existing;
+  }
+  const record: NonDeducibleSourceRecord = {
+    schemaVersion: NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION,
+    source: input.source,
+    markedAt: now,
+    reasonCodes: stringSet(input.reasonCodes),
+    reason: input.reason,
+    sourceRejectedSiblingCount: input.sourceRejectedSiblingCount,
+    ...(input.aggregateDigest ? { aggregateDigest: input.aggregateDigest } : {}),
+    ...(input.latestDecisionId ? { latestDecisionId: input.latestDecisionId } : {}),
+    overrideEvents: [],
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+  registry.sources.push(record);
+  registry.sources.sort((a, b) => a.source.sourceKey.localeCompare(b.source.sourceKey));
+  registry.updatedAt = now;
+  writeNonDeducibleSourcesRegistry(projectRoot, registry);
+  return record;
+}
+
+export function recordNonDeducibleOverride(
+  projectRoot: string,
+  sourceKey: string,
+  event: NonDeducibleOverrideEvent,
+): NonDeducibleSourceRecord {
+  const registry = readNonDeducibleSourcesRegistry(projectRoot);
+  const record = registry.sources.find((source) => source.source.sourceKey === sourceKey);
+  if (!record) throw new Error(`recordNonDeducibleOverride: source is not marked non_deducible: ${sourceKey}`);
+  const validated = validateOverrideEvent(event);
+  if (!validated.ok) throw new Error(`recordNonDeducibleOverride: ${validated.error}`);
+  if (!record.overrideEvents.some((existing) => existing.overrideId === event.overrideId)) {
+    record.overrideEvents.push(validated.event);
+    registry.updatedAt = event.acceptedAt;
+    writeNonDeducibleSourcesRegistry(projectRoot, registry);
+  }
+  return record;
+}
+
+export function validatePlaybookPromotionHealthEvent(raw: unknown): { ok: true; event: PlaybookPromotionHealthEvent } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'health event must be an object' };
+  if (ownString(raw, 'schemaVersion') !== PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION}` };
+  }
+  const eventId = ownString(raw, 'eventId');
+  const idempotencyKey = ownString(raw, 'idempotencyKey');
+  const observedAt = ownString(raw, 'observedAt');
+  const kind = ownString(raw, 'kind');
+  const message = ownString(raw, 'message');
+  if (!eventId) return { ok: false, error: 'eventId must be non-empty' };
+  if (!idempotencyKey) return { ok: false, error: 'idempotencyKey must be non-empty' };
+  const observedAtError = validateIsoTimestamp(observedAt, 'observedAt');
+  if (observedAtError) return { ok: false, error: observedAtError };
+  if (!PLAYBOOK_PROMOTION_HEALTH_KINDS.has(kind)) return { ok: false, error: 'kind must be a valid promotion health kind' };
+  const settlementStatus = optionalOwnString(raw, 'settlementStatus');
+  if (settlementStatus !== undefined && !PLAYBOOK_PROMOTION_SETTLEMENT_STATUSES.has(settlementStatus)) {
+    return { ok: false, error: 'settlementStatus must be disabled|recorded|failed when present' };
+  }
+  const storyId = optionalOwnString(raw, 'storyId');
+  if (storyId === '') return { ok: false, error: 'storyId must be non-empty when present' };
+  if (!message) return { ok: false, error: 'message must be non-empty' };
+  if (ownString(raw, 'authority') !== 'non_authoritative') return { ok: false, error: 'authority must be non_authoritative' };
+  if (own(raw, 'gateEvidence') !== false) return { ok: false, error: 'gateEvidence must be false' };
+  return {
+    ok: true,
+    event: {
+      schemaVersion: PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION,
+      eventId,
+      idempotencyKey,
+      observedAt,
+      kind: kind as PlaybookPromotionHealthEvent['kind'],
+      ...(settlementStatus ? { settlementStatus: settlementStatus as PlaybookPromotionHealthEvent['settlementStatus'] } : {}),
+      ...(storyId ? { storyId } : {}),
+      message,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    },
+  };
+}
+
+export function readPlaybookPromotionHealthEvents(projectRoot: string): {
+  events: PlaybookPromotionHealthEvent[];
+  malformedCount: number;
+} {
+  const filePath = resolvePlaybookPromotionHealthPath(projectRoot);
+  if (!existsSync(filePath)) return { events: [], malformedCount: 0 };
+  const events: PlaybookPromotionHealthEvent[] = [];
+  let malformedCount = 0;
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookPromotionHealthEvent(JSON.parse(line));
+      if (validated.ok) events.push(validated.event);
+      else malformedCount += 1;
+    } catch {
+      malformedCount += 1;
+    }
+  }
+  return { events, malformedCount };
+}
+
+export function appendPlaybookPromotionHealthEvent(projectRoot: string, event: PlaybookPromotionHealthEvent): {
+  path: string;
+  alreadyApplied: boolean;
+} {
+  const validated = validatePlaybookPromotionHealthEvent(event);
+  if (!validated.ok) throw new Error(`appendPlaybookPromotionHealthEvent: ${validated.error}`);
+  const prior = readPlaybookPromotionHealthEvents(projectRoot).events;
+  if (prior.some((row) => row.idempotencyKey === event.idempotencyKey)) {
+    return { path: resolvePlaybookPromotionHealthPath(projectRoot), alreadyApplied: true };
+  }
+  return {
+    path: atomicAppendCanonicalJsonLine(resolvePlaybookPromotionHealthPath(projectRoot), validated.event),
+    alreadyApplied: false,
+  };
+}
+
+function fileSize(path: string): number {
+  try {
+    return existsSync(path) ? statSync(path).size : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function collectPlaybookPromotionLearningHealth(
+  projectRoot: string,
+  partialConfig: Partial<PlaybookPromotionConfig> = {},
+): {
+  warnings: string[];
+  malformedOutcomeRows: number;
+  malformedDecisionRows: number;
+  malformedHealthRows: number;
+  retentionWarnings: string[];
+} {
+  const config = promotionConfig(partialConfig);
+  const outcomes = readPlaybookOutcomeEventsWithDiagnostics(projectRoot);
+  const decisions = readPlaybookPromotionDecisionRows(projectRoot);
+  const health = readPlaybookPromotionHealthEvents(projectRoot);
+  const retentionWarnings: string[] = [];
+  for (const [label, path] of [
+    ['playbook-outcomes', resolvePlaybookOutcomesPath(projectRoot)],
+    ['playbook-promotion-decisions', resolvePlaybookPromotionDecisionsPath(projectRoot)],
+    ['playbook-promotion-health', resolvePlaybookPromotionHealthPath(projectRoot)],
+  ] as const) {
+    const size = fileSize(path);
+    if (size > config.retentionMaxBytes) {
+      retentionWarnings.push(`${label} exceeds retentionMaxBytes (${size} > ${config.retentionMaxBytes})`);
+    }
+  }
+  const warnings = [
+    outcomes.malformedCount > 0 ? `malformed outcome rows skipped: ${outcomes.malformedCount}` : '',
+    decisions.malformedCount > 0 ? `malformed decision rows skipped: ${decisions.malformedCount}` : '',
+    health.malformedCount > 0 ? `malformed health rows skipped: ${health.malformedCount}` : '',
+    ...retentionWarnings,
+  ].filter(Boolean);
+  return {
+    warnings,
+    malformedOutcomeRows: outcomes.malformedCount,
+    malformedDecisionRows: decisions.malformedCount,
+    malformedHealthRows: health.malformedCount,
+    retentionWarnings,
+  };
 }

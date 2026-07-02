@@ -7,9 +7,124 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-v1-aggregation-and-evaluator"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T03:47:06.639Z",
+      "endTime": "2026-07-02T03:59:31.636Z",
+      "userSees": "Smoke output includes \"recommend_activate\", \"reject\", \"hold\", \"archive\", \"recommend_demote\", and \"mark_non_deducible\" decision lines.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-001:happy:0 candidate with enough helped decisive samples and context diversity returns recommend_activate with aggregate digest and reason codes.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:happy:1 repeated rejected sibling decisions for a source returns mark_non_deducible and can persist registry metadata.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-001:edge:0 neutral and unknown rows keep decisiveSamples at zero and evaluator returns hold, not recommend_activate.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:edge:1 learning artifacts under .lattice/learning remain material-hash excluded runtime artifacts.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-001:adversarial:0 harmful or causedWrongClaim evidence prevents activation recommendation even when helped samples exist.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:adversarial:1 malformed or prototype-polluted decision/outcome rows fail closed through own-property validation.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers recommend_activate with helped decisive samples, context diversity, aggregateDigest, and reason codes.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers rejected sibling decisions producing mark_non_deducible and persisted registry metadata.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers neutral and unknown rows leaving decisiveSamples at zero and returning hold.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts .lattice/learning remains material-hash excluded via runtime artifact registry prefix.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers harmful and causedWrongClaim evidence preventing activation recommendation.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers inherited/prototype-polluted decision and outcome rows failing closed.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +133,123 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-commands"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:59:41.194Z",
+      "userSees": "CLI output includes \"dryRun: true\", \"applied: false\", and repeated apply reports \"alreadyApplied\" without activating candidates.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-002:happy:0 dry-run evaluates candidate and active playbooks and prints decisions while writing no decision rows or status mutations.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:happy:1 apply with PLAYBOOK_PROMOTION_SWEEP_ENABLED=1 writes one applied decision row per idempotency key and preserves unrelated playbooks.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-002:edge:0 repeated apply with the same aggregate digest appends no duplicate applied decision row.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:edge:1 apply fails closed when the feature flag is absent/malformed/off while dry-run remains available.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-002:adversarial:0 recommend_activate decision records recommendation only and does not call playbook_activate or set status active.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-002:adversarial:1 sweep cannot create or mutate review, validation, delivery, or DONE evidence artifacts.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers dry-run evaluation output while decision row count and story snapshot remain unchanged.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers apply with PLAYBOOK_PROMOTION_SWEEP_ENABLED=1 writing one decision row per idempotency key.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers repeated apply reporting alreadyApplied without duplicate rows.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers apply fail-closed when feature flag is absent while dry-run remains available.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts recommend_activate remains a recommendation and candidate status never becomes active.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke snapshots story files before/after dry-run/apply to verify no lifecycle evidence mutation.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +258,123 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#13-4-non-deducible"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:59:49.791Z",
+      "userSees": "playbook_propose prints \"source is marked non_deducible\" unless override output includes \"override accepted\" with the reason digest.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-003:happy:0 unmarked source signature keeps existing playbook_propose behavior and creates a proposal.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:happy:1 marked source with explicit override flag and sufficient reason succeeds and leaves audit-visible override metadata.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-003:edge:0 marked source without override refuses before writing a proposal and points at the non-deducible record.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:edge:1 override flag without a useful reason rejects as unauditable.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-003:adversarial:0 malformed inherited fields cannot bypass the non-deducible registry lookup.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:adversarial:1 source signature includes stable source identifiers so unrelated source material is not blocked by collision.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers unmarked source preserving existing playbook_propose proposal creation.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers explicit override with sufficient reason and audit-visible reason digest/override event.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers marked source refusing before writing another proposal.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers override flag with too-short reason rejecting as unauditable.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers non-deducible registry lookup before proposal write plus own-property fail-closed validation.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts source keys derive from stable sourceStoryId/sourceFindingId/sourceSignature identifiers.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -40,9 +383,122 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#8-done-trigger-contract"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T03:59:58.930Z",
+      "userSees": "DONE/health output includes \"settlementStatus: disabled|recorded|failed\" and never changes the DONE result.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-004:happy:0 after the DONE durable proof point, post-DONE settlement records a learning settlement health row after proof, not before.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:happy:1 done_recover or repeated DONE effects reuse a stable idempotency key and do not duplicate settlement records.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-004:edge:0 when settlement flag is disabled, DONE still succeeds and promotion status shows disabled/no-op state.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:edge:1 malformed learning store data records visible settlement failure health without blocking DONE.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-004:adversarial:0 DONE success without explicit playbook exposure cannot create candidate helped outcome.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:adversarial:1 settlement uses learning-only write path and cannot mutate story phase, checklist, review, validation, delivery, or DONE evidence.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers enabled post-DONE settlement writing a learning health row.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers repeated settlement using stable story idempotency and reporting alreadyApplied.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers disabled flag returning disabled and writing no health row.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke/status covers malformed learning rows reported as advisory health without lifecycle failure.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts DONE settlement creates no candidate helped outcome from DONE success alone.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Implementation releases lifecycle main lock before settlement; smoke verifies learning-only health/outcome behavior.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -51,9 +507,123 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-3-playbook-promotion-status"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T04:00:07.937Z",
+      "userSees": "playbook_promotion_status output includes \"pendingLearning\", \"latestDecisions\", \"nonDeducibleSources\", and \"gateEvidence: false\".",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-005:happy:0 status after candidates, decisions, and non-deducible records exist shows pending-learning candidates, latest decisions, registry, health, and feature flags.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:happy:1 active playbook with harmful or dismissed signals is highlighted as negative/demotion posture.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-005:edge:0 status with no candidates or decisions succeeds with zero counts and clear disabled feature flag state.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:edge:1 retention warnings or malformed skipped rows are reported as advisory health without failing lifecycle commands.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-005:adversarial:0 candidate inspected through status does not appear in active runtime memory pack fields or active guidance section.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-005:adversarial:1 rejected archived and non-deducible records remain visible for audit but never render as active runtime guidance.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers status rendering pendingLearning, latestDecisions, nonDeducibleSources, health, and feature flags.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers active playbook harmful/wrong-claim signal highlighted as activeNegativeSignals/recommend_demote.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Status handler supports empty stores and disabled flag rendering; smoke exercises temp-store status paths.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers malformed skipped decision rows reported as advisory health warnings.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts candidatesAreRuntimeGuidance:false and labels candidates pending learning.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers rejected/archived/non-deducible audit rows visible without rendering as active runtime guidance.",
+          "headHash": "922ffa3b33d1fc969f861f04ac45a1f55ff727a9",
+          "materialHash": "b615fc3188eb8f2175e581139274a525220e7fc1eb21c9ca006dd15933857fd3",
+          "storyFilesHash": "a75b912c2943b605d124881cd35556e2b8b09546c26bc0202182ba9417683852",
+          "timestamp": "2026-07-02T04:15:39.082Z"
+        }
+      ]
     }
   ]
 }

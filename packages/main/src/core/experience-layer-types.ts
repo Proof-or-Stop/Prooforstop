@@ -259,6 +259,139 @@ export interface PlaybookOutcomeEvent {
   gateEvidence: false;
 }
 
+// ── B-6241: playbook promotion worker V1 metadata ───────────────────────────
+//
+// These rows are local learning metadata under `.lattice/learning/`. They are
+// explicitly non-authoritative and must never be consumed as lifecycle evidence.
+
+export type PlaybookPromotionDecisionSchemaVersion = 'proofbound.playbook-promotion-decision.v1';
+export type NonDeducibleSourceSchemaVersion = 'proofbound.non-deducible-sources.v1';
+export type PlaybookPromotionHealthSchemaVersion = 'proofbound.playbook-promotion-health.v1';
+
+export type PlaybookPromotionDecisionAction =
+  | 'recommend_activate'
+  | 'reject'
+  | 'hold'
+  | 'archive'
+  | 'recommend_demote'
+  | 'mark_non_deducible';
+
+export interface PlaybookSourceReference {
+  sourceKey: string;
+  sourceStoryId: string;
+  sourceFindingId: string;
+  sourceSignature?: string;
+}
+
+export interface PlaybookPromotionAggregate {
+  playbookId: string;
+  status: PlaybookStatus;
+  decisiveSamples: number;
+  helpedCount: number;
+  dismissedCount: number;
+  harmfulCount: number;
+  wrongClaimCount: number;
+  neutralCount: number;
+  unknownCount: number;
+  contextClassCount: number;
+  sourceRejectedSiblingCount: number;
+  source: PlaybookSourceReference;
+  aggregateDigest: string;
+}
+
+export interface PlaybookPromotionConfig {
+  minDecisiveSamples: number;
+  minHelpedCount: number;
+  minContextClasses: number;
+  maxDismissalRate: number;
+  maxHarmfulCount: number;
+  maxWrongClaimCount: number;
+  nonDeducibleRejectedSiblingThreshold: number;
+  retentionMaxBytes: number;
+}
+
+export interface PlaybookPromotionEvaluation {
+  action: PlaybookPromotionDecisionAction;
+  reasonCodes: string[];
+}
+
+export interface PlaybookPromotionDecisionRow {
+  schemaVersion: PlaybookPromotionDecisionSchemaVersion;
+  decisionId: string;
+  idempotencyKey: string;
+  decidedAt: string;
+  playbookId: string;
+  evaluatedStatus: PlaybookStatus;
+  action: PlaybookPromotionDecisionAction;
+  reasonCodes: string[];
+  aggregateDigest: string;
+  aggregate: PlaybookPromotionAggregate;
+  before: {
+    playbookStatus: PlaybookStatus;
+    playbookDigest: string;
+    sourceKey: string;
+  };
+  after: {
+    playbookStatus: PlaybookStatus;
+    recommendation: PlaybookPromotionDecisionAction;
+    nonDeducibleSourceKey?: string;
+  };
+  workerVersion: 'playbook-promotion-worker-v1';
+  dryRun: boolean;
+  applied: boolean;
+  alreadyApplied: boolean;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export interface NonDeducibleOverrideEvent {
+  overrideId: string;
+  acceptedAt: string;
+  sourceKey: string;
+  sourceFindingId: string;
+  reasonDigest: string;
+  reasonLength: number;
+  proposalId?: string;
+}
+
+export interface NonDeducibleSourceRecord {
+  schemaVersion: 'proofbound.non-deducible-source.v1';
+  source: PlaybookSourceReference;
+  markedAt: string;
+  reasonCodes: string[];
+  reason: string;
+  sourceRejectedSiblingCount: number;
+  aggregateDigest?: string;
+  latestDecisionId?: string;
+  overrideEvents: NonDeducibleOverrideEvent[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export interface NonDeducibleSourcesRegistry {
+  schemaVersion: NonDeducibleSourceSchemaVersion;
+  updatedAt: string;
+  sources: NonDeducibleSourceRecord[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export type PlaybookPromotionHealthKind = 'done-settlement' | 'retention' | 'validation';
+export type PlaybookPromotionSettlementStatus = 'disabled' | 'recorded' | 'failed';
+
+export interface PlaybookPromotionHealthEvent {
+  schemaVersion: PlaybookPromotionHealthSchemaVersion;
+  eventId: string;
+  idempotencyKey: string;
+  observedAt: string;
+  kind: PlaybookPromotionHealthKind;
+  settlementStatus?: PlaybookPromotionSettlementStatus;
+  storyId?: string;
+  message: string;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 // ── B-7561 (Experience Layer Phase 3): Story Recall — structured-field similarity ──
 //
 // The FINAL slice distils each story's existing metadata (read through the

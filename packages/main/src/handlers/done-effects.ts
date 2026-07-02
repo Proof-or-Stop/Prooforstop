@@ -42,6 +42,7 @@
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
+import { randomUUID } from 'crypto';
 import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
@@ -58,6 +59,7 @@ import {
 } from '../core/auxiliary-worktree-cleanup.js';
 import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
 import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
+import { appendPlaybookPromotionHealthEvent, withLearningStoreLock } from '../core/learning-store.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -215,6 +217,65 @@ export function runDoneMainPackageBuildAfterMerge(
     `Recovery: ${DONE_MAIN_BUILD_COMMAND}\n` +
     `Captured output:\n${captured}`,
   );
+}
+
+export type PostDoneLearningSettlementResult = {
+  settlementStatus: 'disabled' | 'recorded' | 'failed';
+  alreadyApplied: boolean;
+  message: string;
+};
+
+function enabledEnvFlag(name: string): { enabled: boolean; raw: string } {
+  const raw = (process.env[name] ?? '').trim();
+  return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
+}
+
+/**
+ * Best-effort learning settlement after durable DONE effects. This is explicitly
+ * learning-only: no story phase/checklist/review/validation/DONE evidence paths
+ * are read or written, and the caller runs it after releasing the lifecycle main
+ * write lock. DONE success never depends on this helper.
+ */
+export function runPostDoneLearningSettlement(projectRoot: string, storyId: string): PostDoneLearningSettlementResult {
+  const flag = enabledEnvFlag('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+  if (!flag.enabled) {
+    return {
+      settlementStatus: 'disabled',
+      alreadyApplied: false,
+      message: 'PLAYBOOK_DONE_SETTLEMENT_ENABLED is disabled; no learning settlement row written',
+    };
+  }
+
+  try {
+    return withLearningStoreLock(projectRoot, 'playbook-done-settlement', () => {
+      const observedAt = new Date().toISOString();
+      const result = appendPlaybookPromotionHealthEvent(projectRoot, {
+        schemaVersion: 'proofbound.playbook-promotion-health.v1',
+        eventId: `PBH-${randomUUID()}`,
+        idempotencyKey: `post-done-learning-settlement:${storyId}`,
+        observedAt,
+        kind: 'done-settlement',
+        settlementStatus: 'recorded',
+        storyId,
+        message: 'DONE proof/effects completed; settlement recorded no helped outcome from DONE success alone',
+        authority: 'non_authoritative',
+        gateEvidence: false,
+      });
+      return {
+        settlementStatus: 'recorded',
+        alreadyApplied: result.alreadyApplied,
+        message: result.alreadyApplied
+          ? 'learning settlement already recorded for this story'
+          : 'learning settlement health row recorded; no candidate helped outcome inferred',
+      };
+    }, { timeoutMs: 2000 });
+  } catch (e: any) {
+    return {
+      settlementStatus: 'failed',
+      alreadyApplied: false,
+      message: `learning settlement failed non-blocking: ${e?.message || e}`,
+    };
+  }
 }
 
 type DoneWorktreeContext = {
@@ -681,9 +742,10 @@ export async function applyDoneMergeEffects(
   store: StoryStore,
   story: StoryInfo,
   renderedChecklist: string | undefined,
-): Promise<{ doneChecklistPrefix: string; doneMergeReport: string }> {
+): Promise<{ doneChecklistPrefix: string; doneMergeReport: string; mainMergeRoot?: string }> {
   let doneChecklistPrefix = '';
   let doneMergeReport = '';
+  let resolvedMainMergeRoot: string | undefined;
   if (renderedChecklist) {
     doneChecklistPrefix = `${renderedChecklist}\n\n`;
   }
@@ -711,6 +773,7 @@ export async function applyDoneMergeEffects(
     const { branch, mainRepoRoot, worktreeRoot: wtPathAbs } = doneWorktree;
     assertDoneStoryBranchMatches(storyId, branch);
     const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, mainRepoRoot);
+    resolvedMainMergeRoot = mainMergeRoot;
     {
       const runGitArgs = (gitArgs: string[], cwd: string): string =>
         execFileSync('git', gitArgs, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
@@ -955,5 +1018,5 @@ export async function applyDoneMergeEffects(
     }
   }
 
-  return { doneChecklistPrefix, doneMergeReport };
+  return { doneChecklistPrefix, doneMergeReport, mainMergeRoot: resolvedMainMergeRoot };
 }

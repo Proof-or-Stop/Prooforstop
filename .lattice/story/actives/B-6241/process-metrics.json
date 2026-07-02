@@ -1,0 +1,360 @@
+{
+  "storyId": "B-6241",
+  "generatedAt": "2026-07-02T04:21:47.561Z",
+  "sourceSnapshot": {
+    "hasUnderstanding": true,
+    "hasDecision": true,
+    "hasPlan": true,
+    "checklistItems": 5,
+    "reviewRounds": 2,
+    "findings": 0,
+    "bugs": 0,
+    "testRuns": 0,
+    "hasEvalEvidence": false,
+    "hasSummary": true
+  },
+  "dimensions": {
+    "tdd": {
+      "effective": {
+        "value": null,
+        "unit": "bool",
+        "confidence": "unknown",
+        "sources": [
+          "findings.json",
+          "bug.json",
+          "test-runs.json"
+        ]
+      },
+      "metrics": {
+        "findingCoverageRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "findings.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "bugFixWithReproEvidenceRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "bug.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "validateFailBeforePass": {
+          "value": null,
+          "unit": "bool",
+          "confidence": "unknown",
+          "sources": [
+            "test-runs.json"
+          ],
+          "note": "no test runs"
+        },
+        "postPassBugCount": {
+          "value": null,
+          "unit": "count",
+          "confidence": "unknown",
+          "sources": [
+            "test-runs.json",
+            "bug.json"
+          ],
+          "note": "no PASS run yet"
+        }
+      }
+    },
+    "requirementCompleteness": {
+      "effective": {
+        "value": false,
+        "unit": "bool",
+        "confidence": "high",
+        "sources": [
+          "understanding.json",
+          "decision.json",
+          "checklist.json",
+          "plan.md",
+          "review.json",
+          "findings.json"
+        ]
+      },
+      "metrics": {
+        "planArtifactsPresent": {
+          "value": true,
+          "unit": "bool",
+          "confidence": "high",
+          "sources": [
+            "understanding.json",
+            "decision.json",
+            "checklist.json",
+            "plan.md"
+          ]
+        },
+        "initialStoryReviewBlockers": {
+          "value": 1,
+          "unit": "count",
+          "confidence": "high",
+          "sources": [
+            "review.json"
+          ]
+        },
+        "missingFindingCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "high",
+          "sources": [
+            "findings.json"
+          ]
+        },
+        "replanCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "high",
+          "sources": [
+            "index.json"
+          ]
+        },
+        "postDevChecklistChurn": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        }
+      }
+    },
+    "debugging": {
+      "effective": {
+        "value": "n/a",
+        "unit": "text",
+        "confidence": "high",
+        "sources": [
+          "bug.json"
+        ],
+        "note": "no bugs reported"
+      },
+      "metrics": {
+        "bugsWithEvidenceRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "bug.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "bugsWithHypothesisRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "bug.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "bugsWithReproTestRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "bug.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "avgFixTimeHours": {
+          "value": null,
+          "unit": "hours",
+          "confidence": "unknown",
+          "sources": [
+            "bug.json"
+          ],
+          "note": "no data (0 denominator)"
+        },
+        "reopenCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "low",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        }
+      }
+    },
+    "planning": {
+      "effective": {
+        "value": false,
+        "unit": "bool",
+        "confidence": "high",
+        "sources": [
+          "plan.md",
+          "checklist.json"
+        ]
+      },
+      "metrics": {
+        "hasPlanArtifact": {
+          "value": true,
+          "unit": "bool",
+          "confidence": "high",
+          "sources": [
+            "plan.md"
+          ]
+        },
+        "planCoverageRatio": {
+          "value": 0,
+          "unit": "ratio",
+          "confidence": "high",
+          "sources": [
+            "plan.md",
+            "checklist.json"
+          ]
+        },
+        "itemsWithVerifyRatio": {
+          "value": null,
+          "unit": "ratio",
+          "confidence": "unknown",
+          "sources": [
+            "plan.md"
+          ],
+          "note": "no CHK sections in plan"
+        },
+        "devToPlanBounceCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "high",
+          "sources": [
+            "index.json"
+          ]
+        },
+        "blockedTaskCount": {
+          "value": 2,
+          "unit": "count",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        }
+      }
+    },
+    "subagentCollaboration": {
+      "effective": {
+        "value": "n/a",
+        "unit": "text",
+        "confidence": "high",
+        "sources": [
+          "checklist.json",
+          "index.json"
+        ],
+        "note": "fast channel — main agent allowed to write code itself"
+      },
+      "metrics": {
+        "normalChannelUsesSubagent": {
+          "value": "n/a",
+          "unit": "text",
+          "confidence": "high",
+          "sources": [
+            "checklist.json",
+            "index.json"
+          ],
+          "note": "fast channel — main agent allowed to write code itself"
+        },
+        "reviewerIndependence": {
+          "value": false,
+          "unit": "bool",
+          "confidence": "high",
+          "sources": [
+            "findings.json"
+          ]
+        },
+        "mainAgentCodeViolation": {
+          "value": false,
+          "unit": "bool",
+          "confidence": "high",
+          "sources": [
+            "checklist.json"
+          ],
+          "note": "fast channel — main agent allowed to write code itself — no violation possible"
+        },
+        "parallelBatchCount": {
+          "value": 1,
+          "unit": "count",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        },
+        "blockedReturnCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        }
+      },
+      "gaps": [
+        "accurate subagent detection requires git commit author data or process-events.jsonl"
+      ]
+    },
+    "reviewDiscipline": {
+      "effective": {
+        "value": true,
+        "unit": "bool",
+        "confidence": "high",
+        "sources": [
+          "review.json",
+          "findings.json"
+        ]
+      },
+      "metrics": {
+        "storyReviewRounds": {
+          "value": 2,
+          "unit": "count",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl",
+            "review.json"
+          ]
+        },
+        "formalFindingCount": {
+          "value": 0,
+          "unit": "count",
+          "confidence": "high",
+          "sources": [
+            "findings.json"
+          ]
+        },
+        "criticalResolvedBeforeTest": {
+          "value": true,
+          "unit": "bool",
+          "confidence": "high",
+          "sources": [
+            "findings.json"
+          ]
+        },
+        "testFailAfterReview": {
+          "value": null,
+          "unit": "bool",
+          "confidence": "unknown",
+          "sources": [
+            "review.json",
+            "test-runs.json"
+          ],
+          "note": "no test runs"
+        },
+        "reviewAfterEachBatch": {
+          "value": false,
+          "unit": "bool",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
+        }
+      }
+    }
+  },
+  "overallGaps": [
+    "accurate subagent detection requires git commit author data or process-events.jsonl"
+  ]
+}

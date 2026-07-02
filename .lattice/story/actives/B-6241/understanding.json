@@ -1,0 +1,33 @@
+{
+  "task": "Complete the remaining V1 playbook promotion worker loop from the execution plan after the outcome-ledger foundation.",
+  "outcome": "Operators can run dry-run/apply promotion sweeps and status inspection, see auditable recommendations/rejections/non-deducible markings, and DONE settlement is best-effort learning-only without auto-activating candidates or changing lifecycle proof gates.",
+  "facts": [
+    "B-dddd already delivered the playbook outcome ledger and explicit outcome recording command.",
+    "The execution plan says V1 closes the assessment loop, not the automatic activation loop.",
+    "Candidate playbooks must remain pending learning material and must not become active runtime memory guidance.",
+    "DONE success alone must never count as candidate helped without explicit exposure and structured verdict.",
+    "The canonical worktree is proofbound; B-ec3b owns runtime-memory-index paths and this story should avoid them."
+  ],
+  "constraints": [
+    "Do not add automatic candidate-to-active mutation, timer daemon, matched-control trial serving, or lifecycle gate dependence in V1.",
+    "Use host-neutral Proofbound CLI commands and learning-store artifacts rather than Codex-specific behavior.",
+    "Only fix the real correctness gap described by the plan; avoid arbitrary optimization or broad refactors.",
+    "Learning worker outputs are advisory/learning evidence, not proof evidence consumed by DONE gates.",
+    "Keep non-deducible override explicit and auditable."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+  ],
+  "timestamp": "2026-07-02T03:40:27.093Z"
+}
