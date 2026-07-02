@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "M0 Scope and policy lock",
       "context": "Finalize scope boundaries, non-goals, and baseline fairness rules for PINN claim control.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T16:39:06.213Z",
-      "endTime": null,
+      "endTime": "2026-07-02T16:39:29.814Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
         ".lattice/story/actives/B-2769/scope-boundary.json",
@@ -51,7 +51,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "chk-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Scope, boundaries, and excluded keyword policy are explicit in the document sections, including current-status and no-code status notes.",
+          "headHash": "538d8acdfc126193c577548ade0bb69478c6f276",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:29.955Z"
+        },
+        {
+          "intentRef": "chk-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Scope lock includes a non-goal block and keeps excluded capabilities out of the plan language.",
+          "headHash": "538d8acdfc126193c577548ade0bb69478c6f276",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:30.078Z"
+        },
+        {
+          "intentRef": "chk-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"PDE correctness|production correctness|production-ready|production\" docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Plan wording now avoids PDE/production authority claims; only claim-readiness language remains.",
+          "headHash": "538d8acdfc126193c577548ade0bb69478c6f276",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:30.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
