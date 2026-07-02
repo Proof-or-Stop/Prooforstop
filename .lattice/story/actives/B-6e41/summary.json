@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6e41",
+  "changes": "Added a generic ClaimAdmissibilityPack TypeScript contract, a read-only in-memory pack registry, duplicate fail-closed validation, a built-in code-runtime pack descriptor, compatibility exports, and a focused smoke script/package target.",
+  "usage": "Import from packages/main/src/core/evidence/admissibility/index.ts or packages/main/src/core/claim-admissibility/pack-framework.ts, then call listClaimAdmissibilityPacks(), getClaimAdmissibilityPack(\"code-runtime\"), or validateClaimAdmissibilityPacks([...]). Run npm --prefix packages/main run test:claim-admissibility-pack-framework for the focused smoke.",
+  "expectedOutcome": "The code-runtime pack validates as a ClaimAdmissibilityPack, duplicate ids and aliases are blocked, compatibility exports remain available, and no scientific truth, hardware, solver-improvement, production, or external completion claim is minted.",
+  "actualTranscript": "Focused smoke printed: pack contract exposes code-runtime pack; duplicate pack ids: BLOCK; duplicate artifact aliases: BLOCK; compat entrypoint exports pack registry; claim-admissibility pack framework smoke passed. Full validate passed 31/31 and DONE-required validation passed 2/2.",
+  "outcomeDiff": "No user-visible difference from the expected outcome; the runtime behavior matched the plan.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story implements only the generic pack framework and code-runtime descriptor. Quantum/PINN verifier adapters, gate policies, benchmark harnesses, and reporting integrations remain separate future stories.",
+  "pitfalls": "done_prepare merged main and changed materialHash while storyFilesHash stayed stable; delivery-check remained valid with advisory re-attestation text. The delivery reviewer initially refused because the prompt forbade git commits, but delivery_check_set correctly auto-commits Lattice metadata and was rerun with that gate-specific allowance.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 139045
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20170
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 273331
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1153171
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 231866
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 801226
+    }
+  },
+  "totalDurationMs": 2619170,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T23:02:14.638Z",
+  "updatedAt": "2026-07-02T23:02:14.638Z"
+}
