@@ -507,9 +507,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-3-playbook-promotion-status"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T04:00:07.937Z",
       "userSees": "playbook_promotion_status output includes \"pendingLearning\", \"latestDecisions\", \"nonDeducibleSources\", and \"gateEvidence: false\".",
       "files": {
         "modify": [
@@ -555,7 +555,75 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers status rendering pendingLearning, latestDecisions, nonDeducibleSources, health, and feature flags.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.049Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers active playbook harmful/wrong-claim signal highlighted as activeNegativeSignals/recommend_demote.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.157Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Status handler supports empty stores and disabled flag rendering; smoke exercises temp-store status paths.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.267Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers malformed skipped decision rows reported as advisory health warnings.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.361Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts candidatesAreRuntimeGuidance:false and labels candidates pending learning.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.458Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers rejected/archived/non-deducible audit rows visible without rendering as active runtime guidance.",
+          "headHash": "dc6bf131cfa433024f8258b0a0b678e4c5cb80e7",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T04:00:08.551Z"
+        }
+      ]
     }
   ]
 }
