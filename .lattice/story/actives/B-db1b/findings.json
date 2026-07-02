@@ -283,7 +283,7 @@
       "desc": "pinn_report_render report sanitization misses passive PDE-correctness overclaim text. A supplied benchmark artifact digest of \"PDE correctness is proved by supplied report\" is accepted and rendered, because REPORT_NARRATIVE_OVERCLAIM_PATTERN lacks the optional \"is\" form that the core claim checker blocks. Repro: after npm --prefix packages/main run build, import runPinnClaimBenchmark/createPinnClaimAdmissibilityHandlers from dist and call pinn_report_render with benchmarkJson overriding artifactIndex[0].digest to that string; output starts ACCEPTED and renders the overclaim in artifactIndex. This violates the M5 sanitized report/non-claim boundary and should block REVIEW until the report scanner and smoke coverage are tightened.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:18:16.694Z",
@@ -295,7 +295,11 @@
         "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|pinn-report-render",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed report overclaim scanning by sharing the core PINN claim-boundary narrative regex with pinn_report_render, including passive forms like 'PDE correctness is proved'. Added smoke coverage for supplied benchmark artifact digest 'PDE correctness is proved by supplied report'. Verified with npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, and a direct dist handler probe that now rejects with refuses benchmark report overclaims.",
+      "resolvedAt": "2026-07-02T21:27:29.678Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-014",
