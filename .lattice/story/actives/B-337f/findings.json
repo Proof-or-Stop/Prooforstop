@@ -343,6 +343,24 @@
       ],
       "signatureTag": "adversarial|mjs:493-497|execution-oracle-nonce",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-017",
+      "desc": "[quality lane + host-2, probe-proven] The nonce is passed to the child via argv, so a workspace lib can read process.argv[2] and echo the nonce-tagged pass line to forge the verdict (in-process forgery). Root-cause fix: stop passing any secret to workspace-controlled code. The oracle writes an isolated probe script into its OWN temp dir with a SECRET output path baked in (not in the child argv/env, not under the workspace); the probe imports the workspace lib and writes the real exported value to the secret path. Workspace code cannot locate the secret path, and process.exit/SyntaxError/hang all leave no file -> false-done. This closes the argv-read forgery for good.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T23:18:10.608Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "a7bbf27918de7355a9477f8c4b595ff70a4172f1873f1a064c29152e7ccf604c",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs",
+        "experiments/experience-ablation/fixture-generator.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|quality-lane-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
