@@ -14,9 +14,9 @@
           "experiments/experience-ablation/protocol-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T21:04:27.634Z",
       "userSees": "Running node experiments/experience-ablation/protocol.mjs freeze --root=<tmp> --experimentId=exp1 --config=<cfg.json> prints the computed protocolHash and writes .lattice/experiments/experience-ablation/exp1/protocol.json plus memory-snapshot-hash.json under the given root; node protocol.mjs validate --root=<tmp> --experimentId=exp1 exits 0 and prints PASS on the frozen protocol, and exits non-zero naming the offending field after any tamper; node experiments/experience-ablation/protocol-selfcheck.mjs prints a per-case PASS list and exits 0.",
       "verificationIntent": {
         "happy": [
