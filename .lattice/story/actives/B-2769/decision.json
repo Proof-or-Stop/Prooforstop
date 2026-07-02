@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Claim admissibility is always mechanically enforced and hash-bound",
+    "No overclaim: do not equate control machinery with scientific correctness",
+    "Prefer minimal, bounded extension over broad domain rewrite",
+    "Keep benchmark scope stable except control-regime axis",
+    "Retain non-authority/no-production default unless explicit stronger-readiness stories exist"
+  ],
+  "drivers": [
+    "Reduce unsupported PINN claim escalation",
+    "Keep boundary semantics aligned with Proof-or-Stop",
+    "Enable reproducible validation of claim control",
+    "Avoid adding non-governance scientific evaluation",
+    "Prevent overclaim in future-domain extensions"
+  ],
+  "options": [
+    {
+      "name": "Docs-first only",
+      "pros": [
+        "Lowest implementation risk",
+        "Faster documentation alignment"
+      ],
+      "cons": [
+        "No executable gate or benchmark proof",
+        "No concrete claim-boundary enforcement",
+        "Cannot provide evidence-based validation"
+      ]
+    },
+    {
+      "name": "MVP schema+gate extension",
+      "pros": [
+        "Adds concrete admissibility controls",
+        "Provides deterministic rejection of stale/mismatched evidence",
+        "Meets future-domain extension goal"
+      ],
+      "cons": [
+        "More code and test changes",
+        "Needs follow-up benchmark work"
+      ]
+    },
+    {
+      "name": "Full benchmark+governance stack",
+      "pros": [
+        "End-to-end proof of control regime",
+        "Deliver measurable claim-control improvements"
+      ],
+      "cons": [
+        "Highest implementation scope",
+        "Longer timeline",
+        "More tooling artifacts"
+      ]
+    }
+  ],
+  "chosen": "MVP schema+gate extension",
+  "rationale": "This option gives concrete claim-admissibility mechanics first while keeping scope bounded, and it allows incremental hardening via benchmark and reporting tasks in later milestones.",
+  "preMortem": [
+    {
+      "scenario": "mismatch between identity fields and lifecycle transition checks",
+      "trigger": "Schema binding not applied consistently in gate check",
+      "consequence": "stale/mismatched evidence may still advance",
+      "mitigation": "Fail-closed checks on spec/training/config/grid/checkpoint hash continuity"
+    },
+    {
+      "scenario": "benchmark compares task variants, not control regimes",
+      "trigger": "task/task settings drift across A1–A4",
+      "consequence": "reported gain is invalid and overclaims become likely",
+      "mitigation": "Pin all task settings and random seeds in a shared benchmark harness contract"
+    },
+    {
+      "scenario": "overclaim wording leaks into public docs",
+      "trigger": "Ready-to-quote text includes unsupported claims",
+      "consequence": "project credibility and review boundaries degrade",
+      "mitigation": "Use explicit claim-boundary paragraph and keep PDE correctness exclusions"
+    }
+  ],
+  "timestamp": "2026-07-02T16:31:59.950Z"
+}

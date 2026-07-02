@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2769",
+  "allowedCommands": [
+    "bash -lc *",
+    "cat *",
+    "cp *",
+    "find *",
+    "git *",
+    "lattice *",
+    "ls *",
+    "mkdir *",
+    "node *",
+    "npm --prefix packages/main run *",
+    "pnpm *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "bash",
+    "git",
+    "lattice",
+    "node",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".github",
+    ".lattice",
+    "docs",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/test",
+    "scripts",
+    "tests"
+  ],
+  "excludedCommands": [
+    "chmod 777 *",
+    "curl *",
+    "git push *",
+    "lattice release_approve_push *",
+    "mkfs *",
+    "npm publish *",
+    "python -m pip *",
+    "rm -rf *",
+    "sudo *"
+  ],
+  "excludedTools": [
+    "python"
+  ],
+  "excludedPaths": [
+    ".aws",
+    ".env",
+    ".lattice/hooks",
+    ".lattice/secrets",
+    "dist",
+    "node_modules"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Execution boundary is scoped to the PINN admissibility extension plan and does not include unrelated production/authority server migrations.",
+  "createdAt": "2026-07-02T16:32:14.907Z",
+  "updatedAt": "2026-07-02T16:32:14.907Z",
+  "_hash": "a3774eff28961d67f0d725290447b3aa5021ab37414467e4099c76933f0f69fb"
+}
