@@ -45,6 +45,7 @@ import {
   runtimeMemoryTopHits,
   type RuntimeHostPolicyDecision,
 } from '../core/playbook-runtime-memory.js';
+import { shouldRenderRuntimeMemoryPack, surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -506,22 +507,31 @@ function buildHandoffRuntimeMemoryPack(ctx: HandlerContext, args: {
   objective?: string;
   consumer?: 'host_handoff';
 }) {
-  return buildMemoryFreshnessPack({
-    projectRoot: ctx.root,
+  // B-ab8d CHK-002: experiment-arm surfacing — pack always computed (JSON
+  // embedding is NOT arm-gated), event fires on both arms; the text render
+  // sites gate visibility via shouldRenderRuntimeMemoryPack().
+  const surfaced = surfaceRuntimeMemoryPack(ctx.root, {
     consumer: args.consumer ?? 'host_handoff',
-    storyPhase: args.phase,
-    host: args.host,
-    query: [
-      `story:${args.storyId}`,
-      args.host ?? '',
-      args.objective ?? '',
-      'handoff host-policy codex-cli claude-cli agy fallback unavailable quota timed-out',
-      'stale-doc truth-first repro-first intent-totality delivery',
-    ].filter(Boolean).join(' '),
-    maxEntries: 5,
-    maxPlaybooks: 5,
-    maxLines: 60,
+    storyId: args.storyId,
+    roundKey: args.phase,
+    buildPack: () => buildMemoryFreshnessPack({
+      projectRoot: ctx.root,
+      consumer: args.consumer ?? 'host_handoff',
+      storyPhase: args.phase,
+      host: args.host,
+      query: [
+        `story:${args.storyId}`,
+        args.host ?? '',
+        args.objective ?? '',
+        'handoff host-policy codex-cli claude-cli agy fallback unavailable quota timed-out',
+        'stale-doc truth-first repro-first intent-totality delivery',
+      ].filter(Boolean).join(' '),
+      maxEntries: 5,
+      maxPlaybooks: 5,
+      maxLines: 60,
+    }),
   });
+  return surfaced.pack;
 }
 
 function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHost: string, hostPolicy?: RuntimeHostPolicyDecision): {
@@ -683,7 +693,8 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         `runtimeHostPolicy: ${hostPolicy.canonicalHost} role=${hostPolicy.role} allowed=${hostPolicy.allowed}`,
         `runtimeHostPolicyCapabilityHost: ${hostPolicy.capabilityHostId}`,
         `runtimeHostPolicyReason: ${hostPolicy.reason}`,
-        renderHandoffMemoryText(pack.memoryFreshnessPack),
+        // B-ab8d CHK-002: control arm hides the rendered memory section only.
+        shouldRenderRuntimeMemoryPack() ? renderHandoffMemoryText(pack.memoryFreshnessPack) : '',
         outputNote.trimEnd(),
       ].filter(Boolean).join('\n');
     },
@@ -747,7 +758,11 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       }
       if (wantsJson(args)) return enriched;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
-      return [renderHandoffResumeText(enriched), outputNote.trimEnd()].filter(Boolean).join('\n');
+      // B-ab8d CHK-002: control arm hides the rendered memory section only —
+      // the JSON projection above keeps the pack for lossless measurement.
+      const { memoryFreshnessPack: _hiddenOnControl, ...enrichedWithoutPack } = enriched;
+      const renderProjection = shouldRenderRuntimeMemoryPack() ? enriched : enrichedWithoutPack;
+      return [renderHandoffResumeText(renderProjection), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     handoff_receipt_submit(args: {
       file: string;

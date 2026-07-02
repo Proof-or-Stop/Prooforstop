@@ -26,6 +26,7 @@ import {
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -147,24 +148,33 @@ function renderStoryCreateMemoryRuntimeAdvisory(args: {
 }): string {
   try {
     const checklistText = args.checklist.items.map((item) => `${item.id} ${item.title} ${item.context ?? ''}`).join('\n');
-    const pack = buildMemoryFreshnessPack({
-      projectRoot: args.projectRoot,
+    // B-ab8d CHK-002: experiment-arm render gate. The pack is ALWAYS computed
+    // and the experience_pack_surfaced event fires on both arms; only the
+    // rendered section is hidden on control (no experiment = pass-through).
+    const surfaced = surfaceRuntimeMemoryPack(args.projectRoot, {
       consumer: 'story_create',
-      storyPhase: args.phase,
-      query: [
-        `story:${args.storyId}`,
-        args.title,
-        args.description,
-        checklistText,
-        'story intake repro-first stale-doc truth-first playbook runtime memory non-authoritative',
-      ].filter(Boolean).join('\n'),
-      maxEntries: 5,
-      maxPlaybooks: 5,
-      maxLines: 60,
+      storyId: args.storyId,
+      roundKey: args.phase,
+      buildPack: () => buildMemoryFreshnessPack({
+        projectRoot: args.projectRoot,
+        consumer: 'story_create',
+        storyPhase: args.phase,
+        query: [
+          `story:${args.storyId}`,
+          args.title,
+          args.description,
+          checklistText,
+          'story intake repro-first stale-doc truth-first playbook runtime memory non-authoritative',
+        ].filter(Boolean).join('\n'),
+        maxEntries: 5,
+        maxPlaybooks: 5,
+        maxLines: 60,
+      }),
     });
+    if (!surfaced.shouldRender) return '';
     return [
       '⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.',
-      renderMemoryFreshnessPack(pack),
+      renderMemoryFreshnessPack(surfaced.pack),
     ].join('\n');
   } catch {
     return '';
