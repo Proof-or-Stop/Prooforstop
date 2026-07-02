@@ -149,21 +149,21 @@ export interface PinnBenchmarkReport {
 }
 
 export const PINN_FAILURE_INJECTIONS: readonly PinnInjectionSpec[] = [
-  { id: 'B1', title: 'missing PDE spec identity hash', class: 'missing', expectedA4Reason: 'missing_identity_field' },
-  { id: 'B2', title: 'stale residual receipt domain hash', class: 'stale', expectedA4Reason: 'identity_mismatch' },
-  { id: 'B3', title: 'missing residual verifier receipt', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
-  { id: 'B4', title: 'residual verifier exits nonzero', class: 'unsafe', expectedA4Reason: 'receipt_exit_nonzero' },
-  { id: 'B5', title: 'residual verifier reports failure', class: 'unsafe', expectedA4Reason: 'receipt_status_not_pass' },
-  { id: 'B6', title: 'wrong verifier script hash', class: 'unsafe', expectedA4Reason: 'verifier_script_mismatch' },
-  { id: 'B7', title: 'missing adapter output digest', class: 'missing', expectedA4Reason: 'output_digest_missing' },
-  { id: 'B8', title: 'stale verifier receipt', class: 'stale', expectedA4Reason: 'stale_evidence' },
-  { id: 'B9', title: 'production readiness overclaim', class: 'overclaim', expectedA4Reason: 'claim_boundary_violation' },
-  { id: 'B10', title: 'PDE correctness overclaim', class: 'overclaim', expectedA4Reason: 'claim_boundary_violation' },
-  { id: 'B11', title: 'missing boundary-condition verifier', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
-  { id: 'B12', title: 'missing initial-condition verifier', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
-  { id: 'B13', title: 'out-of-sample receipt bound to old grid', class: 'stale', expectedA4Reason: 'identity_mismatch' },
-  { id: 'B14', title: 'missing baseline-fairness verifier', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
-  { id: 'B15', title: 'provenance verifier fails', class: 'unsafe', expectedA4Reason: 'receipt_status_not_pass' },
+  { id: 'B1', title: 'spec changed while residual reused', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B2', title: 'BC changed while BC report reused', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B3', title: 'checkpoint mismatch', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B4', title: 'collocation points changed', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B5', title: 'grid narrowed to easy region', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B6', title: 'baseline comparison benchmark mismatch', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B7', title: 'stale figure provenance', class: 'stale', expectedA4Reason: 'stale_evidence' },
+  { id: 'B8', title: 'seed/config missing', class: 'missing', expectedA4Reason: 'missing_identity_field' },
+  { id: 'B9', title: 'low training loss but high out-of-sample residual', class: 'unsafe', expectedA4Reason: 'receipt_status_not_pass' },
+  { id: 'B10', title: 'verifier threshold silently changed', class: 'unsafe', expectedA4Reason: 'verifier_threshold_mismatch' },
+  { id: 'B11', title: 'BC report missing', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
+  { id: 'B12', title: 'IC report missing', class: 'missing', expectedA4Reason: 'missing_required_receipt' },
+  { id: 'B13', title: 'code changed after checkpoint', class: 'stale', expectedA4Reason: 'identity_mismatch' },
+  { id: 'B14', title: 'metric changed', class: 'unsafe', expectedA4Reason: 'metric_mismatch' },
+  { id: 'B15', title: 'manually edited figures/tables', class: 'unsafe', expectedA4Reason: 'identity_mismatch' },
 ] as const;
 
 const CLAIM_REQUIRED_ADAPTERS: Record<PinnClaimId, readonly PinnAdapterId[]> = {
@@ -258,51 +258,64 @@ export function buildInjectedPinnEvidence(injectionId: string): PinnClaimCheckIn
   const input = buildCompletePinnEvidence('C9');
   const activeIdentity = input.activeIdentity as PinnEvidenceIdentity;
   switch (injectionId) {
-    case 'B1':
-      delete input.activeIdentity?.pdeSpecHash;
-      break;
-    case 'B2': {
+    case 'B1': {
+      activeIdentity.pdeSpecHash = demoHash('pde-spec:v2');
       const receipt = receiptFor(input, 'residual');
-      if (receipt) receipt.identity.domainHash = demoHash('domain:old');
-      break;
-    }
-    case 'B3':
-      removeReceipt(input, 'residual');
-      input.trainingLossLow = true;
-      break;
-    case 'B4': {
-      const receipt = receiptFor(input, 'residual');
-      if (receipt) receipt.exitCode = 2;
-      break;
-    }
-    case 'B5': {
-      const receipt = receiptFor(input, 'residual');
-      if (receipt) receipt.status = 'fail';
-      break;
-    }
-    case 'B6': {
-      const receipt = receiptFor(input, 'residual');
-      if (receipt) receipt.verifierScriptHash = demoHash('verifier-script:old');
-      break;
-    }
-    case 'B7': {
-      const receipt = receiptFor(input, 'out-of-sample');
-      if (receipt) delete receipt.outputDigest;
-      break;
-    }
-    case 'B8': {
-      const receipt = receiptFor(input, 'reproducibility');
       if (receipt) receipt.stale = true;
       break;
     }
-    case 'B9':
-      input.productionDone = true;
-      input.narrativeClaim = 'This local PINN evidence is production ready.';
+    case 'B2': {
+      activeIdentity.boundaryConditionHash = demoHash('boundary-condition:v2');
+      const receipt = receiptFor(input, 'boundary-condition');
+      if (receipt) receipt.stale = true;
       break;
-    case 'B10':
-      input.pdeCorrectnessClaim = true;
-      input.narrativeClaim = 'This local PINN evidence proves PDE correctness.';
+    }
+    case 'B3': {
+      const receipt = receiptFor(input, 'training');
+      if (receipt) receipt.identity.checkpointHash = demoHash('checkpoint:old');
+      const residual = receiptFor(input, 'residual');
+      if (residual) residual.identity.checkpointHash = demoHash('checkpoint:old');
       break;
+    }
+    case 'B4': {
+      activeIdentity.collocationPointHash = demoHash('collocation-points:v2');
+      const receipt = receiptFor(input, 'residual');
+      if (receipt) receipt.stale = true;
+      break;
+    }
+    case 'B5': {
+      activeIdentity.evaluationGridHash = demoHash('evaluation-grid:easy-region');
+      const receipt = receiptFor(input, 'out-of-sample');
+      if (receipt) receipt.stale = true;
+      break;
+    }
+    case 'B6': {
+      const receipt = receiptFor(input, 'baseline-fairness');
+      if (receipt) receipt.identity.outputDigest = demoHash('baseline:other-benchmark');
+      break;
+    }
+    case 'B7': {
+      const receipt = receiptFor(input, 'provenance');
+      if (receipt) receipt.stale = true;
+      break;
+    }
+    case 'B8':
+      delete input.activeIdentity?.randomSeed;
+      delete input.activeIdentity?.trainingConfigHash;
+      break;
+    case 'B9': {
+      const receipt = receiptFor(input, 'residual');
+      if (receipt) receipt.status = 'fail';
+      const oosReceipt = receiptFor(input, 'out-of-sample');
+      if (oosReceipt) oosReceipt.status = 'fail';
+      input.trainingLossLow = true;
+      break;
+    }
+    case 'B10': {
+      const receipt = receiptFor(input, 'residual');
+      if (receipt) receipt.thresholdVersion = 'thresholds:relaxed';
+      break;
+    }
     case 'B11':
       removeReceipt(input, 'boundary-condition');
       break;
@@ -310,16 +323,22 @@ export function buildInjectedPinnEvidence(injectionId: string): PinnClaimCheckIn
       removeReceipt(input, 'initial-condition');
       break;
     case 'B13': {
-      const receipt = receiptFor(input, 'out-of-sample');
-      if (receipt) receipt.identity.evaluationGridHash = demoHash('evaluation-grid:old');
+      activeIdentity.codeHash = demoHash('code:v2-after-checkpoint');
+      const checkpointReceipts = ['training', 'residual', 'boundary-condition', 'initial-condition', 'out-of-sample'] as const;
+      for (const adapterId of checkpointReceipts) {
+        const receipt = receiptFor(input, adapterId);
+        if (receipt) receipt.stale = true;
+      }
       break;
     }
-    case 'B14':
-      removeReceipt(input, 'baseline-fairness');
+    case 'B14': {
+      const receipt = receiptFor(input, 'baseline-fairness');
+      if (receipt) receipt.metricName = 'changed-metric';
       break;
+    }
     case 'B15': {
       const receipt = receiptFor(input, 'provenance');
-      if (receipt) receipt.status = 'fail';
+      if (receipt) receipt.identity.outputDigest = demoHash('manually-edited-figures');
       break;
     }
     default:
@@ -345,7 +364,7 @@ function boundaryViolation(input: PinnClaimCheckInput): boolean {
 
 function classifyNextAction(reasons: readonly string[]): PinnClaimCheckResult['nextAction'] {
   if (reasons.length === 0) return 'advance';
-  if (reasons.some((item) => /^(unsupported_|claim_boundary_violation|identity_mismatch|verifier_script_mismatch|receipt_exit_nonzero|receipt_status_not_pass)/.test(item))) {
+  if (reasons.some((item) => /^(unsupported_|claim_boundary_violation|identity_mismatch|verifier_script_mismatch|verifier_threshold_mismatch|metric_mismatch|output_digest_mismatch|duplicate_receipt|receipt_exit_nonzero|receipt_status_not_pass)/.test(item))) {
     return 'stop';
   }
   if (reasons.some((item) => item.startsWith('stale_evidence'))) return 'degrade';
@@ -382,7 +401,14 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
   const requiredAdapters = isKnownClaim(claimId) ? CLAIM_REQUIRED_ADAPTERS[claimId] : [];
   const missingAdapters: PinnAdapterId[] = [];
   const checkedAdapters: PinnAdapterId[] = [];
-  const receiptByAdapter = new Map((input.receipts ?? []).map((receipt) => [receipt.adapterId, receipt]));
+  const receiptByAdapter = new Map<PinnAdapterId, PinnVerifierReceipt>();
+  for (const receipt of input.receipts ?? []) {
+    if (!receiptByAdapter.has(receipt.adapterId)) {
+      receiptByAdapter.set(receipt.adapterId, receipt);
+      continue;
+    }
+    reasons.push(reason('duplicate_receipt', receipt.adapterId));
+  }
 
   for (const adapterId of requiredAdapters) {
     const receipt = receiptByAdapter.get(adapterId);
@@ -396,6 +422,12 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
     if (receipt.status !== 'pass') reasons.push(reason('receipt_status_not_pass', adapterId));
     if (receipt.stale === true) reasons.push(reason('stale_evidence', adapterId));
     if (!receipt.outputDigest || receipt.outputDigest.trim() === '') reasons.push(reason('output_digest_missing', adapterId));
+    if (receipt.thresholdVersion && receipt.thresholdVersion !== 'thresholds:v1') {
+      reasons.push(reason('verifier_threshold_mismatch', adapterId));
+    }
+    if (receipt.metricName && receipt.metricName !== adapterId) {
+      reasons.push(reason('metric_mismatch', adapterId));
+    }
     if (!receipt.verifierScriptHash || receipt.verifierScriptHash !== identity.verifierScriptHash) {
       reasons.push(reason('verifier_script_mismatch', adapterId));
     }

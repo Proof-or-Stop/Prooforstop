@@ -7,9 +7,9 @@ Short name: Proof-or-Stop PINN Claim-Admissibility Pack
 
 ## Current implementation status
 
-- Story B-db1b delivers the local executable runtime pack for M0-M5.
+- Story B-db1b delivers the local executable runtime pack for M0-M5, pending lifecycle review.
 - Runtime commands are `pinn_claim_check`, `pinn_benchmark_run`, and `pinn_report_render`.
-- Scope remains claim admissibility only: no scientific PINN solver, no PDE correctness proof, no external Authority production verification, and no remote release.
+- Scope remains claim admissibility only: no scientific PINN solver, no PDE correctness proof, no evidence-producing verifier scripts, no lifecycle transition mutation, no external Authority production verification, and no remote release.
 
 ## Purpose
 
@@ -248,34 +248,37 @@ Acceptance:
 
 Deliverable:
 
-- verifier scripts/adapters for PDE spec, residual, BC, IC, baseline fairness, reproducibility, and provenance;
-- each adapter writes machine-readable evidence with deterministic hashes and exit codes.
+- runtime verifier-adapter receipt checks for PDE spec, residual, BC, IC, baseline fairness, reproducibility, and provenance;
+- deterministic fixture receipts for the local benchmark and smoke suite;
+- explicit boundary that Story B-db1b consumes receipt-shaped evidence but does not ship evidence-producing scientific verifier scripts.
 
 Acceptance:
 
-- each adapter fails closed on missing/bad inputs.
+- missing, duplicated, stale, mismatched, or failing adapter receipts fail closed.
 
 ### Milestone 3 — Gate policy and transition engine updates
 
 Deliverable:
 
-- lifecycle transition policy bound to claim/evidence registry;
-- fail-closed behavior (`repair`, `degrade`, `stop`) semantics.
+- read-only lifecycle admissibility policy bound to claim/evidence registry;
+- diagnostic `nextAction` behavior (`advance`, `repair`, `degrade`, `stop`) semantics;
+- explicit boundary that Story B-db1b reports whether a transition would be admissible and does not mutate lifecycle state or complete transitions.
 
 Acceptance:
 
-- no unsupported transition can be completed; command and receipt binding are enforced.
+- unsupported evidence is reported as non-admissible before transition;
+- command policy refuses side effects and overclaim flags.
 
 ### Milestone 4 — Benchmark harness
 
 Deliverable:
 
 - failure-injection runner and report pipeline for A1–A4;
-- analysis script for rate metrics and cost overhead.
+- rate metrics, Wilson interval fields, wall-time overhead, and intervention overhead in the local benchmark report.
 
 Acceptance:
 
-- reproducible comparison tables and confidence intervals for at least each A4-vs-A1/A2/A3.
+- reproducible local comparison metrics for A4 versus A1/A2/A3.
 
 ### Milestone 5 — Reporting and governance integration
 
@@ -291,10 +294,16 @@ Acceptance:
 
 ## Milestone / delivery status axis
 
-- M0–M5: local runtime artifacts are delivered by Story B-db1b.
-- M0–M3 cover command boundary, evidence schema, verifier adapters, and gate transitions.
-- M4–M5 cover deterministic A1-A4 benchmark/reporting and governance wording.
-- Scientific PINN solving, numerical PDE correctness proof, and external Authority production verification remain out of scope.
+| Milestone | Status | Delivered local runtime slice | Boundary |
+| --- | --- | --- | --- |
+| M0 | ✅ | Claim/admissibility scope, non-goal boundary, and B1-B15/A1-A4 test plan. | No scientific solver or PDE truth claim. |
+| M1 | ✅ | C1-C9 claim schema, identity fields, receipt schema, and freshness/hash compatibility checks. | Schema validates admissibility evidence only. |
+| M2 | ✅ | Runtime checks for the seven verifier-adapter receipt families plus reproducibility/provenance receipts. | Consumes receipt evidence; does not generate verifier evidence. |
+| M3 | ✅ | Read-only admissibility policy with `advance`, `repair`, `degrade`, and `stop` next actions. | Reports transition admissibility; does not mutate lifecycle state. |
+| M4 | ✅ | Deterministic A1-A4 benchmark over the governed B1-B15 failure injections with rates, Wilson interval fields, wall-time, and intervention metrics. | Diagnostic comparison only. |
+| M5 | ✅ | Artifact index, sanitized report renderer, fixed boundary paragraph, and non-claim wording. | No production, Authority, or PDE-correctness completion claim. |
+
+Scientific PINN solving, numerical PDE correctness proof, evidence-producing verifier scripts, lifecycle transition mutation, and external Authority production verification remain out of scope.
 
 ## Value to Proof-or-Stop
 

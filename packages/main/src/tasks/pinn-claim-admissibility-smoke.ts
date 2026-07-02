@@ -29,21 +29,55 @@ assert.equal(complete.fullAuthorityDone, false, 'complete check never claims ful
 assert.equal(complete.pdeCorrectnessClaim, false, 'complete check never claims PDE correctness');
 assert.equal(complete.checkedAdapters.length, 9, 'C9 checks all adapter families');
 
-assertBlocks('B1', 'missing_identity_field');
+assert.deepEqual(
+  PINN_FAILURE_INJECTIONS.map((injection) => `${injection.id}:${injection.title}`),
+  [
+    'B1:spec changed while residual reused',
+    'B2:BC changed while BC report reused',
+    'B3:checkpoint mismatch',
+    'B4:collocation points changed',
+    'B5:grid narrowed to easy region',
+    'B6:baseline comparison benchmark mismatch',
+    'B7:stale figure provenance',
+    'B8:seed/config missing',
+    'B9:low training loss but high out-of-sample residual',
+    'B10:verifier threshold silently changed',
+    'B11:BC report missing',
+    'B12:IC report missing',
+    'B13:code changed after checkpoint',
+    'B14:metric changed',
+    'B15:manually edited figures/tables',
+  ],
+  'B1-B15 corpus matches the governing plan',
+);
+
+assertBlocks('B1', 'identity_mismatch');
 assertBlocks('B2', 'identity_mismatch');
-assertBlocks('B3', 'missing_required_receipt');
-assertBlocks('B4', 'receipt_exit_nonzero');
-assertBlocks('B5', 'receipt_status_not_pass');
-assertBlocks('B6', 'verifier_script_mismatch');
-assertBlocks('B7', 'output_digest_missing');
-assertBlocks('B8', 'stale_evidence');
-assertBlocks('B9', 'claim_boundary_violation');
-assertBlocks('B10', 'claim_boundary_violation');
+assertBlocks('B3', 'identity_mismatch');
+assertBlocks('B4', 'identity_mismatch');
+assertBlocks('B5', 'identity_mismatch');
+assertBlocks('B6', 'identity_mismatch');
+assertBlocks('B7', 'stale_evidence');
+assertBlocks('B8', 'missing_identity_field');
+assertBlocks('B9', 'receipt_status_not_pass');
+assertBlocks('B10', 'verifier_threshold_mismatch');
 assertBlocks('B11', 'missing_required_receipt');
 assertBlocks('B12', 'missing_required_receipt');
 assertBlocks('B13', 'identity_mismatch');
-assertBlocks('B14', 'missing_required_receipt');
-assertBlocks('B15', 'receipt_status_not_pass');
+assertBlocks('B14', 'metric_mismatch');
+assertBlocks('B15', 'identity_mismatch');
+
+const duplicateResidual = buildCompletePinnEvidence('C9');
+const cleanResidual = duplicateResidual.receipts?.find((receipt) => receipt.adapterId === 'residual');
+assert.ok(cleanResidual, 'fixture has residual receipt');
+duplicateResidual.receipts = [
+  ...(duplicateResidual.receipts ?? []).filter((receipt) => receipt.adapterId !== 'residual'),
+  { ...cleanResidual, status: 'fail', stale: true, note: 'stale residual reused before clean duplicate' },
+  { ...cleanResidual, note: 'clean duplicate must not erase ambiguity' },
+];
+const duplicateResult = evaluatePinnClaim(duplicateResidual);
+assert.equal(duplicateResult.allowed, false, 'duplicate adapter receipts fail closed');
+assert.ok(hasReason(duplicateResult, 'duplicate_receipt'), 'duplicate adapter receipts have explicit reason');
 
 const lowLoss = buildCompletePinnEvidence('C9');
 lowLoss.trainingLossLow = true;
@@ -82,6 +116,23 @@ const handlerBenchmark = handlers.pinn_benchmark_run({ format: 'json' }) as Retu
 assert.equal(handlerBenchmark.suiteStatus, 'PASS', 'handler exposes benchmark result');
 const handlerReport = handlers.pinn_report_render({ format: 'text' }) as string;
 assert.match(handlerReport, /artifactIndex:/, 'report command renders artifact index');
+assert.throws(
+  () => handlers.pinn_report_render({
+    benchmarkJson: JSON.stringify({
+      ...benchmark,
+      claims: {
+        productionDone: true,
+        authorityDone: true,
+        fullAuthorityDone: true,
+        pdeCorrectnessClaim: true,
+      },
+      boundary: 'external Authority complete',
+    }),
+    format: 'json',
+  }),
+  /refuses benchmark report overclaims/,
+  'report command rejects malicious supplied benchmark overclaims',
+);
 assert.throws(
   () => handlers.pinn_benchmark_run({ productionDone: true } as any),
   /refuses unsupported/,

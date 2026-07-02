@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
 import {
+  PINN_BOUNDARY_PARAGRAPH,
   buildCompletePinnEvidence,
   buildInjectedPinnEvidence,
   evaluatePinnClaim,
@@ -64,6 +65,15 @@ const UNSUPPORTED_FLAGS = [
   'refresh',
 ] as const;
 
+const REPORT_CLAIM_FIELDS = ['productionDone', 'authorityDone', 'fullAuthorityDone', 'pdeCorrectnessClaim'] as const;
+
+const SAFE_REPORT_CLAIMS = {
+  productionDone: false,
+  authorityDone: false,
+  fullAuthorityDone: false,
+  pdeCorrectnessClaim: false,
+} as const;
+
 function wantsJson(args: FormatArgs = {}): boolean {
   return args.json === true || args.format === 'json';
 }
@@ -89,10 +99,31 @@ function evidenceFromArgs(args: PinnClaimCheckArgs): PinnClaimCheckInput {
   return buildCompletePinnEvidence(args.claimId ?? 'C9');
 }
 
+function normalizeBenchmarkReport(report: PinnBenchmarkReport, label: string): PinnBenchmarkReport {
+  const rawReport = report as PinnBenchmarkReport & Record<string, unknown>;
+  const rawClaims = rawReport.claims;
+  const claimRecord = rawClaims && typeof rawClaims === 'object' && !Array.isArray(rawClaims)
+    ? rawClaims as Record<string, unknown>
+    : {};
+  const overclaims: string[] = [];
+  for (const field of REPORT_CLAIM_FIELDS) {
+    if (rawReport[field] === true || claimRecord[field] === true) overclaims.push(field);
+  }
+  if (rawReport.boundary !== undefined && rawReport.boundary !== PINN_BOUNDARY_PARAGRAPH) overclaims.push('boundary');
+  if (overclaims.length > 0) {
+    throw new Error(`${label} refuses benchmark report overclaims: ${overclaims.join(', ')}.`);
+  }
+  return {
+    ...report,
+    claims: { ...SAFE_REPORT_CLAIMS },
+    boundary: PINN_BOUNDARY_PARAGRAPH,
+  };
+}
+
 function benchmarkFromArgs(args: PinnReportArgs): PinnBenchmarkReport {
-  if (args.benchmarkJson) return parseJsonObject(args.benchmarkJson, 'benchmarkJson') as unknown as PinnBenchmarkReport;
-  if (args.benchmarkPath) return parseJsonObject(readFileSync(args.benchmarkPath, 'utf-8'), 'benchmarkPath') as unknown as PinnBenchmarkReport;
-  return runPinnClaimBenchmark();
+  if (args.benchmarkJson) return normalizeBenchmarkReport(parseJsonObject(args.benchmarkJson, 'benchmarkJson') as unknown as PinnBenchmarkReport, 'benchmarkJson');
+  if (args.benchmarkPath) return normalizeBenchmarkReport(parseJsonObject(readFileSync(args.benchmarkPath, 'utf-8'), 'benchmarkPath') as unknown as PinnBenchmarkReport, 'benchmarkPath');
+  return normalizeBenchmarkReport(runPinnClaimBenchmark(), 'generated benchmark');
 }
 
 export function createPinnClaimAdmissibilityHandlers(_ctx: HandlerContext): Record<string, (...args: any[]) => any> {
