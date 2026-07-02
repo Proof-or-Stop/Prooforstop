@@ -64,10 +64,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies dev-memory is selected as preferred seed source for a shared canonical source.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:11.640Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -76,10 +76,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies missing lineage and non_promotable sources are reported as blocked without mutation.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:12.085Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -88,10 +88,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies observe is read-only/non-authoritative/gateEvidence=false and rejects write-shaped flags through command schema/handler.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:12.519Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         }
       ]
     },
@@ -159,10 +159,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies digest-guarded batch apply creates staged seed proposals and matching manifest approval creates candidate playbooks only.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:28.191Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -171,10 +171,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies observeDigest and manifestDigest drift fail closed without partial proposal/candidate writes.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:28.548Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -183,10 +183,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies duplicate canonical source material selects one primary seed path and proposal metadata records canonical source key.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:28.905Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         }
       ]
     },
@@ -248,10 +248,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies non_promotable state is respected by future seed/proposal commands while preserving legacy non_deducible storage compatibility.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:42.258Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -260,10 +260,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies DONE-style neutral settlement and exposureMode=none do not create helped outcomes; helped with no exposure is rejected.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:42.622Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -272,10 +272,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies learning outputs and new reports remain authority=non_authoritative and gateEvidence=false.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:42.987Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         }
       ]
     },
@@ -339,10 +339,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies playbook_runtime_consumption_verify detects active playbook consumption across runtime consumers.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:55.486Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -351,10 +351,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Runtime verification reports diagnostics/warn posture for missing active consumption and keeps candidates pending/inert.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:55.846Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -363,10 +363,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies runtime verification output is non-authoritative and gateEvidence=false.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:31:56.204Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         }
       ]
     },
@@ -432,10 +432,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke and status output verify V1 readiness fields and V2 disabled-by-default posture are exposed.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:32:10.976Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -444,10 +444,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke verifies playbook_auto_promotion_apply --apply fails closed when the explicit feature flag/reviewed policy are absent.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:32:11.368Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -456,10 +456,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Auto-promotion guard reports lineage/exposure/outcome/safety prerequisites and does not activate candidates in this story.",
-          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
-          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
-          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
-          "timestamp": "2026-07-02T20:32:11.776Z"
+          "headHash": "caa29a9f35fee4719cc0faa5736ec144c9114c2f",
+          "materialHash": "e926121f85cfaa07747914683cc64486a5c8cbcb34648c3ea919341a409f3052",
+          "storyFilesHash": "c3d58795a27463d7df2ccadff5630b44fe83a232884cf6b25d5ee525113a80da",
+          "timestamp": "2026-07-02T21:24:27.399Z"
         },
         {
           "intentRef": "CHK-005:docs:0",
