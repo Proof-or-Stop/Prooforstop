@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-7b4e:F-001",
+      "desc": "Blocking test coverage gap: the quantum claim-admissibility smoke covers missing identity fields and identity/verifier mismatches, but it does not directly exercise stale receipt rejection or missing required receipt rejection, despite the reviewer checklist requiring deterministic stale/missing/mismatched binding checks. The evaluator has stale_evidence and missing_required_receipt branches, and the package script passes, but this story coverage does not prove those branches.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T20:09:59.906Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-003",
+      "_hash": "3a9238687a6609871d0a473e3591a748d0db4196cc383a56a0df8cf8f7486579",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
