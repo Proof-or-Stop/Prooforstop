@@ -353,7 +353,7 @@
       "desc": "[quality lane + host-2, probe-proven] The nonce is passed to the child via argv, so a workspace lib can read process.argv[2] and echo the nonce-tagged pass line to forge the verdict (in-process forgery). Root-cause fix: stop passing any secret to workspace-controlled code. The oracle writes an isolated probe script into its OWN temp dir with a SECRET output path baked in (not in the child argv/env, not under the workspace); the probe imports the workspace lib and writes the real exported value to the secret path. Workspace code cannot locate the secret path, and process.exit/SyntaxError/hang all leave no file -> false-done. This closes the argv-read forgery for good.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T23:18:10.608Z",
@@ -364,7 +364,11 @@
         "experiments/experience-ablation/fixture-generator.mjs"
       ],
       "signatureTag": "adversarial|mjs|quality-lane-host",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence rewritten to a secret-path probe: the oracle writes a probe script into its own mkdtemp dir with a randomBytes(16) output path baked into the source (never passed to the child via argv/env, never under the workspace), imports the workspace lib, and writes String(LIMIT===25) to the secret path. Workspace code cannot locate the path to forge, and process.exit/SyntaxError/hang leave no file -> falseDoneAttempt. argv-read forgery probe pinned; selfcheck 31/31 green. (F-016 quality-lane + F-017 same-issue both closed by this fix; Codex round-5 had already judged the argv-read vector out-of-scope but this closes it anyway.)",
+      "resolvedAt": "2026-07-02T23:20:38.298Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
