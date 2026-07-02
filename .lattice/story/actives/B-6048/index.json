@@ -4,7 +4,7 @@
   "title": "Implement playbook memory M3-M6 optimized runtime path",
   "description": "Complete the playbook memory entry-layer optimization after B-ec3b M0-M2 by implementing M3 pack cache, M4 consumer rollout, M5 correctness matrix, and M6 million-record indexed/cached parity reporting without making memory gate evidence.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-07-02T11:15:32.055Z",
   "startedAt": "2026-07-02T11:15:32.055Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T11:37:30.251Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6048",
+    "branch": "story/B-6048",
+    "createdAt": "2026-07-02T11:37:29.264Z"
+  }
 }
