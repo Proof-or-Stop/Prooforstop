@@ -35,6 +35,24 @@
       ],
       "signatureTag": "edge|md|numeric-inconsistency-planning",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-36fd:F-003",
+      "desc": "doc-promise-undelivered: M6 milestone (Reuses column) cites \"Campaign runner (run-campaign.mjs identity-keyed resume)\" as an existing reusable component, but experiments/recovery-runner/run-campaign.mjs does not exist in the repo (confirmed: ls experiments/recovery-runner/*.mjs lists no such file); the autopilot-v2 reliability plan (B-4e16, INIT) describes run-campaign.mjs as a to-be-built artifact under experiments/recovery-runner/powered/; citing a planned-but-unbuilt file as a reuse target is a factual error in the plan",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:21:31.204Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-002",
+      "_hash": "c4f474a7ff0a39e1e4c4f67bac6ca3e107af2933ac79de258a0cf3431e3d1a70",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-milestone",
+      "signatureTagSource": "auto"
     }
   ]
 }
