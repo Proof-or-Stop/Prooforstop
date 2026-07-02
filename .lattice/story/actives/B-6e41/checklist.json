@@ -41,9 +41,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:40:48.305Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke proves the built-in code-runtime pack descriptor validates under the ClaimAdmissibilityPack contract and is listed/resolved by the default registry.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.487Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke asserts the code-runtime pack has no benchmarkHarnesses property and remains valid, proving benchmark harness definitions are optional for M1.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.655Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke checks the pack JSON excludes forbidden production/scientific/hardware/solver/authority claim fields; follow-up commit also tightened claim boundary completion/external gate flags to literal false.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -177,6 +215,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T22:40:48.305Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
     }
   ]
 }
