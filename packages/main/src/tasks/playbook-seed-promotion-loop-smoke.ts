@@ -174,6 +174,7 @@ function findingSignals(): FindingSignalsCache {
 
 function seedLearning(root: string, store: StoryStore): void {
   seedStory(store);
+  write(root, 'packages/main/src/001.ts', 'export const presentAnchor = true;\n');
   writeEntries(resolveProjectMemoryPath(root), [
     memoryEntry('mem-seed-preferred'),
     memoryEntry('mem-missing-lineage', {
@@ -340,6 +341,43 @@ function run(): void {
         seed.sourceArtifactKind === 'finding_signal'
         && seed.blockReasons.includes('finding_signal_insufficient_support')
         && seed.blockReasons.includes('finding_signal_missing_valid_anchors')));
+
+      const staleSignals: FindingSignalsCache = {
+        ...findingSignals(),
+        signals: [{
+          ...findingSignals().signals[0],
+          localSignature: 'missing||ts|stale-anchor',
+          support: 1,
+          anchorFiles: ['packages/main/src/no-such-anchor.ts'],
+        }],
+      };
+      write(root, resolveFindingSignalsPath(root).slice(root.length + 1), JSON.stringify(staleSignals, null, 2));
+      const staleReport = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({
+        source: 'finding-signals',
+        json: true,
+      }));
+      assert.equal(staleReport.proposableSeeds.length, 0, 'stale-anchor finding-signal is not proposable');
+      assert.ok(staleReport.blockingSeeds.some((seed: any) =>
+        seed.sourceArtifactKind === 'finding_signal'
+        && seed.blockReasons.includes('finding_signal_missing_valid_anchors')));
+
+      write(root, 'packages/main/src/present-anchor.ts', 'export const presentFindingSignalAnchor = true;\n');
+      const presentSignals: FindingSignalsCache = {
+        ...findingSignals(),
+        signals: [{
+          ...findingSignals().signals[0],
+          localSignature: 'missing||ts|present-anchor',
+          support: 1,
+          anchorFiles: ['packages/main/src/present-anchor.ts'],
+        }],
+      };
+      write(root, resolveFindingSignalsPath(root).slice(root.length + 1), JSON.stringify(presentSignals, null, 2));
+      const presentReport = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({
+        source: 'finding-signals',
+        json: true,
+      }));
+      assert.equal(presentReport.proposableSeeds.length, 1, 'present-anchor finding-signal is proposable');
+      assert.equal(presentReport.proposableSeeds[0].sourceArtifactKind, 'finding_signal');
     });
 
     check('M3/M4/M8 default dry-run writer surfaces do not mutate learning stores', () => {
@@ -596,6 +634,11 @@ function run(): void {
       const status = runCliJson<any>(root, ['playbook_promotion_status', '--json']);
       assert.equal(status.authority, 'non_authoritative');
       assert.equal(status.gateEvidence, false);
+      assert.ok(Array.isArray(status.nonPromotableSources));
+      assert.equal(status.nonDeducibleSources, undefined);
+      assert.equal(typeof status.paths.nonPromotableSources, 'string');
+      assert.equal(status.paths.nonDeducibleSources, undefined);
+      assert.equal(status.compatibility.legacyStorage, 'non_deducible');
       assert.match(status.seedPromotionReadiness.v1.observeDigest, /^[a-f0-9]{64}$/);
       assert.equal(typeof status.seedPromotionReadiness.v1.proposableSeeds, 'number');
       assert.equal(status.seedPromotionReadiness.v2.autoPromotionDefaultEnabled, false);
@@ -605,6 +648,8 @@ function run(): void {
       const statusText = runCli(root, ['playbook_promotion_status']);
       assert.match(statusText, /seedPromotionReadiness\.v1\.proposableSeeds:/);
       assert.match(statusText, /seedPromotionReadiness\.v2\.posture: disabled-by-default\/fail-closed/);
+      assert.match(statusText, /^nonPromotableSources: \d+ \(legacy storage: non_deducible\)$/m);
+      assert.doesNotMatch(statusText, /^nonDeducibleSources:/m);
     });
 
     check('command policy, fact levels, and phase allowlist classify new commands', () => {

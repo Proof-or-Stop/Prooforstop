@@ -1061,7 +1061,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         pendingLearning,
         activeNegativeSignals,
         latestDecisions: latest,
-        nonDeducibleSources: registry.sources,
+        nonPromotableSources: registry.sources,
         settlementHealth: {
           latest: healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit),
           malformedRows: healthRows.malformedCount,
@@ -1092,8 +1092,12 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         },
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
-          nonDeducibleSources: resolveNonDeducibleSourcesPath(ctx.root),
+          nonPromotableSources: resolveNonDeducibleSourcesPath(ctx.root),
           settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
+        },
+        compatibility: {
+          legacyStorage: 'non_deducible',
+          legacyStoragePath: resolveNonDeducibleSourcesPath(ctx.root),
         },
         authority: 'non_authoritative',
         gateEvidence: false,
@@ -1113,9 +1117,8 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
         `latestDecisions: ${latest.length}`,
         ...latest.map((row) => `  - ${row.decidedAt} ${row.action} ${row.playbookId} aggregateDigest=${row.aggregateDigest} applied=${row.applied}`),
-        `nonDeducibleSources: ${registry.sources.length}`,
+        `nonPromotableSources: ${registry.sources.length} (legacy storage: non_deducible)`,
         ...registry.sources.map((source) => `  - ${source.source.sourceKey} finding=${source.source.sourceFindingId} reasons=${source.reasonCodes.join(',')}`),
-        `non_promotableSources: ${registry.sources.length} (legacy storage: non_deducible)`,
         `seedPromotionReadiness.v1.proposableSeeds: ${seedObservation.proposableSeeds.length}`,
         `seedPromotionReadiness.v1.blockedSeeds: ${seedObservation.blockingSeeds.length}`,
         `seedPromotionReadiness.v1.runtimeConsumptionStatus: ${runtimeConsumption.status}`,

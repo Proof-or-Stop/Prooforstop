@@ -83,6 +83,10 @@ function stringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean);
 }
 
+function presentAnchorRefs(projectRoot: string, refs: string[]): string[] {
+  return refs.filter((ref) => existsSync(join(projectRoot, ref)));
+}
+
 function storyIdFromFindingId(findingId: string | undefined): string | undefined {
   if (!findingId) return undefined;
   const idx = findingId.indexOf(':');
@@ -280,7 +284,7 @@ function collectFindingSignals(projectRoot: string, records: SourceLineageAuditR
     const sourceSignature = trim((signal as { signatureTag?: unknown }).signatureTag);
     const rawSupport = (signal as { support?: unknown }).support;
     const support = typeof rawSupport === 'number' && Number.isFinite(rawSupport) ? rawSupport : undefined;
-    const anchorRefs = stringArray((signal as { anchorFiles?: unknown }).anchorFiles);
+    const anchorRefs = presentAnchorRefs(projectRoot, stringArray((signal as { anchorFiles?: unknown }).anchorFiles));
     if (findingIds.length === 0 && storyIds.length === 0) {
       records.push(makeRecord({
         artifactKind: 'finding_signal',
