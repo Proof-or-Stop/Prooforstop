@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6048",
+  "mode": "feature",
+  "allowed": [
+    "M3 pack cache with freshness-safe invalidation and hit/miss proof",
+    "M4 optimized indexed/cached memory pack rollout to session_brief, handoff, story intake/advance, DONE prepare/closure, and final response check",
+    "M5 reference-versus-optimized correctness matrix for active/candidate/superseded/stale/deprecated/malformed/line-cap behavior",
+    "M6 deterministic 1,000,000-record reference/indexed/cached parity report with separate latency numbers and report-first performance"
+  ],
+  "excluded": [
+    "Any claim of 1-2s million-record runtime memory before M6 indexed/cached parity report exists",
+    "Any claim that memory is review, validation, DONE, release, or delivery gate evidence",
+    "Any claim that model weights or agent intelligence improved",
+    "M7 health observability rollout beyond what M3-M6 tests need",
+    "M8 warn/enforce rollout policy changes"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested executing M3-M6 until done after the plan clarified that M0-M2 do not prove million-record optimized runtime performance.",
+  "createdAt": "2026-07-02T11:17:45.792Z",
+  "updatedAt": "2026-07-02T11:17:45.792Z",
+  "_hash": "09297fb3296efae6762ad45a8caf7d314f506e28a8dc694f628235ccf2052093"
+}
