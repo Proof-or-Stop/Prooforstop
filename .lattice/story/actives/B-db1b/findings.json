@@ -236,7 +236,7 @@
       "desc": "F-006 numeric true-ish direct overclaim gap remains: evaluatePinnClaim blocks quoted JSON-like assignment strings and string/bool direct overclaims, but direct evidence JSON with terminalCompletionClaim: 1 is still allowed/advance. Core TRUEISH_BOUNDARY_VALUES includes \"1\" and handler supplied-report scanning treats numeric 1 as unsafe, so direct claim boundary handling is inconsistent with the runtime overclaim contract. Repro: buildCompletePinnEvidence(\"C9\"); input.terminalCompletionClaim = 1; evaluatePinnClaim(input) returns allowed=true instead of claim_boundary_violation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:36:14.882Z",
@@ -249,7 +249,11 @@
         "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|numeric-true-direct",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by treating numeric 1 as true-ish in direct claim-boundary fields, matching supplied-report behavior for numeric true-ish values. Smoke/direct probes cover active and legacy numeric overclaim fields and full lattice validate passed.",
+      "resolvedAt": "2026-07-02T20:44:52.827Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
