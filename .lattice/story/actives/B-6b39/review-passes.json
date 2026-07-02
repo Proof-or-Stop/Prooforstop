@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-02T21:37:38.733Z",
       "reviewRunId": "B-6b39:RR-001",
       "_hash": "18f5e7a05904b52822e29a747fcf4c1ce20010aa96d7696433c8d9695d171e79"
+    },
+    {
+      "id": "B-6b39:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 (pure docs diff, 0 exported symbols). 3 doc passages compared against pilotFreezeCheck implementation on story/B-047f. All three passages (S7 freeze-rule paragraph, M6 exit-criteria table row, S17 step-2 echo) are mutually consistent and match the code: freeze at clamp(p*=0.5+mde/2, ci.lower, ci.upper). No stale lower-bound wording remains. No other docs reference the freeze rule with conflicting wording. Closing self-check: no doc-promise-undelivered issues (doc-only diff). No blockers.",
+      "createdAt": "2026-07-02T21:41:39.132Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-003",
+      "_hash": "5863be1657a1a5cc42e10f134eb28a223b59077d310a4cdb5c3334006080f353"
     }
   ]
 }
