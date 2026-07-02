@@ -47,7 +47,7 @@
       "desc": "[host-2 Codex P2] The adequacy report includes only unpaired reference sizing; M5 requires unpaired reference + McNemar paired sizing. Fix: add a paired section (McNemar nPairs at the live point and the seeded band max, discordant cells derived under the documented independence approximation p01=p1(1-p2), p10=p2(1-p1), with optional explicit override in config) to adequacy-report.json and .md; add selfcheck case.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:05.087Z",
@@ -57,7 +57,11 @@
         "experiments/experience-ablation/sample-size.mjs"
       ],
       "signatureTag": "missing|mjs|host-codex-adequacy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adequacy report now includes McNemar paired sizing per population (derivePairedDiscordance independence approximation, protocol perPopulation.paired override supported): live 296 pairs, seeded band-max 65 pairs; md + json + selfcheck. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:24.637Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-004",
