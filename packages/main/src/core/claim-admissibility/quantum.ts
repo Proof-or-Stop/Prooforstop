@@ -7,7 +7,7 @@ export const QUANTUM_RUNTIME_STATUS =
   'Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.' as const;
 
 export const QUANTUM_BOUNDARY_PARAGRAPH =
-  'Proof-or-Stop for computational quantum mechanics is a local claim-admissibility control layer. It checks whether a stated quantum-simulation claim has current, bound evidence before advancing; it does not prove quantum mechanics, validate physical systems or hardware, improve solvers, claim production completion, or act as Authority.';
+  'Proof-or-Stop for computational quantum mechanics is a local claim-admissibility control layer. It checks whether a stated quantum-simulation claim has current, bound evidence before advancing; it does not prove quantum mechanics, validate physical systems or hardware, improve solvers, make production deployment claims, or act as Authority.';
 
 export const QUANTUM_CLAIM_IDS = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12'] as const;
 export type QuantumClaimId = typeof QUANTUM_CLAIM_IDS[number];

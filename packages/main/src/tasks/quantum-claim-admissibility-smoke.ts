@@ -23,7 +23,7 @@ function checkPass(label: string, input: QuantumClaimCheckInput): QuantumClaimCh
   assert.equal(result.boundary.quantumTheoryClaim, false, `${label} must not claim quantum theory proof`);
   assert.equal(result.boundary.hardwareValidationClaim, false, `${label} must not claim hardware validation`);
   assert.equal(result.boundary.solverImprovementClaim, false, `${label} must not claim solver improvement`);
-  assert.equal(result.boundary.productionClaim, false, `${label} must not claim production completion`);
+  assert.equal(result.boundary.productionClaim, false, `${label} must not claim production deployment`);
   assert.equal(result.boundary.authorityClaim, false, `${label} must not claim Authority`);
   console.log(`${label}: PASS`);
   return result;
