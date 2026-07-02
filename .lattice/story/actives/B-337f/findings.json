@@ -71,6 +71,25 @@
       ],
       "signatureTag": "edge|mjs:478|oracle-silent-catch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-005",
+      "desc": "dead-code: MODULE_WORDS, PRODUCT_OLD, PRODUCT_NEW are defined identically in both fixture-generator.mjs (lines 66-68) and trap-templates.mjs (lines 81-83); fixture-generator.mjs uses its own local copies in contextFor() rather than importing them from trap-templates.mjs; the duplication means a future change to the word/brand lists in one file will silently diverge from the other, changing fixture content for in-store trap classes vs clean class; fix: export from trap-templates.mjs and import in fixture-generator.mjs",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:22.758Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-001",
+      "_hash": "a50c6e258ecdc1097b842d6b09a628906664eddf651b79b64cb902da00475382",
+      "files": [
+        "experiments/experience-ablation/fixture-generator.mjs:66",
+        "experiments/experience-ablation/trap-templates.mjs:81"
+      ],
+      "signatureTag": "missing|mjs:66|dead-code-module",
+      "signatureTagSource": "auto"
     }
   ]
 }
