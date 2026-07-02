@@ -23,8 +23,12 @@
 
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
 import {
+  MODULE_WORDS,
   ORACLE_RUNTIME,
+  PRODUCT_NEW,
+  PRODUCT_OLD,
   TRAP_CLASSES,
   allLeakMarkers,
   pick,
@@ -62,11 +66,8 @@ function seededHex(rand, chars = 8) {
   return s;
 }
 
-// --- template context ---------------------------------------------------------
-const MODULE_WORDS = ['harbor', 'lantern', 'quarry', 'meadow', 'timber', 'cobalt', 'juniper', 'saffron'];
-const PRODUCT_OLD = ['Windgate', 'Ferrowick', 'Larkspur'];
-const PRODUCT_NEW = ['Harborlight', 'Quillstone', 'Mistvale'];
-
+// --- template context (word lists imported from trap-templates.mjs — F-005:
+// a single source so fixture content cannot silently diverge) ----------------
 function contextFor(rand) {
   const token = pick(rand, MODULE_WORDS);
   const oldIdx = Math.floor(rand() * PRODUCT_OLD.length);
@@ -127,6 +128,17 @@ export function emitCorpus({ outDir, seed, perClass, classes }) {
       const dir = join(outDir, fixtureId);
       const workspaceFiles = cls.workspace(ctx);
       const spec = cls.oracleSpec(ctx);
+      // F-007: bind the review-evidence oracle to the emission-time evidence
+      // inventory (relPath -> sha256) so host-created or modified evidence can
+      // never qualify as reviewer proof.
+      if (spec.type === 'review-evidence') {
+        spec.baselineEvidence = {};
+        for (const [rel, content] of Object.entries(workspaceFiles)) {
+          if (rel.startsWith(`${spec.evidenceDir}/`)) {
+            spec.baselineEvidence[rel] = createHash('sha256').update(content).digest('hex');
+          }
+        }
+      }
       const files = {
         'prompt.md': cls.prompt(ctx) + '\n',
         'task.json': JSON.stringify({
