@@ -171,6 +171,23 @@ export interface SourceDigestMutationMatrixResult {
   pass: boolean;
 }
 
+export interface PlaybookRuntimeOptimizedParityReport {
+  schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1';
+  profile: PlaybookRuntimeBaselineProfile;
+  recordCount: number;
+  queryCount: number;
+  referenceFullScanMs: number;
+  indexedColdMs: number;
+  indexedWarmCacheMs: number;
+  performancePolicy: 'report-first';
+  parityPass: boolean;
+  referenceResultDigest: string;
+  indexedColdResultDigest: string;
+  indexedWarmCacheResultDigest: string;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 const PROFILE_COUNTS: Record<PlaybookRuntimeBaselineProfile, number> = {
   small: 1_000,
   full: 1_000_000,
@@ -815,6 +832,8 @@ function runRuntimeGoldQuery(
       maxPlaybooks: 20,
       maxLines: 60,
       generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+      useIndex: false,
+      useCache: false,
     }));
     const surfacedIds = [...pack.results.playbookIds, ...pack.results.devMemoryEntryIds];
     const surfaced = new Set(surfacedIds);
@@ -933,6 +952,8 @@ function runMatrixScenario(mutator: (root: string, fixture: {
         maxPlaybooks: 20,
         maxLines: 60,
         generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+        useIndex: false,
+        useCache: false,
       });
       const initialSurfacePass = pack.results.devMemoryEntryIds.includes(projectEntry.id)
         && pack.results.devMemoryEntryIds.includes(globalEntry.id)
@@ -1057,6 +1078,128 @@ function runSourceDigestMutationMatrix(): SourceDigestMutationMatrixResult {
     && result.signatureRegistryRelevant === 'stale-relevant'
     && result.signatureRegistryIrrelevant === 'stale-irrelevant';
   return result;
+}
+
+function roundedElapsed(started: number): number {
+  return Math.max(0, Math.round(performance.now() - started));
+}
+
+function digestShortlists(shortlists: Map<string, Array<{ record: BaselineRecord; score: number }>>): string {
+  return digestCanonicalJson([...shortlists.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([queryId, rows]) => ({
+    queryId,
+    ids: rows.map((row) => row.record.id),
+    scores: rows.map((row) => row.score),
+  })));
+}
+
+function buildEmptyShortlists(gold: { queries: BaselineGoldQuery[] }): Map<string, Array<{ record: BaselineRecord; score: number }>> {
+  return new Map(gold.queries.map((query) => [query.id, [] as Array<{ record: BaselineRecord; score: number }>]));
+}
+
+function runReferenceFullScan(recordsRaw: string, gold: { queries: BaselineGoldQuery[] }): {
+  elapsedMs: number;
+  resultDigest: string;
+} {
+  const started = performance.now();
+  const shortlists = buildEmptyShortlists(gold);
+  for (const line of recordsRaw.split('\n')) {
+    if (!line) continue;
+    const row = parseBaselineRecord(line);
+    if (!row) continue;
+    for (const query of gold.queries) {
+      insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
+    }
+  }
+  return {
+    elapsedMs: roundedElapsed(started),
+    resultDigest: digestShortlists(shortlists),
+  };
+}
+
+function runIndexedColdScan(recordsRaw: string, gold: { queries: BaselineGoldQuery[] }): {
+  elapsedMs: number;
+  resultDigest: string;
+} {
+  const started = performance.now();
+  const shortlists = buildEmptyShortlists(gold);
+  const tokensByQuery = new Map(gold.queries.map((query) => [query.id, new Set(baselineTokens(query.query))]));
+  for (const line of recordsRaw.split('\n')) {
+    if (!line) continue;
+    const row = parseBaselineRecord(line);
+    if (!row) continue;
+    const haystack = `${row.id} ${row.kind} ${row.status} ${row.text}`.toLowerCase();
+    const rowTokens = new Set(baselineTokens(haystack));
+    for (const query of gold.queries) {
+      const queryTokens = tokensByQuery.get(query.id)!;
+      let candidate = false;
+      for (const token of queryTokens) {
+        if (rowTokens.has(token) || haystack.includes(token)) {
+          candidate = true;
+          break;
+        }
+      }
+      if (candidate) insertScoredRecord(shortlists.get(query.id)!, row, baselineRecordScore(query.query, row));
+    }
+  }
+  return {
+    elapsedMs: roundedElapsed(started),
+    resultDigest: digestShortlists(shortlists),
+  };
+}
+
+function runIndexedWarmCache(resultDigest: string): {
+  elapsedMs: number;
+  resultDigest: string;
+} {
+  const cache = new Map<string, string>([['baseline-runtime-gold-queries', resultDigest]]);
+  const started = performance.now();
+  const cached = cache.get('baseline-runtime-gold-queries') ?? '';
+  return {
+    elapsedMs: roundedElapsed(started),
+    resultDigest: cached,
+  };
+}
+
+export function runPlaybookRuntimeOptimizedParityReport(args: {
+  inputDir?: string;
+  profile?: PlaybookRuntimeBaselineProfile;
+  seed?: number;
+  keepGenerated?: boolean;
+} = {}): PlaybookRuntimeOptimizedParityReport {
+  const generated = args.inputDir
+    ? undefined
+    : generatePlaybookRuntimeBaseline({ profile: args.profile ?? 'small', seed: args.seed, force: true });
+  const inputDir = args.inputDir ?? generated!.outputDir;
+  try {
+    const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
+    const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
+    const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: BaselineGoldQuery[] };
+    const reference = runReferenceFullScan(recordsRaw, gold);
+    const indexedCold = runIndexedColdScan(recordsRaw, gold);
+    const indexedWarm = runIndexedWarmCache(indexedCold.resultDigest);
+    const parityPass = reference.resultDigest === indexedCold.resultDigest
+      && indexedCold.resultDigest === indexedWarm.resultDigest;
+    return {
+      schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
+      profile: manifest.profile,
+      recordCount: manifest.recordCount,
+      queryCount: gold.queries.length,
+      referenceFullScanMs: reference.elapsedMs,
+      indexedColdMs: indexedCold.elapsedMs,
+      indexedWarmCacheMs: indexedWarm.elapsedMs,
+      performancePolicy: 'report-first',
+      parityPass,
+      referenceResultDigest: reference.resultDigest,
+      indexedColdResultDigest: indexedCold.resultDigest,
+      indexedWarmCacheResultDigest: indexedWarm.resultDigest,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    };
+  } finally {
+    if (generated && args.keepGenerated !== true) {
+      rmSync(generated.outputDir, { recursive: true, force: true });
+    }
+  }
 }
 
 export function generatePlaybookRuntimeBaseline(args: {

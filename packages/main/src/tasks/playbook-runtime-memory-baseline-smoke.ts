@@ -7,6 +7,7 @@ import { join } from 'node:path';
 
 import {
   generatePlaybookRuntimeBaseline,
+  runPlaybookRuntimeOptimizedParityReport,
   verifyPlaybookRuntimeBaseline,
   type PlaybookRuntimeBaselineProfile,
 } from '../core/playbook-runtime-baseline.js';
@@ -302,6 +303,19 @@ async function run(): Promise<void> {
       initialSurfacePass: true,
       pass: true,
     });
+    const optimizedParity = runPlaybookRuntimeOptimizedParityReport({ inputDir: generated.outputDir });
+    assert.equal(optimizedParity.profile, verified.profile);
+    assert.equal(optimizedParity.recordCount, generated.manifest.recordCount);
+    assert.equal(optimizedParity.performancePolicy, 'report-first');
+    assert.equal(optimizedParity.parityPass, true);
+    assert.equal(optimizedParity.authority, 'non_authoritative');
+    assert.equal(optimizedParity.gateEvidence, false);
+    assert.match(optimizedParity.referenceResultDigest, /^[0-9a-f]{64}$/);
+    assert.equal(optimizedParity.indexedColdResultDigest, optimizedParity.referenceResultDigest);
+    assert.equal(optimizedParity.indexedWarmCacheResultDigest, optimizedParity.referenceResultDigest);
+    assert.equal(typeof optimizedParity.referenceFullScanMs, 'number');
+    assert.equal(typeof optimizedParity.indexedColdMs, 'number');
+    assert.equal(typeof optimizedParity.indexedWarmCacheMs, 'number');
     assertBrokenCandidateWouldFail();
     assertBrokenSupersessionWouldFail();
     assertMissingCandidateOnlyClassWouldFail();
@@ -318,6 +332,10 @@ async function run(): Promise<void> {
       `profile=${verified.profile}`,
       `recordCount=${verified.recordCount}`,
       `fullProfileExactMillion=${verified.fullProfileExactMillion}`,
+      `referenceFullScanMs=${optimizedParity.referenceFullScanMs}`,
+      `indexedColdMs=${optimizedParity.indexedColdMs}`,
+      `indexedWarmCacheMs=${optimizedParity.indexedWarmCacheMs}`,
+      `performancePolicy=${optimizedParity.performancePolicy}`,
       `elapsedMs=${verified.performance.elapsedMs}`,
       `peakRssBytes=${verified.performance.peakRssBytes}`,
     ].join(' '));
