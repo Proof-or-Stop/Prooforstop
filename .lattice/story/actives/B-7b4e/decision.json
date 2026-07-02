@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Keep Quantum implementation claim-bounded and local-only.",
+    "Fail closed on stale, missing, mismatched, or unbound evidence.",
+    "Reuse the existing proof-admissibility vocabulary and binding style instead of creating a second proof system.",
+    "Ship the smallest useful runtime slice before verifier adapters, gates, and benchmarks."
+  ],
+  "drivers": [
+    "Quantum plan delivery axis says M0-M1 must precede M2-M5.",
+    "The user wants execution, but not overclaiming scientific truth or runtime completeness.",
+    "Existing Proofbound code runtime already has proof-admissibility primitives that should anchor this work."
+  ],
+  "options": [
+    {
+      "name": "narrow-m0-m1-evaluator",
+      "pros": [
+        "Delivers schema and deterministic identity binding now.",
+        "Keeps M2-M5 pending exactly as the plan requires.",
+        "Allows focused smoke coverage without introducing a premature plugin framework."
+      ],
+      "cons": [
+        "Does not yet provide verifier adapters, lifecycle gate integration, or benchmark rates.",
+        "Future stories must still formalize a generic adapter-pack framework if desired."
+      ]
+    },
+    {
+      "name": "full-quantum-pack-now",
+      "pros": [
+        "Would appear to execute more of the written plan in one story.",
+        "Could include verifier adapters, gate policy, and benchmark output sooner."
+      ],
+      "cons": [
+        "Too broad for one story and likely to blur design contract with delivered runtime.",
+        "Risks unsupported scientific or benchmark claims before M1-M3 are verified."
+      ]
+    },
+    {
+      "name": "generic-framework-first",
+      "pros": [
+        "Creates a reusable ClaimAdmissibilityPack abstraction before Quantum-specific code.",
+        "Could reduce duplication across PINN and Quantum later."
+      ],
+      "cons": [
+        "Delays the concrete Quantum M0-M1 slice the user asked to execute.",
+        "Risks inventing abstraction before the second runtime pack proves exact common seams."
+      ]
+    }
+  ],
+  "chosen": "narrow-m0-m1-evaluator",
+  "rationale": "Choose the narrow M0-M1 evaluator because it executes the Quantum plan in the order the document requires, creates concrete runtime value, and avoids overclaiming M2-M5 or scientific correctness.",
+  "preMortem": [
+    {
+      "scenario": "The implementation accidentally claims Quantum runtime completeness.",
+      "trigger": "Docs, smoke output, or result structures say M2-M5, benchmark, or verifier adapters are delivered.",
+      "consequence": "Users may believe Proofbound can validate quantum simulations end-to-end when only M0-M1 exists.",
+      "mitigation": "Keep status wording explicit: M0-M1 only; M2-M5 pending; no benchmark execution before M1-M3."
+    },
+    {
+      "scenario": "Identity binding over-blocks valid deterministic tasks.",
+      "trigger": "The schema requires randomSeed or timeStepHash for static deterministic claims that do not use them.",
+      "consequence": "False stops make the domain pack look unusable for normal eigenvalue or figure provenance checks.",
+      "mitigation": "Implement core required fields and claim-specific conditional identity fields exactly as the Quantum plan describes."
+    },
+    {
+      "scenario": "Weak evidence is upgraded into a strong quantum claim.",
+      "trigger": "Single-run energy evidence is accepted for a stronger ground-state or convergence claim.",
+      "consequence": "The pack violates Proof-or-Stop claim-boundary semantics.",
+      "mitigation": "Add smoke cases proving weak evidence degrades or stops rather than advancing stronger claims."
+    },
+    {
+      "scenario": "The story duplicates the generic adapter-pack framework work.",
+      "trigger": "New interfaces or registries are introduced broadly under core proof-admissibility.",
+      "consequence": "The narrow Quantum story collides with the separate framework document and increases review surface.",
+      "mitigation": "Implement only Quantum-specific primitives under a bounded module; leave generic framework formalization to a separate story."
+    }
+  ],
+  "timestamp": "2026-07-02T19:51:16.399Z"
+}

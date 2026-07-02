@@ -1,0 +1,24 @@
+{
+  "task": "Implement the first runtime slice of the Proof-or-Stop Quantum claim-admissibility pack: M0-M1 schema primitives, identity binding, and fail-closed rejection.",
+  "outcome": "After this story, the user can run `npm --prefix packages/main run test:quantum-claim-admissibility` and see `quantum claim-admissibility smoke passed`, with failures proving that unbound solver output, unbound plot/table evidence, and Hamiltonian/grid/verifierScriptHash mismatches are rejected without claiming quantum theory or hardware validation.",
+  "facts": [
+    "The existing proof-admissibility core provides shared vocabulary, strict binding, digest, and local gate diagnostics.",
+    "No quantum-specific domain pack or runtime module exists yet in the current repo.",
+    "The Quantum execution plan states M0-M1 should be implemented first and M4 benchmark execution must wait for M1-M3.",
+    "PINN runtime work provides a useful pattern, but this story remains a narrower Quantum M0-M1 slice."
+  ],
+  "constraints": [
+    "Do not claim quantum theory validation, physical validation, hardware validation, solver improvement, production completion, or Authority completion.",
+    "Do not implement verifier adapter pack, lifecycle gate transition engine, full benchmark harness, or M5 reporting in this story.",
+    "Do not create a second proof manager, storage root, or proof ledger; reuse existing proof-admissibility patterns where applicable.",
+    "Work in the B-7b4e story worktree and avoid unrelated dirty files in main."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-02T19:51:51.780Z"
+}
