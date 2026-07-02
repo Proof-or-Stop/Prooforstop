@@ -99,6 +99,32 @@
       ],
       "signatureTag": "missing|ts|7ee1-introduces-playbook",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ee1:F-006",
+      "desc": "B-7ee1:F-001 resolved: docs no longer describe advisory auto-promotion as future/default-off/feature-flag gated. The touched decision docs now state promotion sweep remains recommendation-only and playbook_auto_promotion_apply is the separate evidence-activated, non-authoritative apply path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Stale wording removed/updated in commit a09ef69f and c22e761; rg no longer finds PLAYBOOK_AUTO_ACTIVE/default-off/future-only wording in the two touched docs except test guard references elsewhere.",
+        "sourceRefs": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+        ],
+        "reproCommand": "rg \"PLAYBOOK_AUTO_ACTIVE|disabled by default|disabled-by-default|future-only|auto-active promotion|automatic candidate-to-active mutation remain future\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md packages/main/src -n"
+      },
+      "agent": "main-agent",
+      "createdAt": "2026-07-02T22:58:25.488Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "_hash": "961574bc9f79b36653279c86ea3f50ed47f4948359f037fbf59e8630414fce80",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary-docs-stale-resolved",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
