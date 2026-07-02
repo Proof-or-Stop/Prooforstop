@@ -1,0 +1,52 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-02T19:01:19.772Z",
+      "issueCount": 8,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-36fd\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None blocking: the 12 corrections are fully adjudicated and the preserved rev-1 text plus the corrected rev-2 draft already exist in the session workspace; authoring is transcription plus final consistency checks."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-36fd is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "84d6b2815fa31fd0e716036e201c970e1872122e54f80e2e055b2c634afbbf62"
+    }
+  ]
+}
