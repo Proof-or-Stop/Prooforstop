@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-013",
       "_hash": "96ff0167a8ad590d0d06fc5fdab4303272e907a01fb3e1e1b2e1e7f7d641bca3"
+    },
+    {
+      "id": "B-337f:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "F-014 fix verified: diff is exactly the three experiments/ files (trap-templates.mjs, fixture-generator.mjs, fixture-generator-selfcheck.mjs). Static passMarker/sourceFile/sourcePattern/evidenceFile fields fully removed from done-evidence oracleSpec and runtime branch. checkFileSha256 computed from workspace emission content by the generator, embedded in oracle.mjs (harness-side only). Leakage audit covers only prompt.md and workspace/**; oracle.mjs is not on the host-visible surface so checkFileSha256 never leaks into workspace/ or prompt.md. Execution uses execFileSync with cwd=ws and a bare filename (run-check.mjs), so the script resolves inside the workspace. read() containment guard (F-003) prevents path-escape reads before execution. Four new selfcheck probes pin forged output, comment-only fix, duplicate-export SyntaxError, and tampered check script. Arms/roster/trapGroups/schema version/leakageMarkers unchanged. No concept drift.",
+      "createdAt": "2026-07-02T23:12:34.747Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-017",
+      "_hash": "432a39d9186c980930506f2fc3bbaf310bb4ed744ddff08c6b752477c68f4a91"
     }
   ]
 }
