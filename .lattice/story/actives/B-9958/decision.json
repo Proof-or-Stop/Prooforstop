@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Host-neutral workflow commands stay outside Codex/Claude-specific namespaces.",
+    "Learning artifacts remain advisory and non-authoritative; gate evidence stays separate.",
+    "Reviewed batches must be bound by deterministic digests before any mutation.",
+    "Fix real correctness gaps: duplicate source consumption, stale batch apply, candidate/runtime confusion, and unsafe auto-activation.",
+    "Keep logic consistent with existing single-playbook commands instead of adding parallel semantics."
+  ],
+  "drivers": [
+    "The user needs historical experience to become usable playbook candidates without duplicate source counting.",
+    "B-01df only added source lineage audit; the rest of the execution plan is still unimplemented.",
+    "Auto-promotion is useful only after real outcomes and reviewed policy exist, so V1 must fail closed."
+  ],
+  "options": [
+    {
+      "name": "Status-only observation",
+      "pros": [
+        "Lowest code change",
+        "Preserves current safety posture"
+      ],
+      "cons": [
+        "Historical experience remains unconsumed",
+        "No digest-guarded path from seeds to candidates",
+        "Does not solve the user-visible repeat-mistake failure mode"
+      ]
+    },
+    {
+      "name": "Deduped seed observe with digest-guarded proposal and approval",
+      "pros": [
+        "Turns lineage audit into a controlled candidate pipeline",
+        "Prevents observe/apply drift and duplicate canonical source writes",
+        "Preserves candidate inertness and explicit activation boundary"
+      ],
+      "cons": [
+        "Requires new helper types and smoke coverage",
+        "Does not fully automate active playbook promotion in V1"
+      ]
+    },
+    {
+      "name": "Immediate automatic activation",
+      "pros": [
+        "Could reduce manual backlog quickly"
+      ],
+      "cons": [
+        "Would over-trust sparse local outcomes",
+        "Risks injecting unreviewed learning into runtime guidance",
+        "Violates the V2 disabled-by-default boundary"
+      ]
+    }
+  ],
+  "chosen": "Deduped seed observe with digest-guarded proposal and approval",
+  "rationale": "This is the smallest path that closes the real correctness gap: historical learning can become reviewed candidates without duplicate source counting or unsafe auto-activation.",
+  "preMortem": [
+    {
+      "scenario": "Batch apply writes a different seed set than the one reviewed.",
+      "trigger": "Learning sources change between observe and apply.",
+      "consequence": "Operators approve candidates they did not review.",
+      "mitigation": "Require observeDigest on apply and fail closed on drift."
+    },
+    {
+      "scenario": "Candidate playbooks leak into runtime guidance.",
+      "trigger": "Runtime memory helper treats candidates like active playbooks.",
+      "consequence": "Unreviewed candidate advice influences agents as if active.",
+      "mitigation": "Add runtime consumption verification that asserts candidates remain pending learning only."
+    },
+    {
+      "scenario": "DONE success is counted as helped for an unexposed candidate.",
+      "trigger": "Settlement hook conflates story success with candidate usefulness.",
+      "consequence": "Promotion recommendations are inflated by unrelated DONE outcomes.",
+      "mitigation": "Keep DONE settlement disabled by default and test that helped requires explicit exposure/verdict source."
+    },
+    {
+      "scenario": "Auto-promotion becomes an accidental activation path.",
+      "trigger": "A future flag or command omits reviewed policy/outcome/lineage checks.",
+      "consequence": "Candidates become active without enough evidence.",
+      "mitigation": "Implement V2 command as fail-closed guard and document disabled posture in status."
+    }
+  ],
+  "timestamp": "2026-07-02T20:15:02.183Z"
+}

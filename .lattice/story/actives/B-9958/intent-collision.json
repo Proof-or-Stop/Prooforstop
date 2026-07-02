@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-9958",
+  "id": "IC-20260702201640",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the remaining M2-M8 V1/V2-guarded playbook seed promotion work exactly as represented by the current milestone ledger: M2 seed observe, M3 batch propose, M4 batch candidate approve, M5 promotion evidence loop without DONE helped inference, M6 runtime consumption verification, M7 health/readiness, and M8 disabled auto-promotion guard. Do not treat this as M1 rework or default automatic activation.",
+  "acceptedInterpretationHash": "sha256:8bcf80e4b42141f0daa4431440404fccbd9a5814156e6e1f3a7f0c94f8ccb2a0",
+  "notes": "Confirms the current milestone ledger for gate consumption. Excludes default-on DONE settlement, default auto activation, semantic dedup as a hard blocker, and any claim that playbook learning can satisfy lifecycle gate evidence.",
+  "ledgerHashBeforeDecision": "sha256:0a766c3bb852876b8f23ae84b868cd3b18faf3fbe0e3c711a826cb34d4d02cff",
+  "confirmedLedgerHash": "sha256:0a766c3bb852876b8f23ae84b868cd3b18faf3fbe0e3c711a826cb34d4d02cff",
+  "createdAt": "2026-07-02T20:16:40.873Z",
+  "updatedAt": "2026-07-02T20:17:28.845Z"
+}

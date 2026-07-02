@@ -1875,9 +1875,38 @@ Behavior:
     json: z.boolean().optional().describe('Emit structured JSON.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
-  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non-deducible sources, health, flags', schema: {
+  { name: 'playbook_promotion_status', description: 'Read-only promotion posture: pending learning candidates, latest decisions, non_promotable sources (legacy storage: non_deducible), health, flags', schema: {
     playbookId: z.string().optional().describe('Optional playbook id filter.'),
     limit: z.coerce.number().int().optional().describe('Maximum latest decisions/health rows to render (default 10, max 50).'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
+  { name: 'playbook_seed_observe', description: 'Read-only deduped historical playbook seed view with observeDigest (non-authoritative)', schema: {
+    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    json: z.boolean().optional().describe('Emit structured JSON including observeDigest.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'playbook_seed_propose_batch', description: 'Dry-run default batch proposal staging from deduped seeds; --apply requires observeDigest and never creates candidates/active', schema: {
+    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    dryRun: z.boolean().optional().describe('Preview staged proposals without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Write proposal files only. Requires observeDigest; fails closed on observe drift.'),
+    limit: z.coerce.number().int().optional().describe('Maximum seeds to stage (default 20, max 100).'),
+    observeDigest: z.string().optional().describe('Digest from playbook_seed_observe required for --apply.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
+  { name: 'playbook_candidate_batch_approve', description: 'Dry-run default manifest for seed proposals; --apply requires manifestDigest and writes candidates only', schema: {
+    dryRun: z.boolean().optional().describe('Preview candidate approval manifest without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Convert seed proposals to candidate playbooks only. Requires manifestDigest; never activates.'),
+    limit: z.coerce.number().int().optional().describe('Maximum seed proposals to approve (default 50, max 100).'),
+    manifestDigest: z.string().optional().describe('Digest from dry-run manifest required for --apply.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
+  { name: 'playbook_runtime_consumption_verify', description: 'Read-only diagnostic proving active playbooks are consumed and candidates remain inert', schema: {
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'playbook_auto_promotion_apply', description: 'Disabled-by-default V2 auto-promotion guard; dry-run explains prerequisites and --apply fails closed', schema: {
+    dryRun: z.boolean().optional().describe('Explain V2 auto-promotion prerequisites without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Fail-closed unless future V2 prerequisites and feature flags are satisfied; this story does not activate playbooks.'),
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
