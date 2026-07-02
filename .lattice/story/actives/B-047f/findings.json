@@ -132,7 +132,7 @@
       "desc": "[host-2 Codex P3] protocol-selfcheck leaks the two extra mkdtemp roots (ablation-p1/p2) and snapDir (never removed in finally). Fix: track and remove all temp roots.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:08.610Z",
@@ -142,7 +142,11 @@
         "experiments/experience-ablation/protocol-selfcheck.mjs"
       ],
       "signatureTag": "cleanup|mjs|host-codex-protocol",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "protocol-selfcheck tracks all extra mkdtemp roots (p1/p2/snapDir) and removes them in finally. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:28.788Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-008",
