@@ -13,9 +13,9 @@
         "timer registration",
         "automatic candidate activation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T17:35:48.958Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
@@ -49,7 +49,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts synthetic current candidate generation, explicit candidate-inspection consumption rows, and candidate existence alone not counted as consumption/help.",
+          "headHash": "ad75c53b623532d64134f8f3a89d66f72a5f548a",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:49.205Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts empty store reports zero counts and observe does not create .lattice files; malformed ledgers are reported through diagnostics by the read helpers.",
+          "headHash": "ad75c53b623532d64134f8f3a89d66f72a5f548a",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:49.415Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts exposureMode=none is excluded, non-candidate active advisory is excluded from candidate consumption, old rows outside --since are excluded, and candidate existence alone is not helped evidence.",
+          "headHash": "ad75c53b623532d64134f8f3a89d66f72a5f548a",
+          "materialHash": "7d459e5724f704a11e3b9d65bcf9173c347f525ee0ec356c564748005ed3ae5c",
+          "storyFilesHash": "efb6194430ccef994dfd518fc1ab811e7a27128c41dd15d4f624b21e588b32c3",
+          "timestamp": "2026-07-02T17:35:49.621Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -150,6 +185,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T17:35:48.958Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed and focused smoke passed"
     }
   ]
 }
