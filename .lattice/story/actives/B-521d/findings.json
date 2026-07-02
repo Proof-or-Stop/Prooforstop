@@ -52,7 +52,7 @@
       "desc": "CHK-001 userSees requires JSON/text output to include candidateConsumed.unconsumedCurrentCandidateIds, but the report contract only exposes consumedCandidateCount/count/uniquePlaybookCount/malformedOutcomeRows/excluded/rows (experience-layer-types.ts:406-416), buildPlaybookPromotionObserveReport returns the same shape without computing current candidates minus consumed ids (learning-store.ts:1624-1645), and the text renderer has no candidateConsumed.unconsumedCurrentCandidateIds line (handlers/playbook.ts:569-577). This misses the stated output needed to identify current candidates that exist but have no explicit consumption row.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T17:41:41.781Z",
@@ -66,7 +66,11 @@
         ".lattice/story/actives/B-521d/checklist.json"
       ],
       "signatureTag": "missing|ts|usersees-requires-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added candidateConsumed.unconsumedCurrentCandidateIds to the report type, builder, and text output. It is computed as sorted current candidate ids minus consumed candidate rows inside the observation window. Direct CLI JSON now shows the field; smoke asserts empty, unconsumed, and mixed consumed/unconsumed cases.",
+      "resolvedAt": "2026-07-02T17:46:42.681Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-521d:F-004",
