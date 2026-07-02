@@ -92,6 +92,25 @@
       "resolvedAt": "2026-07-02T15:53:43.163Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-005",
+      "desc": "Fuzzy/substring overflow fallback still scans capped tokenMap via scanMatchingIdsForToken. When the fuzzy needle overflows and a matching exact token bucket is also over 4096, candidates beyond the exact cap are lost, diverging from full-source reference. Temp repro reported exactOverflow=true, fuzzyOverflow=true, referenceCount=8217, indexedCount=8193, indexedHasBeyondCap=false, parity=false. Fix by making fuzzy fallback scan uncapped sourceItems or otherwise detect matching exact-overflow tokens and source-scan them; add smoke combining fuzzy overflow with exact bucket overflow.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:56:33.487Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-009",
+      "_hash": "49603b2abd8c8ec7173947fdc52bf20fc24ed777680607537c9029b0e48892d8",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
