@@ -55,7 +55,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M1 outputs a parity guard transcript showing reference and optimized digests match across exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases."
+      "userSees": "Expected transcript includes `semanticParity=pass`, `referenceResultDigest=<sha256>`, `optimizedResultDigest=<same sha256>`, and `candidateFalseSurface=0`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reference and optimized MemoryFreshnessPack result digests match for exact-token and normal active memory cases.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Superseded, stale-relevant, stale-irrelevant, deprecated residue, malformed row, maxLines, and omittedCount behavior remain identical.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A candidate or stale playbook must not surface as current guidance, and semantic drift must fail the parity guard.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
