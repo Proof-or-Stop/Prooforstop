@@ -29,7 +29,7 @@
       "desc": "Blocking quality issue: basisOrGrid claims are specified as accepting a basis-set or grid identity, but buildRequiredIdentityFields always adds gridHash for basisOrGrid claims. A valid basis-set-only Q2/Q5/Q9/Q10 receipt with matching basisSetHash and no gridHash will be blocked by identity_mismatch/missing receipt field handling, contradicting the M1 schema/API semantics and making the evaluator over-specific to grid workflows.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:10:17.556Z",
@@ -41,7 +41,11 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|ts|blocking-quality-issue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 105b780d9 by allowing basisOrGrid claims to bind through either matching basisSetHash or matching gridHash while still failing closed on missing basis/grid identity and mismatches; verified by smoke cases valid Q5 basis-set-only evidence PASS, mismatched basisSetHash BLOCK, and missing basis/grid identity BLOCK.",
+      "resolvedAt": "2026-07-02T20:14:09.913Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
