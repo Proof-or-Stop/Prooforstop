@@ -16,7 +16,12 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, w
 import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
-import type { FindingSignalsCache, Playbook, PlaybookProposal } from './experience-layer-types.js';
+import type {
+  FindingSignalsCache,
+  Playbook,
+  PlaybookOutcomeEvent,
+  PlaybookProposal,
+} from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
 export const LEARNING_DIR = join('.lattice', 'learning');
@@ -40,6 +45,8 @@ export const SIGNATURE_REGISTRY_FILENAME = 'signature-registry.json';
  * SIGNATURE_REGISTRY_FILENAME note), so writing it never makes evidence stale.
  */
 export const PLAYBOOKS_FILENAME = 'playbooks.json';
+/** B-dddd: append-only explicit playbook outcome observations. */
+export const PLAYBOOK_OUTCOMES_FILENAME = 'playbook-outcomes.jsonl';
 /** B-8387: directory holding one staged proposal file per `<id>.json`. */
 export const PROPOSALS_DIRNAME = 'proposals';
 
@@ -153,6 +160,11 @@ export function resolvePlaybooksPath(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PLAYBOOKS_FILENAME);
 }
 
+/** Absolute playbook outcome ledger path under the shared learning root. */
+export function resolvePlaybookOutcomesPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOK_OUTCOMES_FILENAME);
+}
+
 /** Absolute proposals directory (`.lattice/learning/proposals/`) under a root. */
 export function resolveProposalsDir(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PROPOSALS_DIRNAME);
@@ -240,6 +252,25 @@ function atomicWriteJson(filePath: string, value: unknown): string {
     writeFileSync(tmpPath, serialized, 'utf8');
     JSON.parse(readFileSync(tmpPath, 'utf8')); // post-write validation
     renameSync(tmpPath, filePath); // atomic replace
+  } catch (err) {
+    try { rmSync(tmpPath, { force: true }); } catch { /* best-effort cleanup */ }
+    throw err;
+  }
+  return filePath;
+}
+
+function atomicAppendCanonicalJsonLine(filePath: string, value: unknown): string {
+  const prior = existsSync(filePath) ? readFileSync(filePath, 'utf8') : '';
+  const prefix = prior && !prior.endsWith('\n') ? `${prior}\n` : prior;
+  const next = `${prefix}${JSON.stringify(canonicalize(value))}\n`;
+  const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  try {
+    mkdirSync(dirname(filePath), { recursive: true });
+    writeFileSync(tmpPath, next, 'utf8');
+    for (const line of readFileSync(tmpPath, 'utf8').split('\n')) {
+      if (line.trim()) JSON.parse(line);
+    }
+    renameSync(tmpPath, filePath);
   } catch (err) {
     try { rmSync(tmpPath, { force: true }); } catch { /* best-effort cleanup */ }
     throw err;
@@ -650,4 +681,197 @@ export function deleteProposal(projectRoot: string, id: string): boolean {
   if (!existsSync(filePath)) return false;
   rmSync(filePath, { force: true });
   return true;
+}
+
+// ── B-dddd M0-M2: playbook outcome ledger ────────────────────────────────────
+
+const PLAYBOOK_OUTCOME_SCHEMA_VERSION = 'proofbound.playbook-outcome.v1';
+const PLAYBOOK_EXPOSURE_MODES = new Set(['candidate-inspection', 'active-advisory', 'none']);
+const PLAYBOOK_OUTCOME_VERDICTS = new Set(['helped', 'neutral', 'dismissed', 'harmful', 'unknown']);
+const STRUCTURED_VERDICT_SOURCE_RE = /^[A-Za-z][A-Za-z0-9_.:-]{1,79}$/;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function own(value: Record<string, unknown>, key: string): unknown {
+  return Object.prototype.hasOwnProperty.call(value, key) ? value[key] : undefined;
+}
+
+function ownString(value: Record<string, unknown>, key: string): string {
+  const raw = own(value, key);
+  return typeof raw === 'string' ? raw.trim() : '';
+}
+
+function ownBoolean(value: Record<string, unknown>, key: string): boolean | null {
+  const raw = own(value, key);
+  return typeof raw === 'boolean' ? raw : null;
+}
+
+function ownStringArray(value: Record<string, unknown>, key: string): string[] | null {
+  const raw = own(value, key);
+  if (!Array.isArray(raw) || raw.some((item) => typeof item !== 'string')) return null;
+  return raw.map((item) => item.trim()).filter(Boolean);
+}
+
+function optionalOwnString(value: Record<string, unknown>, key: string): string | undefined {
+  const raw = own(value, key);
+  if (raw === undefined) return undefined;
+  return typeof raw === 'string' ? raw.trim() : '';
+}
+
+function validateOptionalStringFields(value: Record<string, unknown>, fields: string[], label: string): string | null {
+  for (const field of fields) {
+    const raw = own(value, field);
+    if (raw !== undefined && typeof raw !== 'string') return `${label}.${field} must be a string when present`;
+  }
+  return null;
+}
+
+function validateIsoTimestamp(value: string, label: string): string | null {
+  if (!value) return `${label} must be a non-empty ISO timestamp`;
+  const ms = Date.parse(value);
+  if (!Number.isFinite(ms)) return `${label} must be a valid ISO timestamp`;
+  return null;
+}
+
+export function isPositiveHelpedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
+  return event.outcome.verdict === 'helped'
+    && event.exposureMode !== 'none'
+    && STRUCTURED_VERDICT_SOURCE_RE.test(event.outcome.verdictSource);
+}
+
+export function validatePlaybookOutcomeEvent(raw: unknown): { ok: true; event: PlaybookOutcomeEvent } | { ok: false; error: string } {
+  if (!isRecord(raw)) return { ok: false, error: 'event must be an object' };
+
+  if (ownString(raw, 'schemaVersion') !== PLAYBOOK_OUTCOME_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${PLAYBOOK_OUTCOME_SCHEMA_VERSION}` };
+  }
+  const eventId = ownString(raw, 'eventId');
+  if (!eventId) return { ok: false, error: 'eventId must be a non-empty string' };
+  const idempotencyKey = ownString(raw, 'idempotencyKey');
+  if (!idempotencyKey) return { ok: false, error: 'idempotencyKey must be a non-empty string' };
+  const observedAt = ownString(raw, 'observedAt');
+  const observedAtError = validateIsoTimestamp(observedAt, 'observedAt');
+  if (observedAtError) return { ok: false, error: observedAtError };
+  const storyId = ownString(raw, 'storyId');
+  if (!storyId) return { ok: false, error: 'storyId must be a non-empty string' };
+  const playbookId = ownString(raw, 'playbookId');
+  if (!playbookId) return { ok: false, error: 'playbookId must be a non-empty string' };
+  const playbookStatusAtObservation = ownString(raw, 'playbookStatusAtObservation');
+  if (playbookStatusAtObservation !== 'candidate' && playbookStatusAtObservation !== 'active') {
+    return { ok: false, error: 'playbookStatusAtObservation must be candidate|active' };
+  }
+  const exposureMode = ownString(raw, 'exposureMode');
+  if (!PLAYBOOK_EXPOSURE_MODES.has(exposureMode)) {
+    return { ok: false, error: 'exposureMode must be candidate-inspection|active-advisory|none' };
+  }
+  const consumer = ownString(raw, 'consumer');
+  if (!consumer) return { ok: false, error: 'consumer must be a non-empty string' };
+
+  const context = own(raw, 'context');
+  if (!isRecord(context)) return { ok: false, error: 'context must be an object' };
+  const fileKinds = ownStringArray(context, 'fileKinds');
+  if (!fileKinds) return { ok: false, error: 'context.fileKinds must be a string array' };
+  const triggerClasses = ownStringArray(context, 'triggerClasses');
+  if (!triggerClasses) return { ok: false, error: 'context.triggerClasses must be a string array' };
+  const contextOptionalError = validateOptionalStringFields(context, ['storyPhase', 'storyType', 'host', 'hostProvider', 'hostCapabilityId'], 'context');
+  if (contextOptionalError) return { ok: false, error: contextOptionalError };
+
+  const outcome = own(raw, 'outcome');
+  if (!isRecord(outcome)) return { ok: false, error: 'outcome must be an object' };
+  const verdict = ownString(outcome, 'verdict');
+  if (!PLAYBOOK_OUTCOME_VERDICTS.has(verdict)) {
+    return { ok: false, error: 'outcome.verdict must be helped|neutral|dismissed|harmful|unknown' };
+  }
+  const verdictSource = ownString(outcome, 'verdictSource');
+  if (!STRUCTURED_VERDICT_SOURCE_RE.test(verdictSource)) {
+    return { ok: false, error: 'outcome.verdictSource must be a structured non-empty source token' };
+  }
+  const causedNoise = ownBoolean(outcome, 'causedNoise');
+  if (causedNoise === null) return { ok: false, error: 'outcome.causedNoise must be a boolean' };
+  const causedWrongClaim = ownBoolean(outcome, 'causedWrongClaim');
+  if (causedWrongClaim === null) return { ok: false, error: 'outcome.causedWrongClaim must be a boolean' };
+  const preventedRepeatFinding = ownBoolean(outcome, 'preventedRepeatFinding');
+  if (preventedRepeatFinding === null) return { ok: false, error: 'outcome.preventedRepeatFinding must be a boolean' };
+  const note = optionalOwnString(outcome, 'note');
+  if (note === '') return { ok: false, error: 'outcome.note must be non-empty when present' };
+  if (verdict === 'helped' && exposureMode === 'none') {
+    return { ok: false, error: 'helped outcomes require exposureMode other than none' };
+  }
+
+  const bindings = own(raw, 'bindings');
+  if (!isRecord(bindings)) return { ok: false, error: 'bindings must be an object' };
+  const bindingError = validateOptionalStringFields(bindings, ['headHash', 'storyFilesHash', 'materialHash', 'summaryDigest', 'deliveryCheckDigest'], 'bindings');
+  if (bindingError) return { ok: false, error: bindingError };
+
+  if (ownString(raw, 'authority') !== 'non_authoritative') {
+    return { ok: false, error: 'authority must be non_authoritative' };
+  }
+  if (own(raw, 'gateEvidence') !== false) {
+    return { ok: false, error: 'gateEvidence must be false' };
+  }
+
+  const event: PlaybookOutcomeEvent = {
+    schemaVersion: PLAYBOOK_OUTCOME_SCHEMA_VERSION,
+    eventId,
+    idempotencyKey,
+    observedAt,
+    storyId,
+    playbookId,
+    playbookStatusAtObservation: playbookStatusAtObservation as PlaybookOutcomeEvent['playbookStatusAtObservation'],
+    exposureMode: exposureMode as PlaybookOutcomeEvent['exposureMode'],
+    consumer,
+    context: {
+      ...(optionalOwnString(context, 'storyPhase') ? { storyPhase: optionalOwnString(context, 'storyPhase') } : {}),
+      ...(optionalOwnString(context, 'storyType') ? { storyType: optionalOwnString(context, 'storyType') } : {}),
+      fileKinds,
+      triggerClasses,
+      ...(optionalOwnString(context, 'host') ? { host: optionalOwnString(context, 'host') } : {}),
+      ...(optionalOwnString(context, 'hostProvider') ? { hostProvider: optionalOwnString(context, 'hostProvider') } : {}),
+      ...(optionalOwnString(context, 'hostCapabilityId') ? { hostCapabilityId: optionalOwnString(context, 'hostCapabilityId') } : {}),
+    },
+    outcome: {
+      verdict: verdict as PlaybookOutcomeEvent['outcome']['verdict'],
+      verdictSource,
+      causedNoise,
+      causedWrongClaim,
+      preventedRepeatFinding,
+      ...(note ? { note } : {}),
+    },
+    bindings: {
+      ...(optionalOwnString(bindings, 'headHash') ? { headHash: optionalOwnString(bindings, 'headHash') } : {}),
+      ...(optionalOwnString(bindings, 'storyFilesHash') ? { storyFilesHash: optionalOwnString(bindings, 'storyFilesHash') } : {}),
+      ...(optionalOwnString(bindings, 'materialHash') ? { materialHash: optionalOwnString(bindings, 'materialHash') } : {}),
+      ...(optionalOwnString(bindings, 'summaryDigest') ? { summaryDigest: optionalOwnString(bindings, 'summaryDigest') } : {}),
+      ...(optionalOwnString(bindings, 'deliveryCheckDigest') ? { deliveryCheckDigest: optionalOwnString(bindings, 'deliveryCheckDigest') } : {}),
+    },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+  return { ok: true, event };
+}
+
+/** Read valid playbook outcome rows. Missing or malformed rows degrade to skip. */
+export function readPlaybookOutcomeEvents(projectRoot: string): PlaybookOutcomeEvent[] {
+  const filePath = resolvePlaybookOutcomesPath(projectRoot);
+  if (!existsSync(filePath)) return [];
+  const out: PlaybookOutcomeEvent[] = [];
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookOutcomeEvent(JSON.parse(line));
+      if (validated.ok) out.push(validated.event);
+    } catch {
+      // Malformed/truncated rows are ignored by readers; appends still fail closed.
+    }
+  }
+  return out;
+}
+
+/** Append one validated, canonical JSONL outcome row under `.lattice/learning/`. */
+export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookOutcomeEvent): string {
+  const validated = validatePlaybookOutcomeEvent(event);
+  if (!validated.ok) throw new Error(`appendPlaybookOutcomeEvent: ${validated.error}`);
+  return atomicAppendCanonicalJsonLine(resolvePlaybookOutcomesPath(projectRoot), validated.event);
 }

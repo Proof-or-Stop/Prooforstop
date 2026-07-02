@@ -1,12 +1,13 @@
 /**
  * B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle.
  *
- * Five commands distil a resolved finding into a human-approved candidate
+ * Commands distil a resolved finding into a human-approved candidate
  * playbook and then explicitly activate it for advisory runtime matching:
  *   playbook_propose --finding <id>            -> proposals/<id>.json (proposed)
  *   playbook_diff <proposalId>                 -> read-only render (no mutation)
  *   playbook_approve <proposalId> --expected…  -> playbooks.json candidate
  *   playbook_activate <playbookId> --expected… -> playbooks.json active
+ *   playbook_outcome_record ...                -> playbook-outcomes.jsonl row
  *   playbook_reject <proposalId>               -> discard the proposal
  *
  * HARD GUARDRAILS (load-bearing — enforced by smoke + static grep):
@@ -20,19 +21,23 @@
  *     fails CLOSED on stale/missing `--expectedPlaybookDigest`, rejects malformed
  *     playbooks, and keeps active playbooks non-authoritative / gateEvidence=false.
  *
- * Imports stay minimal: `node:` builtins are not needed; the only outward imports
- * are the leaf types, the learning-store (which itself only touches
+ * Imports stay minimal: the only outward imports
+ * are `node:` builtins, the leaf types, the learning-store (which itself only touches
  * `.lattice/learning/` and `./digest.js`), and the HandlerContext for the store
  * read port.
  */
 
+import { randomUUID } from 'node:crypto';
+
 import type {
   Playbook,
   PlaybookLineage,
+  PlaybookOutcomeEvent,
   PlaybookProposal,
   PlaybookTrigger,
 } from '../core/experience-layer-types.js';
 import {
+  appendPlaybookOutcomeEvent,
   appendPlaybook,
   computePlaybookDigest,
   computePlaybookProposalDigest,
@@ -41,6 +46,7 @@ import {
   readPlaybooks,
   readProposal,
   resolveLearningOwnerRoot,
+  resolvePlaybookOutcomesPath,
   validatePlaybook,
   writePlaybooks,
   writeProposal,
@@ -152,6 +158,175 @@ function withPlaybookWriteLock<T>(ctx: HandlerContext, label: string, fn: () => 
 
 function findPlaybookIndex(playbooks: Playbook[], playbookId: string): number {
   return playbooks.findIndex((p) => p && p.id === playbookId);
+}
+
+type PlaybookOutcomeRecordArgs = {
+  storyId: unknown;
+  playbookId: unknown;
+  exposureMode: unknown;
+  consumer: unknown;
+  context: unknown;
+  outcome: unknown;
+  bindings?: unknown;
+  observedAt?: unknown;
+  idempotencyKey?: unknown;
+  eventId?: unknown;
+  authority?: unknown;
+  gateEvidence?: unknown;
+};
+
+const FORBIDDEN_OUTCOME_CLAIM_KEYS = new Set([
+  'authorityChanged',
+  'doneEvidence',
+  'doneProof',
+  'productionReady',
+  'proofEvidence',
+  'receiptVerified',
+  'releaseReady',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function hasOwn(value: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function own(value: Record<string, unknown>, key: string): unknown {
+  return hasOwn(value, key) ? value[key] : undefined;
+}
+
+function assertNoAuthorityClaims(value: unknown, path = 'args'): void {
+  if (!isRecord(value)) return;
+  for (const key of Object.keys(value)) {
+    const child = value[key];
+    if (key === 'authority') {
+      if (child !== undefined && child !== 'non_authoritative') {
+        throw new Error(`${path}.authority must be non_authoritative`);
+      }
+      continue;
+    }
+    if (key === 'gateEvidence') {
+      if (child !== undefined && child !== false) {
+        throw new Error(`${path}.gateEvidence must be false`);
+      }
+      continue;
+    }
+    if (FORBIDDEN_OUTCOME_CLAIM_KEYS.has(key)) {
+      throw new Error(`playbook_outcome_record refuses authority/proof claim field: ${path}.${key}`);
+    }
+    assertNoAuthorityClaims(child, `${path}.${key}`);
+  }
+}
+
+function requiredString(obj: Record<string, unknown>, key: string): string {
+  if (!hasOwn(obj, key)) throw new Error(`playbook_outcome_record requires own field ${key}`);
+  const value = own(obj, key);
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`playbook_outcome_record requires ${key} as a non-empty string`);
+  }
+  return value.trim();
+}
+
+function optionalString(obj: Record<string, unknown>, key: string): string | undefined {
+  if (!hasOwn(obj, key)) return undefined;
+  const value = own(obj, key);
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`playbook_outcome_record ${key} must be a non-empty string when present`);
+  }
+  return value.trim();
+}
+
+function requiredBoolean(obj: Record<string, unknown>, key: string): boolean {
+  if (!hasOwn(obj, key)) throw new Error(`playbook_outcome_record requires own field outcome.${key}`);
+  const value = own(obj, key);
+  if (typeof value !== 'boolean') {
+    throw new Error(`playbook_outcome_record outcome.${key} must be a boolean`);
+  }
+  return value;
+}
+
+function requiredRecord(obj: Record<string, unknown>, key: string): Record<string, unknown> {
+  if (!hasOwn(obj, key)) throw new Error(`playbook_outcome_record requires own field ${key}`);
+  const value = own(obj, key);
+  if (!isRecord(value)) throw new Error(`playbook_outcome_record ${key} must be an object`);
+  return value;
+}
+
+function requiredStringArray(obj: Record<string, unknown>, key: string): string[] {
+  if (!hasOwn(obj, key)) throw new Error(`playbook_outcome_record requires own field context.${key}`);
+  const value = own(obj, key);
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
+    throw new Error(`playbook_outcome_record context.${key} must be a string array`);
+  }
+  return value.map((item) => item.trim()).filter(Boolean);
+}
+
+function normalizeBindings(bindings: unknown): PlaybookOutcomeEvent['bindings'] {
+  if (bindings === undefined) return {};
+  if (!isRecord(bindings)) throw new Error('playbook_outcome_record bindings must be an object when present');
+  return {
+    ...(optionalString(bindings, 'headHash') ? { headHash: optionalString(bindings, 'headHash') } : {}),
+    ...(optionalString(bindings, 'storyFilesHash') ? { storyFilesHash: optionalString(bindings, 'storyFilesHash') } : {}),
+    ...(optionalString(bindings, 'materialHash') ? { materialHash: optionalString(bindings, 'materialHash') } : {}),
+    ...(optionalString(bindings, 'summaryDigest') ? { summaryDigest: optionalString(bindings, 'summaryDigest') } : {}),
+    ...(optionalString(bindings, 'deliveryCheckDigest') ? { deliveryCheckDigest: optionalString(bindings, 'deliveryCheckDigest') } : {}),
+  };
+}
+
+function buildOutcomeEvent(args: PlaybookOutcomeRecordArgs, playbook: Playbook): PlaybookOutcomeEvent {
+  if (!isRecord(args)) throw new Error('playbook_outcome_record requires an object argument');
+  assertNoAuthorityClaims(args);
+
+  const storyId = requiredString(args, 'storyId');
+  const playbookId = requiredString(args, 'playbookId');
+  if (playbook.id !== playbookId) throw new Error(`playbook_outcome_record: playbook mismatch: ${playbook.id} !== ${playbookId}`);
+  if (playbook.status !== 'candidate' && playbook.status !== 'active') {
+    throw new Error(`playbook_outcome_record: ${playbookId} is status=${playbook.status}; only candidate/active playbooks can receive outcomes`);
+  }
+
+  const exposureMode = requiredString(args, 'exposureMode') as PlaybookOutcomeEvent['exposureMode'];
+  const consumer = requiredString(args, 'consumer');
+  const context = requiredRecord(args, 'context');
+  const outcome = requiredRecord(args, 'outcome');
+  const verdict = requiredString(outcome, 'verdict') as PlaybookOutcomeEvent['outcome']['verdict'];
+  const verdictSource = requiredString(outcome, 'verdictSource');
+  const observedAt = optionalString(args, 'observedAt') ?? new Date().toISOString();
+  const idempotencyKey = optionalString(args, 'idempotencyKey') ?? `${playbookId}:${storyId}:${observedAt}:${verdict}`;
+
+  return {
+    schemaVersion: 'proofbound.playbook-outcome.v1',
+    eventId: optionalString(args, 'eventId') ?? `PBO-${randomUUID()}`,
+    idempotencyKey,
+    observedAt,
+    storyId,
+    playbookId,
+    playbookStatusAtObservation: playbook.status,
+    exposureMode,
+    consumer,
+    context: {
+      ...(optionalString(context, 'storyPhase') ? { storyPhase: optionalString(context, 'storyPhase') } : {}),
+      ...(optionalString(context, 'storyType') ? { storyType: optionalString(context, 'storyType') } : {}),
+      fileKinds: requiredStringArray(context, 'fileKinds'),
+      triggerClasses: requiredStringArray(context, 'triggerClasses'),
+      ...(optionalString(context, 'host') ? { host: optionalString(context, 'host') } : {}),
+      ...(optionalString(context, 'hostProvider') ? { hostProvider: optionalString(context, 'hostProvider') } : {}),
+      ...(optionalString(context, 'hostCapabilityId') ? { hostCapabilityId: optionalString(context, 'hostCapabilityId') } : {}),
+    },
+    outcome: {
+      verdict,
+      verdictSource,
+      causedNoise: requiredBoolean(outcome, 'causedNoise'),
+      causedWrongClaim: requiredBoolean(outcome, 'causedWrongClaim'),
+      preventedRepeatFinding: requiredBoolean(outcome, 'preventedRepeatFinding'),
+      ...(optionalString(outcome, 'note') ? { note: optionalString(outcome, 'note') } : {}),
+    },
+    bindings: normalizeBindings(own(args, 'bindings')),
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
 }
 
 export function createPlaybookHandlers(ctx: HandlerContext) {
@@ -345,6 +520,41 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
           `status: active`,
           `previousPlaybookDigest: ${computed}`,
           `activePlaybookDigest: ${computePlaybookDigest(persisted)}`,
+          `authority: non_authoritative`,
+          `gateEvidence: false`,
+        ].join('\n');
+      });
+    },
+
+    /**
+     * Append one explicit outcome observation. This is audit-only learning
+     * metadata: it never activates/rejects a playbook and never creates gate
+     * evidence from story/DONE completion.
+     */
+    playbook_outcome_record(args: PlaybookOutcomeRecordArgs): string {
+      return withPlaybookWriteLock(ctx, 'playbook_outcome_record', () => {
+        const requestedId = isRecord(args) ? requiredString(args, 'playbookId') : '';
+        const playbooks = readPlaybooks(ctx.root);
+        const idx = findPlaybookIndex(playbooks, requestedId);
+        if (idx < 0) throw new Error(`playbook_outcome_record: playbook not found: ${requestedId}`);
+
+        const validation = validatePlaybook(playbooks[idx]);
+        if (!validation.ok) {
+          throw new Error(`playbook_outcome_record: malformed playbook ${requestedId}: ${validation.error}`);
+        }
+
+        const event = buildOutcomeEvent(args, validation.playbook);
+        appendPlaybookOutcomeEvent(ctx.root, event);
+
+        return [
+          `Playbook outcome ${event.eventId} recorded`,
+          `story: ${event.storyId}`,
+          `playbook: ${event.playbookId}`,
+          `playbookStatusAtObservation: ${event.playbookStatusAtObservation}`,
+          `exposureMode: ${event.exposureMode}`,
+          `verdict: ${event.outcome.verdict}`,
+          `verdictSource: ${event.outcome.verdictSource}`,
+          `ledger: ${resolvePlaybookOutcomesPath(ctx.root)}`,
           `authority: non_authoritative`,
           `gateEvidence: false`,
         ].join('\n');

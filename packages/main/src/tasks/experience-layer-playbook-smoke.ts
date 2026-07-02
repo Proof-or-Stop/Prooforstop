@@ -47,16 +47,23 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache, loadConfig } from '../core/config.js';
 import { createPlaybookHandlers } from '../handlers/playbook.js';
 import {
+  computePlaybookDigest,
   computePlaybookProposalDigest,
+  isPositiveHelpedPlaybookOutcome,
+  readPlaybookOutcomeEvents,
   readPlaybooks,
   readProposal,
+  resolvePlaybookOutcomesPath,
   resolveProposalsDir,
   resolvePlaybooksPath,
   writeProposal,
 } from '../core/learning-store.js';
+import { COMMAND_POLICIES } from '../core/command-policy.js';
+import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
+import { MAIN_TOOLS } from '../cli-engine.js';
 import type { HandlerContext } from '../handlers/context.js';
-import type { Finding, FindingData, StoryInfo } from '../core/types.js';
-import type { PlaybookProposal } from '../core/experience-layer-types.js';
+import type { Finding, StoryInfo } from '../core/types.js';
+import type { Playbook, PlaybookProposal } from '../core/experience-layer-types.js';
 
 const PINNED_NOW = '2026-06-17T00:00:00.000Z';
 
@@ -176,6 +183,60 @@ function proposalsSnapshot(root: string): string {
   if (!existsSync(dir)) return '<no-dir>';
   const files = readdirSync(dir).sort();
   return files.map((f) => `${f}::${readFileSync(join(dir, f), 'utf-8')}`).join('\n');
+}
+
+function approveCandidate(root: string, h: ReturnType<typeof createPlaybookHandlers>, finding: Finding): Playbook {
+  const pid = h.playbook_propose({ finding: finding.id }).match(/proposal (\S+) staged/)![1];
+  const digest = readProposal(root, pid)!.proposalDigest;
+  h.playbook_approve({ proposalId: pid, expectedProposalDigest: digest });
+  const playbook = readPlaybooks(root).find((p) => p.id === pid);
+  assert.ok(playbook, 'candidate playbook exists after approve');
+  return playbook!;
+}
+
+type OutcomeSmokeArgs = {
+  storyId: string;
+  playbookId: string;
+  exposureMode: string;
+  consumer: string;
+  context: Record<string, unknown>;
+  outcome: Record<string, unknown>;
+  bindings: Record<string, unknown>;
+  observedAt: string;
+  idempotencyKey: string;
+  [key: string]: unknown;
+};
+
+function outcomeArgs(
+  storyId: string,
+  playbookId: string,
+  overrides: Partial<OutcomeSmokeArgs> = {},
+): OutcomeSmokeArgs {
+  return {
+    storyId,
+    playbookId,
+    exposureMode: 'candidate-inspection',
+    consumer: 'reviewer',
+    context: {
+      storyPhase: 'REVIEW',
+      storyType: 'chore',
+      fileKinds: ['ts'],
+      triggerClasses: ['auth-bypass'],
+      host: 'Codex CLI',
+    },
+    outcome: {
+      verdict: 'helped',
+      verdictSource: 'reviewer',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: true,
+      note: 'explicit reviewer outcome',
+    },
+    bindings: {},
+    observedAt: PINNED_NOW,
+    idempotencyKey: `${storyId}:${playbookId}:smoke`,
+    ...overrides,
+  };
 }
 
 async function run(): Promise<void> {
@@ -341,10 +402,11 @@ async function run(): Promise<void> {
       assert.equal(before, after, 'findings.json byte-identical across the full lifecycle (never auto-files a finding)');
     });
 
-    check('guardrail (static): handlers/playbook.ts references no finding_add / advisory', () => {
+    check('guardrail (static): handlers/playbook.ts references no finding writer / advisory module / gate', () => {
       const src = readFileSync(join(MAIN_DIR, 'src', 'handlers', 'playbook.ts'), 'utf-8');
       assert.ok(!/finding_add/.test(src), 'playbook.ts must not reference finding_add');
-      assert.ok(!/advisory/i.test(src), 'playbook.ts must not reference advisory');
+      assert.ok(!/from ['"][^'"]*advisory[^'"]*['"]/.test(src), 'playbook.ts must not import advisory modules');
+      assert.ok(!/from ['"][^'"]*gate[^'"]*['"]/.test(src), 'playbook.ts must not import gate modules');
       assert.ok(!/writeFindings/.test(src), 'playbook.ts must not write findings');
     });
 
@@ -384,6 +446,7 @@ async function run(): Promise<void> {
       const allowed = new Set([
         '../core/experience-layer-types.js',
         '../core/learning-store.js',
+        '../core/main-write-lock.js',
         '../core/types.js',
         './context.js',
       ]);
@@ -400,6 +463,7 @@ async function run(): Promise<void> {
       const allowed = new Set([
         '../core/experience-layer-types.js',
         '../core/learning-store.js',
+        '../core/main-write-lock.js',
         '../core/types.js',
         './context.js',
       ]);
@@ -419,6 +483,177 @@ async function run(): Promise<void> {
       h.playbook_approve({ proposalId: pid, expectedProposalDigest: digest });
       assert.ok(existsSync(resolvePlaybooksPath(root)), 'playbooks.json under .lattice/learning/');
       assert.ok(resolvePlaybooksPath(root).includes(join('.lattice', 'learning')), 'playbooks path is under .lattice/learning/');
+    });
+
+    // ─── B-dddd M0-M2: explicit outcome ledger, no promotion evaluator ─────────
+    check('outcome: playbook_outcome_record explicitly appends a non-authoritative ledger row', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-out'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      const pb = approveCandidate(root, h, f);
+      const beforeDigest = computePlaybookDigest(pb);
+
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'no outcome exists before explicit record');
+      const msg = h.playbook_outcome_record(outcomeArgs(storyId, pb.id));
+      assert.match(msg, /Playbook outcome .* recorded/);
+      assert.match(msg, /authority: non_authoritative/);
+      assert.match(msg, /gateEvidence: false/);
+      assert.ok(existsSync(resolvePlaybookOutcomesPath(root)), 'outcome ledger is created only by the explicit command');
+
+      const events = readPlaybookOutcomeEvents(root);
+      assert.equal(events.length, 1, 'one event appended');
+      const event = events[0];
+      assert.equal(event.authority, 'non_authoritative');
+      assert.equal(event.gateEvidence, false);
+      assert.equal(event.playbookStatusAtObservation, 'candidate');
+      assert.equal(event.exposureMode, 'candidate-inspection');
+      assert.equal(event.outcome.verdict, 'helped');
+      assert.equal(isPositiveHelpedPlaybookOutcome(event), true, 'explicit helped exposure is the only positive helped sample');
+      assert.equal(computePlaybookDigest(readPlaybooks(root)[0]), beforeDigest, 'recording outcome did not mutate the candidate playbook');
+    });
+
+    check('outcome: ordinary story/DONE completion alone is not recorded as helped', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-doneonly'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      approveCandidate(root, h, f);
+      store.writeStory(storyId, { ...newStory(storyId), phase: 'DONE', endedAt: PINNED_NOW });
+
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'DONE metadata alone writes no outcome row');
+      assert.equal(existsSync(resolvePlaybookOutcomesPath(root)), false, 'no outcome ledger file is created by DONE completion alone');
+    });
+
+    check('outcome: helped requires concrete exposure and structured verdict source', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-helpguard'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      const pb = approveCandidate(root, h, f);
+      const base = outcomeArgs(storyId, pb.id);
+
+      assert.throws(
+        () => h.playbook_outcome_record({ ...base, exposureMode: 'none' }),
+        /helped outcomes require exposureMode other than none/,
+        'helped with exposureMode=none is rejected',
+      );
+      assert.throws(
+        () => h.playbook_outcome_record({ ...base, outcome: { ...base.outcome, verdictSource: 'free form prose source' } }),
+        /verdictSource must be a structured non-empty source token/,
+        'helped with prose verdictSource is rejected',
+      );
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'rejected helped rows are not appended');
+    });
+
+    check('outcome: neutral/unknown are observability only, not decisive positive helped samples', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-neutral'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      const pb = approveCandidate(root, h, f);
+      const base = outcomeArgs(storyId, pb.id);
+
+      h.playbook_outcome_record({
+        ...base,
+        exposureMode: 'none',
+        consumer: 'done_closure',
+        idempotencyKey: `${storyId}:${pb.id}:neutral`,
+        outcome: {
+          ...base.outcome,
+          verdict: 'neutral',
+          verdictSource: 'done-settlement',
+          preventedRepeatFinding: false,
+        },
+      });
+      h.playbook_outcome_record({
+        ...base,
+        exposureMode: 'none',
+        consumer: 'playbook_runtime_health',
+        idempotencyKey: `${storyId}:${pb.id}:unknown`,
+        outcome: {
+          ...base.outcome,
+          verdict: 'unknown',
+          verdictSource: 'health-scan',
+          preventedRepeatFinding: false,
+        },
+      });
+
+      const events = readPlaybookOutcomeEvents(root);
+      assert.deepEqual(events.map((event) => event.outcome.verdict), ['neutral', 'unknown']);
+      assert.equal(events.filter(isPositiveHelpedPlaybookOutcome).length, 0, 'neutral/unknown do not count as helped samples');
+    });
+
+    check('outcome: candidate status remains candidate; no activation, rejection, or runtime surfacing', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-candstay'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      const pb = approveCandidate(root, h, f);
+      const beforeDigest = computePlaybookDigest(pb);
+
+      h.playbook_outcome_record(outcomeArgs(storyId, pb.id, { idempotencyKey: `${storyId}:${pb.id}:stay` }));
+
+      const playbooks = readPlaybooks(root);
+      assert.equal(playbooks.length, 1, 'outcome recording did not add/delete playbooks');
+      assert.equal(playbooks[0].status, 'candidate', 'candidate remains candidate');
+      assert.notEqual(playbooks[0].status as string, 'active', 'outcome recording does not activate');
+      assert.equal(computePlaybookDigest(playbooks[0]), beforeDigest, 'candidate row is byte-domain identical after outcome');
+      assert.equal(readPlaybookOutcomeEvents(root)[0].playbookStatusAtObservation, 'candidate', 'event snapshots status only');
+    });
+
+    check('outcome: malformed authority/gate claims and inherited outcome fields reject fail-closed', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-badout'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      const pb = approveCandidate(root, h, f);
+      const base = outcomeArgs(storyId, pb.id);
+
+      assert.throws(() => h.playbook_outcome_record({ ...base, gateEvidence: true }), /gateEvidence must be false/);
+      assert.throws(() => h.playbook_outcome_record({ ...base, authority: 'authoritative' }), /authority must be non_authoritative/);
+      assert.throws(() => h.playbook_outcome_record({ ...base, releaseReady: true } as Parameters<typeof h.playbook_outcome_record>[0]), /refuses authority\/proof claim field/);
+
+      const inheritedOutcome = Object.create({
+        verdict: 'helped',
+        verdictSource: 'operator',
+        causedNoise: false,
+        causedWrongClaim: false,
+        preventedRepeatFinding: true,
+      });
+      assert.throws(
+        () => h.playbook_outcome_record({ ...base, outcome: inheritedOutcome }),
+        /requires own field verdict/,
+        'prototype/inherited outcome fields cannot masquerade as own structured fields',
+      );
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'rejected malformed rows are not appended');
+    });
+
+    check('outcome: command metadata/process facts classify it as audit-only non-gate metadata', () => {
+      const policy = COMMAND_POLICIES.playbook_outcome_record;
+      assert.equal(policy.status, 'supported');
+      assert.equal(policy.ownershipClass, 'mainSharedMutating');
+      assert.equal(policy.destructiveRisk, 'metadata-write');
+      assert.notEqual((policy as { gateEvidence?: boolean }).gateEvidence, true, 'command policy is not gate evidence');
+      assert.match(policy.reason, /audit-only/);
+      assert.match(policy.reason, /gateEvidence=false/);
+
+      const fact = PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_outcome_record');
+      assert.ok(fact, 'PROCESS_FACT_LEVELS includes playbook_outcome_record');
+      assert.equal(fact!.level, 'L2');
+      assert.equal(fact!.category, 'experience-layer');
+      assert.equal((fact as { gateConsumer?: string }).gateConsumer, undefined, 'no lifecycle gate consumer');
+      assert.match(fact!.rationale, /audit-only/);
+      assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'playbook_outcome_record'), 'MAIN_TOOLS exposes playbook_outcome_record');
+    });
+
+    check('outcome: no Codex/Claude-specific namespace introduced', () => {
+      const names = MAIN_TOOLS.map((tool) => tool.name);
+      assert.deepEqual(names.filter((name) => name.endsWith('playbook_outcome_record')), ['playbook_outcome_record']);
+      assert.equal(names.includes('codex_playbook_outcome_record'), false, 'no codex-specific outcome command');
+      assert.equal(names.includes('claude_playbook_outcome_record'), false, 'no claude-specific outcome command');
+      assert.equal(names.includes('playbook_codex_outcome_record'), false, 'no playbook codex alias');
+      assert.equal(names.includes('playbook_claude_outcome_record'), false, 'no playbook claude alias');
     });
 
     // ─── F-003: minted ids are globally unique across propose->approve cycles ─────
