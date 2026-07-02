@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7b4e",
+  "allowedCommands": [
+    "lattice *",
+    "node packages/main/dist/tasks/quantum-claim-admissibility-smoke.js",
+    "npm --prefix packages/main exec -- tsc -p packages/main/tsconfig.json --noEmit",
+    "npm --prefix packages/main run *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/tsconfig.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    ".omx/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Execution is limited to the first runtime slice and local verification commands.",
+  "createdAt": "2026-07-02T19:47:02.936Z",
+  "updatedAt": "2026-07-02T19:47:02.936Z",
+  "_hash": "c5102851c2c0c9221a428897a4494e1da69892b24ed1feadbfc873dbdad9de71"
+}
