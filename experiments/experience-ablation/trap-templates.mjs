@@ -140,7 +140,7 @@ export const TRAP_CLASSES = [
   {
     name: 'parent-roadmap',
     group: 'in_store',
-    oracleSpec: () => ({ type: 'verdict-line', answerFile: 'rollup.md', linePrefix: 'FEATURE-X:', wrongValue: 'COMPLETE', rightValue: 'INCOMPLETE' }),
+    oracleSpec: () => ({ type: 'verdict-line', answerFile: 'rollup.md', linePrefix: 'FEATURE-X:', rightValue: 'INCOMPLETE' }),
     prompt: () => [
       `# Task`,
       ``,
