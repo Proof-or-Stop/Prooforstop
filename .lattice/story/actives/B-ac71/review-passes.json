@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-02T22:10:56.169Z",
       "reviewRunId": "B-ac71:RR-001",
       "_hash": "22aae2197ed6a50c874bcc2f2e4d45c9f7a38ab4b07bbfdfc1aaf582821eccd4"
+    },
+    {
+      "id": "B-ac71:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Documentation-only diff (two decision docs). Dead code/type-safety/IO checks N/A. Doc soundness checks: (1) all code-state claims in the execution plan cross-checked against verdicts.ts, quorum-submit.ts, authority-signing.ts, receipt-bundle.ts — accurate (HostVerdict has no signature field, quorum-submit derives labels not crypto keys, receiptId not a verified sig, F-005 null-elision defense exists); (2) independence ceiling is honest — same-operator orchestration explicitly stated in threat-model §3, forbidden paper phrasings listed; (3) fail-closed rules table (§4) correctly frames M1/M2 defenses as future requirements, not current; (4) key-management decisions (§5) consistent with generateEd25519KeyPair in authority-signing.ts; (5) CHK-001 and CHK-002 acceptance criteria fully satisfied; (6) closing self-check: no promised-but-undelivered doc claims. Zero findings.",
+      "createdAt": "2026-07-02T22:13:45.749Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-002",
+      "_hash": "43eeacff9f66a45e8efea353e53e87db5f1cf7b97043100b3fe8c406175be312"
     }
   ]
 }
