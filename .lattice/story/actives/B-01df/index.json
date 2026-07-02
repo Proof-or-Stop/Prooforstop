@@ -4,7 +4,7 @@
   "title": "Add read-only source lineage audit for learning artifacts",
   "description": "Implement the first source-lineage milestone so historical dev-memory, finding-signals, and playbook learning artifacts can be audited for missing lineage and duplicate canonical source keys before any batch playbook seed promotion is allowed.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "source-lineage",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-d105e010db50a277",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T18:52:45.199Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-01df",
+    "branch": "story/B-01df",
+    "createdAt": "2026-07-02T18:52:43.580Z"
+  }
 }
