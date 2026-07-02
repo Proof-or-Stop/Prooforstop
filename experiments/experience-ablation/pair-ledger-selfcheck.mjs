@@ -94,6 +94,23 @@ check('seededShuffle is a permutation', [...seededShuffle([3, 1, 2], 'x')].sort(
 
     check('verify passes on a clean build', verifyLedger(root, EXP).ok === true);
 
+    // --- protocol-membership binding (F-002): a valid protocol hash must not
+    // admit fixtures whose trapClass is not in the frozen group ----------------
+    expectThrow('unregistered trapClass refused even under a valid frozen protocol',
+      () => buildLedger({
+        root, experimentId: EXP, seed: 'seed-M',
+        manifestRows: [{ fixtureId: 'rogue-01', trapClass: 'not-in-protocol', trapGroup: 'in_store', oracleRef: 'oracle/rogue.mjs' }],
+      }),
+      (e) => /not a member of the frozen protocol/.test(e.message));
+    expectThrow('right class in the wrong group refused (clean class declared in_store)',
+      () => buildLedger({
+        root, experimentId: EXP, seed: 'seed-M2',
+        manifestRows: [{ fixtureId: 'rogue-02', trapClass: 'clean-a', trapGroup: 'in_store', oracleRef: 'oracle/rogue2.mjs' }],
+      }),
+      (e) => /not a member of the frozen protocol/.test(e.message));
+    // Rebuild the good ledger so later verify/tamper cases run on clean state.
+    buildLedger({ root, experimentId: EXP, manifestRows: MANIFEST, seed: 'seed-A' });
+
     // --- verify catches a tampered ledger row --------------------------------
     const ledgerPath = join(b1.dir, 'pair-ledger.jsonl');
     const originalLedger = readFileSync(ledgerPath, 'utf8');

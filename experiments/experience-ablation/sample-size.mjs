@@ -20,8 +20,15 @@
 // experiments/recovery-runner/analyze.mjs; the selfcheck pins the plan-reviewed
 // anchor values (294 / 62 / 27 / 58) so any variant drift fails loudly.
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+// Atomic write (temp-then-rename), same pattern as protocol.mjs/pair-ledger.mjs.
+function writeAtomic(path, text) {
+  const tmp = `${path}.tmp-${process.pid}`;
+  writeFileSync(tmp, text);
+  renameSync(tmp, path);
+}
 
 // ---------------------------------------------------------------------------
 // Normal quantile (inverse CDF), Acklam's rational approximation (|err| < 1.2e-9).
@@ -118,9 +125,18 @@ export function wilson95(successes, n) {
 //   pilot: { defects, n }  — control-arm fault-task pilot outcome
 //   rule:  { minControlFaultRuns, freezeAt: 'wilson95Lower', maxCiWidth }
 //   sizing:{ mde, alpha, power } — the predeclared seeded MDE used to freeze N
-// Conservative choice: within the seeded band, a LOWER baseline sits nearer 0.5
-// and requires a LARGER n, so freezing at the Wilson lower bound never
-// under-sizes the run.
+//
+// CONSERVATIVENESS CORRECTION (B-047f finding F-001, host-2 Codex): the plan
+// S7 letter says "freeze at the LOWER bound (conservative)", but under the
+// pooled two-proportion formula n(baseline, mde) peaks where the pooled mean
+// baseline - mde/2 is nearest 0.5 — i.e. at the interior maximizer
+// p* = 0.5 + mde/2 — so the lower bound alone can UNDER-size the run
+// (counterexample: pilot 36/60 -> Wilson lower 0.47366 -> 56/arm, while the
+// observed 0.60 baseline needs 62/arm at mde 0.25). This implementation
+// satisfies the rule's conservative INTENT by freezing at the N-MAXIMIZING
+// baseline within the Wilson 95% CI: clamp(p*, [ci.lower, ci.upper]). The
+// 'wilson95Lower' rule token from the protocol is accepted and interpreted
+// accordingly; the output records the interpretation.
 export function pilotFreezeCheck(pilot, rule, sizing) {
   const { defects, n } = pilot;
   if (!(Number.isInteger(n) && n >= 0)) throw new Error(`pilot n must be a non-negative integer, got ${n}`);
@@ -130,16 +146,37 @@ export function pilotFreezeCheck(pilot, rule, sizing) {
   }
   const ci = wilson95(defects, n);
   const extend = ci.width > rule.maxCiWidth;
-  const result = { ok: true, ci, extend, freezeBaseline: ci.lower };
+  const result = {
+    ok: true, ci, extend,
+    interpretation: 'freeze at the N-maximizing baseline within the Wilson 95% CI (max over CI; the lower bound alone is not conservative — B-047f F-001)',
+  };
   if (extend) {
     result.note = `Wilson 95% CI width ${ci.width.toFixed(4)} > maxCiWidth ${rule.maxCiWidth}: extend the pilot before freezing.`;
     return result;
   }
-  if (!(ci.lower > (sizing?.mde ?? 0))) {
-    return { ok: false, reason: `freeze_baseline_too_low: Wilson lower bound ${ci.lower.toFixed(4)} does not exceed mde ${sizing?.mde}` };
+  const pStar = 0.5 + sizing.mde / 2; // interior maximizer of n over baseline at fixed mde
+  const freezeBaseline = Math.min(Math.max(pStar, ci.lower), ci.upper);
+  if (!(freezeBaseline > sizing.mde)) {
+    return { ok: false, reason: `freeze_baseline_too_low: sizing baseline ${freezeBaseline.toFixed(4)} does not exceed mde ${sizing.mde}` };
   }
-  result.frozenNPerArm = twoProportionNPerArm(ci.lower, sizing.mde, sizing.alpha, sizing.power).nPerArm;
+  result.freezeBaseline = freezeBaseline;
+  result.wilsonLower = ci.lower;
+  result.frozenNPerArm = twoProportionNPerArm(freezeBaseline, sizing.mde, sizing.alpha, sizing.power).nPerArm;
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// Paired-design discordant-cell derivation for the McNemar sizing (M5 requires
+// paired sizing in the adequacy report). Without pilot data on within-pair
+// correlation, discordant cells are derived under the documented INDEPENDENCE
+// approximation: p01 = P(control defect, treatment clean) = p1*(1-p2),
+// p10 = (1-p1)*p2 (so p01 - p10 = p1 - p2 = mde). A protocol may override with
+// explicit perPopulation.paired = { p01, p10 } when pilot correlation data
+// exists; positive within-pair correlation shrinks total discordance and
+// reduces the required pairs, so the independence figure is the cautious one
+// to plan with.
+export function derivePairedDiscordance(p1, p2) {
+  return { p01: p1 * (1 - p2), p10: (1 - p1) * p2, approximation: 'independence' };
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +216,21 @@ export function buildAdequacyReport(perPopulation, step = 0.025) {
     }
   }
   const liveN = twoProportionNPerArm(live.baseline, live.mde, live.alpha, live.power);
+
+  // McNemar paired sizing (M5: "unpaired reference + McNemar paired sizing").
+  // Discordant cells come from perPopulation.paired override when provided,
+  // else the documented independence approximation at the representative point.
+  const pairedAt = (baseline, mde, alpha, power, override) => {
+    const p1 = baseline, p2 = baseline - mde;
+    const cells = override ?? derivePairedDiscordance(p1, p2);
+    const m = mcnemarDiscordantPairs(cells.p01, cells.p10, alpha, power);
+    return {
+      assumptions: { p01: cells.p01, p10: cells.p10, source: override ? 'protocol perPopulation.paired override' : cells.approximation },
+      nPairs: m.nPairs,
+    };
+  };
+  const seededPairedPoint = { baseline: seededScan.max.baseline, mde: seededScan.max.mde };
+
   return {
     schemaVersion: 'proofbound.experience-ablation-adequacy.v1',
     direction: 'reduction: treatment = baseline - mde',
@@ -191,11 +243,19 @@ export function buildAdequacyReport(perPopulation, step = 0.025) {
         Math.min(...seededScan.points.map((p) => p.nPerArm)),
         seededScan.max.nPerArm,
       ],
+      pairedMcNemar: {
+        at: seededPairedPoint,
+        ...pairedAt(seededPairedPoint.baseline, seededPairedPoint.mde, seeded.alpha, seeded.power, seeded.paired),
+      },
     },
     live: {
       assumptions: { alpha: live.alpha, power: live.power, baseline: live.baseline, mde: live.mde },
       plannedNPerArm: liveN.nPerArm,
       detectableEffect: live.mde,
+      pairedMcNemar: {
+        at: { baseline: live.baseline, mde: live.mde },
+        ...pairedAt(live.baseline, live.mde, live.alpha, live.power, live.paired),
+      },
     },
   };
 }
@@ -212,11 +272,13 @@ export function renderAdequacyMarkdown(report) {
     `Planned N per arm across the band: ${s.plannedNPerArmBand[0]}-${s.plannedNPerArmBand[1]}`,
     `In-band maximum: ${s.bandMax.nPerArm} per arm at baseline ${s.bandMax.baseline} / MDE ${s.bandMax.mde} (grid step ${s.gridStep})`,
     'Corner values: ' + s.corners.map((c) => `${c.nPerArm} @ (${c.baseline}, ${c.mde})`).join('; '),
+    `Paired McNemar sizing at the band max (${s.pairedMcNemar.assumptions.source}): ${s.pairedMcNemar.nPairs} pairs (p01 ${s.pairedMcNemar.assumptions.p01.toFixed(4)}, p10 ${s.pairedMcNemar.assumptions.p10.toFixed(4)})`,
     '',
     '## Live',
     `Assumptions: alpha ${l.assumptions.alpha}, power ${l.assumptions.power}, baseline ${l.assumptions.baseline}, MDE ${l.assumptions.mde}`,
     `Planned N per arm: ${l.plannedNPerArm}`,
     `Detectable effect: ${l.detectableEffect} absolute reduction`,
+    `Paired McNemar sizing (${l.pairedMcNemar.assumptions.source}): ${l.pairedMcNemar.nPairs} pairs (p01 ${l.pairedMcNemar.assumptions.p01.toFixed(4)}, p10 ${l.pairedMcNemar.assumptions.p10.toFixed(4)})`,
     '',
     'The binding powered N for the seeded study is frozen by the M6 pilot rule',
     '(>= minControlFaultRuns control-arm fault runs; freeze at the Wilson 95% CI',
@@ -243,25 +305,30 @@ function parseArgs(argv) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const cmd = args._[0];
-  if (cmd !== 'report') {
-    console.error('usage: node sample-size.mjs report --config=<protocol.json|params.json> --out=<dir>');
-    process.exit(2);
+  try {
+    if (cmd !== 'report') {
+      console.error('usage: node sample-size.mjs report --config=<protocol.json|params.json> --out=<dir>');
+      process.exit(2);
+    }
+    if (!args.config || !args.out) {
+      console.error('report requires --config and --out');
+      process.exit(2);
+    }
+    const cfg = JSON.parse(readFileSync(args.config, 'utf8'));
+    const perPopulation = cfg.perPopulation ?? cfg; // accept a full protocol.json or a bare params object
+    if (!perPopulation.seeded || !perPopulation.live) {
+      console.error('config must contain perPopulation.seeded and perPopulation.live');
+      process.exit(2);
+    }
+    const report = buildAdequacyReport(perPopulation);
+    mkdirSync(args.out, { recursive: true });
+    writeAtomic(join(args.out, 'adequacy-report.json'), JSON.stringify(report, null, 2) + '\n');
+    writeAtomic(join(args.out, 'adequacy-report.md'), renderAdequacyMarkdown(report));
+    console.log(`adequacy report written to ${args.out}: live ${report.live.plannedNPerArm}/arm (paired ${report.live.pairedMcNemar.nPairs} pairs), seeded band ${report.seeded.plannedNPerArmBand[0]}-${report.seeded.plannedNPerArmBand[1]}/arm (max at baseline ${report.seeded.bandMax.baseline} / MDE ${report.seeded.bandMax.mde})`);
+  } catch (err) {
+    console.error(`ERROR: ${err.message}`);
+    process.exit(1);
   }
-  if (!args.config || !args.out) {
-    console.error('report requires --config and --out');
-    process.exit(2);
-  }
-  const cfg = JSON.parse(readFileSync(args.config, 'utf8'));
-  const perPopulation = cfg.perPopulation ?? cfg; // accept a full protocol.json or a bare params object
-  if (!perPopulation.seeded || !perPopulation.live) {
-    console.error('config must contain perPopulation.seeded and perPopulation.live');
-    process.exit(2);
-  }
-  const report = buildAdequacyReport(perPopulation);
-  mkdirSync(args.out, { recursive: true });
-  writeFileSync(join(args.out, 'adequacy-report.json'), JSON.stringify(report, null, 2) + '\n');
-  writeFileSync(join(args.out, 'adequacy-report.md'), renderAdequacyMarkdown(report));
-  console.log(`adequacy report written to ${args.out}: live ${report.live.plannedNPerArm}/arm, seeded band ${report.seeded.plannedNPerArmBand[0]}-${report.seeded.plannedNPerArmBand[1]}/arm (max at baseline ${report.seeded.bandMax.baseline} / MDE ${report.seeded.bandMax.mde})`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

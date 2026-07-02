@@ -102,8 +102,16 @@ export function validateProtocolPayload(p) {
   assertStringArray(p.taskClasses.inStore, 'taskClasses.inStore', { allowEmpty: false });
   assertStringArray(p.taskClasses.heldOut, 'taskClasses.heldOut');
   assertStringArray(p.taskClasses.clean, 'taskClasses.clean');
-  const overlap = p.taskClasses.inStore.filter((c) => p.taskClasses.heldOut.includes(c));
-  if (overlap.length) throw fail('taskClasses', `in-store and held-out overlap: ${overlap.join(', ')}`);
+  // No class may belong to two groups: in-store/held-out overlap breaks the
+  // circularity contrast, and a class that is both clean and fault-bearing
+  // would pool clean tasks into the powered fault baseline (plan S7).
+  const groups = [['inStore', p.taskClasses.inStore], ['heldOut', p.taskClasses.heldOut], ['clean', p.taskClasses.clean]];
+  for (let i = 0; i < groups.length; i++) {
+    for (let j = i + 1; j < groups.length; j++) {
+      const overlap = groups[i][1].filter((c) => groups[j][1].includes(c));
+      if (overlap.length) throw fail('taskClasses', `${groups[i][0]} and ${groups[j][0]} overlap: ${overlap.join(', ')}`);
+    }
+  }
 
   if (!p.perPopulation || typeof p.perPopulation !== 'object') throw fail('perPopulation', 'must be an object');
   const s = p.perPopulation.seeded;
@@ -198,6 +206,17 @@ export function validateFrozenProtocol(root, experimentId) {
     e.code = 'MEMORY_SNAPSHOT_MISMATCH';
     throw e;
   }
+  if (snap.protocolHash !== doc.protocolHash) {
+    const e = new Error('memory-snapshot-hash.json protocolHash disagrees with protocol.json protocolHash');
+    e.code = 'MEMORY_SNAPSHOT_MISMATCH';
+    throw e;
+  }
+  // THREAT MODEL (B-047f F-005): these seals are tamper-EVIDENCE for accidental
+  // drift, not tamper-PROOF against an adversary who re-hashes after editing —
+  // any self-contained hash-in-file scheme has that limit. The external anchor
+  // is the M6/M7 runner's responsibility: it records the protocolHash into
+  // score records and story evidence at run time, so a re-hashed protocol no
+  // longer matches the hash the run was registered under.
   return { doc, protocolHash: doc.protocolHash };
 }
 
@@ -241,7 +260,10 @@ function main() {
       console.log(computeProtocolHash(extractPayload(config)));
       return;
     }
-    console.error('usage: node protocol.mjs freeze|validate|hash --root=<root> --experimentId=<id> --config=<path> [--snapshotDir=<dir>] [--createdAt=<iso>]');
+    console.error('usage:');
+    console.error('  node protocol.mjs freeze   --root=<root> --config=<path> [--snapshotDir=<dir>] [--createdAt=<iso>]  (experimentId comes from the config)');
+    console.error('  node protocol.mjs validate --root=<root> --experimentId=<id>');
+    console.error('  node protocol.mjs hash     --config=<path>');
     process.exit(2);
   } catch (err) {
     console.error(`ERROR: ${err.message}`);

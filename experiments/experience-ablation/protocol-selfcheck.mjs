@@ -47,6 +47,7 @@ function validConfig(experimentId = 'exp-selfcheck') {
 }
 
 const tmp = mkdtempSync(join(tmpdir(), 'ablation-protocol-'));
+const extraRoots = []; // every additional mkdtemp root, removed in finally (F-007/F-011)
 try {
   // --- happy: freeze then validate ------------------------------------------
   const { protocolHash } = freezeProtocol({ root: tmp, config: validConfig(), createdAt: '2026-07-03T00:00:00Z' });
@@ -65,8 +66,11 @@ try {
     canonicalStringify({ b: { d: 1, c: 2 }, a: 3 }) === '{"a":3,"b":{"c":2,"d":1}}');
 
   // --- createdAt variation -> same hash -----------------------------------------
-  const h1 = freezeProtocol({ root: mkdtempSync(join(tmpdir(), 'ablation-p1-')), config: validConfig(), createdAt: '2026-01-01T00:00:00Z' }).protocolHash;
-  const h2 = freezeProtocol({ root: mkdtempSync(join(tmpdir(), 'ablation-p2-')), config: validConfig(), createdAt: '2026-12-31T23:59:59Z' }).protocolHash;
+  const root1 = mkdtempSync(join(tmpdir(), 'ablation-p1-'));
+  const root2 = mkdtempSync(join(tmpdir(), 'ablation-p2-'));
+  extraRoots.push(root1, root2);
+  const h1 = freezeProtocol({ root: root1, config: validConfig(), createdAt: '2026-01-01T00:00:00Z' }).protocolHash;
+  const h2 = freezeProtocol({ root: root2, config: validConfig(), createdAt: '2026-12-31T23:59:59Z' }).protocolHash;
   check('same config at different createdAt -> same protocolHash', h1 === h2 && h1 === protocolHash);
 
   // --- tamper: any field change breaks the hash ----------------------------------
@@ -90,6 +94,9 @@ try {
   expectThrow('in-store/held-out overlap rejected',
     () => { const c = validConfig('exp-z'); c.taskClasses.heldOut = ['stale-doc']; freezeProtocol({ root: tmp, config: c }); },
     (e) => /overlap/.test(e.message));
+  expectThrow('clean/in-store overlap rejected (clean must never pool into the fault baseline)',
+    () => { const c = validConfig('exp-z2'); c.taskClasses.clean = ['stale-doc']; freezeProtocol({ root: tmp, config: c }); },
+    (e) => /overlap/.test(e.message));
   expectThrow('wrong schemaVersion rejected',
     () => { const c = validConfig('exp-w'); c.schemaVersion = 'v0'; freezeProtocol({ root: tmp, config: c }); },
     (e) => /schemaVersion/.test(e.message));
@@ -101,10 +108,17 @@ try {
   expectThrow('memory-snapshot sidecar mismatch detected',
     () => validateFrozenProtocol(tmp, 'exp-selfcheck'),
     (e) => e.code === 'MEMORY_SNAPSHOT_MISMATCH');
+  // Sidecar with a correct memorySnapshotHash but a wrong protocolHash must
+  // also fail (F-005: validation must consume the protocolHash it stores).
+  writeFileSync(snapPath, JSON.stringify({ memorySnapshotHash: 'a'.repeat(64), protocolHash: 'f'.repeat(64) }));
+  expectThrow('memory-snapshot sidecar protocolHash mismatch detected',
+    () => validateFrozenProtocol(tmp, 'exp-selfcheck'),
+    (e) => e.code === 'MEMORY_SNAPSHOT_MISMATCH' && /protocolHash/.test(e.message));
   writeFileSync(snapPath, snapOriginal);
 
   // --- directory snapshot hashing: deterministic + content-sensitive ---------------
   const snapDir = mkdtempSync(join(tmpdir(), 'ablation-snapdir-'));
+  extraRoots.push(snapDir);
   writeFileSync(join(snapDir, 'lesson-1.json'), '{"a":1}');
   writeFileSync(join(snapDir, 'lesson-2.json'), '{"b":2}');
   const d1 = hashDirectorySnapshot(snapDir);
@@ -119,6 +133,7 @@ try {
     (e) => e.code === 'NO_FROZEN_PROTOCOL');
 } finally {
   rmSync(tmp, { recursive: true, force: true });
+  for (const r of extraRoots) rmSync(r, { recursive: true, force: true });
 }
 
 if (failures > 0) { console.error(`${failures} selfcheck failure(s)`); process.exit(1); }

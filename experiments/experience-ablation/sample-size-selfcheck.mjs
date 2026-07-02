@@ -89,14 +89,29 @@ check('anchor corner: n(0.5, 0.25) = 58/arm',
   const wide = pilotFreezeCheck({ defects: 9, n: 15 }, rule, sizing);
   check('freeze rule flags extend when CI width > 0.30', wide.ok === true && wide.extend === true,
     JSON.stringify(wide));
-  const tight = pilotFreezeCheck({ defects: 42, n: 60 }, rule, sizing); // width ~0.24
-  check('freeze rule freezes at Wilson lower bound when CI is tight',
-    tight.ok === true && tight.extend === false && tight.frozenNPerArm > 0 &&
-    Math.abs(tight.freezeBaseline - wilson95(42, 60).lower) < 1e-12,
+  const tight = pilotFreezeCheck({ defects: 42, n: 60 }, rule, sizing); // width ~0.226
+  // Corrected semantics (F-001): freeze at the N-maximizing baseline within the
+  // Wilson CI — p* = 0.5 + mde/2 = 0.625, which lies inside [0.5749, 0.8010].
+  check('freeze rule freezes at the N-maximizing baseline within the Wilson CI',
+    tight.ok === true && tight.extend === false &&
+    Math.abs(tight.freezeBaseline - 0.625) < 1e-12 && tight.frozenNPerArm === 62 &&
+    Math.abs(tight.wilsonLower - wilson95(42, 60).lower) < 1e-12,
     JSON.stringify(tight));
-  check('frozen N is conservative (lower baseline -> larger n than the point estimate would give)',
+  check('frozen N is conservative vs the observed point estimate',
     tight.frozenNPerArm >= twoProportionNPerArm(42 / 60, sizing.mde).nPerArm,
     `frozen ${tight.frozenNPerArm} vs point ${twoProportionNPerArm(42 / 60, sizing.mde).nPerArm}`);
+
+  // The host-2 Codex counterexample that killed the lower-bound rule (F-001):
+  // pilot 36/60 -> Wilson CI [0.4736, 0.7143], width 0.2406 -> freezes.
+  // Lower-bound sizing would give 56/arm — UNDER the observed baseline's 62.
+  // The corrected rule freezes at 0.625 (inside the CI) -> 62/arm.
+  const codexCase = pilotFreezeCheck({ defects: 36, n: 60 }, rule, sizing);
+  const buggyLowerN = twoProportionNPerArm(wilson95(36, 60).lower, sizing.mde).nPerArm;
+  check('F-001 counterexample: 36/60 freezes at 62/arm, not the lower-bound 56',
+    codexCase.ok === true && codexCase.extend === false &&
+    codexCase.frozenNPerArm === 62 && buggyLowerN === 56 &&
+    codexCase.frozenNPerArm >= twoProportionNPerArm(36 / 60, sizing.mde).nPerArm,
+    `frozen ${codexCase.frozenNPerArm}, buggy-lower ${buggyLowerN}`);
 }
 
 // --- mcnemar sizing ---------------------------------------------------------------
@@ -108,6 +123,12 @@ check('anchor corner: n(0.5, 0.25) = 58/arm',
   const morePd = mcnemarDiscordantPairs(0.40, 0.20); // same d=0.20, larger pd
   check('mcnemar: same asymmetry with more total discordance -> more pairs',
     morePd.nPairs > base.nPairs, `base ${base.nPairs}, morePd ${morePd.nPairs}`);
+  // Ratio-fixed invariant (CHK-003:edge:1 / F-012): scaling both discordant
+  // cells up while holding their ratio fixed increases the detectable
+  // difference proportionally, so the required pairs DECREASE.
+  const halfPd = mcnemarDiscordantPairs(0.15, 0.05); // same 3:1 ratio, half the discordance
+  check('mcnemar: more discordance at a fixed ratio -> fewer pairs',
+    base.nPairs < halfPd.nPairs, `pd 0.40 ratio 3:1 -> ${base.nPairs}, pd 0.20 ratio 3:1 -> ${halfPd.nPairs}`);
   let threw = false;
   try { mcnemarDiscordantPairs(0.2, 0.2); } catch { threw = true; }
   check('mcnemar: zero asymmetry rejected', threw);
@@ -135,6 +156,16 @@ check('anchor corner: n(0.5, 0.25) = 58/arm',
       `json max ${json.seeded.bandMax.nPerArm}`);
     check('report CLI: direction stated in report', json.direction.includes('baseline - mde') && md.includes('reduction'));
     check('report CLI: stdout summarizes', stdout.includes('294') && stdout.includes('62'));
+    // McNemar paired sizing in the report (F-003): independence approximation
+    // at the live point (p01=.24, p10=.14 -> 296 pairs) and the seeded band max
+    // (p01=.390625, p10=.140625 -> 65 pairs).
+    check('report CLI: live paired McNemar = 296 pairs (independence approx)',
+      json.live.pairedMcNemar.nPairs === 296 && json.live.pairedMcNemar.assumptions.source === 'independence',
+      `got ${JSON.stringify(json.live.pairedMcNemar)}`);
+    check('report CLI: seeded paired McNemar = 65 pairs at the band max',
+      json.seeded.pairedMcNemar.nPairs === 65 && json.seeded.pairedMcNemar.at.baseline === json.seeded.bandMax.baseline,
+      `got ${JSON.stringify(json.seeded.pairedMcNemar)}`);
+    check('report CLI: paired sizing named in md', md.includes('Paired McNemar sizing') && md.includes('pairs'));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

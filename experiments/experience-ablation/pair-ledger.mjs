@@ -128,12 +128,29 @@ function writeAtomic(path, text) {
   renameSync(tmp, path);
 }
 
+// --- protocol-membership binding (B-047f F-002) -------------------------------
+// Every manifest row's trapClass must be a member of the FROZEN protocol group
+// matching its trapGroup — a valid protocol hash alone must not admit
+// unregistered fixtures into the run.
+const GROUP_FIELD = { in_store: 'inStore', held_out: 'heldOut', clean: 'clean' };
+
+export function validateMembership(rows, taskClasses) {
+  rows.forEach((row, i) => {
+    const members = taskClasses[GROUP_FIELD[row.trapGroup]] ?? [];
+    if (!members.includes(row.trapClass)) {
+      throw fail(`[${i}].trapClass`,
+        `'${row.trapClass}' is not a member of the frozen protocol's ${GROUP_FIELD[row.trapGroup]} group (${members.join(', ') || 'empty'})`);
+    }
+  });
+  return rows;
+}
+
 // --- build ------------------------------------------------------------------------
 export function buildLedger({ root, experimentId, manifestRows, seed }) {
   if (typeof seed !== 'string' || seed.length === 0) throw new Error('seed must be a non-empty string');
-  const { protocolHash } = guardFrozenProtocol(root, experimentId);
+  const { doc, protocolHash } = guardFrozenProtocol(root, experimentId);
   guardImmutable(root, experimentId, 'build');
-  const rows = validateManifest(manifestRows);
+  const rows = validateMembership(validateManifest(manifestRows), doc.taskClasses);
 
   const dir = experimentRoot(root, experimentId);
   mkdirSync(dir, { recursive: true });
@@ -155,6 +172,10 @@ export function buildLedger({ root, experimentId, manifestRows, seed }) {
   const sealPayload = { seed, protocolHash, manifestHash, ledgerHash, runOrder };
   const sealHash = sha256(canonicalStringify(sealPayload));
 
+  // Re-check immutability immediately before the writes to narrow the TOCTOU
+  // window between the entry guard and the renames (B-047f F-006; single-host
+  // tooling tier — a concurrent score writer on another host is out of scope).
+  guardImmutable(root, experimentId, 'build(write)');
   writeAtomic(join(dir, 'fixture-manifest.jsonl'), manifestText);
   writeAtomic(join(dir, 'pair-ledger.jsonl'), ledgerText);
   writeAtomic(join(dir, 'run-order-seed.json'), JSON.stringify({ ...sealPayload, sealHash }, null, 2) + '\n');
@@ -164,7 +185,7 @@ export function buildLedger({ root, experimentId, manifestRows, seed }) {
 
 // --- verify --------------------------------------------------------------------------
 export function verifyLedger(root, experimentId) {
-  const { protocolHash } = guardFrozenProtocol(root, experimentId); // also fails on tampered protocol
+  const { doc, protocolHash } = guardFrozenProtocol(root, experimentId); // also fails on tampered protocol
   const dir = experimentRoot(root, experimentId);
   const problems = [];
 
@@ -185,9 +206,13 @@ export function verifyLedger(root, experimentId) {
   if (sha256(manifestText) !== sealPayload.manifestHash) problems.push('fixture-manifest.jsonl hash mismatch (manifest tampered)');
   if (sha256(ledgerText) !== sealPayload.ledgerHash) problems.push('pair-ledger.jsonl hash mismatch (ledger row tampered)');
 
-  // Re-derive the run order from the stored seed + manifest content.
+  // Re-derive the run order from the stored seed + manifest content, and
+  // re-check protocol-group membership (F-002) on the stored manifest.
   try {
-    const rows = validateManifest(manifestText.trim().split('\n').map((l) => JSON.parse(l)));
+    const rows = validateMembership(
+      validateManifest(manifestText.trim().split('\n').map((l) => JSON.parse(l))),
+      doc.taskClasses,
+    );
     const expectedOrder = seededShuffle(rows.flatMap((r) => ARMS.map((arm) => armRunId(r.fixtureId, arm))), sealPayload.seed);
     if (JSON.stringify(expectedOrder) !== JSON.stringify(sealPayload.runOrder)) {
       problems.push('runOrder does not re-derive from seed + manifest');
