@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6b39",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound, the decision doc docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md (S7 Freeze rule paragraph, also referenced in the M6 exit criteria row of S13 and S17 step 2) says to freeze the powered N computed at the LOWER bound of that CI (conservative). Codex host-2 review of story B-047f proved this is NOT conservative under the pooled two-proportion formula: n(baseline, mde) peaks where the pooled mean (baseline - mde/2) is nearest 0.5, so a Wilson lower bound below 0.5+mde/2 yields a SMALLER n than the observed baseline (counterexample: pilot 36/60 defects, Wilson lower 0.47366 -> 56/arm while the observed 0.60 baseline needs 62/arm at mde 0.25). The S1 tooling (experiments/experience-ablation/sample-size.mjs pilotFreezeCheck, story B-047f) already implements the corrected rule: freeze at the N-MAXIMIZING baseline within the Wilson 95% CI (analytic maximizer p* = 0.5 + mde/2 clamped to the CI). Author a small docs-only Lattice story that amends the plan S7 freeze-rule wording (and the S13 M6 exit-criteria row + S17 step 2 echo) to match: freeze the powered N at the N-maximizing baseline within the Wilson 95% CI of the pilot rate (equivalently max over the CI; the lower bound alone is not conservative). Keep everything else unchanged; the doc must stay entirely English.",
+  "normalizedOutcome": "The ablation execution plan doc states the corrected freeze rule (N-maximizing baseline within the Wilson 95% CI; the lower bound alone is not conservative) consistently in the S7 freeze-rule paragraph, the S13 M6 exit-criteria row, and the S17 step 2 echo, with no other changes and the doc entirely in English.",
+  "acceptanceClaim": "git diff main...HEAD touches only docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, and all three freeze-rule passages (S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo) state the N-maximizing-baseline rule with no remaining lower-bound-freeze wording.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:63ecc62ad27a06e79dfebe9ec1ed5c0d4fb7da8327c25ceba581a47d8b22780d",
+  "createdAt": "2026-07-02T21:32:42.911Z",
+  "updatedAt": "2026-07-02T21:32:42.911Z"
+}
