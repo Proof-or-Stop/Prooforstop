@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-02T22:30:34.362Z",
       "reviewRunId": "B-ac71:RR-005",
       "_hash": "1c184004538381df1f4d0921f1db8307b1f092f643d7a9ba89188f470ea57a42"
+    },
+    {
+      "id": "B-ac71:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 29 intents (CHK-001: 15 intents, CHK-002: 14 intents). No must-gaps, no waivers. CHK-001:adversarial:0 (the F-003 focus): rewritten note in commit aaf994e is concrete — it names the exact grep result (4/5 forbidden phrases = zero matches; mutually-distrusting parties = exactly 1 match at threat-model.md line 36 inside the §3 forbidden-phrases definition list), explains the meta-use distinction explicitly, and confirms the prior F-001 over-claim was removed in 367b05322. Independent grep confirmed. Note is no longer a generic template — the F-003 tension is fully resolved.",
+      "createdAt": "2026-07-02T22:36:12.661Z",
+      "reviewRound": "2026-07-02T22:30:34.362Z",
+      "reviewRunId": "B-ac71:RR-007",
+      "_hash": "fa6ed7e1b56a7f7a5948cf6768a096d194d2117eb2107299aa194b6383ecaa59"
     }
   ]
 }
