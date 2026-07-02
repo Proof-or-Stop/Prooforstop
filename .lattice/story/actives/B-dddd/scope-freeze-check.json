@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-dddd",
+  "checkedAt": "2026-07-02T02:50:01.013Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "68a65915ca93333469762e569601e65a362b61387dbf1f5ef60624e395c5ef0d",
+  "executionBoundaryHash": "3065afd5ef0d97c02c2b9904b74c2a034df45b1a755e86cd86e026690f3e4418",
+  "freshnessHash": "67bdd23f6173f7612977f28bb6a0c21b1dd7ecc28dbae2b6570663aea4917dff",
+  "effectiveExcludedKeywords": [
+    "automatic candidate to active mutation",
+    "DONE settlement hook",
+    "matched-control or trial-traffic serving",
+    "remote GitHub publishing or branch pushes",
+    "runtime MemoryFreshnessPack candidate surfacing",
+    "scheduled promotion worker/timer"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "automatic candidate to active mutation",
+      "source": "scopeBoundary.excluded",
+      "text": "automatic candidate to active mutation",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE settlement hook",
+      "source": "checklist.excludes",
+      "text": "DONE settlement hook",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE settlement hook",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE settlement hook",
+      "excluded": true
+    },
+    {
+      "keyword": "matched-control or trial-traffic serving",
+      "source": "scopeBoundary.excluded",
+      "text": "matched-control or trial-traffic serving",
+      "excluded": true
+    },
+    {
+      "keyword": "remote GitHub publishing or branch pushes",
+      "source": "scopeBoundary.excluded",
+      "text": "remote GitHub publishing or branch pushes",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime MemoryFreshnessPack candidate surfacing",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime MemoryFreshnessPack candidate surfacing",
+      "excluded": true
+    },
+    {
+      "keyword": "scheduled promotion worker/timer",
+      "source": "scopeBoundary.excluded",
+      "text": "scheduled promotion worker/timer",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "c867be227afae3c74fcb16aa0096e074c2102bd29678a4057603ca4321ade709",
+      "overlapTerms": [
+        "## Conversational Texture The user wants Proofbound to learn from repeated work, but not at the cost of turning advisory learning into a hidden gate or host-specific behavior. The work should stay simple, auditable, and aligned with the product philosophy.",
+        "## Key Insights Candidate playbooks are learning material, not runtime proof. The implementation must preserve the host-neutral core, keep candidates out of active runtime memory packs, and distinguish explicit exposure outcomes from ordinary DONE success.",
+        "## Solution Tradeoffs Start with M0-M2 only: red/repro tests, learning-store write discipline, and explicit outcome recording. Defer later lifecycle surfaces so this story fixes real correctness gaps without arbitrary optimization.",
+        "## Trigger Event On 2026-07-02, the reviewed plan docs/requirements/decisions/playbook-promotion-worker-execution-plan.md identified that Proofbound can propose candidate playbooks, but V1 still needs a disciplined outcome ledger before any safe recommendation or rejection loop can exist.",
+        "## Trigger Event On 2026-07-02, the reviewed plan docs/requirements/decisions/playbook-promotion-worker-execution-plan.md identified that Proofbound can propose candidate playbooks, but V1 still needs a disciplined outcome ledger before any safe recommendation or rejection loop can exist. ## Key Insights Candidate playbooks are learning material, not runtime proof. The implementation must preserve the host-neutral core, keep candidates out of active runtime memory packs, and distinguish explicit exposure outcomes from ordinary DONE success. ## Solution Tradeoffs Start with M0-M2 only: red/repro tests, learning-store write discipline, and explicit outcome recording. Defer later lifecycle surfaces so this story fixes real correctness gaps without arbitrary optimization. ## Conversational Texture The user wants Proofbound to learn from repeated work, but not at the cost of turning advisory learning into a hidden gate or host-specific behavior. The work should stay simple, auditable, and aligned with the product philosophy.",
+        "Build the conservative V1 foundation for playbook promotion governance: red/repro coverage, learning-store discipline, and an auditable outcome ledger for explicit candidate outcome recording.",
+        "Implement playbook promotion M0-M2 outcome ledger foundation"
+      ],
+      "overlapRatio": 0.5833333333333334,
+      "previousStoryId": "B-0a1c",
+      "previousReason": "Discard incomplete story shell left by failed story_create intake before checklist files were created.",
+      "previousDiscardedAt": "2026-07-02T02:48:24.578Z",
+      "mitigation": "B-0a1c was discarded because failed story_create intake left an incomplete metadata shell with no checklist.json; B-dddd repeats the same user-approved direction but includes complete checklist, scope boundary, execution boundary, and two independent INIT passes."
+    }
+  ],
+  "issues": [],
+  "_hash": "adabdcd00ba594120e8daad7214bac7cad25b4b0475a0d7128040d143f939ddd"
+}
