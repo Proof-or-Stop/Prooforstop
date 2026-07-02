@@ -205,7 +205,53 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after wiring indexed candidates into buildMemoryFreshnessPack.",
+          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:39.266Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "M2 line observed: indexedReferenceParity=true candidateFalseSurface=0 authority=non_authoritative gateEvidence=false.",
+          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:39.369Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
+          "result": "pass",
+          "note": "Existing runtime memory MVP smoke suites passed: MVP1 TOTAL 11 PASS 11 FAIL 0; MVP2 TOTAL 9 PASS 9 FAIL 0.",
+          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:39.467Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js",
+          "result": "pass",
+          "note": "Small baseline passed with recordCount=1000 fullProfileExactMillion=false elapsedMs=2815 peakRssBytes=67796992; candidate/malformed boundaries stayed green.",
+          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
+          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:12:39.563Z"
+        }
+      ]
     }
   ]
 }
