@@ -1,0 +1,134 @@
+{
+  "findings": [
+    {
+      "id": "B-36fd:F-001",
+      "desc": "numeric-inconsistency: S17 states \"~29-58 fixtures per group, both arms — roughly 84-116 paired fault-task runs total\" but 2 fault-bearing groups x (29-58 fixtures each) in a matched-pairs design yields 58-116 total paired runs, not 84-116; the lower bound of 84 implies 42 fixtures per group, not 29; no arithmetic path from 29 per group to 84 total can be found",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:21:14.519Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-002",
+      "_hash": "a0aa8ca774ee2e86889594274ee437eff15e8ef576e6de685c440d476693bcbf",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|numeric-inconsistency-states",
+      "signatureTagSource": "auto",
+      "resolvedReason": "S17 restated coherently in commit 3d666c058: roughly 27-62 powered in-store fault fixtures, each run under both arms — i.e. ~54-124 arm-runs — plus separately sized held-out negative-control and clean fixtures. The muddled 84-116 total (which mixed a per-group count with a single-group arm-run count) is gone.",
+      "resolvedAt": "2026-07-02T19:26:41.365Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-002",
+      "desc": "numeric-inconsistency: S7 planning table states reference N \"~29-58 per arm\" for the seeded controlled stratum (baseline 0.5-0.8, MDE 0.25-0.35), but a two-proportion z-test (alpha=0.05, power=0.80) across that full parameter band yields 25-59 per arm; the lower bound is 25, not 29 — verified by computing n at (baseline=0.5, MDE=0.35) = 25 and (baseline=0.55, MDE=0.35) = 27; only (baseline=0.5, MDE=0.33) or (baseline=0.55, MDE=0.34) yields n=29; the stated lower bound overstates required N at the most favorable parameter extreme by 14%",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:21:22.462Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-002",
+      "_hash": "7b0b4994055d961c3a4762ed4720d4c64ee1e2c49401799b444ff9b48e10e9fa",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|numeric-inconsistency-planning",
+      "signatureTagSource": "auto",
+      "resolvedReason": "S7 reference band corrected to ~27-62 over the corners of the planning band (recomputed pooled two-proportion: min 27 at baseline 0.5/MDE 0.35, max 62; S8 usage updated to 27-62 as well). Commit 3d666c058.",
+      "resolvedAt": "2026-07-02T19:26:42.724Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-003",
+      "desc": "doc-promise-undelivered: M6 milestone (Reuses column) cites \"Campaign runner (run-campaign.mjs identity-keyed resume)\" as an existing reusable component, but experiments/recovery-runner/run-campaign.mjs does not exist in the repo (confirmed: ls experiments/recovery-runner/*.mjs lists no such file); the autopilot-v2 reliability plan (B-4e16, INIT) describes run-campaign.mjs as a to-be-built artifact under experiments/recovery-runner/powered/; citing a planned-but-unbuilt file as a reuse target is a factual error in the plan",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:21:31.204Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-002",
+      "_hash": "c4f474a7ff0a39e1e4c4f67bac6ca3e107af2933ac79de258a0cf3431e3d1a70",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-milestone",
+      "signatureTagSource": "auto",
+      "resolvedReason": "M6 Reuses now cites the committed engine (run-driver.mjs / live-engine.mjs) and explicitly marks the identity-keyed campaign-resume runner as gitignored scratch under experiments/recovery-runner/powered/ that must be committed as part of M6 (added to M6 exit criteria); M7 Reuses same-class fix for session-guard/watchdog. Verified via git ls-files (203 tracked recovery-runner files; powered/ ignored at .gitignore:86). Commit 3d666c058.",
+      "resolvedAt": "2026-07-02T19:26:44.218Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-004",
+      "desc": "arithmetic-incoherent: S7 table (line 221) and S8/S17 cite ~27-62 as the corners-of-planning-band range for the unpaired two-proportion reference N, but 27 and 62 come from two different formulas. Under the standard pooled two-sided z-test (the formula labeled unpaired two-proportion in the table), the four-corner range is 27-58 (min: p=0.5/MDE=0.35 => N=27; max: p=0.5/MDE=0.25 => N=58). The value 62 only emerges from the Fleiss continuity-corrected variant at p=0.8/MDE=0.25 (N=62), but that same formula gives min=33, not 27. Mixing the uncorrected minimum with the continuity-corrected maximum produces an incoherent band. The correct uncorrected-formula range to cite is ~27-58; if continuity correction is intended, cite ~33-66 and label it as such.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T19:29:58.981Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-004",
+      "_hash": "7faa460e448280a5e370e16952e17929d476801919f4eed7ead6a5927e003bed",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md:221"
+      ],
+      "signatureTag": "edge|md:221|arithmetic-incoherent-table",
+      "signatureTagSource": "auto",
+      "resolvedReason": "S7 wording corrected in 78988815b: ~27-62 over the FULL planning band (corner values 27-58; the ~62 maximum occurs inside the band near baseline 0.625 / MDE 0.25). Adjudication note: the 62 comes from the SAME uncorrected pooled two-proportion formula at an interior point (e.g. 0.6/0.25 -> 61.4 -> 62), not from the Fleiss continuity-corrected formula — the finding was right that over-the-corners was wrong, and this matches host-2 Codex P3 independently.",
+      "resolvedAt": "2026-07-02T19:33:27.993Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-005",
+      "desc": "[host-2 Codex P2] S11.1 primary decision rule is incomplete: H1 is supported only when the risk difference is negative — a negative point estimate is not an alpha=0.05 decision rule, and the co-primary H1a/H1b pass condition is not explicit. Fix: define support as the paired risk-difference two-sided 95% CI upper bound < 0 for BOTH H1a and H1b on the fault-bearing in-store stratum (equivalently McNemar rejects at alpha=0.05 with a negative point estimate); RR stays descriptive-only.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T19:31:58.322Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "_hash": "c948f97904cc0b73a57f657c7133ad6494d8973cf079a34b0fbe6da088646b65",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|host-codex-primary",
+      "signatureTagSource": "auto",
+      "resolvedReason": "S11.1 decision rule completed in 78988815b: H1 supported only when the paired risk-difference two-sided 95% CI upper bound is below 0 (alpha=0.05) for BOTH co-primary H1a and H1b on the fault-bearing in-store stratum, equivalently McNemar rejection at alpha=0.05 with a negative point estimate; RR never enters the decision.",
+      "resolvedAt": "2026-07-02T19:33:28.930Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36fd:F-006",
+      "desc": "[host-2 Codex P2] M6 exit criteria and S17 step 2 are untestable: enough control fault-tasks, ~12-15, to bound the rate does not define a freeze rule for the powered N. Fix: require >=15 control-arm fault-task runs in the pilot; freeze the powered N computed at the lower bound of the Wilson 95% CI of the pilot baseline (conservative); if that CI is wider than 0.30 the pilot must be extended before freezing.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T19:31:59.854Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "_hash": "b12b55084b2371a2a6a2dbd1cf39da35544e4e0e0a5107f73c8206ba449349dd",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|host-codex-exit",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Testable pilot freeze rule added in 78988815b to S7 (authoritative), M6 exit criteria, and S17 step 2: >=15 control-arm fault-task runs; freeze powered N at the LOWER bound of the Wilson 95% CI of the pilot baseline; extend the pilot when the CI is wider than 0.30; recompute if the baseline falls outside the planning band.",
+      "resolvedAt": "2026-07-02T19:33:29.824Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

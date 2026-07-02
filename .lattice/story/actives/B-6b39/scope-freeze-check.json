@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6b39",
+  "checkedAt": "2026-07-02T21:31:04.931Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "d3545a82d6873a6abd5d090687e1f402ed84aa72de141a2e080de1ab5708e70a",
+  "executionBoundaryHash": "d31217afd409451dbdb128bcb7039434e06482f2c63935ef957f9da9b979a7c3",
+  "freshnessHash": "b5045ea06b51c086def356a8ce8fa23fb66317798789963a331b8e5104f005cd",
+  "effectiveExcludedKeywords": [
+    "Any code or tooling changes (sample-size.mjs already implements the corrected rule on the B-047f branch)",
+    "Any non-English text (doc must stay entirely English)",
+    "Any other passages of the plan doc or any other documents"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any code or tooling changes (sample-size.mjs already implements the corrected rule on the B-047f branch)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any code or tooling changes (sample-size.mjs already implements the corrected rule on the B-047f branch)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any non-English text (doc must stay entirely English)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any non-English text (doc must stay entirely English)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any other passages of the plan doc or any other documents",
+      "source": "scopeBoundary.excluded",
+      "text": "Any other passages of the plan doc or any other documents",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "200d1f2d01454d1ab5bb512e91a668c34c9ea56bb013ea3485e708ade73b402a"
+}

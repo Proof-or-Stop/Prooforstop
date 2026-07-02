@@ -1,0 +1,38 @@
+{
+  "storyId": "B-36fd",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These four files are B-36fd own ProofStory lifecycle metadata, written by the sanctioned CLI commands (original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, red_evidence_create) that the enforce-mode ProofStory DEV gate itself required before allowing DEV entry. They are story-scoped gate evidence, not product changes; the sole product deliverable remains the single allowed docs path.",
+      "timestamp": "2026-07-02T19:14:04.808Z",
+      "paths": [
+        ".lattice/story/actives/B-36fd/intent-collision.json",
+        ".lattice/story/actives/B-36fd/original-intent-snapshot.json",
+        ".lattice/story/actives/B-36fd/proofstory.json",
+        ".lattice/story/actives/B-36fd/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-36fd/intent-collision.json",
+        ".lattice/story/actives/B-36fd/original-intent-snapshot.json",
+        ".lattice/story/actives/B-36fd/proofstory.json",
+        ".lattice/story/actives/B-36fd/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "dad42f46085b9d1bfc4d1c72fe2b897ae5e88e59",
+      "materialHash": "4d4a1e67723977da16746b986a58b206d546a798633e01403223c0bf6d232486"
+    }
+  ],
+  "createdAt": "2026-07-02T19:05:52.194Z",
+  "updatedAt": "2026-07-02T19:14:04.808Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-047f",
+  "allowedCommands": [
+    "file authoring under experiments/experience-ablation/ only",
+    "lattice story lifecycle commands for B-047f",
+    "node experiments/experience-ablation/*-selfcheck.mjs (hermetic selfchecks)",
+    "npm test / npm run build only if a gate requires evidence",
+    "read-only repo inspection (git status/log/show, grep, ls)"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-02T20:49:53.786Z",
+  "updatedAt": "2026-07-02T20:49:53.786Z",
+  "_hash": "8b170f530edcc3a8ea8e49d10be9e1abd5985e0067ec45e145a60f9c1dccfec3"
+}

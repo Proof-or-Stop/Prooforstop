@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-36fd",
+  "sourceText": "Operator request (2026-07-02, translated from Chinese chat): After answering my two questions (what does the 84-116 paired-task cheapest-valid-study sizing mean, and what is your overall conclusion), write the corrected version of the experience-layer A/B ablation causal-validation execution plan back into docs/requirements/decisions/ via a docs story. Context: the operator had asked for a review of the draft plan with the framing do-not-optimize-for-optimization-alone; a two-round adversarial review verified 12 corrections; the untracked rev-1 draft was deleted from disk mid-review.",
+  "normalizedOutcome": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exists again as a rev-2 decision document that integrates all 12 adversarially-verified corrections (3 validity holes fixed, per-population sizing, matched-pairs geometry, reuse-over-rebuild, deterministic endpoint, .lattice root, scheduling note) while preserving the rev-1 honesty scaffolding, delivered through a completed Lattice docs story.",
+  "acceptanceClaim": "git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md succeeds on the story branch and the committed document contains the 12 corrections at their designated sections (verifiable by the CHK-001 verificationIntent checks: 18 sections, per-population table, matched-pairs section, no allocated shadow arm, held-out trap group, isolation plus freeze subsections, zero CJK).",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:2b858791391c3a860b125f688f8af5aedfba2887426ad9fde4a32b1389feacdd",
+  "createdAt": "2026-07-02T19:05:23.442Z",
+  "updatedAt": "2026-07-02T19:05:23.442Z"
+}
