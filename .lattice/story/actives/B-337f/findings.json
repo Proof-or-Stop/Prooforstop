@@ -159,7 +159,7 @@
       "desc": "[host-2 Codex P2, probe-proven] portable-path oracle misses $HOME/cache and ~/cache (both classified ok). Fix: accept only relative project paths; reject ~, $-env roots, all absolutes and drive letters.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T22:45:51.613Z",
@@ -169,7 +169,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "portable-path rejects paths starting with ~, dollar-env, /, or drive letters; only relative project paths qualify; $HOME and tilde probes pinned. Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:37.393Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-009",
