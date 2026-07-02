@@ -123,7 +123,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "playbook_propose refuses non-deducible sources unless an explicit override flag and reason are supplied.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-003:happy:0 unmarked source signature keeps existing playbook_propose behavior and creates a proposal.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:happy:1 marked source with explicit override flag and sufficient reason succeeds and leaves audit-visible override metadata.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-003:edge:0 marked source without override refuses before writing a proposal and points at the non-deducible record.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:edge:1 override flag without a useful reason rejects as unauditable.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-003:adversarial:0 malformed inherited fields cannot bypass the non-deducible registry lookup.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-003:adversarial:1 source signature includes stable source identifiers so unrelated source material is not blocked by collision.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
