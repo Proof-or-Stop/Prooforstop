@@ -444,7 +444,7 @@ try {
     const status = h.playbook_promotion_status({});
     assert.match(status, /pendingLearning/);
     assert.match(status, /latestDecisions/);
-    assert.match(status, /nonDeducibleSources/);
+    assert.match(status, /nonPromotableSources/);
     assert.match(status, /activeNegativeSignals/);
     assert.match(status, /gateEvidence: false/);
     assert.match(status, /candidatesAreRuntimeGuidance: false/);

@@ -75,6 +75,8 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'learning_validate',
   'learning_effectiveness',
   'source_lineage_audit',
+  'playbook_seed_observe',
+  'playbook_runtime_consumption_verify',
 ]);
 
 export function resolveActivitySource(): string {

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9958",
+  "changes": "Implemented the deduped playbook seed promotion loop: source-lineage backed playbook_seed_observe, digest-guarded playbook_seed_propose_batch and playbook_candidate_batch_approve, explicit outcome/promotion safety rules, runtime consumption verification, playbook_promotion_status readiness fields, disabled-by-default playbook_auto_promotion_apply guard, and updated execution-plan docs for non_promotable terminology and V1/V2 boundaries.",
+  "usage": "Use node packages/main/dist/cli.js playbook_seed_observe --json to inspect deduped historical learning seeds, playbook_seed_propose_batch --dryRun --limit=3 --json to preview proposal manifests, playbook_candidate_batch_approve --dryRun --json to preview candidate approval, playbook_runtime_consumption_verify --json to verify active/candidate runtime posture, and playbook_auto_promotion_apply --json to inspect the disabled V2 guard.",
+  "expectedOutcome": "Users should see lineage-bound, digest-bound, non-authoritative playbook seed and proposal diagnostics. Dry-run commands should not write proposals/candidates/active playbooks; apply paths require reviewed digests; candidate material must stay out of runtime active guidance; V2 auto-promotion remains disabled unless future explicit prerequisites are satisfied.",
+  "actualTranscript": "Real-machine checks observed playbook_seed_observe returning observeDigest 5295b9e0b3ea79149bde7d153cd7fc7e59edcd7c34740b195875525225216025 with authority non_authoritative and gateEvidence false; live_smoke_transcript captured playbook_seed_propose_batch --dryRun --limit=3 returning applied false, proposalCount 3, and proposalManifestDigest 36df665fd29332ed016d4bb597468f6a7f042b8889298f002533ce9e11074981; runtime verify returned non-authoritative warn no_active_playbooks_to_verify as expected; DONE-required validation passed build and npm test.",
+  "outcomeDiff": "No mismatch. The implementation delivered the V1 seed/proposal/recommendation/runtime verification closure and intentionally did not auto-activate playbooks.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Intentional limitation: V2 automatic advisory activation is not enabled by this story; playbook_auto_promotion_apply remains a disabled-by-default guarded surface pending real outcome records and reviewed policy.",
+  "pitfalls": "Major time sinks were Lattice lifecycle overhead rather than feature coding: repeated metadata commits caused stale evidence refreshes, done_prepare hit its 300s quiet watchdog after long validate output, and delivery-context evidence required a TEST to DEV rollback for scope acknowledgement before re-entering REVIEW and TEST. Future stories should avoid adding closure evidence after TEST scope is frozen, or have delivery_context_pack registered as lifecycle evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 118763
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12181
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 200660
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 2553952
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 1883124
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 892588
+    }
+  },
+  "totalDurationMs": 5663391,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T21:46:24.070Z",
+  "updatedAt": "2026-07-02T21:46:24.070Z"
+}

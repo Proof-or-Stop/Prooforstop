@@ -1,0 +1,59 @@
+{
+  "storyId": "B-9958",
+  "checkedAt": "2026-07-02T20:15:40.161Z",
+  "features": [
+    {
+      "feature": "CHK-001 read-only deduped seed observation",
+      "covered_by": "playbook_seed_observe + playbook-seed helper + source priority/no mutation smoke tests",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md#M2"
+    },
+    {
+      "feature": "CHK-002 digest-guarded proposal and candidate approval",
+      "covered_by": "playbook_seed_propose_batch + playbook_candidate_batch_approve + digest drift smoke tests",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md#M3-M4"
+    },
+    {
+      "feature": "CHK-003 promotion evidence loop without DONE helped inference",
+      "covered_by": "non_promotable registry checks + explicit outcome-only promotion sweep + DONE no-helped smoke assertion",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+    },
+    {
+      "feature": "CHK-004 runtime consumption verification",
+      "covered_by": "playbook_runtime_consumption_verify + candidate inertness smoke tests",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+    },
+    {
+      "feature": "CHK-005 health/readiness and disabled auto-promotion guard",
+      "covered_by": "promotion status/readiness extension + playbook_auto_promotion_apply fail-closed command + disabled posture smoke tests",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md#M7-M8"
+    },
+    {
+      "feature": "Default-on DONE settlement and automatic activation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story non-goals and V2 disabled-by-default safety boundary",
+      "source": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2b4e20e7dc668a9c9daa73cdc365a3bc5f8a05b69513d4259705e3efa34d44fd",
+  "openQuestions": []
+}
