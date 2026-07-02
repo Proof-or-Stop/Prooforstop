@@ -104,7 +104,47 @@
       "context": "Add deterministic verifier adapters for PINN residual/BC/IC/baseline/reproducibility/provenance evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "Verifier adapter pack plan includes deterministic PINN adapter list and failure behavior for missing/stale/bad evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chk-003:happy",
+            "desc": "Verify the verifier adapter pack definition includes residual, BC/IC, baseline, reproducibility, and provenance adapters.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chk-003:edge",
+            "desc": "Verify each adapter has explicit deterministic input/output and hash binding expectations.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chk-003:adversarial",
+            "desc": "Verify adapter definitions cannot produce implicit pass on missing or stale evidence.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
