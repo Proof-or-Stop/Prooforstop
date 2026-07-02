@@ -1,0 +1,73 @@
+{
+  "storyId": "B-6e41",
+  "checkedAt": "2026-07-02T22:24:46.827Z",
+  "features": [
+    {
+      "feature": "M1 ClaimAdmissibilityPack interface and adapter contract types",
+      "covered_by": "CHK-001; .lattice/story/actives/B-6e41/plan.md#CHK-001; docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#M1-Pack-Interface-And-Registry",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story plan and adapter-pack framework decision"
+    },
+    {
+      "feature": "M1 read-only pack registry list/resolve/duplicate validation",
+      "covered_by": "CHK-002; .lattice/story/actives/B-6e41/plan.md#CHK-002; docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#Pack-Registry",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story plan and adapter-pack framework decision"
+    },
+    {
+      "feature": "M1 admissibility compatibility entrypoint export without private duplicate registry",
+      "covered_by": "CHK-003; .lattice/story/actives/B-6e41/plan.md#CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story plan"
+    },
+    {
+      "feature": "M1 focused smoke coverage for pack contract, registry validation, compat export, and non-claim boundaries",
+      "covered_by": "CHK-004; .lattice/story/actives/B-6e41/plan.md#CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story plan"
+    },
+    {
+      "feature": "Quantum domain pack work in M2/M3/M4/M5",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "user scope fact: story only does M1 Pack Interface And Registry; docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#Minimal-Implementation-Slice",
+      "source": "scope boundary review"
+    },
+    {
+      "feature": "PINN runtime or domain pack implementation beyond declarative M1 descriptors",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "user scope fact: PINN runtime excluded; docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#Framework-Boundary",
+      "source": "scope boundary review"
+    },
+    {
+      "feature": "Second proof manager, storage root, ledger, or lifecycle gate stack",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#Non-Goals; .lattice/story/actives/B-6e41/plan.md#CHK-002; .lattice/story/actives/B-6e41/plan.md#CHK-003",
+      "source": "scope boundary review"
+    },
+    {
+      "feature": "Production completion, Authority completion, scientific truth, solver quality, or physical validation claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-6e41/plan.md#CHK-001; .lattice/story/actives/B-6e41/plan.md#CHK-004; docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md#Non-Goals",
+      "source": "scope boundary review"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e462370bf732a39522b72f723704800b13a9f471b9d1ef7abb0f085273426c92",
+  "openQuestions": []
+}

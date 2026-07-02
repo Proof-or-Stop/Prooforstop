@@ -1,0 +1,78 @@
+{
+  "storyId": "B-6e41",
+  "checkedAt": "2026-07-02T22:57:31.828Z",
+  "headHash": "38d6e628f4c693bf6740e254bf08bc345fc58a6c",
+  "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+  "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+  "reviewRound": "2026-07-02T22:45:01.546Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-6e41/plan.md#CHK-001",
+      "promise": "Define ClaimAdmissibilityPack and related schema, verifier, gate-policy, boundary, and benchmark descriptor types; built-in code-runtime descriptor satisfies the contract and benchmark harnesses are optional.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke",
+      "evidence": "packages/main/src/core/claim-admissibility/pack-framework.ts defines ClaimAdmissibilityPack, DomainClaimSchema, DomainEvidenceSchema, VerifierAdapterDefinition, GatePolicyAdapterDefinition, BenchmarkHarnessDefinition, and CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK; smoke asserts default descriptor validates and benchmarkHarnesses is undefined."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6e41/plan.md#CHK-002",
+      "promise": "Implement a read-only registry that lists and resolves the built-in code-runtime pack, returns deterministic not_found for unknown ids, and fail-closes duplicate pack/schema/evidence/artifact/alias/claim ids.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + focused smoke",
+      "evidence": "createClaimAdmissibilityPackRegistry, listClaimAdmissibilityPacks, getClaimAdmissibilityPack, and validateClaimAdmissibilityPacks are implemented in pack-framework.ts; smoke asserts found lookup, missing-pack not_found, and blocking duplicate_* issue codes."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6e41/plan.md#CHK-003",
+      "promise": "Expose the pack framework through packages/main/src/core/evidence/admissibility/index.ts while preserving existing proof-admissibility exports and without adding a second proof manager, storage root, ledger, or lifecycle gate export.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke",
+      "evidence": "index.ts adds export * from ../../claim-admissibility/pack-framework.js while retaining existing proof-admissibility exports; grep found no StoryStore/write/storage/ledger implementation in the new framework; smoke checks listClaimAdmissibilityPacks and existing getProofSurfaceDefinition remain available."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6e41/plan.md#CHK-004",
+      "promise": "Add focused smoke coverage and package script for M1 pack registry behavior, printing pack exposure, duplicate rejection, compatibility export, and final success lines.",
+      "status": "verified",
+      "verifiedBy": "package script + real command transcript",
+      "evidence": "packages/main/package.json adds test:claim-admissibility-pack-framework; packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts contains the asserted checks; npm --prefix packages/main run test:claim-admissibility-pack-framework passed and printed the expected lines."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6e41/decision.json#principles",
+      "promise": "Represent adapter packs as declarative metadata that reuse the existing proof-admissibility vocabulary and registry surface rather than duplicating it.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "pack-framework.ts imports PROOF_ADMISSIBILITY_CONTRACT_VERSION, PROOF_ADMISSIBILITY_VERIFIER_VERSION, listProofSurfaceDefinitions, and proof-admissibility types; CODE_RUNTIME_PROOF_SURFACES is derived from listProofSurfaceDefinitions and the pack boundary uses declaration declarative-only and evidenceRuntime existing-proof-admissibility."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6e41/decision.json#preMortem",
+      "promise": "Keep production, Authority, scientific-truth, hardware-validation, physical-validation, and solver-improvement claims outside local pack descriptors; registry must not store evidence or lifecycle decisions.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + focused smoke",
+      "evidence": "ClaimAdmissibilityPackBoundary literal fields require createsStorage=false, createsLedger=false, createsLifecycleGate=false, callerWritableMetadataAdmissible=false, completionEligible=false; claim boundary requires externalGateControl=false; smoke checks forbidden descriptor JSON terms and boundary literals."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Focused smoke and no-emit build passed. Covers valid built-in code-runtime pack contract, claim schema boundaries, optional benchmarkHarnesses absence, and forbidden overclaim terms excluded from descriptor JSON."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Focused smoke passed. Covers default registry validation, list/resolve of code-runtime, deterministic missing-pack not_found, and blocking duplicate pack ids, claim schema ids, evidence schema ids, artifact kinds, aliases, and claim ids."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Focused smoke passed. Covers compatibility entrypoint exporting listClaimAdmissibilityPacks and preserving existing getProofSurfaceDefinition for done-required-evidence; grep review found no new proof storage, ledger, or lifecycle gate implementation in the changed framework files."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran npm --prefix packages/main run test:claim-admissibility-pack-framework. Output included: pack contract exposes code-runtime pack; duplicate pack ids: BLOCK; duplicate artifact aliases: BLOCK; compat entrypoint exports pack registry; claim-admissibility pack framework smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified 6 documentation promises against source and smoke evidence, confirmed all 4 feature checklist items have real-machine focused smoke coverage with edge/adversarial duplicate and unknown-id cases, and found no unresolved TODO/FIXME/HACK markers in changed non-test code."
+  },
+  "_hash": "6d8e8f02b0b5829f9ccdb273ebebfe5f226aab5f9b37cf7e16c4e71bb3e4c503"
+}
