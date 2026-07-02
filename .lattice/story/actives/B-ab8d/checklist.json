@@ -156,7 +156,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "LATTICE_EXPERIMENT_ID=exp-m3-manual LATTICE_EXPERIMENT_ARM=control node packages/main/dist/cli.js recall '{\"query\":\"x\"}'",
+          "result": "pass",
+          "note": "Control arm: recall exits 1 printing blocked: memory retrieval is disabled on the control arm of experiment exp-m3-manual; .lattice/activity.jsonl gains {event:retrieval_violation, experimentId:exp-m3-manual, command:recall, timestamp} appended BEFORE the refusal. Write-side dev_memory_capture equally blocked with its own event (store writes forbidden during runs).",
+          "headHash": "a8a297d719d85ece192ee7bf643cf42590f21bd2",
+          "materialHash": "c84586398d160cfdaa6507435e5cc361a4a42f4286e56751525b0019baaef7fa",
+          "storyFilesHash": "98da603ed07cd0689551e2871e378798e8258dc962b0a794754023cf339a6e90",
+          "timestamp": "2026-07-02T23:26:53.044Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
