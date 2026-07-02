@@ -53,25 +53,17 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [
+        "happy": [],
+        "edge": [],
+        "adversarial": [
           {
-            "id": "pinn-doc-002:happy",
-            "desc": "Check baseline-fairness constraints are fully enumerated and fixed.",
-            "type": "cli",
-            "requiredIn": "balanced",
-            "priority": "must"
-          }
-        ],
-        "edge": [
-          {
-            "id": "pinn-doc-002:edge",
-            "desc": "Verify no regime comparison can alter PDE/domain/model parameters.",
+            "id": "pinn-doc-002:adv",
+            "desc": "No hidden comparison axis drift (PDE/domain/model/seed/metrics) remains that could invalidate fairness claims.",
             "type": "logic",
             "requiredIn": "strict",
             "priority": "must"
           }
-        ],
-        "adversarial": []
+        ]
       },
       "status": "pending",
       "startTime": null,
