@@ -187,6 +187,27 @@
       ],
       "signatureTag": "spec-boundary|ts|settlement-labelled-helped",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ee1:F-009",
+      "desc": "playbook_auto_promotion_apply can activate from DONE-settlement helped rows because aggregatePlaybookPromotion counts any structured helped outcome as decisive at learning-store.ts:819-823 and 1076-1095, while the activation guard in playbook-seed.ts:1080-1096 only requires at least one non-DONE real exposure row separately. A candidate with three helped verdictSource=done-settlement rows plus one neutral reviewer exposure gets playbook_promotion_sweep recommend_activate and dry-run eligible=true with no blockers; a hermetic dist repro returned decisiveSamples=3 helpedCount=3 realOutcomeCount=1 exposureCount=1. This violates the CHK-001/CHK-004 contract that DONE settlement rows and story DONE cannot contribute to activation evidence; the current smoke only covers neutral done-settlement rows and does not catch helped done-settlement rows with non-none exposure.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:05:41.348Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-007",
+      "_hash": "426928ad940cdf80b117128ace844ffeea86ab81e4acee55534592ca176ab0eb",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-auto-promotion",
+      "signatureTagSource": "auto"
     }
   ]
 }
