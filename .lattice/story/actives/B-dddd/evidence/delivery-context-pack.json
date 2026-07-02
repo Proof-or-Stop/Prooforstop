@@ -5,6 +5,10 @@
     "changedFiles": [
       ".lattice/story/actives/B-dddd/checklist.json",
       ".lattice/story/actives/B-dddd/decision.json",
+      ".lattice/story/actives/B-dddd/done-required-evidence.json",
+      ".lattice/story/actives/B-dddd/evidence/delivery-context-pack.json",
+      ".lattice/story/actives/B-dddd/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-dddd/evidence/transcript-diff.md",
       ".lattice/story/actives/B-dddd/index.json",
       ".lattice/story/actives/B-dddd/intent-collision.json",
       ".lattice/story/actives/B-dddd/milestone-ledger.json",
@@ -18,6 +22,7 @@
       ".lattice/story/actives/B-dddd/review.json",
       ".lattice/story/actives/B-dddd/scope-check.json",
       ".lattice/story/actives/B-dddd/scope-contract.json",
+      ".lattice/story/actives/B-dddd/test-evidence.json",
       ".lattice/story/actives/B-dddd/understanding.json",
       "packages/main/src/cli/command-catalog.ts",
       "packages/main/src/core/command-policy.ts",
@@ -27,7 +32,7 @@
       "packages/main/src/handlers/playbook.ts",
       "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
     ],
-    "summary": " .lattice/story/actives/B-dddd/checklist.json       | 228 ++++++++++++-\n .lattice/story/actives/B-dddd/decision.json        |  72 +++++\n .lattice/story/actives/B-dddd/index.json           |  41 ++-\n .../story/actives/B-dddd/intent-collision.json     |  14 +\n .../story/actives/B-dddd/milestone-ledger.json     | 100 ++++++\n .../actives/B-dddd/original-intent-snapshot.json   |  17 +\n .lattice/story/actives/B-dddd/plan.md              |  76 +++++\n .lattice/story/actives/B-dddd/process-events.jsonl |  10 +\n .lattice/story/actives/B-dddd/process-metrics.json | 360 +++++++++++++++++++++\n .lattice/story/actives/B-dddd/proofstory.json      |  69 ++++\n .lattice/story/actives/B-dddd/review-passes.json   |  31 ++\n .lattice/story/actives/B-dddd/review-runs.json     | 228 +++++++++++++\n .lattice/story/actives/B-dddd/review.json          | 181 +++++++++++\n .lattice/story/actives/B-dddd/scope-check.json     |  66 ++++\n .lattice/story/actives/B-dddd/scope-contract.json  |  52 +++\n .lattice/story/actives/B-dddd/understanding.json   |  29 ++\n packages/main/src/cli/command-catalog.ts           |  35 ++\n packages/main/src/core/command-policy.ts           |   1 +\n packages/main/src/core/experience-layer-types.ts   |  54 ++++\n packages/main/src/core/learning-store.ts           | 226 ++++++++++++-\n packages/main/src/core/process-fact-levels.ts      |   1 +\n packages/main/src/handlers/playbook.ts             | 216 ++++++++++++-\n .../src/tasks/experience-layer-playbook-smoke.ts   | 243 +++++++++++++-\n 23 files changed, 2323 insertions(+), 27 deletions(-)"
+    "summary": " .lattice/story/actives/B-dddd/checklist.json       | 228 ++++++++++++-\n .lattice/story/actives/B-dddd/decision.json        |  72 +++++\n .../actives/B-dddd/done-required-evidence.json     |  83 +++++\n .../B-dddd/evidence/delivery-context-pack.json     |  79 +++++\n .../B-dddd/evidence/live-smoke-transcript.json     |  20 ++\n .../actives/B-dddd/evidence/transcript-diff.md     |  42 +++\n .lattice/story/actives/B-dddd/index.json           |  41 ++-\n .../story/actives/B-dddd/intent-collision.json     |  14 +\n .../story/actives/B-dddd/milestone-ledger.json     | 100 ++++++\n .../actives/B-dddd/original-intent-snapshot.json   |  17 +\n .lattice/story/actives/B-dddd/plan.md              |  76 +++++\n .lattice/story/actives/B-dddd/process-events.jsonl |  10 +\n .lattice/story/actives/B-dddd/process-metrics.json | 360 +++++++++++++++++++++\n .lattice/story/actives/B-dddd/proofstory.json      |  69 ++++\n .lattice/story/actives/B-dddd/review-passes.json   |  31 ++\n .lattice/story/actives/B-dddd/review-runs.json     | 228 +++++++++++++\n .lattice/story/actives/B-dddd/review.json          | 181 +++++++++++\n .lattice/story/actives/B-dddd/scope-check.json     |  66 ++++\n .lattice/story/actives/B-dddd/scope-contract.json  |  52 +++\n .lattice/story/actives/B-dddd/test-evidence.json   | 197 +++++++++++\n .lattice/story/actives/B-dddd/understanding.json   |  29 ++\n packages/main/src/cli/command-catalog.ts           |  35 ++\n packages/main/src/core/command-policy.ts           |   1 +\n packages/main/src/core/experience-layer-types.ts   |  54 ++++\n packages/main/src/core/learning-store.ts           | 226 ++++++++++++-\n packages/main/src/core/process-fact-levels.ts      |   1 +\n packages/main/src/handlers/playbook.ts             | 216 ++++++++++++-\n .../src/tasks/experience-layer-playbook-smoke.ts   | 243 +++++++++++++-\n 28 files changed, 2744 insertions(+), 27 deletions(-)"
   },
   "docsPromises": [
     {
@@ -44,7 +49,7 @@
     }
   ],
   "realMachineTests": {
-    "transcriptDiff": false,
+    "transcriptDiff": true,
     "testFiles": [
       "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
     ],
