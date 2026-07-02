@@ -125,8 +125,29 @@
         "m0_m5_milestone_ledger",
         "pinn_runtime_command_surface"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required ProofStory parent ledger roll-up gate evidence for M0-M5 DONE intent equivalence after final closure.",
+      "timestamp": "2026-07-02T23:22:23.135Z",
+      "paths": [
+        ".lattice/story/actives/B-db1b/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-db1b/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e4f34e18ab46e8eb4d27a4fa5a0d6c9a55eea476",
+      "materialHash": "1a4a0688efec382dffe8203ba33c6f6bb46b47e3444ab73101a26bf7445af155",
+      "anchors": [
+        "parent_ledger_rollup_set",
+        "milestones_M0_M5",
+        "done_intent_equivalence"
+      ]
     }
   ],
   "createdAt": "2026-07-02T18:46:07.646Z",
-  "updatedAt": "2026-07-02T19:13:31.385Z"
+  "updatedAt": "2026-07-02T23:22:23.135Z"
 }
