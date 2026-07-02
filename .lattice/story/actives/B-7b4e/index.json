@@ -4,7 +4,7 @@
   "title": "Implement Proof-or-Stop Quantum claim schema and fail-closed identity binding",
   "description": "Start executing the Quantum claim-admissibility plan by delivering the first runtime slice: domain schema, evidence identity binding, and deterministic rejection for stale, missing, mismatched, or unbound computational quantum evidence. This intentionally stops before verifier adapters, gate transition orchestration, or benchmark execution.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user:2026-07-02 execute proof-or-stop-quantum-claim-admissibility-execution-plan.md",
   "keywords": [
@@ -32,6 +32,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T19:49:56.841Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7b4e",
+    "branch": "story/B-7b4e",
+    "createdAt": "2026-07-02T19:49:53.722Z"
+  }
 }
