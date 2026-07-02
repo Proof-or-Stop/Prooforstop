@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T14:30:31.905Z",
-      "endTime": null,
+      "endTime": "2026-07-02T14:54:25.543Z",
       "userSees": "Expected transcript includes `targetStatus=unmet`, `recordCount=1000000`, `indexedWarmCacheMs=<number>`, and `targetWarmMs=2000`.",
       "files": {
         "modify": [
@@ -43,7 +43,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "pre-story full profile: node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Red/profile baseline before optimization recorded referenceFullScanMs=46325 indexedColdMs=12427 indexedWarmCacheMs=3270 targetWarmMs=2000, so the then-current warm/cache path did not meet the target.",
+          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:25.784Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "Final full profile reports referenceFullScanMs=52681 indexedColdMs=9977 indexedWarmCacheMs=1 indexBuildMs=26241 exactFastPathHits=100 fuzzyIndexHits=126 cacheHitRate=0.500, giving the requested breakdown.",
+          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:26.012Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "The smoke now exits non-zero if targetStatus is not met, so M0 cannot be closed by report-first wording alone.",
+          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
+          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
+          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
+          "timestamp": "2026-07-02T14:54:26.265Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
