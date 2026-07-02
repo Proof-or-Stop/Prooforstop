@@ -344,6 +344,27 @@
       ],
       "signatureTag": "spec-boundary|ts|pinn-production-readiness-overclaim",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-db1b:F-016",
+      "desc": "Test coverage blocker: the PINN smoke/CLI regression corpus covers B1-B15, A1-A4, malformed evidence, duplicate receipts, report sanitization, and prior F-001..F-014 cases, but it still omits production-readiness narrative overclaims. Current dist repro: evaluatePinnClaim(buildCompletePinnEvidence('C9') with narrativeClaim='Production readiness is proved for this PINN result.') returns allowed=true,nextAction=advance,reasons=[]; pinn_report_render accepts supplied benchmark artifactIndex digest='Production readiness is proved by supplied report.' and renders that text. The smoke only searches/asserts deploymentReadyClaim/terminalCompletionClaim/PDE correctness/legacy productionDone-style tokens, so validation and DONE-required evidence can pass while this production-readiness boundary regression remains untested. Add smoke/CLI probes that require claim checks and report rendering to reject or sanitize production-readiness narrative text before this lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:09:53.976Z",
+      "reviewRound": "2026-07-02T22:05:42.879Z",
+      "reviewRunId": "B-db1b:RR-036",
+      "_hash": "4470692c75797eceef6507fa4e7f7f16a2c34ccd37af798de14b82f339209ae5",
+      "files": [
+        "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
+        "packages/main/src/core/pinn-claim-admissibility.ts",
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "pinn-production-readiness-overclaim-test-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
