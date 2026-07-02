@@ -561,10 +561,12 @@ function renderObserveOutput(report: PlaybookPromotionObserveReport, json?: bool
     'Playbook promotion observe',
     `observedAt: ${report.observedAt}`,
     `since: ${sinceLine}`,
+    `candidateGenerated.currentCandidates: ${report.candidateGenerated.currentCandidates}`,
     `candidateGenerated: ${report.candidateGenerated.count}`,
     ...report.candidateGenerated.candidates.map((row) =>
       `  - ${row.playbookId} status=${row.status} source=${row.source.sourceKey} digest=${row.playbookDigest}`),
     `candidateGenerated.malformedPlaybooks: ${report.candidateGenerated.malformedPlaybooks}`,
+    `candidateConsumed.consumedCandidateCount: ${report.candidateConsumed.consumedCandidateCount}`,
     `candidateConsumed: ${report.candidateConsumed.count}`,
     `candidateConsumed.uniquePlaybooks: ${report.candidateConsumed.uniquePlaybookCount}`,
     `candidateConsumed.excluded.exposureModeNone: ${report.candidateConsumed.excluded.exposureModeNone}`,

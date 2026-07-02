@@ -350,7 +350,7 @@ export type PlaybookPromotionObserveSchemaVersion = 'proofbound.playbook-promoti
 export type PlaybookPromotionObserveSinceMode = 'all' | 'iso' | 'relative';
 export type PlaybookPromotionActionableRecommendation = Extract<
   PlaybookPromotionDecisionAction,
-  'recommend_activate' | 'recommend_demote'
+  'recommend_activate' | 'reject' | 'archive' | 'recommend_demote' | 'mark_non_deducible'
 >;
 export type PlaybookPromotionRecommendationHandlingStatus = 'handled' | 'unhandled';
 
@@ -398,11 +398,13 @@ export interface PlaybookPromotionObserveReport {
   observedAt: string;
   since: PlaybookPromotionObserveSinceWindow;
   candidateGenerated: {
+    currentCandidates: number;
     count: number;
     malformedPlaybooks: number;
     candidates: PlaybookPromotionCandidateGeneratedObservation[];
   };
   candidateConsumed: {
+    consumedCandidateCount: number;
     count: number;
     uniquePlaybookCount: number;
     malformedOutcomeRows: number;

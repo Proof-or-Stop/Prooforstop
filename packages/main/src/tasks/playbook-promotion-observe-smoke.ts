@@ -25,6 +25,7 @@ import {
   appendPlaybookOutcomeEvent,
   appendPlaybookPromotionDecision,
   computePlaybookDigest,
+  markNonDeducibleSource,
   readPlaybooks,
   writePlaybooks,
 } from '../core/learning-store.js';
@@ -168,6 +169,7 @@ function decision(
     after: {
       playbookStatus: playbook.status,
       recommendation: action,
+      ...(action === 'mark_non_deducible' ? { nonDeducibleSourceKey: aggregate.source.sourceKey } : {}),
     },
     workerVersion: 'playbook-promotion-worker-v1',
     dryRun: false,
@@ -191,7 +193,9 @@ try {
     const ctx = mkCtx(root);
     assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project starts with no .lattice dir');
     const report = observe(ctx);
+    assert.equal(report.candidateGenerated.currentCandidates, 0);
     assert.equal(report.candidateGenerated.count, 0);
+    assert.equal(report.candidateConsumed.consumedCandidateCount, 0);
     assert.equal(report.candidateConsumed.count, 0);
     assert.equal(report.recommendationHandling.actionableCount, 0);
     assert.equal(report.authority, 'non_authoritative');
@@ -209,10 +213,15 @@ try {
     const pb = candidate('PB-OBS-001');
     writePlaybooks(root, [pb]);
     const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.candidateGenerated.currentCandidates, 1);
     assert.equal(report.candidateGenerated.count, 1);
     assert.equal(report.candidateGenerated.candidates[0].playbookId, pb.id);
     assert.equal(report.candidateGenerated.candidates[0].status, 'candidate');
+    assert.equal(report.candidateConsumed.consumedCandidateCount, 0, 'candidate existence alone is not consumption/help');
     assert.equal(report.candidateConsumed.count, 0, 'candidate existence alone is not consumption/help');
+    const text = createPlaybookHandlers(ctx).playbook_promotion_observe({ since: SINCE_ISO });
+    assert.match(text, /candidateGenerated\.currentCandidates: 1/);
+    assert.match(text, /candidateConsumed\.consumedCandidateCount: 0/);
   });
 
   check('explicit candidate consumption counts and exposureMode none is excluded', () => {
@@ -226,6 +235,7 @@ try {
     appendPlaybookOutcomeEvent(root, outcome(pb, { eventId: 'PBO-old', observedAt: '2026-06-01T00:00:00.000Z', exposureMode: 'candidate-inspection', verdict: 'helped' }));
 
     const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.candidateConsumed.consumedCandidateCount, 1);
     assert.equal(report.candidateConsumed.count, 1);
     assert.equal(report.candidateConsumed.rows[0].eventId, 'PBO-consumed');
     assert.equal(report.candidateConsumed.uniquePlaybookCount, 1);
@@ -247,6 +257,64 @@ try {
     assert.equal(report.recommendationHandling.unhandledCount, 1);
     assert.equal(report.recommendationHandling.recommendations[0].handlingStatus, 'unhandled');
     assert.equal(report.recommendationHandling.recommendations[0].handledBy, 'current_status_still_candidate');
+  });
+
+  check('reject/archive/mark_non_deducible are actionable while hold is non-actionable', () => {
+    const root = mkProject(); roots.push(root);
+    const ctx = mkCtx(root);
+    const rejectPb = candidate('PB-OBS-010');
+    const archivePb = candidate('PB-OBS-011');
+    const markPb = candidate('PB-OBS-012');
+    const holdPb = candidate('PB-OBS-013');
+    writePlaybooks(root, [rejectPb, archivePb, markPb, holdPb]);
+    appendPlaybookPromotionDecision(root, decision(rejectPb, 'reject'));
+    appendPlaybookPromotionDecision(root, decision(archivePb, 'archive'));
+    appendPlaybookPromotionDecision(root, decision(markPb, 'mark_non_deducible'));
+    appendPlaybookPromotionDecision(root, decision(holdPb, 'hold'));
+
+    const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.recommendationHandling.actionableCount, 3);
+    assert.equal(report.recommendationHandling.handledCount, 0);
+    assert.equal(report.recommendationHandling.unhandledCount, 3);
+    assert.equal(report.recommendationHandling.excluded.nonActionableAction, 1);
+    const byAction = new Map(report.recommendationHandling.recommendations.map((row) => [row.action, row]));
+    assert.equal(byAction.get('reject')?.handledBy, 'current_status_still_candidate');
+    assert.equal(byAction.get('archive')?.handledBy, 'current_status_still_candidate');
+    assert.equal(byAction.get('mark_non_deducible')?.handledBy, 'non_deducible_source_missing');
+    assert.equal(new Set(report.recommendationHandling.recommendations.map((row) => row.action as string)).has('hold'), false);
+  });
+
+  check('reject/archive/mark_non_deducible are handled by status update or registry entry', () => {
+    const root = mkProject(); roots.push(root);
+    const ctx = mkCtx(root);
+    const rejectPb = candidate('PB-OBS-020');
+    const archivePb = candidate('PB-OBS-021');
+    const markPb = candidate('PB-OBS-022');
+    writePlaybooks(root, [rejectPb, archivePb, markPb]);
+    appendPlaybookPromotionDecision(root, decision(rejectPb, 'reject'));
+    appendPlaybookPromotionDecision(root, decision(archivePb, 'archive'));
+    appendPlaybookPromotionDecision(root, decision(markPb, 'mark_non_deducible'));
+    writePlaybooks(root, readPlaybooks(root).map((row) =>
+      row.id === rejectPb.id ? { ...row, status: 'archived' as const }
+        : row.id === archivePb.id ? { ...row, status: 'stale' as const }
+          : row));
+    const source = aggregatePlaybookPromotion(markPb, [], []).source;
+    markNonDeducibleSource(root, {
+      source,
+      reasonCodes: ['source_rejected_sibling_threshold'],
+      reason: 'observe smoke registry fixture',
+      sourceRejectedSiblingCount: 3,
+      markedAt: NOW,
+    });
+
+    const report = observe(ctx, { since: SINCE_ISO });
+    assert.equal(report.recommendationHandling.actionableCount, 3);
+    assert.equal(report.recommendationHandling.handledCount, 3);
+    assert.equal(report.recommendationHandling.unhandledCount, 0);
+    const byAction = new Map(report.recommendationHandling.recommendations.map((row) => [row.action, row]));
+    assert.equal(byAction.get('reject')?.handledBy, 'current_status_archived');
+    assert.equal(byAction.get('archive')?.handledBy, 'current_status_stale');
+    assert.equal(byAction.get('mark_non_deducible')?.handledBy, 'non_deducible_after_source_key_present');
   });
 
   check('recommend_activate is handled after explicit activation or status update', () => {
