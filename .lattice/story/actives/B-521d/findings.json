@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-521d:F-001",
+      "desc": "verificationIntent/checklist requires all actionable recommendation classes to be classified, including recommend_demote, but playbook-promotion-observe-smoke and recorded verificationEvidence cover recommend_activate, reject, archive, mark_non_deducible, and hold only. Add an explicit recommend_demote handled/unhandled observation case so the actionable-class contract is covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T17:40:46.638Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-003",
+      "_hash": "5e77c7eb8be1adaa4c5ac0fef1ce5182e9d21aec4a114819c577d2b4f3b221b7",
+      "files": [
+        "packages/main/src/tasks/playbook-promotion-observe-smoke.ts",
+        ".lattice/story/actives/B-521d/checklist.json",
+        ".lattice/story/actives/B-521d/test-evidence.json"
+      ],
+      "signatureTag": "missing|ts|verificationintent-checklist-requires",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
