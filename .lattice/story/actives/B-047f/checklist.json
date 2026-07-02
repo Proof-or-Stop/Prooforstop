@@ -216,9 +216,9 @@
           "experiments/experience-ablation/sample-size-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T21:04:32.813Z",
       "userSees": "Running node experiments/experience-ablation/sample-size.mjs report --config=<protocol.json> --out=<dir> writes adequacy-report.json and adequacy-report.md showing per population (seeded band grid + live point) the planned N per arm, assumptions (alpha, power, direction: treatment = baseline minus MDE), detectable effect, and the in-band maximum with its location; the md report states 294 for the live point and 62 as the seeded in-band maximum near baseline 0.625 / MDE 0.25; node experiments/experience-ablation/sample-size-selfcheck.mjs prints a per-case PASS list and exits 0.",
       "verificationIntent": {
         "happy": [
