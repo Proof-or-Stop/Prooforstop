@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9958",
+  "allowedCommands": [
+    "lattice playbook_auto_promotion_apply --dryRun --json",
+    "lattice playbook_candidate_batch_approve --dryRun --json",
+    "lattice playbook_runtime_consumption_verify --json",
+    "lattice playbook_seed_observe --json",
+    "lattice playbook_seed_propose_batch --dryRun --json",
+    "lattice source_lineage_audit --domain=learning --json",
+    "lattice validate --storyId=<story>",
+    "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/**",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/**"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation remains local, test-backed, and non-authoritative; no remote publish or destructive commands.",
+  "createdAt": "2026-07-02T20:12:00.678Z",
+  "updatedAt": "2026-07-02T20:12:00.678Z",
+  "_hash": "b44c3912d8548e6f32d36877875662eba7c6cfa6cdb49cf64c9eec9f6c66e8c0"
+}

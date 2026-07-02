@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9958",
+  "mode": "feature",
+  "allowed": [
+    "M2 playbook_seed_observe read-only seed observation",
+    "M3 digest-guarded batch proposal",
+    "M4 digest-guarded candidate approval",
+    "M5 promotion evidence loop wiring without DONE-helped inference",
+    "M6 runtime consumption verification",
+    "M7 health/readiness reporting",
+    "M8 disabled-by-default auto-promotion guard"
+  ],
+  "excluded": [
+    "default-on automatic candidate-to-active mutation",
+    "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+    "semantic dedup as a hard blocker",
+    "using learning artifacts as lifecycle gate evidence"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked on 2026-07-02 to complete the remaining milestones of the source-lineage dedup and historical playbook seed promotion plan until DONE, with V2 auto-promotion guarded rather than enabled by default.",
+  "createdAt": "2026-07-02T20:12:00.678Z",
+  "updatedAt": "2026-07-02T20:12:00.678Z",
+  "_hash": "10be369ca6c1c981aa2f3d68344044280cfd12589f792c929eb4003bee641d7f"
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-01df",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e35b675ab456d66d3a8f06936597657092cf54632fd866cd5b7403c9bc46a883",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1-READONLY-LINEAGE-AUDIT",
+      "claim": "Learning-domain source lineage can be audited through a read-only command before seed promotion exists.",
+      "doneMeans": "source_lineage_audit --domain=learning --json reports canonical source keys, duplicate groups, missing lineage diagnostics, and non-authoritative gateEvidence=false while leaving learning stores unchanged.",
+      "requiredEvidence": [
+        "build",
+        "smoke",
+        "cli-transcript",
+        "docs"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T19:04:18.642Z",
+  "updatedAt": "2026-07-02T19:04:24.206Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702190424",
+    "acceptedInterpretationHash": "sha256:00ef458138ac28101b33b3a440cb764d25e53f3c2ace68c2d511b27bb52e35e0",
+    "acceptedAt": "2026-07-02T19:04:24.206Z"
+  }
+}

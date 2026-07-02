@@ -51,9 +51,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T19:24:00.598Z",
+      "endTime": "2026-07-02T19:24:01.608Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a synthetic source finding shared by dev-memory/finding-signal/playbook/outcome/decision records is grouped under one duplicate canonical source key.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:02.115Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts missing lineage and malformed finding-signals stores produce diagnostics instead of throwing or silently disappearing.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:02.582Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts every audit record and report is authority=non_authoritative and gateEvidence=false.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:03.231Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -103,9 +141,45 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T19:24:03.933Z",
+      "endTime": "2026-07-02T19:24:06.479Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js source_lineage_audit --domain=learning --json",
+          "result": "pass",
+          "note": "Dist CLI emitted JSON with schemaVersion proofbound.source-lineage-audit.v1, authority non_authoritative, gateEvidence false, 1603 source records, 4 missing lineage records, and 364 duplicate groups in the current repo.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:07.014Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js source_lineage_audit --domain=runtime --json",
+          "result": "pass",
+          "note": "Unsupported domain fails clearly with: source_lineage_audit: unsupported domain \"runtime\" (supported: learning).",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:07.489Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts command metadata is read-only, process fact level L0, rejects write/apply flags, and has no host namespace alias.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:08.052Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -156,9 +230,108 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-02T19:24:01.112Z",
+      "endTime": "2026-07-02T19:24:04.448Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers duplicate source grouping, empty-store read-only posture, and no writes while auditing.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:04.950Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs state B-01df implements M1 only and that source_lineage_audit does not create seeds, proposals, candidates, outcomes, promotion decisions, active playbooks, runtime blocking policy, or DONE settlement rows.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:05.472Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/source-lineage-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts audit output cannot satisfy lifecycle gate evidence and leaves stores unchanged.",
+          "headHash": "6536a0fca0886abb88a375393e7f1ae117fc77db",
+          "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+          "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+          "timestamp": "2026-07-02T19:24:05.935Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T19:24:00.598Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:01.112Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:01.608Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Core record model and collectors are implemented and covered by focused smoke.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:03.933Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:04.448Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Smoke and docs cover the M1-only boundary.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:06.479Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Host-neutral CLI command is registered, read-only, and covered by smoke plus dist CLI transcript.",
+      "agent": "main-agent"
     }
   ]
 }
