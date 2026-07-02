@@ -281,8 +281,10 @@ export function renderAdequacyMarkdown(report) {
     `Paired McNemar sizing (${l.pairedMcNemar.assumptions.source}): ${l.pairedMcNemar.nPairs} pairs (p01 ${l.pairedMcNemar.assumptions.p01.toFixed(4)}, p10 ${l.pairedMcNemar.assumptions.p10.toFixed(4)})`,
     '',
     'The binding powered N for the seeded study is frozen by the M6 pilot rule',
-    '(>= minControlFaultRuns control-arm fault runs; freeze at the Wilson 95% CI',
-    'lower bound; extend the pilot when the CI is wider than maxCiWidth).',
+    '(>= minControlFaultRuns control-arm fault runs; freeze at the N-maximizing',
+    'baseline within the Wilson 95% CI — the lower bound alone is not',
+    'conservative (B-047f F-001); extend the pilot when the CI is wider than',
+    'maxCiWidth).',
     '',
   ];
   return lines.join('\n');
