@@ -248,7 +248,7 @@
       "desc": "Duplicate playbook outcome idempotency keys are counted as distinct promotion evidence. appendPlaybookOutcomeEvent/playbook_outcome_record appends repeated idempotencyKey rows without rejecting or deduping them, and aggregatePlaybookPromotion counts every valid row. I reproduced a temp project with two rows using idempotencyKey=same-key plus one other helped row; aggregate returned helpedCount=3, decisiveSamples=3, contextClassCount=2, and evaluatePlaybookPromotion returned recommend_activate even though there were only two unique outcome keys. This breaks M8 aggregation/idempotency: retries or duplicate outcome submissions can satisfy activation thresholds and then playbook_auto_promotion_apply treats the duplicated rows as real outcome evidence. Count unique idempotency keys, or fail closed on duplicate outcome idempotency keys before aggregation/apply.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T23:15:43.517Z",
@@ -261,7 +261,11 @@
         "packages/main/src/core/playbook-seed.ts"
       ],
       "signatureTag": "edge|ts|duplicate-playbook-outcome",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d9c541b9. appendPlaybookOutcomeEvent now no-ops for an existing valid idempotencyKey, and aggregatePlaybookPromotion dedupes valid outcome rows by idempotencyKey before counting, so historical duplicate rows cannot satisfy activation thresholds. Smoke covers duplicate append and duplicate historical aggregate rows. Verified by build, test:playbook-evidence-activation, and source-lineage-audit-smoke.",
+      "resolvedAt": "2026-07-02T23:20:57.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
