@@ -128,8 +128,9 @@ export function emitCorpus({ outDir, seed, perClass, classes }) {
       const dir = join(outDir, fixtureId);
       const workspaceFiles = cls.workspace(ctx);
       const spec = cls.oracleSpec(ctx);
-      // (done-evidence needs no emission-time binding: its ground truth reads
-      // the actual exported value via a secret-path probe — see ORACLE_RUNTIME.)
+      // (done-evidence needs no emission-time binding: its ground truth is a
+      // static, node --check-gated read of the exported literal — see
+      // ORACLE_RUNTIME; no workspace code is executed.)
       // F-007: bind the review-evidence oracle to the emission-time evidence
       // inventory (relPath -> sha256) so host-created or modified evidence can
       // never qualify as reviewer proof.
