@@ -27,9 +27,11 @@ const complete = evaluatePinnClaim(buildCompletePinnEvidence('C9'));
 assert.equal(complete.allowed, true, 'complete C9 evidence advances');
 assert.equal(complete.nextAction, 'advance', 'complete C9 advances');
 assert.equal(complete.deploymentReadyClaim, false, 'complete check never claims deployment readiness');
+assert.equal(complete.productionReadyClaim, false, 'complete check never claims production readiness');
 assert.equal(complete.externalCompletionClaim, false, 'complete check never claims external completion');
 assert.equal(complete.terminalCompletionClaim, false, 'complete check never claims terminal completion');
 assert.equal(complete.pdeCorrectnessClaim, false, 'complete check never claims PDE correctness');
+assert.match(complete.boundary, /production readiness/, 'boundary names production readiness as out of scope');
 assert.equal(complete.checkedAdapters.length, 9, 'C9 checks all adapter families');
 
 assert.deepEqual(
@@ -193,6 +195,7 @@ const benchmarkText = renderPinnBenchmarkText(benchmark);
 const reportText = renderPinnReportText(benchmark);
 for (const text of [benchmarkText, reportText]) {
   assert.doesNotMatch(text, /deploymentReadyClaim:\s*true/i, 'text must not claim deployment readiness');
+  assert.doesNotMatch(text, /productionReadyClaim:\s*true/i, 'text must not claim production readiness');
   assert.doesNotMatch(text, /externalCompletionClaim:\s*true/i, 'text must not claim external completion');
   assert.doesNotMatch(text, /terminalCompletionClaim:\s*true/i, 'text must not claim terminal completion');
   assert.doesNotMatch(text, /pdeCorrectnessClaim:\s*true/i, 'text must not claim PDE correctness');
@@ -232,6 +235,7 @@ const sanitizedReport = handlers.pinn_report_render({
   benchmarkJson: JSON.stringify({
     ...benchmark,
     deploymentReadyClaim: 'false',
+    productionReadyClaim: 'false',
     externalCompletionClaim: 'no',
     terminalCompletionClaim: 'off',
     pdeCorrectnessClaim: 0,
@@ -267,11 +271,13 @@ const sanitizedReport = handlers.pinn_report_render({
 }) as ReturnType<typeof runPinnClaimBenchmark> & Record<string, unknown>;
 assert.deepEqual(sanitizedReport.claims, {
   deploymentReadyClaim: false,
+  productionReadyClaim: false,
   externalCompletionClaim: false,
   terminalCompletionClaim: false,
   pdeCorrectnessClaim: false,
 }, 'report JSON sanitizes claim fields');
 assert.equal(sanitizedReport.deploymentReadyClaim, undefined, 'report JSON omits caller top-level deployment claim');
+assert.equal(sanitizedReport.productionReadyClaim, undefined, 'report JSON omits caller top-level production claim');
 assert.equal(sanitizedReport.terminalCompletionClaim, undefined, 'report JSON omits caller top-level terminal claim');
 assert.equal(sanitizedReport[legacyDoneField], undefined, 'report JSON omits caller top-level legacy claim');
 assert.equal(sanitizedReport.unexpectedCallerField, undefined, 'report JSON omits arbitrary caller fields');
@@ -286,6 +292,7 @@ assert.throws(
       deploymentReadyClaim: 'true',
       claims: {
         deploymentReadyClaim: true,
+        productionReadyClaim: true,
         externalCompletionClaim: true,
         terminalCompletionClaim: true,
         pdeCorrectnessClaim: true,

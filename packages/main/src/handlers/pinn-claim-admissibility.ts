@@ -88,6 +88,7 @@ const REPORT_ARM_IDS = ['A1', 'A2', 'A3', 'A4'] as const;
 
 const SAFE_REPORT_CLAIMS = {
   deploymentReadyClaim: false,
+  productionReadyClaim: false,
   externalCompletionClaim: false,
   terminalCompletionClaim: false,
   pdeCorrectnessClaim: false,

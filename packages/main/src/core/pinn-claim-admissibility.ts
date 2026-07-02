@@ -4,7 +4,7 @@ export const PINN_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.pinn_claim_admis
 export const PINN_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.pinn_claim_admissibility_verifier.v1' as const;
 
 export const PINN_BOUNDARY_PARAGRAPH =
-  'Proof-or-Stop for PINNs is a local claim-admissibility control layer. It checks whether a stated PINN claim has current, bound evidence before advancing; it does not prove PDE correctness, deployment readiness, or external completion.';
+  'Proof-or-Stop for PINNs is a local claim-admissibility control layer. It checks whether a stated PINN claim has current, bound evidence before advancing; it does not prove PDE correctness, deployment readiness, production readiness, or external completion.';
 
 export const PINN_CLAIM_IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'] as const;
 export type PinnClaimId = typeof PINN_CLAIM_IDS[number];
@@ -100,6 +100,7 @@ export interface PinnClaimCheckResult {
   checkedAdapters: PinnAdapterId[];
   missingAdapters: PinnAdapterId[];
   deploymentReadyClaim: false;
+  productionReadyClaim: false;
   externalCompletionClaim: false;
   terminalCompletionClaim: false;
   pdeCorrectnessClaim: false;
@@ -141,6 +142,7 @@ export interface PinnBenchmarkReport {
   a4: PinnArmMetrics;
   claims: {
     deploymentReadyClaim: false;
+    productionReadyClaim: false;
     externalCompletionClaim: false;
     terminalCompletionClaim: false;
     pdeCorrectnessClaim: false;
@@ -241,6 +243,7 @@ export function buildCompletePinnEvidence(claimId: PinnClaimId = 'C9'): PinnClai
     checklistPassed: true,
     trainingLossLow: false,
     deploymentReadyClaim: false,
+    productionReadyClaim: false,
     externalCompletionClaim: false,
     terminalCompletionClaim: false,
     pdeCorrectnessClaim: false,
@@ -516,6 +519,7 @@ export function evaluatePinnClaim(input: PinnClaimCheckInput): PinnClaimCheckRes
     checkedAdapters,
     missingAdapters,
     deploymentReadyClaim: false,
+    productionReadyClaim: false,
     externalCompletionClaim: false,
     terminalCompletionClaim: false,
     pdeCorrectnessClaim: false,
@@ -619,6 +623,7 @@ export function runPinnClaimBenchmark(): PinnBenchmarkReport {
     a4,
     claims: {
       deploymentReadyClaim: false,
+      productionReadyClaim: false,
       externalCompletionClaim: false,
       terminalCompletionClaim: false,
       pdeCorrectnessClaim: false,
@@ -642,6 +647,7 @@ export function renderPinnClaimCheckText(result: PinnClaimCheckResult): string {
     `checkedAdapters: ${result.checkedAdapters.join(', ') || 'none'}`,
     `missingAdapters: ${result.missingAdapters.join(', ') || 'none'}`,
     `deploymentReadyClaim: ${result.deploymentReadyClaim}`,
+    `productionReadyClaim: ${result.productionReadyClaim}`,
     `externalCompletionClaim: ${result.externalCompletionClaim}`,
     `terminalCompletionClaim: ${result.terminalCompletionClaim}`,
     `pdeCorrectnessClaim: ${result.pdeCorrectnessClaim}`,
@@ -662,6 +668,7 @@ export function renderPinnBenchmarkText(report: PinnBenchmarkReport): string {
     );
   }
   lines.push(`deploymentReadyClaim: ${report.claims.deploymentReadyClaim}`);
+  lines.push(`productionReadyClaim: ${report.claims.productionReadyClaim}`);
   lines.push(`externalCompletionClaim: ${report.claims.externalCompletionClaim}`);
   lines.push(`terminalCompletionClaim: ${report.claims.terminalCompletionClaim}`);
   lines.push(`pdeCorrectnessClaim: ${report.claims.pdeCorrectnessClaim}`);
@@ -677,6 +684,7 @@ export function renderPinnReportText(report: PinnBenchmarkReport): string {
     'artifactIndex:',
     ...report.artifactIndex.map((entry) => `  - ${entry.id} (${entry.kind}) ${entry.digest}`),
     `deploymentReadyClaim: ${report.claims.deploymentReadyClaim}`,
+    `productionReadyClaim: ${report.claims.productionReadyClaim}`,
     `externalCompletionClaim: ${report.claims.externalCompletionClaim}`,
     `terminalCompletionClaim: ${report.claims.terminalCompletionClaim}`,
     `pdeCorrectnessClaim: ${report.claims.pdeCorrectnessClaim}`,
