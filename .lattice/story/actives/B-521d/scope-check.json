@@ -1,0 +1,45 @@
+{
+  "storyId": "B-521d",
+  "checkedAt": "2026-07-02T17:21:35.946Z",
+  "features": [
+    {
+      "feature": "read-only observation aggregation",
+      "covered_by": "checklist CHK-001 covers read-only counts from playbooks, outcome ledger, decision log, and non-deducible registry; userSees names candidateGenerated.currentCandidates, candidateConsumed.consumedCandidateCount, and unconsumed current candidate ids. plan.md CHK-001 covers candidateGenerated, candidateConsumed, recommendationHandling, explicit exposure rows with exposureMode != none, and excludes DONE success/candidate existence as positive evidence. requirements doc covers explicit outcome verdict sources, exposureMode != none for candidate helped/consumed evidence, outcome/decision/non-deducible stores, and V1 aggregation/evaluator boundaries.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-001; plan.md CHK-001; docs/requirements/decisions/playbook-promotion-worker-execution-plan.md sections 9, 12, 13"
+    },
+    {
+      "feature": "host-neutral playbook_promotion_observe CLI registration",
+      "covered_by": "checklist CHK-002 covers a plain host-neutral lattice playbook_promotion_observe command with --since and --json, read-only behavior, authority=non_authoritative, and gateEvidence=false. plan.md CHK-002 covers CLI JSON output, invalid --since diagnostics, read-only/L0 command policy and process-fact metadata, and non-adapter namespace registration. understanding constraints and requirements doc host-neutral schema rule keep this outside Codex/Claude-specific namespaces.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-002; plan.md CHK-002; understanding.json constraints; requirements doc section 11"
+    },
+    {
+      "feature": "focused smoke/docs boundary",
+      "covered_by": "checklist CHK-003 covers empty real-store posture plus synthetic candidate/outcome/recommendation cases including consumed/unconsumed and handled/unhandled recommend_activate. plan.md CHK-003 covers smoke ending with playbook promotion observe smoke passed and rg verification for observe/evidence gathering/not automatic documentation boundary. CHK-003 documentation requirement says observation is evidence gathering for M7/M8 readiness and not promotion automation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-003; plan.md CHK-003; requirements doc sections 17-20"
+    },
+    {
+      "feature": "explicit exclusions: no automatic activation, no trial traffic, no timers, no DONE gate evidence/runtime memory guidance changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints exclude automatic activation, trial traffic, timers, runtime memory guidance changes, and DONE gate evidence side effects. checklist excludes traffic experiment serving, timer registration, automatic candidate activation, runtime memory guidance changes, and gate evidence changes. plan.md CHK-002/CHK-003 DoneWhen forbids activation, timers, trial traffic, runtime guidance, and DONE gate evidence paths. requirements doc states M7/M8 trial serving, matched control, timers, and auto-active mutation are future work; V1 does not require trial serving, timer registration, or automatic candidate-to-active mutation; promotion cannot satisfy lifecycle/DONE evidence.",
+      "source": "understanding.json constraints; checklist CHK-001/002/003 excludes; plan.md CHK-002/003; requirements doc sections 2, 5, 6, 16, 18, 19, 20"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "142012cbfde5bb2aeb76b1b1c234277ca62cc7305ca99e5c4061d1ee47bdcbfa",
+  "openQuestions": []
+}
