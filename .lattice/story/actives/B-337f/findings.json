@@ -325,6 +325,24 @@
       "resolvedAt": "2026-07-02T23:11:54.978Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-016",
+      "desc": "execution-oracle-nonce-read-via-argv: The F-015 nonce-hardening passes process.argv[2]=nonce to run-check.mjs, but process.argv is shared across the Node.js process including all imported ESM modules. A workspace lib file (e.g. lib/saffron.mjs) can read process.argv[2] during ESM module evaluation (before run-check.mjs asserts LIMIT), print the nonce-tagged pass line (argv2 + \" saffron-check: PASS\"), then call process.exit(0). The oracle finds the correct nonce-tagged line in stdout -> passed:true despite LIMIT=52. Probe executed and confirmed: stdout shows the nonce-prefixed PASS line, defectPresent:false. Root cause: argv is not isolated from imported workspace modules; only the check script itself is integrity-bound, not the entire subprocess namespace.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:16:07.066Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-019",
+      "_hash": "293cfacd8ea1d219113a90257e708540c81741142966d496d5509c5d80479972",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs:493-497"
+      ],
+      "signatureTag": "adversarial|mjs:493-497|execution-oracle-nonce",
+      "signatureTagSource": "auto"
     }
   ]
 }
