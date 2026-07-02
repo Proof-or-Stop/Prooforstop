@@ -1,8 +1,8 @@
 # Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan
 
-Status: formal story source of truth for B-7b4e  
-Runtime status: Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.  
-Created: 2026-07-02  
+Status: formal story source of truth for B-7b4e
+Runtime status: Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.
+Created: 2026-07-02
 Scope: local computational quantum-mechanics claim-admissibility controls
 
 ## Purpose
