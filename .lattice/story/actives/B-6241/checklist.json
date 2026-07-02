@@ -9,7 +9,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Promotion aggregate/evaluator tests show recommend_activate, reject, hold, archive, recommend_demote, and mark_non_deducible decisions from explicit outcome evidence only.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-001:happy:0 candidate with enough helped decisive samples and context diversity returns recommend_activate with aggregate digest and reason codes.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:happy:1 repeated rejected sibling decisions for a source returns mark_non_deducible and can persist registry metadata.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-001:edge:0 neutral and unknown rows keep decisiveSamples at zero and evaluator returns hold, not recommend_activate.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:edge:1 learning artifacts under .lattice/learning remain material-hash excluded runtime artifacts.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-001:adversarial:0 harmful or causedWrongClaim evidence prevents activation recommendation even when helped samples exist.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-001:adversarial:1 malformed or prototype-polluted decision/outcome rows fail closed through own-property validation.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
