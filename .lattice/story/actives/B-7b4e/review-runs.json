@@ -1031,6 +1031,49 @@
         "bindingHash": "21663013a6c30ed9006ea61c88a335cca9baea49927ad498c56e01b28f290973"
       },
       "_hash": "af9e578f129e28a5c953fd63edd39cee85710b2f7ed5023a48aff86e17635058"
+    },
+    {
+      "reviewRunId": "B-7b4e:RR-025",
+      "storyId": "B-7b4e",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "startedAt": "2026-07-02T21:17:24.456Z",
+      "headHash": "9d43982af88b76e81557e9baf86badab3a916335",
+      "materialHash": "4b9220640c1a1193b37b68a0a0cbc4401ab8a02d631d226448f68691ee38c585",
+      "storyFilesHash": "9974abd0f27018b66d960de680eb44d361952bf2436112f917546e898716850a",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6f252ee1c2209df091f14f1ed30f5194c47f50947f92a166bcc0647a6e7154c9",
+        "diffPackHash": "71ebcdf8670acbce4701ed98ba7a2fd8661a3fc6077b27efb1d710a28cdfd34e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/quantum.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1186bd098b5dc47f8fcd7127db7e51b35900e59d6734f7725df67cd76847c507",
+          "54bfc39da8909057519ad4a69261912e907e0fac6173d881a24315b8230345c1",
+          "c0d87bf5d3387740fee248bfcead6f11c223fca07083285c2fca90336ff228fa",
+          "d5ca0638aa96695b51e4f6adfd2840e61bee70b7b2c19ecb9eb5aec019136041"
+        ],
+        "bindingHash": "e5011993358e90ca49fff0121e0b63d38cad2e726de85db98f5b0f436e806123"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7b4e",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7b4e",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7b4e",
+        "workspaceMode": "story-worktree",
+        "headHash": "9d43982af88b76e81557e9baf86badab3a916335",
+        "materialHash": "4b9220640c1a1193b37b68a0a0cbc4401ab8a02d631d226448f68691ee38c585",
+        "storyFilesHash": "9974abd0f27018b66d960de680eb44d361952bf2436112f917546e898716850a",
+        "bindingHash": "62dc2d99680f38864e25da9493cc4316db5f9b8ea86411863c5ba9ab606cd42c"
+      },
+      "_hash": "21e9fd257143ca07cd24cf2c6f5700cdeb27a9e21e8de2bfab6b8c384eeba15b"
     }
   ]
 }

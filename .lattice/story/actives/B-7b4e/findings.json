@@ -181,6 +181,25 @@
       ],
       "signatureTag": "adversarial|ts|level-receipt-outputdigest",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b4e:F-009",
+      "desc": "Blocking test-coverage gap: the smoke added a mismatched top-level receipt.outputDigest case only for Q4 solver-run receipts, but the story requirement is fail-closed receipt output binding across required evidence receipts. Independent repro with node --input-type=module mutating buildCompleteQuantumEvidence(Q5).receipts[0].outputDigest and buildCompleteQuantumEvidence(Q12).receipts[0].outputDigest returns allowed=true,nextAction=advance,reasons=[] for energy-eigenvalue and figure-table-provenance. The smoke therefore does not cover non-solver top-level receipt.outputDigest mismatches, and the current evaluator advances them instead of failing closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T21:17:33.168Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-025",
+      "_hash": "ad742a8a477288177c02bb008c7cb47a74a812a409c1dc60a53363d02d98351d",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
