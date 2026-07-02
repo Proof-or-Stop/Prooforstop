@@ -1,0 +1,26 @@
+{
+  "storyId": "B-0a1c",
+  "updatedAt": "2026-07-02T02:48:24.578Z",
+  "entries": [
+    {
+      "digest": "c867be227afae3c74fcb16aa0096e074c2102bd29678a4057603ca4321ade709",
+      "terms": [
+        "## Conversational Texture The user wants Proofbound to learn from repeated work, but not at the cost of turning advisory learning into a hidden gate or host-specific behavior. The work should stay simple, auditable, and aligned with the product philosophy.",
+        "## Key Insights Candidate playbooks are learning material, not runtime proof. The implementation must preserve the host-neutral core, keep candidates out of active runtime memory packs, and distinguish explicit exposure outcomes from ordinary DONE success.",
+        "## Solution Tradeoffs Start with M0-M2 only: red/repro tests, learning-store write discipline, and explicit outcome recording. Defer later lifecycle surfaces so this story fixes real correctness gaps without arbitrary optimization.",
+        "## Trigger Event On 2026-07-02, the reviewed plan docs/requirements/decisions/playbook-promotion-worker-execution-plan.md identified that Proofbound can propose candidate playbooks, but V1 still needs a disciplined outcome ledger before any safe recommendation or rejection loop can exist.",
+        "## Trigger Event On 2026-07-02, the reviewed plan docs/requirements/decisions/playbook-promotion-worker-execution-plan.md identified that Proofbound can propose candidate playbooks, but V1 still needs a disciplined outcome ledger before any safe recommendation or rejection loop can exist. ## Key Insights Candidate playbooks are learning material, not runtime proof. The implementation must preserve the host-neutral core, keep candidates out of active runtime memory packs, and distinguish explicit exposure outcomes from ordinary DONE success. ## Solution Tradeoffs Start with M0-M2 only: red/repro tests, learning-store write discipline, and explicit outcome recording. Defer later lifecycle surfaces so this story fixes real correctness gaps without arbitrary optimization. ## Conversational Texture The user wants Proofbound to learn from repeated work, but not at the cost of turning advisory learning into a hidden gate or host-specific behavior. The work should stay simple, auditable, and aligned with the product philosophy.",
+        "Build the conservative V1 foundation for playbook promotion governance: red/repro coverage, learning-store discipline, and an auditable outcome ledger for explicit candidate outcome recording.",
+        "host-neutral",
+        "Implement playbook promotion M0-M2 outcome ledger foundation",
+        "learning-store",
+        "outcome-ledger",
+        "playbook",
+        "promotion"
+      ],
+      "reason": "Discard incomplete story shell left by failed story_create intake before checklist files were created.",
+      "discardedAt": "2026-07-02T02:48:24.578Z",
+      "storyId": "B-0a1c"
+    }
+  ]
+}
