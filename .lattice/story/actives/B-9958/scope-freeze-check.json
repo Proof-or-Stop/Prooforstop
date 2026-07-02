@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9958",
+  "checkedAt": "2026-07-02T20:13:55.252Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "10be369ca6c1c981aa2f3d68344044280cfd12589f792c929eb4003bee641d7f",
+  "executionBoundaryHash": "b44c3912d8548e6f32d36877875662eba7c6cfa6cdb49cf64c9eec9f6c66e8c0",
+  "freshnessHash": "790b556bdb17a4cf4e564dbb03fe499a7a8c73c3b3568662e5e3b3b46256b346",
+  "effectiveExcludedKeywords": [
+    "default-on automatic candidate-to-active mutation",
+    "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+    "semantic dedup as a hard blocker",
+    "using learning artifacts as lifecycle gate evidence"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "default-on automatic candidate-to-active mutation",
+      "source": "scopeBoundary.excluded",
+      "text": "default-on automatic candidate-to-active mutation",
+      "excluded": true
+    },
+    {
+      "keyword": "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "source": "checklist.excludes",
+      "text": "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "itemId": "CHK-003",
+      "excluded": true
+    },
+    {
+      "keyword": "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "source": "scopeBoundary.excluded",
+      "text": "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+      "excluded": true
+    },
+    {
+      "keyword": "semantic dedup as a hard blocker",
+      "source": "scopeBoundary.excluded",
+      "text": "semantic dedup as a hard blocker",
+      "excluded": true
+    },
+    {
+      "keyword": "using learning artifacts as lifecycle gate evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "using learning artifacts as lifecycle gate evidence",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "509b890157df294ba0de37c03462621d65cc1eaf098f980294eb7915d16e7276"
+}

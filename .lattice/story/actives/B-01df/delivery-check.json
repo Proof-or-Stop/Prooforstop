@@ -1,0 +1,53 @@
+{
+  "storyId": "B-01df",
+  "checkedAt": "2026-07-02T20:00:00.949Z",
+  "headHash": "0e3fde729413e593c07caaca545bbf99487928a2",
+  "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+  "storyFilesHash": "e8dafca1caa6290306b32c20bd35b39d23fc8c73733afd3451845a244b80051e",
+  "reviewRound": "2026-07-02T19:24:29.393Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-01df/checklist.json#CHK-001-userSees",
+      "promise": "JSON output includes \"canonicalSourceKey\", \"canonicalSourceKeyVersion\", and \"canonicalizationPolicyHash\" for learning lineage records.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery live CLI JSON review",
+      "evidence": "Fresh parsed CLI output had recordsHaveKey=true; report canonicalSourceKeyVersion=proofbound.learning-source-key.v1 and canonicalizationPolicyHashType=string."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-01df/checklist.json#CHK-002-userSees",
+      "promise": "Running \"lattice source_lineage_audit --domain=learning --json\" prints duplicate groups, missingLineageCount, and authority/gateEvidence fields.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery live CLI JSON review",
+      "evidence": "Fresh parsed CLI output reported sourceRecordCount=1603, missingLineageCount=4, duplicateCanonicalSourceGroups=364, authority=non_authoritative, and gateEvidence=false."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-01df/checklist.json#CHK-003-userSees; docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md#M1",
+      "promise": "Smoke output ends with \"source lineage audit smoke passed\" and the execution plan names M1 as read-only audit only.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery smoke/docs review",
+      "evidence": "Fresh smoke output ended source-lineage-audit smoke passed: TOTAL 6 | PASS 6 | FAIL 0; decision doc states B-01df implements M1 only and source_lineage_audit is read-only/host-neutral."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002-learning-json",
+      "transcript": "node packages/main/dist/cli.js source_lineage_audit --domain=learning --json exited 0; parsed summary: schemaVersion proofbound.source-lineage-audit.v1, sourceRecordCount 1603, missingLineageCount 4, duplicateCanonicalSourceGroups 364, authority non_authoritative, gateEvidence false, recordsHaveKey true."
+    },
+    {
+      "featureId": "CHK-002-unsupported-domain",
+      "transcript": "node packages/main/dist/cli.js source_lineage_audit --domain=runtime --json exited 1 as expected with source_lineage_audit: unsupported domain \"runtime\" (supported: learning)."
+    },
+    {
+      "featureId": "CHK-003-smoke",
+      "transcript": "node packages/main/dist/tasks/source-lineage-audit-smoke.js exited 0; source-lineage-audit smoke passed: TOTAL 6 | PASS 6 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery PASS: B-01df M1 read-only source_lineage_audit matches the three docs promises, has fresh real-machine CLI/smoke evidence, and has no unresolved M1 blockers."
+  },
+  "_hash": "3a3ed855968d20d1250e01541b3fd7a6131345ada6db936a8e97150835e68f9c"
+}

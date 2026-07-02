@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-36fd:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue check complete. Four rev-1 concepts verified absent or correctly scoped: (1) Shadow C / third arm — S4 explicitly rejects it, no assertion of the concept anywhere; (2) 5-factor blocked randomization — S8 heading is Matched Pairs Not Blocked Randomization, the five-factor mention is part of the rejection rationale, not a live design assertion; (3) reviewer findings in seeded-study primary endpoint — S6.1 explicitly excludes live LLM reviewer findings from the deterministic primary outcome; (4) .proof-or-stop/ as live artifact root — appears exactly once at S12 as a parenthetical rev-1 correction note (the allowed single occurrence). Terminology consistency: Proof-or-Stop appears only twice in lines 409-410 scoped to lifecycle-readiness concept, not as directory or command set. Trap group names in-store and held-out negative-control are used consistently across S5.1, S7, S10, S11, S14, S15. Docs-only story; single new file; no promised-but-undelivered content. Zero blockers.",
+      "createdAt": "2026-07-02T19:17:09.086Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-001",
+      "_hash": "45c6d399f279dbdc93bbd4451d7edd3e5db990d45d24fd6be33e57c8d17aede3"
+    },
+    {
+      "id": "B-36fd:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 6/6 verificationIntent entries covered (0 required missing, 0 gaps). All 5 mechanical evidence commands re-ran from the worktree root and exited 0. Waiver on adversarial:0 (semantic delta-to-finding trace) is appropriately scoped: non-automatable reading-comprehension check; automatable marker greps for all 12 corrections are already covered by happy:0. RED evidence audit: failing command git cat-file -e cfd9c8051...:docs/... genuinely fails at baseline (file absent), and the green command (git cat-file -e HEAD:... && grep -c Study Geometry) passes after commit 6acc17e5c. No coverage gaps found.",
+      "createdAt": "2026-07-02T19:19:09.644Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-003",
+      "_hash": "82334943893511fd50a2b650ef256e41657eb4888271b1eae312478369f1f17b"
+    },
+    {
+      "id": "B-36fd:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Final round re-verification after fix commits 3d666c058 (F-001/2/3) and 78988815b (F-004/5/6). All round-1 pass items confirmed still clean: no Shadow C arm allocated, 5-factor blocking cited as design rationale only, no live reviewer in seeded primary, .proof-or-stop confined to S12 rev-1 note. New fix content verified: Wilson-CI freeze rule consistent across S7/M6/S17 (>=15 runs, lower-bound freeze, extend-if-width>0.30); S11.1 decision rule complete (BOTH H1a and H1b, CI upper bound below 0, RR excluded); N band 27-62 with corner/interior explanation consistent in S7/S8/S17; old vague wording fully removed; M6/M7 gitignored-scratch note accurate. No new rev-1 resurrection or terminology drift introduced.",
+      "createdAt": "2026-07-02T19:35:59.412Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-005",
+      "_hash": "9a3c51f8713e564679c354e55bb5bce424e464f15d904fb59e95cd2183316263"
+    },
+    {
+      "id": "B-36fd:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Final round (RR-006): 0 new findings. Regression sweep passed. F-004 adjudication verified: the ~62 maximum arises from the SAME uncorrected pooled two-proportion formula at an INTERIOR band point (baseline 0.6/MDE 0.25 -> pbar 0.475 -> n=61.4; baseline 0.625/MDE 0.25 -> n=61.6), not from the Fleiss continuity-corrected formula. Corner values 27-58 confirmed (min=27 at baseline 0.5/MDE 0.35; max=58 at baseline 0.5/MDE 0.25). The wording \"corner values 27-58; the ~62 maximum occurs inside the band near baseline 0.625 / MDE 0.25\" is arithmetically correct. F-005 fix confirmed: S11.1 now states H1 supported only when 95% CI upper bound < 0 for BOTH H1a and H1b on the fault-bearing in-store stratum (equiv. McNemar rejects alpha=0.05 with negative point estimate); RR never enters. F-006 fix confirmed: >=15 control-arm fault runs, freeze N at Wilson 95% CI lower bound, extend if CI width > 0.30 — present consistently in S7 (authoritative), M6 exit criteria, and S17 step 2. Regression: 18 sections confirmed, zero CJK, proof-or-stop appears only as clarifying note in S12, 12-finding provenance correct in header, no stale 29-58/84-116/12-15 numbers anywhere, S8 uses 27-62, S17 uses 27-62. All 6 findings F-001 through F-006 resolved.",
+      "createdAt": "2026-07-02T19:36:14.271Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-006",
+      "_hash": "3ae7d6e5ffe37e737c46c0e243a729023df1882b62acb8d9a4800c2c50d7f199"
+    },
+    {
+      "id": "B-36fd:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (FINAL ROUND, RR-007): all 5 mechanical evidence commands re-executed on final material (HEAD fb070af, post 3d666c058 + 78988815b fixes) and pass. CHK-001:happy:0 — 18 sections + 12 correction markers all present. CHK-001:happy:1 — all 5 source-component checks pass. CHK-001:edge:0 — zero CJK characters. CHK-001:edge:1 — 3 referenced paths exist and proof-or-stop appears exactly once. CHK-001:adversarial:1 — all 4 disallowed claims + circularity disclosure present. CHK-001:adversarial:0 waiver is valid (semantic traceability not mechanically automatable; deferred to docs+behavior lanes). Red evidence confirmed green: git cat-file -e HEAD:docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exits 0. The two fix commits (3d666c058 F-001/F-002/F-003; 78988815b F-004/F-005/F-006) touched only the markdown doc and did not invalidate any intent — all evidence commands still genuinely prove their intents on the corrected text. Hash staleness (headHash/materialHash from first CHK-001 commit) is expected and will be resolved by owner via verification_evidence_refresh_stale before TEST; this is not a coverage gap. No findings.",
+      "createdAt": "2026-07-02T19:39:02.520Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-007",
+      "_hash": "02dbbc26578220a18886cb7a270b58ee71b3ce5edd66a2d28af67857426469aa"
+    }
+  ]
+}

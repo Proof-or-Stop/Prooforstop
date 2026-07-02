@@ -1918,6 +1918,15 @@ Behavior:
     proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
   }},
 
+  // B-01df M1: read-only, host-neutral learning source lineage audit. This is
+  // an audit surface only: no seed proposal, candidate approval, automatic
+  // promotion, settlement default-on, or runtime blocking.
+  { name: 'source_lineage_audit', description: 'Read-only source lineage audit for learning artifacts; groups duplicate canonical source keys and reports missing lineage diagnostics', schema: {
+    domain: z.string().describe('Audit domain. M1 supports exactly learning. Unsupported domains fail clearly.'),
+    json: z.boolean().optional().describe('Emit the structured source lineage audit report as JSON.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+
   // B-7561 (Experience Layer Phase 3, FINAL slice): Story Recall. Rank stories by
   // structured-field similarity over the EXISTING story_list scan — multi-field
   // Jaccard (keywords/fileKinds/touchpoints) + small type/phase boosts. READ-ONLY:

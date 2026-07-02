@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Preserve the rev-1 honesty scaffolding (claim boundary, pre-registration, immutable ledger, mechanical isolation, no-overclaim) — the review confirmed it is load-bearing",
+    "Every correction must trace to one of the 12 adjudicated findings; no new design invention beyond them",
+    "Name and reuse existing components (hint-mode, recovery-runner, analyze.mjs) instead of describing greenfield builds",
+    "Factual claims about the codebase must match source-verified reality (INIT review confirmed each)",
+    "Entirely English; docs-only; milestones remain future stories"
+  ],
+  "drivers": [
+    "The rev-1 file no longer exists on disk (deleted mid-review), so restoration requires authoring, not patching",
+    "Three validity holes (circularity, store pollution, fixture leakage) would invalidate any run of the rev-1 design",
+    "The operator explicitly scoped this as a docs story restoring the corrected plan only"
+  ],
+  "options": [
+    {
+      "name": "clean-reauthor-rev2",
+      "pros": [
+        "Single coherent document; corrections integrated in-place where they belong",
+        "No risk of resurrecting rev-1 errors verbatim",
+        "Cheaper than reconstructing the deleted draft then diffing 12 multi-section changes"
+      ],
+      "cons": [
+        "Reviewers cannot diff against rev-1 on disk (mitigated: revision-provenance header lists what changed and why)"
+      ]
+    },
+    {
+      "name": "restore-rev1-then-patch",
+      "pros": [
+        "Produces an explicit rev-1→rev-2 diff for reviewers"
+      ],
+      "cons": [
+        "Requires committing a known-invalid rev-1 first (validity holes on record as current guidance, even if briefly)",
+        "Two commits and double review surface for a file that was never committed to begin with",
+        "The 12 corrections touch most of the 18 sections, so the diff would approximate a rewrite anyway"
+      ]
+    },
+    {
+      "name": "corrections-appendix-only",
+      "pros": [
+        "Smallest authoring effort"
+      ],
+      "cons": [
+        "Leaves the invalid rev-1 design text as the primary reading; an executor following the body would still build the 588-task invalid study",
+        "Contradicts the review verdict that design parameters and geometry must change, not be footnoted"
+      ]
+    }
+  ],
+  "chosen": "clean-reauthor-rev2",
+  "rationale": "The draft was never committed and no longer exists on disk, so there is no on-disk baseline to patch; a clean rev-2 authoring with a revision-provenance header integrates all 12 corrections coherently without ever publishing the known-invalid rev-1 design as current guidance.",
+  "preMortem": [
+    {
+      "scenario": "The rev-2 document misstates an existing-component fact (path, API, or behavior) that the plan depends on",
+      "trigger": "Authoring from session memory instead of the source-verified facts list",
+      "consequence": "A future milestone story builds against a wrong integration point; the plan loses credibility as a decision doc",
+      "mitigation": "Every component claim in the doc traces to the understanding facts the INIT reviewer verified in source (hint-mode.ts parity, experience-hint-surface render-gate, resolveLearningRoot canonicalization, recovery-runner mkdtemp, analyze.mjs primitives); REVIEW lanes re-verify"
+    },
+    {
+      "scenario": "Chinese characters or CJK punctuation slip into the document",
+      "trigger": "Copy-paste from the bilingual review conversation",
+      "consequence": "english-open-source-surface gate blocks DONE",
+      "mitigation": "Author from the English scratchpad draft only; grep the final file for CJK ranges before commit"
+    },
+    {
+      "scenario": "The document drifts beyond the 12 adjudicated corrections into new design decisions",
+      "trigger": "Filling gaps discovered while writing (e.g. inventing new metrics or milestones)",
+      "consequence": "Un-reviewed design enters a decision doc under a docs-only story, bypassing the adversarial review that validated the 12",
+      "mitigation": "Scope check: every substantive rev-1→rev-2 delta maps to a numbered finding; anything else is flagged as a follow-up story instead of written in"
+    },
+    {
+      "scenario": "Concurrent repo activity recreates or renames the same file while this story is in flight",
+      "trigger": "Another host restores its own copy of the deleted draft",
+      "consequence": "Merge conflict or duplicate competing plans in decisions/",
+      "mitigation": "Story branch owns the single allowed path; before DONE merge, re-check main for a competing file and reconcile explicitly rather than auto-merging"
+    }
+  ],
+  "timestamp": "2026-07-02T18:52:56.731Z"
+}

@@ -1,0 +1,28 @@
+{
+  "task": "Re-author the deleted rev-1 draft of the experience-layer A/B ablation causal-validation execution plan as rev 2 in docs/requirements/decisions/, incorporating all 12 adversarially-verified corrections from the 2026-07-02 two-round review.",
+  "outcome": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md exists on the story branch as a complete, entirely-English rev-2 execution plan whose 18 sections preserve the rev-1 honesty scaffolding and encode the 12 corrections (per-population sizing, co-primary alignment, matched-pairs geometry, RR guard + BH-FDR, reuse mapping, no Shadow C arm, deterministic primary endpoint, .lattice/ artifact root, held-out negative-control traps + circularity disclosure, mkdtemp store isolation + frozen memory snapshot, per-trap leakage stripping + M6 audit, shared-resource scheduling note).",
+  "facts": [
+    "The rev-1 draft was untracked, never committed, and was deleted from disk mid-review on 2026-07-02; its full text was preserved in the review session and the 12 corrections were adjudicated against that preserved text.",
+    "resolveHintMode (packages/main/src/core/hint-mode.ts) is a pure sha256 first-byte-parity per-story A/B arm switch; experience-hint-surface.ts computes and logs the pack on BOTH arms and render-gates only the ON arm; verified by experience-layer-ab-shadow-gate-smoke.ts — so the production control arm is already an instrumented shadow.",
+    "learning-store.ts resolveLearningRoot() canonicalizes linked git worktrees back to the shared main-repo .lattice/learning store, so worktrees do not isolate experiment lifecycle writes; recovery-runner live-engine.mjs uses mkdtemp per-cell isolation instead.",
+    "All six rev-1 trap classes have corresponding lessons stored in .lattice/learning/runtime-memory-pack-cache (INIT reviewer confirmed 20+ lesson files), creating answer-key circularity unless held-out negative-control traps are added.",
+    "experiments/recovery-runner provides the powered-run harness (run-driver.mjs seeded PRNG + full-factorial enumeration, live-engine.mjs, resumable campaign, checks.mjs, adjudicate.mjs) and analyze.mjs provides Wilson CI, cluster bootstrap, and benjaminiHochberg — reusable for M2-M7.",
+    "Section 7 rev-1 defaults (baseline 0.30, MDE 0.10) compute to ~294 per arm (588 tasks) via two-proportion z-test; seeded-trap parameters (baseline 0.5-0.8, MDE 0.25-0.35) compute to ~29-58 per arm; both figures were independently recomputed by adjudicators.",
+    "The s5/s6 recovery powered run completed 2026-06-29 (9,240/9,240 cells), so the plan needs only a shared-budget scheduling note, not a gating dependency.",
+    "scripts/verify-lattice-residue.mjs is an executable oracle for the deprecated-brand trap answer, and CLAUDE.md/AGENTS.md state host-policy and reviewer-lane answers verbatim — in-tree answer sources that must be stripped from fixtures."
+  ],
+  "constraints": [
+    "Docs-only story: exactly one file created, no code/gate/schema changes; scope boundary allows only docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md.",
+    "The document must be entirely English (english-open-source-surface gate scans docs/requirements/decisions/).",
+    "Preserve the rev-1 honesty scaffolding verbatim in spirit: claim boundary, pre-registration discipline, immutable pre-outcome ledger, mechanical control-arm isolation, stopping rules, no-overclaim rule.",
+    "Factual references to existing components must match what the INIT reviewer verified in source; no invented paths or APIs.",
+    "The plan remains a draft whose milestones (M0-M9) are future stories; this story must not promise or start any build work."
+  ],
+  "unknowns": [
+    "None blocking: the 12 corrections are fully adjudicated and the preserved rev-1 text plus the corrected rev-2 draft already exist in the session workspace; authoring is transcription plus final consistency checks."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md (create)"
+  ],
+  "timestamp": "2026-07-02T18:52:21.902Z"
+}

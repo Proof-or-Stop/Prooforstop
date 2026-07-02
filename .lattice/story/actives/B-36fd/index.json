@@ -1,0 +1,109 @@
+{
+  "storyId": "B-36fd",
+  "name": "experience-ablation-plan-corrected",
+  "title": "Author the corrected experience-layer A/B ablation causal-validation execution plan",
+  "description": "The draft execution plan for the experience-layer A/B ablation causal-validation study was adversarially reviewed on 2026-07-02 (2-round multi-agent review: 4 repo mappers + 4 review lenses + 12 independent adjudicators; 12/12 findings verified as real). The untracked draft file docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md was deleted from disk mid-review by concurrent repo activity, so nothing remains on disk. This story authors the corrected plan into docs/requirements/decisions/, incorporating all 12 verified corrections: 3 validity holes (answer-key circularity, learning-store pollution, fixture leakage), per-population sample-size recalibration (~6x oversizing fixed), matched-pairs design replacing incoherent 5-factor blocking, reuse of existing infrastructure (hint-mode arm switch, recovery-runner harness, analyze.mjs statistics) instead of greenfield rebuild, a deterministic reviewer-free primary endpoint, artifact-root naming fixes, and endpoint/claim alignment. Docs-only: no code, no gate, no schema changes.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "experience-layer",
+    "ablation",
+    "causal-validation",
+    "ab-test",
+    "execution-plan",
+    "docs",
+    "experiment-design"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-02T18:46:40.313Z",
+  "startedAt": "2026-07-02T18:46:40.313Z",
+  "endedAt": "2026-07-02T20:20:21.199Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-02T18:46:40.717Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T18:50:15.033Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T18:50:29.711Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T19:07:52.963Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T19:14:06.340Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T19:54:05.204Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T20:20:21.199Z",
+      "branch": "story/B-36fd",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: the story description mentions token-budget ceilings as experiment-scheduling prose inside a docs-only decision document; no credentials, secrets, or auth surfaces are read, written, or referenced as code. The single deliverable is a markdown plan file.",
+      "at": "2026-07-02T19:03:16.328Z"
+    },
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production appears only in experiment-design prose (production learning store isolation requirements described as future-milestone constraints) inside a docs-only decision document; this story changes no production code, config, or runtime behavior.",
+      "at": "2026-07-02T19:03:16.853Z"
+    }
+  ],
+  "currentReviewRound": "2026-07-02T19:14:06.340Z"
+}

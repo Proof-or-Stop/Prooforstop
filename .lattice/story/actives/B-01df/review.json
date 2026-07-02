@@ -1,0 +1,75 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-02T19:03:13.375Z",
+      "issueCount": 7,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add source lineage record model and learning collectors + Expose host-neutral source_lineage_audit command are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Exact current store APIs for dev-memory and finding-signals collectors.; Whether the existing learning-store helper exports all playbook outcome/decision readers needed by the audit.; What smoke fixture shape best proves duplicate grouping and missing lineage without depending on global project state."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-01df is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "a22ce03ee9a88d12d2b05638baa845d4878a610b479789820fc6c70a51b2a076"
+    },
+    {
+      "timestamp": "2026-07-02T19:05:18.165Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add source lineage record model and learning collectors + Expose host-neutral source_lineage_audit command are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Exact current store APIs for dev-memory and finding-signals collectors.; Whether the existing learning-store helper exports all playbook outcome/decision readers needed by the audit.; What smoke fixture shape best proves duplicate grouping and missing lineage without depending on global project state."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-01df is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "a494f561dc886fbddc61553da82703f057838efde2b7e6676ce2263c089f935e"
+    }
+  ]
+}

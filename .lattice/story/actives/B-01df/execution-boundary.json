@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-01df",
+  "allowedCommands": [
+    "lattice source_lineage_audit --domain=learning --json",
+    "lattice validate --storyId=<storyId>",
+    "node packages/main/dist/cli.js source_lineage_audit --domain=learning --json",
+    "node packages/main/dist/tasks/source-lineage-audit-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "codex",
+    "lattice"
+  ],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git push",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "node_modules"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation may edit source, focused smoke tests, and the execution-plan docs for M1 only.",
+  "createdAt": "2026-07-02T18:51:42.399Z",
+  "updatedAt": "2026-07-02T18:51:42.399Z",
+  "_hash": "4daa21a182aa7455100867fcb6d8a7895392b9c26bca8b59ece4e46e50dff0d4"
+}

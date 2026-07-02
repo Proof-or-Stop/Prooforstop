@@ -1,0 +1,157 @@
+{
+  "storyId": "B-36fd",
+  "checkedAt": "2026-07-02T19:01:37.791Z",
+  "features": [
+    {
+      "feature": "Create docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md as the single allowed output file",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 1: per-population sample-size parameters (seeded-trap vs live), fault-bearing stratum powering, clean tasks analyzed separately",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 2: composite defect rate AND repeat-defect recurrence as co-primary on fault-bearing seeded stratum; section-15 allowed claim reworded",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 3: full-factorial matched-pairs design (both arms every fixture, McNemar + paired bootstrap, committed run-order seed); randomization only for live phase",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 4: risk difference as sole primary criterion; RR descriptive-only with Haldane-Anscombe zero-denominator guard; BH-FDR predeclared across H2-H5; per-trap breakdowns labeled estimation-with-CI",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 5: name and reuse existing components (hint-mode.ts, experience-hint-surface.ts, experiments/recovery-runner, adjudicate.mjs, checks.mjs, analyze.mjs)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 6: remove Shadow C as allocated arm; control-side pack logging retained; no separate shadow arm",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 7: deterministic reviewer-free primary endpoint for seeded tasks; reviewer findings demoted to live phase as secondary/exploratory",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 8: artifact root under .lattice/experiments/experience-ablation/<experimentId>/; Proof-or-Stop scoped as lifecycle-readiness concept only",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 9: split fault-bearing traps into in-store traps and held-out negative-control traps; circularity limitation disclosed in claim boundary and paper-integration sections",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 10: mechanical store isolation via per-task non-git temp roots (mkdtemp); memory-pack snapshot frozen at protocol hash; experiment write-back forbidden",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 11: per-trap enumeration and stripping/neutralization of in-tree answer sources; fixture-leakage audit added to M6 pilot exit criteria",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integrate correction 12: shared-resource scheduling note in execution order; s5/s6 powered run completed 2026-06-29 noted (no gating dependency)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Document must be entirely in English (zero CJK characters)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve 18-section structure mirroring rev-1 (problem, claim boundary, hypotheses, arms, populations, metrics, sample size, assignment, leakage controls, scoring, analysis, artifacts, milestones, verification matrix, no-overclaim, paper integration, execution order, definition of done)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No implementation of milestones M0-M9 (non-goal)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Non-goals: No implementation of M0-M9; no changes to any code, gate, schema, or other doc",
+      "source": "description"
+    },
+    {
+      "feature": "No code, gate, schema, or other doc changes (non-goal)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Non-goals: No implementation of M0-M9; no changes to any code, gate, schema, or other doc",
+      "source": "description"
+    },
+    {
+      "feature": "Experience Layer advisory-only principle (decisions/lattice-experience-layer-execution-plan.md): no automatic finding_add/finding_resolve/gate changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story is a docs-only chore; the advisory-only principle governs implementation stories (M0-M9), which are explicitly non-goals",
+      "source": "decisions/decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Experiment protocol pre-registration discipline (decisions/lattice-experiment-protocol.md): objective deterministic outcomes, named primary outcomes in advance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Experiment protocol governs the future harness implementation stories (M0-M9), not this doc-creation story",
+      "source": "decisions/decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Decision doc path convention: docs/requirements/decisions/*.md (decisions/decision-doc-promotion-execution-plan.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/decisions/decision-doc-promotion-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 16,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fde87b3183ef923969217b9dfe727f6792d9baeeaa58d233e153a2923f16ddec",
+  "openQuestions": []
+}

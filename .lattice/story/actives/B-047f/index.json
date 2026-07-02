@@ -1,0 +1,54 @@
+{
+  "storyId": "B-047f",
+  "name": "experience-ablation-s1-tooling",
+  "title": "Experience-ablation S1: protocol freeze, pair ledger, and sample-size calculator (M0+M2+M5)",
+  "description": "First build story of the experience-layer A/B ablation causal-validation program, implementing the three experiment-side tooling milestones of the rev-2 execution plan (docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, merged via B-36fd): M0 protocol freeze (machine-validated protocol.json with sha256 protocol hash, per-population sample-size config, trap-group membership, and frozen memory-snapshot hash), M2 pair ledger (immutable fixture manifest + pair ledger + committed run-order seed with deterministic seeded shuffle), and M5 sample-size calculator (per-population adequacy report: unpaired two-proportion reference N, McNemar discordant-pair sizing, and the Wilson-CI pilot freeze rule helpers). All code lives under the new experiments/experience-ablation/ directory following the committed recovery-runner conventions (plain .mjs tools + hermetic *-selfcheck.mjs); no product code (packages/*) is touched. M1/M3/M4/M6-M9 are explicitly out of scope for this story.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "experience-layer",
+    "ablation",
+    "experiment-tooling",
+    "protocol-freeze",
+    "pair-ledger",
+    "sample-size",
+    "wilson-ci",
+    "mcnemar"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "p1"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-02T20:49:34.905Z",
+  "startedAt": "2026-07-02T20:49:34.905Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-02T20:49:36.081Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T20:52:12.185Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-047f",
+    "branch": "story/B-047f",
+    "createdAt": "2026-07-02T20:52:10.249Z"
+  }
+}
