@@ -383,9 +383,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#8-done-trigger-contract"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T03:59:58.930Z",
       "userSees": "DONE/health output includes \"settlementStatus: disabled|recorded|failed\" and never changes the DONE result.",
       "files": {
         "modify": [
@@ -430,7 +430,75 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers enabled post-DONE settlement writing a learning health row.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.031Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers repeated settlement using stable story idempotency and reporting alreadyApplied.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.129Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers disabled flag returning disabled and writing no health row.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.225Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke/status covers malformed learning rows reported as advisory health without lifecycle failure.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.326Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts DONE settlement creates no candidate helped outcome from DONE success alone.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.421Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Implementation releases lifecycle main lock before settlement; smoke verifies learning-only health/outcome behavior.",
+          "headHash": "f2d57510c2a9e473c4388a96871255a3144d418e",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:59.515Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
