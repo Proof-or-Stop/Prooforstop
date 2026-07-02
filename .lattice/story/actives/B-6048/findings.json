@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-6048:F-001",
+      "desc": "M6 parity report does not exercise the actual optimized runtime path. CHK-004 promises reference full-scan, indexed runtime, and cached runtime gold queries, but runPlaybookRuntimeOptimizedParityReport reads records.jsonl and calls local report helpers instead: runIndexedColdScan still iterates every raw record and computes a local shortlist (packages/main/src/core/playbook-runtime-baseline.ts:1119), while runIndexedWarmCache only returns a digest from a new one-entry Map (packages/main/src/core/playbook-runtime-baseline.ts:1150). That path never drives buildMemoryFreshnessPack through RuntimeMemoryIndex/selectRuntimeMemoryIndexCandidates or the M3 cache get/remember boundary (packages/main/src/core/playbook-runtime-memory.ts:623, packages/main/src/core/playbook-runtime-memory-cache.ts:336, packages/main/src/core/playbook-runtime-memory-cache.ts:381), so the actual M3/M4 consumer index/cache could regress while the million parity report stays green. The M6 evidence should either run the real optimized runtime pack/cache path at the million-record boundary or downgrade the claim so it is not used as proof of indexed/cached runtime parity.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T12:14:16.919Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-001",
+      "_hash": "96ce8b8e7457b149640bd144fd7a0c10faad83d69fde27fe6515326de9440c51",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|parity-report-exercise",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
