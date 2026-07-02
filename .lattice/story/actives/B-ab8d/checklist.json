@@ -121,7 +121,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/experience-pack-surface.ts",
+          "command": "LATTICE_EXPERIMENT_ID=exp-chk002-t LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js session_brief / dev_memory_start / done_closure",
+          "result": "pass",
+          "note": "Treatment renders identical to no-experiment: session_brief Memory Runtime Preflight section diff empty vs no-env capture; dev_memory_start and done_closure outputs byte-identical to no-env baselines (diff exit 0). Activity log gained experience_pack_surfaced {experimentId:exp-chk002-t, arm:treatment, consumer:session_brief|dev_memory_start, packDigest, topHitIds}.",
+          "headHash": "cca726790b44895c80693d0bd559a4bdd8e2f5ec",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:22.105Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
