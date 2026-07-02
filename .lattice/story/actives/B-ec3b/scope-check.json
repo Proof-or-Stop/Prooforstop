@@ -1,0 +1,45 @@
+{
+  "storyId": "B-ec3b",
+  "checkedAt": "2026-07-02T03:03:11.099Z",
+  "features": [
+    {
+      "feature": "M0 profiling baseline and runtime hot-path cost recording",
+      "covered_by": "CHK-001; plan.md#CHK-001; proofstory M0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "side-conversation fallback scope check: subagents are prohibited in this side conversation; manually verified scope is limited to M0 profiling/report-only evidence"
+    },
+    {
+      "feature": "M1 derived runtime memory index with atomic rebuild semantics",
+      "covered_by": "CHK-002; plan.md#CHK-002; proofstory M1",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "side-conversation fallback scope check: manually verified temp-build validate atomic-swap index work is in scope"
+    },
+    {
+      "feature": "M2 indexed two-stage retrieval with small fixture parity",
+      "covered_by": "CHK-003; plan.md#CHK-003; proofstory M2",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "side-conversation fallback scope check: manually verified indexed retrieval parity is in scope"
+    },
+    {
+      "feature": "Pack cache, consumer rollout, health expansion, blocking policy, daemon, enforce rollout, and normal-session 1M baseline",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope; execution-boundary notes; accepted intent collision interpretation",
+      "source": "side-conversation fallback scope check: explicitly outside this M0-M2 story"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "030865518f4e6a79f6619243df5a393a48419ab823f9a59ba24396c05f5f2dbf",
+  "openQuestions": []
+}
