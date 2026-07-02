@@ -5,7 +5,7 @@
       "desc": "numeric-inconsistency: S17 states \"~29-58 fixtures per group, both arms — roughly 84-116 paired fault-task runs total\" but 2 fault-bearing groups x (29-58 fixtures each) in a matched-pairs design yields 58-116 total paired runs, not 84-116; the lower bound of 84 implies 42 fixtures per group, not 29; no arithmetic path from 29 per group to 84 total can be found",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T19:21:14.519Z",
@@ -16,7 +16,11 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "signatureTag": "edge|md|numeric-inconsistency-states",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "S17 restated coherently in commit 3d666c058: roughly 27-62 powered in-store fault fixtures, each run under both arms — i.e. ~54-124 arm-runs — plus separately sized held-out negative-control and clean fixtures. The muddled 84-116 total (which mixed a per-group count with a single-group arm-run count) is gone.",
+      "resolvedAt": "2026-07-02T19:26:41.365Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-36fd:F-002",
