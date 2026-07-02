@@ -4,11 +4,11 @@
   "title": "Implement playbook memory indexed runtime M0-M2",
   "description": "Implement the first optimization slice from playbook-memory-entry-layer-optimization-plan: record current profiling baseline, add a rebuildable atomic derived runtime memory index, and use indexed two-stage retrieval with small-fixture parity against the existing runtime pack while preserving non-authoritative gateEvidence=false boundaries.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-02T02:57:35.439Z",
   "startedAt": "2026-07-02T02:57:35.439Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T10:29:32.851Z",
   "events": [
     {
       "phase": "INIT",
@@ -63,12 +63,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-07589326bda2a746",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T10:29:32.851Z",
+      "branch": "story/B-ec3b",
+      "user": "Harmonygo",
+      "sessionId": "sess-07589326bda2a746",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ec3b",
-    "branch": "story/B-ec3b",
-    "createdAt": "2026-07-02T02:59:20.122Z"
-  },
   "currentReviewRound": "2026-07-02T03:14:26.399Z"
 }
