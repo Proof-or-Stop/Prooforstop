@@ -251,7 +251,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M6 outputs the final DONE summary with exact command transcripts, measured timings, version number, and a clear statement of whether the 1-2s target is proven or remains blocked."
+      "userSees": "Expected DONE summary includes `Proofbound CLI <new version>`, exact before/after timings, `full-3x2`, and whether `indexedWarmCacheMs<=2000` is proven.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution plan doc records actual implementation, before/after metrics, exact verification commands, and final CLI version after DONE merge.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs preserve the advisory memory boundary and do not describe memory as gate evidence or authoritative proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final summary and docs cannot claim 1-2s complete unless the M5 full-profile performance smoke passed with indexedWarmCacheMs<=2000.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
