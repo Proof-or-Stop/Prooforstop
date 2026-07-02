@@ -54,8 +54,30 @@
       "phase": "DEV",
       "headHash": "e8285c7d8b072cc18ebc3907d38e3c2f4f3f6560",
       "materialHash": "da565ee5db5b3864547b04f5088755fec836c7a60efc76e31c99a4ac6b0c6ae9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Review findings F-002 and F-005 required wiring the evidence-activation smoke into routine test surfaces and adding the new playbook_auto_activation artifact to source lineage audit coverage. This is a verifier/audit-surface expansion only and does not change Authority, DONE, receipt, release, or production gate semantics.",
+      "timestamp": "2026-07-02T22:59:56.428Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/core/source-lineage-audit.ts",
+        "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/core/source-lineage-audit.ts",
+        "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "3ac52806e9cfd723108b51cf8e69c71e2a858740",
+      "materialHash": "eaf66815e13a86206268cc609c1f9a412344ac038c4fc7f4d466ef7521d60c44"
     }
   ],
   "createdAt": "2026-07-02T22:30:00.157Z",
-  "updatedAt": "2026-07-02T22:30:58.582Z"
+  "updatedAt": "2026-07-02T22:59:56.428Z"
 }
