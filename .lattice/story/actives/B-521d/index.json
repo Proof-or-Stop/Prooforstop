@@ -4,7 +4,7 @@
   "title": "Add read-only playbook promotion observation command",
   "description": "Add a host-neutral read-only command that proves whether real playbook candidates exist, whether candidates have explicit outcome consumption, and whether actionable promotion recommendations remain handled or unhandled. This supports evidence gathering before any separate automation story.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "playbook",
@@ -33,6 +33,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T17:16:13.104Z",
+      "branch": "story/B-521d",
+      "user": "Harmonygo",
+      "sessionId": "sess-69f677a2595dcbef",
       "agent": "main"
     }
   ],

@@ -15,7 +15,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic store reports current candidate count and consumed candidate ids from explicit candidate-inspection outcome rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty or missing learning ledgers report zero counts plus malformed row diagnostics without creating files.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE success or candidate existence alone is never counted as helped/consumed; exposureMode=none is excluded from consumed candidate counts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
