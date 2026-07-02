@@ -190,7 +190,7 @@
       "desc": "Quality blocker: quoted JSON-like assignment strings bypass the true-ish overclaim boundary. Repro: handlers.pinn_report_render({benchmarkJson: JSON.stringify({...benchmark, artifactIndex:[{...benchmark.artifactIndex[0], digest:\"\\\"terminalCompletionClaim\\\": true\"}, ...benchmark.artifactIndex.slice(1)]}), format:\"text\"}) returns rendered text instead of refusing benchmark report overclaims; evaluatePinnClaim({...buildCompletePinnEvidence(\"C9\"), narrativeClaim:\"\\\"terminalCompletionClaim\\\": true\"}) returns allowed=true. Root cause: REPORT_FIELD_OVERCLAIM_PATTERN at packages/main/src/handlers/pinn-claim-admissibility.ts:79 and fieldOverclaimPattern at packages/main/src/core/pinn-claim-admissibility.ts:371 require the claim field to be followed immediately by whitespace/colon/equal, so quoted claim keys are missed. This leaves JSON/text report behavior and claim-boundary narrative checks open to re-emitting or accepting true-ish overclaim strings.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T20:24:51.872Z",
@@ -202,7 +202,11 @@
         "packages/main/src/core/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "adversarial|ts|quality-blocker-quoted",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by allowing optional quotes around active and dynamic legacy overclaim field names in both claim-boundary and supplied-report overclaim patterns. Smoke and direct probes now cover quoted JSON-like assignment strings in narrative claims and supplied report artifact strings; build, PINN smoke, retired vocabulary guard, and full lattice validate all pass.",
+      "resolvedAt": "2026-07-02T20:33:37.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
