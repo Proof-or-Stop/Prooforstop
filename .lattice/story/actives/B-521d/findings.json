@@ -59,6 +59,26 @@
       ],
       "signatureTag": "missing|ts|usersees-requires-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-521d:F-004",
+      "desc": "Concept blocker: CHK-001 promises candidateConsumed.unconsumedCurrentCandidateIds so the observe surface directly answers which current candidates are not being consumed before M7/M8 automation. The implemented report type only exposes consumedCandidateCount/count/uniquePlaybookCount/excluded/rows (experience-layer-types.ts:406-417), buildPlaybookPromotionObserveReport returns only those fields (learning-store.ts:1634-1645), and text output renders only counts/rows (handlers/playbook.ts:569-577). Users can infer a backlog by diffing candidateGenerated.candidates against rows, but the command does not provide the explicit current-candidate backlog signal required by the story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T17:41:42.056Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-001",
+      "_hash": "1a15e33c017160f3f0e484263dbbbae4f518e99a80b927aa3ba282e8d74989ef",
+      "files": [
+        "packages/main/src/core/experience-layer-types.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "missing|ts|concept-blocker-promises",
+      "signatureTagSource": "auto"
     }
   ]
 }
