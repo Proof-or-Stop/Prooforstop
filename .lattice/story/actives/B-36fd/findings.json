@@ -100,6 +100,23 @@
       ],
       "signatureTag": "edge|md|host-codex-primary",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-36fd:F-006",
+      "desc": "[host-2 Codex P2] M6 exit criteria and S17 step 2 are untestable: enough control fault-tasks, ~12-15, to bound the rate does not define a freeze rule for the powered N. Fix: require >=15 control-arm fault-task runs in the pilot; freeze the powered N computed at the lower bound of the Wilson 95% CI of the pilot baseline (conservative); if that CI is wider than 0.30 the pilot must be extended before freezing.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T19:31:59.854Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "_hash": "b12b55084b2371a2a6a2dbd1cf39da35544e4e0e0a5107f73c8206ba449349dd",
+      "files": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|host-codex-exit",
+      "signatureTagSource": "auto"
     }
   ]
 }
