@@ -51,10 +51,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed for the runtime-memory index slice.",
-          "headHash": "9094ab88baeef77cb6d69ac1e66d7037891d9f64",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:27.746Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -73,10 +73,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
           "note": "Full baseline passed with recordCount=1000000 fullProfileExactMillion=true elapsedMs=19934 peakRssBytes=1062748160; recorded as report-only baseline, not gate evidence.",
-          "headHash": "9094ab88baeef77cb6d69ac1e66d7037891d9f64",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:27.937Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -141,10 +141,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding RuntimeMemoryIndex types and rebuild helpers.",
-          "headHash": "b2bb9435ad9205e6744c7f11205a79741d3da816",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:38.728Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
           "result": "pass",
           "note": "M1 adversarial line observed: partialIndexReadPrevented=true; malformed temp index was rejected and prior active index stayed readable.",
-          "headHash": "b2bb9435ad9205e6744c7f11205a79741d3da816",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:38.940Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -235,10 +235,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after wiring indexed candidates into buildMemoryFreshnessPack.",
-          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:39.266Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -257,10 +257,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-mvp1-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-mvp2-smoke.js",
           "result": "pass",
           "note": "Existing runtime memory MVP smoke suites passed: MVP1 TOTAL 11 PASS 11 FAIL 0; MVP2 TOTAL 9 PASS 9 FAIL 0.",
-          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:39.467Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -268,10 +268,10 @@
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js",
           "result": "pass",
           "note": "Small baseline passed with recordCount=1000 fullProfileExactMillion=false elapsedMs=2815 peakRssBytes=67796992; candidate/malformed boundaries stayed green.",
-          "headHash": "0a5be8ec936c94fd91232aac58b0d2af0f090dff",
-          "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-02T03:12:39.563Z"
+          "headHash": "f85bd212297d55b8ff601a644813c2e6153d386c",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T10:09:06.274Z"
         }
       ]
     }
