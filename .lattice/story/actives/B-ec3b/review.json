@@ -226,6 +226,24 @@
         }
       ],
       "_hash": "b8a9c0a9dcdf644c0749f8b92f75e41bda411dceee63e15f54d14222f260c5bb"
+    },
+    {
+      "timestamp": "2026-07-02T03:03:11.593Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Capture M0 profiling baseline and runtime hot-path cost + Add M1 derived runtime memory index with atomic rebuild semantics are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-ec3b is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "d7e8bab02ec4fba4f19ed40719f6ca50f45ca4bf9a48b8d9bd7865db290fbb5b"
     }
   ]
 }
