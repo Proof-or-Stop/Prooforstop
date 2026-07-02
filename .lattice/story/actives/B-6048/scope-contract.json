@@ -1,0 +1,37 @@
+{
+  "storyId": "B-6048",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+    ".lattice/story/actives/B-6048/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-runtime-memory-cache.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+    ".lattice/story/actives/B-6048/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "M7 capture/noop implementation",
+    "M8 rollout/enforce implementation",
+    "Any change that makes runtime memory gate evidence",
+    "Any claim of 1-2s million-record runtime performance before M6 parity report"
+  ],
+  "scopeChangeReason": "M3-M6 implementation only, matching user request and PLAN scope-check exclusions.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T11:44:53.065Z",
+  "updatedAt": "2026-07-02T11:44:53.065Z"
+}
