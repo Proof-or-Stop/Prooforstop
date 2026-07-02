@@ -57,16 +57,17 @@
     {
       "id": "CHK-002",
       "title": "Implement guarded evidence activation writer",
-      "context": "Turn playbook_auto_promotion_apply from guard-only into a real V2 writer behind explicit flags and reviewed policy. The writer should activate only evidence-eligible advisory candidates, append audit records, remain non-authoritative, never satisfy gates, and be idempotent over candidate digest and decision digest.",
+      "context": "Turn playbook_auto_promotion_apply from guard-only into a real evidence activation writer. The writer should activate only evidence-eligible advisory candidates when an explicit reviewed activation policy and qualifying evidence are present. It must append audit records, remain non-authoritative, never satisfy gates, and be idempotent over candidate digest and decision digest. Do not require a global default-off environment flag just to make the CLI usable.",
       "relatedDocs": [
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "PLAYBOOK_AUTO_ACTIVE_ENABLED=true PLAYBOOK_AUTO_ACTIVE_POLICY_REVIEWED=true lattice playbook_auto_promotion_apply --apply --json activates only eligible candidates and reports activated, skipped, and blocked counts.",
+      "userSees": "lattice playbook_auto_promotion_apply --apply --json activates only evidence-eligible candidates and reports activated, skipped, and blocked counts; missing evidence or missing reviewed policy blocks with precise reasons.",
       "excludes": [
-        "activating candidates without explicit feature flags",
-        "activating candidates that lack outcome evidence",
-        "deleting candidate rows"
+        "activating candidates without qualifying evidence",
+        "activating candidates without a reviewed activation policy",
+        "deleting candidate rows",
+        "requiring an always-off environment flag for ordinary CLI use"
       ],
       "files": {
         "modify": [
@@ -84,7 +85,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "With feature flags, reviewed policy, matching digest, clean lineage, and qualifying outcome evidence, --apply activates the candidate and records an audit row.",
+            "desc": "With reviewed policy, matching digest, clean lineage, and qualifying outcome evidence, --apply activates the candidate and records an audit row without requiring an always-off environment flag.",
             "type": "cli",
             "priority": "must"
           }
@@ -98,7 +99,7 @@
         ],
         "adversarial": [
           {
-            "desc": "Without flags, reviewed policy, clean lineage, qualifying outcomes, or current digest, --apply fails closed and writes nothing.",
+            "desc": "Without reviewed policy, clean lineage, qualifying outcomes, or current digest, --apply fails closed and writes nothing.",
             "type": "cli",
             "priority": "must"
           }
@@ -163,7 +164,7 @@
     {
       "id": "CHK-004",
       "title": "Prove activation is evidence-driven, not human-blame-driven",
-      "context": "Add a smoke that demonstrates the full local path: seed/proposal/candidate, explicit exposure/outcome, promotion sweep recommend_activate, source lineage check, auto-promotion dry-run eligibility, guarded apply activation, runtime consumption verify, and demotion blocker. Include negative fixtures proving story DONE and human memory alone do not activate anything.",
+      "context": "Add a smoke that demonstrates the full local path: seed/proposal/candidate, explicit exposure/outcome, promotion sweep recommend_activate, source lineage check, auto-promotion dry-run eligibility, guarded apply activation, runtime consumption verify, and demotion blocker. Include negative fixtures proving story DONE, human memory alone, and missing policy/evidence do not activate anything.",
       "relatedDocs": [
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
@@ -188,7 +189,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "End-to-end fixture proves evidence-qualified candidate becomes active under explicit V2 flags and reviewed policy.",
+            "desc": "End-to-end fixture proves evidence-qualified candidate becomes active under reviewed activation policy and qualifying evidence.",
             "type": "logic",
             "priority": "must"
           }
@@ -202,7 +203,7 @@
         ],
         "adversarial": [
           {
-            "desc": "Story DONE, stale recommendation, duplicate source lineage, or missing exposure cannot activate a candidate.",
+            "desc": "Story DONE, stale recommendation, duplicate source lineage, missing policy, or missing exposure cannot activate a candidate.",
             "type": "logic",
             "priority": "must"
           }
