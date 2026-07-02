@@ -109,7 +109,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "Smoke output includes playbook promotion observe smoke passed and observation says to automate only when real backlog exists.",
+      "userSees": "Smoke output ends with \"playbook promotion observe smoke passed\", and the plan document says observation is evidence gathering, not automatic promotion.",
       "excludes": [
         "automatic candidate activation"
       ],
