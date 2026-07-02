@@ -100,7 +100,7 @@
       "desc": "B-7ee1 introduces playbook-auto-activations.jsonl as a new derived learning artifact with lineageCanonicalSourceKey, decision digest, policy digest, and gateEvidence=false, but SourceLineageArtifactKind and buildLearningSourceLineageAudit still collect only dev_memory, finding_signal, finding, playbook_proposal, playbook, playbook_outcome, and playbook_promotion_decision. As a result source_lineage_audit no longer audits every learning artifact created by the playbook promotion loop, cannot report malformed/missing lineage for activation rows, and the source-lineage smoke does not assert coverage for the new audit artifact kind.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T22:43:45.018Z",
@@ -114,7 +114,11 @@
         "packages/main/src/tasks/source-lineage-audit-smoke.ts"
       ],
       "signatureTag": "missing|ts|7ee1-introduces-playbook",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f. Added playbook_auto_activation to SourceLineageArtifactKind and buildLearningSourceLineageAudit, with source-lineage-audit-smoke coverage for collector and malformed store diagnostics. Verified by node packages/main/dist/tasks/source-lineage-audit-smoke.js.",
+      "resolvedAt": "2026-07-02T23:00:53.554Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-006",
