@@ -216,12 +216,13 @@
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "command": "grep -rn 'mutually-distrusting parties|fully independent hosts|zero-trust multi-party|trustless multi-party|mutually-distrusting vendor' docs/requirements/decisions/tier-c-crosshost-quorum-*.md",
           "result": "pass",
-          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
-          "headHash": "ac4ee10605f3235a87d3238b9db181a8d2d889cd",
-          "materialHash": "356b7a84ee4f503bfb5ea07e386d2f58317394e31082f9bb5bb753cbe0834b98",
-          "storyFilesHash": "f59894e4201bd9895e4b28cca4cb6c82071e7d2fb1d462ce44a1e446419d52f3",
-          "timestamp": "2026-07-02T22:10:44.160Z"
+          "note": "Adversarial grep run on both story-owned docs. 4 of 5 forbidden phrases (fully independent hosts / zero-trust multi-party / trustless multi-party / mutually-distrusting vendor) return ZERO matches. 'mutually-distrusting parties' returns EXACTLY ONE match: threat-model.md line 36, WITHIN the §3 forbidden-phrases list (forbidden = \"mutually-distrusting parties\" / \"no operator trust required\") — a meta-use that NAMES the phrase as prohibited for M5 paper wording, NOT an assertion about the system. The prior real over-claim in execution-plan.md ('mutually-distrusting vendor hosts', F-001) was removed in 367b05322, so no assertive occurrence remains. Intent satisfied: the literal grep is non-zero only for the intended forbidden-list definition; the doc set carries no over-claimed independence assertion.",
+          "headHash": "834d2a3d3ea19b9175f519a46127c4443d41f364",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:26.350Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
