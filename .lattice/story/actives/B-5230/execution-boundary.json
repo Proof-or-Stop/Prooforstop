@@ -10,14 +10,20 @@
     "lattice"
   ],
   "allowedPaths": [
-    "docs/requirements/decisions"
+    "docs/requirements/decisions",
+    "docs/requirements/NAV.md"
   ],
-  "excludedCommands": [],
+  "excludedCommands": [
+    "git",
+    "node",
+    "npm",
+    "python"
+  ],
   "excludedTools": [],
   "excludedPaths": [],
-  "confirmedBy": "story_create",
-  "confirmationNote": "This story only edits docs and plan contracts.",
-  "createdAt": "2026-07-02T17:16:57.680Z",
-  "updatedAt": "2026-07-02T17:16:57.680Z",
-  "_hash": "420c0ce1e4b4ac3827ec58ee2a987a4aec0f807245a6396c3c2db684c1e5c9d6"
+  "confirmedBy": "jek",
+  "confirmationNote": "Work is documentation hardening only; no runtime compilation or code execution.",
+  "createdAt": "2026-07-02T17:17:23.880Z",
+  "updatedAt": "2026-07-02T17:17:23.880Z",
+  "_hash": "629f298316a92d40b774baa2e7dd403698bcf87e83fb6c343b0450c6633b898d"
 }

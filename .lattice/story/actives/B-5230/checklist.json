@@ -7,6 +7,251 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Normalize benchmark baseline-fairness constraints",
+      "context": "Pin PDE/domain/model/budget/seed/grid/verifier inputs across A1-A4 to avoid confounding runtime quality with control regime.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-002:happy",
+            "desc": "Check baseline-fairness constraints are fully enumerated and fixed.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-002:edge",
+            "desc": "Verify no regime comparison can alter PDE/domain/model parameters.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Define benchmark task set and injected failure matrix",
+      "context": "Keep task choices and B1-B15 failures explicit for reproducibility-oriented claim-admissibility control evaluation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-003:happy",
+            "desc": "Task set and failure matrix are present and bounded to admissibility control outcomes.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-003:edge",
+            "desc": "No section conflates benchmark with PDE performance claims.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Lock terminology to Proof-or-Stop and remove stale public naming",
+      "context": "Replace any ambiguous naming and ensure boundary language consistently says no PDE correctness or production claims.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-001:happy",
+            "desc": "Check top-level status and boundary language for Proof-or-Stop-only terms.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-001:edge",
+            "desc": "Confirm no section overpromises scientific claims.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "pinn-doc-001:adv",
+            "desc": "Confirm future-domain wording is bounded and explicit.",
+            "type": "manual",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Make success criteria measurable and reportable",
+      "context": "Replace vague wording with explicit metrics, comparisons, and required outputs for each regime comparison.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-004:happy",
+            "desc": "Success criteria include explicit metrics and comparison rules.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-004:edge",
+            "desc": "Any rate/cost metric includes reproducible output and comparison axes.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Finalize governance boundary and publication-ready paragraph",
+      "context": "Insert bounded boundary text and publication posture to prevent overstatement in downstream docs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/NAV.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-005:happy",
+            "desc": "Boundary paragraph and publication posture are explicit and safe.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-005:edge",
+            "desc": "Search check confirms no PDE-correctness or production-ready overclaim in linked docs.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Make milestone completion status explicit by phase axis",
+      "context": "Clarify which milestones are docs-complete versus runtime deferred so no future story assumes implementation has shipped.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinn-doc-006:happy",
+            "desc": "Milestone axis and implementation status are unambiguous in the plan.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pinn-doc-006:edge",
+            "desc": "No milestone claims runtime modules already implemented.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }

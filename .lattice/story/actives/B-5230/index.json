@@ -4,7 +4,7 @@
   "title": "Harden proof-or-stop PINN execution plan wording and benchmarks",
   "description": "Finalize the follow-up hardening for Proof-or-Stop PINN plan: boundary wording, measurable criteria, and benchmark fairness constraints so future runtime implementation can proceed unambiguously.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "proof-or-stop",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-d105e010db50a277",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T17:17:52.806Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5230",
+    "branch": "story/B-5230",
+    "createdAt": "2026-07-02T17:17:51.849Z"
+  }
 }
