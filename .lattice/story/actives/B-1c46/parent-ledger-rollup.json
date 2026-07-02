@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-1c46",
+  "ledgerHash": "sha256:8ef11ea6ffe8b681ec5161bbd4b23a2d69dcf99087e06d0351d6d8d7f710350e",
+  "slicePlanHash": "sha256:1cec87503042e6022fe236a181e68d590fb758f9c22f03ab491d9cff9914cf59",
+  "children": [
+    {
+      "storyId": "B-1c46",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "test-evidence:CHK-001:happy:0",
+        "test-evidence:CHK-001:edge:0",
+        "test-evidence:CHK-001:adversarial:0",
+        "test-evidence:CHK-002:*",
+        "test-evidence:CHK-003:*",
+        "test-evidence:CHK-004:*",
+        "test-evidence:CHK-005:*",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+        "validate:2026-07-02T16:51:27.154Z"
+      ]
+    },
+    {
+      "storyId": "B-1c46",
+      "milestoneIds": [
+        "M5",
+        "M6"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "test-evidence:CHK-006:*",
+        "test-evidence:CHK-007:*",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+        "done-required-evidence:2026-07-02T16:53:24.623Z",
+        "review-escalation:full-3x2:claude-cli+codex-cli",
+        "delivery-check:6fa2f31",
+        "summary:42ede49",
+        "validate:2026-07-02T16:51:27.154Z"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:526f2c2fd0a2e6035e559f56607be2e8725f4b79708a5332b330372f53c6280a",
+  "createdAt": "2026-07-02T14:28:38.458Z",
+  "updatedAt": "2026-07-02T16:55:18.340Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-1c46",
+  "id": "B-1c46-intent-totality",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement all M0-M6 performance optimization milestones in this story. Completion means either the full-profile performance smoke proves indexedWarmCacheMs<=2000 with parity/advisory checks, or the story explicitly remains blocked and cannot claim the 1-2s target.",
+  "acceptedInterpretationHash": "sha256:8f5c77beeee4f1a5816f6a632157568c69eb69b303507a9a038f774810a97d4a",
+  "notes": "This resolves the apparent ambiguity between correctness parity already DONE in B-6048 and the new performance target. B-1c46 owns performance proof, not merely report-first documentation.",
+  "ledgerHashBeforeDecision": "sha256:8ef11ea6ffe8b681ec5161bbd4b23a2d69dcf99087e06d0351d6d8d7f710350e",
+  "confirmedLedgerHash": "sha256:8ef11ea6ffe8b681ec5161bbd4b23a2d69dcf99087e06d0351d6d8d7f710350e",
+  "createdAt": "2026-07-02T14:27:06.450Z",
+  "updatedAt": "2026-07-02T14:27:06.450Z"
+}

@@ -308,6 +308,9 @@ async function run(): Promise<void> {
     assert.equal(optimizedParity.recordCount, generated.manifest.recordCount);
     assert.equal(optimizedParity.performancePolicy, 'report-first');
     assert.equal(optimizedParity.parityPass, true);
+    assert.equal(optimizedParity.semanticGuard.pass, true);
+    assert.equal(optimizedParity.targetWarmMs, 2000);
+    assert.ok(optimizedParity.targetStatus === 'met' || optimizedParity.targetStatus === 'unmet');
     assert.equal(optimizedParity.authority, 'non_authoritative');
     assert.equal(optimizedParity.gateEvidence, false);
     assert.equal(optimizedParity.resultDigestSource, 'MemoryFreshnessPack');
@@ -336,6 +339,11 @@ async function run(): Promise<void> {
     assert.equal(typeof optimizedParity.referenceFullScanMs, 'number');
     assert.equal(typeof optimizedParity.indexedColdMs, 'number');
     assert.equal(typeof optimizedParity.indexedWarmCacheMs, 'number');
+    assert.equal(typeof optimizedParity.timingBreakdown.indexBuildMs, 'number');
+    assert.equal(typeof optimizedParity.timingBreakdown.tokenMatching.indexedCold.exactFastPathHits, 'number');
+    assert.equal(typeof optimizedParity.timingBreakdown.tokenMatching.indexedCold.fuzzyIndexHits, 'number');
+    assert.equal(typeof optimizedParity.timingBreakdown.tokenMatching.indexedCold.tokenScanFallbacks, 'number');
+    assert.equal(typeof optimizedParity.performance.peakRssBytes, 'number');
     assertBrokenCandidateWouldFail();
     assertBrokenSupersessionWouldFail();
     assertMissingCandidateOnlyClassWouldFail();
@@ -351,16 +359,34 @@ async function run(): Promise<void> {
       'playbook-runtime-memory baseline smoke passed',
       `profile=${verified.profile}`,
       `recordCount=${verified.recordCount}`,
+      'semanticParity=pass',
       `fullProfileExactMillion=${verified.fullProfileExactMillion}`,
       `resultDigestSource=${optimizedParity.resultDigestSource}`,
       `runtimeCorpusRecords=${optimizedParity.runtimeCorpus.sourceRecordCount}`,
       `referenceFullScanMs=${optimizedParity.referenceFullScanMs}`,
       `indexedColdMs=${optimizedParity.indexedColdMs}`,
       `indexedWarmCacheMs=${optimizedParity.indexedWarmCacheMs}`,
+      `candidateFalseSurfaceRate=${optimizedParity.semanticGuard.candidateFalseSurfaceRate}`,
+      `supersededFalseSurfaceRate=${optimizedParity.semanticGuard.supersededFalseSurfaceRate}`,
+      `deprecatedFalseSurfaceRate=${optimizedParity.semanticGuard.deprecatedFalseSurfaceRate}`,
+      `malformedRowsSkipped=${optimizedParity.semanticGuard.malformedRowsSkipped}`,
+      `targetWarmMs=${optimizedParity.targetWarmMs}`,
+      `targetStatus=${optimizedParity.targetStatus}`,
+      `indexBuildMs=${optimizedParity.timingBreakdown.indexBuildMs}`,
+      `warmPrimeMs=${optimizedParity.timingBreakdown.warmPrimeQueryMs}`,
+      `p50WarmMs=${optimizedParity.latency.p50Ms}`,
+      `p95WarmMs=${optimizedParity.latency.p95Ms}`,
       `warmCacheHits=${optimizedParity.warmCacheStats.hits}`,
+      `cacheHitRate=${optimizedParity.cacheHitRate.toFixed(3)}`,
+      `exactFastPathHits=${optimizedParity.timingBreakdown.tokenMatching.indexedCold.exactFastPathHits}`,
+      `fuzzyIndexHits=${optimizedParity.timingBreakdown.tokenMatching.indexedCold.fuzzyIndexHits}`,
+      `fuzzyFallbacks=${optimizedParity.timingBreakdown.tokenMatching.indexedCold.fuzzyFallbacks}`,
+      `tokenScanFallbacks=${optimizedParity.timingBreakdown.tokenMatching.indexedCold.tokenScanFallbacks}`,
+      `tokenMapScannedEntries=${optimizedParity.timingBreakdown.tokenMatching.indexedCold.tokenMapScannedEntries}`,
       `performancePolicy=${optimizedParity.performancePolicy}`,
       `elapsedMs=${verified.performance.elapsedMs}`,
       `peakRssBytes=${verified.performance.peakRssBytes}`,
+      `optimizedPeakRssBytes=${optimizedParity.performance.peakRssBytes}`,
     ].join(' '));
   } finally {
     if (existsSync(generated.outputDir)) rmSync(generated.outputDir, { recursive: true, force: true });

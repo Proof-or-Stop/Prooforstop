@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1c46",
+  "changes": "Implemented runtime-memory index schema v3, exact and fuzzy indexed lookup, durable pack cache reuse, million-record parity/performance smokes, and a post-DONE advisory-root cleanup fix so deleted story worktrees are not recreated by runtime-memory advisories.",
+  "usage": "Run node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000 to verify the optimized hot path; session_brief, handoff, story intake, story_advance, DONE prepare, and final-response checks consume advisory memory packs through the optimized path automatically.",
+  "expectedOutcome": "For 1,000,000 records, the optimized indexed/cached warm runtime memory path should satisfy targetWarmMs=2000 while preserving semantic parity, candidate filtering, supersession behavior, stale detection, line caps, non_authoritative authority, and gateEvidence=false.",
+  "actualTranscript": "TEST validate PASS at 2026-07-02T16:51:27Z with 31/31 configured commands and 21/21 verification intents covered. Full performance smoke PASS: recordCount=1000000, semanticParity=pass, parityPass=true, indexedWarmCacheMs=1, targetWarmMs=2000, targetStatus=met, referenceFullScanMs=38547, indexedColdMs=6825, p95WarmMs=0, peakRssBytes=3610689536, cacheHitRate=0.500. DONE-required PASS: npm --prefix packages/main run build PASS and npm test PASS. Review assurance PASS: full-3x2 with claude-cli plus codex-cli across 3 rounds.",
+  "outcomeDiff": "No user-visible functional gap remains: the warm runtime hot path met the 1-2s target. Deliberate boundary: full reference scan and cold index build are still measured/report-first paths, not claimed as 1-2s runtime.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Memory packs remain advisory context only: authority=non_authoritative and gateEvidence=false. The 1-2s claim applies only to the indexed/cached warm runtime path, not full reference scans or cold index construction. Current package version before DONE merge is 0.3.134; final version bump is verified after merge on main.",
+  "pitfalls": "This story initially failed DONE because post-DONE stale-evidence/runtime-memory advisories used the deleted story worktree as projectRoot and recreated it. The fix routes post-DONE advisory probes through the surviving main root. Scope expansions were acknowledged for the cleanup fix and main-sync readiness smoke. Stale verification evidence after review metadata was refreshed before TEST.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 358572
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13254
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 481279
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 5422786
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 2406604
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 870733
+    }
+  },
+  "totalDurationMs": 9553437,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T16:54:11.345Z",
+  "updatedAt": "2026-07-02T16:54:11.345Z"
+}

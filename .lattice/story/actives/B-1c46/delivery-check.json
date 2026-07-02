@@ -1,0 +1,105 @@
+{
+  "storyId": "B-1c46",
+  "checkedAt": "2026-07-02T16:54:30.329Z",
+  "headHash": "42ede4961aa08f0b8de7c9d73101adaab24bfa3b",
+  "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+  "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+  "reviewRound": "2026-07-02T16:42:38.230Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "M0 red baseline transcript records 1,000,000 records, indexedWarmCacheMs, targetWarmMs=2000, and targetStatus before optimization.",
+      "status": "verified",
+      "verifiedBy": "test-evidence and summary",
+      "evidence": "Initial M0 red profile recorded indexedWarmCacheMs=2971 with targetWarmMs=2000 unmet; final summary records the before and after values."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "M1-M2 semantic parity keeps reference and optimized digests aligned and candidate false surface at zero.",
+      "status": "verified",
+      "verifiedBy": "playbook-runtime-memory-m3-m6-smoke and validate",
+      "evidence": "TEST validate PASS covers semanticParity=pass, matching digests, and candidateFalseSurface=0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "Exact fast path exposes exactFastPathHits and preserves candidate ordering without unsafe drops.",
+      "status": "verified",
+      "verifiedBy": "playbook-runtime-memory-index-smoke and performance smoke",
+      "evidence": "Index smoke PASS and performance evidence report exactFastPathHits=100 with parityPass=true."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "Fuzzy/includes queries use bounded indexing or visible fallback counters, with no silent unbounded scans for normal cases.",
+      "status": "verified",
+      "verifiedBy": "playbook-runtime-memory-index-smoke and baseline smoke",
+      "evidence": "Evidence reports fuzzyIndexHits, fuzzyFallbacks, tokenScanFallbacks, and parityPass=true."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "Durable cache reuse is keyed and invalidates safely on contributing source mutation while preserving gateEvidence=false.",
+      "status": "verified",
+      "verifiedBy": "playbook-runtime-memory-m3-m6-smoke",
+      "evidence": "M3-M6 smoke PASS reports crossProcessCacheHit=true, staleMutationMiss=true, and advisory-only metadata."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/checklist.json",
+      "promise": "Full performance smoke proves the warm indexed/cached runtime path is within targetWarmMs=2000 on 1,000,000 records.",
+      "status": "verified",
+      "verifiedBy": "playbook-runtime-memory-performance-smoke full profile",
+      "evidence": "Full performance smoke PASS records indexedWarmCacheMs=1, targetWarmMs=2000, targetStatus=met, recordCount=1000000, parityPass=true."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1c46/summary.json",
+      "promise": "Completion summary distinguishes final warm-path proof from reference/cold index cost and records full-3x2 assurance plus version boundary.",
+      "status": "verified",
+      "verifiedBy": "summary_set, review_escalation_status, done_required_validate",
+      "evidence": "summary_set recorded accepted outcome, full-3x2 claude-cli plus codex-cli, DONE-required PASS, current version 0.3.134 pre-DONE, and no-overclaim boundary."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate PASS and baseline evidence record the pre-change red path and final profile breakdown for 1,000,000 records."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js PASS with semanticParity=pass and matching result digests."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js PASS; exact indexed lookup parity and overflow/fallback cases covered."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "index and full baseline smokes PASS; fuzzy counters and fallback counters are visible and bounded."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "M3-M6 smoke PASS shows crossProcessCacheHit=true and staleMutationMiss=true for durable cache behavior."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000 PASS with indexedWarmCacheMs=1 <= 2000."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Docs grep checks PASS for No-Overclaim, non_authoritative, gateEvidence=false, and summary records accepted outcome."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "lattice done_required_validate PASS: packages/main build PASS and npm test PASS."
+    },
+    {
+      "featureId": "review-assurance",
+      "transcript": "lattice review_escalation_status PASS: fullQuorum 3/3 rounds x 2 hosts using claude-cli and codex-cli."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS: all checklist-visible promises are backed by real machine TEST validate, dedicated runtime memory smokes, full 1,000,000-record performance smoke, DONE-required npm test, and 3x2 local host assurance; memory remains advisory-only."
+  },
+  "_hash": "f332ce0fb3a1aa0ca70bd89eb9255a9b70e4edbed5198e9faf1c0b7c0f311464"
+}

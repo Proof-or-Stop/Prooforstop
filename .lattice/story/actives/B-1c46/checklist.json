@@ -7,10 +7,78 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "M0 outputs a baseline/profile transcript naming referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, warmCacheHits, and why the 1-2s target is not yet met."
+      "status": "done",
+      "startTime": "2026-07-02T14:30:31.905Z",
+      "endTime": "2026-07-02T14:56:55.379Z",
+      "userSees": "Expected transcript includes `targetStatus=unmet`, `recordCount=1000000`, `indexedWarmCacheMs=<number>`, and `targetWarmMs=2000`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full-profile baseline reports current reference/indexed/warm timings and targetStatus=unmet when indexedWarmCacheMs exceeds 2000ms.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Profile output includes enough breakdown to distinguish token matching, pack build, cache, index build, and query count timing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M0 cannot be marked green by report-first wording alone; it must record the concrete unmet target or pass/fail status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "pre-change node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Initial M0 red profile recorded recordCount=1000000 referenceFullScanMs=39660 indexedColdMs=10681 indexedWarmCacheMs=2971 warmCacheHits=8 peakRssBytes=1160101888; targetWarmMs=2000 was unmet.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Final full baseline reports referenceFullScanMs=49347 indexedColdMs=6972 indexedWarmCacheMs=1 indexBuildMs=14132 warmPrimeMs=11270 exactFastPathHits=100 fuzzyIndexHits=126 tokenScanFallbacks=0 cacheHitRate=0.500, giving token/cache/index/query breakdown.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "The performance smoke gates targetStatus and indexedWarmCacheMs<=targetWarmMs, so the milestone cannot be closed by report-first wording alone.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,10 +87,78 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M1 outputs a parity guard transcript showing reference and optimized digests match across exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases."
+      "endTime": "2026-07-02T14:57:07.797Z",
+      "userSees": "Expected transcript includes `semanticParity=pass`, `referenceResultDigest=<sha256>`, `optimizedResultDigest=<same sha256>`, and `candidateFalseSurface=0`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reference and optimized MemoryFreshnessPack result digests match for exact-token and normal active memory cases.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Superseded, stale-relevant, stale-irrelevant, deprecated residue, malformed row, maxLines, and omittedCount behavior remain identical.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A candidate or stale playbook must not surface as current guidance, and semantic drift must fail the parity guard.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M6 report shows semanticParity=pass with referenceResultDigest and optimizedResultDigest both 19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Semantic guard reports candidateFalseSurfaceRate=0 supersededFalseSurfaceRate=0 deprecatedFalseSurfaceRate=0 malformedRowsSkipped=5 and preserves maxLines/omittedCount in the result digest.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Candidate, stale, superseded, deprecated residue, malformed row, maxLines, and omittedCount cases are covered; current run passed TOTAL 8 PASS 8 FAIL 0.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,10 +167,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M2 outputs a benchmark/profile transcript showing exact-token fast path is used, parity remains true, and indexed cold/token-scan timing improves versus M0."
+      "endTime": "2026-07-02T14:57:15.877Z",
+      "userSees": "Expected transcript includes `exactFastPathHits=<n>`, `tokenScanFallbacks=<n>`, `parityPass=true`, and an improved indexed/token-scan timing versus M0.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Exact query tokens use direct tokenToIds lookup and produce the same candidate set/order as the reference path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exact lookup respects candidateLimit, corpus order, superseding entries, and empty-query recent-entry fallback.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The exact fast path must fall back safely for fuzzy-only cases instead of dropping results or changing MemoryFreshnessPack digest semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "Small index smoke reports indexedReferenceParity=true candidateFalseSurface=0 exactFastPathHits=8 and preserves reference ids and boundaries.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "CandidateLimit windows, corpus order, superseding entries, and cached/uncached selection remain covered; full M6 reports exactFastPathHits=100 and matching digest.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "Full performance smoke keeps parityPass=true, authority=non_authoritative, gateEvidence=false, and tokenScanFallbacks=0 while improving indexed cold from the M0 10681 ms to 6825 ms in the captured run.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -43,10 +248,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M3 outputs a transcript showing fuzzy auxiliary index hit/fallback counts, unchanged result digests, and improved indexed cold/warm timing over the all-token scan baseline."
+      "endTime": "2026-07-02T14:57:24.625Z",
+      "userSees": "Expected transcript includes `fuzzyIndexHits=<n>`, `fuzzyFallbacks=<n>`, `parityPass=true`, and no all-token scan for normal fuzzy queries.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fuzzy/includes query cases are served by a bounded auxiliary index while preserving result digest parity.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prefix/trigram or equivalent fuzzy indexing handles short tokens, file kinds, story phases, and host/context tokens without unbounded scans.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If fuzzy index cannot prove coverage, fallback is bounded and visible in counters rather than silently performing an unreported whole-token scan.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Runtime index schema v2 bounded fuzzy maps serve normal includes/fuzzy cases; full M6 reports fuzzyIndexHits=126 with digest parity preserved.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "Small smoke covers short and hyphenated query/context tokens with fuzzyIndexHits=11 fuzzyFallbacks=0 tokenScanFallbacks=0.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Fallback counters are explicit in the full profile: fuzzyFallbacks=0 tokenScanFallbacks=0 tokenMapScannedEntries=0, so unreported all-token scans would be visible.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -55,10 +329,78 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M4 outputs a transcript proving first process writes durable cache/prebuilt index, second process reuses it, stale changes invalidate or downgrade safely, and authority remains non_authoritative with gateEvidence=false."
+      "endTime": "2026-07-02T14:57:37.531Z",
+      "userSees": "Expected transcript includes `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, `staleMutationMiss=true`, and `gateEvidence=false`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A second CLI/process can reuse a durable cache or prebuilt index for the same bound query/context and produces the same pack digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Source/config/policy/indexVersion/limit/projectRoot changes invalidate or downgrade cache reuse safely.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale durable cache entry cannot be consumed as fresh after contributing source mutation or cache key shape drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M4 smoke reports crossProcessCacheHit=true with cacheKeyDigest=13cfac49ceba341519f2f30355a7bdde9be39c661959ac40d62be298b57c054e, proving second-process durable cache reuse.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "Cache cases cover unchanged hits, stale-irrelevant broad source changes, contributing source misses, candidateLimit separation, projectRoot-bound lookups, and advisory-only metadata.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "After contributing source mutation, the second process reports staleMutationMiss=true/contributingMisses=1 and cannot consume stale durable cache as fresh.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -67,10 +409,79 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M5 outputs a full-profile performance smoke transcript with PASS only when indexedWarmCacheMs <= 2000ms, parity is true, cache is fresh, and memory remains non-authoritative advisory context."
+      "endTime": "2026-07-02T14:57:46.592Z",
+      "userSees": "Expected transcript includes `playbook-runtime-memory performance smoke passed`, `recordCount=1000000`, `parityPass=true`, `indexedWarmCacheMs<=2000`, and `targetWarmMs=2000`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The full-profile performance smoke passes only when parityPass=true and indexedWarmCacheMs is at or below targetWarmMs=2000.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The performance smoke reports referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, p50/p95 or equivalent repeated-query latency, peak RSS, and cache hit rate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The performance smoke exits non-zero when parity fails, advisory metadata changes, or indexedWarmCacheMs exceeds targetWarmMs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "Full performance smoke passed with recordCount=1000000 semanticParity=pass parityPass=true indexedWarmCacheMs=1 targetWarmMs=2000 targetStatus=met.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "Output reports referenceFullScanMs=38547 indexedColdMs=6825 indexedWarmCacheMs=1 p50WarmMs=0 p95WarmMs=0 peakRssBytes=3610689536 cacheHitRate=0.500 performancePolicy=report-first.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "The command exits non-zero unless semanticGuard.pass, parityPass, non_authoritative/gateEvidence=false, and indexedWarmCacheMs<=targetWarmMs all hold.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -80,10 +491,80 @@
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "M6 outputs the final DONE summary with exact command transcripts, measured timings, version number, and a clear statement of whether the 1-2s target is proven or remains blocked."
+      "endTime": "2026-07-02T14:57:55.673Z",
+      "userSees": "Expected DONE summary includes `Proofbound CLI <new version>`, exact before/after timings, `full-3x2`, and whether `indexedWarmCacheMs<=2000` is proven.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution plan doc records actual implementation, before/after metrics, exact verification commands, and final CLI version after DONE merge.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs preserve the advisory memory boundary and do not describe memory as gate evidence or authoritative proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final summary and docs cannot claim 1-2s complete unless the M5 full-profile performance smoke passed with indexedWarmCacheMs<=2000.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"indexedWarmCacheMs|targetStatus|No-Overclaim\" docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "result": "pass",
+          "note": "Docs record actual implementation, pre-change red baseline, final full-profile metrics, exact verification commands, and the measured targetStatus=met hot-path result.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"non_authoritative|gateEvidence=false|Memory packs are context\" docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "result": "pass",
+          "note": "Docs preserve the advisory memory boundary: memory remains non_authoritative, gateEvidence=false, context only, and cannot satisfy lifecycle gates.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "result": "pass",
+          "note": "Docs only claim the 1-2s target for the optimized warm runtime hot path after the full performance smoke passed with indexedWarmCacheMs=1; they explicitly forbid claiming the full reference/index-build report completes in 1-2 seconds.",
+          "headHash": "e17c5ef43d305c987cea9f3c8953aae02e262995",
+          "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+          "storyFilesHash": "a0dbe3e083b0368ef65624e1a10dca7857e97f9d6c315b1dc4e806e3092e1afb",
+          "timestamp": "2026-07-02T16:46:32.912Z"
+        }
+      ]
     }
   ]
 }

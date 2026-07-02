@@ -1,0 +1,29 @@
+{
+  "task": "Optimize Proofbound runtime memory lookup so the 1,000,000-record hot path can be proven fast without changing MemoryFreshnessPack semantics.",
+  "outcome": "The user runs `node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000` and sees PASS with `recordCount=1000000`, `parityPass=true`, `indexedWarmCacheMs<=2000`, `authority=non_authoritative`, and `gateEvidence=false`.",
+  "facts": [
+    "B-6048 completed correctness parity for M3-M6 and kept runtime memory non-authoritative.",
+    "Fresh measurement on 2026-07-02 showed referenceFullScanMs=46325, indexedColdMs=12427, indexedWarmCacheMs=3270, so the 1-2s target is not yet proven.",
+    "Current RuntimeMemoryIndex exists, but matchingIds scans Object.entries(tokenMap) for fuzzy/includes matching.",
+    "Current cache is process-local Map and does not by itself prove cross-process hot path behavior.",
+    "CHK-001 explicitly owns profiling the remaining bottleneck before optimization claims are made."
+  ],
+  "constraints": [
+    "Preserve exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap result parity.",
+    "Runtime memory must remain advisory only: authority=non_authoritative and gateEvidence=false.",
+    "Do not touch unrelated README, recovery-runner, paper, OMX, or lifecycle gate semantics.",
+    "Do not claim 1-2s unless the full-profile performance smoke actually passes indexedWarmCacheMs<=2000."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/core/playbook-runtime-memory-cache.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+  ],
+  "timestamp": "2026-07-02T14:21:46.831Z"
+}
