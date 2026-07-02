@@ -166,12 +166,18 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "Lifecycle gate plan shows a fail-closed transition table with explicit advance/repair/degrade/stop semantics and reason codes.",
+      "userSees": "User sees: \"Plan now defines fail-closed transition states with explicit advance/repair/degrade/stop outcomes and reason codes.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "packages/main/src/core",
+          "packages/main/src/cli",
+          ".lattice/story/actives/B-2769"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/core/proof-or-stop-pinn-gate.ts",
+          "packages/main/src/cli/proof-or-stop-pinn-gate.ts"
+        ],
         "test": []
       },
       "verificationIntent": {
