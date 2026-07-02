@@ -112,6 +112,25 @@
       ],
       "signatureTag": "adversarial|ts|output-digest-binding-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-7b4e:F-006",
+      "desc": "Blocking quality issue: malformed receipts without an identity object crash the evaluator instead of failing closed with stable reason codes. packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity through hasField/fieldValue without defaulting or validating it. Repro: deleting buildCompleteQuantumEvidence(\"Q5\").receipts[0].identity throws Cannot read properties of undefined (reading codeHash) rather than returning allowed=false with missing identity reasons, which violates the M0-M1 malformed/missing evidence fail-closed requirement. The smoke covers missing active core fields at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 but not missing receipt identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:06:19.065Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-019",
+      "_hash": "7d9ef932b65a23717303051c4d3cff69da8376f00233df1d73237ada040fe890",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|malformed-receipt-identity-crash",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
