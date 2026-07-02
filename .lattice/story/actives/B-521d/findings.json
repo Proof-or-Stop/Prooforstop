@@ -5,7 +5,7 @@
       "desc": "verificationIntent/checklist requires all actionable recommendation classes to be classified, including recommend_demote, but playbook-promotion-observe-smoke and recorded verificationEvidence cover recommend_activate, reject, archive, mark_non_deducible, and hold only. Add an explicit recommend_demote handled/unhandled observation case so the actionable-class contract is covered.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T17:40:46.638Z",
@@ -18,7 +18,11 @@
         ".lattice/story/actives/B-521d/test-evidence.json"
       ],
       "signatureTag": "missing|ts|verificationintent-checklist-requires",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added explicit recommend_demote smoke coverage proving active demote recommendations remain unhandled while still active and become handled after status changes away from active. Verified by npm --prefix packages/main run build and node packages/main/dist/tasks/playbook-promotion-observe-smoke.js (11/11 pass).",
+      "resolvedAt": "2026-07-02T17:46:11.542Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-521d:F-002",
