@@ -1,0 +1,90 @@
+{
+  "storyId": "B-6048",
+  "checkedAt": "2026-07-02T13:45:46.151Z",
+  "headHash": "b3df575f2416ca45a65562efd42d32074ada049a",
+  "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+  "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+  "reviewRound": "2026-07-02T13:27:36.648Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "M3 pack cache reuses unchanged MemoryFreshnessPack results and invalidates safely on source, config, index, policy, and limit changes; projectRoot and candidateLimit participate in cache identity; stale-irrelevant broad source churn is a soft cache hit, not a hard stale miss.",
+      "status": "verified",
+      "verifiedBy": "reverse diff, source inspection, index smoke, M3-M6 smoke, live transcript",
+      "evidence": "playbook-runtime-memory-cache.ts includes projectRoot, runtimeConfigDigest, consumerPolicyVersion, limits.candidateLimit, indexVersion, contributingSourceDigestTuple; playbook-runtime-memory.ts carries candidateLimit through context/classification; M3-M6 smoke asserts candidateLimit 50 vs 80 separate cache entries and stale-irrelevant soft hit; live transcript shows index smoke PASS with authority=non_authoritative gateEvidence=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "M4 rolls optimized indexed/cached memory packs into lifecycle consumers while keeping them advisory-only: session_brief, handoff, story_create, story_advance, done_prepare, done_closure, and final_response_check.",
+      "status": "verified",
+      "verifiedBy": "source inspection, M3-M6 smoke, reviewer pass records",
+      "evidence": "M3-M6 smoke consumer matrix includes session_brief, host_handoff, story_create, story_advance, done_prepare, done_closure, final_response_check and asserts cache hits plus authority=non_authoritative and gateEvidence=false. transition-orchestrator renders consumer story_advance."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "M5 correctness matrix preserves reference-versus-optimized behavior for active, candidate, superseded, stale-relevant, stale-irrelevant, deprecated-term, malformed-row, maxLines, and omittedCount cases.",
+      "status": "verified",
+      "verifiedBy": "M3-M6 smoke and baseline smoke evidence",
+      "evidence": "M3-M6 smoke asserts reference/optimized parity, active PB-active surfaces, candidate and stale playbooks stay inert, superseded memory is suppressed/listed, stale-relevant and stale-irrelevant classify correctly, deprecated residue is recorded only as residue, malformed rows are skipped, and render omittedCount is preserved."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "M6 proves exact 1,000,000-record MemoryFreshnessPack parity between reference full scan, indexed cold runtime path, and indexed warm/cache path, with separate latency reporting and performancePolicy=report-first.",
+      "status": "verified",
+      "verifiedBy": "baseline full smoke, M3-M6 smoke, source inspection",
+      "evidence": "runPlaybookRuntimeOptimizedParityReport materializes the full runtime corpus, runs buildMemoryFreshnessPack for reference useIndex=false/useCache=false, indexed cold with RuntimeMemoryIndex/useCache=false, and warmed cache with useCache=true. Evidence records show recordCount=1000000, resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, reference/indexed/cache digests equal, warmCacheHits=8/8, and separate referenceFullScanMs/indexedColdMs/indexedWarmCacheMs."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "The plan and implementation do not claim a 1-2s million-record runtime SLO; the SLO remains unproven, report-first, and non-enforced.",
+      "status": "verified",
+      "verifiedBy": "docs grep, checklist evidence, reviewer pass records",
+      "evidence": "The plan now says indexed/cached million parity plus latency report is PASS, but explicitly says the 1-2s SLO remains unproven/report-first/non-enforced. Docs reviewer pass B-6048:RP-003 verified stale NOT YET PROVEN wording was replaced without overclaiming performance."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "Runtime memory remains non-authoritative and cannot satisfy review, validation, DONE, release, or delivery gates.",
+      "status": "verified",
+      "verifiedBy": "source inspection, live transcript, lifecycle_check, validation evidence",
+      "evidence": "MemoryFreshnessPack type and smokes assert authority=non_authoritative and gateEvidence=false; live transcript prints authority=non_authoritative gateEvidence=false; lifecycle_check still requires validation, delivery, review escalation, DONE-required validation, and summary facts independent of memory."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Build evidence: npm --prefix packages/main run build PASS. Index smoke evidence: node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js PASS, proving projectRoot cache isolation and stale-relevant/stale-irrelevant semantics. M3-M6 smoke proves cache hits, contributing misses, stale-irrelevant soft hits, candidateLimit cache separation, authority=non_authoritative, and gateEvidence=false."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "M3-M6 smoke PASS for M4 consumer matrix: session_brief, host_handoff, story_create, story_advance, done_prepare, done_closure, and final_response_check all use the optimized MemoryFreshnessPack path as advisory-only packs with cache hits and gateEvidence=false."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "M3-M6 smoke PASS for M5 matrix: reference and optimized packs match relevant results; active surfaces; candidate and stale do not surface; superseded memory is suppressed and listed; stale-relevant and stale-irrelevant classify correctly; deprecated residue is recorded; malformed rows do not surface or crash; omittedCount/maxLines are preserved."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Full baseline evidence: node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full PASS with exact 1,000,000 records. M3-M6 smoke also runs full optimized parity and reports resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, warmCacheHits=8/8, performancePolicy=report-first."
+    },
+    {
+      "featureId": "live-smoke-transcript",
+      "transcript": "live_smoke_transcript status is present-fresh. Captured command node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js exited 0 and printed runtimePackElapsedMs, authority=non_authoritative gateEvidence=false, atomicIndexRebuild=true, indexedReferenceParity=true, candidateFalseSurface=0, and TOTAL 5 PASS 5 FAIL 0."
+    },
+    {
+      "featureId": "validate",
+      "transcript": "lattice validate --story=B-6048 --json latest snapshot PASS at 2026-07-02T13:40:11.616Z. Coverage is 12/12 required intents covered, evidence materialHash matches current entity file state, and no bugs are open."
+    },
+    {
+      "featureId": "review-passes-and-findings",
+      "transcript": "Resolved findings B-6048:F-001 through F-007 all have fixed/strong resolution. Current round reviewer passes include docs RP-003, concept RP-004, quality RP-005, and test-coverage RP-006; lifecycle_check reports Round 3 has 4 valid reviewer evidence records and no open blocking findings."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review reverse-scanned git diff main...HEAD, plan promises, checklist user outcomes, live transcript evidence, validation evidence, reviewer passes, and resolved findings. M3-M6 user value is delivered: cache key and freshness semantics include projectRoot/candidateLimit and stale-irrelevant behavior; consumers include story_advance and remain advisory-only; matrix behavior is covered; exact 1,000,000-record MemoryFreshnessPack parity is report-first with no 1-2s SLO claim. Separate DONE gates remain for the host/reviewer workflow, but no delivery-value blocker was found."
+  },
+  "_hash": "07916a53f265e22f956e4e20f64f81882d5c5ac2301a6a81c4ad40b1e02ada30"
+}

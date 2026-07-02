@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "M3: implement pack cache with freshness-safe invalidation",
       "context": "Add a derived MemoryFreshnessPack cache keyed by schemaVersion, consumer, normalized query/context, contributing source digest tuple, runtime config digest, consumer policy version, top-k/line cap, and indexVersion. Preserve authority=non_authoritative and gateEvidence=false. Related plan section: playbook-memory-entry-layer-optimization-plan.md M3.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-02T11:45:18.893Z",
+      "endTime": "2026-07-02T13:26:36.504Z",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M3 Pack Cache Detailed Checklist"
       ],
@@ -42,7 +42,42 @@
           }
         ]
       },
-      "userSees": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false."
+      "userSees": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after round-2 M3 fixes: cache key/context now include projectRoot and candidateLimit while preserving non_authoritative/gateEvidence=false pack semantics.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:36.740Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "Index smoke passes and proves stale-irrelevant unrelated append behavior, project-root cache isolation, and indexed freshness semantics for F-006.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:36.970Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke passes and includes a candidateLimit cache divergence check proving candidateLimit participates in runtime pack cache identity for F-007.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:37.183Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,10 +121,45 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false."
+      "status": "done",
+      "startTime": "2026-07-02T12:10:30.998Z",
+      "endTime": "2026-07-02T13:05:15.585Z",
+      "userSees": "Running session_brief/handoff/story/DONE/final-response checks shows the same bounded Memory Runtime Preflight block using the optimized path, with lessons visible and gateEvidence=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after adding story_advance to M4 lifecycle consumer coverage and preserving non_authoritative/gateEvidence=false runtime packs.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M4 consumer matrix includes session_brief, host_handoff, story_create, story_advance, done_prepare, done_closure, and final_response_check; all consumers remain advisory-only MemoryFreshnessPack outputs.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "git show --stat --oneline c4231f7f3",
+          "result": "pass",
+          "note": "Fix commit c4231f7f3 closes F-003 by making story_advance part of the shared optimized runtime consumer smoke instead of relying on partial consumer coverage.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -128,10 +198,45 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The M3-M6 smoke prints a correctness matrix where active, candidate, superseded, stale, deprecated, malformed, and line-cap cases all show PASS for reference and optimized paths."
+      "status": "done",
+      "startTime": "2026-07-02T12:10:47.533Z",
+      "endTime": "2026-07-02T12:10:55.053Z",
+      "userSees": "The M3-M6 smoke prints a correctness matrix where active, candidate, superseded, stale, deprecated, malformed, and line-cap cases all show PASS for reference and optimized paths.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: optimized path matches reference path for active playbook and required IDs on matrix fixtures.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: superseded suppression, stale-relevant/stale-irrelevant classification, and render line cap/omittedCount behavior are verified.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: candidate and stale playbooks do not surface, deprecated brand residue is only recorded as residue, and malformed rows do not crash or surface as current guidance.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -143,7 +248,8 @@
       "files": {
         "modify": [
           "packages/main/src/core/playbook-runtime-baseline.ts",
-          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+          "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
         ],
         "create": [],
         "test": [
@@ -170,10 +276,137 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first."
+      "status": "done",
+      "startTime": "2026-07-02T12:11:02.062Z",
+      "endTime": "2026-07-02T13:05:23.961Z",
+      "userSees": "The million parity command reports recordCount=1000000 plus separate referenceFullScanMs, indexedColdMs, and indexedWarmCacheMs values, while marking performance as report-first.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after replacing synthetic M6 parity with real MemoryFreshnessPack reference/indexed/cache report path.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M6 smoke passed with recordCount=1000000, resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, indexedCold runtime index counts matching corpus, and warmCacheHits=8/8.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "result": "pass",
+          "note": "Full baseline smoke passed profile=full with exact 1,000,000 records, MemoryFreshnessPack parity, reference/indexed/cache digests equal, warmCacheHits=8/8, and performancePolicy=report-first; this closes F-001/F-002/F-004 without claiming 1-2s optimized runtime.",
+          "headHash": "4ced3c343a59fb90d2c3f5a50a5b51504d9093eb",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:27:45.692Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T11:45:18.893Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M3 pack cache implementation."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:25.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M3 cache implementation committed in 26f747766 and digest fix in 2d2e8c30; build and M3-M6 smoke passed."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:30.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M4 consumer rollout evidence closure after shared optimized API implementation."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:39.675Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M4 shared optimized consumer path committed and verified by M3-M6 smoke."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:47.533Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M5 correctness matrix evidence closure."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:55.053Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M5 correctness matrix committed and verified by M3-M6 smoke."
+    },
+    {
+      "timestamp": "2026-07-02T12:11:02.062Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M6 million parity evidence closure."
+    },
+    {
+      "timestamp": "2026-07-02T12:11:11.891Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M6 full million parity report committed and verified after digest fix."
+    },
+    {
+      "timestamp": "2026-07-02T12:17:14.461Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen M4 to address test-coverage finding B-6048:F-003: story_advance consumer omitted from smoke."
+    },
+    {
+      "timestamp": "2026-07-02T12:17:14.915Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen M6 to address findings B-6048:F-001/F-002/F-004: full parity must exercise real runtime index/cache path."
     }
   ]
 }

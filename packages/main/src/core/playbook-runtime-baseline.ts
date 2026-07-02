@@ -1,13 +1,28 @@
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 import { resolveGlobalMemoryPath, resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from './dev-memory.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import type { Playbook, PlaybookStatus } from './experience-layer-types.js';
 import { writePlaybooks, writeSignatureRegistry, type SignatureRegistryData } from './learning-store.js';
-import { buildMemoryFreshnessPack, classifyMemoryFreshnessPack, type MemoryFreshnessClass } from './playbook-runtime-memory.js';
+import {
+  buildMemoryFreshnessPack,
+  classifyMemoryFreshnessPack,
+  type BuildMemoryFreshnessPackOptions,
+  type MemoryFreshnessClass,
+  type MemoryFreshnessPack,
+} from './playbook-runtime-memory.js';
+import {
+  clearRuntimeMemoryPackCache,
+  getRuntimeMemoryPackCacheStats,
+  type RuntimeMemoryPackCacheStats,
+} from './playbook-runtime-memory-cache.js';
+import {
+  rebuildRuntimeMemoryIndex,
+  type RuntimeMemoryIndex,
+} from './playbook-runtime-memory-index.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -169,6 +184,34 @@ export interface SourceDigestMutationMatrixResult {
   signatureRegistryIrrelevant: MemoryFreshnessClass;
   initialSurfacePass: boolean;
   pass: boolean;
+}
+
+export interface PlaybookRuntimeOptimizedParityReport {
+  schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1';
+  profile: PlaybookRuntimeBaselineProfile;
+  recordCount: number;
+  queryCount: number;
+  referenceFullScanMs: number;
+  indexedColdMs: number;
+  indexedWarmCacheMs: number;
+  performancePolicy: 'report-first';
+  parityPass: boolean;
+  referenceResultDigest: string;
+  indexedColdResultDigest: string;
+  indexedWarmCacheResultDigest: string;
+  resultDigestSource: 'MemoryFreshnessPack';
+  runtimeCorpus: {
+    sourceRecordCount: number;
+    devMemoryRecordCount: number;
+    playbookRecordCount: number;
+    malformedRowsSkipped: number;
+    fullCorpusMaterialized: boolean;
+  };
+  indexedColdUsesRuntimeIndex: boolean;
+  indexedColdRuntimeIndexRecordCounts: RuntimeMemoryIndex['manifest']['recordCounts'];
+  warmCacheStats: RuntimeMemoryPackCacheStats;
+  authority: 'non_authoritative';
+  gateEvidence: false;
 }
 
 const PROFILE_COUNTS: Record<PlaybookRuntimeBaselineProfile, number> = {
@@ -430,6 +473,8 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} candidate should remain inert scanner input`,
   },
 ];
+
+const GOLD_RECORD_IDS = new Set(GOLD_RECORDS.map((record) => record.id));
 
 const BASELINE_SIGNATURE_REGISTRY: SignatureRegistryData = {
   tags: [
@@ -815,6 +860,8 @@ function runRuntimeGoldQuery(
       maxPlaybooks: 20,
       maxLines: 60,
       generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+      useIndex: false,
+      useCache: false,
     }));
     const surfacedIds = [...pack.results.playbookIds, ...pack.results.devMemoryEntryIds];
     const surfaced = new Set(surfacedIds);
@@ -933,6 +980,8 @@ function runMatrixScenario(mutator: (root: string, fixture: {
         maxPlaybooks: 20,
         maxLines: 60,
         generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+        useIndex: false,
+        useCache: false,
       });
       const initialSurfacePass = pack.results.devMemoryEntryIds.includes(projectEntry.id)
         && pack.results.devMemoryEntryIds.includes(globalEntry.id)
@@ -1057,6 +1106,250 @@ function runSourceDigestMutationMatrix(): SourceDigestMutationMatrixResult {
     && result.signatureRegistryRelevant === 'stale-relevant'
     && result.signatureRegistryIrrelevant === 'stale-irrelevant';
   return result;
+}
+
+function roundedElapsed(started: number): number {
+  return Math.max(0, Math.round(performance.now() - started));
+}
+
+interface RuntimeCorpusMaterialization {
+  root: string;
+  sourceRecordCount: number;
+  devMemoryRecordCount: number;
+  playbookRecordCount: number;
+  malformedRowsSkipped: number;
+}
+
+interface RuntimePackQueryRun {
+  elapsedMs: number;
+  resultDigest: string;
+}
+
+function runtimeCorpusMemoryEntry(record: BaselineRecord): DevMemoryEntry {
+  const isGold = GOLD_RECORD_IDS.has(record.id);
+  const text = isGold && record.text.trim().length >= 10
+    ? record.text.trim()
+    : 'baseline noise row';
+  return {
+    id: record.id,
+    createdAt: BASELINE_RUNTIME_FIXED_TIME,
+    sourceAgent: 'baseline',
+    category: 'workflow',
+    scope: 'project',
+    summary: text,
+    trigger: 'base trigger',
+    lesson: 'base lesson',
+    reusePrompt: 'reuse base',
+    ...(isGold && record.supersedes ? { tags: record.supersedes.map((id) => `supersedes-${id}`) } : {}),
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  };
+}
+
+function runtimeCorpusPlaybookFromBaseline(record: BaselineRecord): Playbook {
+  const text = GOLD_RECORD_IDS.has(record.id) ? record.text : `noise playbook ${record.id}`;
+  return {
+    id: record.id,
+    title: `${record.id} baseline playbook`,
+    trigger: {
+      keywords: baselineTokens(`${record.id} ${text}`).slice(0, 20),
+      fileKinds: ['ts'],
+      storyPhases: ['DEV', 'TEST', 'DONE'],
+    },
+    check: text,
+    pitfalls: ['advisory runtime'],
+    verification: ['runtime parity'],
+    lineage: {
+      sourceStoryId: 'B-baseline',
+      sourceFindingId: 'F-baseline',
+      sourceSignature: record.id,
+    },
+    status: playbookStatusFromBaseline(record.status),
+    usage: { surfacedCount: 0, resolvedHits: 0, dismissedHits: 0 },
+  };
+}
+
+function writeRuntimeCorpusMemoryLine(fd: number, record: BaselineRecord, buffer: { value: string }): void {
+  buffer.value += `${JSON.stringify(runtimeCorpusMemoryEntry(record))}\n`;
+  if (buffer.value.length > 1_000_000) {
+    writeSync(fd, buffer.value);
+    buffer.value = '';
+  }
+}
+
+function materializeRuntimeCorpus(recordsRaw: string): RuntimeCorpusMaterialization {
+  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-corpus-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+  }, null, 2) + '\n', 'utf8');
+
+  const memoryPath = resolveProjectMemoryPath(root);
+  mkdirSync(dirname(memoryPath), { recursive: true });
+  const fd = openSync(memoryPath, 'w');
+  const buffer = { value: '' };
+  const playbooks: Playbook[] = [];
+  let sourceRecordCount = 0;
+  let devMemoryRecordCount = 0;
+  let playbookRecordCount = 0;
+  let malformedRowsSkipped = 0;
+
+  try {
+    for (const line of recordsRaw.split('\n')) {
+      if (!line) continue;
+      sourceRecordCount += 1;
+      const record = parseBaselineRecord(line);
+      if (!record) {
+        malformedRowsSkipped += 1;
+        continue;
+      }
+      if (record.kind === 'memory') {
+        writeRuntimeCorpusMemoryLine(fd, record, buffer);
+        devMemoryRecordCount += 1;
+      } else {
+        playbooks.push(runtimeCorpusPlaybookFromBaseline(record));
+        playbookRecordCount += 1;
+      }
+    }
+    if (buffer.value.length > 0) writeSync(fd, buffer.value);
+  } finally {
+    closeSync(fd);
+  }
+
+  writePlaybooks(root, playbooks);
+  writeSignatureRegistry(root, BASELINE_SIGNATURE_REGISTRY);
+  return { root, sourceRecordCount, devMemoryRecordCount, playbookRecordCount, malformedRowsSkipped };
+}
+
+function packOptionsForGoldQuery(
+  root: string,
+  query: BaselineGoldQuery,
+  overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
+): BuildMemoryFreshnessPackOptions {
+  return {
+    projectRoot: root,
+    consumer: 'session_brief',
+    query: query.query,
+    touchedPaths: ['packages/main/src/baseline.ts'],
+    storyPhase: 'TEST',
+    maxEntries: 20,
+    maxPlaybooks: 20,
+    maxLines: 60,
+    generatedAt: BASELINE_RUNTIME_FIXED_TIME,
+    ...overrides,
+  };
+}
+
+function memoryPackResultDigest(packs: Array<{ queryId: string; pack: MemoryFreshnessPack }>): string {
+  const sorted = (values: string[]): string[] => [...new Set(values)].sort();
+  return digestCanonicalJson(packs.map(({ queryId, pack }) => ({
+    queryId,
+    surfacedIds: sorted([...pack.results.playbookIds, ...pack.results.devMemoryEntryIds]),
+    devMemoryEntryIds: sorted(pack.results.devMemoryEntryIds),
+    playbookIds: sorted(pack.results.playbookIds),
+    suppressedSupersededIds: sorted(pack.results.suppressedSupersededIds),
+    deprecatedTermHits: sorted(pack.results.deprecatedTermHits),
+    omittedCount: pack.render.omittedCount,
+    maxLines: pack.render.maxLines,
+    freshnessClass: pack.freshness.class,
+    authority: pack.authority,
+    gateEvidence: pack.gateEvidence,
+  })));
+}
+
+function runRuntimePackQueries(
+  root: string,
+  gold: { queries: BaselineGoldQuery[] },
+  overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
+): RuntimePackQueryRun {
+  const started = performance.now();
+  const packs = gold.queries.map((query) => ({
+    queryId: query.id,
+    pack: buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides)),
+  }));
+  return {
+    elapsedMs: roundedElapsed(started),
+    resultDigest: memoryPackResultDigest(packs),
+  };
+}
+
+export function runPlaybookRuntimeOptimizedParityReport(args: {
+  inputDir?: string;
+  profile?: PlaybookRuntimeBaselineProfile;
+  seed?: number;
+  keepGenerated?: boolean;
+} = {}): PlaybookRuntimeOptimizedParityReport {
+  const generated = args.inputDir
+    ? undefined
+    : generatePlaybookRuntimeBaseline({ profile: args.profile ?? 'small', seed: args.seed, force: true });
+  const inputDir = args.inputDir ?? generated!.outputDir;
+  try {
+    const manifest = JSON.parse(readFileSync(join(inputDir, 'manifest.json'), 'utf8')) as PlaybookRuntimeBaselineManifest;
+    const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
+    const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: BaselineGoldQuery[] };
+    return withIsolatedGlobalMemory(() => {
+      const corpus = materializeRuntimeCorpus(recordsRaw);
+      try {
+        clearRuntimeMemoryPackCache();
+        const reference = runRuntimePackQueries(corpus.root, gold, { useIndex: false, useCache: false });
+        const runtimeIndex = rebuildRuntimeMemoryIndex(corpus.root, BASELINE_RUNTIME_FIXED_TIME);
+        const indexedCold = runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: false,
+        });
+        clearRuntimeMemoryPackCache();
+        runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: true,
+        });
+        const indexedWarm = runRuntimePackQueries(corpus.root, gold, {
+          runtimeIndex,
+          useCache: true,
+        });
+        const warmCacheStats = getRuntimeMemoryPackCacheStats();
+        const parityPass = reference.resultDigest === indexedCold.resultDigest
+          && indexedCold.resultDigest === indexedWarm.resultDigest;
+        return {
+          schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
+          profile: manifest.profile,
+          recordCount: manifest.recordCount,
+          queryCount: gold.queries.length,
+          referenceFullScanMs: reference.elapsedMs,
+          indexedColdMs: indexedCold.elapsedMs,
+          indexedWarmCacheMs: indexedWarm.elapsedMs,
+          performancePolicy: 'report-first',
+          parityPass,
+          referenceResultDigest: reference.resultDigest,
+          indexedColdResultDigest: indexedCold.resultDigest,
+          indexedWarmCacheResultDigest: indexedWarm.resultDigest,
+          resultDigestSource: 'MemoryFreshnessPack',
+          runtimeCorpus: {
+            sourceRecordCount: corpus.sourceRecordCount,
+            devMemoryRecordCount: corpus.devMemoryRecordCount,
+            playbookRecordCount: corpus.playbookRecordCount,
+            malformedRowsSkipped: corpus.malformedRowsSkipped,
+            fullCorpusMaterialized: corpus.sourceRecordCount === manifest.recordCount,
+          },
+          indexedColdUsesRuntimeIndex: runtimeIndex.manifest.recordCounts.devMemory === corpus.devMemoryRecordCount
+            && runtimeIndex.manifest.recordCounts.playbooks === corpus.playbookRecordCount
+            && runtimeIndex.manifest.recordCounts.signatureTags === BASELINE_SIGNATURE_REGISTRY.tags.length,
+          indexedColdRuntimeIndexRecordCounts: runtimeIndex.manifest.recordCounts,
+          warmCacheStats,
+          authority: 'non_authoritative',
+          gateEvidence: false,
+        };
+      } finally {
+        rmSync(corpus.root, { recursive: true, force: true });
+        clearRuntimeMemoryPackCache();
+      }
+    });
+  } finally {
+    if (generated && args.keepGenerated !== true) {
+      rmSync(generated.outputDir, { recursive: true, force: true });
+    }
+  }
 }
 
 export function generatePlaybookRuntimeBaseline(args: {

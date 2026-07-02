@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-6048:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs alignment. Optimization plan keeps bounded language: indexed/cached million hot path is target/report-first and says not to claim sub-second or 1-2s million runtime without M6 latency evidence (docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md:24-30,334-335). M3-M6 implemented scope aligns with cache, consumer rollout, correctness matrix, and million parity checklist/evidence; CHK-004 reports recordCount=1000000 with referenceFullScanMs=17867 indexedColdMs=16607 indexedWarmCacheMs=0 and performancePolicy=report-first, so this is parity evidence, not a 1-2s cold-runtime claim. Optimization M7/M8 remain health/observability and rollout-policy milestones/DoD conditions, not completed claims (playbook-memory-entry-layer-optimization-plan.md:227-228,365-378). Related runtime-memory plan also keeps 1M latency report-first before enforce rollout and requires M1-M12 or explicit deferral before full runtime-memory completion (playbook-runtime-memory-consumption-execution-plan.md:271-282,693-707).",
+      "createdAt": "2026-07-02T12:14:01.035Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-003",
+      "_hash": "e2444101f3db18b665d848d2172102f63d9790738b84b21a3e4b667a0c7a5688"
+    },
+    {
+      "id": "B-6048:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage PASS for F-001/F-002/F-003/F-004. Inspected M4 consumer smoke and M6 parity implementation: story_advance is in the lifecycle consumer matrix; runPlaybookRuntimeOptimizedParityReport materializes the exact 1,000,000-record runtime corpus and drives buildMemoryFreshnessPack for reference useIndex=false/useCache=false, indexed cold runtimeIndex/useCache=false, and warmed cache runtimeIndex/useCache=true. Smokes passed with resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, reference/indexed/cache digests equal, and warmCacheHits=8/8. Commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full.",
+      "createdAt": "2026-07-02T13:13:38.588Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-006",
+      "_hash": "f89c506535ef23b162d4e2da31c079d561794aca9cf7e2ef5a4c9b1bed6cf1b7"
+    },
+    {
+      "id": "B-6048:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed F-005 docs closure: M6 now scopes the 1,000,000-record optimized path evidence to indexed/cached parity plus latency reporting. The doc explicitly says the 1-2s SLO remains unproven, report-first, and non-enforced; exact stale NOT YET PROVEN parity wording and older target-claim phrasing are absent.",
+      "createdAt": "2026-07-02T13:29:33.657Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-010",
+      "_hash": "bd3fcd584f56673af26b9672f281b6389d2d7a1d0f81dfb05ee4860a0f17f1d2"
+    },
+    {
+      "id": "B-6048:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-006 is closed by code and executable evidence. Verified npm --prefix packages/main run build, node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js, and node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js. Index smoke covers unrelated append-only memory churn as stale-irrelevant. M3-M6 smoke covers candidateLimit cache identity, lifecycle consumer coverage including story_advance, stale-relevant/stale-irrelevant matrix, and real 1,000,000-record MemoryFreshnessPack parity with report-first timings only. Scope ack for index-smoke test expansion is explicit and bounded to F-006/F-007 regression coverage; no overclaim detected.",
+      "createdAt": "2026-07-02T13:32:14.271Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-013",
+      "_hash": "215874a9c6fa73fa4ff287a5101fc47305167f1dddb877b175e8eb9805639ac6"
+    },
+    {
+      "id": "B-6048:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review PASS for F-007. Verified cache context/key/projection carry projectRoot and candidateLimit; candidateLimit affects indexed selection without cache collision; classifier preserves candidateLimit from pack context; authority=non_authoritative and gateEvidence=false remain unchanged. Fresh commands: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js.",
+      "createdAt": "2026-07-02T13:32:18.761Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-011",
+      "_hash": "fa138e727d1401e9bbde544e82cdd4273aebd75f1b8628c0be6dc84f06e05054"
+    },
+    {
+      "id": "B-6048:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage PASS. Verified current tests cover F-001..F-007: index smoke covers stale-irrelevant/projectRoot cache isolation; M3-M6 smoke covers candidateLimit cache divergence, story_advance consumer, and 1M MemoryFreshnessPack parity; baseline full smoke covers full 1M parity. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full.",
+      "createdAt": "2026-07-02T13:34:20.747Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-012",
+      "_hash": "ce925682e18954cd368104615c597d20071ed2b1bdc38cb3adf11a0a1b69f018"
+    }
+  ]
+}

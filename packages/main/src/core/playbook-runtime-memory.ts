@@ -23,12 +23,19 @@ import {
 } from './learning-store.js';
 import type { Playbook } from './experience-layer-types.js';
 import {
+  buildRuntimeMemoryIndex,
   isRuntimeMemoryIndexFresh,
   readRuntimeMemoryIndex,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
   type RuntimeMemoryIndexCandidates,
 } from './playbook-runtime-memory-index.js';
+import {
+  buildRuntimeMemoryPackCacheContext,
+  computeMemoryPackDigest,
+  getRuntimeMemoryPackCacheHit,
+  rememberRuntimeMemoryPackCache,
+} from './playbook-runtime-memory-cache.js';
 
 export type RuntimePlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
 export type RuntimeSeverity = 'advisory' | 'warn' | 'blocking';
@@ -90,6 +97,7 @@ export interface MemoryFreshnessPack {
     host?: string;
     maxEntries: number;
     maxPlaybooks: number;
+    candidateLimit?: number;
   };
   items: {
     devMemory: Array<{
@@ -159,7 +167,9 @@ export interface BuildMemoryFreshnessPackOptions {
   maxLines?: number;
   generatedAt?: string;
   useIndex?: boolean;
+  useCache?: boolean;
   runtimeIndex?: RuntimeMemoryIndex;
+  candidateLimit?: number;
 }
 
 interface PlaybookMatch {
@@ -410,11 +420,6 @@ function collectDeprecatedTermHits(projectRoot: string, query: string, signature
   return { hits: uniqueSorted(hits), refs: uniqueSorted(refs) };
 }
 
-function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
-  const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
-  return digestCanonicalJson(domain);
-}
-
 export function runtimeMemoryTopHits(pack: MemoryFreshnessPack, limit = 8): RuntimeMemoryTopHits {
   const playbookIds = pack.results.playbookIds.slice(0, Math.max(0, limit));
   const devMemoryEntryIds = pack.results.devMemoryEntryIds.slice(0, Math.max(0, limit));
@@ -603,20 +608,61 @@ function omittedCountFor(pack: MemoryFreshnessPack): number {
   return lineCount > RENDER_MAX_LINES ? lineCount - RENDER_MAX_LINES + 1 : 0;
 }
 
+function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackOptions): RuntimeMemoryIndex | null {
+  if (options.useIndex === false) return null;
+  if (options.runtimeIndex) {
+    return isRuntimeMemoryIndexFresh(options.runtimeIndex, options.projectRoot) ? options.runtimeIndex : null;
+  }
+  const stored = readRuntimeMemoryIndex(options.projectRoot);
+  if (stored && isRuntimeMemoryIndexFresh(stored, options.projectRoot)) return stored;
+  try {
+    return buildRuntimeMemoryIndex(options.projectRoot);
+  } catch {
+    return null;
+  }
+}
+
 export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOptions): MemoryFreshnessPack {
   const query = options.query?.trim() ?? '';
   const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
+  const candidateLimit = options.candidateLimit === undefined
+    ? undefined
+    : Math.max(0, Math.floor(options.candidateLimit));
   const maxLines: 60 = RENDER_MAX_LINES;
+  const consumer = options.consumer ?? 'session_brief';
+  const runtimeIndex = resolveRuntimeIndexForPack(options);
+  const cacheContext = options.useIndex === false || options.useCache === false
+    ? null
+    : buildRuntimeMemoryPackCacheContext(options, {
+      schemaVersion: SCHEMA_VERSION,
+      query,
+      consumer,
+      maxEntries,
+      maxPlaybooks,
+      maxLines,
+      candidateLimit,
+      runtimeIndex,
+    });
+  if (cacheContext) {
+    const cached = getRuntimeMemoryPackCacheHit(cacheContext);
+    if (cached.hit) {
+      return {
+        ...cached.pack,
+        generatedAt: options.generatedAt ?? cached.pack.generatedAt,
+      };
+    }
+  }
 
-  const indexed = resolveIndexedCandidates(options, query, maxEntries, maxPlaybooks);
+  const indexedOptions = candidateLimit === undefined ? options : { ...options, candidateLimit };
+  const indexed = resolveIndexedCandidates(indexedOptions, query, maxEntries, maxPlaybooks, runtimeIndex);
   const allEntries = indexed?.devMemoryEntries
     ?? mergeEntries(readProjectMemoryEntries(options.projectRoot), readGlobalMemoryEntries());
   const { selected, suppressed } = selectDevMemoryEntries(allEntries, query, maxEntries);
   const playbookMatches = matchRuntimePlaybooks({
     ...options,
     query,
-    consumer: options.consumer ?? 'session_brief',
+    consumer,
     maxPlaybooks,
   }, indexed?.playbooks).slice(0, maxPlaybooks);
   const deprecated = collectDeprecatedTermHits(options.projectRoot, query, indexed?.signatureTags);
@@ -653,6 +699,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
       host: options.host,
       maxEntries,
       maxPlaybooks,
+      ...(candidateLimit !== undefined ? { candidateLimit } : {}),
     },
     items: {
       devMemory: selected.map((entry) => ({
@@ -677,6 +724,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
   pack.packDigest = computeMemoryPackDigest(pack);
   pack.render.omittedCount = omittedCountFor(pack);
   pack.packDigest = computeMemoryPackDigest(pack);
+  if (cacheContext) rememberRuntimeMemoryPackCache(cacheContext, pack);
   return pack;
 }
 
@@ -685,9 +733,10 @@ function resolveIndexedCandidates(
   query: string,
   maxEntries: number,
   maxPlaybooks: number,
+  runtimeIndex?: RuntimeMemoryIndex | null,
 ): RuntimeMemoryIndexCandidates | null {
   if (options.useIndex === false) return null;
-  const index = options.runtimeIndex ?? readRuntimeMemoryIndex(options.projectRoot);
+  const index = runtimeIndex ?? options.runtimeIndex ?? readRuntimeMemoryIndex(options.projectRoot);
   if (!index || !isRuntimeMemoryIndexFresh(index, options.projectRoot)) return null;
   return selectRuntimeMemoryIndexCandidates(index, {
     query,
@@ -697,6 +746,7 @@ function resolveIndexedCandidates(
     host: options.host,
     maxEntries,
     maxPlaybooks,
+    candidateLimit: options.candidateLimit,
   });
 }
 
@@ -734,18 +784,26 @@ export function classifyMemoryFreshnessPack(
     host: options.host ?? pack.context.host,
     maxEntries: options.maxEntries ?? pack.context.maxEntries,
     maxPlaybooks: options.maxPlaybooks ?? pack.context.maxPlaybooks,
+    candidateLimit: options.candidateLimit ?? pack.context.candidateLimit,
     maxLines: options.maxLines ?? pack.render.maxLines,
+    useCache: false,
+    useIndex: options.useIndex ?? false,
+    runtimeIndex: options.runtimeIndex,
   });
 
   if (sameSourceDigests(pack.sourceDigests, current.sourceDigests)) {
-    return {
+    const freshPack: MemoryFreshnessPack = {
       ...pack,
       freshness: { stale: false, class: 'fresh' },
+    };
+    return {
+      ...freshPack,
+      packDigest: computeMemoryPackDigest(freshPack),
     };
   }
 
   const relevant = !sameRelevantResults(pack, current);
-  return {
+  const stalePack: MemoryFreshnessPack = {
     ...pack,
     freshness: {
       stale: true,
@@ -754,6 +812,10 @@ export function classifyMemoryFreshnessPack(
         ? 'source digest changed and surfaced/suppressed/runtime refs changed'
         : 'source digest changed but surfaced runtime refs are unchanged',
     },
+  };
+  return {
+    ...stalePack,
+    packDigest: computeMemoryPackDigest(stalePack),
   };
 }
 

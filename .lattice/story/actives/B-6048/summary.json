@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6048",
+  "changes": "Implemented playbook runtime memory M3-M6 optimized path: cache key and freshness now include projectRoot and candidateLimit, lifecycle consumers including story_advance use advisory optimized MemoryFreshnessPack output, matrix behavior is covered, and M6 proves exact 1,000,000-record reference/indexed/cache parity on the real pack path.",
+  "usage": "Run node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js, node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js, or node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full from the Proofbound worktree to verify M3-M6 behavior.",
+  "expectedOutcome": "Runtime memory packs are automatically consumable at the planned entrypoints, remain authority=non_authoritative and gateEvidence=false, suppress candidate/superseded/stale guidance correctly, and can prove exact 1,000,000-record parity without overclaiming performance.",
+  "actualTranscript": "Build passed. playbook-runtime-memory-index-smoke passed TOTAL 5 PASS 5. playbook-runtime-memory-m3-m6-smoke passed TOTAL 7 PASS 7 with recordCount=1000000, resultDigestSource=MemoryFreshnessPack, runtimeCorpusRecords=1000000, and warmCacheHits=8. playbook-runtime-memory-baseline-smoke --profile=full passed exact 1,000,000-record parity. lattice validate passed all 31 configured commands. DONE-required validation passed with 2 receipts.",
+  "outcomeDiff": "No functional gap remains for the requested M3-M6 scope. The latency SLO remains report-first: the story proves correctness/parity and reports latency, but does not claim or enforce a 1-2 second million-record hot path.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "1-2s million-record runtime performance is not proven or enforced; current evidence proves correctness parity and reports reference/indexed/cache latency separately.",
+  "pitfalls": "Do not treat runtime memory as gate evidence. Full million-record runs can exceed short live transcript timeouts, so use the full baseline smoke for formal proof and a smaller live smoke for quick transcript capture. Owner-lease session ids may require forceTakeover for story metadata writes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1318089
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16584
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 440762
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 5294945
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1495158
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 801431
+    }
+  },
+  "totalDurationMs": 9367076,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T13:51:39.132Z",
+  "updatedAt": "2026-07-02T13:51:39.132Z"
+}

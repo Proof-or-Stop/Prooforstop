@@ -1,0 +1,60 @@
+{
+  "storyId": "B-6048",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+    ".lattice/story/actives/B-6048/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-runtime-memory-cache.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+    ".lattice/story/actives/B-6048/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "M7 capture/noop implementation",
+    "M8 rollout/enforce implementation",
+    "Any change that makes runtime memory gate evidence",
+    "Any claim of 1-2s million-record runtime performance before M6 parity report"
+  ],
+  "scopeChangeReason": "M3-M6 implementation only, matching user request and PLAN scope-check exclusions.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Required round-2 regression coverage for verified F-006 stale-irrelevant indexed freshness and F-007 candidateLimit cache-key behavior; this is a test-scope extension, not product scope expansion.",
+      "timestamp": "2026-07-02T13:27:16.893Z",
+      "paths": [
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2de735686974514dcbf211811687564efa2bb2ca",
+      "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+      "anchors": [
+        "finding.F006",
+        "finding.F007",
+        "M3.pack_cache",
+        "M5.freshness_matrix"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-02T11:44:53.065Z",
+  "updatedAt": "2026-07-02T13:27:16.893Z"
+}

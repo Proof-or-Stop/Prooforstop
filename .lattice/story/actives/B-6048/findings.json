@@ -1,0 +1,168 @@
+{
+  "findings": [
+    {
+      "id": "B-6048:F-001",
+      "desc": "M6 parity report does not exercise the actual optimized runtime path. CHK-004 promises reference full-scan, indexed runtime, and cached runtime gold queries, but runPlaybookRuntimeOptimizedParityReport reads records.jsonl and calls local report helpers instead: runIndexedColdScan still iterates every raw record and computes a local shortlist (packages/main/src/core/playbook-runtime-baseline.ts:1119), while runIndexedWarmCache only returns a digest from a new one-entry Map (packages/main/src/core/playbook-runtime-baseline.ts:1150). That path never drives buildMemoryFreshnessPack through RuntimeMemoryIndex/selectRuntimeMemoryIndexCandidates or the M3 cache get/remember boundary (packages/main/src/core/playbook-runtime-memory.ts:623, packages/main/src/core/playbook-runtime-memory-cache.ts:336, packages/main/src/core/playbook-runtime-memory-cache.ts:381), so the actual M3/M4 consumer index/cache could regress while the million parity report stays green. The M6 evidence should either run the real optimized runtime pack/cache path at the million-record boundary or downgrade the claim so it is not used as proof of indexed/cached runtime parity.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T12:14:16.919Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-001",
+      "_hash": "96ce8b8e7457b149640bd144fd7a0c10faad83d69fde27fe6515326de9440c51",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|parity-report-exercise",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M6 optimized parity now materializes the full 1,000,000-record runtime corpus and compares real MemoryFreshnessPack reference, indexed cold RuntimeMemoryIndex, and indexed warm cache results. Round-3 concept pass B-6048:RP-004 and test-coverage pass B-6048:RP-006 verified the fix.",
+      "resolvedAt": "2026-07-02T13:35:54.456Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-002",
+      "desc": "M6 optimized parity report does not exercise the optimized runtime path it claims to validate. Evidence: packages/main/src/core/playbook-runtime-baseline.ts:1099-1181 builds reference/indexed/warm digests by scanning recordsRaw with local shortlist helpers and a one-entry Map cache; it never calls buildMemoryFreshnessPack, rebuildRuntimeMemoryIndex, selectRuntimeMemoryIndexCandidates, getRuntimeMemoryPackCacheHit, or rememberRuntimeMemoryPackCache. packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:334-342 only asserts those synthetic digests are equal, so the smoke can pass even if the real runtime index/cache path regresses. Commands observed: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js passed with referenceFullScanMs=19986 indexedColdMs=20817; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js passed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T12:15:58.224Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-004",
+      "_hash": "5c65a7eb9b2c5443e401ad2b71fb4e59764dba50e57fed277461d14d4c131b26",
+      "files": [
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|optimized-parity-report",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: synthetic shortlist/cache proof was replaced with real buildMemoryFreshnessPack, rebuildRuntimeMemoryIndex, and runtime pack cache paths; full baseline smoke passed profile=full with recordCount=1000000 and warmCacheHits=8. Quality pass B-6048:RP-005 and coverage pass B-6048:RP-006 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:08.002Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-003",
+      "desc": "M4 coverage is incomplete: the lifecycle consumer smoke enumerates session_brief, host_handoff, story_create, done_prepare, done_closure, and final_response_check, but omits the story_advance consumer even though transition-orchestrator renders memory with consumer='story_advance'. This leaves the checklist's story_advance optimized/advisory-only consumer promise untested. Source refs: packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:255, packages/main/src/handlers/transition-orchestrator.ts:291.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T12:16:05.886Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-002",
+      "_hash": "db7bbe36a462bca214b02f5892257caf4d8109ce8c0c7176f5e51d090d1192de",
+      "files": [
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-incomplete-lifecycle",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M4 consumer matrix now includes story_advance along with session_brief, host_handoff, story_create, done_prepare, done_closure, and final_response_check. Test-coverage pass B-6048:RP-006 verified the consumer coverage.",
+      "resolvedAt": "2026-07-02T13:36:08.532Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-004",
+      "desc": "M6 million-record parity does not prove the real optimized runtime index/cache path: the full-profile smoke calls runPlaybookRuntimeOptimizedParityReport, whose indexedCold branch is a local recordsRaw shortlist scan and whose warm cache is a one-entry Map of the prior digest. It never drives buildMemoryFreshnessPack/rebuildRuntimeMemoryIndex/getRuntimeMemoryPackCacheHit on the 1,000,000-record corpus, so cache/runtime parity can pass while the shipped optimized runtime path is broken at scale. Source refs: packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:334, packages/main/src/core/playbook-runtime-baseline.ts:1119, packages/main/src/core/playbook-runtime-baseline.ts:1150, packages/main/src/core/playbook-runtime-baseline.ts:1177.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T12:16:12.725Z",
+      "reviewRound": "2026-07-02T12:11:23.267Z",
+      "reviewRunId": "B-6048:RR-002",
+      "_hash": "7161b7dc61236bdb9b4ff0523164189ff09ad35063db2e231a703cbfe8a4fab8",
+      "files": [
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+        "packages/main/src/core/playbook-runtime-baseline.ts"
+      ],
+      "signatureTag": "missing|ts|million-record-parity",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: M6 million-record proof now drives MemoryFreshnessPack through real reference/indexed/cache paths and full baseline smoke validates exact 1,000,000 records. Test-coverage pass B-6048:RP-006 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:09.050Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-005",
+      "desc": "doc-code-drift: docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md:24-30 and :334-335 still say the indexed/cached million hot path is NOT YET PROVEN / only claimable after future M6 latency reporting, but this branch implements and tests a full-profile optimized parity report at packages/main/src/core/playbook-runtime-baseline.ts:1278-1323 and packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:335-367. Update the docs to state the current report-first result with full reference baseline plus indexed/cached parity timings, while still not claiming 1-2s million-record runtime performance is proven.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T13:09:15.202Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-007",
+      "_hash": "96c664519209f5114546612bac57394da878a4ae4d46aa13c8260aaeadf81ace",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+        "packages/main/src/core/playbook-runtime-baseline.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 109254188: playbook-memory-entry-layer-optimization-plan.md now says M6 proves indexed/cached million-record parity plus latency reporting, while the 1-2s SLO remains unproven/report-first. Docs pass B-6048:RP-003 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:09.530Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-006",
+      "desc": "M3/M5 freshness semantics are not clean: the existing indexed freshness smoke still fails after M3-M6. Repro: `node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js` exits 1 at packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:236-281 because an unrelated append-only project memory row is expected to classify the prior indexed pack as `stale-irrelevant`, but classifyMemoryFreshnessPack returns `stale-relevant`. This contradicts the M3 cache/freshness and M5 matrix concept that unchanged surfaced refs under irrelevant source churn remain a soft stale-irrelevant hit.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T13:12:43.584Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-009",
+      "_hash": "f8ed18dd20bd6c0e701bdaab027282cf70ca4bfb34982500e0c92baca1bb0fc4",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|freshness-semantics-clean",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 109254188: index smoke is hermetic and proves unrelated append-only memory rows classify as stale-irrelevant, including cache staleIrrelevantHits. Concept pass B-6048:RP-004 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:10.012Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6048:F-007",
+      "desc": "packages/main/src/core/playbook-runtime-memory.ts:171 exposes candidateLimit and passes it into indexed selection at lines 734-742, but packages/main/src/core/playbook-runtime-memory-cache.ts:35-47,281-315,415-439 never carries candidateLimit into the cache context, lookup key, or candidate projection. Verified with a temp corpus: first cached request returned mem-000; second cached request with candidateLimit=300 still returned mem-000, while the same second request with useCache=false returned mem-250. Cache stats showed hits=1, so the larger candidate window reused the smaller cached result.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T13:13:28.345Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-008",
+      "_hash": "ac27ba8be264a41fa4600429a2e7a269ea15d21b83931e1a09b3e81197d24e75",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 109254188: runtime memory cache key/context/projection include projectRoot and candidateLimit, pack context/classification preserve candidateLimit, and M3-M6 smoke proves separate cached candidateLimit windows. Quality pass B-6048:RP-005 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:10.495Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

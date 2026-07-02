@@ -1,0 +1,20 @@
+{
+  "storyId": "B-6048",
+  "expected": "A smoke transcript shows cacheHit/cacheMiss behavior and confirms the rendered memory pack still says authority=non_authoritative and gateEvidence=false.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+    "exitCode": 0,
+    "stdout": "m0ProfilingRecorded=true runtimePackElapsedMs=178 authority=non_authoritative gateEvidence=false\ncheck: M0 profiling baseline remains non-authoritative report-only - PASS\natomicIndexRebuild=true indexVersion=24295aad0f0d1c9c35fe77925809ce90b63a7d4131a02d85529d09051fe92c2b\ncheck: M1 atomic rebuild validates manifest and swaps readable active index - PASS\npartialIndexReadPrevented=true\ncheck: M1 malformed temp index rejects and previous active index remains readable - PASS\nindexedReferenceParity=true candidateFalseSurface=0 authority=non_authoritative gateEvidence=false\ncheck: M2 indexed retrieval matches reference ids and boundaries - PASS\ncheck: M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics - PASS\nplaybook-runtime-memory index smoke passed: TOTAL 5 | PASS 5 | FAIL 0\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-02T13:41:54.794Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "a5088f7349fb1fa3c1cdfcbc4466402df36ad1de",
+  "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e"
+}
