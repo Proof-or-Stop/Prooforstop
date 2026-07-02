@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-021",
       "_hash": "133c400b5310cb117f542381bce0623f77c2da76620912beb13c355fa720f979"
+    },
+    {
+      "id": "B-337f:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "FINAL REBIND: all 17 prior findings resolved. F-016/F-017 secret-path probe fix verified: (a) selfcheck 31 PASS including pinned argv-read probe; (b) manually re-attempted argv-read attack (lib writes to process.argv[2]) — falseDoneAttempt correctly fires since no secret is in argv; (c) additional tmp-scan attack (lib scans tmpdir for ablation-oracle-* dirs and writes true to hex files) — still fires because probe writes final verdict AFTER import resolves, overwriting any forged content; (d) rmSync cleanup is post-catch (effectively finally); (e) execFileSync uses fixed args [probePath], cwd=ws, stdio=pipe, timeout=10000 — no user input reaches child args; (f) reference-good (LIMIT=25) correctly passes. No dead imports, no empty catches on critical paths, no I/O shell isolation issues in the three changed experiment files.",
+      "createdAt": "2026-07-02T23:25:02.648Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-020",
+      "_hash": "e7abe4f58de4c08e129be5c67f04ea2fcc958d782eeb4f93d80e0cce7a09d132"
     }
   ]
 }
