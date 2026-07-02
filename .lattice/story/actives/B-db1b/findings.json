@@ -150,6 +150,24 @@
       ],
       "signatureTag": "spec-boundary|ts|pinn-report-render",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-db1b:F-008",
+      "desc": "normalizeBenchmarkReport sanitizes top-level and claims overclaim fields, but then returns untrusted nested supplied report structures verbatim at packages/main/src/handlers/pinn-claim-admissibility.ts:133-143 (notably report.injections/report.arms/report.a4/report.artifactIndex). Repro: call pinn_report_render with format:\"json\" and benchmarkJson built from runPinnClaimBenchmark() plus injections:[{...benchmark.injections[0], deploymentReadyClaim:\"true\"}]. The JSON result preserves result.injections[0].deploymentReadyClaim === \"true\", while text mode does not render that field. This lets supplied report JSON carry arbitrary nested overclaim fields and makes JSON/text report boundary behavior inconsistent.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:09:30.592Z",
+      "reviewRound": "2026-07-02T20:06:35.258Z",
+      "reviewRunId": "B-db1b:RR-011",
+      "_hash": "49af5b19347b4407a579a506a7739816bd8ec30220fc8a47bda9c3c7abbd5867",
+      "files": [
+        "packages/main/src/handlers/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "adversarial|ts|normalizebenchmarkreport-sanitizes-level",
+      "signatureTagSource": "auto"
     }
   ]
 }
