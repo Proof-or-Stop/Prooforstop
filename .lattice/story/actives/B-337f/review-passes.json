@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-002",
       "_hash": "ae36b7c8c84c82faa887ded9c05bb5af26c25227150fd0eea3469dd93d397972"
+    },
+    {
+      "id": "B-337f:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0) have valid passing manual_transcript evidence bound to the selfcheck command. Verified: (a) fixture-generator-selfcheck.mjs exits 0 with 14 PASS lines from worktree root; each evidence note maps to specific PASS lines in the selfcheck output; (b) live CLI generate --seed=live twice into separate mktemp dirs produces empty diff -r and list-classes prints 9 class entries confirming CHK-001:happy:0 claim; (c) red-evidence baseline head 1ce81ffd lacks all three deliverable files (git cat-file -e exits 128 for all three); failing command now exits 0; (d) milestone ledger M1 references exactly the 9 intents CHK-001:happy:0 through CHK-003:adversarial:0, no orphans; (e) coverage gaps: manifest.json row schema IS covered end-to-end (buildLedger->validateManifest->validateMembership->verifyLedger chain exercised at selfcheck line 113-115); acceptance.mjs runability is not named in any intent as a selfcheck requirement and byte-identical determinism check proves content correctness — not a must-gap; prompt format-line per class is not enumerated in any must intent — not a must-gap.",
+      "createdAt": "2026-07-02T22:41:48.903Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-003",
+      "_hash": "1a43355abcd3f72efb769afd3ed9e9a45f4c75f1742b04fe6b4fc5620899accd"
     }
   ]
 }
