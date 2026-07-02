@@ -19,16 +19,19 @@ handoff, story intake, DONE closure, or final-response checks.
 The current verified 1,000,000-record result is a full reference/profile path,
 not the optimized runtime hot path.
 
-| Path | Status | Records | Elapsed | Peak RSS | Meaning |
-|---|---|---:|---:|---:|---|
-| Full reference baseline | PASS | 1,000,000 | 19,934 ms | 1,062,748,160 bytes | Correctness/profile proof only |
+| Path | Status | Records | Elapsed | RSS evidence | Meaning |
+|---|---|---:|---:|---|---|
+| Full reference baseline | PASS | 1,000,000 | 49,347 ms | Run-dependent; see B-1c46 evidence doc | Correctness/profile proof only |
 | Indexed small fixture path | PASS | fixture-sized | smoke-level | smoke-level | M0-M2 semantic safety proof |
-| Indexed/cached million parity + latency report | PASS | 1,000,000 | reported separately | report-first | M3-M6 proves correctness parity and timing visibility, not the 1-2s SLO |
+| Indexed/cached million hot path | PASS | 1,000,000 | warm cache 1 ms | Canonical performance gate peak RSS: 3,610,689,536 bytes; RSS is run-dependent | B-1c46 proves the indexed/cached hot path target; the full reference+index report still takes tens of seconds |
 
-Do not claim sub-second or 1-2 second million-record runtime performance. M6 now
-proves indexed/cached parity at 1,000,000 records and reports reference,
-indexed-cold, and indexed-warm/cache latency, but the 1-2s SLO remains
-unproven and report-first.
+Do not claim that the complete million-record report is sub-second or 1-2
+seconds. B-1c46 proves the indexed/cached warm runtime hot path at
+1,000,000 records with parity and `indexedWarmCacheMs=1`; it does not make the
+reference full scan or index build instant. RSS is not the hot-path latency SLO;
+the checklist-bound performance gate records the canonical peak RSS for the full
+performance report; other RSS captures are run-dependent and should be read from
+the B-1c46 evidence doc.
 
 The full reference baseline is acceptable for full validation. It is not
 acceptable for a regular entrypoint that should feel instant to a host starting
@@ -84,9 +87,10 @@ Initial SLO targets:
 | candidate false-surface rate | 0 | 0 |
 | stale relevant mutation detection | 100% on fixtures | 100% on fixtures |
 
-Performance thresholds are report-first. The indexed runtime path now has
-million-record parity and latency reporting; the 1-2s SLO is still not proven or
-enforced. Correctness thresholds remain required.
+Performance thresholds remain report-first for rollout and health. The indexed
+runtime hot path now has million-record parity and a passing 2,000 ms target in
+B-1c46; enforcement at every lifecycle consumer still belongs to M7/M8 rollout.
+Correctness thresholds remain required.
 
 ## 5. Architecture
 
@@ -280,8 +284,9 @@ For both reference and optimized paths, verify:
   - reference full scan;
   - indexed cold path;
   - indexed warm/cache path.
-- Performance SLO remains report-first after correctness parity is green; M6
-  records latency but does not prove or enforce a 1-2s target.
+- Performance SLO remains report-first for rollout; B-1c46 M6 must nevertheless
+  prove the indexed/cached million-record hot path is at or below the 2,000 ms
+  target before any host may claim the target is met.
 
 ## 7. Verification Matrix
 
@@ -334,13 +339,14 @@ M0-M2 completion means:
 
 It does not mean million-record runtime performance is optimized.
 
-M3-M6 completion means indexed/cached million-record parity is proven against
-the reference full-scan path and latency is reported for reference, indexed-cold,
-and indexed-warm/cache runs.
+M3-M6 completion under B-1c46 means indexed/cached million-record parity is
+proven against the reference full-scan path and the indexed warm/cache hot path
+meets `indexedWarmCacheMs <= 2000`.
 
-A host must not claim "1-2s million-record runtime memory" from this evidence.
-That SLO remains unproven, report-first, and non-enforced until a later rollout
-explicitly promotes it.
+A host may claim "1-2s million-record runtime memory" only for the optimized
+warm runtime hot path after the full performance smoke reports
+`targetStatus=met`. It must not imply that the complete reference scan,
+baseline generation, or index build completes in 1-2 seconds.
 
 ## 10. Paper-Framing Note
 

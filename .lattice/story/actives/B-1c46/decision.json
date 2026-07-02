@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Optimize only after preserving MemoryFreshnessPack semantic parity.",
+    "Prefer bounded indexed lookup over whole-token-map scans.",
+    "Keep runtime memory advisory and never gate evidence.",
+    "Make performance claims only from full-profile machine evidence."
+  ],
+  "drivers": [
+    "1,000,000-record warm/cache path must pass indexedWarmCacheMs<=2000 before any 1-2s claim.",
+    "Existing exact/fuzzy/superseded/candidate/stale/deprecated/malformed semantics must not drift.",
+    "CLI process boundaries matter, so cache/index reuse must be durable or explicitly measured."
+  ],
+  "options": [
+    {
+      "name": "A: Profile-first indexed optimization with parity gate",
+      "pros": [
+        "Targets known bottleneck while proving semantic equivalence.",
+        "Supports staged M0-M6 evidence and blocks false performance claims.",
+        "Can keep fallback paths for rare fuzzy cases."
+      ],
+      "cons": [
+        "Requires more tests and benchmark plumbing before claiming DONE.",
+        "May need multiple optimization passes if first bottleneck moves elsewhere."
+      ]
+    },
+    {
+      "name": "B: Replace matching with exact lookup only",
+      "pros": [
+        "Smallest code change and likely fastest common path.",
+        "Easy to implement quickly."
+      ],
+      "cons": [
+        "Risks losing fuzzy/includes behavior and silently changing memory guidance.",
+        "Does not solve cross-process cache or durable hot path evidence."
+      ]
+    },
+    {
+      "name": "C: Keep current implementation and only document report-first",
+      "pros": [
+        "No correctness risk.",
+        "Minimal implementation effort."
+      ],
+      "cons": [
+        "Does not satisfy the user-requested 1-2s optimization target.",
+        "Leaves the known token-map scan and process-local cache limitations unresolved."
+      ]
+    }
+  ],
+  "chosen": "A: Profile-first indexed optimization with parity gate",
+  "rationale": "Choose profile-first indexed optimization because the user asked to complete M0-M6, not merely document limitations. This option preserves evidence discipline while giving the best chance to reach the 1-2s full-profile hot path target safely.",
+  "preMortem": [
+    {
+      "scenario": "Fast path silently drops fuzzy or superseded results.",
+      "trigger": "Exact lookup replaces includes matching without an equivalent fuzzy auxiliary index and parity guard.",
+      "consequence": "Runtime memory appears faster but forgets important lessons or surfaces wrong guidance.",
+      "mitigation": "M1 golden parity and full-profile digest parity must pass before M2/M3 can be marked done."
+    },
+    {
+      "scenario": "Benchmark passes in one process but real CLI sessions remain slow.",
+      "trigger": "Only process-local Map cache is measured, so each new CLI invocation rebuilds or rescans.",
+      "consequence": "User still sees slow session_brief/handoff/story entry despite green tests.",
+      "mitigation": "M4 must prove durable cache or prebuilt index reuse across process boundaries with strict freshness binding."
+    },
+    {
+      "scenario": "Performance target is overclaimed.",
+      "trigger": "Docs or summary call the 1-2s target done while indexedWarmCacheMs remains above 2000ms or performancePolicy stays report-first.",
+      "consequence": "Proofbound repeats the false-DONE pattern the system is designed to avoid.",
+      "mitigation": "M5 performance smoke fails above target and M6 summary must state blocked/report-first unless the full-profile command passes."
+    },
+    {
+      "scenario": "Optimization introduces stale or unsafe cache reuse.",
+      "trigger": "Cache key misses projectRoot, source digests, config digest, policy version, limits, or indexVersion.",
+      "consequence": "A stale memory pack is reused after facts changed.",
+      "mitigation": "Persistent cache keys must bind all required fields and stale mutation tests must force misses or safe stale classification."
+    }
+  ],
+  "timestamp": "2026-07-02T14:22:04.570Z"
+}

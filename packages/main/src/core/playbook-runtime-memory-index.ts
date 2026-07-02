@@ -36,8 +36,10 @@ import {
   type SignatureTagEntry,
 } from './learning-store.js';
 
-export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v1' as const;
+export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v3' as const;
 const RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP = 4096;
+const RUNTIME_MEMORY_INDEX_FUZZY_TOKEN_CAP = 4096;
+const RUNTIME_MEMORY_INDEX_SUBSTRING_FALLBACK_CAP = 512;
 
 export interface RuntimeMemoryIndexSourceDigests {
   projectDevMemoryDigest: string | null;
@@ -70,6 +72,12 @@ export interface RuntimeMemoryIndex {
   signatureTags: SignatureTagEntry[];
   tokenToDevMemoryIds: Record<string, string[]>;
   tokenToPlaybookIds: Record<string, string[]>;
+  exactOverflowDevMemoryTokens: string[];
+  exactOverflowPlaybookTokens: string[];
+  fuzzyTokenToDevMemoryTokens: Record<string, string[]>;
+  fuzzyTokenToPlaybookTokens: Record<string, string[]>;
+  fuzzyOverflowDevMemoryTokens: string[];
+  fuzzyOverflowPlaybookTokens: string[];
   playbookStatusIds: Record<string, string[]>;
   supersededByDevMemoryIds: Record<string, string[]>;
 }
@@ -78,6 +86,19 @@ export interface RuntimeMemoryIndexCandidates {
   devMemoryEntries: DevMemoryEntry[];
   playbooks: Playbook[];
   signatureTags: SignatureTagEntry[];
+  stats: RuntimeMemoryIndexCandidateStats;
+}
+
+export interface RuntimeMemoryIndexCandidateStats {
+  queryTokenCount: number;
+  exactFastPathHits: number;
+  exactOverflowFallbacks: number;
+  fuzzyIndexHits: number;
+  fuzzyFallbacks: number;
+  tokenScanFallbacks: number;
+  tokenMapScannedEntries: number;
+  devMemoryCandidateIds: number;
+  playbookCandidateIds: number;
 }
 
 export interface RuntimeMemoryIndexValidation {
@@ -111,8 +132,48 @@ function uniqueInOrder(values: Iterable<string>): string[] {
   return result;
 }
 
+function appendValues<T>(target: T[], values: Iterable<T>): void {
+  for (const value of values) target.push(value);
+}
+
 function tokenize(text: string): string[] {
   return uniqueSorted((text.toLowerCase().match(/[a-z0-9][a-z0-9._-]{1,}/g) ?? []));
+}
+
+function emptyCandidateStats(): RuntimeMemoryIndexCandidateStats {
+  return {
+    queryTokenCount: 0,
+    exactFastPathHits: 0,
+    exactOverflowFallbacks: 0,
+    fuzzyIndexHits: 0,
+    fuzzyFallbacks: 0,
+    tokenScanFallbacks: 0,
+    tokenMapScannedEntries: 0,
+    devMemoryCandidateIds: 0,
+    playbookCandidateIds: 0,
+  };
+}
+
+const RUNTIME_MEMORY_INDEX_STATS = emptyCandidateStats();
+
+function addStats(target: RuntimeMemoryIndexCandidateStats, source: RuntimeMemoryIndexCandidateStats): void {
+  target.queryTokenCount += source.queryTokenCount;
+  target.exactFastPathHits += source.exactFastPathHits;
+  target.exactOverflowFallbacks += source.exactOverflowFallbacks;
+  target.fuzzyIndexHits += source.fuzzyIndexHits;
+  target.fuzzyFallbacks += source.fuzzyFallbacks;
+  target.tokenScanFallbacks += source.tokenScanFallbacks;
+  target.tokenMapScannedEntries += source.tokenMapScannedEntries;
+  target.devMemoryCandidateIds += source.devMemoryCandidateIds;
+  target.playbookCandidateIds += source.playbookCandidateIds;
+}
+
+export function resetRuntimeMemoryIndexCandidateStats(): void {
+  Object.assign(RUNTIME_MEMORY_INDEX_STATS, emptyCandidateStats());
+}
+
+export function getRuntimeMemoryIndexCandidateStats(): RuntimeMemoryIndexCandidateStats {
+  return { ...RUNTIME_MEMORY_INDEX_STATS };
 }
 
 function fileKind(path: string): string {
@@ -193,12 +254,51 @@ function signatureText(entry: SignatureTagEntry): string {
   ].join(' ');
 }
 
-function addTokens(map: Record<string, string[]>, id: string, text: string): void {
+function addTokens(map: Record<string, string[]>, overflowTokens: Set<string>, id: string, text: string): void {
   for (const token of tokenize(text)) {
     const list = map[token] ?? [];
-    if (list.length < RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP) list.push(id);
+    if (list.length < RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP) {
+      list.push(id);
+    } else {
+      overflowTokens.add(token);
+    }
     map[token] = list;
   }
+}
+
+function fuzzyNeedlesForToken(token: string): string[] {
+  if (token.length < 2) return [];
+  const needles = new Set<string>();
+  for (const length of [2, 3]) {
+    if (token.length < length) continue;
+    for (let index = 0; index <= token.length - length; index += 1) {
+      needles.add(token.slice(index, index + length));
+    }
+  }
+  return [...needles].sort();
+}
+
+function buildFuzzyTokenIndex(tokenMap: Record<string, string[]>): {
+  fuzzyTokenMap: Record<string, string[]>;
+  overflowNeedles: string[];
+} {
+  const fuzzyTokenMap: Record<string, string[]> = {};
+  const overflowNeedles = new Set<string>();
+  for (const token of Object.keys(tokenMap).sort()) {
+    for (const needle of fuzzyNeedlesForToken(token)) {
+      const list = fuzzyTokenMap[needle] ?? [];
+      if (list.length < RUNTIME_MEMORY_INDEX_FUZZY_TOKEN_CAP) {
+        list.push(token);
+      } else {
+        overflowNeedles.add(needle);
+      }
+      fuzzyTokenMap[needle] = list;
+    }
+  }
+  return {
+    fuzzyTokenMap: normalizeIdLists(fuzzyTokenMap),
+    overflowNeedles: uniqueSorted(overflowNeedles),
+  };
 }
 
 function normalizeIdLists(map: Record<string, string[]>): Record<string, string[]> {
@@ -249,6 +349,12 @@ function computeIndexVersion(index: RuntimeMemoryIndex): string {
     signatureTagsDigest: digestSequence(index.signatureTags),
     tokenToDevMemoryIdsDigest: digestIdMap(index.tokenToDevMemoryIds),
     tokenToPlaybookIdsDigest: digestIdMap(index.tokenToPlaybookIds),
+    exactOverflowDevMemoryTokens: index.exactOverflowDevMemoryTokens,
+    exactOverflowPlaybookTokens: index.exactOverflowPlaybookTokens,
+    fuzzyTokenToDevMemoryTokensDigest: digestIdMap(index.fuzzyTokenToDevMemoryTokens),
+    fuzzyTokenToPlaybookTokensDigest: digestIdMap(index.fuzzyTokenToPlaybookTokens),
+    fuzzyOverflowDevMemoryTokens: index.fuzzyOverflowDevMemoryTokens,
+    fuzzyOverflowPlaybookTokens: index.fuzzyOverflowPlaybookTokens,
     playbookStatusIdsDigest: digestIdMap(index.playbookStatusIds),
     supersededByDevMemoryIdsDigest: digestIdMap(index.supersededByDevMemoryIds),
   });
@@ -272,26 +378,32 @@ export function buildRuntimeMemoryIndex(projectRoot: string, builtAt = new Date(
   const signatureTags = readSignatureRegistry(projectRoot).tags;
   const tokenToDevMemoryIds: Record<string, string[]> = {};
   const tokenToPlaybookIds: Record<string, string[]> = {};
+  const exactOverflowDevMemoryTokens = new Set<string>();
+  const exactOverflowPlaybookTokens = new Set<string>();
   const playbookStatusIds: Record<string, string[]> = {};
   const projection = buildSupersessionProjection(devMemoryEntries);
   const supersededByDevMemoryIds: Record<string, string[]> = {};
 
   for (const entry of devMemoryEntries) {
-    addTokens(tokenToDevMemoryIds, entry.id, devMemoryText(entry));
+    addTokens(tokenToDevMemoryIds, exactOverflowDevMemoryTokens, entry.id, devMemoryText(entry));
     const supersession = getSupersessionStatus(entry, projection);
     if (supersession.supersededBy.length > 0) {
       supersededByDevMemoryIds[entry.id] = uniqueSorted(supersession.supersededBy);
     }
   }
   for (const playbook of playbooks) {
-    addTokens(tokenToPlaybookIds, playbook.id, playbookText(playbook));
+    addTokens(tokenToPlaybookIds, exactOverflowPlaybookTokens, playbook.id, playbookText(playbook));
     const statusIds = playbookStatusIds[playbook.status] ?? [];
     statusIds.push(playbook.id);
     playbookStatusIds[playbook.status] = statusIds;
   }
   for (const signature of signatureTags) {
-    addTokens(tokenToDevMemoryIds, `signature:${signature.tag}`, signatureText(signature));
+    addTokens(tokenToDevMemoryIds, exactOverflowDevMemoryTokens, `signature:${signature.tag}`, signatureText(signature));
   }
+  const normalizedDevMemoryTokenIds = normalizeIdLists(tokenToDevMemoryIds);
+  const normalizedPlaybookTokenIds = normalizeIdLists(tokenToPlaybookIds);
+  const devMemoryFuzzy = buildFuzzyTokenIndex(normalizedDevMemoryTokenIds);
+  const playbookFuzzy = buildFuzzyTokenIndex(normalizedPlaybookTokenIds);
 
   const index: RuntimeMemoryIndex = {
     schemaVersion: RUNTIME_MEMORY_INDEX_SCHEMA_VERSION,
@@ -313,8 +425,14 @@ export function buildRuntimeMemoryIndex(projectRoot: string, builtAt = new Date(
     devMemoryEntries,
     playbooks,
     signatureTags,
-    tokenToDevMemoryIds: normalizeIdLists(tokenToDevMemoryIds),
-    tokenToPlaybookIds: normalizeIdLists(tokenToPlaybookIds),
+    tokenToDevMemoryIds: normalizedDevMemoryTokenIds,
+    tokenToPlaybookIds: normalizedPlaybookTokenIds,
+    exactOverflowDevMemoryTokens: uniqueSorted(exactOverflowDevMemoryTokens),
+    exactOverflowPlaybookTokens: uniqueSorted(exactOverflowPlaybookTokens),
+    fuzzyTokenToDevMemoryTokens: devMemoryFuzzy.fuzzyTokenMap,
+    fuzzyTokenToPlaybookTokens: playbookFuzzy.fuzzyTokenMap,
+    fuzzyOverflowDevMemoryTokens: devMemoryFuzzy.overflowNeedles,
+    fuzzyOverflowPlaybookTokens: playbookFuzzy.overflowNeedles,
     playbookStatusIds: normalizeIdLists(playbookStatusIds),
     supersededByDevMemoryIds: normalizeIdLists(supersededByDevMemoryIds),
   };
@@ -333,6 +451,16 @@ export function validateRuntimeMemoryIndex(raw: unknown): RuntimeMemoryIndexVali
   }
   if (!Array.isArray(index.devMemoryEntries) || !Array.isArray(index.playbooks) || !Array.isArray(index.signatureTags)) {
     return { ok: false, reason: 'missing_records' };
+  }
+  if (
+    !index.tokenToDevMemoryIds || !index.tokenToPlaybookIds
+    || !Array.isArray(index.exactOverflowDevMemoryTokens)
+    || !Array.isArray(index.exactOverflowPlaybookTokens)
+    || !index.fuzzyTokenToDevMemoryTokens || !index.fuzzyTokenToPlaybookTokens
+    || !Array.isArray(index.fuzzyOverflowDevMemoryTokens)
+    || !Array.isArray(index.fuzzyOverflowPlaybookTokens)
+  ) {
+    return { ok: false, reason: 'missing_index_maps' };
   }
   if (index.manifest.recordCounts.devMemory !== index.devMemoryEntries.length
     || index.manifest.recordCounts.playbooks !== index.playbooks.length
@@ -390,17 +518,188 @@ export function isRuntimeMemoryIndexFresh(index: RuntimeMemoryIndex, projectRoot
     && current.signatureRegistryDigest === index.manifest.sourceDigests.signatureRegistryDigest;
 }
 
-function matchingIds(tokenMap: Record<string, string[]>, tokens: string[]): string[] {
-  if (tokens.length === 0) return [];
+interface MatchingIdsResult {
+  ids: string[];
+  stats: RuntimeMemoryIndexCandidateStats;
+}
+
+function substringTokens(token: string, tokenMap: Record<string, string[]>): { tokens: string[]; overflow: boolean } {
+  const matches: string[] = [];
+  let visited = 0;
+  for (let start = 0; start < token.length; start += 1) {
+    for (let end = start + 2; end <= token.length; end += 1) {
+      const substring = token.slice(start, end);
+      if (substring === token) continue;
+      visited += 1;
+      if (visited > RUNTIME_MEMORY_INDEX_SUBSTRING_FALLBACK_CAP) return { tokens: [], overflow: true };
+      if (tokenMap[substring]) matches.push(substring);
+    }
+  }
+  return { tokens: uniqueInOrder(matches), overflow: false };
+}
+
+function rarestNeedleForToken(
+  token: string,
+  fuzzyTokenMap: Record<string, string[]>,
+  overflowNeedles: Set<string>,
+): { needle?: string; overflow: boolean } {
+  const needles = token.length <= 3 ? [token] : uniqueSorted(
+    Array.from({ length: token.length - 2 }, (_value, index) => token.slice(index, index + 3)),
+  );
+  let bestNeedle: string | undefined;
+  let bestSize = Number.MAX_SAFE_INTEGER;
+  let sawOverflow = false;
+  for (const needle of needles) {
+    const needleOverflow = overflowNeedles.has(needle);
+    if (needleOverflow) sawOverflow = true;
+    const list = fuzzyTokenMap[needle];
+    if (!list || list.length === 0) continue;
+    // A capped fuzzy bucket is incomplete by construction. Never use it as a
+    // complete proof of membership; fall back to the token map if every usable
+    // needle is overflowed.
+    if (needleOverflow) continue;
+    if (list.length < bestSize) {
+      bestNeedle = needle;
+      bestSize = list.length;
+    }
+  }
+  return { needle: bestNeedle, overflow: bestNeedle === undefined && sawOverflow };
+}
+
+function fuzzyTokensContaining(
+  token: string,
+  fuzzyTokenMap: Record<string, string[]>,
+  overflowNeedles: Set<string>,
+): { tokens: string[]; fallback: boolean } {
+  if (token.length < 2) return { tokens: [], fallback: false };
+  const rarest = rarestNeedleForToken(token, fuzzyTokenMap, overflowNeedles);
+  if (rarest.overflow) return { tokens: [], fallback: true };
+  if (!rarest.needle) return { tokens: [], fallback: false };
+  return {
+    tokens: uniqueInOrder((fuzzyTokenMap[rarest.needle] ?? []).filter((indexedToken) => indexedToken.includes(token))),
+    fallback: false,
+  };
+}
+
+function tokenMatchesQuery(indexedToken: string, token: string): boolean {
+  return indexedToken === token || indexedToken.includes(token) || token.includes(indexedToken);
+}
+
+function scanSourceMatchingIdsForToken<T extends { id: string }>(
+  sourceItems: T[],
+  textForItem: (item: T) => string,
+  token: string,
+): string[] {
   const ids: string[] = [];
-  for (const token of tokens) {
-    for (const [indexedToken, indexedIds] of Object.entries(tokenMap)) {
-      if (indexedToken === token || indexedToken.includes(token) || token.includes(indexedToken)) {
-        ids.push(...indexedIds);
-      }
+  for (const item of sourceItems) {
+    if (tokenize(textForItem(item)).some((indexedToken) => tokenMatchesQuery(indexedToken, token))) {
+      ids.push(item.id);
     }
   }
   return uniqueInOrder(ids);
+}
+
+function appendIndexedTokenIds<T extends { id: string }>(
+  ids: string[],
+  stats: RuntimeMemoryIndexCandidateStats,
+  tokenMap: Record<string, string[]>,
+  overflowExactTokens: Set<string>,
+  sourceItems: T[],
+  textForItem: (item: T) => string,
+  queryToken: string,
+  indexedTokens: string[],
+): void {
+  const overflowedIndexedTokens: string[] = [];
+  for (const indexedToken of indexedTokens) {
+    if (overflowExactTokens.has(indexedToken)) {
+      overflowedIndexedTokens.push(indexedToken);
+    } else {
+      appendValues(ids, tokenMap[indexedToken] ?? []);
+    }
+  }
+  if (overflowedIndexedTokens.length === 0) return;
+
+  stats.exactOverflowFallbacks += uniqueInOrder(overflowedIndexedTokens).length;
+  stats.tokenScanFallbacks += 1;
+  stats.tokenMapScannedEntries += sourceItems.length;
+  appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, queryToken));
+}
+
+function matchingIds<T extends { id: string }>(
+  tokenMap: Record<string, string[]>,
+  exactOverflowTokens: string[],
+  fuzzyTokenMap: Record<string, string[]>,
+  fuzzyOverflowNeedles: string[],
+  sourceItems: T[],
+  textForItem: (item: T) => string,
+  tokens: string[],
+): MatchingIdsResult {
+  const stats = emptyCandidateStats();
+  stats.queryTokenCount = tokens.length;
+  if (tokens.length === 0) return { ids: [], stats };
+
+  const ids: string[] = [];
+  const overflowExactTokens = new Set(exactOverflowTokens);
+  const overflowNeedles = new Set(fuzzyOverflowNeedles);
+  for (const token of tokens) {
+    const exactIds = tokenMap[token] ?? [];
+    if (exactIds.length > 0) {
+      stats.exactFastPathHits += 1;
+      appendValues(ids, exactIds);
+    }
+    if (overflowExactTokens.has(token)) {
+      stats.exactOverflowFallbacks += 1;
+      stats.tokenScanFallbacks += 1;
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
+      continue;
+    }
+
+    const containingTokens = fuzzyTokensContaining(token, fuzzyTokenMap, overflowNeedles);
+    if (containingTokens.fallback) {
+      stats.fuzzyFallbacks += 1;
+      stats.tokenScanFallbacks += 1;
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
+      continue;
+    }
+    if (containingTokens.tokens.length > 0) {
+      stats.fuzzyIndexHits += 1;
+      appendIndexedTokenIds(
+        ids,
+        stats,
+        tokenMap,
+        overflowExactTokens,
+        sourceItems,
+        textForItem,
+        token,
+        containingTokens.tokens,
+      );
+    }
+
+    const containedTokens = substringTokens(token, tokenMap);
+    if (containedTokens.overflow) {
+      stats.fuzzyFallbacks += 1;
+      stats.tokenScanFallbacks += 1;
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
+      continue;
+    }
+    if (containedTokens.tokens.length > 0) {
+      stats.fuzzyIndexHits += 1;
+      appendIndexedTokenIds(
+        ids,
+        stats,
+        tokenMap,
+        overflowExactTokens,
+        sourceItems,
+        textForItem,
+        token,
+        containedTokens.tokens,
+      );
+    }
+  }
+  return { ids: uniqueInOrder(ids), stats };
 }
 
 function byId<T extends { id: string }>(items: T[]): Map<string, T> {
@@ -431,10 +730,24 @@ export function selectRuntimeMemoryIndexCandidates(
   const devById = byId(index.devMemoryEntries);
   const devOrder = orderMap(index.devMemoryEntries);
   const playbookById = byId(index.playbooks);
+  const stats = emptyCandidateStats();
   const queryTokens = tokenize(options.query ?? '');
-  const devIds = queryTokens.length === 0
-    ? index.devMemoryEntries.slice(-candidateLimit).map((entry) => entry.id).reverse()
-    : matchingIds(index.tokenToDevMemoryIds, queryTokens);
+  let devIds: string[];
+  if (queryTokens.length === 0) {
+    devIds = index.devMemoryEntries.slice(-candidateLimit).map((entry) => entry.id).reverse();
+  } else {
+    const matched = matchingIds(
+      index.tokenToDevMemoryIds,
+      index.exactOverflowDevMemoryTokens,
+      index.fuzzyTokenToDevMemoryTokens,
+      index.fuzzyOverflowDevMemoryTokens,
+      index.devMemoryEntries,
+      devMemoryText,
+      queryTokens,
+    );
+    devIds = matched.ids;
+    addStats(stats, matched.stats);
+  }
   const withSuperseding = uniqueInOrder([
     ...devIds,
     ...devIds.flatMap((id) => index.supersededByDevMemoryIds[id] ?? []),
@@ -448,9 +761,22 @@ export function selectRuntimeMemoryIndexCandidates(
     ...(options.touchedPaths ?? []).map(fileKind),
   ].join(' '));
   const activeIds = new Set(index.playbookStatusIds.active ?? []);
-  const indexedPlaybookIds = playbookTokens.length === 0
-    ? [...activeIds]
-    : matchingIds(index.tokenToPlaybookIds, playbookTokens).filter((id) => activeIds.has(id));
+  let indexedPlaybookIds: string[];
+  if (playbookTokens.length === 0) {
+    indexedPlaybookIds = [...activeIds];
+  } else {
+    const matched = matchingIds(
+      index.tokenToPlaybookIds,
+      index.exactOverflowPlaybookTokens,
+      index.fuzzyTokenToPlaybookTokens,
+      index.fuzzyOverflowPlaybookTokens,
+      index.playbooks,
+      playbookText,
+      playbookTokens,
+    );
+    addStats(stats, matched.stats);
+    indexedPlaybookIds = matched.ids.filter((id) => activeIds.has(id));
+  }
   const contextCanMatchActivePlaybooks = Boolean(options.storyPhase)
     || (options.touchedPaths?.length ?? 0) > 0;
   const contextActiveIds = contextCanMatchActivePlaybooks
@@ -463,6 +789,9 @@ export function selectRuntimeMemoryIndexCandidates(
   const playbooks = (contextCanMatchActivePlaybooks ? playbookCandidateIds : playbookCandidateIds.slice(0, candidateLimit))
     .map((id) => playbookById.get(id))
     .filter((item): item is Playbook => Boolean(item));
+  stats.devMemoryCandidateIds = withSuperseding.length;
+  stats.playbookCandidateIds = playbooks.length;
+  addStats(RUNTIME_MEMORY_INDEX_STATS, stats);
 
   return {
     devMemoryEntries: byCorpusOrder(withSuperseding, devOrder)
@@ -470,5 +799,6 @@ export function selectRuntimeMemoryIndexCandidates(
       .filter((item): item is DevMemoryEntry => Boolean(item)),
     playbooks,
     signatureTags: index.signatureTags,
+    stats,
   };
 }

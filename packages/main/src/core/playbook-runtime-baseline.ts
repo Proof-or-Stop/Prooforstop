@@ -9,6 +9,7 @@ import type { Playbook, PlaybookStatus } from './experience-layer-types.js';
 import { writePlaybooks, writeSignatureRegistry, type SignatureRegistryData } from './learning-store.js';
 import {
   buildMemoryFreshnessPack,
+  buildMemoryFreshnessPacksWithRuntimeIndex,
   classifyMemoryFreshnessPack,
   type BuildMemoryFreshnessPackOptions,
   type MemoryFreshnessClass,
@@ -21,6 +22,9 @@ import {
 } from './playbook-runtime-memory-cache.js';
 import {
   rebuildRuntimeMemoryIndex,
+  getRuntimeMemoryIndexCandidateStats,
+  resetRuntimeMemoryIndexCandidateStats,
+  type RuntimeMemoryIndexCandidateStats,
   type RuntimeMemoryIndex,
 } from './playbook-runtime-memory-index.js';
 
@@ -186,6 +190,21 @@ export interface SourceDigestMutationMatrixResult {
   pass: boolean;
 }
 
+export interface PlaybookRuntimeSemanticGuard {
+  pass: boolean;
+  expectedIdsFoundRate: number;
+  expectedSuppressedIdsFoundRate: number;
+  expectedDeprecatedTermHitsFoundRate: number;
+  currentOverSupersededPreferenceRate: number;
+  candidateFalseSurfaceRate: number;
+  supersededFalseSurfaceRate: number;
+  deprecatedFalseSurfaceRate: number;
+  malformedRowsSkipped: number;
+  maxLinesPass: boolean;
+  omittedCountPass: boolean;
+  advisoryMetadataPass: boolean;
+}
+
 export interface PlaybookRuntimeOptimizedParityReport {
   schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1';
   profile: PlaybookRuntimeBaselineProfile;
@@ -194,8 +213,11 @@ export interface PlaybookRuntimeOptimizedParityReport {
   referenceFullScanMs: number;
   indexedColdMs: number;
   indexedWarmCacheMs: number;
+  targetWarmMs: number;
+  targetStatus: 'met' | 'unmet';
   performancePolicy: 'report-first';
   parityPass: boolean;
+  semanticGuard: PlaybookRuntimeSemanticGuard;
   referenceResultDigest: string;
   indexedColdResultDigest: string;
   indexedWarmCacheResultDigest: string;
@@ -210,6 +232,30 @@ export interface PlaybookRuntimeOptimizedParityReport {
   indexedColdUsesRuntimeIndex: boolean;
   indexedColdRuntimeIndexRecordCounts: RuntimeMemoryIndex['manifest']['recordCounts'];
   warmCacheStats: RuntimeMemoryPackCacheStats;
+  cacheHitRate: number;
+  latency: {
+    p50Ms: number;
+    p95Ms: number;
+  };
+  timingBreakdown: {
+    corpusMaterializeMs: number;
+    indexBuildMs: number;
+    referenceQueryMs: number;
+    indexedColdQueryMs: number;
+    warmPrimeQueryMs: number;
+    indexedWarmQueryMs: number;
+    queryCount: number;
+    tokenMatching: {
+      indexedCold: RuntimeMemoryIndexCandidateStats;
+      warmPrime: RuntimeMemoryIndexCandidateStats;
+      indexedWarm: RuntimeMemoryIndexCandidateStats;
+    };
+    cache: RuntimeMemoryPackCacheStats;
+  };
+  performance: {
+    peakRssBytes: number;
+    peakHeapUsedBytes: number;
+  };
   authority: 'non_authoritative';
   gateEvidence: false;
 }
@@ -1123,6 +1169,15 @@ interface RuntimeCorpusMaterialization {
 interface RuntimePackQueryRun {
   elapsedMs: number;
   resultDigest: string;
+  queryElapsedMs: number[];
+  semanticGuard: PlaybookRuntimeSemanticGuard;
+}
+
+function percentile(values: number[], pct: number): number {
+  if (values.length === 0) return 0;
+  const sorted = values.slice().sort((a, b) => a - b);
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil((pct / 100) * sorted.length) - 1));
+  return sorted[index];
 }
 
 function runtimeCorpusMemoryEntry(record: BaselineRecord): DevMemoryEntry {
@@ -1259,19 +1314,113 @@ function memoryPackResultDigest(packs: Array<{ queryId: string; pack: MemoryFres
   })));
 }
 
+function semanticGuardForPacks(
+  packs: Array<{ queryId: string; pack: MemoryFreshnessPack }>,
+  gold: { queries: BaselineGoldQuery[] },
+  malformedRowsSkipped: number,
+): PlaybookRuntimeSemanticGuard {
+  let expectedTotal = 0;
+  let expectedFound = 0;
+  let expectedSuppressedTotal = 0;
+  let expectedSuppressedFound = 0;
+  let expectedDeprecatedTotal = 0;
+  let expectedDeprecatedFound = 0;
+  let mustNotTotal = 0;
+  let candidateFalseSurfaces = 0;
+  let supersededFalseSurfaces = 0;
+  let deprecatedFalseSurfaces = 0;
+  let supersededPreferenceTotal = 0;
+  let supersededPreferencePass = 0;
+  let maxLinesPass = true;
+  let omittedCountPass = true;
+  let advisoryMetadataPass = true;
+  const queryById = new Map(gold.queries.map((query) => [query.id, query]));
+
+  for (const { queryId, pack } of packs) {
+    const query = queryById.get(queryId);
+    if (!query) continue;
+    const surfaced = new Set([...pack.results.playbookIds, ...pack.results.devMemoryEntryIds]);
+    const expectedSuppressed = new Set(query.expectedSuppressedIds ?? []);
+    expectedTotal += query.expectedIds.length;
+    expectedFound += query.expectedIds.filter((id) => surfaced.has(id)).length;
+    expectedSuppressedTotal += expectedSuppressed.size;
+    expectedSuppressedFound += [...expectedSuppressed].filter((id) => pack.results.suppressedSupersededIds.includes(id)).length;
+    expectedDeprecatedTotal += (query.expectedDeprecatedTermHits ?? []).length;
+    expectedDeprecatedFound += (query.expectedDeprecatedTermHits ?? [])
+      .filter((id) => pack.results.deprecatedTermHits.includes(id)).length;
+    mustNotTotal += query.mustNotSurfaceIds.length;
+    candidateFalseSurfaces += query.mustNotSurfaceIds.filter((id) =>
+      surfaced.has(id) && id.includes('candidate')).length;
+    supersededFalseSurfaces += query.mustNotSurfaceIds.filter((id) =>
+      surfaced.has(id) && (id.includes('superseded') || expectedSuppressed.has(id))).length;
+    deprecatedFalseSurfaces += query.mustNotSurfaceIds.filter((id) =>
+      surfaced.has(id) && id.includes('deprecated')).length;
+    if (query.supersededPreference) {
+      supersededPreferenceTotal += 1;
+      if (
+        surfaced.has(query.supersededPreference.currentId)
+        && !surfaced.has(query.supersededPreference.supersededId)
+        && pack.results.suppressedSupersededIds.includes(query.supersededPreference.supersededId)
+      ) {
+        supersededPreferencePass += 1;
+      }
+    }
+    maxLinesPass = maxLinesPass && pack.render.maxLines === 60;
+    omittedCountPass = omittedCountPass && Number.isInteger(pack.render.omittedCount) && pack.render.omittedCount >= 0;
+    advisoryMetadataPass = advisoryMetadataPass && pack.authority === 'non_authoritative' && pack.gateEvidence === false;
+  }
+
+  const guard: PlaybookRuntimeSemanticGuard = {
+    pass: false,
+    expectedIdsFoundRate: expectedFound / Math.max(1, expectedTotal),
+    expectedSuppressedIdsFoundRate: expectedSuppressedFound / Math.max(1, expectedSuppressedTotal),
+    expectedDeprecatedTermHitsFoundRate: expectedDeprecatedFound / Math.max(1, expectedDeprecatedTotal),
+    currentOverSupersededPreferenceRate: supersededPreferencePass / Math.max(1, supersededPreferenceTotal),
+    candidateFalseSurfaceRate: candidateFalseSurfaces / Math.max(1, mustNotTotal),
+    supersededFalseSurfaceRate: supersededFalseSurfaces / Math.max(1, mustNotTotal),
+    deprecatedFalseSurfaceRate: deprecatedFalseSurfaces / Math.max(1, mustNotTotal),
+    malformedRowsSkipped,
+    maxLinesPass,
+    omittedCountPass,
+    advisoryMetadataPass,
+  };
+  guard.pass = guard.expectedIdsFoundRate === 1
+    && guard.expectedSuppressedIdsFoundRate === 1
+    && guard.expectedDeprecatedTermHitsFoundRate === 1
+    && guard.currentOverSupersededPreferenceRate === 1
+    && guard.candidateFalseSurfaceRate === 0
+    && guard.supersededFalseSurfaceRate === 0
+    && guard.deprecatedFalseSurfaceRate === 0
+    && guard.malformedRowsSkipped > 0
+    && guard.maxLinesPass
+    && guard.omittedCountPass
+    && guard.advisoryMetadataPass;
+  return guard;
+}
+
 function runRuntimePackQueries(
   root: string,
   gold: { queries: BaselineGoldQuery[] },
+  malformedRowsSkipped: number,
   overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
 ): RuntimePackQueryRun {
   const started = performance.now();
-  const packs = gold.queries.map((query) => ({
-    queryId: query.id,
-    pack: buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides)),
-  }));
+  const queryElapsedMs: number[] = [];
+  const packOptions = gold.queries.map((query) => packOptionsForGoldQuery(root, query, overrides));
+  const builtPacks = overrides.runtimeIndex
+    ? buildMemoryFreshnessPacksWithRuntimeIndex(packOptions, overrides.runtimeIndex)
+    : packOptions.map((options) => buildMemoryFreshnessPack(options));
+  const packs = gold.queries.map((query, index) => {
+    const queryStarted = performance.now();
+    const pack = builtPacks[index]!;
+    queryElapsedMs.push(Math.max(0, Math.round(performance.now() - queryStarted)));
+    return { queryId: query.id, pack };
+  });
   return {
     elapsedMs: roundedElapsed(started),
     resultDigest: memoryPackResultDigest(packs),
+    queryElapsedMs,
+    semanticGuard: semanticGuardForPacks(packs, gold, malformedRowsSkipped),
   };
 }
 
@@ -1280,7 +1429,9 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
   profile?: PlaybookRuntimeBaselineProfile;
   seed?: number;
   keepGenerated?: boolean;
+  targetWarmMs?: number;
 } = {}): PlaybookRuntimeOptimizedParityReport {
+  const targetWarmMs = Math.max(1, Math.floor(args.targetWarmMs ?? 2000));
   const generated = args.inputDir
     ? undefined
     : generatePlaybookRuntimeBaseline({ profile: args.profile ?? 'small', seed: args.seed, force: true });
@@ -1290,27 +1441,41 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
     const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
     const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: BaselineGoldQuery[] };
     return withIsolatedGlobalMemory(() => {
+      const corpusStarted = performance.now();
       const corpus = materializeRuntimeCorpus(recordsRaw);
+      const corpusMaterializeMs = roundedElapsed(corpusStarted);
       try {
         clearRuntimeMemoryPackCache();
-        const reference = runRuntimePackQueries(corpus.root, gold, { useIndex: false, useCache: false });
+        const reference = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, { useIndex: false, useCache: false });
+        const indexStarted = performance.now();
         const runtimeIndex = rebuildRuntimeMemoryIndex(corpus.root, BASELINE_RUNTIME_FIXED_TIME);
-        const indexedCold = runRuntimePackQueries(corpus.root, gold, {
+        const indexBuildMs = roundedElapsed(indexStarted);
+        resetRuntimeMemoryIndexCandidateStats();
+        const indexedCold = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
           useCache: false,
         });
+        const indexedColdTokenStats = getRuntimeMemoryIndexCandidateStats();
         clearRuntimeMemoryPackCache();
-        runRuntimePackQueries(corpus.root, gold, {
+        resetRuntimeMemoryIndexCandidateStats();
+        const warmPrime = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
           useCache: true,
         });
-        const indexedWarm = runRuntimePackQueries(corpus.root, gold, {
+        const warmPrimeTokenStats = getRuntimeMemoryIndexCandidateStats();
+        resetRuntimeMemoryIndexCandidateStats();
+        const indexedWarm = runRuntimePackQueries(corpus.root, gold, corpus.malformedRowsSkipped, {
           runtimeIndex,
           useCache: true,
         });
+        const indexedWarmTokenStats = getRuntimeMemoryIndexCandidateStats();
         const warmCacheStats = getRuntimeMemoryPackCacheStats();
         const parityPass = reference.resultDigest === indexedCold.resultDigest
           && indexedCold.resultDigest === indexedWarm.resultDigest;
+        const memory = process.memoryUsage();
+        const targetStatus = parityPass && indexedWarm.elapsedMs <= targetWarmMs ? 'met' : 'unmet';
+        const cacheHitRate = warmCacheStats.hits / Math.max(1, warmCacheStats.hits + warmCacheStats.misses);
+        const warmLatencies = indexedWarm.queryElapsedMs;
         return {
           schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
           profile: manifest.profile,
@@ -1319,8 +1484,11 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
           referenceFullScanMs: reference.elapsedMs,
           indexedColdMs: indexedCold.elapsedMs,
           indexedWarmCacheMs: indexedWarm.elapsedMs,
+          targetWarmMs,
+          targetStatus,
           performancePolicy: 'report-first',
           parityPass,
+          semanticGuard: indexedWarm.semanticGuard,
           referenceResultDigest: reference.resultDigest,
           indexedColdResultDigest: indexedCold.resultDigest,
           indexedWarmCacheResultDigest: indexedWarm.resultDigest,
@@ -1337,6 +1505,30 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
             && runtimeIndex.manifest.recordCounts.signatureTags === BASELINE_SIGNATURE_REGISTRY.tags.length,
           indexedColdRuntimeIndexRecordCounts: runtimeIndex.manifest.recordCounts,
           warmCacheStats,
+          cacheHitRate,
+          latency: {
+            p50Ms: percentile(warmLatencies, 50),
+            p95Ms: percentile(warmLatencies, 95),
+          },
+          timingBreakdown: {
+            corpusMaterializeMs,
+            indexBuildMs,
+            referenceQueryMs: reference.elapsedMs,
+            indexedColdQueryMs: indexedCold.elapsedMs,
+            warmPrimeQueryMs: warmPrime.elapsedMs,
+            indexedWarmQueryMs: indexedWarm.elapsedMs,
+            queryCount: gold.queries.length,
+            tokenMatching: {
+              indexedCold: indexedColdTokenStats,
+              warmPrime: warmPrimeTokenStats,
+              indexedWarm: indexedWarmTokenStats,
+            },
+            cache: warmCacheStats,
+          },
+          performance: {
+            peakRssBytes: memory.rss,
+            peakHeapUsedBytes: memory.heapUsed,
+          },
           authority: 'non_authoritative',
           gateEvidence: false,
         };

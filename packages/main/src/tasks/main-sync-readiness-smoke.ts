@@ -158,6 +158,7 @@ function createRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-main-sync-readiness-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
+  write(root, '.gitignore', '.lattice/learning/\n');
   write(root, 'README.md', '# main sync readiness smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const value = 1;\n');
   git(root, ['init']);

@@ -1,0 +1,143 @@
+{
+  "storyId": "B-1c46",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/core/playbook-runtime-memory-cache.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+  ],
+  "protectedFiles": [
+    "README.md",
+    "experiments/recovery-runner/README.md"
+  ],
+  "explicitExcludes": [
+    "paper/**",
+    ".omx/**",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/review-assurance-floor.ts"
+  ],
+  "scopeChangeReason": "B-1c46 is scoped to runtime-memory performance index/cache optimization and its dedicated smokes/docs only; lifecycle gate semantics and unrelated docs remain protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory control artifacts are required to execute the user-requested B-5082 governed milestone ledger, red evidence, intent snapshot, and slice-plan workflow for B-1c46; they do not widen the business/code implementation scope.",
+      "timestamp": "2026-07-02T14:58:14.130Z",
+      "paths": [
+        ".lattice/story/actives/B-1c46/intent-collision.json",
+        ".lattice/story/actives/B-1c46/milestone-ledger.json",
+        ".lattice/story/actives/B-1c46/original-intent-snapshot.json",
+        ".lattice/story/actives/B-1c46/parent-ledger-rollup.json",
+        ".lattice/story/actives/B-1c46/proofstory.json",
+        ".lattice/story/actives/B-1c46/red-evidence.json",
+        ".lattice/story/actives/B-1c46/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-1c46/intent-collision.json",
+        ".lattice/story/actives/B-1c46/milestone-ledger.json",
+        ".lattice/story/actives/B-1c46/original-intent-snapshot.json",
+        ".lattice/story/actives/B-1c46/parent-ledger-rollup.json",
+        ".lattice/story/actives/B-1c46/proofstory.json",
+        ".lattice/story/actives/B-1c46/red-evidence.json",
+        ".lattice/story/actives/B-1c46/slice-plan.json"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "1225927ba4756b559c647f20113774a17ffecc0a",
+      "materialHash": "e98210510384c971bd5702f39805ab4d858dd8066083df5ac269cb86be79c9f8"
+    },
+    {
+      "actor": "codex-cli",
+      "reason": "Necessary validation infrastructure fix: session_brief now loads runtime memory preflight and may create the ignored .lattice/learning runtime cache in the synthetic readiness fixture, so this smoke must ignore that runtime artifact to keep full validate clean.",
+      "timestamp": "2026-07-02T16:29:04.060Z",
+      "paths": [
+        "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c1cb1f33ad19804f5c56de21a590e958611affef",
+      "materialHash": "d0e02972484e5560fada449a241608801b7e896984065d172eb6d77acb06f710",
+      "anchors": [
+        "main_sync_readiness_runtime_cache_cleanliness",
+        "B_1c46_full_validate_unblock"
+      ]
+    },
+    {
+      "actor": "codex-cli",
+      "reason": "Required DONE cleanup regression fix for B-1c46: post-DONE runtime memory and stale-evidence advisories must use the surviving main root instead of the deleted story worktree, and the done-premerge smoke needs diagnostics proving the worktree is not recreated.",
+      "timestamp": "2026-07-02T16:42:16.698Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0fce26722573f9ec76a2c8abbfbc30de80a9c506",
+      "materialHash": "3b46fd393559c05dc13c42f409572032a97f74c2f65c713298038b72fef454a9",
+      "anchors": [
+        "post_done_advisory_main_root",
+        "done_cleanup_no_worktree_recreation"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-02T14:27:50.270Z",
+  "updatedAt": "2026-07-02T16:42:16.698Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003:happy:0",
+        "CHK-004:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/playbook-runtime-memory-performance-smoke.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:adversarial:0"
+      ]
+    }
+  ]
+}

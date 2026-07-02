@@ -1,0 +1,189 @@
+{
+  "findings": [
+    {
+      "id": "B-1c46:F-001",
+      "desc": "Docs cite latest measured baseline/RSS values that do not match story evidence. performance-index doc lines 51-77 label full baseline as latest with 39,825/6,439/12,520/10,873 and RSS 1,504,083,968/3,294,199,808, but checklist evidence lines 62-64 records final full baseline as referenceFullScanMs=49347 indexedColdMs=6972 indexedWarmCacheMs=1 indexBuildMs=14132 warmPrimeMs=11270 and no evidence was found for those RSS values. entry-layer doc lines 24 and 26 also cite RSS 646,414,336 and 3,845,570,560 with no matching story evidence; performance evidence lines 465-467 records peakRssBytes=3610689536.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T15:01:23.337Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-002",
+      "_hash": "56f9d2f2cea26adf2ce125441a33997670ad56f0c47c5dbc458aecc00a79b40b",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+        "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-cite-latest",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 85ce7f952: docs now label the metric tables as canonical checklist-bound evidence and use the reviewer/checklist values (baseline 49347/6972/1/indexBuild 14132/warmPrime 11270; performance 38547/6825/1/RSS 3610689536). Unbound later local spot-check values are removed from the docs, and the entry-layer doc says RSS is run-dependent instead of citing unmatched values.",
+      "resolvedAt": "2026-07-02T15:06:24.254Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-002",
+      "desc": "Fuzzy overflow can silently break reference/full-scan parity. buildFuzzyTokenIndex caps each fuzzy needle at 4096 tokens and records overflowNeedles (packages/main/src/core/playbook-runtime-memory-index.ts:268-288), but rarestNeedleForToken returns overflow=true only when no bucket exists (lines 520-540). fuzzyTokensContaining then uses the capped bucket and reports fallback=false (lines 543-554), so matchingIds does not run scanMatchingIdsForToken and keeps tokenScanFallbacks at 0 (lines 586-599). The pre-optimization matcher scanned all token-map entries for indexedToken.includes(token) / token.includes(indexedToken) (main:packages/main/src/core/playbook-runtime-memory-index.ts:393-403). This means any query whose selected n-gram bucket overflowed can miss valid full-scan matches while the performance proof still reports no fallback; tests appear to assert normal counters but do not cover fuzzyOverflowDevMemoryTokens or fuzzyOverflowPlaybookTokens overflow behavior.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:02:06.176Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-003",
+      "_hash": "a0219d3225c3f4925a3be7e81da555725f897405c2bcc614427b04727c52b55e",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-overflow-parity",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6c4e7c0a4: overflowed fuzzy buckets are no longer trusted as complete membership proof; rarestNeedleForToken skips capped buckets and fuzzyTokensContaining falls back to token-map scan when every usable fuzzy needle overflowed. Added M2 regression in playbook-runtime-memory-index-smoke proving 4,120 overflowneedle rows still surface candidate mem-overflow-4119 with tokenScanFallbacks>0/tokenMapScannedEntries>0. Verified with build, index smoke, M3-M6 full smoke, performance full smoke, and baseline full smoke.",
+      "resolvedAt": "2026-07-02T15:27:45.306Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-003",
+      "desc": "Caller-supplied runtimeIndexSourceDigests can turn a stale cached pack into a fresh-looking pack. BuildMemoryFreshnessPackOptions exports runtimeIndexSourceDigests (packages/main/src/core/playbook-runtime-memory.ts:159-174), and resolveRuntimeIndexForPack accepts the runtimeIndex whenever that caller-supplied tuple equals the index manifest, without reading current sources (lines 613-624). On cache hit, getRuntimeMemoryPackCacheHit computes currentSourceDigests via sourceDigestsFor; when a runtimeIndex is present that function uses context.runtimeIndex.manifest.sourceDigests instead of readRuntimeMemorySourceDigests (packages/main/src/core/playbook-runtime-memory-cache.ts:226-228, 426-436). Thus a caller holding an old runtimeIndex plus its manifest tuple can get stale relevant cache content returned as freshness.class=fresh before contribution refs are rechecked. The benchmark passes runtimeIndex.manifest.sourceDigests as this tuple (packages/main/src/core/playbook-runtime-baseline.ts:1449-1467), so the optimization is not bound to an independently current digest proof. This conflicts with the pack contract that freshness reflects current source digests at consumption time, even though authority remains non_authoritative/gateEvidence=false.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:02:23.889Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-003",
+      "_hash": "9bb1225dae587a4902ade8e1cbdaac9793f098b00c32c3d12e2394e50f2231ec",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts",
+        "packages/main/src/core/playbook-runtime-baseline.ts"
+      ],
+      "signatureTag": "runtime-memory-stale-cache-proof-boundary",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6c4e7c0a4: removed public runtimeIndexSourceDigests, cache freshness now derives from current source digests read at consumption time, and the benchmark uses buildMemoryFreshnessPacksWithRuntimeIndex internal batch helper that reads current source digests once and reuses the runtime index only when current digests match its manifest. Added M3 regression proving old runtimeIndex plus changed source misses cache and rebuilds fresh pack. Verified with build, M3-M6 full smoke, performance full smoke, baseline full smoke, and rg shows runtimeIndexSourceDigests removed.",
+      "resolvedAt": "2026-07-02T15:28:05.555Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-004",
+      "desc": "Exact token bucket overflow can still break reference/full-scan parity after fuzzy fallback. The fuzzy overflow fallback scans tokenMap, but tokenMap ID buckets are capped at 4096, so a common exact token can permanently drop candidates beyond the cap and diverge from reference behavior. The added fuzzy overflow regression only proves unique overflow tokens survive; it does not cover >4096 entries sharing the same exact query token. Fix by tracking exact-token ID overflow and falling back to uncapped source/candidate scan, or storing complete overflow IDs separately; add a regression comparing optimized vs reference for >4096 rows sharing one exact query token.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:31:31.207Z",
+      "reviewRound": "2026-07-02T15:27:22.418Z",
+      "reviewRunId": "B-1c46:RR-005",
+      "_hash": "adf0ac1edf0fc2aa0e250786b526039945f066fd85d6b2f1647c6bada9f022c0",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-exact-token-overflow-parity",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commits c43a93f4 and aaf4d3ef: runtime index now records exactOverflowDevMemoryTokens/exactOverflowPlaybookTokens, exact overflow queries trigger uncapped source fallback, and fuzzy/substring hits on overflowed exact tokens also scan uncapped source items. Added load-bearing smokes for exact shared token overflow and substring query over shared exact token. Main-host ad-hoc repro for query sharedexact now returns indexed/ref parity 4120/4120 and includes mem-4119. Verified build, index smoke TOTAL 8 PASS, M3-M6 full smoke targetStatus=met indexedWarmCacheMs=270, and performance full targetStatus=met indexedWarmCacheMs=349.",
+      "resolvedAt": "2026-07-02T15:53:43.163Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-005",
+      "desc": "Fuzzy/substring overflow fallback still scans capped tokenMap via scanMatchingIdsForToken. When the fuzzy needle overflows and a matching exact token bucket is also over 4096, candidates beyond the exact cap are lost, diverging from full-source reference. Temp repro reported exactOverflow=true, fuzzyOverflow=true, referenceCount=8217, indexedCount=8193, indexedHasBeyondCap=false, parity=false. Fix by making fuzzy fallback scan uncapped sourceItems or otherwise detect matching exact-overflow tokens and source-scan them; add smoke combining fuzzy overflow with exact bucket overflow.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:56:33.487Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-009",
+      "_hash": "49603b2abd8c8ec7173947fdc52bf20fc24ed777680607537c9029b0e48892d8",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: fuzzy fallback paths now scan uncapped sourceItems via scanSourceMatchingIdsForToken instead of capped tokenMap buckets. Added combined fuzzy+exact overflow smoke proving referenceCount=8217 indexedCount=8217, referencePlaybooks=8217 indexedPlaybooks=8217, indexedHasBeyondCap=true, parity=true. Verified build, index smoke TOTAL 9 PASS, M3-M6 full targetStatus=met indexedWarmCacheMs=263, performance full targetStatus=met indexedWarmCacheMs=233, and corrected ad-hoc parity 8217/8217.",
+      "resolvedAt": "2026-07-02T16:09:49.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-006",
+      "desc": "Substring exact-overflow coverage is dev-memory-only: the smoke writes no playbooks and uses maxPlaybooks:0, so indexed/reference playbook parity and beyond-cap playbook IDs are vacuous for substring overflow. Fix by seeding overflowing active playbooks with the same exact token, setting maxPlaybooks=count, asserting exactOverflowPlaybookTokens, asserting a beyond-cap playbook ID, and comparing indexed/reference playbookIds.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T15:56:45.974Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-010",
+      "_hash": "2a2cb891a539cb896d934f079ebdffedb53e12010cab8ecaa9ebe7d5687f99dd",
+      "files": [
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+        "packages/main/src/core/playbook-runtime-memory-index.ts"
+      ],
+      "signatureTag": "runtime-memory-substring-overflow-playbook-coverage",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: substring exact-overflow smoke now seeds overflowing active playbooks as well as dev-memory, uses maxPlaybooks=count, asserts exactOverflowPlaybookTokens, asserts playbookBeyondCap=true, and compares indexed/reference playbookIds. Index smoke reports referenceIds=4120 indexedIds=4120 referencePlaybooks=4120 indexedPlaybooks=4120, playbookBeyondCap=true.",
+      "resolvedAt": "2026-07-02T16:09:50.032Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-007",
+      "desc": "Performance index doc still says runtime index schema v2, but playbook-runtime-memory-index.ts now exports proofbound.runtime-memory-index.v3 and validates v3 after exact/fuzzy overflow fields were added. Fix by updating schema references to v3 and mentioning exact-overflow fallback/source-scan behavior in the latest index shape notes.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T15:57:13.752Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-011",
+      "_hash": "4747e356b841329700fa09d16356c82f2bef1472c8a2742764411570f9a96442",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+        "packages/main/src/core/playbook-runtime-memory-index.ts"
+      ],
+      "signatureTag": "doc-code-drift-runtime-memory-index-schema",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019: playbook-memory-performance-index-optimization-plan.md now names runtime index schema v3 and documents exact-overflow token metadata plus exact-overflow/fuzzy-overflow source-scan fallback behavior. rg confirms no schema v2 reference remains in the performance index doc.",
+      "resolvedAt": "2026-07-02T16:09:50.012Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-008",
+      "desc": "Quality review found fuzzy overflow fallbacks still call scanMatchingIdsForToken, which scans capped token-map ID lists. If any matching token is also in exactOverflowTokens, IDs beyond the 4096 cap are dropped and indexed results can diverge from full-source reference. Fix by making fuzzy fallback scan sourceItems via scanSourceMatchingIdsForToken or detecting matching exact-overflow tokens and source-scanning those; add a smoke combining fuzzy overflow with exact bucket overflow.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T15:57:22.747Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-012",
+      "_hash": "de2f757d554ae1ea14b66a6d84ddeed6a716cf45963ad6262d0d1b03646e3a01",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdff4019, same root as F-005: both fuzzy fallback branches now scan uncapped sourceItems rather than capped tokenMap ID lists, and combined fuzzy+exact overflow smoke covers the regression. Verified build, index smoke, M3-M6 full, performance full, and corrected ad-hoc parity.",
+      "resolvedAt": "2026-07-02T16:09:50.017Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

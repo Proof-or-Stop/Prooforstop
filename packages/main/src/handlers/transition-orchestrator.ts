@@ -286,10 +286,10 @@ function runRuntimeEnforcementPreflight(
   return `\nRuntime closure preflight: ${details.join('; ')}`;
 }
 
-function renderStoryAdvanceMemoryRuntimeAdvisory(ctx: HandlerContext, story: StoryInfo, targetPhase: StoryPhase): string {
+function renderStoryAdvanceMemoryRuntimeAdvisory(projectRoot: string, story: StoryInfo, targetPhase: StoryPhase): string {
   try {
     const pack = buildMemoryFreshnessPack({
-      projectRoot: ctx.root,
+      projectRoot,
       consumer: 'story_advance',
       storyPhase: targetPhase,
       query: [
@@ -644,6 +644,7 @@ async function runStoryTransitionInner(
     let doneChecklistPrefix = '';
     let doneSummarySuffix = '';
     let doneMergeReport = '';
+    let postTransitionRoot = ctx.root;
     if (args.phase === 'DONE') {
       // After DONE succeeds, append the summary content to the return value.
       try {
@@ -660,6 +661,7 @@ async function runStoryTransitionInner(
       const doneEffects = await applyDoneMergeEffects(args.storyId, store, story, doneRenderedChecklist);
       doneChecklistPrefix = doneEffects.doneChecklistPrefix;
       doneMergeReport = doneEffects.doneMergeReport;
+      postTransitionRoot = doneEffects.mainMergeRoot ?? ctx.root;
 
       // B-6241 M3: post-DONE learning settlement runs only after durable DONE
       // effects, and only after the lifecycle main write lock is released. The
@@ -709,13 +711,13 @@ async function runStoryTransitionInner(
     let staleEvidenceHint = '';
     if (newState === 'REVIEW' || newState === 'TEST' || newState === 'DONE') {
       try {
-        const stale = findStaleEvidence(ctx.root, args.storyId);
-        const hint = renderEvidenceStaleHint(args.storyId, stale, { currentHead: currentGitHead(ctx.root) });
+        const stale = findStaleEvidence(postTransitionRoot, args.storyId);
+        const hint = renderEvidenceStaleHint(args.storyId, stale, { currentHead: currentGitHead(postTransitionRoot) });
         if (hint) staleEvidenceHint = `\n\n${hint}`;
       } catch { /* probe — never block phase advance on stale-hint failure */ }
     }
 
-    const memoryRuntimeAdvisory = renderStoryAdvanceMemoryRuntimeAdvisory(ctx, story, args.phase);
+    const memoryRuntimeAdvisory = renderStoryAdvanceMemoryRuntimeAdvisory(postTransitionRoot, story, args.phase);
 
     return {
       storyId: args.storyId,

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-1c46",
+  "records": [
+    {
+      "id": "B-1c46-red-performance-target",
+      "trigger": "Full-profile 1,000,000-record runtime memory hot path is above target before optimization.",
+      "acceptanceTargetRef": "REQ-M5-PERF-GATE",
+      "baselineHeadHash": "3ed099f4e5a08e29c30642d17f3c17c6df151a35",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "Fresh baseline measured referenceFullScanMs=46325, indexedColdMs=12427, indexedWarmCacheMs=3270 while targetWarmMs=2000, so the 1-2s hot-path claim is currently unmet/unproven.",
+      "failingCommand": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+      "failureReceiptHash": "sha256:3d71a103cd3438304c0ddf821b74517b45fab7479e895eaa6dfef4d3726ef37f",
+      "expectedGreenCommand": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+      "greenRelation": {
+        "targetRef": "REQ-M5-PERF-GATE",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000"
+      },
+      "note": "This red evidence is performance-target evidence, not a functional correctness failure. It proves the optimization target cannot be claimed before M0-M6 implementation and performance smoke pass.",
+      "createdAt": "2026-07-02T14:27:37.470Z"
+    },
+    {
+      "id": "B-1c46-red-contract-acceptance",
+      "trigger": "The full M0-M6 acceptance claim cannot be satisfied before optimization because the full-profile hot path exceeds target.",
+      "acceptanceTargetRef": "B-1c46-acceptance-m0-m6",
+      "baselineHeadHash": "3ed099f4e5a08e29c30642d17f3c17c6df151a35",
+      "baselineMaterialHash": "4b7c24e91e3dd06267f7e143a9c7829eca3dab33574424507adaaed59cee6b05",
+      "observedFailure": "Fresh baseline measured indexedWarmCacheMs=3270 while targetWarmMs=2000, so the whole M0-M6 acceptance claim remains red until the performance smoke proves indexedWarmCacheMs<=2000 with parityPass=true.",
+      "failingCommand": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+      "failureReceiptHash": "sha256:3d71a103cd3438304c0ddf821b74517b45fab7479e895eaa6dfef4d3726ef37f",
+      "expectedGreenCommand": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+      "greenRelation": {
+        "targetRef": "B-1c46-acceptance-m0-m6",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000"
+      },
+      "note": "This record binds the red performance state to the ProofStory contract acceptance binding so DONE cannot claim all M0-M6 until the green performance smoke closes the same target.",
+      "createdAt": "2026-07-02T14:28:15.228Z"
+    }
+  ],
+  "createdAt": "2026-07-02T14:27:37.470Z",
+  "updatedAt": "2026-07-02T14:28:15.228Z"
+}

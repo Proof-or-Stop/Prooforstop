@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -145,8 +146,8 @@ function seed(root: string): void {
   });
 }
 
-function buildPack(root: string, overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot'>> = {}) {
-  return buildMemoryFreshnessPack({
+function packOptions(root: string, overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot'>> = {}): BuildMemoryFreshnessPackOptions {
+  return {
     projectRoot: root,
     consumer: 'session_brief',
     storyPhase: 'DEV',
@@ -160,7 +161,11 @@ function buildPack(root: string, overrides: Partial<Omit<BuildMemoryFreshnessPac
     maxLines: 60,
     generatedAt: NOW,
     ...overrides,
-  });
+  };
+}
+
+function buildPack(root: string, overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot'>> = {}) {
+  return buildMemoryFreshnessPack(packOptions(root, overrides));
 }
 
 function assertSameRelevantResults(left: ReturnType<typeof buildPack>, right: ReturnType<typeof buildPack>): void {
@@ -177,6 +182,40 @@ function expectedPackDigest(pack: MemoryFreshnessPack): string {
 
 function assertPackDigestMatchesContent(pack: MemoryFreshnessPack): void {
   assert.equal(pack.packDigest, expectedPackDigest(pack));
+}
+
+interface SecondProcessPackResult {
+  packDigest: string;
+  authority: string;
+  gateEvidence: boolean;
+  freshnessClass: string;
+  stats: ReturnType<typeof getRuntimeMemoryPackCacheStats>;
+}
+
+function runSecondProcessPack(root: string): SecondProcessPackResult {
+  const memoryModuleUrl = new URL('../core/playbook-runtime-memory.js', import.meta.url).href;
+  const cacheModuleUrl = new URL('../core/playbook-runtime-memory-cache.js', import.meta.url).href;
+  const script = `
+const { buildMemoryFreshnessPack } = await import(${JSON.stringify(memoryModuleUrl)});
+const { getRuntimeMemoryPackCacheStats } = await import(${JSON.stringify(cacheModuleUrl)});
+const pack = buildMemoryFreshnessPack(${JSON.stringify(packOptions(root))});
+const stats = getRuntimeMemoryPackCacheStats();
+console.log(JSON.stringify({
+  packDigest: pack.packDigest,
+  authority: pack.authority,
+  gateEvidence: pack.gateEvidence,
+  freshnessClass: pack.freshness.class,
+  stats,
+}));
+`;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    encoding: 'utf8',
+    env: { ...process.env },
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const line = result.stdout.trim().split('\n').at(-1);
+  assert.ok(line, 'second process should emit a JSON result');
+  return JSON.parse(line) as SecondProcessPackResult;
 }
 
 async function run(): Promise<void> {
@@ -249,6 +288,42 @@ async function run(): Promise<void> {
       assert.equal(getRuntimeMemoryPackCacheStats().staleIrrelevantHits, 1);
     });
 
+    check('M3 cache freshness is derived from current sources, not caller index manifest', () => {
+      const root = mkRoot('m3-current-source-trust'); roots.push(root); seed(root);
+      const oldIndex = rebuildRuntimeMemoryIndex(root, NOW);
+      clearRuntimeMemoryPackCache();
+      const first = buildPack(root, {
+        runtimeIndex: oldIndex,
+        useCache: true,
+      });
+      assert.equal(first.freshness.class, 'fresh');
+
+      writeEntries(resolveProjectMemoryPath(root), [
+        memoryEntry(
+          'mem-old',
+          'truth-first stale-doc old plan task missing legacy lesson should be suppressed',
+        ),
+        memoryEntry(
+          'mem-current',
+          'truth-first stale-doc current facts task missing runtime lesson changed source',
+          { tags: ['supersedes-mem-old'] },
+        ),
+        memoryEntry(
+          'mem-host',
+          'host-policy codex-cli claude-cli agy fallback unavailable quota limited runtime guidance',
+        ),
+      ]);
+
+      const second = buildPack(root, {
+        runtimeIndex: oldIndex,
+        useCache: true,
+      });
+      assert.notEqual(second.packDigest, first.packDigest, 'stale old-index cache entry must not be returned as fresh');
+      assert.equal(second.freshness.class, 'fresh');
+      assert.equal(second.items.devMemory.find((entry) => entry.id === 'mem-current')?.lesson.includes('changed source'), true);
+      assert.ok(getRuntimeMemoryPackCacheStats().contributingMisses > 0, 'changed contributing source should miss cache');
+    });
+
     check('M3 pack cache separates indexed candidateLimit selection windows', () => {
       const root = mkRoot('m3-candidate-limit'); roots.push(root);
       writeEntries(resolveProjectMemoryPath(root), Array.from({ length: 60 }, (_, index) =>
@@ -319,6 +394,52 @@ async function run(): Promise<void> {
       assert.equal(getRuntimeMemoryPackCacheStats().hits, consumers.length);
     });
 
+    check('M4 durable cache survives a second process and misses on contributing mutation', () => {
+      const root = mkRoot('m4-cross-process'); roots.push(root); seed(root);
+      rebuildRuntimeMemoryIndex(root, NOW);
+      clearRuntimeMemoryPackCache();
+      const first = buildPack(root);
+      const firstStats = getRuntimeMemoryPackCacheStats();
+      assert.ok(firstStats.durableWrites > 0, 'first process should persist a durable cache entry');
+      assert.match(firstStats.lastCacheKeyDigest ?? '', /^[0-9a-f]{64}$/);
+
+      const second = runSecondProcessPack(root);
+      assert.equal(second.packDigest, first.packDigest);
+      assert.equal(second.authority, 'non_authoritative');
+      assert.equal(second.gateEvidence, false);
+      assert.equal(second.freshnessClass, 'fresh');
+      assert.equal(second.stats.hits, 1);
+      assert.equal(second.stats.durableHits, 1);
+
+      writeEntries(resolveProjectMemoryPath(root), [
+        memoryEntry(
+          'mem-old',
+          'truth-first stale-doc old plan task missing legacy lesson should be suppressed',
+        ),
+        memoryEntry(
+          'mem-current',
+          'truth-first stale-doc current facts task missing runtime lesson changed for durable miss',
+          { tags: ['supersedes-mem-old'] },
+        ),
+        memoryEntry(
+          'mem-host',
+          'host-policy codex-cli claude-cli agy fallback unavailable quota limited runtime guidance',
+        ),
+      ]);
+      const afterMutation = runSecondProcessPack(root);
+      assert.notEqual(afterMutation.packDigest, first.packDigest);
+      assert.equal(afterMutation.stats.contributingMisses, 1);
+      assert.equal(afterMutation.authority, 'non_authoritative');
+      assert.equal(afterMutation.gateEvidence, false);
+      console.log([
+        'm4DurableCache',
+        'crossProcessCacheHit=true',
+        `cacheKeyDigest=${second.stats.lastCacheKeyDigest}`,
+        'staleMutationMiss=true',
+        `gateEvidence=${second.gateEvidence}`,
+      ].join(' '));
+    });
+
     check('M5 reference and optimized matrix preserves surfacing boundaries', () => {
       const root = mkRoot('m5-matrix'); roots.push(root); seed(root);
       const reference = buildPack(root, { useIndex: false, useCache: false });
@@ -385,6 +506,8 @@ async function run(): Promise<void> {
       assert.equal(report.recordCount, 1_000_000);
       assert.equal(report.performancePolicy, 'report-first');
       assert.equal(report.parityPass, true);
+      assert.equal(report.semanticGuard.pass, true);
+      assert.equal(report.targetWarmMs, 2000);
       assert.equal(report.authority, 'non_authoritative');
       assert.equal(report.gateEvidence, false);
       assert.equal(report.resultDigestSource, 'MemoryFreshnessPack');
@@ -403,15 +526,34 @@ async function run(): Promise<void> {
       assert.equal(report.warmCacheStats.entries, report.queryCount);
       assert.equal(report.indexedColdResultDigest, report.referenceResultDigest);
       assert.equal(report.indexedWarmCacheResultDigest, report.referenceResultDigest);
+      assert.ok(report.timingBreakdown.tokenMatching.indexedCold.exactFastPathHits > 0);
+      assert.ok(Number.isInteger(report.timingBreakdown.tokenMatching.indexedCold.tokenScanFallbacks));
       console.log([
         'm6Report',
+        'semanticParity=pass',
         `recordCount=${report.recordCount}`,
+        `candidateFalseSurfaceRate=${report.semanticGuard.candidateFalseSurfaceRate}`,
+        `supersededFalseSurfaceRate=${report.semanticGuard.supersededFalseSurfaceRate}`,
+        `deprecatedFalseSurfaceRate=${report.semanticGuard.deprecatedFalseSurfaceRate}`,
+        `malformedRowsSkipped=${report.semanticGuard.malformedRowsSkipped}`,
         `resultDigestSource=${report.resultDigestSource}`,
+        `referenceResultDigest=${report.referenceResultDigest}`,
+        `optimizedResultDigest=${report.indexedWarmCacheResultDigest}`,
         `runtimeCorpusRecords=${report.runtimeCorpus.sourceRecordCount}`,
         `referenceFullScanMs=${report.referenceFullScanMs}`,
         `indexedColdMs=${report.indexedColdMs}`,
         `indexedWarmCacheMs=${report.indexedWarmCacheMs}`,
+        `targetWarmMs=${report.targetWarmMs}`,
+        `targetStatus=${report.targetStatus}`,
+        `p50WarmMs=${report.latency.p50Ms}`,
+        `p95WarmMs=${report.latency.p95Ms}`,
         `warmCacheHits=${report.warmCacheStats.hits}`,
+        `cacheHitRate=${report.cacheHitRate.toFixed(3)}`,
+        `indexBuildMs=${report.timingBreakdown.indexBuildMs}`,
+        `exactFastPathHits=${report.timingBreakdown.tokenMatching.indexedCold.exactFastPathHits}`,
+        `fuzzyIndexHits=${report.timingBreakdown.tokenMatching.indexedCold.fuzzyIndexHits}`,
+        `fuzzyFallbacks=${report.timingBreakdown.tokenMatching.indexedCold.fuzzyFallbacks}`,
+        `tokenScanFallbacks=${report.timingBreakdown.tokenMatching.indexedCold.tokenScanFallbacks}`,
         `performancePolicy=${report.performancePolicy}`,
       ].join(' '));
     });

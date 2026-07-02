@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { LATTICE_CONFIG_FILENAME } from './config.js';
@@ -11,6 +11,7 @@ import { digestCanonicalJson, digestText } from './digest.js';
 import type { Playbook } from './experience-layer-types.js';
 import {
   computePlaybookDigest,
+  resolveLearningDir,
   readPlaybooks,
   readSignatureRegistry,
   validatePlaybook,
@@ -45,6 +46,7 @@ export interface RuntimeMemoryPackCacheContext {
   maxLines: number;
   candidateLimit?: number;
   runtimeIndex?: RuntimeMemoryIndex | null;
+  currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
 }
 
 export interface RuntimeMemoryPackContributionDigest {
@@ -84,6 +86,12 @@ export interface RuntimeMemoryPackCacheStats {
   misses: number;
   staleIrrelevantHits: number;
   contributingMisses: number;
+  durableHits: number;
+  durableWrites: number;
+  lastCacheKeyDigest?: string;
+  lastLookupDigest?: string;
+  lastHitClass?: 'fresh' | 'stale-irrelevant';
+  lastMissReason?: string;
 }
 
 type RuntimeMemoryPackCacheHit =
@@ -104,6 +112,12 @@ const STATS = {
   misses: 0,
   staleIrrelevantHits: 0,
   contributingMisses: 0,
+  durableHits: 0,
+  durableWrites: 0,
+  lastCacheKeyDigest: undefined as string | undefined,
+  lastLookupDigest: undefined as string | undefined,
+  lastHitClass: undefined as 'fresh' | 'stale-irrelevant' | undefined,
+  lastMissReason: undefined as string | undefined,
 };
 
 function uniqueSorted(values: Iterable<string>): string[] {
@@ -133,6 +147,68 @@ function clonePack(pack: MemoryFreshnessPack): MemoryFreshnessPack {
   return JSON.parse(JSON.stringify(pack)) as MemoryFreshnessPack;
 }
 
+function cacheDir(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), 'runtime-memory-pack-cache');
+}
+
+function cachePath(projectRoot: string, lookupDigest: string): string {
+  return join(cacheDir(projectRoot), `${lookupDigest}.json`);
+}
+
+function validCacheEntryShape(value: unknown): value is RuntimeMemoryPackCacheEntry {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entry = value as Partial<RuntimeMemoryPackCacheEntry>;
+  return typeof entry.lookupDigest === 'string'
+    && Boolean(entry.cacheKey)
+    && Boolean(entry.pack)
+    && Boolean(entry.sourceDigests);
+}
+
+function rememberStatsHit(entry: RuntimeMemoryPackCacheEntry, hitClass: 'fresh' | 'stale-irrelevant'): void {
+  STATS.hits += 1;
+  STATS.lastCacheKeyDigest = entry.cacheKey.cacheKeyDigest;
+  STATS.lastLookupDigest = entry.cacheKey.lookupDigest;
+  STATS.lastHitClass = hitClass;
+  STATS.lastMissReason = undefined;
+}
+
+function rememberStatsMiss(reason: string, lookupDigest?: string): void {
+  STATS.misses += 1;
+  STATS.lastLookupDigest = lookupDigest;
+  STATS.lastMissReason = reason;
+  STATS.lastHitClass = undefined;
+}
+
+function readDurableCacheEntry(projectRoot: string, lookupDigest: string): RuntimeMemoryPackCacheEntry | null {
+  const path = cachePath(projectRoot, lookupDigest);
+  if (!existsSync(path)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf-8')) as unknown;
+    if (!validCacheEntryShape(parsed)) return null;
+    if (parsed.lookupDigest !== lookupDigest || parsed.cacheKey.lookupDigest !== lookupDigest) return null;
+    if (parsed.cacheKey.projectRoot !== projectRoot) return null;
+    CACHE.set(lookupDigest, parsed);
+    STATS.durableHits += 1;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeDurableCacheEntry(projectRoot: string, entry: RuntimeMemoryPackCacheEntry): void {
+  const dir = cacheDir(projectRoot);
+  const path = cachePath(projectRoot, entry.lookupDigest);
+  const tmpPath = `${path}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(tmpPath, `${JSON.stringify(entry)}\n`, 'utf-8');
+    renameSync(tmpPath, path);
+    STATS.durableWrites += 1;
+  } catch {
+    try { rmSync(tmpPath, { force: true }); } catch { /* best-effort cleanup */ }
+  }
+}
+
 export function computeMemoryPackDigest(pack: MemoryFreshnessPack): string {
   const { packDigest: _packDigest, generatedAt: _generatedAt, ...domain } = pack;
   return digestCanonicalJson(domain);
@@ -149,7 +225,7 @@ function clonePackWithFreshness(
 }
 
 function sourceDigestsFor(context: RuntimeMemoryPackCacheContext): RuntimeMemoryIndexSourceDigests {
-  return context.runtimeIndex?.manifest.sourceDigests ?? readRuntimeMemorySourceDigests(context.projectRoot);
+  return context.currentSourceDigests ?? readRuntimeMemorySourceDigests(context.projectRoot);
 }
 
 function sameSourceDigests(a: RuntimeMemoryIndexSourceDigests, b: RuntimeMemoryIndexSourceDigests): boolean {
@@ -341,22 +417,18 @@ function currentLookupDigest(context: RuntimeMemoryPackCacheContext): string {
 }
 
 export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheContext): RuntimeMemoryPackCacheHit {
-  const entry = CACHE.get(currentLookupDigest(context));
+  const lookupDigest = currentLookupDigest(context);
+  const entry = CACHE.get(lookupDigest) ?? readDurableCacheEntry(context.projectRoot, lookupDigest);
   if (!entry) {
-    STATS.misses += 1;
+    rememberStatsMiss('empty', lookupDigest);
     return { hit: false, reason: 'empty' };
   }
 
-  const currentTuple = contributionTupleFromRefs(entry.pack.results.contributingSourceRefs, context);
-  if (!sameContributionTuple(entry.cacheKey.contributingSourceDigestTuple, currentTuple)) {
-    STATS.misses += 1;
-    STATS.contributingMisses += 1;
-    return { hit: false, reason: 'contributing_source_changed' };
-  }
-
+  const currentIndexVersion = context.runtimeIndex?.manifest.indexVersion ?? null;
   const currentSourceDigests = sourceDigestsFor(context);
-  if (sameSourceDigests(entry.sourceDigests, currentSourceDigests)) {
-    STATS.hits += 1;
+  const indexVersionMatches = entry.cacheKey.indexVersion === currentIndexVersion;
+  if (indexVersionMatches && sameSourceDigests(entry.sourceDigests, currentSourceDigests)) {
+    rememberStatsHit(entry, 'fresh');
     return {
       hit: true,
       pack: clonePackWithFreshness(entry.pack, { stale: false, class: 'fresh' }),
@@ -365,9 +437,16 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
     };
   }
 
+  const currentTuple = contributionTupleFromRefs(entry.pack.results.contributingSourceRefs, context);
+  if (!sameContributionTuple(entry.cacheKey.contributingSourceDigestTuple, currentTuple)) {
+    rememberStatsMiss('contributing_source_changed', lookupDigest);
+    STATS.contributingMisses += 1;
+    return { hit: false, reason: 'contributing_source_changed' };
+  }
+
   const currentCandidateProjectionDigest = candidateProjectionDigest(context);
   if (currentCandidateProjectionDigest && currentCandidateProjectionDigest === entry.candidateProjectionDigest) {
-    STATS.hits += 1;
+    rememberStatsHit(entry, 'stale-irrelevant');
     STATS.staleIrrelevantHits += 1;
     return {
       hit: true,
@@ -381,8 +460,9 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
     };
   }
 
-  STATS.misses += 1;
-  return { hit: false, reason: currentCandidateProjectionDigest ? 'candidate_projection_changed' : 'source_digest_changed' };
+  const reason = currentCandidateProjectionDigest ? 'candidate_projection_changed' : 'source_digest_changed';
+  rememberStatsMiss(reason, lookupDigest);
+  return { hit: false, reason };
 }
 
 export function rememberRuntimeMemoryPackCache(
@@ -391,13 +471,18 @@ export function rememberRuntimeMemoryPackCache(
 ): RuntimeMemoryPackCacheKey {
   const contributionTuple = contributionTupleFromRefs(pack.results.contributingSourceRefs, context);
   const cacheKey = buildRuntimeMemoryPackCacheKey(context, contributionTuple);
-  CACHE.set(cacheKey.lookupDigest, {
+  const entry: RuntimeMemoryPackCacheEntry = {
     lookupDigest: cacheKey.lookupDigest,
     cacheKey,
     pack: clonePack(pack),
     sourceDigests: sourceDigestsFor(context),
     candidateProjectionDigest: candidateProjectionDigest(context),
-  });
+  };
+  CACHE.set(cacheKey.lookupDigest, entry);
+  STATS.lastCacheKeyDigest = cacheKey.cacheKeyDigest;
+  STATS.lastLookupDigest = cacheKey.lookupDigest;
+  STATS.lastMissReason = undefined;
+  writeDurableCacheEntry(context.projectRoot, entry);
   return cacheKey;
 }
 
@@ -407,6 +492,12 @@ export function clearRuntimeMemoryPackCache(): void {
   STATS.misses = 0;
   STATS.staleIrrelevantHits = 0;
   STATS.contributingMisses = 0;
+  STATS.durableHits = 0;
+  STATS.durableWrites = 0;
+  STATS.lastCacheKeyDigest = undefined;
+  STATS.lastLookupDigest = undefined;
+  STATS.lastHitClass = undefined;
+  STATS.lastMissReason = undefined;
 }
 
 export function getRuntimeMemoryPackCacheStats(): RuntimeMemoryPackCacheStats {
@@ -416,6 +507,12 @@ export function getRuntimeMemoryPackCacheStats(): RuntimeMemoryPackCacheStats {
     misses: STATS.misses,
     staleIrrelevantHits: STATS.staleIrrelevantHits,
     contributingMisses: STATS.contributingMisses,
+    durableHits: STATS.durableHits,
+    durableWrites: STATS.durableWrites,
+    ...(STATS.lastCacheKeyDigest ? { lastCacheKeyDigest: STATS.lastCacheKeyDigest } : {}),
+    ...(STATS.lastLookupDigest ? { lastLookupDigest: STATS.lastLookupDigest } : {}),
+    ...(STATS.lastHitClass ? { lastHitClass: STATS.lastHitClass } : {}),
+    ...(STATS.lastMissReason ? { lastMissReason: STATS.lastMissReason } : {}),
   };
 }
 
@@ -430,6 +527,7 @@ export function buildRuntimeMemoryPackCacheContext(
     maxLines: number;
     candidateLimit?: number;
     runtimeIndex?: RuntimeMemoryIndex | null;
+    currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
   },
 ): RuntimeMemoryPackCacheContext {
   return {
@@ -445,5 +543,6 @@ export function buildRuntimeMemoryPackCacheContext(
     maxLines: normalized.maxLines,
     ...(normalized.candidateLimit !== undefined ? { candidateLimit: normalized.candidateLimit } : {}),
     runtimeIndex: normalized.runtimeIndex ?? null,
+    ...(normalized.currentSourceDigests ? { currentSourceDigests: normalized.currentSourceDigests } : {}),
   };
 }
