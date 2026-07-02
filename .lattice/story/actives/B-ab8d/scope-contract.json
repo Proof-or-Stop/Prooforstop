@@ -20,10 +20,13 @@
   "allowedCreate": [
     "packages/main/src/core/experiment-arm.ts",
     "packages/main/src/core/experience-pack-surface.ts",
-    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts",
+    "packages/main/src/tasks/experiment-arm-smoke.ts"
   ],
   "allowedTest": [
-    "packages/main/tests/**"
+    "packages/main/tests/**",
+    "packages/main/src/tasks/experiment-arm-smoke.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [
@@ -31,7 +34,8 @@
     "packages/main/src/core/learning-store.ts",
     "packages/main/src/core/hint-mode.ts"
   ],
+  "scopeChangeReason": "CHK-001 implementer followed the repo logic-test convention (src/tasks smokes, no *.test.ts runner exists) instead of packages/main/tests; add experiment-arm-smoke.ts to allowedCreate/allowedTest. No scope expansion beyond the test artifact location.",
   "acknowledgements": [],
   "createdAt": "2026-07-02T22:59:36.578Z",
-  "updatedAt": "2026-07-02T22:59:36.578Z"
+  "updatedAt": "2026-07-02T23:10:39.093Z"
 }

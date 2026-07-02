@@ -191,7 +191,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js observability_snapshot (cwd=.worktrees/B-ab8d)",
+          "result": "pass",
+          "note": "Text output includes: resolvedLearningRoot: /Users/jek/Documents/Work/proofbound/.lattice/learning — ends in /.lattice/learning under the MAIN repo root while cwd is the linked worktree (canonicalization visible).",
+          "headHash": "eabbfbc2339fa18e440d15a413e6b8b5f6c577de",
+          "materialHash": "f9172fe3998906ac4b3d08246d5bfda023a0e7309f583efe71ec061058c89daa",
+          "storyFilesHash": "5d9894cb7539160f5d16285260eb0d59327a1134477283e604890e3947455377",
+          "timestamp": "2026-07-02T23:11:27.299Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
