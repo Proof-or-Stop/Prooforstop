@@ -35,6 +35,24 @@
       ],
       "signatureTag": "edge|mjs:422|oracle-false-negative",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-003",
+      "desc": "oracle-purity-violation: review-evidence oracle reads join(ws, line) where line is extracted from the host-written answer file; join(ws, '../oracle.mjs') resolves to outside workspaceDir; the stated purity contract (trap-templates.mjs header: 'classify reads ONLY under workspaceDir') is violated when a host writes a traversal path; in a harness context this reads arbitrary filesystem paths; fix: add a path-containment guard before read (e.g. resolved path must startsWith(ws + sep))",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:08.227Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-001",
+      "_hash": "2ae96de0a7ebe4e7a52ca2005bbb42418aa47c2069681ab3f54b39b00ba9c20e",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs:447"
+      ],
+      "signatureTag": "edge|mjs:447|oracle-purity-violation",
+      "signatureTagSource": "auto"
     }
   ]
 }
