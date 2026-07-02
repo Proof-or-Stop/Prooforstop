@@ -227,9 +227,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T22:39:18.287Z",
-      "endTime": null
+      "endTime": "2026-07-02T22:39:26.902Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Smoke records a later active-advisory harmful outcome and proves playbook_auto_promotion_apply dry-run surfaces recommend_demote for the auto-activated playbook.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:27.310Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Smoke reads the activation audit row and distinguishes autoActivated=true in the demotion recommendation; manual activation remains separate via playbook_activate.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:27.763Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js",
+          "result": "pass",
+          "note": "Activation uses append-only playbook-auto-activations.jsonl and leaves candidate, promotion decision, and outcome rows intact; demotion is recommendation output, not destructive deletion.",
+          "headHash": "0d750ab2e71fc1495ab223032019e99d0d7e3523",
+          "materialHash": "5f998530cce5d170af41f889367b26c3ff210160ebe88e0e54677f9e3735e4e7",
+          "storyFilesHash": "8599ff5407595e502adde877f7df8a4ce50957a9c66e6b96898303207a8d7e35",
+          "timestamp": "2026-07-02T22:39:28.109Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -302,6 +337,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Evidence activation writer implemented, committed by implementer, and verified."
+    },
+    {
+      "timestamp": "2026-07-02T22:39:26.902Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Demotion recommendation and non-destructive audit provenance verified."
     }
   ]
 }
