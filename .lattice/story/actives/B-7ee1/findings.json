@@ -149,6 +149,24 @@
       "resolvedAt": "2026-07-02T23:01:00.061Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-007",
+      "desc": "playbook-promotion-worker-execution-plan.md still has stale M8/backlog text after the B-7ee1 docs fix. Lines 922-936 keep \"Future Auto Active And Timer\", \"optional automatic advisory activation\", \"disabled flag causes no-op\", and \"auto-active remains advisory\"; lines 964-997 say V2+ still needs separate acceptance criteria for auto-active advisory promotion, suggest M8 auto-active/timer later, and leave the review path before enabling automatic active advisory promotion as an open question. That contradicts the same doc lines 139-144 and 668-708, plus source-lineage doc lines 323-353/472-489/528-532, which define the current boundary: promotion sweep remains recommendation-only, while the separate playbook_auto_promotion_apply evidence-activated apply path may activate only qualifying advisory candidates and remains non-authoritative/gateEvidence=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T23:03:35.960Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-009",
+      "_hash": "4b775796ff636df60fb50bd1d89530ae06c4ec56978a860dc28cc3e63edc1710",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary-docs-stale-m8-auto-active-future",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
