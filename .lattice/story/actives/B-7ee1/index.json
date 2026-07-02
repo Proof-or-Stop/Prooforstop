@@ -4,7 +4,7 @@
   "title": "Implement evidence-activated advisory playbook promotion",
   "description": "Replace manual blame-bearing playbook activation with a host-neutral evidence activation path. V1 already creates deduped seeds, proposals, candidates, explicit outcomes, recommendations, and runtime verification. The remaining correctness gap is that humans still have to manually activate individual candidates, which does not scale and creates unclear accountability. This story will make activation evidence-driven: operators approve the activation policy and thresholds, while the CLI activates candidates that satisfy digest-bound lineage, exposure, outcome, promotion, policy, and rollback requirements. Story DONE must not by itself activate playbooks, but the CLI must not remain a permanently default-off guard.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "playbook",
@@ -35,6 +35,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:17:04.644Z",
+      "branch": "story/B-7ee1",
+      "user": "Harmonygo",
+      "sessionId": "sess-5f543098ede06462",
       "agent": "main"
     }
   ],
