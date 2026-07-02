@@ -213,7 +213,7 @@
       "desc": "pinn_claim_check narrative boundary still accepts passive PDE correctness overclaims. Direct probe shows narrativeClaim=\"PDE correctness proved\", \"PDE correctness verified\", and \"PDE correctness guaranteed\" return allowed=true with no claim_boundary_violation, while only \"proves PDE correctness\" is blocked. This leaves the local-only admissibility boundary inconsistent with pinn_report_render, which rejects the same passive PDE correctness phrases in supplied benchmark reports.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T20:36:04.498Z",
@@ -225,7 +225,11 @@
         "packages/main/src/handlers/pinn-claim-admissibility.ts"
       ],
       "signatureTag": "spec-boundary|ts|pinn-claim-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by extending claim narrative boundary detection to passive PDE correctness phrases such as proved, verified, guaranteed, and validated. Smoke/direct probes cover passive PDE narrative claims and full lattice validate passed.",
+      "resolvedAt": "2026-07-02T20:44:47.549Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-011",
