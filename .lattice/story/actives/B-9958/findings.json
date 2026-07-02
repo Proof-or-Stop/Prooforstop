@@ -104,6 +104,25 @@
       ],
       "signatureTag": "missing|ts|finding-signal-seeds",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9958:F-006",
+      "desc": "Batch candidate approval does not preserve the canonical-source dedup boundary. buildCandidateManifestRows records each proposal canonicalSourceKey in manifest rows, but buildPlaybookCandidateBatchManifest apply only checks the manifest digest, invalid proposal list, and duplicate candidate IDs before writing all candidates. It does not reject duplicate canonicalSourceKey rows in the manifest or re-run source_lineage_audit to ensure another proposal/playbook for the same canonical source has not appeared. Duplicate seed proposals can therefore be approved into multiple candidate playbooks for the same source, undercutting the acceptance criterion that one canonical source cannot silently create multiple proposal/candidate paths.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T20:43:32.746Z",
+      "reviewRound": "2026-07-02T20:39:07.457Z",
+      "reviewRunId": "B-9958:RR-001",
+      "_hash": "c0106dfc7bb335ab15e65a1e25b1d9709f270995b29749a68f627c35c75951d5",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "edge|ts|batch-candidate-approval",
+      "signatureTagSource": "auto"
     }
   ]
 }
