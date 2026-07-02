@@ -81,9 +81,9 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "With arm=control any lifecycle command prints no Memory Runtime Preflight section but the activity log gains an experience_pack_surfaced event with arm=control and the full would-have-surfaced pack digest; with arm=treatment output is byte-identical to no-experiment mode plus the same event with arm=treatment",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T23:13:01.649Z",
-      "endTime": null,
+      "endTime": "2026-07-02T23:29:06.149Z",
       "verificationIntent": {
         "happy": [
           {
