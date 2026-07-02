@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-337f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:1633cc08bf0031e4d039524659f367d33056d54705ca41471f141c0a13e65ab5",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Deterministic trap-fixture generator with oracle labels and a documented per-trap answer-source strip list (plan S13 M1 exit criteria)",
+      "doneMeans": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs exits 0 (determinism byte-diff, roster/disjointness, leakage audit zero hits, both-direction oracle validation, pair-ledger end-to-end)",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T22:32:45.778Z",
+  "updatedAt": "2026-07-02T22:32:46.096Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702223245",
+    "acceptedInterpretationHash": "sha256:692c97b45f7184dc0c42b636f0fbe48b1539e75da105d369cd9b03fe64f4748c",
+    "acceptedAt": "2026-07-02T22:32:46.096Z"
+  }
+}

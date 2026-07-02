@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-337f",
+  "sourceText": "Operator standing order (2026-07-03, translated from Chinese chat): why are you asking me to choose — follow the plan order and complete all remaining milestones to DONE. M1 (fixture generator) is next after B-047f merged S1 (M0+M2+M5).",
+  "normalizedOutcome": "A deterministic trap-fixture generator exists on main under experiments/experience-ablation/ (fixture-generator.mjs + trap-templates.mjs + fixture-generator-selfcheck.mjs): same seed emits a byte-identical corpus covering the plan S5.1 six in-store classes, held-out negative-controls, and clean tasks; every fixture carries a leakage-stripped workspace (plan S9), a hidden S6.1 oracle validated in both directions against reference overlays, and a manifest that feeds the S1 pair ledger end-to-end.",
+  "acceptanceClaim": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs exits 0 on the story branch with all cases passing, including: same-seed double-emission byte-diff empty; in-store roster equal to the plan six with held-out disjointness; zero leakage-marker hits across every emitted workspace and prompt; every oracle clean on reference-good and firing the class-appropriate flag on reference-bad; and the emitted manifest building + verifying through the real pair-ledger.mjs against a frozen protocol.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:9065c1c68b66ad13d5463dfd04ade9f320ab49f277d9cbd343eaad4278a55cac",
+  "createdAt": "2026-07-02T22:32:45.090Z",
+  "updatedAt": "2026-07-02T22:32:45.090Z"
+}

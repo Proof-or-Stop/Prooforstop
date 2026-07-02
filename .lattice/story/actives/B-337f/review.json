@@ -244,6 +244,50 @@
         }
       ],
       "_hash": "6bee3f159af73a8c3533a68b679124b54b72566e2bf0606c7c518a7d4ddcf4f7"
+    },
+    {
+      "timestamp": "2026-07-02T22:28:55.672Z",
+      "issueCount": 7,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Fixture generator core: seeded deterministic corpus emission in the recovery-runner layout + Trap templates: six in-store classes + held-out negative-controls + clean, with per-trap leakage strip list are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact per-class known-bad realism (how tempting each trap is to a real host) is not measurable in this story — the M6 pilot estimates the actual baseline defect rate; here known-bad only needs to be a VALID instance of the failure mode that the oracle detects."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-337f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5c3927087f3beed237fb5191281d5fe5e0b0e424f4f0ac6173e6a14c6eb389e8"
     }
   ]
 }
