@@ -141,8 +141,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-02T19:24:03.933Z",
       "endTime": null
     },
     {
@@ -228,6 +228,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Core record model and collectors are implemented and covered by focused smoke.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-02T19:24:03.933Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed in 6536a0fca; marking progress before done evidence.",
       "agent": "main-agent"
     }
   ]
