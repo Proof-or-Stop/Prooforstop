@@ -250,7 +250,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:54:52.602Z",
+      "endTime": "2026-07-02T14:57:24.625Z",
       "userSees": "Expected transcript includes `fuzzyIndexHits=<n>`, `fuzzyFallbacks=<n>`, `parityPass=true`, and no all-token scan for normal fuzzy queries.",
       "files": {
         "modify": [
@@ -292,33 +292,33 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "Runtime index schema v2 adds fuzzy token maps; full M6 report shows fuzzyIndexHits=126 with digest parity preserved.",
-          "headHash": "4675ac2dd36ad6d26efdacb3d6c0d94fecdc51e4",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:52.831Z"
+          "note": "Runtime index schema v2 bounded fuzzy maps serve normal includes/fuzzy cases; full M6 reports fuzzyIndexHits=126 with digest parity preserved.",
+          "headHash": "ddc4a57f3ac1465ccea2f6ba8fa3e8d0dff595bf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:24.863Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
           "result": "pass",
-          "note": "Small smoke covers indexedReferenceParity=true with fuzzyIndexHits=11 fuzzyFallbacks=0 tokenScanFallbacks=0 across query/context tokens.",
-          "headHash": "4675ac2dd36ad6d26efdacb3d6c0d94fecdc51e4",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:53.060Z"
+          "note": "Small smoke covers short and hyphenated query/context tokens with fuzzyIndexHits=11 fuzzyFallbacks=0 tokenScanFallbacks=0.",
+          "headHash": "ddc4a57f3ac1465ccea2f6ba8fa3e8d0dff595bf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:25.082Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Fallback counters are explicit and visible; full M6 normal queries report fuzzyFallbacks=0 tokenScanFallbacks=0, so unbounded scans would be detected.",
-          "headHash": "4675ac2dd36ad6d26efdacb3d6c0d94fecdc51e4",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:53.289Z"
+          "note": "Fallback counters are explicit in the full profile: fuzzyFallbacks=0 tokenScanFallbacks=0 tokenMapScannedEntries=0, so unreported all-token scans would be visible.",
+          "headHash": "ddc4a57f3ac1465ccea2f6ba8fa3e8d0dff595bf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:25.306Z"
         }
       ]
     },
