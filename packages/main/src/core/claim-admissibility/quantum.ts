@@ -244,6 +244,10 @@ export type QuantumReasonPrefix = typeof ALL_REASON_PREFIXES[number];
 const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
   'unknown_claim',
   'claim_boundary_violation',
+  'missing_core_identity_field',
+  'missing_conditional_identity_field',
+  'missing_claim_field',
+  'missing_basis_or_grid_identity',
   'missing_required_receipt',
   'duplicate_receipt',
   'receipt_exit_nonzero',

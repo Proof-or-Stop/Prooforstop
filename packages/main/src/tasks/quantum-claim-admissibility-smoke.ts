@@ -94,6 +94,28 @@ if (missingBasisOrGrid.receipts?.[0]) {
 }
 checkBlock('missing basis/grid identity', missingBasisOrGrid, 'missing_basis_or_grid_identity');
 
+const missingBasisOrGridOverclaim = deepClone(missingBasisOrGrid);
+missingBasisOrGridOverclaim.requestedStrength = 'ground-state';
+const missingBasisOrGridOverclaimResult = checkBlock(
+  'missing basis/grid identity with weak overclaim',
+  missingBasisOrGridOverclaim,
+  'missing_basis_or_grid_identity',
+);
+assert.ok(
+  hasReason(missingBasisOrGridOverclaimResult, 'weak_evidence_overclaim'),
+  'missing basis/grid overclaim should retain weak_evidence_overclaim reason',
+);
+assert.equal(
+  missingBasisOrGridOverclaimResult.nextAction,
+  'stop',
+  'missing basis/grid identity must stop even when weak overclaim is present',
+);
+assert.equal(
+  missingBasisOrGridOverclaimResult.scopedClaim,
+  false,
+  'missing basis/grid identity must not expose scoped degradation',
+);
+
 const mismatchedVerifier = buildCompleteQuantumEvidence('Q5');
 if (mismatchedVerifier.activeIdentity) mismatchedVerifier.activeIdentity.verifierScriptHash = 'sha256:mismatched-verifier-script';
 checkBlock('mismatched verifierScriptHash', mismatchedVerifier, 'verifier_script_mismatch');
