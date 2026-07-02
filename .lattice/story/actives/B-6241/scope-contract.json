@@ -1,0 +1,35 @@
+{
+  "storyId": "B-6241",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "M7 trial/matched-control serving",
+    "M8 timer/auto-active advisory activation",
+    "runtime active memory pack implementation changes owned by B-ec3b"
+  ],
+  "scopeChangeReason": "Initialize B-6241 scope contract from PLAN and protect concurrent B-ec3b runtime-memory-index ownership.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T03:44:44.152Z",
+  "updatedAt": "2026-07-02T03:44:44.152Z"
+}
