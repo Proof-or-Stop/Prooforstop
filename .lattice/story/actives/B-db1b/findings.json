@@ -379,7 +379,7 @@
       "desc": "Docs blocker: the target PINN decision doc lists M0-M5 and preserves the local-only/non-production/PDE non-claim boundary, but it does not explicitly mention the delivered A3=14 / A4=15 benchmark facts required for this docs review. Evidence: rg of the target doc shows A3/A4 regime text and A4 B1-B15 success criteria at lines 160-216 plus the M4 delivery row at line 303, but no A3=14/A4=15 or acceptedCount=14/rejectedInjectionCount=15; story checklist evidence records A3 verifier-only acceptedCount=14/unsupportedAcceptanceCount=14 and A4 rejects all 15 at checklist.json:249 and A4=15 at checklist.json:488.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T22:28:42.665Z",
@@ -390,7 +390,11 @@
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-blocker-target",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding explicit delivered local benchmark facts to the PINN execution plan: A3 verifier-only acceptedCount=14/unsupportedAcceptanceCount=14 and A4 rejects 15/15 B1-B15 injections, described as local claim-admissibility diagnostics only. Verified by docs diff, npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, and full lattice validate PASS with 18/18 covered.",
+      "resolvedAt": "2026-07-02T22:42:05.610Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-018",
