@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-02T14:30:31.905Z",
-      "endTime": "2026-07-02T14:54:25.543Z",
+      "endTime": "2026-07-02T14:56:55.379Z",
       "userSees": "Expected transcript includes `targetStatus=unmet`, `recordCount=1000000`, `indexedWarmCacheMs=<number>`, and `targetWarmMs=2000`.",
       "files": {
         "modify": [
@@ -48,35 +48,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "pre-story full profile: node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+          "command": "pre-change node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Red/profile baseline before optimization recorded referenceFullScanMs=46325 indexedColdMs=12427 indexedWarmCacheMs=3270 targetWarmMs=2000, so the then-current warm/cache path did not meet the target.",
-          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:25.784Z"
+          "note": "Initial M0 red profile recorded recordCount=1000000 referenceFullScanMs=39660 indexedColdMs=10681 indexedWarmCacheMs=2971 warmCacheHits=8 peakRssBytes=1160101888; targetWarmMs=2000 was unmet.",
+          "headHash": "63341a71a1d95602fb1d77f7e33427d13de463e2",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:56:55.655Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
           "result": "pass",
-          "note": "Final full profile reports referenceFullScanMs=52681 indexedColdMs=9977 indexedWarmCacheMs=1 indexBuildMs=26241 exactFastPathHits=100 fuzzyIndexHits=126 cacheHitRate=0.500, giving the requested breakdown.",
-          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:26.012Z"
+          "note": "Final full baseline reports referenceFullScanMs=49347 indexedColdMs=6972 indexedWarmCacheMs=1 indexBuildMs=14132 warmPrimeMs=11270 exactFastPathHits=100 fuzzyIndexHits=126 tokenScanFallbacks=0 cacheHitRate=0.500, giving token/cache/index/query breakdown.",
+          "headHash": "63341a71a1d95602fb1d77f7e33427d13de463e2",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:56:55.866Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "The smoke now exits non-zero if targetStatus is not met, so M0 cannot be closed by report-first wording alone.",
-          "headHash": "a20b12511d60e23ed35bcda2cae5cfaedd049ba1",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:54:26.265Z"
+          "note": "The performance smoke gates targetStatus and indexedWarmCacheMs<=targetWarmMs, so the milestone cannot be closed by report-first wording alone.",
+          "headHash": "63341a71a1d95602fb1d77f7e33427d13de463e2",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:56:56.070Z"
         }
       ]
     },
