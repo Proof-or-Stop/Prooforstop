@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-02T13:27:36.648Z",
       "reviewRunId": "B-6048:RR-011",
       "_hash": "fa138e727d1401e9bbde544e82cdd4273aebd75f1b8628c0be6dc84f06e05054"
+    },
+    {
+      "id": "B-6048:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage PASS. Verified current tests cover F-001..F-007: index smoke covers stale-irrelevant/projectRoot cache isolation; M3-M6 smoke covers candidateLimit cache divergence, story_advance consumer, and 1M MemoryFreshnessPack parity; baseline full smoke covers full 1M parity. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full.",
+      "createdAt": "2026-07-02T13:34:20.747Z",
+      "reviewRound": "2026-07-02T13:27:36.648Z",
+      "reviewRunId": "B-6048:RR-012",
+      "_hash": "ce925682e18954cd368104615c597d20071ed2b1bdc38cb3adf11a0a1b69f018"
     }
   ]
 }
