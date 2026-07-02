@@ -5,7 +5,7 @@
       "desc": "B-9958 smoke does not directly prove default dry-run no-write behavior for the mutating writer surfaces. The smoke snapshots observe/no-mutation and checks drift failure writes no proposals, but it never snapshots stores around playbook_seed_propose_batch without apply, playbook_candidate_batch_approve without apply, or playbook_auto_promotion_apply dry-run. A regression that creates proposals/candidates or mutates learning state during default dry-run could slip while the current apply-path assertions still pass.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-02T20:41:53.935Z",
@@ -18,7 +18,11 @@
         "packages/main/src/handlers/playbook.ts"
       ],
       "signatureTag": "missing|ts|9958-smoke-directly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding explicit store snapshot assertions proving default dry-run/no-apply paths for playbook_seed_propose_batch, playbook_candidate_batch_approve, and playbook_auto_promotion_apply do not mutate proposals, candidates, outcomes, decisions, or non_promotable registry; verified by node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js.",
+      "resolvedAt": "2026-07-02T21:18:31.537Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9958:F-002",
