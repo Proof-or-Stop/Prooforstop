@@ -170,6 +170,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-033",
       "_hash": "a42a4711d2289269623a9450f0fc10f1083fca0beebe225e92bbdaf9f2bcc93a"
+    },
+    {
+      "id": "B-337f:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Clean-pass rebind. Verified HEAD commit 22f0fd5c3 is exactly one comment-line change in fixture-generator.mjs:131 (\"node --check-gated read of the exported literal\" -> \"JSON.parse read of a config value\") with no logic changes. Full grep for superseded-design wording (node --check, --check-gated, secret-path, exported literal, export const LIMIT, nonce) across all three M1 files (fixture-generator.mjs, trap-templates.mjs, fixture-generator-selfcheck.mjs) returned zero hits. No concept deletion or replacement in this diff; concept residue check complete, no blocker.",
+      "createdAt": "2026-07-02T23:47:26.096Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-035",
+      "_hash": "d4ac27b73b1b75613646e06dcbac993a71d321d75ff4d9f1554403cbf5bf03fc"
     }
   ]
 }
