@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-7b4e",
+  "records": [
+    {
+      "id": "RED-20260702195544",
+      "trigger": "Quantum M0-M1 runtime module and smoke are absent before implementation.",
+      "acceptanceTargetRef": "REQ-quantum-m0-m1-runtime",
+      "baselineHeadHash": "46119879070ef30a8516a8db942f31a675e3681f",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "Before implementation, packages/main/src/core/claim-admissibility/quantum.ts does not exist, so Quantum claim/evidence schema and identity binding cannot be imported or tested.",
+      "failingCommand": "test -f packages/main/src/core/claim-admissibility/quantum.ts",
+      "expectedGreenCommand": "npm --prefix packages/main run test:quantum-claim-admissibility",
+      "greenRelation": {
+        "targetRef": "REQ-quantum-m0-m1-runtime",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:quantum-claim-admissibility"
+      },
+      "note": "Feature red evidence records the missing runtime slice before adding the module and smoke.",
+      "createdAt": "2026-07-02T19:55:44.173Z"
+    },
+    {
+      "id": "RED-20260702195652",
+      "trigger": "Quantum smoke command is absent before implementation.",
+      "acceptanceTargetRef": "CHK-004:happy:0",
+      "baselineHeadHash": "46119879070ef30a8516a8db942f31a675e3681f",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "Before implementation, the package script test:quantum-claim-admissibility and its smoke task do not exist, so the user cannot see quantum claim-admissibility smoke passed.",
+      "failingCommand": "npm --prefix packages/main run test:quantum-claim-admissibility",
+      "expectedGreenCommand": "npm --prefix packages/main run test:quantum-claim-admissibility",
+      "greenRelation": {
+        "targetRef": "CHK-004:happy:0",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:quantum-claim-admissibility"
+      },
+      "note": "Red evidence binds the missing smoke command to the checklist acceptance that will become green after implementation.",
+      "createdAt": "2026-07-02T19:56:52.402Z"
+    }
+  ],
+  "createdAt": "2026-07-02T19:55:44.173Z",
+  "updatedAt": "2026-07-02T19:56:52.402Z"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7b4e",
+  "state": "confirmed",
+  "ledgerHash": "sha256:8c2202a7f8f933ceda58b9f73cadd698e100ee09817604b3603feea648916391",
+  "milestones": [
+    {
+      "id": "M-QUANTUM-DOC",
+      "sourceRequirementId": "REQ-quantum-m0-m1-runtime",
+      "claim": "The Quantum execution plan is present as the story source of truth and states M0-M1 delivered while M2-M5 remain pending.",
+      "doneMeans": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md exists and retains the delivery status axis.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-QUANTUM-RUNTIME",
+      "sourceRequirementId": "REQ-quantum-m0-m1-runtime",
+      "claim": "Quantum M0-M1 schema and identity binding reject stale, missing, mismatched, and unbound evidence.",
+      "doneMeans": "npm --prefix packages/main run test:quantum-claim-admissibility passes and prints quantum claim-admissibility smoke passed.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-NO-OVERCLAIM",
+      "sourceRequirementId": "REQ-no-scientific-overclaim",
+      "claim": "The story output never claims scientific truth, hardware validation, solver improvement, production completion, or Authority completion.",
+      "doneMeans": "Docs and smoke output keep all scientific/hardware/production claim booleans false and state M2-M5 pending.",
+      "requiredEvidence": [
+        "docs_check",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T19:56:45.024Z",
+  "updatedAt": "2026-07-02T19:57:38.714Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702195536",
+    "acceptedInterpretationHash": "sha256:a0e5fa28e38607135f0368af88589351a0f8e3c2c367dedfc1657cea93113550",
+    "acceptedAt": "2026-07-02T19:57:38.714Z"
+  }
+}

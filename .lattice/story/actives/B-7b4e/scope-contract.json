@@ -1,0 +1,22 @@
+{
+  "storyId": "B-7b4e",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T19:58:10.369Z",
+  "updatedAt": "2026-07-02T19:58:10.369Z"
+}
