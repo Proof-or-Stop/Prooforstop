@@ -14,18 +14,24 @@ The full 1,000,000-record baseline is valuable as a correctness proof, but it is
 not the desired runtime path for `session_brief`, handoff, story intake, DONE
 closure, or final-response checks.
 
-Recent verified baseline:
+## Current Verified Baseline Vs Runtime Target
 
-| Scenario | Result |
-|---|---:|
-| Full generated baseline | PASS |
-| Record count | 1,000,000 |
-| Exact million flag | `fullProfileExactMillion=true` |
-| Elapsed time | 20,705 ms |
-| Peak RSS | 207,552,512 bytes |
+The current verified 1,000,000-record result is a full reference/profile path,
+not the optimized runtime hot path.
 
-This is acceptable for full baseline validation. It is not acceptable for a
-regular entrypoint that should feel instant to a host starting work.
+| Path | Status | Records | Elapsed | Peak RSS | Meaning |
+|---|---|---:|---:|---:|---|
+| Full reference baseline | PASS | 1,000,000 | 19,934 ms | 1,062,748,160 bytes | Correctness/profile proof only |
+| Indexed small fixture path | PASS | fixture-sized | smoke-level | smoke-level | M0-M2 semantic safety proof |
+| Indexed/cached million hot path | NOT YET PROVEN | 1,000,000 | target 1-2s | report-first | M3-M6 target |
+
+Do not claim sub-second or 1-2 second million-record runtime performance until
+M6 reports indexed/cached hot-path latency on 1,000,000 records. M0-M2 only
+prove safe indexing and small-fixture parity.
+
+The full reference baseline is acceptable for full validation. It is not
+acceptable for a regular entrypoint that should feel instant to a host starting
+work.
 
 ## 2. Target Outcome
 
@@ -135,6 +141,9 @@ hash(
   normalizedContextClass,
   contributingSourceDigestTuple,
   runtimeConfigDigest,
+  consumerPolicyVersion,
+  maxTopK,
+  maxLines,
   indexVersion
 )
 ```
@@ -218,6 +227,59 @@ Required behavior:
 | M7 Health and observability | Make latency and cache behavior visible | Health reports index age, cache hit rate, p95 latency, stale counts |
 | M8 Rollout policy | Move from report-only to warn/enforce where appropriate | Runtime SLOs are enforced only after correctness and observability are stable |
 
+### M3 Pack Cache Detailed Checklist
+
+- Define cache key over schemaVersion, consumer, normalized query/context,
+  contributingSourceDigestTuple, runtimeConfigDigest, consumer policy version,
+  max top-k/line cap, and indexVersion.
+- Use contributing source refs for hot-path freshness.
+- Treat broad source changes that do not affect contributing rows as
+  stale-irrelevant or background refresh, not a hard hot-path miss.
+- Invalidate cache on source/config/index/policy changes.
+- Invalidate affected rows on playbook status transitions: activate, archive,
+  reject, stale, supersede.
+- Prove unchanged inputs hit cache and changed contributing inputs miss cache.
+
+### M4 Consumer Rollout Detailed Checklist
+
+- Wire optimized indexed/cached pack into `session_brief`.
+- Wire optimized indexed/cached pack into handoff create/resume.
+- Wire optimized indexed/cached pack into story intake / story advance.
+- Wire optimized indexed/cached pack into DONE prepare / DONE closure.
+- Wire optimized indexed/cached pack into final response check.
+- Keep every consumer advisory-only with `authority=non_authoritative` and
+  `gateEvidence=false`.
+
+### M5 Correctness Matrix Detailed Checklist
+
+For both reference and optimized paths, verify:
+
+| Case | Required result |
+|---|---|
+| active playbook | surfaces when relevant |
+| candidate playbook | `candidateFalseSurface=0` |
+| superseded memory | suppressed by default and listed |
+| stale-relevant mutation | detected as stale-relevant |
+| stale-irrelevant mutation | not treated as hard stale |
+| deprecated brand residue | detected only as residue, not current guidance |
+| malformed row | does not crash |
+| line cap | `maxLines` and `omittedCount` preserved |
+
+### M6 Million Baseline Parity Detailed Checklist
+
+- Generate or reuse a deterministic 1,000,000-record baseline.
+- Run reference full-scan gold queries.
+- Run indexed runtime gold queries.
+- Run cached runtime gold queries.
+- Compare required IDs, freshness class, candidate false-surface rate,
+  supersession suppression, deprecated-term handling, malformed-row behavior,
+  `maxLines`, and `omittedCount`.
+- Report latency separately for:
+  - reference full scan;
+  - indexed cold path;
+  - indexed warm/cache path.
+- Performance SLO remains report-first until correctness parity is green.
+
 ## 7. Verification Matrix
 
 | Case | Expected result |
@@ -259,7 +321,20 @@ hit. It does require:
 | Index rebuild | deterministic rebuild digest |
 | Reference parity | gold-query comparison between indexed/cached path and full-scan path |
 
-## 9. Paper-Framing Note
+## 9. No-Overclaim Rule
+
+M0-M2 completion means:
+
+- current full reference baseline cost is measured;
+- runtime index schema and atomic rebuild are implemented;
+- indexed retrieval matches reference behavior on small fixtures.
+
+It does not mean million-record runtime performance is optimized.
+
+A host may only claim "1-2s million-record runtime memory" after M6 produces a
+passing indexed/cached million-record parity report with latency numbers.
+
+## 10. Paper-Framing Note
 
 If this is written into the paper, use bounded language:
 
@@ -276,7 +351,7 @@ Safer claim:
 > bounded, non-authoritative runtime context, while current evidence remains the
 > only source for lifecycle gates.
 
-## 10. Risks
+## 11. Risks
 
 | Risk | Mitigation |
 |---|---|
@@ -287,7 +362,7 @@ Safer claim:
 | Performance work delays correctness | Keep performance report-first until M6 |
 | Large index becomes noisy | Cap candidates before ranking and report omitted counts |
 
-## 11. Definition Of Done
+## 12. Definition Of Done
 
 This optimization is complete when:
 
