@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1c46",
+  "checkedAt": "2026-07-02T14:20:46.235Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "79aab7804070decdd906bc236037434e293cb420706bb801ae3ec42aafc16f5c",
+  "executionBoundaryHash": "21e158523e071e3936f3d294879c31161661bbc19321cb48a9645bdc011b0ed7",
+  "freshnessHash": "da072fc0663e5a9b09bb7a83733fb6c2056584c4bfe99d114f8ab63499143ff8",
+  "effectiveExcludedKeywords": [
+    "Do not change REVIEW/TEST/DONE gate semantics except adding performance smoke evidence for this story.",
+    "Do not claim the 1-2s target unless the full-profile performance smoke passes with indexedWarmCacheMs <= 2000ms.",
+    "Do not make runtime memory authoritative or gate evidence; authority must remain non_authoritative and gateEvidence=false.",
+    "Do not remove semantic parity behaviors for exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases.",
+    "Do not touch unrelated paper, README, recovery-runner, or existing user-dirty files."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change REVIEW/TEST/DONE gate semantics except adding performance smoke evidence for this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change REVIEW/TEST/DONE gate semantics except adding performance smoke evidence for this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not claim the 1-2s target unless the full-profile performance smoke passes with indexedWarmCacheMs <= 2000ms.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim the 1-2s target unless the full-profile performance smoke passes with indexedWarmCacheMs <= 2000ms.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not make runtime memory authoritative or gate evidence; authority must remain non_authoritative and gateEvidence=false.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not make runtime memory authoritative or gate evidence; authority must remain non_authoritative and gateEvidence=false.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not remove semantic parity behaviors for exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not remove semantic parity behaviors for exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not touch unrelated paper, README, recovery-runner, or existing user-dirty files.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not touch unrelated paper, README, recovery-runner, or existing user-dirty files.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8b8f853d7127bd564b8ef25678655938bc4b9021ecf8a341506b45d53aee9c9a"
+}
