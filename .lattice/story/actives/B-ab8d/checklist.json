@@ -46,6 +46,18 @@
           "materialHash": "c4cf0074e2c9f0562265aa4ca33002f02cc4f78a3673948ef73bfab6a81233eb",
           "storyFilesHash": "a85b34d6742d428a3bc1df22232f9ce1478ddcf274240db95f9326993d4adaa5",
           "timestamp": "2026-07-02T23:09:40.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experiment-arm-smoke.ts",
+          "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
+          "result": "pass",
+          "note": "Partial context (id only / arm only / whitespace-only counterpart) returns null with exactly one console.warn naming the ignored var; empty or whitespace-only experimentId is treated as unset (silent null when arm also unset).",
+          "headHash": "90d50b730f78df034a973c16619d61ce802db235",
+          "materialHash": "c4cf0074e2c9f0562265aa4ca33002f02cc4f78a3673948ef73bfab6a81233eb",
+          "storyFilesHash": "a85b34d6742d428a3bc1df22232f9ce1478ddcf274240db95f9326993d4adaa5",
+          "timestamp": "2026-07-02T23:09:48.213Z"
         }
       ]
     },
