@@ -136,6 +136,24 @@
       ],
       "signatureTag": "cleanup|mjs|host-codex-protocol",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-009",
+      "desc": "sample-size.mjs main() has no try/catch wrapper: JSON.parse failures (malformed config file) and readFileSync errors (file not found) surface as raw Node.js stack traces rather than the clean 'ERROR: <message>' pattern used consistently by protocol.mjs and pair-ledger.mjs. The quality review scope explicitly requires 'JSON parse failures produce useful errors'. Demonstration: node sample-size.mjs report --config=/nonexistent.json exits 1 but emits a 10-line stack trace from node:fs:442 instead of a clean ERROR line. Fix: wrap main() body in try { ... } catch (err) { console.error('ERROR: ' + err.message); process.exit(1); }",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:10.231Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "20b4bd6c16a0b18720b574f8bc4caabc944c51a06e0db1af63472bf0d31d5f66",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "edge|mjs|sample-size-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
