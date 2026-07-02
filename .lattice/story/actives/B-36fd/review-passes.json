@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-02T19:14:06.340Z",
       "reviewRunId": "B-36fd:RR-005",
       "_hash": "9a3c51f8713e564679c354e55bb5bce424e464f15d904fb59e95cd2183316263"
+    },
+    {
+      "id": "B-36fd:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Final round (RR-006): 0 new findings. Regression sweep passed. F-004 adjudication verified: the ~62 maximum arises from the SAME uncorrected pooled two-proportion formula at an INTERIOR band point (baseline 0.6/MDE 0.25 -> pbar 0.475 -> n=61.4; baseline 0.625/MDE 0.25 -> n=61.6), not from the Fleiss continuity-corrected formula. Corner values 27-58 confirmed (min=27 at baseline 0.5/MDE 0.35; max=58 at baseline 0.5/MDE 0.25). The wording \"corner values 27-58; the ~62 maximum occurs inside the band near baseline 0.625 / MDE 0.25\" is arithmetically correct. F-005 fix confirmed: S11.1 now states H1 supported only when 95% CI upper bound < 0 for BOTH H1a and H1b on the fault-bearing in-store stratum (equiv. McNemar rejects alpha=0.05 with negative point estimate); RR never enters. F-006 fix confirmed: >=15 control-arm fault runs, freeze N at Wilson 95% CI lower bound, extend if CI width > 0.30 — present consistently in S7 (authoritative), M6 exit criteria, and S17 step 2. Regression: 18 sections confirmed, zero CJK, proof-or-stop appears only as clarifying note in S12, 12-finding provenance correct in header, no stale 29-58/84-116/12-15 numbers anywhere, S8 uses 27-62, S17 uses 27-62. All 6 findings F-001 through F-006 resolved.",
+      "createdAt": "2026-07-02T19:36:14.271Z",
+      "reviewRound": "2026-07-02T19:14:06.340Z",
+      "reviewRunId": "B-36fd:RR-006",
+      "_hash": "3ae7d6e5ffe37e737c46c0e243a729023df1882b62acb8d9a4800c2c50d7f199"
     }
   ]
 }
