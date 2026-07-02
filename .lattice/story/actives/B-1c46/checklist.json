@@ -3,80 +3,87 @@
     {
       "id": "CHK-001",
       "title": "M0 profile and red performance baseline",
-      "context": "Measure the current 1,000,000-record runtime memory reference/indexed/warm paths and identify where time is spent, especially token-map scan vs pack build vs cache hit/miss. Produce a failing or unmet-target profile artifact showing the 1-2s hot-path target is not yet proven.",
+      "context": "M0 acceptance: run the current command `node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full` and record a red/profile artifact showing the present full 1,000,000-record warm/cache path does not prove the target. The unmet target is indexedWarmCacheMs <= 2000ms on the full profile with parityPass=true; current baseline is expected to exceed or remain report-first. The profile must identify token scan, pack build, cache behavior, index build, and query count timing enough to guide M1-M5.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M0 outputs a baseline/profile transcript naming referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, warmCacheHits, and why the 1-2s target is not yet met."
     },
     {
       "id": "CHK-002",
       "title": "M1 semantic parity guard",
-      "context": "Lock current exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap behavior behind golden queries and digest parity so optimization cannot silently change memory guidance semantics.",
+      "context": "M1 acceptance: add golden semantic parity coverage for exact token, fuzzy/includes match, superseded suppression, candidate suppression, stale-relevant, stale-irrelevant, deprecated brand residue, malformed rows, maxLines, and omittedCount. The guard command must compare reference and optimized MemoryFreshnessPack result digests and fail on any semantic drift before performance optimization can be marked done.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M1 outputs a parity guard transcript showing reference and optimized digests match across exact/fuzzy/superseded/candidate/stale/deprecated/malformed/line-cap cases."
     },
     {
       "id": "CHK-003",
       "title": "M2 exact-token fast path",
-      "context": "Replace common query matching with O(1) exact token lookup while preserving fallback behavior and proving 1,000,000-record parity.",
+      "context": "M2 acceptance: implement exact-token O(1) lookup for runtime memory index candidate selection while preserving the M1 parity guard. The full-profile benchmark must still report parityPass=true and show lower indexedColdMs or matchingIds/token-scan time than M0. No memory pack may become gate evidence or authoritative.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M2 outputs a benchmark/profile transcript showing exact-token fast path is used, parity remains true, and indexed cold/token-scan timing improves versus M0."
     },
     {
       "id": "CHK-004",
       "title": "M3 prefix or fuzzy auxiliary index",
-      "context": "Avoid full tokenMap scans for fuzzy/includes behavior by adding an auxiliary prefix/trigram or equivalent bounded fuzzy index, preserving parity and reporting indexed cold/warm latency.",
+      "context": "M3 acceptance: implement a bounded fuzzy auxiliary index, such as prefix/trigram/equivalent, so fuzzy/includes behavior no longer requires scanning every tokenMap entry for normal queries. The M1 parity guard and full 1,000,000-record parity must pass, and the profile must report fuzzy index hits/fallbacks so regressions are visible.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M3 outputs a transcript showing fuzzy auxiliary index hit/fallback counts, unchanged result digests, and improved indexed cold/warm timing over the all-token scan baseline."
     },
     {
       "id": "CHK-005",
       "title": "M4 persistent cache and prebuilt index lifecycle",
-      "context": "Make optimized runtime packs reusable across CLI process boundaries by adding durable cache or prebuilt index lifecycle with strict source/config/policy/indexVersion binding and stale handling.",
+      "context": "M4 acceptance: add durable cache or prebuilt index lifecycle that survives CLI process boundaries and is strictly bound to schemaVersion, consumer, normalized query/context, contributing source digests, runtime config digest, consumer policy version, limits, indexVersion, and projectRoot. Stale source/config/index/policy changes must miss or downgrade safely; fresh second-process lookup must hit.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M4 outputs a transcript proving first process writes durable cache/prebuilt index, second process reuses it, stale changes invalidate or downgrade safely, and authority remains non_authoritative with gateEvidence=false."
     },
     {
       "id": "CHK-006",
       "title": "M5 performance gate and benchmark report",
-      "context": "Add a benchmark/report gate that records p50/p95 or equivalent repeated-query latency for reference, indexed cold, and warm/cache paths, keeping false performance claims blocked until thresholds are actually met.",
+      "context": "M5 acceptance: add a user-visible benchmark command `node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000` or equivalent. It must fail if full-profile parity is false, candidate/superseded/stale/deprecated/malformed semantics drift, authority/gateEvidence changes, or indexedWarmCacheMs exceeds 2000ms. It must also report referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, p50/p95 where available, peak RSS, cache hit rate, and performance policy.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M5 outputs a full-profile performance smoke transcript with PASS only when indexedWarmCacheMs <= 2000ms, parity is true, cache is fresh, and memory remains non-authoritative advisory context."
     },
     {
       "id": "CHK-007",
       "title": "M6 rollout docs validation and version bump",
-      "context": "Document the completed performance path, keep runtime memory non-authoritative and gateEvidence=false, run build, parity smokes, full 1,000,000 benchmark, review assurance, DONE, and CLI patch version bump.",
+      "context": "M6 acceptance: create/update docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md with the actual implementation path and measured results, run build plus the parity/performance/full-profile smokes, complete review assurance, advance DONE, and bump the CLI patch version after merge. Final claim may say the 1-2s full-profile hot path is proven only if M5 performance smoke passes with indexedWarmCacheMs <= 2000ms; otherwise it must explicitly remain report-first/blocking.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M6 outputs the final DONE summary with exact command transcripts, measured timings, version number, and a clear statement of whether the 1-2s target is proven or remains blocked."
     }
   ]
 }
