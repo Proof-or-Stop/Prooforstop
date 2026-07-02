@@ -220,12 +220,17 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "Benchmark harness and injection plan is defined with fixed task/config set and explicit comparison artifacts for A1–A4.",
+      "userSees": "User sees: \"Benchmark design now enumerates fixed A1–A4 settings and B1–B15 injections with required comparison outputs.\"",
       "files": {
         "modify": [
-          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/NAV.md",
+          ".lattice/story/actives/B-2769"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/tasks/proof-or-stop-pinn-benchmark-harness.ts",
+          "packages/main/src/tasks/proof-or-stop-pinn-benchmark-report.ts"
+        ],
         "test": []
       },
       "verificationIntent": {
