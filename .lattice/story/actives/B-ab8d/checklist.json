@@ -158,6 +158,18 @@
           "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
           "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
           "timestamp": "2026-07-02T23:28:37.218Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-prepare.ts",
+          "command": "LATTICE_EXPERIMENT_ID=exp-chk002 LATTICE_EXPERIMENT_ARM=control node packages/main/dist/cli.js done_closure vs no-env run",
+          "result": "pass",
+          "note": "The renderMemoryFreshnessPackSummary-over-runbook.pack shape is gated by the same surfaceRuntimeMemoryPack shouldRender decision at both done-closure (renderDoneClosure showMemoryPack param) and done-prepare (renderPass showMemoryPack + block() conditional memoryFreshnessPack spread, done-prepare.ts). Transcript: control done_closure output has 0 \"Advisory memory considered\" sections vs 1 on no-env; all other lines (blocker rows, canAttemptDone, assurance) identical. done_prepare PASS-path render uses the identical packSurface.shouldRender value; end-to-end TEST-phase exercise is covered by the CHK-005 smoke per plan.",
+          "headHash": "db018b9609d61b1386ee835167658d9a821e270a",
+          "materialHash": "7c3f7cbf87bc5be7f6f5ab0e9bdda8f1f0c24b14cec5397ae349108e9dbc5792",
+          "storyFilesHash": "29ab72891abbd988306cec885e1c0f7d1b4d548ac99cc12b852df442e5d11c3c",
+          "timestamp": "2026-07-02T23:28:56.072Z"
         }
       ]
     },
