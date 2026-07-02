@@ -156,6 +156,17 @@
           "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-02T03:12:38.940Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "Smoke line partialIndexReadPrevented=true proves malformed/incomplete temp index is rejected while the previous complete index remains readable.",
+          "headHash": "544549404217d5703f6f488ba48ed821652598c5",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T03:13:46.941Z"
         }
       ]
     },
