@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-db1b",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/pinn-claim-admissibility.ts",
+    "packages/main/src/handlers/pinn-claim-admissibility.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+  ],
+  "excluded": [
+    "Claiming PDE or numerical correctness",
+    "Editing unrelated dirty user files",
+    "External Authority or network-backed production verification",
+    "Implementing scientific PINN solvers",
+    "Remote push or release publishing"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked on 2026-07-02 to start the M0-M5 PINN work until DONE; scope is bounded to local runtime claim-admissibility controls.",
+  "createdAt": "2026-07-02T18:39:26.408Z",
+  "updatedAt": "2026-07-02T18:39:26.408Z",
+  "_hash": "5a790c5505e42b3809420e4d77c1584330582a3f0ff0cb988406af4de2e8fd5c"
+}

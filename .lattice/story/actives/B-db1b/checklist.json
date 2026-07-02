@@ -1,0 +1,287 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0 runtime scope and command boundary",
+      "context": "Add a bounded runtime pack surface and one-command evidence-binding checklist command while preserving non-goals from docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees: \"PINN claim admissibility scope: local claim-control only; PDE correctness=false; productionDone=false\".",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "package-lock.json"
+        ],
+        "create": [
+          "packages/main/src/core/pinn-claim-admissibility.ts",
+          "packages/main/src/handlers/pinn-claim-admissibility.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI help exposes PINN claim admissibility commands with local-only/no-PDE-correctness wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Commands reject productionDone/authorityDone/PDE-correctness style flags or claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command can present PINN evidence as production or scientific correctness proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1 claim and evidence schema",
+      "context": "Implement versioned PINN claim/evidence schema with required identity fields, deterministic hash binding, and stale/missing/mismatch detection.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "User sees deterministic BLOCK reason codes for missing/stale/mismatched PINN evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/pinn-claim-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A complete current evidence bundle passes schema and identity binding checks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing hashes, stale hashes, or mismatched subject hashes block with stable reason codes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Low training loss alone cannot satisfy residual, BC/IC, generalization, baseline, reproducibility, or provenance claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2 verifier adapter pack",
+      "context": "Implement deterministic local verifier adapter receipt checks for spec, training, residual, BC, IC, out-of-sample, baseline, reproducibility, and provenance evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "User sees adapter-specific fail-closed reason codes when verifier receipts are missing or malformed.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/pinn-claim-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All nine adapter families accept deterministic machine-readable pass receipts bound to the active identity.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Malformed receipts, failed exit codes, wrong verifier hashes, or stale adapter outputs fail closed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A verifier-only arm without lifecycle gate still permits unsupported advancement in the benchmark where A4 blocks it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3 gate transition engine",
+      "context": "Implement fail-closed lifecycle transition evaluation for advance/repair/degrade/stop over the PINN claim path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "User sees nextAction=advance/repair/degrade/stop with explicit reason codes for each PINN lifecycle transition.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/pinn-claim-admissibility.ts",
+          "packages/main/src/handlers/pinn-claim-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A complete evidence path advances through result claim without unsupported transitions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repairable missing evidence returns repair/degrade, while unsafe mismatch returns stop.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unsupported claim upgrades are blocked even when narrative self-report/checklist/verifier-only signals pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4 benchmark harness",
+      "context": "Implement deterministic A1-A4 / B1-B15 benchmark runner with unsupported-advance, stale-evidence, boundary-violation, reproducibility, intervention, and overhead metrics plus confidence intervals.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "userSees": "User sees a reproducible comparison table where A4 rejects all B1-B15 stale/mismatch injections and beats A1/A2/A3 on unsupported advancement.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/pinn-claim-admissibility.ts",
+          "packages/main/src/handlers/pinn-claim-admissibility.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Benchmark runner reports A1-A4 metrics and Wilson confidence intervals for deterministic fixtures.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A4 rejects every B1-B15 injection while the weaker arms expose nonzero unsupported/stale acceptance rates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Benchmark reports wall-time/intervention overhead instead of hiding costs or claiming PDE performance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5 reporting and governance integration",
+      "context": "Implement report rendering, artifact index, non-claim wording, docs status update, and smoke coverage for governance boundaries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "User sees report wording that says the pack controls claim admissibility and does not prove PDE correctness or improve solver accuracy.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/pinn-claim-admissibility.ts",
+          "packages/main/src/handlers/pinn-claim-admissibility.ts",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Report command renders artifact index and boundary paragraph from runtime results.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Report remains deterministic and machine-readable in JSON mode.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated reports never claim PDE correctness, production readiness, or external authority completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "storyId": "B-db1b",
+  "name": "pinn-claim-admissibility-runtime-pack",
+  "title": "Implement runtime Proof-or-Stop PINN claim-admissibility pack",
+  "description": "Deliver the runtime counterpart to the existing PINN execution plan: schema validation, verifier adapter checks, fail-closed gate transitions, deterministic A1-A4/B1-B15 benchmark reporting, and bounded governance/reporting commands without claiming PDE correctness or production authority.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "pinn",
+    "claim-admissibility",
+    "proof-or-stop",
+    "benchmark",
+    "gate"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-02T18:39:26.408Z",
+  "startedAt": "2026-07-02T18:39:26.408Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-02T18:39:26.763Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
+    }
+  ]
+}

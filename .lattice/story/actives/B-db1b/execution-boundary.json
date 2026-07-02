@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-db1b",
+  "allowedCommands": [
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice done_prepare",
+    "lattice done_required_validate",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice validate",
+    "node bin/lattice.js pinn_*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:pinn-claim-admissibility",
+    "npm run test:command-catalog-smoke"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/pinn-claim-admissibility.ts",
+    "packages/main/src/handlers/pinn-claim-admissibility.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Local-only implementation and verification; no OMX, no remote publish.",
+  "createdAt": "2026-07-02T18:39:26.408Z",
+  "updatedAt": "2026-07-02T18:39:26.408Z",
+  "_hash": "a22f9df4982b034ef5f6a7c7eeb07c34b64b7dd781390bb303ef662a2f7d24e2"
+}
