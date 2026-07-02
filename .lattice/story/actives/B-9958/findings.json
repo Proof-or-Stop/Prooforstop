@@ -54,7 +54,7 @@
       "desc": "Command docs/catalog surfaces still lead with legacy non-deducible wording instead of the B-9958 canonical non_promotable wording. The decision doc establishes non_promotable as the operator-facing term and says legacy non_deducible / mark_non_deducible are compatibility spellings (docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:157-161), and the text status renderer adds non_promotableSources with legacy storage noted (packages/main/src/handlers/playbook.ts:1116-1118). However playbook_promotion_status help/catalog still renders non-deducible sources (packages/main/src/cli/command-catalog.ts:1878), command-policy still says non-deducible source registry (packages/main/src/core/command-policy.ts:246), and process-fact levels still say non-deducible sources (packages/main/src/core/process-fact-levels.ts:156). This leaves the changed docs/catalog output inconsistent with the B-9958 terminology requirement; update these surfaces to lead with non_promotable while explicitly noting legacy non_deducible storage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T20:42:35.838Z",
@@ -69,7 +69,11 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|ts|command-docs-catalog",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed command catalog, command policy, and process fact wording to lead with canonical non_promotable terminology while noting legacy non_deducible storage compatibility only where needed.",
+      "resolvedAt": "2026-07-02T21:18:33.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9958:F-004",
