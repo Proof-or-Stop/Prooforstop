@@ -493,7 +493,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:55:21.167Z",
+      "endTime": "2026-07-02T14:57:55.673Z",
       "userSees": "Expected DONE summary includes `Proofbound CLI <new version>`, exact before/after timings, `full-3x2`, and whether `indexedWarmCacheMs<=2000` is proven.",
       "files": {
         "modify": [
@@ -536,33 +536,33 @@
           "kind": "docs_check",
           "command": "rg -n \"indexedWarmCacheMs|targetStatus|No-Overclaim\" docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
           "result": "pass",
-          "note": "Docs record actual implementation, before/after metrics, exact verification commands, no-overclaim rule, and final measured 1,000,000-record hot-path target proof.",
-          "headHash": "ce64b2885a9aa7b72b8defa5c5abe0c26b30407f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:21.420Z"
+          "note": "Docs record actual implementation, pre-change red baseline, final full-profile metrics, exact verification commands, and the measured targetStatus=met hot-path result.",
+          "headHash": "79134c9514d0cccf85955c9820b87163af70d26f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:55.906Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"non_authoritative|gateEvidence=false|Memory packs are context\" docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
           "result": "pass",
-          "note": "Docs preserve the advisory memory boundary: memory remains non_authoritative, gateEvidence=false, and cannot satisfy lifecycle gates.",
-          "headHash": "ce64b2885a9aa7b72b8defa5c5abe0c26b30407f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:21.653Z"
+          "note": "Docs preserve the advisory memory boundary: memory remains non_authoritative, gateEvidence=false, context only, and cannot satisfy lifecycle gates.",
+          "headHash": "79134c9514d0cccf85955c9820b87163af70d26f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:56.140Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
-          "kind": "docs_check",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
           "result": "pass",
-          "note": "Final docs only claim 1-2s for the optimized warm runtime hot path after targetStatus=met; they explicitly forbid claiming the full reference/index-build report completes in 1-2 seconds. CLI patch bump is a post-DONE merge discipline step.",
-          "headHash": "ce64b2885a9aa7b72b8defa5c5abe0c26b30407f",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:21.880Z"
+          "note": "Docs only claim the 1-2s target for the optimized warm runtime hot path after the full performance smoke passed with indexedWarmCacheMs=1; they explicitly forbid claiming the full reference/index-build report completes in 1-2 seconds.",
+          "headHash": "79134c9514d0cccf85955c9820b87163af70d26f",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:56.413Z"
         }
       ]
     }
