@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6048",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "nl *",
+    "node packages/main/dist/tasks/playbook-runtime-memory*",
+    "node scripts/verify-*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "agy-cli-fallback",
+    "apply_patch",
+    "claude-cli",
+    "codex-cli",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-6048",
+    "docs/requirements/decisions",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M3-M6 implementation and verification only. Do not use .omx. Do not run destructive git cleanup. Do not directly edit docs/story or tests/fixtures; use lattice commands for story metadata.",
+  "createdAt": "2026-07-02T11:18:13.609Z",
+  "updatedAt": "2026-07-02T11:18:13.609Z",
+  "_hash": "dfe0232f0b4f6089bc3ef830aa91bf93445ed78d1e0aca5afcb0c4bd46169862"
+}
