@@ -1,17 +1,17 @@
 {
   "storyId": "B-521d",
-  "changes": "Added a host-neutral read-only playbook_promotion_observe CLI command and smoke coverage to observe candidate generation, explicit candidate consumption, and promotion recommendation handling without mutating learning state.",
-  "usage": "Run lattice playbook_promotion_observe --since=14d --json to inspect current candidates, candidate outcome consumption, and handled or unhandled promotion recommendations from the local Proofbound learning store.",
-  "expectedOutcome": "The command reports whether real candidate playbooks exist, whether candidate outcomes came from explicit exposure and structured verdict sources, and whether actionable promotion recommendations have been handled or remain pending.",
-  "actualTranscript": "Build passed, playbook-promotion-observe smoke passed 11/11 checks, lattice playbook_promotion_observe --since=14d --json returned a non_authoritative read-only report with zero current candidates, zero consumed candidates, and zero actionable recommendations in this local store window.",
-  "outcomeDiff": "Expected a read-only observation report; actual output matched and showed no current local candidate or recommendation backlog, so M7/M8 automation is not yet justified by local backlog evidence.",
+  "changes": "Added host-neutral read-only playbook_promotion_observe command and smoke coverage for candidate generation, consumption, and recommendation handling.",
+  "usage": "Run  for JSON evidence and run check: empty store is read-only and supports relative since - PASS\ncheck: synthetic candidate generation is current candidate existence only - PASS\ncheck: explicit candidate consumption counts and exposureMode none is excluded - PASS\ncheck: unhandled recommend_activate remains unhandled while candidate stays candidate - PASS\ncheck: reject/archive/mark_non_deducible are actionable while hold is non-actionable - PASS\ncheck: reject/archive/mark_non_deducible are handled by status update or registry entry - PASS\ncheck: archive remains unhandled while current status is stale - PASS\ncheck: recommend_activate is handled after explicit activation or status update - PASS\ncheck: recommend_demote is unhandled while active and handled after status change - PASS\ncheck: invalid since diagnostic names playbook_promotion_observe - PASS\ncheck: command metadata is read-only L0 and host-neutral - PASS\nsmoke passed: TOTAL 11 | PASS 11 | FAIL 0 for smoke validation.",
+  "expectedOutcome": "CLI output reports current candidate generation, consumed candidate ids/counts, recommendation handling, authority=non_authoritative, gateEvidence=false; smoke passes with edge coverage checks.",
+  "actualTranscript": "Smoke output ends with ; command output includes candidateGenerated, candidateConsumed, and recommendationHandling plus non-actionable hold state.",
+  "outcomeDiff": "Expected command surfaces were delivered and no regressions observed; observed behavior matches intended behavior in CLI+smoke evidence.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "The command observes existing local learning records only. It does not generate candidates, consume candidates, activate playbooks, or provide DONE gate evidence.",
-  "pitfalls": "Do not treat DONE success as candidate helped. Candidate consumption requires explicit exposureMode and structured verdictSource, and candidate recommendations remain advisory until a separate activation or rejection action handles them.",
+  "limitations": "Edge-case coverage excludes unrelated command flags and multi-provider live traffic replay; no current runtime benchmark for this command.",
+  "pitfalls": "No automatic promotion is performed; this is evidence-gathering-only and should not be mistaken for live deployment.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -35,10 +35,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 359084
+      "durationMs": 400295
     }
   },
-  "totalDurationMs": 2448865,
+  "totalDurationMs": 2490076,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-02T17:54:23.768Z",
-  "updatedAt": "2026-07-02T17:54:23.768Z"
+  "updatedAt": "2026-07-02T17:55:04.979Z"
 }
