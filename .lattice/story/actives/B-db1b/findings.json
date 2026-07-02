@@ -260,7 +260,7 @@
       "desc": "Docs/evidence wording drift: CHK-003 adversarial evidence says `node bin/lattice.js pinn_benchmark_run --format=json` reports A3 verifier-only accepts 12 unsupported injections, but the current command output reports A3 acceptedCount=14 and unsupportedAcceptanceCount=14 while A4 rejects all 15. The broader docs/report boundary is accurate, but this precise recorded evidence count does not match the actual command and should be corrected or restated generically before the docs lane passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T21:17:10.191Z",
@@ -272,7 +272,11 @@
         ".lattice/story/actives/B-db1b/test-evidence.json"
       ],
       "signatureTag": "pinn-docs-evidence-benchmark-count-drift",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Updated CHK-003 adversarial verification evidence to match current benchmark output: A3 verifier-only acceptedCount=14 and unsupportedAcceptanceCount=14 while A4 rejects all 15 B1-B15 injections. Verified with node bin/lattice.js pinn_benchmark_run --format=json and npm run test:pinn-claim-admissibility.",
+      "resolvedAt": "2026-07-02T21:27:22.297Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-db1b:F-013",
