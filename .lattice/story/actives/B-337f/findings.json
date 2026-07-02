@@ -222,7 +222,7 @@
       "desc": "[host-2 Codex P3] dispatch-order oracle is loose on id format: Codex CLI / Claude Code CLI and agy-cli variants classified ok despite the prompt requiring ids from the notes. Fix: tokenize exact allowed ids {codex, claude, agy}, reject unknown labels, require both primaries before agy. (Overlaps quality F-002 substring finding — one fix.)",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T22:45:53.589Z",
@@ -232,7 +232,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-dispatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same fix as F-002: exact-token host ids, unknown labels rejected, primaries required before agy; probes for both directions pinned (labels rejected; exact policy order passes). Commit 6ea7bea73.",
+      "resolvedAt": "2026-07-02T22:49:40.087Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
