@@ -460,7 +460,7 @@
       "desc": "concept-cleanup: stale-design comment in fixture-generator.mjs:131-133 still describes superseded node --check-gated read of exported literal as the current false-done oracle design; the F-021 fix replaced that with JSON.parse of config.json (data, not code), but the comment was not updated — it claims a mechanism no longer present in ORACLE_RUNTIME",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-02T23:44:05.825Z",
@@ -471,7 +471,11 @@
         "experiments/experience-ablation/fixture-generator.mjs"
       ],
       "signatureTag": "missing|mjs|concept-cleanup-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The fixture-generator.mjs:131 comment now reads JSON.parse-of-a-config-value (matching the F-021 redesign) instead of the superseded --check literal read. Full-directory grep confirms no remaining stale current-design claim for the superseded lib/export/secret/nonce/--check designs (historical-rationale mentions are retained and labelled). Selfcheck 32/32 green.",
+      "resolvedAt": "2026-07-02T23:44:53.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
