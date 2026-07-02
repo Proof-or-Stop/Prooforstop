@@ -178,7 +178,7 @@
       "desc": "F-003 is only partially fixed: the catalog/policy/fact-level wording now leads with non_promotable, but playbook_promotion_status still exposes legacy non_deducible wording as operator-visible status output. The decision doc says non_promotable is canonical and non_deducible / mark_non_deducible are legacy compatibility spellings (docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:157-161). Current status JSON still uses nonDeducibleSources and paths.nonDeducibleSources, and the text renderer prints nonDeducibleSources before non_promotableSources (packages/main/src/handlers/playbook.ts:1060-1096,1116-1118). This keeps the actual CLI status surface out of sync with the B-9958 wording boundary; keep legacy storage names if needed, but expose canonical nonPromotable/non_promotable wording in status output with legacy storage noted only parenthetically.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T20:57:48.455Z",
@@ -193,7 +193,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "doc-code-drift|md|partially-fixed-catalog",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed playbook_promotion_status output to expose canonical nonPromotableSources and paths.nonPromotableSources while keeping legacy non_deducible only as storage compatibility detail; verified by CLI smoke.",
+      "resolvedAt": "2026-07-02T21:18:37.444Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9958:F-009",
