@@ -107,9 +107,9 @@
           "experiments/experience-ablation/pair-ledger-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T21:04:29.235Z",
       "userSees": "Running node experiments/experience-ablation/pair-ledger.mjs build --root=<tmp> --experimentId=exp1 --manifest=<fixtures.json> --seed=s1 writes fixture-manifest.jsonl, pair-ledger.jsonl (one pending control+treatment slot pair per fixture), and run-order-seed.json with a deterministic runOrder; rerunning build with the same seed prints an identical runOrder; build without a frozen protocol.json exits non-zero with a refusal message naming M0; build or any mutating call after score-records.jsonl exists exits non-zero with an immutability refusal; node pair-ledger.mjs verify re-derives the order and exits non-zero on any tampered row; node experiments/experience-ablation/pair-ledger-selfcheck.mjs prints a per-case PASS list and exits 0.",
       "verificationIntent": {
         "happy": [
