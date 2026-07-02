@@ -99,7 +99,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees indexed retrieval parity PASS: active guidance surfaces, candidate guidance stays inert, superseded/default-stale/deprecated/malformed cases match the reference runtime pack, and authority remains non_authoritative with gateEvidence=false.",
+      "userSees": "User sees the exact terminal line \"indexedReferenceParity=true\" plus \"candidateFalseSurface=0\" and \"authority=non_authoritative gateEvidence=false\".",
       "files": {
         "modify": [
           "packages/main/src/core/playbook-runtime-memory.ts",
