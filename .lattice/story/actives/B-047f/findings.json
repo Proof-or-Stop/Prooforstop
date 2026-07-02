@@ -196,7 +196,7 @@
       "desc": "sample-size.mjs uses plain writeFileSync (not atomic temp-then-rename) for both adequacy-report.json and adequacy-report.md writes (lines 262-263). protocol.mjs and pair-ledger.mjs both define and use a writeAtomic(path, text) helper that writes to a .tmp-<pid> path then renames. A crash or SIGKILL between the two writeFileSync calls leaves a valid .json alongside a truncated or absent .md, and a crash mid-write leaves a half-written .json. The quality review scope requires atomic writes for every artifact write. Fix: add writeAtomic helper matching protocol.mjs pattern and use it for both output files.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:18:19.343Z",
@@ -207,7 +207,11 @@
         "experiments/experience-ablation/sample-size.mjs"
       ],
       "signatureTag": "edge|mjs|sample-size-uses",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "adequacy-report.json/.md now written via writeAtomic (temp-then-rename), same helper pattern as the other tools. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:32.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-011",
