@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-047f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletions or replacements in this diff. All six new files are purely additive. Concept-lane checks all pass: (a) ARMS=[control,treatment] only — no shadow arm allocated; the sole occurrence of the word shadow is in a negative-path expectThrow test that proves invalid trapGroup shadow is refused. (b) Seeded phase is full-factorial (every fixture gets both arm slots via ARMS.map); only run ORDER is seeded via Fisher-Yates+xmur3+mulberry32 — no randomized assignment. (c) Calculator direction is reduction: p2 = baseline - mde (sample-size.mjs line 65); report.direction field is reduction: treatment = baseline - mde. (d) TRAP_GROUPS=[in_store,held_out,clean] matches plan terminology exactly. (e) Artifact filenames produced by S1 (protocol.json, memory-snapshot-hash.json, fixture-manifest.jsonl, pair-ledger.jsonl, run-order-seed.json, score-records.jsonl referenced in guard) match the plan S12 listing; task-manifest.jsonl, leakage-audit.jsonl, analysis-report.json/md are correctly absent (later milestones). (f) Schema versions proofbound.experience-ablation-protocol.v1 and proofbound.experience-ablation-adequacy.v1 follow the proofbound.*.v1 convention. (g) No Chinese text in any of the six files. (h) Diff confined to new files under experiments/experience-ablation/ plus .lattice/story/ metadata — no existing concepts deleted or replaced anywhere in the codebase.",
+      "createdAt": "2026-07-02T21:12:23.870Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-001",
+      "_hash": "63eca5650ff40282759167854b1a77cb5af47a292cfd971e1d7fd82e0488f05a"
+    }
+  ]
+}
