@@ -60,10 +60,30 @@
       "phase": "DEV",
       "headHash": "1225927ba4756b559c647f20113774a17ffecc0a",
       "materialHash": "e98210510384c971bd5702f39805ab4d858dd8066083df5ac269cb86be79c9f8"
+    },
+    {
+      "actor": "codex-cli",
+      "reason": "Necessary validation infrastructure fix: session_brief now loads runtime memory preflight and may create the ignored .lattice/learning runtime cache in the synthetic readiness fixture, so this smoke must ignore that runtime artifact to keep full validate clean.",
+      "timestamp": "2026-07-02T16:29:04.060Z",
+      "paths": [
+        "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c1cb1f33ad19804f5c56de21a590e958611affef",
+      "materialHash": "d0e02972484e5560fada449a241608801b7e896984065d172eb6d77acb06f710",
+      "anchors": [
+        "main_sync_readiness_runtime_cache_cleanliness",
+        "B_1c46_full_validate_unblock"
+      ]
     }
   ],
   "createdAt": "2026-07-02T14:27:50.270Z",
-  "updatedAt": "2026-07-02T14:58:14.130Z",
+  "updatedAt": "2026-07-02T16:29:04.060Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
