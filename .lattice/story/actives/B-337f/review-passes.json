@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-009",
       "_hash": "49ad1f4fa04b67acc9f4a48263eb0e5bd704a7cd84b82bec03a3b9f4efb98605"
+    },
+    {
+      "id": "B-337f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept review. Verified both source commits exactly as described. F-012 fix (commit 1252a94bf): sourceMustMatch replaced by sourcePattern (anchored regex ^export const LIMIT = 25;) in trap-templates.mjs oracleSpec at line 226, and classify() updated to new RegExp(spec.sourcePattern, m).test(src) at line 475. New probe pinned in selfcheck (28 cases). F-013 fix (commit 439ea064f): dead wrongValue field removed from verdict-line oracleSpec at line 143; oracle reads only spec.rightValue at line 442. Concept residue grep across experiments/ and packages/ for both sourceMustMatch and wrongValue returns zero hits (only .lattice/ audit-history JSON, which is not code). No concept drift. No spec field leakage. No promised-but-undelivered items. Pass.",
+      "createdAt": "2026-07-02T23:02:46.444Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-011",
+      "_hash": "8f03538ed03875d0f406120891cb27890b94747e7d24c459935f6b07ef17e9e0"
     }
   ]
 }
