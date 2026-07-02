@@ -421,9 +421,59 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:32:00.790Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:32:10.542Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke and status output verify V1 readiness fields and V2 disabled-by-default posture are exposed.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:32:10.976Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies playbook_auto_promotion_apply --apply fails closed when the explicit feature flag/reviewed policy are absent.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:32:11.368Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Auto-promotion guard reports lineage/exposure/outcome/safety prerequisites and does not activate candidates in this story.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:32:11.776Z"
+        },
+        {
+          "intentRef": "CHK-005:docs:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Command surface documentation synced to mark B-9958 V1 surfaces implemented while keeping auto-activation future-only.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:32:12.131Z"
+        }
+      ]
     }
   ]
 }
