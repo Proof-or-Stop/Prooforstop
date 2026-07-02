@@ -819,6 +819,7 @@ function validateIsoTimestamp(value: string, label: string): string | null {
 export function isPositiveHelpedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
   return event.outcome.verdict === 'helped'
     && event.exposureMode !== 'none'
+    && event.outcome.verdictSource !== 'done-settlement'
     && STRUCTURED_VERDICT_SOURCE_RE.test(event.outcome.verdictSource);
 }
 
@@ -829,6 +830,7 @@ export function isStructuredPlaybookOutcomeVerdictSource(value: string): boolean
 export function isCandidateConsumedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
   return event.playbookStatusAtObservation === 'candidate'
     && event.exposureMode !== 'none'
+    && event.outcome.verdictSource !== 'done-settlement'
     && isStructuredPlaybookOutcomeVerdictSource(event.outcome.verdictSource);
 }
 
@@ -1074,14 +1076,15 @@ export function aggregatePlaybookPromotion(
   const decisiveContextClasses = new Set<string>();
 
   for (const event of relevant) {
-    if (event.outcome.causedWrongClaim) wrongClaimCount += 1;
-    if (event.outcome.verdict === 'helped' && isPositiveHelpedPlaybookOutcome(event)) {
+    const doneSettlement = event.outcome.verdictSource === 'done-settlement';
+    if (!doneSettlement && event.outcome.causedWrongClaim) wrongClaimCount += 1;
+    if (!doneSettlement && event.outcome.verdict === 'helped' && isPositiveHelpedPlaybookOutcome(event)) {
       helpedCount += 1;
       decisiveContextClasses.add(contextClass(event));
-    } else if (event.outcome.verdict === 'dismissed') {
+    } else if (!doneSettlement && event.outcome.verdict === 'dismissed') {
       dismissedCount += 1;
       decisiveContextClasses.add(contextClass(event));
-    } else if (event.outcome.verdict === 'harmful') {
+    } else if (!doneSettlement && event.outcome.verdict === 'harmful') {
       harmfulCount += 1;
       decisiveContextClasses.add(contextClass(event));
     } else if (event.outcome.verdict === 'neutral') {

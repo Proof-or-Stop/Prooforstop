@@ -919,22 +919,32 @@ Tests:
 - control mechanism is explicit;
 - trial traffic cannot surface when flag is off.
 
-### M8. Future Auto Active And Timer
+### M8. Evidence-Activated Advisory Apply And Future Timer
 
-Goal: make the loop run without human memory only after V1 is proven.
+Goal: close the guarded advisory activation loop without changing promotion
+sweep semantics or lifecycle authority.
 
 Deliverables:
 
-- optional periodic timer registration;
-- optional automatic advisory activation;
-- automatic reversal/demotion path.
+- promotion sweep remains recommendation-only and records applied
+  `recommend_activate` decisions when explicitly applied;
+- `playbook_auto_promotion_apply` is the separate evidence-activated apply
+  writer for candidate-to-active advisory activation;
+- apply requires reviewed policy, current candidate digest, an applied
+  `recommend_activate` decision, explicit non-DONE exposure/outcome evidence,
+  clean source lineage, and rollback/demotion readiness;
+- apply writes non-authoritative, `gateEvidence:false` activation audit rows;
+- optional periodic timer registration remains future work.
 
 Tests:
 
-- disabled flag causes no-op;
-- timer registration is visible and bounded;
-- auto-active remains advisory;
-- auto-demotion reverses harmful active guidance.
+- DONE-settlement-labelled rows cannot satisfy activation recommendation or
+  eligibility thresholds;
+- stale candidate digests fail closed;
+- malformed activation audit rows fail closed without activating a candidate;
+- advisory activation remains non-authoritative and `gateEvidence:false`;
+- future timer registration, if added, is visible and bounded;
+- demotion recommendations surface harmful active guidance.
 
 ## 20. Acceptance Criteria
 
@@ -962,7 +972,8 @@ V1 is complete when:
     may remain `non_deducible`.
 
 Future completion for V2+ requires separate acceptance criteria for trial
-serving, matched control, timers, and auto-active advisory promotion.
+serving, matched control, timers, and any timer-driven or trial-serving
+promotion variants.
 
 ## 21. Suggested Implementation Order
 
@@ -976,7 +987,8 @@ Recommended sequence:
 6. M3 DONE settlement hook.
 7. M6 candidate inspection/status.
 8. M7 trial/matched-control spike.
-9. M8 auto-active/timer only if the spike says the simple loop is insufficient.
+9. M8 evidence-activated advisory apply; timer registration remains a separate
+   future extension only if the simple loop is insufficient.
 
 M3 can move earlier if the team wants settlement data sooner, but the safest
 order is to establish concurrency and outcome validation before wiring DONE.

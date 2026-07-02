@@ -31,9 +31,11 @@ import {
   buildPlaybookSourceReference,
   computePlaybookDigest,
   computePlaybookProposalDigest,
+  evaluatePlaybookPromotion,
   listProposals,
   markNonDeducibleSource,
   readPlaybookAutoActivationEvents,
+  readPlaybookOutcomeEvents,
   readPlaybooks,
   readProposal,
   resolveFindingSignalsPath,
@@ -324,6 +326,70 @@ function recordHelpedOutcome(
       causedWrongClaim: false,
       preventedRepeatFinding: true,
       note: 'Candidate prevented a repeated claim boundary error after explicit inspection.',
+    },
+    bindings: {},
+  } as any);
+}
+
+function recordDoneSettlementHelpedOutcome(
+  handlers: ReturnType<typeof createPlaybookHandlers>,
+  playbookId: string,
+  index: number,
+): void {
+  handlers.playbook_outcome_record({
+    eventId: `PBO-DONE-HELPED-${index}`,
+    idempotencyKey: `done-settlement-helped-${index}`,
+    observedAt: `2026-07-02T00:1${index}:00.000Z`,
+    storyId: STORY_ID,
+    playbookId,
+    exposureMode: 'candidate-inspection',
+    consumer: 'done_closure',
+    context: {
+      storyPhase: 'DONE',
+      storyType: 'feature',
+      fileKinds: ['ts'],
+      triggerClasses: [`done-settlement-${index}`],
+    },
+    outcome: {
+      verdict: 'helped',
+      verdictSource: 'done-settlement',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: true,
+      note: 'Settlement label must remain health-only, not activation evidence.',
+    },
+    bindings: {},
+  } as any);
+}
+
+function recordNeutralReviewerOutcome(
+  handlers: ReturnType<typeof createPlaybookHandlers>,
+  playbookId: string,
+): void {
+  handlers.playbook_outcome_record({
+    eventId: 'PBO-REVIEWER-NEUTRAL',
+    idempotencyKey: 'reviewer-neutral-candidate-inspection',
+    observedAt: '2026-07-02T00:19:00.000Z',
+    storyId: STORY_ID,
+    playbookId,
+    exposureMode: 'candidate-inspection',
+    consumer: 'reviewer',
+    context: {
+      storyPhase: 'REVIEW',
+      storyType: 'feature',
+      fileKinds: ['ts'],
+      triggerClasses: ['reviewer-neutral'],
+      host: 'reviewer-neutral-host',
+      hostProvider: 'codex',
+      hostCapabilityId: 'reviewer-neutral-capability',
+    },
+    outcome: {
+      verdict: 'neutral',
+      verdictSource: 'reviewer',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: false,
+      note: 'Real candidate inspection exposure, but not a helped sample.',
     },
     bindings: {},
   } as any);
@@ -673,6 +739,40 @@ function run(): void {
       }], []);
       assert.equal(aggregate.helpedCount, 0);
       assert.equal(aggregate.neutralCount, 1);
+    });
+
+    check('M8 DONE-settlement helped rows cannot drive evidence activation', () => {
+      const root = mkProject();
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedLearning(root, store);
+      const handlers = createPlaybookHandlers(ctx);
+      const candidate = approveSeedCandidate(root, handlers);
+
+      recordDoneSettlementHelpedOutcome(handlers, candidate.id, 1);
+      recordDoneSettlementHelpedOutcome(handlers, candidate.id, 2);
+      recordDoneSettlementHelpedOutcome(handlers, candidate.id, 3);
+      recordNeutralReviewerOutcome(handlers, candidate.id);
+
+      const aggregate = aggregatePlaybookPromotion(candidate, readPlaybookOutcomeEvents(root), []);
+      assert.equal(aggregate.helpedCount, 0, 'DONE-settlement helped rows are not helped promotion evidence');
+      assert.equal(aggregate.decisiveSamples, 0, 'DONE-settlement helped rows are not decisive promotion evidence');
+      assert.equal(aggregate.contextClassCount, 0, 'DONE-settlement rows do not satisfy context diversity');
+      assert.equal(evaluatePlaybookPromotion(aggregate).action, 'hold');
+
+      const sweep = withSweepEnabled(() => parseJson<any>(handlers.playbook_promotion_sweep({ json: true })));
+      const decision = sweep.decisions.find((row: any) => row.playbookId === candidate.id);
+      assert.ok(decision, 'promotion sweep reported candidate decision');
+      assert.notEqual(decision.action, 'recommend_activate', 'DONE-settlement helped rows must not recommend activation');
+
+      const dry = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
+      const guard = dry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
+      assert.ok(guard, 'auto-promotion guard reported candidate');
+      assert.equal(guard.realOutcomeCount, 1, 'only the real reviewer exposure counts as real outcome evidence');
+      assert.equal(guard.exposureCount, 1, 'reviewer neutral exposure remains observable');
+      assert.notEqual(guard.recommendation, 'recommend_activate');
+      assert.equal(guard.eligible, false);
+      assert.ok(guard.blockers.includes('promotion_recommendation_hold'));
     });
 
     check('M6 runtime verification consumes active playbooks and keeps candidates inert', () => {
