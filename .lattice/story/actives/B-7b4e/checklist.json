@@ -276,9 +276,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:02:54.884Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:04:38.282Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke passes valid Hamiltonian-bound Q5 energy evidence and valid Q12 figure provenance evidence.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:38.597Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke blocks single-run Q5 energy evidence from proving stronger ground-state, convergence, or quantum-advantage claims and degrades to scoped evidence.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:38.890Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke demonstrates rejection for unbound solver output, unbound plot/table, and Hamiltonian/grid/verifierScriptHash mismatch.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:39.192Z"
+        },
+        {
+          "intentRef": "CHK-004:build:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build compiles the new Quantum schema, evaluator, smoke task, and package script.",
+          "headHash": "7ad9d6e4f87c89b0f2b7775c2b65c5a28e10bb2f",
+          "materialHash": "9608acb4bf9ec88717cbb58c5d19a3dddb755d29001b3a1e31e66a5be63778c2",
+          "storyFilesHash": "5f93096190626ea47d1b3f87dff7994c61ce2d53ce5890149c2cac545b2db9b5",
+          "timestamp": "2026-07-02T20:04:39.480Z"
+        }
+      ]
     }
   ]
 }
