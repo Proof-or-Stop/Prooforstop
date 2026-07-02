@@ -67,7 +67,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M2 outputs a benchmark/profile transcript showing exact-token fast path is used, parity remains true, and indexed cold/token-scan timing improves versus M0."
+      "userSees": "Expected transcript includes `exactFastPathHits=<n>`, `tokenScanFallbacks=<n>`, `parityPass=true`, and an improved indexed/token-scan timing versus M0.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Exact query tokens use direct tokenToIds lookup and produce the same candidate set/order as the reference path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exact lookup respects candidateLimit, corpus order, superseding entries, and empty-query recent-entry fallback.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The exact fast path must fall back safely for fuzzy-only cases instead of dropping results or changing MemoryFreshnessPack digest semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
