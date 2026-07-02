@@ -36,7 +36,41 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-000:happy",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Terminology and status framing in this plan are Proof-or-Stop-only and do not imply runtime claims.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-000:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Scope framing text explicitly marks this as design scope and separates design artifacts from runtime claims.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-000:adv",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Adversarial wording scan shows no overstatement: this document contains boundary language and explicit 'not runtime proof' framing.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -84,7 +118,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Document now lists fixed cross-regime baseline constraints (PDE/domain/model/budget/seed/grid/verifier) so A1-A4 comparisons are constrained to one control variable."
+      "userSees": "Document now lists fixed cross-regime baseline constraints (PDE/domain/model/budget/seed/grid/verifier) so A1-A4 comparisons are constrained to one control variable.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-002:happy",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "The plan now pins PDE/domain/model/budget/seed/grid/verifier/task and failure-injection settings for A1–A4 comparisons.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-002:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No regime comparison axis changes are introduced: only control regime varies while all core settings remain fixed.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-002:adv",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Documented control experiment statement blocks hidden drift in PDE/domain/model/seed/grid/verifier settings by explicit pinning.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -132,7 +201,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Document now includes a bounded benchmark task set and B1-B15 injection matrix for admissibility-control evaluation."
+      "userSees": "Document now includes a bounded benchmark task set and B1-B15 injection matrix for admissibility-control evaluation.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-003:happy",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Benchmark task set and injections B1–B15 are explicitly enumerated and bounded.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-003:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Tasks are explicitly non-PDE-performance claims and scoped to admissibility-control outcomes only.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-003:adv",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Adversarial check confirms benchmark sections are about admissibility control, not claim of PINN performance.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -180,7 +283,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Terminology is normalized to Proof-or-Stop and non-goals/limitations are explicit in boundary paragraphs."
+      "userSees": "Terminology is normalized to Proof-or-Stop and non-goals/limitations are explicit in boundary paragraphs.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-001:happy",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Plan title and boundary wording now use Proof-or-Stop consistently and exclude PDE correctness language.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-001:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No section overpromises scientific correctness; non-goals and non-results are explicit.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-001:adv",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Adversarial wording audit confirms future-domain boundary and proof-or-stop terms are explicit and bounded.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -228,7 +365,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Success criteria now specify explicit metrics, comparison axes, and confidence-interval reporting expectations."
+      "userSees": "Success criteria now specify explicit metrics, comparison axes, and confidence-interval reporting expectations.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-004:happy",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Success criteria now include explicit unsupported-advance/stale-evidence rates, false-stop codes, and confidence-interval reporting.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-004:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Rate metrics are bound to reproducible command/report outputs and comparison axes.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-004:adv",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Paper-grade path includes confidence-interval reporting and explicit reporting discipline for first baseline run.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -279,7 +451,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Governance boundary and publication posture are explicit and aligned with future-domain claim-control scope."
+      "userSees": "Governance boundary and publication posture are explicit and aligned with future-domain claim-control scope.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-005:happy",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Boundary paragraph and publication posture are present and explicitly deny PDE correctness claims.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-005:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "No section promotes production readiness or PDE performance; language is constrained to admissibility claims only.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-005:adv",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Adversarial check confirms downstream-posture language avoids claiming theorem/proof-level scientific results.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -327,7 +533,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Milestone axis is explicit: M0–M5 are docs artifacts in this story; runtime implementation is explicitly out-of-scope."
+      "userSees": "Milestone axis is explicit: M0–M5 are docs artifacts in this story; runtime implementation is explicitly out-of-scope.",
+      "verificationEvidence": [
+        {
+          "intentRef": "pinn-doc-006:happy",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Milestone axis now distinguishes M0–M5 docs completion and explicitly notes runtime implementation is deferred.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-006:edge",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Milestone language prevents interpretation of runtime module implementation as already shipped.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        },
+        {
+          "intentRef": "pinn-doc-006:adv",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Axis is auditable as docs/runtimes split, preventing future over-assumption in downstream stories.",
+          "headHash": "986cba49bf9b8b58eeb66f393e0e3e91571dab1f",
+          "materialHash": "a2d2b7db68b45a4756cebc34150bf52f8055b3ff3f91d950f3579ab3c1948358",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T17:22:48.494Z"
+        }
+      ]
     }
   ]
 }
