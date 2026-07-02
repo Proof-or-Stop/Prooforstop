@@ -1,0 +1,42 @@
+{
+  "storyId": "B-6b39",
+  "checkedAt": "2026-07-02T21:58:41.494Z",
+  "headHash": "67e0ba9df445311b64698bcd080e3bfaca49ed91",
+  "materialHash": "4a27ba23071c7ecc75dec8785488a258f3f965ba9cb5e11c28d6b14c5508e91e",
+  "storyFilesHash": "8e305037b7a193df3510f182e815b2b1700efc3bf90a14370f403c605e9cf3c2",
+  "reviewRound": "2026-07-02T21:37:38.733Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#S7-freeze-rule",
+      "promise": "S7 freeze-rule paragraph changed from lower-bound-conservative to N-maximizing baseline within Wilson 95% CI (p* = 0.5 + mde/2 clamped to CI), matching sample-size.mjs pilotFreezeCheck",
+      "verifiedBy": "git diff main...HEAD + grep -n N-maximizing",
+      "evidence": "Line 231: freeze the powered N at the N-maximizing baseline within the Wilson 95% CI of the pilot rate (equivalently max over the CI; the lower bound alone is not conservative). grep -inE lower bound of (that|its) returns no matches. Confirmed in diff hunk @@ -228,10 +228,14 @@."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#S13-M6-exit-criteria",
+      "promise": "S13 M6 exit-criteria row updated from powered N frozen at the lower bound of its Wilson 95% CI to powered N frozen at the N-maximizing baseline within its Wilson 95% CI",
+      "verifiedBy": "git diff main...HEAD + grep -n N-maximizing",
+      "evidence": "Line 473 confirms the updated M6 row: powered N frozen at the N-maximizing baseline within its Wilson 95% CI (equivalently max over the CI; the lower bound alone is not conservative). Diff hunk @@ -466,7 +470,7 @@ confirms single-line change."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#S17-step-2-echo",
+      "promise": "S17 step 2 echo updated to reference S7 freeze rule as: powered N frozen at the N-maximizing baseline within the Wilson 95% CI",
+      "verifiedBy": "git diff main...HEAD + grep -n N-maximizing",
+      "evidence": "Line 566 confirms: (the S7 freeze rule: powered N frozen at the N-maximizing baseline within the Wilson 95% CI). Diff hunk @@ -559,7 +563,8 @@ confirms the change. git show --stat e157925d5 shows only 1 file changed. No CJK characters in doc."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs-only story verified via grep/diff transcripts: (1) grep -n N-maximizing returns 3 matches at lines 231/473/566 — all three passages amended; (2) grep -inE lower bound of (that|its) returns 0 matches — stale wording fully removed; (3) git show --stat e157925d5 confirms 1 file changed, 11 insertions, 6 deletions — only the plan doc touched; (4) perl CJK scan over full doc returns clean — no CJK characters introduced; (5) git show story/B-047f:experiments/experience-ablation/sample-size.mjs pilotFreezeCheck confirms p* = 0.5 + mde/2 clamped to CI implementation matches amended doc rule."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises independently verified via grep/diff from source: N-maximizing wording appears at lines 231/473/566, stale lower-bound freeze wording is gone (0 grep matches), only one file changed (e157925d5 stat), no CJK characters introduced. Transcript evidence covers happy path (3 new-wording matches), edge (0 stale-wording matches), and adversarial (single-file diff scope, no CJK). Amended text matches the pilotFreezeCheck implementation on story/B-047f branch."
+  },
+  "_hash": "67cff06a64487a6309d96262d3efda058bf8dfba758b2975ca6c37fad201d824"
+}
