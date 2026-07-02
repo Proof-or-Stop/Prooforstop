@@ -1,0 +1,182 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define ClaimAdmissibilityPack and related adapter contract types",
+      "context": "Create a typed contract matching docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md without adding execution behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "Smoke output includes: \"pack contract exposes code-runtime pack\".",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/claim-admissibility/pack-framework.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The code-runtime pack descriptor satisfies the ClaimAdmissibilityPack contract.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional benchmark harness definitions can be absent without invalidating a pack.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pack contract has no productionDone or scientific-truth minting field.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement a read-only pack registry with fail-closed validation",
+      "context": "Registry should list enabled packs, resolve by id, reject duplicate ids/schema ids/artifact kinds/aliases/claim ids, and never create new proof storage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "Smoke output includes: \"duplicate pack ids: BLOCK\" and \"duplicate artifact aliases: BLOCK\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/pack-framework.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Default registry lists the built-in code-runtime pack and resolves it by id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown pack ids resolve to a deterministic not-found result instead of throwing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate pack ids, schema ids, artifact kinds, aliases, and claim ids are rejected deterministically.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose the pack framework through the admissibility compatibility entrypoint",
+      "context": "Re-export the framework from the existing evidence/admissibility index so future packs do not import a private duplicate registry.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "Smoke output includes: \"compat entrypoint exports pack registry\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Compatibility entrypoint exports listClaimAdmissibilityPacks and related types/functions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing proof-admissibility exports remain usable through the same entrypoint.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No second proof manager, ledger, storage root, or lifecycle gate export is introduced.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add focused smoke coverage for M1 pack registry behavior",
+      "context": "Add a package script and smoke task proving the registry contract, validation, and non-claim boundaries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "Command output ends with: \"claim-admissibility pack framework smoke passed\".",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused smoke passes after build and prints the expected final line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke checks optional benchmark harness absence and not-found resolution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves duplicates fail closed and production/scientific truth claims are not exposed by packs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
