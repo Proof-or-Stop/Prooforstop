@@ -283,7 +283,7 @@
       "desc": "quality-cleanup: sample-size.mjs:14 module-header docstring still says \"freeze N at the Wilson 95% CI LOWER bound\" — contradicts the corrected pilotFreezeCheck implementation (which freezes at the N-maximizing baseline within the CI, per F-001). The function body at lines 130-133 and 151 already carry the corrected narrative; only the top-level bullet in the file docstring was not updated. The F-013 fix updated the generated-output prose (renderAdequacyMarkdown lines 284-285) but left this header comment stale. Low severity: it is a code comment only, not user-facing output, and the selfcheck/implementation are correct; but the comment is misleading to readers of the module.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T21:34:52.742Z",
@@ -294,7 +294,11 @@
         "experiments/experience-ablation/sample-size.mjs"
       ],
       "signatureTag": "edge|mjs|quality-cleanup-sample",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "File-header comment for pilotFreezeCheck rewritten to the corrected N-maximizing-within-CI rule with the F-001 pointer. The only remaining lower-bound mentions are inside the F-001 explanation comment that quotes the plan wording in order to refute it. Selfcheck 29/29 green.",
+      "resolvedAt": "2026-07-02T21:38:02.959Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
