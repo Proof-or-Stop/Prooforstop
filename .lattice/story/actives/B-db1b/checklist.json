@@ -60,10 +60,10 @@
           "command": "node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json",
           "result": "pass",
           "note": "CLI exposes and executes the local-only PINN claim check, returning allowed=true for complete C9 evidence with all completion/correctness flags false.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.758Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "node bin/lattice.js pinn_benchmark_run --productionDone=true",
           "result": "pass",
           "note": "CLI validation rejects productionDone overclaim flags with expected-never validation before running the command.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -83,10 +83,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts command/report text never sets productionDone, authorityDone, fullAuthorityDone, or pdeCorrectnessClaim true.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Complete C9 evidence passes schema and identity binding checks with all nine adapter families checked.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -153,10 +153,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "B1/B2/B13 fixtures cover missing, stale, and mismatched identity hashes and assert stable fail-closed reason codes.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -165,10 +165,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Low training loss with only spec/training receipts is rejected for C9 with training_loss_not_solution_evidence.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     },
@@ -223,10 +223,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Core defines nine verifier adapter families and complete evidence binds pass receipts to the active identity.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -235,10 +235,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "B4/B5/B6/B7/B8/B15 assert failed exit codes, failed statuses, wrong verifier hashes, missing output digests, and stale receipts fail closed.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -247,10 +247,10 @@
           "command": "node bin/lattice.js pinn_benchmark_run --format=json",
           "result": "pass",
           "note": "Benchmark now reports A3 verifier-only acceptedCount=14 and unsupportedAcceptanceCount=14 while A4 rejects all 15 B1-B15 injections; smoke keeps the invariant that weaker arms expose unsupported/stale acceptance and A4 rejects every injection.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     },
@@ -305,10 +305,10 @@
           "command": "node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json",
           "result": "pass",
           "note": "Complete evidence path returns allowed=true and nextAction=advance without unsupported transition.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -317,10 +317,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Gate engine classifies missing evidence as repair, stale evidence as degrade, and unsafe mismatches/overclaims as stop.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -329,10 +329,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "A1/A2/A3 weaker arms accept unsupported injections while A4 blocks all unsupported upgrades.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     },
@@ -390,10 +390,10 @@
           "command": "node bin/lattice.js pinn_benchmark_run --format=json",
           "result": "pass",
           "note": "Benchmark runner reports A1-A4 metrics, totalInjections=15, A4 rejectedInjectionCount=15, and Wilson confidence intervals.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -402,10 +402,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts A4 rejects every B1-B15 injection while weaker arms have nonzero unsupported/stale acceptance counts.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -414,10 +414,10 @@
           "command": "node bin/lattice.js pinn_benchmark_run --format=json",
           "result": "pass",
           "note": "Benchmark output includes meanWallTimeMs and meanInterventionCount instead of claiming solver or PDE performance.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     },
@@ -475,10 +475,10 @@
           "command": "node bin/lattice.js pinn_report_render --format=text",
           "result": "pass",
           "note": "Report command renders an artifactIndex and the explicit PINN claim-boundary paragraph from runtime benchmark results.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -486,10 +486,10 @@
           "command": "node bin/lattice.js pinn_report_render --format=json",
           "result": "pass",
           "note": "JSON mode is deterministic, machine-readable, and reports suiteStatus=PASS, A4=15, artifactIndex length 3, and all completion flags false.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -498,10 +498,10 @@
           "command": "npm run test:pinn-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts generated benchmark/report text never sets PDE correctness, production readiness, or external Authority completion claims to true.",
-          "headHash": "ac10d47d70dac275cb6d4a3665023467f67fd168",
-          "materialHash": "e3d6e2759d7584987a15ca4e59e2b36f7c4c4b32b2a0a776efed8e28eb345b32",
-          "storyFilesHash": "55f4832925cd7527cb08434bea014ae5471712579796e00f593f52baf34bbeb3",
-          "timestamp": "2026-07-02T21:52:59.759Z"
+          "headHash": "6ac827a702f7bf015850129b321258eb17f58c5b",
+          "materialHash": "e3c50073cb23f1f00e618d825407f4ac7e30a20d546da3ec3448f35159cd3d94",
+          "storyFilesHash": "c126dfb9b1dbebaa174b2eea1c9765766397991ce9483a5390a9db453e65ab99",
+          "timestamp": "2026-07-02T22:20:00.464Z"
         }
       ]
     }
