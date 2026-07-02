@@ -1,0 +1,53 @@
+{
+  "storyId": "B-5118",
+  "name": "quantum-verifier-adapter-pack",
+  "title": "Quantum M2: add verifier adapter pack for claim-admissibility receipts",
+  "description": "Implement the pending Quantum Milestone 2 from proof-or-stop-quantum-claim-admissibility-execution-plan.md. The story adds deterministic verifier adapter definitions and receipt-normalization helpers for computational quantum claim-admissibility, building on the existing M0-M1 quantum schema/evaluator and the generic ClaimAdmissibilityPack registry. It must not add lifecycle gate policy, benchmark harnesses, reporting/governance integration, hardware validation, solver improvement claims, production claims, or Authority claims.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "quantum",
+    "claim-admissibility",
+    "verifier-adapter",
+    "domain-pack"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-02T23:05:09.191Z",
+  "startedAt": "2026-07-02T23:05:09.191Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-02T23:05:09.602Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:07:04.937Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5118",
+    "branch": "story/B-5118",
+    "createdAt": "2026-07-02T23:07:03.244Z"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-6e41:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: verified ClaimAdmissibilityPack vocabulary and read-only registry boundaries; no retired Authority/production completion claim or domain-runtime overclaim blocker.",
+      "createdAt": "2026-07-02T22:47:40.451Z",
+      "reviewRound": "2026-07-02T22:45:01.546Z",
+      "reviewRunId": "B-6e41:RR-001",
+      "_hash": "f67167c7c725d14fe663c03b05a672b06b9ad202c6764aedc0253d2d050ecf8f"
+    },
+    {
+      "id": "B-6e41:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: verified red baseline, checklist evidence, focused smoke, compat export, duplicate rejection, completion-boundary, and retired-vocabulary coverage; no blocker.",
+      "createdAt": "2026-07-02T22:47:50.731Z",
+      "reviewRound": "2026-07-02T22:45:01.546Z",
+      "reviewRunId": "B-6e41:RR-003",
+      "_hash": "efd70bba5dfddb06566d78285d75b6b6dc9e3afe3369ac668ad469532731c381"
+    },
+    {
+      "id": "B-6e41:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: inspected pack framework implementation, registry validation, compatibility export, and package smoke script; no maintainability or correctness blocker.",
+      "createdAt": "2026-07-02T22:48:18.466Z",
+      "reviewRound": "2026-07-02T22:45:01.546Z",
+      "reviewRunId": "B-6e41:RR-002",
+      "_hash": "21bcbdaa0fc27fe5a908ae4f3fb2f7fecb8e7afba7f4357f85d77845964b89dc"
+    }
+  ]
+}

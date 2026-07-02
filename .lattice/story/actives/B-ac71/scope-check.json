@@ -1,0 +1,87 @@
+{
+  "storyId": "B-ac71",
+  "checkedAt": "2026-07-02T21:53:54.171Z",
+  "features": [
+    {
+      "feature": "Pinned-key trust anchor: signer verified against pinned manifest key for its claimed hostId, never self-reported key in bundle",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Independence definition and honest ceiling: cross-vendor (Claude vs Codex, distinct model families and keys) but same-operator",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fail-closed rule table (forged verdict, same-key masquerade, stale materialHash, replay, omission, key compromise) that becomes M1/M2 RED tests",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Key generation, pinning, rotation, and revocation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Six-milestone M0-M5 sequence in execution plan",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Cheap proof-of-mechanism block (M0-M3) explicitly split from expensive powered run (M4) as separate go/no-go gate",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Per-milestone objective, scope, real files, acceptance, repro-first note, size, and risk in execution plan",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lattice-story sequence in execution plan",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Code-verified current state (CLI-only, no server; existing crypto/sign/quorum primitives; three real gaps: signature-provenance, crypto-independence, cross-host collection)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Runtime code changes (packages/)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "packages/ (no runtime code in M0)",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ebaa9242d9b463db3b63e074cdd54ad56c0def4d703bfeb37397df8fd12a69a6",
+  "openQuestions": []
+}

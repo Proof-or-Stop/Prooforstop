@@ -1,0 +1,56 @@
+{
+  "storyId": "B-db1b",
+  "changes": "Implemented runtime PINN claim-admissibility commands, schema and evidence receipt checks, A1-A4/B1-B15 benchmark, sanitized report renderer, CLI policy and config registration, explicit productionReadyClaim refusal, and smoke coverage for F-001..F-018 including malformed evidence, supplied-report overclaims, and CLI production-readiness flag rejection.",
+  "usage": "Run node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json, node bin/lattice.js pinn_benchmark_run --format=json, node bin/lattice.js pinn_report_render --format=text, or npm run test:pinn-claim-admissibility from the story worktree.",
+  "expectedOutcome": "Complete C9 evidence advances only as local claim admissibility; A4 rejects all B1-B15 injections; reports show artifact index and fixed boundary while all completion, PDE, deployment, and production readiness claims remain false; CLI rejects explicit production, deployment, completion, and PDE overclaim flags.",
+  "actualTranscript": "Observed pinn_claim_check allowed=true and nextAction=advance with 9 adapters and all claim flags false including productionReadyClaim=false; benchmark suiteStatus=PASS with A3 acceptedCount=14 and unsupportedAcceptanceCount=14 while A4 rejectedInjectionCount=15/15; report renders artifactIndex and fixed boundary; malformed receipts return allowed=false,nextAction=stop,malformed_*; passive PDE and production-readiness report overclaims are rejected; all three pinn_* commands reject productionReadyClaim and productionDone style flags at CLI validation.",
+  "outcomeDiff": "No user-value difference: actual output matches the expected local claim-admissibility boundary. A3 count is documented as current 14 rather than stale 12.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No scientific PDE correctness proof, no evidence-producing scientific verifier scripts, no lifecycle mutation, no production readiness claim, and no external Authority completion claim.",
+  "pitfalls": "Main advanced repeatedly from other local stories during TEST, so final evidence had to be refreshed after several merges; keep final delivery, summary, and quorum after the last story-owned material change, and avoid treating old planning prose as stronger than fresh Lattice evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 57556
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6611
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 347682
+    },
+    "DEV": {
+      "count": 11,
+      "durationMs": 6387837
+    },
+    "REVIEW": {
+      "count": 11,
+      "durationMs": 5287471
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 4178923
+    }
+  },
+  "totalDurationMs": 16266435,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T23:10:32.843Z",
+  "updatedAt": "2026-07-02T23:10:32.843Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-337f",
+  "allowedCommands": [
+    "file authoring under experiments/experience-ablation/ only",
+    "lattice story lifecycle commands for B-337f",
+    "node experiments/experience-ablation/*-selfcheck.mjs and fixture-generator.mjs runs against temp dirs",
+    "npm test / npm run build only if a gate requires evidence",
+    "read-only repo inspection (git status/log/show, grep, ls)"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-02T22:21:16.310Z",
+  "updatedAt": "2026-07-02T22:21:16.310Z",
+  "_hash": "cb59f034c10af1139948af09134193e9a0f4012f0e7e221df660f2a103e30560"
+}

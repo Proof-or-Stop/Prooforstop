@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Experiment arm context resolver (experimentId override) as a new core leaf",
+      "context": "New core module (e.g. packages/main/src/core/experiment-arm.ts): resolveExperimentArm(root) returning {experimentId, arm: control|treatment} | null. Source of truth: explicit opt-in context (env vars e.g. LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM, or an arm-context file under .lattice/experiments/experience-ablation/<experimentId>/ — choose in PLAN and record in decision). When null (no experiment active) behavior everywhere is byte-identical to today. When set, it overrides resolveHintMode for pack/hint gating. Pure function, no I/O beyond reading the context; unit-testable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "A logic test prints: no context -> null; context set -> {experimentId, arm} parsed and validated; invalid arm value -> explicit error naming the accepted values",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Full-pack render gate applied at all seven lifecycle entrypoints via one shared leaf",
+      "context": "Extend the surfaceExperienceHints pattern to the full MemoryFreshnessPack: a shared leaf (e.g. core/experience-pack-surface.ts) that computes the pack (buildMemoryFreshnessPack) and ALWAYS logs an experience_pack_surfaced activity event with {experimentId, arm, consumer, packDigest, topHitIds} on both arms, but returns renderedSection only on treatment (or when no experiment is active, current behavior unchanged). Wire the seven call sites (story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory) through this leaf. The arm must never affect issues/blockers, gate decisions, or resolveReviewPromptHash. authority=non_authoritative and gateEvidence=false must render unchanged on treatment.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "With arm=control any lifecycle command prints no Memory Runtime Preflight section but the activity log gains an experience_pack_surfaced event with arm=control and the full would-have-surfaced pack digest; with arm=treatment output is byte-identical to no-experiment mode plus the same event with arm=treatment",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Mechanical control-arm retrieval blocking at the CLI choke point with recorded violations",
+      "context": "In cli-engine.ts alongside enforceStoryOwnerLeaseGate (~line 950), add an experiment-arm gate: when resolveExperimentArm yields arm=control, commands classified as memory retrieval/consumption (recall, dev_memory_*, playbook_*, learning_scan/learning_validate/learning_effectiveness, memory_playbook_baseline_*) are refused with a clear error naming the experiment context, and EVERY attempt appends a structured retrieval_violation event (experimentId, command, timestamp) to the activity log so the M4 scorer can count retrievalViolationCount (plan section 10 score schema). Treatment arm and no-experiment mode are unaffected. The block list is a declared constant next to the command catalog classification, not string guessing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "With arm=control, lattice recall ... exits nonzero printing blocked: memory retrieval is disabled on the control arm of experiment <id>, and the activity log shows a retrieval_violation event; with no experiment context the same command works normally",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Store-root resolution surface for isolation assertions",
+      "context": "M4 score records must assert every arm-run resolved learning root is the isolated experiment root, never the shared main-repo .lattice/learning (plan section 12). Add a small read-only surface: expose the resolved learning root (learning-store.ts resolveLearningDir) via an inspectable command or JSON field (e.g. lattice observability_snapshot gains resolvedLearningRoot, or a learning_root flag on an existing read-only command — choose in PLAN). No behavior change to resolution itself; this is the mechanical assertion hook the runner and scorer consume.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "Running the chosen read-only command inside a temp non-git root prints resolvedLearningRoot pointing at that temp root; running it in the main repo prints the main-repo .lattice/learning path",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Arm-switch smoke test covering the M3 exit criteria end to end",
+      "context": "New task (e.g. packages/main/src/tasks/experience-pack-arm-switch-smoke.ts) registered in validate.commands, following experience-layer-ab-shadow-gate-smoke.ts conventions: (a) no-experiment mode byte-identical output at all seven entrypoints (regression guard); (b) control hides pack + logs experience_pack_surfaced; (c) treatment shows pack + logs event; (d) experimentId override wins over resolveHintMode parity; (e) retrieval command on control blocked + retrieval_violation recorded; (f) authority/gateEvidence fields unchanged on treatment; (g) arm never alters resolveReviewPromptHash. Wire into lattice validate so REVIEW/TEST gates run it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js prints per-case PASS lines ending experience-pack-arm-switch-smoke: ALL PASS with exit 0, and lattice validate lists it green",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

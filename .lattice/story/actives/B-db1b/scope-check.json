@@ -1,0 +1,66 @@
+{
+  "storyId": "B-db1b",
+  "checkedAt": "2026-07-02T18:42:39.842Z",
+  "features": [
+    {
+      "feature": "M0 runtime command boundary and local-only scope",
+      "covered_by": "CHK-001 plus registry.ts, command-catalog.ts, command-policy.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M1 versioned PINN claim/evidence schema and identity binding",
+      "covered_by": "CHK-002 plus packages/main/src/core/pinn-claim-admissibility.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M2 deterministic verifier adapter receipts",
+      "covered_by": "CHK-003 plus packages/main/src/core/pinn-claim-admissibility.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M3 fail-closed lifecycle gate transitions",
+      "covered_by": "CHK-004 plus core and handler runtime files",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M4 deterministic A1-A4/B1-B15 benchmark harness",
+      "covered_by": "CHK-005 plus core, handler, smoke task",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M5 artifact index, report rendering, and governance wording",
+      "covered_by": "CHK-006 plus core, handler, decision doc",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Scientific PINN solver, PDE/numerical correctness proof, external Authority, production readiness, remote push, OMX",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scopeBoundary.excluded and plan.md rollback/non-goals",
+      "source": "B-db1b scope boundary"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "99abdc6619f64f317c309b67cfe160235fc4a701e17dba30491990285b215a85",
+  "openQuestions": []
+}
