@@ -153,7 +153,7 @@
       "desc": "[host-2 Codex P3] protocol.mjs usage line is inaccurate per subcommand (hash needs only --config; validate needs no --config; freeze takes experimentId from the config). Fix: per-subcommand usage output.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:09.460Z",
@@ -163,7 +163,11 @@
         "experiments/experience-ablation/protocol.mjs"
       ],
       "signatureTag": "cleanup|mjs|host-codex-protocol",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Per-subcommand usage lines: freeze (experimentId from config), validate (no config), hash (config only). Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:29.927Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-009",
