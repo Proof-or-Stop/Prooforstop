@@ -125,7 +125,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "playbook_propose refuses non-deducible sources unless an explicit override flag and reason are supplied.",
+      "userSees": "playbook_propose prints \"source is marked non_deducible\" unless override output includes \"override accepted\" with the reason digest.",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
