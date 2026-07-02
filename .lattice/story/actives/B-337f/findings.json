@@ -176,6 +176,23 @@
       ],
       "signatureTag": "adversarial|mjs|host-codex-probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-337f:F-011",
+      "desc": "[host-2 Codex P3] dispatch-order oracle is loose on id format: Codex CLI / Claude Code CLI and agy-cli variants classified ok despite the prompt requiring ids from the notes. Fix: tokenize exact allowed ids {codex, claude, agy}, reject unknown labels, require both primaries before agy. (Overlaps quality F-002 substring finding — one fix.)",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T22:45:53.589Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "5cd6101dfd0a3389a1112b088fcc256433334fe23bfa68508d13a03d9c69ddb7",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-dispatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
