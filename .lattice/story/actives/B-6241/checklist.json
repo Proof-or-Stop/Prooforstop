@@ -180,7 +180,52 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "DONE settlement is attempted only after durable DONE proof and failures are advisory in playbook_promotion_status, not DONE blockers.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHK-004:happy:0 after the DONE durable proof point, post-DONE settlement records a learning settlement health row after proof, not before.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:happy:1 done_recover or repeated DONE effects reuse a stable idempotency key and do not duplicate settlement records.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHK-004:edge:0 when settlement flag is disabled, DONE still succeeds and promotion status shows disabled/no-op state.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:edge:1 malformed learning store data records visible settlement failure health without blocking DONE.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHK-004:adversarial:0 DONE success without explicit playbook exposure cannot create candidate helped outcome.",
+            "type": "logic"
+          },
+          {
+            "desc": "CHK-004:adversarial:1 settlement uses learning-only write path and cannot mutate story phase, checklist, review, validation, delivery, or DONE evidence.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
