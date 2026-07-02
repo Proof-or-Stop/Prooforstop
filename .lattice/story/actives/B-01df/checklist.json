@@ -1,0 +1,164 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add source lineage record model and learning collectors",
+      "context": "Implement a read-only core projection for learning-domain artifacts: dev-memory entries, finding-signals, playbook proposals/candidates/outcomes/decisions, and raw finding-backed source keys where available.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "JSON output includes \"canonicalSourceKey\", \"canonicalSourceKeyVersion\", and \"canonicalizationPolicyHash\" for learning lineage records.",
+      "excludes": [
+        "batch playbook proposal creation",
+        "candidate approval",
+        "automatic promotion",
+        "runtime blocking policy"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts"
+        ],
+        "create": [
+          "packages/main/src/core/source-lineage-audit.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic learning artifacts with the same sourceStoryId/sourceFindingId/signature are grouped under one duplicate canonical source key.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing or malformed lineage is reported as diagnostics instead of throwing or silently disappearing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Non-authoritative derived artifacts cannot masquerade as gate evidence or independent sources in the audit output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose host-neutral source_lineage_audit command",
+      "context": "Register lattice source_lineage_audit --domain=learning --json as read-only/L0, with no codex/claude namespace alias and no writes to .lattice learning stores.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "Running \"lattice source_lineage_audit --domain=learning --json\" prints duplicate groups, missingLineageCount, and authority/gateEvidence fields.",
+      "excludes": [
+        "source_lineage_register",
+        "source_dedup_audit alias",
+        "playbook_seed_observe"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI emits host-neutral JSON for --domain=learning with counts, duplicate canonical source groups, and no mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unsupported domains fail with a clear source_lineage_audit diagnostic.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command policy and process fact classify source_lineage_audit as readOnly/L0 and not a host-adapter command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused smoke coverage and update execution-plan docs",
+      "context": "Cover duplicate grouping, missing lineage, non-authoritative gate boundary, real-store empty posture, and document that this is M1 only: audit, not seed promotion or auto-promotion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "Smoke output ends with \"source lineage audit smoke passed\" and the execution plan names M1 as read-only audit only.",
+      "excludes": [
+        "full semantic dedup",
+        "playbook runtime consumption closure",
+        "PLAYBOOK_DONE_SETTLEMENT_ENABLED default-on"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke covers duplicate source grouping and real-store read-only audit posture.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly state M1 does not create proposals, candidates, outcomes, promotion decisions, or active playbooks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit output cannot satisfy lifecycle gate evidence and leaves learning stores unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
