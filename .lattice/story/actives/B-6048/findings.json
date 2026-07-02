@@ -30,7 +30,7 @@
       "desc": "M6 optimized parity report does not exercise the optimized runtime path it claims to validate. Evidence: packages/main/src/core/playbook-runtime-baseline.ts:1099-1181 builds reference/indexed/warm digests by scanning recordsRaw with local shortlist helpers and a one-entry Map cache; it never calls buildMemoryFreshnessPack, rebuildRuntimeMemoryIndex, selectRuntimeMemoryIndexCandidates, getRuntimeMemoryPackCacheHit, or rememberRuntimeMemoryPackCache. packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts:334-342 only asserts those synthetic digests are equal, so the smoke can pass even if the real runtime index/cache path regresses. Commands observed: npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js passed with referenceFullScanMs=19986 indexedColdMs=20817; node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js passed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-02T12:15:58.224Z",
@@ -42,7 +42,11 @@
         "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
       ],
       "signatureTag": "missing|ts|optimized-parity-report",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c4231f7f3: synthetic shortlist/cache proof was replaced with real buildMemoryFreshnessPack, rebuildRuntimeMemoryIndex, and runtime pack cache paths; full baseline smoke passed profile=full with recordCount=1000000 and warmCacheHits=8. Quality pass B-6048:RP-005 and coverage pass B-6048:RP-006 verified closure.",
+      "resolvedAt": "2026-07-02T13:36:08.002Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6048:F-003",
