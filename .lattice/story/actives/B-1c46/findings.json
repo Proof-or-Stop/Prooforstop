@@ -111,6 +111,25 @@
       ],
       "signatureTag": "runtime-memory-fuzzy-fallback-exact-overflow-parity",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-1c46:F-006",
+      "desc": "Substring exact-overflow coverage is dev-memory-only: the smoke writes no playbooks and uses maxPlaybooks:0, so indexed/reference playbook parity and beyond-cap playbook IDs are vacuous for substring overflow. Fix by seeding overflowing active playbooks with the same exact token, setting maxPlaybooks=count, asserting exactOverflowPlaybookTokens, asserting a beyond-cap playbook ID, and comparing indexed/reference playbookIds.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T15:56:45.974Z",
+      "reviewRound": "2026-07-02T15:53:36.025Z",
+      "reviewRunId": "B-1c46:RR-010",
+      "_hash": "2a2cb891a539cb896d934f079ebdffedb53e12010cab8ecaa9ebe7d5687f99dd",
+      "files": [
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+        "packages/main/src/core/playbook-runtime-memory-index.ts"
+      ],
+      "signatureTag": "runtime-memory-substring-overflow-playbook-coverage",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
