@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-1c46:F-001",
+      "desc": "Docs cite latest measured baseline/RSS values that do not match story evidence. performance-index doc lines 51-77 label full baseline as latest with 39,825/6,439/12,520/10,873 and RSS 1,504,083,968/3,294,199,808, but checklist evidence lines 62-64 records final full baseline as referenceFullScanMs=49347 indexedColdMs=6972 indexedWarmCacheMs=1 indexBuildMs=14132 warmPrimeMs=11270 and no evidence was found for those RSS values. entry-layer doc lines 24 and 26 also cite RSS 646,414,336 and 3,845,570,560 with no matching story evidence; performance evidence lines 465-467 records peakRssBytes=3610689536.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T15:01:23.337Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-002",
+      "_hash": "56f9d2f2cea26adf2ce125441a33997670ad56f0c47c5dbc458aecc00a79b40b",
+      "files": [
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+        "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-cite-latest",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
