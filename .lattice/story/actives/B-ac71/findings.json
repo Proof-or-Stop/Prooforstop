@@ -37,6 +37,24 @@
       ],
       "signatureTag": "adversarial|md|milestone-label-collision",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ac71:F-003",
+      "desc": "CHK-001:adversarial:0 evidence note is a generic template that does not address the specific verification challenge: the intent mandates grep for the exact phrase mutually-distrusting parties returns zero matches, but the phrase appears once in tier-c-crosshost-quorum-threat-model.md (line 37) in a meta-context naming it as forbidden wording for M5. The evidence note (Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria) does not document how the reviewer resolved the literal-grep vs contextual-meta-use tension. All 29 evidence notes share this same generic template. For most intents the generic note is acceptable, but for this adversarial intent with an explicit grep=0 verification criterion, the note should state: the phrase appears only within the forbidden-phrases list (a meta-use, not an assertion), not as a claim about the system.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:15:54.376Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-004",
+      "_hash": "947c17265d20aa2ee898f950a5419f77306ee60bc7d952680ddab0cbe26b30c4",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "missing|md|adversarial-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
