@@ -18,6 +18,25 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-cite-latest",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1c46:F-002",
+      "desc": "Fuzzy overflow can silently break reference/full-scan parity. buildFuzzyTokenIndex caps each fuzzy needle at 4096 tokens and records overflowNeedles (packages/main/src/core/playbook-runtime-memory-index.ts:268-288), but rarestNeedleForToken returns overflow=true only when no bucket exists (lines 520-540). fuzzyTokensContaining then uses the capped bucket and reports fallback=false (lines 543-554), so matchingIds does not run scanMatchingIdsForToken and keeps tokenScanFallbacks at 0 (lines 586-599). The pre-optimization matcher scanned all token-map entries for indexedToken.includes(token) / token.includes(indexedToken) (main:packages/main/src/core/playbook-runtime-memory-index.ts:393-403). This means any query whose selected n-gram bucket overflowed can miss valid full-scan matches while the performance proof still reports no fallback; tests appear to assert normal counters but do not cover fuzzyOverflowDevMemoryTokens or fuzzyOverflowPlaybookTokens overflow behavior.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:02:06.176Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-003",
+      "_hash": "a0219d3225c3f4925a3be7e81da555725f897405c2bcc614427b04727c52b55e",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-fuzzy-overflow-parity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
