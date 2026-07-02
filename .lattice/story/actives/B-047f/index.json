@@ -4,8 +4,8 @@
   "title": "Experience-ablation S1: protocol freeze, pair ledger, and sample-size calculator (M0+M2+M5)",
   "description": "First build story of the experience-layer A/B ablation causal-validation program, implementing the three experiment-side tooling milestones of the rev-2 execution plan (docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, merged via B-36fd): M0 protocol freeze (machine-validated protocol.json with sha256 protocol hash, per-population sample-size config, trap-group membership, and frozen memory-snapshot hash), M2 pair ledger (immutable fixture manifest + pair ledger + committed run-order seed with deterministic seeded shuffle), and M5 sample-size calculator (per-population adequacy report: unpaired two-proportion reference N, McNemar discordant-pair sizing, and the Wilson-CI pilot freeze rule helpers). All code lives under the new experiments/experience-ablation/ directory following the committed recovery-runner conventions (plain .mjs tools + hermetic *-selfcheck.mjs); no product code (packages/*) is touched. M1/M3/M4/M6-M9 are explicitly out of scope for this story.",
   "type": "feature",
-  "phase": "INIT_CHECK",
-  "priority": "high",
+  "phase": "DONE",
+  "priority": "medium",
   "keywords": [
     "experience-layer",
     "ablation",
@@ -22,10 +22,9 @@
       "matched": "p1"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-02T20:49:34.905Z",
   "startedAt": "2026-07-02T20:49:34.905Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T22:06:19.016Z",
   "events": [
     {
       "phase": "INIT",
@@ -44,11 +43,59 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T20:52:14.575Z",
+      "branch": "story/B-047f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:02:53.982Z",
+      "branch": "story/B-047f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:09:57.567Z",
+      "branch": "story/B-047f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T21:50:22.089Z",
+      "branch": "story/B-047f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:06:19.017Z",
+      "branch": "story/B-047f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-047f",
-    "branch": "story/B-047f",
-    "createdAt": "2026-07-02T20:52:10.249Z"
-  }
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the story creates experiment tooling under experiments/experience-ablation/ only; no production code, config, or runtime behavior changes. The signal fired on wording in the description (e.g. references to the production hint-mode substrate as a REUSE pointer for future milestones, not something this story touches).",
+      "at": "2026-07-02T21:01:43.617Z"
+    }
+  ],
+  "currentReviewRound": "2026-07-02T21:09:57.567Z"
 }

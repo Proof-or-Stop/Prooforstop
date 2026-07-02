@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-047f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletions or replacements in this diff. All six new files are purely additive. Concept-lane checks all pass: (a) ARMS=[control,treatment] only — no shadow arm allocated; the sole occurrence of the word shadow is in a negative-path expectThrow test that proves invalid trapGroup shadow is refused. (b) Seeded phase is full-factorial (every fixture gets both arm slots via ARMS.map); only run ORDER is seeded via Fisher-Yates+xmur3+mulberry32 — no randomized assignment. (c) Calculator direction is reduction: p2 = baseline - mde (sample-size.mjs line 65); report.direction field is reduction: treatment = baseline - mde. (d) TRAP_GROUPS=[in_store,held_out,clean] matches plan terminology exactly. (e) Artifact filenames produced by S1 (protocol.json, memory-snapshot-hash.json, fixture-manifest.jsonl, pair-ledger.jsonl, run-order-seed.json, score-records.jsonl referenced in guard) match the plan S12 listing; task-manifest.jsonl, leakage-audit.jsonl, analysis-report.json/md are correctly absent (later milestones). (f) Schema versions proofbound.experience-ablation-protocol.v1 and proofbound.experience-ablation-adequacy.v1 follow the proofbound.*.v1 convention. (g) No Chinese text in any of the six files. (h) Diff confined to new files under experiments/experience-ablation/ plus .lattice/story/ metadata — no existing concepts deleted or replaced anywhere in the codebase.",
+      "createdAt": "2026-07-02T21:12:23.870Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-001",
+      "_hash": "63eca5650ff40282759167854b1a77cb5af47a292cfd971e1d7fd82e0488f05a"
+    },
+    {
+      "id": "B-047f:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 must-priority verificationIntents have valid evidence; selfchecks pass 13/17/24 cases matching evidence notes; live CLI sequences for CHK-001:happy:0, CHK-002:happy:0, CHK-002:edge:1, CHK-002:adversarial:0 re-executed in fresh temp roots and confirm described behaviour; red baseline eed84bea has no sample-size-selfcheck.mjs (git cat-file exits 128) and it passes now; milestone ledger refs exactly cover all 13 intents with zero orphans; validate exits 0.",
+      "createdAt": "2026-07-02T21:15:16.135Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-003",
+      "_hash": "bf3900cb0a5aaebed70f7efee64c2a4927cdbb9ebb74fe893df2b7d466395cd4"
+    },
+    {
+      "id": "B-047f:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 12 round-1 findings resolved. Four target fixes confirmed by diff and live execution: F-009 (main() try/catch emits ERROR:<msg> exit 1 verified with ENOENT probe), F-010 (writeAtomic temp-then-rename no leftover .tmp on success), F-011 (protocol-selfcheck extraRoots array cleaned in finally block), F-012 (ratio-fixed McNemar monotonicity invariant in sample-size-selfcheck). Numeric claims verified by arithmetic: pilotFreezeCheck(36/60 mde=0.25) Wilson lower=0.47366 pStar=0.625 within CI freeze at 0.625 frozenNPerArm=62 (lower bound gives 56 under-sizes). McNemar live (0.30->0.20): p01=0.24 p10=0.14 nPairs=296. Seeded band max (0.625->0.375): p01=0.390625 p10=0.140625 nPairs=65. All three selfchecks exit 0: protocol 15 pair-ledger 19 sample-size 29. Anchors 294/62/27/58 unchanged. No CJK. No new unhandled error paths.",
+      "createdAt": "2026-07-02T21:29:11.872Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-004",
+      "_hash": "38f0f05a4273e656cd25e1297b1dfc8c6da8b616a12e55e39f21decb69ef7c83"
+    },
+    {
+      "id": "B-047f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 verificationIntents have passing evidence (no must-gap, no waiver). Three selfchecks confirmed: protocol 15/15, pair-ledger 19/19, sample-size 29/29 PASS, all exit 0. CHK-003:edge:1 ratio-fixed monotonicity now literally exercised (pd 0.40->0.20 at 3:1 ratio: 77->155 pairs, decreasing, resolving F-012). CHK-003:edge:0 freeze-rule intent maps to N-maximizing semantics incl. the F-001 counterexample case (36/60 -> 62/arm, not the lower-bound 56). Evidence hash staleness from the two new commits is expected and will be refreshed by the owner before TEST.",
+      "createdAt": "2026-07-02T21:29:50.894Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-005",
+      "_hash": "0affb46da1a7936cf6d43b93fc1d10e4bb22ead3dd11066a5b394eb07bc95f6b"
+    },
+    {
+      "id": "B-047f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Final-round concept re-verification after fix commit c562db46e (F-001..F-012). Shadow: only as rejected negative-test input in selfcheck; ARMS=[control,treatment] only. Full-factorial both-arms: confirmed. Reduction direction: p2=baseline-mde throughout including McNemar pairedAt, direction field=reduction:treatment=baseline-mde, p01>p10 consistent. TRAP_GROUPS enum unchanged. S12 filenames unchanged. Schema versions unchanged (proofbound.*.v1). No CJK. F-001 freeze: wilson95Lower token still required by protocol schema guard; implementation freezes at N-maximizing baseline within CI (clamp p*=0.5+mde/2 to [lower,upper]); interpretation string recorded in result; no silent schema redefinition. F-002 membership: GROUP_FIELD={in_store->inStore,held_out->heldOut,clean->clean} matches protocol.mjs taskClasses fields exactly; called in both build and verify paths. F-003 McNemar: p1=baseline,p2=baseline-mde reduction convention. All three selfchecks pass: protocol 15, pair-ledger 19, sample-size 29. No concept drift.",
+      "createdAt": "2026-07-02T21:30:28.522Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-006",
+      "_hash": "85edee7c1e1bbf9e33ce13c38d0f1ae154e62a14518a583451a6f17c8ced80d3"
+    },
+    {
+      "id": "B-047f:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 re-bind pass. F-013 fix commit (b441fd601) is exactly the 4-line prose change in renderAdequacyMarkdown: replaced Wilson-lower-bound description with N-maximizing-baseline wording, nothing else touched. New prose matches the pilotFreezeCheck interpretation string and clamp(pStar,ci.lower,ci.upper) logic precisely. Round-3 spot-checks undisturbed: ARMS, TRAP_GROUPS, direction string all unchanged. No new issues.",
+      "createdAt": "2026-07-02T21:33:11.979Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-007",
+      "_hash": "701b355ff2bea9d8709e647bc5f12fbac1565799744f4da8ded37295dd86131d"
+    },
+    {
+      "id": "B-047f:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 re-bind quality review of the single F-013 fix commit (b441fd601). Verified: (a) diff touches only 4 template lines in renderAdequacyMarkdown — lines 284-287 of sample-size.mjs — no dead code, no type-safety changes, no I/O isolation impact; (b) node experiments/experience-ablation/sample-size-selfcheck.mjs exits 0 (29/29 PASS); generated adequacy-report.md via CLI to scratchpad confirms lines 18-22 carry corrected rule (N-maximizing baseline, no stale lower-bound freeze text); (c) protocol-selfcheck and pair-ledger-selfcheck both exit 0; no doc-promise-undelivered pattern found. One low/edge finding F-014 raised: module-header docstring at line 14 still carries stale lower-bound wording (pre-existing from c562db46e, not introduced by F-013; comment only, not user-facing; implementation and selfcheck are correct).",
+      "createdAt": "2026-07-02T21:35:07.306Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-008",
+      "_hash": "a392ddd25ddb82e94ebd66f4f64dbbe497f87839778416bae70c39dc27453cd8"
+    },
+    {
+      "id": "B-047f:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. F-013 commit b441fd601 changed 4 prose lines in renderAdequacyMarkdown template only — zero logic. Three selfchecks re-run: protocol 15/15 PASS, pair-ledger 19/19 PASS, sample-size 29/29 PASS, all exit 0. All 13 verificationIntents (CHK-001: 4, CHK-002: 5, CHK-003: 4) remain fully covered; no intent references the corrected freeze-rule wording. Stale lower-bound phrase in CHK-003:edge:0 evidence note is explanatory prose, not a process fact or intent desc; actual selfcheck asserts the N-maximizing rule per F-001. validate exit 0 across 31 commands.",
+      "createdAt": "2026-07-02T21:37:14.771Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-009",
+      "_hash": "bae6c10a7da29df09b2bb6a440685316f25c0d08aa0b95b255800cb1a2386757"
+    },
+    {
+      "id": "B-047f:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. F-014 fix is exactly a 2-line file-header comment change in sample-size.mjs (1 deletion, 2 insertions). The old phrase \"freeze N at the Wilson 95% CI LOWER bound\" is gone; replaced by the corrected wording referencing the N-maximizing baseline and F-001. No residue of the stale phrase found anywhere in .ts/.mjs/.md/.json outside .git/. Wording is consistent with the implementation at lines 134, 152, and 286 of sample-size.mjs. Concept residue check: clean.",
+      "createdAt": "2026-07-02T21:39:43.326Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-010",
+      "_hash": "18d3a6f313f2c0869d9e694c28c2f168c93a9f93977a323b15126bcae84582c3"
+    },
+    {
+      "id": "B-047f:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 re-bind pass. F-014 fix verified: sample-size.mjs file-header (lines 13-15) now states the N-maximizing-within-CI rule with the F-001 pointer. Lower-bound mentions at lines 131/134 are inside the F-001 explanation comment quoting plan wording to refute it — intentional context, not stale assertions. All three selfchecks pass clean: protocol 15/15, pair-ledger 19/19, sample-size 29/29 (exit 0). No new quality findings.",
+      "createdAt": "2026-07-02T21:39:54.738Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-011",
+      "_hash": "06bda74a22e1bf083c2c1b8fefab79e8045a328139fd3055e5ca19c7fa919325"
+    },
+    {
+      "id": "B-047f:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. F-014 commit (58f97186) confirmed comment-only — 2-line file-header update in sample-size.mjs, zero logic change. Three selfchecks all exit 0: protocol-selfcheck 15/15, pair-ledger-selfcheck 19/19, sample-size-selfcheck 29/29. Evidence staleness is caused entirely by metadata-only review_pass_set commits after the RP-008 stamp; no material code change has occurred since RP-008 that would invalidate coverage. All 13 must-priority intents (CHK-001: 4, CHK-002: 5, CHK-003: 4) have concrete, passing, behavior-specific evidence.",
+      "createdAt": "2026-07-02T21:44:09.995Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-012",
+      "_hash": "4e36d20ed9e198c1a9cd53ba7206e987732277abb5aff08e42cbf6dfd0a64186"
+    }
+  ]
+}

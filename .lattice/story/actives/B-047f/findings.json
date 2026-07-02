@@ -1,0 +1,304 @@
+{
+  "findings": [
+    {
+      "id": "B-047f:F-001",
+      "desc": "[host-2 Codex P1] pilotFreezeCheck freezes N at the Wilson LOWER bound, which is NOT conservative under the pooled two-proportion formula: n peaks where pbar=(p1+(p1-mde))/2 is nearest 0.5, so a lower bound below ~0.5+mde/2 yields a SMALLER n than the observed baseline (counterexample: pilot 36/60, CI width 0.2406 freezes, lower 0.47366 -> 56/arm vs observed 0.60 -> 62/arm). The plan S7 wording (freeze at lower bound, conservative) shares the flaw. Fix the tool: freeze at the N-MAXIMIZING baseline within the Wilson CI (analytic max at p*=0.5+mde/2 clamped to the CI), document the deviation from the S7 letter as satisfying its conservative INTENT; flag plan S7 for a docs follow-up.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:03.048Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "bc85566f64981deb53797bd9282e18524dbf84a9c637a78c4622af14f7c0b9df",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "edge|mjs|host-codex-pilotfreezecheck",
+      "signatureTagSource": "auto",
+      "resolvedReason": "pilotFreezeCheck freezes at the N-maximizing baseline within the Wilson 95% CI (p*=0.5+mde/2 clamped); interpretation recorded in output; selfcheck pins the counterexample 36/60 -> frozen 62/arm vs buggy lower-bound 56, and the tight-CI case 42/60 -> 0.625 -> 62. Commit c562db46e. Plan S7 wording flagged for a docs follow-up (chip task_36a80fa5).",
+      "resolvedAt": "2026-07-02T21:26:22.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-002",
+      "desc": "[host-2 Codex P1] buildLedger binds only the protocolHash, not the frozen task-class MEMBERSHIP: validateManifest accepts trapClass not-in-protocol with trapGroup in_store, so unregistered fixtures can enter the run under a valid protocol hash. Fix: consume doc.taskClasses from guardFrozenProtocol and reject rows whose trapClass is not a member of the frozen group matching its trapGroup; add selfcheck case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:04.120Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "4d8ea0d549af33ab74da3667c3133f29b913afa04ac5047efb396c8160f5b350",
+      "files": [
+        "experiments/experience-ablation/pair-ledger.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-buildledger",
+      "signatureTagSource": "auto",
+      "resolvedReason": "validateMembership added and called from build AND verify: every manifest row trapClass must be a member of the frozen protocol group matching its trapGroup; selfcheck cases: unregistered class refused, clean class declared in_store refused. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:23.617Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-003",
+      "desc": "[host-2 Codex P2] The adequacy report includes only unpaired reference sizing; M5 requires unpaired reference + McNemar paired sizing. Fix: add a paired section (McNemar nPairs at the live point and the seeded band max, discordant cells derived under the documented independence approximation p01=p1(1-p2), p10=p2(1-p1), with optional explicit override in config) to adequacy-report.json and .md; add selfcheck case.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:05.087Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "5164c2b260d43669175ff04e5cc589b7c223a11fedc20a18840498641aaf3328",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "missing|mjs|host-codex-adequacy",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adequacy report now includes McNemar paired sizing per population (derivePairedDiscordance independence approximation, protocol perPopulation.paired override supported): live 296 pairs, seeded band-max 65 pairs; md + json + selfcheck. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:24.637Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-004",
+      "desc": "[host-2 Codex P2] Protocol validation rejects only inStore/heldOut overlap; a class can be in clean AND a fault group although clean tasks must never pool into the fault baseline. Fix: reject pairwise overlap across all three groups; add selfcheck case.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:06.068Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "911b9f5788176a43a456fd9b98b0cccb4b68685f19a720b1961c92fda961f5b7",
+      "files": [
+        "experiments/experience-ablation/protocol.mjs"
+      ],
+      "signatureTag": "edge|mjs|host-codex-protocol",
+      "signatureTagSource": "auto",
+      "resolvedReason": "All-pairs overlap rejection across inStore/heldOut/clean with the offending classes named; selfcheck case clean/in-store overlap. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:25.644Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-005",
+      "desc": "[host-2 Codex P2] Seals are self-authenticating (tamper+rehash passes) and validateFrozenProtocol ignores the sidecar protocolHash field it stores. Partial fix in-scope: verify sidecar.protocolHash === doc.protocolHash; document the threat model (tamper-EVIDENCE for accidental drift; external anchoring of the protocolHash into story/run evidence is the M6 runner responsibility). Full external anchoring is out of S1 scope by design.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:06.926Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "4f69312509782fedfc0e953c08f6bc4fae7e087a0a6c797d61a04d9084e7e99e",
+      "files": [
+        "experiments/experience-ablation/protocol.mjs",
+        "experiments/experience-ablation/pair-ledger.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-seals",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Sidecar protocolHash now verified against protocol.json (selfcheck case added); threat model documented in code: seals are tamper-evidence for accidental drift, external anchoring of protocolHash into run/story evidence is the M6/M7 runner responsibility. Full external anchoring deliberately out of S1 scope. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:26.752Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-006",
+      "desc": "[host-2 Codex P3] guardImmutable has a TOCTOU window between the guard and the three renames. Fix: re-check the guard immediately before the writes (narrows the window; single-host tooling tier documented).",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:07.771Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "caac9f7d1f40c267cd8e5df1ef5dcb167e9b54c22553626a2b348d806139c4d9",
+      "files": [
+        "experiments/experience-ablation/pair-ledger.mjs"
+      ],
+      "signatureTag": "edge|mjs|host-codex-guardimmutable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "guardImmutable re-checked immediately before the three ledger writes, narrowing the TOCTOU window; single-host tooling tier documented in the comment. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:27.802Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-007",
+      "desc": "[host-2 Codex P3] protocol-selfcheck leaks the two extra mkdtemp roots (ablation-p1/p2) and snapDir (never removed in finally). Fix: track and remove all temp roots.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:08.610Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "3227574cc1b072b4c122c88055ee7fc7ffb691ede7fb06bc22807addff25607e",
+      "files": [
+        "experiments/experience-ablation/protocol-selfcheck.mjs"
+      ],
+      "signatureTag": "cleanup|mjs|host-codex-protocol",
+      "signatureTagSource": "auto",
+      "resolvedReason": "protocol-selfcheck tracks all extra mkdtemp roots (p1/p2/snapDir) and removes them in finally. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:28.788Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-008",
+      "desc": "[host-2 Codex P3] protocol.mjs usage line is inaccurate per subcommand (hash needs only --config; validate needs no --config; freeze takes experimentId from the config). Fix: per-subcommand usage output.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:09.460Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "02fa3b9310a821fd7e52a8008823517e67b91b88fc85a3a01fa13307a51f2910",
+      "files": [
+        "experiments/experience-ablation/protocol.mjs"
+      ],
+      "signatureTag": "cleanup|mjs|host-codex-protocol",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Per-subcommand usage lines: freeze (experimentId from config), validate (no config), hash (config only). Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:29.927Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-009",
+      "desc": "sample-size.mjs main() has no try/catch wrapper: JSON.parse failures (malformed config file) and readFileSync errors (file not found) surface as raw Node.js stack traces rather than the clean 'ERROR: <message>' pattern used consistently by protocol.mjs and pair-ledger.mjs. The quality review scope explicitly requires 'JSON parse failures produce useful errors'. Demonstration: node sample-size.mjs report --config=/nonexistent.json exits 1 but emits a 10-line stack trace from node:fs:442 instead of a clean ERROR line. Fix: wrap main() body in try { ... } catch (err) { console.error('ERROR: ' + err.message); process.exit(1); }",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:10.231Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "20b4bd6c16a0b18720b574f8bc4caabc944c51a06e0db1af63472bf0d31d5f66",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "edge|mjs|sample-size-main",
+      "signatureTagSource": "auto",
+      "resolvedReason": "sample-size main() wrapped in try/catch emitting ERROR:<message> with exit 1, matching the other two CLIs. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:31.209Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-010",
+      "desc": "sample-size.mjs uses plain writeFileSync (not atomic temp-then-rename) for both adequacy-report.json and adequacy-report.md writes (lines 262-263). protocol.mjs and pair-ledger.mjs both define and use a writeAtomic(path, text) helper that writes to a .tmp-<pid> path then renames. A crash or SIGKILL between the two writeFileSync calls leaves a valid .json alongside a truncated or absent .md, and a crash mid-write leaves a half-written .json. The quality review scope requires atomic writes for every artifact write. Fix: add writeAtomic helper matching protocol.mjs pattern and use it for both output files.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:19.343Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "566e14b919646daa10d002c486f16c166ede0074d0f73c8b8234c7c7ee9d54a2",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "edge|mjs|sample-size-uses",
+      "signatureTagSource": "auto",
+      "resolvedReason": "adequacy-report.json/.md now written via writeAtomic (temp-then-rename), same helper pattern as the other tools. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:32.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-011",
+      "desc": "protocol-selfcheck.mjs leaks three temporary directories that are not cleaned up in the finally block: (1) the h1 root created at line 68 via mkdtempSync for the 'same config at different createdAt -> same protocolHash' test; (2) the h2 root created at line 69 for the same test; (3) snapDir created at line 107 for the directory-snapshot hashing test. Only the main 'tmp' root is cleaned via rmSync in the finally block (line 121). pair-ledger-selfcheck.mjs correctly wraps all secondary roots in their own try/finally blocks. Impact is minor (OS temp cleanup on reboot), but inconsistent with the hermetic selfcheck requirement.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:29.083Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "2df68ea2c0774b976d53841fe6e0e0def1a73176d14346ea10198705399b1982",
+      "files": [
+        "experiments/experience-ablation/protocol-selfcheck.mjs"
+      ],
+      "signatureTag": "edge|mjs|protocol-selfcheck-leaks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same fix as F-007 (duplicate finding from the quality lane): all extra mkdtemp roots removed in finally. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:33.081Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-012",
+      "desc": "CHK-003:edge:1 verificationIntent states 'increasing pd while holding the ratio (p01/p10) fixed does not increase the required pair count' (a claim about the ratio-fixed direction, where N decreases: verified - 77 pairs at ratio 3:1, pd=0.40 drops to 50 pairs at ratio 3:1, pd=0.60). However the selfcheck test labeled 'same asymmetry with more total discordance -> more pairs' exercises a DIFFERENT invariant: d fixed at 0.20, pd increases from 0.40 to 0.60 -> 77 to 116 pairs (more pairs, a correct but opposite-direction fact). The McNemar code is mathematically correct; this is a test-specification alignment gap where the selfcheck covers a valid-but-different monotonicity case than the one cited in the checklist.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:18:39.443Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-002",
+      "_hash": "51216ff9b8395202fa4fc9a2a0bde288f24177d4ead32569401e30df7f2541cb",
+      "files": [
+        "experiments/experience-ablation/sample-size-selfcheck.mjs"
+      ],
+      "signatureTag": "edge|mjs|edge-verificationintent-states",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ratio-fixed monotonicity case added (pd 0.20 vs 0.40 at 3:1 ratio -> 155 vs 77 pairs, decreasing), alongside the existing fixed-d and fixed-pd invariants. Commit c562db46e.",
+      "resolvedAt": "2026-07-02T21:26:34.004Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-013",
+      "desc": "[host-2 Codex re-verdict] Regression introduced by c562db46e: renderAdequacyMarkdown closing paragraph still described the M6 pilot rule as freeze at the Wilson 95% CI lower bound, contradicting the corrected F-001 implementation (N-maximizing baseline within the CI). Generated reports would carry the disproven rule text.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:31:25.330Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "6adee34f1c92aa0a83113f708d5a0024a38b4811f7aff96ed5d27cdce2a0732c",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "doc-code-drift|mjs|host-codex-verdict",
+      "signatureTagSource": "auto",
+      "resolvedReason": "renderAdequacyMarkdown closing paragraph rewritten to state the corrected rule (freeze at the N-maximizing baseline within the Wilson 95% CI; lower bound alone not conservative, ref F-001). Selfcheck still green (29/29). Commit follows c562db46e.",
+      "resolvedAt": "2026-07-02T21:31:26.424Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-047f:F-014",
+      "desc": "quality-cleanup: sample-size.mjs:14 module-header docstring still says \"freeze N at the Wilson 95% CI LOWER bound\" — contradicts the corrected pilotFreezeCheck implementation (which freezes at the N-maximizing baseline within the CI, per F-001). The function body at lines 130-133 and 151 already carry the corrected narrative; only the top-level bullet in the file docstring was not updated. The F-013 fix updated the generated-output prose (renderAdequacyMarkdown lines 284-285) but left this header comment stale. Low severity: it is a code comment only, not user-facing output, and the selfcheck/implementation are correct; but the comment is misleading to readers of the module.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:34:52.742Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-008",
+      "_hash": "2ca96c40c081cd6356101184d7e352bb423fbe47bac6b9780cc698def375235a",
+      "files": [
+        "experiments/experience-ablation/sample-size.mjs"
+      ],
+      "signatureTag": "edge|mjs|quality-cleanup-sample",
+      "signatureTagSource": "auto",
+      "resolvedReason": "File-header comment for pilotFreezeCheck rewritten to the corrected N-maximizing-within-CI rule with the F-001 pointer. The only remaining lower-bound mentions are inside the F-001 explanation comment that quotes the plan wording in order to refute it. Selfcheck 29/29 green.",
+      "resolvedAt": "2026-07-02T21:38:02.959Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

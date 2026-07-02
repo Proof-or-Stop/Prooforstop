@@ -1,0 +1,229 @@
+{
+  "passes": [
+    {
+      "id": "B-7b4e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept matches B-7b4e scope: Quantum M0-M1 local schema and identity binding only, with fail-closed stale/missing/mismatched rejection and no M2-M5, Authority, hardware, scientific, or production overclaim.",
+      "createdAt": "2026-07-02T20:09:24.823Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-001",
+      "_hash": "97210ab63750c03023f0e356a2c910809a12eec83d6561b244718e183348dfe5"
+    },
+    {
+      "id": "B-7b4e:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs clearly mark M0-M1 implemented and M2-M5 pending while preserving dry local quantum claim-admissibility exclusions and avoiding theory, solver, production, Authority, or full benchmark overclaims.",
+      "createdAt": "2026-07-02T20:10:08.345Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-004",
+      "_hash": "7eba8d2d7629f3bf437774cc00a05740d701df048675801d39178db1c1d29d4d"
+    },
+    {
+      "id": "B-7b4e:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean after fixes: Quantum scope remains M0-M1 only with M2-M5 pending; basis/grid identity is either-or with fail-closed missing/mismatch handling; missing required receipts and stale receipts have explicit rejection paths and smoke assertions; production/Authority/hardware/scientific overclaim wording is only negative boundary text.",
+      "createdAt": "2026-07-02T20:31:16.267Z",
+      "reviewRound": "2026-07-02T20:30:05.600Z",
+      "reviewRunId": "B-7b4e:RR-005",
+      "_hash": "e561624cec743e55ef780d51a9c95a1504601eaf50507cf15311e41581a0f533"
+    },
+    {
+      "id": "B-7b4e:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage clean: npm --prefix packages/main run test:quantum-claim-admissibility passed and smoke directly covers B-7b4e:F-001 stale_evidence + missing_required_receipt, basis-set-only PASS, mismatched basisSetHash BLOCK, missing basis/grid identity BLOCK, unbound solver output + plot/table BLOCK, and weak evidence overclaim degrade/BLOCK cases.",
+      "createdAt": "2026-07-02T20:31:25.407Z",
+      "reviewRound": "2026-07-02T20:30:05.600Z",
+      "reviewRunId": "B-7b4e:RR-007",
+      "_hash": "61ba00197c7883662bf7d08068c24957af013b3b7b6fdbc4929b621f50bede50"
+    },
+    {
+      "id": "B-7b4e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs touchpoint PASS: Quantum plan states M0-M1 implemented and M2-M5 pending; preserves exclusions for hardware/wet or experimental validation, scientific correctness/theory proof, solver improvement, production-like/terminal completion, and Authority scope; no retired Authority Server vocabulary or active authority_* terms found in the reviewed plan.",
+      "createdAt": "2026-07-02T20:31:31.020Z",
+      "reviewRound": "2026-07-02T20:30:05.600Z",
+      "reviewRunId": "B-7b4e:RR-008",
+      "_hash": "432796879c25ff9429dba943bcd9635039c9657414f0376ca2b5dfa136cfdd89"
+    },
+    {
+      "id": "B-7b4e:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean: M0-M1 local quantum claim-admissibility slice only; M2-M5 remain pending; weak Q5 overclaims degrade only when evidence is otherwise current/bound, while stale, mismatched, unbound, missing required receipt, and boundary violations stay fail-closed with stop/repair semantics and no surviving scoped claim for hard-stop evidence.",
+      "createdAt": "2026-07-02T20:40:11.022Z",
+      "reviewRound": "2026-07-02T20:34:46.642Z",
+      "reviewRunId": "B-7b4e:RR-009",
+      "_hash": "f847dc5364df04017d0ece851e5f55c9dbdc2b9cddeb09f4ab4f6543185f9f9c"
+    },
+    {
+      "id": "B-7b4e:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs touchpoint remains accurate after code fixes: Quantum plan states M0-M1 implemented and M2-M5 pending, preserves non-goal/exclusion boundaries, and avoids overclaiming production, Authority, hardware, solver-improvement, physical-validation, theory, or broad quantum-advantage claims.",
+      "createdAt": "2026-07-02T20:40:12.443Z",
+      "reviewRound": "2026-07-02T20:34:46.642Z",
+      "reviewRunId": "B-7b4e:RR-012",
+      "_hash": "5f347bc8efb164792b5146087b1d639018c8a2b3e963f466f7969c839acb6fcf"
+    },
+    {
+      "id": "B-7b4e:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused quantum claim-admissibility smoke covers weak overclaim plus stale hard-stop, stale evidence, missing required receipt, basis-set-only, basis mismatch, missing basis/grid identity, unbound solver output, unbound plot/table, and weak evidence overclaim; package smoke passed.",
+      "createdAt": "2026-07-02T20:40:26.479Z",
+      "reviewRound": "2026-07-02T20:34:46.642Z",
+      "reviewRunId": "B-7b4e:RR-011",
+      "_hash": "2deeab7cc03afade01bcd1b665f57c745e9741ed57cab32565186ec241608ad4"
+    },
+    {
+      "id": "B-7b4e:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean: implementation and doc remain M0-M1 only; M2-M5 stay pending; fail-closed hard-stop precedence is correct; weak overclaim only degrades otherwise valid bound evidence; no Authority/science/hardware/solver/production overclaim found.",
+      "createdAt": "2026-07-02T20:49:09.754Z",
+      "reviewRound": "2026-07-02T20:43:41.513Z",
+      "reviewRunId": "B-7b4e:RR-015",
+      "_hash": "8d39df954c45e05463e16c46eb24f3b9bd4477a98c325bb61dcab109174e8bb1"
+    },
+    {
+      "id": "B-7b4e:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Docs review clean: touchpoint markdown states Quantum claim-admissibility runtime status as M0-M1 implemented and M2-M5 pending; story plan keeps M2 verifier adapters, M3 gate engine, M4 benchmark harness, and M5 reporting/governance as future stories; exclusions remain intact for quantum theory/scientific correctness, physical or hardware validation, wet-lab validation, solver improvement, broad quantum advantage, production, terminal completion, and external Authority integration. No retired vocabulary boundary regression found.",
+      "createdAt": "2026-07-02T20:49:19.943Z",
+      "reviewRound": "2026-07-02T20:43:41.513Z",
+      "reviewRunId": "B-7b4e:RR-014",
+      "_hash": "a21b177c5a15c08078cfd74db9ca0447785c0cff5f407f95561aeb8e3c64535a"
+    },
+    {
+      "id": "B-7b4e:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review clean. Verified F-004: missing core, conditional, and basis/grid identity reasons combined with weak_evidence_overclaim return allowed=false, nextAction=stop, scopedClaim=false; hard-stop list also includes missing_claim_field. Sanity-checked F-003 stale+overclaim remains stop/no scoped degradation and basis/grid semantics allow basis-set-only evidence while rejecting missing/mismatched basis/grid. Ran npm --prefix packages/main run build and npm --prefix packages/main run test:quantum-claim-admissibility plus direct runtime probes.",
+      "createdAt": "2026-07-02T20:49:55.558Z",
+      "reviewRound": "2026-07-02T20:43:41.513Z",
+      "reviewRunId": "B-7b4e:RR-013",
+      "_hash": "2008de14c2b6b450dfd4b2278c80a74817b577a97d40fab9e26f6d2a861fa094"
+    },
+    {
+      "id": "B-7b4e:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused test-coverage review passed: build and quantum claim-admissibility smoke cover F-004 missing basis/grid identity plus weak overclaim as stop/no scoped claim, and F-003 stale evidence plus weak overclaim as stop/no scoped claim.",
+      "createdAt": "2026-07-02T20:49:56.657Z",
+      "reviewRound": "2026-07-02T20:43:41.513Z",
+      "reviewRunId": "B-7b4e:RR-016",
+      "_hash": "987d24436e1f7f6251ea1697e945ff62635b7bfe55437b6e21ddd711cc728509"
+    },
+    {
+      "id": "B-7b4e:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: Quantum plan lines 19-33 bound B-7b4e to M0-M1 with M2-M5 pending; lines 46-56 preserve non-goals; evaluator exports local M0-M1 runtime/boundary text, requires core/conditional identity fields, and hard-stop fail-closed reasons take precedence over weak overclaim degradation. No concept blocker found.",
+      "createdAt": "2026-07-02T21:05:40.046Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-018",
+      "_hash": "ba141e8204b41d85a4fe7a6f830c4ec23616af74c50b1c829a45cd2f7ed29072"
+    },
+    {
+      "id": "B-7b4e:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Docs touchpoints reviewed for B-7b4e. The quantum execution plan states M0-M1 implemented and M2-M5 pending; benchmark/adapters/gate policy remain future work; no hardware, theory, solver-improvement, production, or Authority claim is made.",
+      "createdAt": "2026-07-02T21:05:52.805Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-017",
+      "_hash": "ee50b95c9c1e4f3d0deb2d43dc3ca68a80fe03b5573765c985dbc89cd65c78d9"
+    },
+    {
+      "id": "B-7b4e:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh test-coverage pass: quantum smoke covers mismatched top-level receipt.outputDigest and missing receipt.identity, plus stale/missing/mismatched/unbound/weak-overclaim cases; focused npm smoke passed.",
+      "createdAt": "2026-07-02T21:15:53.933Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-022",
+      "_hash": "243ca64ea74c0fd01c1ccd8c82b9ef9f745f40258b9050a06f0fd7b51012d4f2"
+    },
+    {
+      "id": "B-7b4e:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: reviewed Quantum M0-M1 claim schema and fail-closed identity binding only; M2-M5 adapters, lifecycle integration, benchmarks, reporting, and governance remain pending by design. No blocker found.",
+      "createdAt": "2026-07-02T21:16:11.020Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-024",
+      "_hash": "bf308dddd3ed47f1a9bc71faceeee545b87cb2172a70a2c04a6e20e6f3b0b032"
+    },
+    {
+      "id": "B-7b4e:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs reviewed after code-only fix bc4c8b3b6. The quantum decision doc and runtime text consistently state M0-M1 implemented and M2-M5 pending; benchmark/failure-injection remains future M4; no hardware, theory, solver-improvement, production, Authority, or stronger solver claims are introduced. No doc changes required.",
+      "createdAt": "2026-07-02T21:16:20.260Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-023",
+      "_hash": "e54d325e329b90c143c70dc6f0dbe973350c5670be0889003cadd7e0b0c4b0c8"
+    },
+    {
+      "id": "B-7b4e:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS B-7b4e RR-028: verified baffbe55d coverage for Q4 solver-run, Q5 energy-eigenvalue, Q12 figure-table-provenance top-level receipt.outputDigest mismatches; missing receipt.identity; stale/missing/mismatched/unbound/weak-overclaim cases. npm --prefix packages/main run test:quantum-claim-admissibility PASS.",
+      "createdAt": "2026-07-02T21:23:41.633Z",
+      "reviewRound": "2026-07-02T21:21:31.774Z",
+      "reviewRunId": "B-7b4e:RR-028",
+      "_hash": "04d90f1843bd4ebb9365ed7a7ded23719df40e132349b43c5dc04cded5e79cfc"
+    },
+    {
+      "id": "B-7b4e:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Docs review for B-7b4e B-7b4e:RR-029: checked quantum source-of-truth doc plus runtime/smoke output boundaries. M0-M1 implemented, M2-M5 pending; benchmark/failure-injection future; no hardware, theory, solver-improvement, production, or Authority claim found.",
+      "createdAt": "2026-07-02T21:24:16.702Z",
+      "reviewRound": "2026-07-02T21:21:31.774Z",
+      "reviewRunId": "B-7b4e:RR-029",
+      "_hash": "21f54b11677d75eb0b68ad506c0da36839563ad7065d87cbe47c171bfed5d0df"
+    },
+    {
+      "id": "B-7b4e:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: current M0-M1 Quantum claim schema preserves explicit M0-M1 implemented / M2-M5 pending boundary, and fail-closed active identity plus receipt outputDigest binding holds for required evidence receipts. Checked plan/runtime boundary text, quantum.ts evaluator, focused smoke, and read-only Q1-Q12 probes for top-level and active-vs-receipt outputDigest mismatches.",
+      "createdAt": "2026-07-02T21:24:55.141Z",
+      "reviewRound": "2026-07-02T21:21:31.774Z",
+      "reviewRunId": "B-7b4e:RR-026",
+      "_hash": "1877b0a066a7e61134fc7de1cb20d8a273bd14a31c61430c1070025c57844b89"
+    },
+    {
+      "id": "B-7b4e:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass RR-027: verified resolved F-008/F-009 fixes. Fresh build and smoke passed; inline probe confirmed Q4/Q5/Q12 top-level outputDigest mismatch fails closed with nextAction=stop/scopedClaim=false, missing receipt.identity fails closed without throw, and hard-stop reasons with weak_evidence_overclaim stop rather than degrade.",
+      "createdAt": "2026-07-02T21:25:02.018Z",
+      "reviewRound": "2026-07-02T21:21:31.774Z",
+      "reviewRunId": "B-7b4e:RR-027",
+      "_hash": "0516503321851c4c5d2cc22f848caf85e400c04613bc2faba9b5ec4aa04fd7de"
+    },
+    {
+      "id": "B-7b4e:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: Quantum execution plan accurately says M0-M1 implemented and M2-M5 pending; non-goals exclude quantum theory proof, hardware/physical validation, solver improvement, broad quantum advantage, production, and Authority completion; current implementation and focused smoke evidence match the documented M0-M1 local claim-admissibility scope.",
+      "createdAt": "2026-07-02T22:03:41.905Z",
+      "reviewRound": "2026-07-02T22:02:30.427Z",
+      "reviewRunId": "B-7b4e:RR-030",
+      "_hash": "4ebf12825f1c9b747297fe522f7a9ca876ef9669fd0179593e58707b61660488"
+    },
+    {
+      "id": "B-7b4e:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Fresh current-round concept/scope review after storyFilesHash drift: bounded M0-M1 Quantum claim-admissibility slice remains within scope. The implementation adds a local schema/evaluator, deterministic identity-binding fail-closed semantics, a focused smoke script, and package script wiring only; the execution plan explicitly keeps M2-M5 pending and avoids quantum theory, hardware, solver-improvement, production, Authority, or broad scientific-correctness claims. Smoke command npm --prefix packages/main run test:quantum-claim-admissibility passed.",
+      "createdAt": "2026-07-02T22:03:50.283Z",
+      "reviewRound": "2026-07-02T22:02:30.427Z",
+      "reviewRunId": "B-7b4e:RR-031",
+      "_hash": "c7bda43ccf6cd7baef299f230ca80ed5b000ed5afc5b5778687e8a6bb3a72d42"
+    },
+    {
+      "id": "B-7b4e:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Fresh current-round quality/adversarial review after storyFilesHash-changing main merge. Reviewed fail-closed identity binding, hard-stop priority over weak overclaim degradation, outputDigest consistency, missing receipt.identity handling, and no-overclaim boundaries. Static review of quantum evaluator/smoke/doc plus npm run build and npm run test:quantum-claim-admissibility passed; no current quality blocker found.",
+      "createdAt": "2026-07-02T22:04:02.971Z",
+      "reviewRound": "2026-07-02T22:02:30.427Z",
+      "reviewRunId": "B-7b4e:RR-032",
+      "_hash": "055c2d5836d0b235aa817e4d853fb7fc5421b8623aae0f428d53275372f406eb"
+    },
+    {
+      "id": "B-7b4e:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh current-round test-coverage pass after storyFilesHash drift: npm --prefix packages/main run test:quantum-claim-admissibility PASS. Smoke covers valid bound Q5 energy evidence and Q12 figure provenance; missing core/conditional/required receipt and missing receipt.identity; stale evidence; hamiltonian/grid/basis/verifier mismatches; unbound solver output and plot/table provenance; hard-stop priority over weak Q5 overclaim for stale and missing basis/grid evidence; top-level outputDigest mismatches for Q4 solver-run, Q5 energy-eigenvalue, and Q12 figure-table-provenance; and production/Authority-style boundary overclaim blocking. No current coverage blocker found.",
+      "createdAt": "2026-07-02T22:04:08.195Z",
+      "reviewRound": "2026-07-02T22:02:30.427Z",
+      "reviewRunId": "B-7b4e:RR-033",
+      "_hash": "1bbc6518a6af5be0e53acde94e996d273bb2102bd85da782b5f6afc817573e01"
+    }
+  ]
+}

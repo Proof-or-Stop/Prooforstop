@@ -1,0 +1,185 @@
+{
+  "storyId": "B-047f",
+  "checkedAt": "2026-07-02T20:58:22.698Z",
+  "features": [
+    {
+      "feature": "M0: machine-validated protocol.json with sha256 protocolHash written by freeze, verified by validate (validate exits non-zero on any missing/malformed field or hash mismatch)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M0: memory-snapshot hash frozen — memorySnapshotHash field in protocol.json, written alongside memory-snapshot-hash.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M0: hash stability — canonical JSON serialization (stable key order, createdAt/timestamps outside hashed payload, protocolHash field excluded)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: pair-ledger build mechanically refuses when no frozen protocol.json with valid protocolHash exists (enforces M0 no-task-without-protocol-hash exit criterion)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: fixture-manifest.jsonl (one row per fixture: fixtureId, trapClass, trapGroup in_store|held_out|clean, oracleRef)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: pair-ledger.jsonl (one row per fixture pair: pairId, control|treatment arm slots, status pending)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: run-order-seed.json with deterministic seeded run order (xmur3+mulberry32+Fisher-Yates); same seed + same manifest -> byte-identical runOrder",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: ledger immutability — build and all mutating operations refuse when score-records.jsonl exists in the experiment root",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: verify sub-command re-derives runOrder from stored seed and fails on any divergence or stored protocolHash mismatch",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: twoProportionNPerArm — pooled two-sided z-test approximation (reduction direction: treatment = baseline MINUS mde)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: mcnemarDiscordantPairs — McNemar discordant-pair sizing for the paired design",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: wilson95 CI helper returning {lower, upper, width}",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: pilotFreezeCheck implementing the S7 freeze rule (>=15 control-arm fault runs required; freeze N at Wilson 95% lower bound; extend flag if width > 0.30)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: adequacy report (adequacy-report.json + adequacy-report.md) showing per population planned N per arm, assumptions, detectable effect, in-band maximum",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: S7 anchor values asserted in selfcheck — nPerArm(0.30,0.10)=294; nPerArm(0.625,0.25)=62; nPerArm(0.5,0.35)=27; nPerArm(0.5,0.25)=58; in-band max=62 near 0.625/0.25; Wilson freeze rule and direction trap",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: per-population parameters separately declared (seeded: alpha 0.05, power 0.80, baselineBand [0.5,0.8], mdeBand [0.25,0.35]; live: alpha 0.05, power 0.80, baseline 0.30, mde 0.10)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "All experiment artifacts stored under .lattice/experiments/experience-ablation/<experimentId>/ (plan S12 layout: protocol.json, fixture-manifest.jsonl, pair-ledger.jsonl, run-order-seed.json, memory-snapshot-hash.json)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M1: task fixture generator for six in-store trap classes + held-out + clean tasks with hidden deterministic oracle",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M1 fixtures explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M3: arm switch — extend experience-hint-surface.ts/hint-mode.ts for full pack render-gate with control-arm retrieval blocking",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M3 product-code arm switch explicitly out of scope; no packages/* edits",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M4: deterministic scoring oracle consuming validation evidence, DONE rows, final_response_check, ground-truth oracles, lane-provenance facts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M4 scorer explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M6: controlled seeded pilot — isolation + leakage validation + baseline-rate estimation + campaign runner committed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M6-M9 runs explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M7: powered controlled study — full-factorial paired run at frozen N",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M6-M9 runs explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M8: live shadow readout — extend production resolveHintMode/learning_effectiveness observational readout",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M6-M9 runs explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M9: paper-ready evidence map — claim-to-artifact table and no-overclaim summary",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md non-goals: M6-M9 runs explicitly out of scope for this story",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "covered": 17,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bd350d67d0a29ed44aed46a8d639c988e469568554ab37b50cbf28b3d391802e",
+  "openQuestions": []
+}

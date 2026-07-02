@@ -1,0 +1,128 @@
+{
+  "storyId": "B-7b4e",
+  "checkedAt": "2026-07-02T19:54:06.857Z",
+  "features": [
+    {
+      "feature": "Quantum execution plan source-of-truth path is declared for this story",
+      "covered_by": ".lattice/story/actives/B-7b4e/plan.md:3; .lattice/story/actives/B-7b4e/checklist.json:4",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 declares the Quantum plan as controlling requirement and includes adding/preserving the document boundary."
+    },
+    {
+      "feature": "Quantum controlling decision document is readable at the path required by dispatch/checklist",
+      "covered_by": "",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md is referenced by all reviewer prompts/checklist items but is absent in this worktree at review time."
+    },
+    {
+      "feature": "M0-M1 Quantum schema primitives are in PLAN scope",
+      "covered_by": ".lattice/story/actives/B-7b4e/plan.md:18; .lattice/story/actives/B-7b4e/checklist.json:47",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 covers Q1-Q12 claim IDs, core identity fields, conditional identity fields, requirements metadata, validation entrypoint, and stable reason codes."
+    },
+    {
+      "feature": "M0-M1 fail-closed identity binding is in PLAN scope",
+      "covered_by": ".lattice/story/actives/B-7b4e/plan.md:35; .lattice/story/actives/B-7b4e/checklist.json:89",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-003 covers Hamiltonian/grid/verifierScriptHash mismatches, missing/stale evidence, solver output binding, plot/table provenance, and weak-evidence non-upgrade behavior."
+    },
+    {
+      "feature": "M0-M1 focused smoke coverage is in PLAN scope",
+      "covered_by": ".lattice/story/actives/B-7b4e/plan.md:55; .lattice/story/actives/B-7b4e/checklist.json:134",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-004 covers valid, missing, stale, mismatched, unbound, optional-field, and weak-evidence smoke scenarios plus package script output."
+    },
+    {
+      "feature": "M2 verifier adapter pack",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/plan.md:11; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan explicitly leaves verifier adapters to future stories and stops if schema scope starts requiring them."
+    },
+    {
+      "feature": "M3 gate engine / lifecycle gate orchestration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/plan.md:11; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan keeps gate engine/gate transition orchestration out of this story."
+    },
+    {
+      "feature": "M4 benchmark harness / A1-A4 benchmark execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/background.md:8; .lattice/story/actives/B-7b4e/plan.md:11; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan excludes benchmark harness/execution and says not to start the full A1-A4 benchmark before M1-M3 exist."
+    },
+    {
+      "feature": "M5 reporting/governance",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/plan.md:11",
+      "source": "Plan states M5 reporting/governance remains a future implementation story."
+    },
+    {
+      "feature": "Scientific truth / broad scientific correctness claim",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/background.md:8; .lattice/story/actives/B-7b4e/plan.md:10; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan explicitly forbids scientific-truth, quantum theory validation, or broad scientific correctness claims."
+    },
+    {
+      "feature": "Hardware or wet-lab validation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/background.md:8; .lattice/story/actives/B-7b4e/plan.md:10; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan explicitly excludes hardware and wet-lab validation."
+    },
+    {
+      "feature": "Solver improvement claim",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/background.md:8; .lattice/story/actives/B-7b4e/plan.md:10; .lattice/story/actives/B-7b4e/plan.md:74",
+      "source": "Plan explicitly forbids solver improvement claims."
+    },
+    {
+      "feature": "Production completion or Authority claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/plan.md:10; .lattice/story/actives/B-7b4e/plan.md:74; docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:230",
+      "source": "Plan excludes production/Authority claims; proof-admissibility background also states local CLI proof must not become productionDone by receipt/ref alone."
+    },
+    {
+      "feature": "Orphan implementation scope outside declared files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": ".lattice/story/actives/B-7b4e/checklist.json:12; .lattice/story/actives/B-7b4e/checklist.json:54; .lattice/story/actives/B-7b4e/checklist.json:97; .lattice/story/actives/B-7b4e/checklist.json:142",
+      "source": "Declared scope is limited to the Quantum doc, quantum.ts, package.json, and the focused smoke task; no extra adapter/gate/benchmark/reporting files are required by PLAN."
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 4,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "4051b2941b398c93c59493a55db803905d6a907e96df34a7e6246bf3dbde1d98",
+  "openQuestions": [
+    {
+      "id": "OQ-B-7b4e-quantum-doc-missing",
+      "q": "The scope is bounded correctly, but the dispatch-required Quantum decision document path is absent in this worktree. Should CHK-001 create/import that document before implementation reviewers rely on it as source-of-truth?",
+      "evidence": "nl failed for docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md; find only located the PINN claim-admissibility plan, while checklist/dispatch reference the Quantum path.",
+      "sourcePointers": [
+        "CHK-001",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        ".lattice/story/actives/B-7b4e/plan.md"
+      ],
+      "resolution": "The missing Quantum decision document is expected baseline drift from story worktree creation: the document was created as an untracked main file before B-7b4e worktree bootstrap, so it was not visible inside the worktree. This is not a scope expansion. CHK-001 explicitly owns adding docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md as the story source of truth during DEV, while M2-M5 and scientific/hardware/production claims remain excluded.",
+      "resolvedAt": "2026-07-02T19:54:50.279Z"
+    }
+  ]
+}

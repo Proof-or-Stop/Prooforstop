@@ -1,0 +1,217 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define evidence activation policy and threshold contract",
+      "context": "Specify the exact eligibility contract for evidence-activated advisory playbooks: candidate status, recommend_activate decision, decisiveSamples denominator, helped/dismissed/harmful thresholds, concrete exposureMode, structured verdictSource, source_lineage_audit no-blocker posture, digest binding, idempotency, and demotion/rollback semantics. Explicitly state that story DONE alone is never activation evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "playbook_auto_promotion_apply --dryRun --json lists eligible and blocked candidates with concrete blocker reasons instead of asking the user to manually choose from hundreds of experiences.",
+      "excludes": [
+        "default-on activation",
+        "using DONE success as helped evidence",
+        "turning playbooks into lifecycle gate evidence"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A candidate with recommend_activate, sufficient decisive helped samples, valid exposure, structured verdict source, clean lineage, and matching digest is reported eligible for activation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Neutral/unknown outcomes and DONE settlement rows are excluded from decisive promotion denominators and cannot make a candidate eligible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale digest, duplicate lineage source, missing exposure, missing reviewed policy, or harmful outcome blocks activation with a precise reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement guarded evidence activation writer",
+      "context": "Turn playbook_auto_promotion_apply from guard-only into a real evidence activation writer. The writer should activate only evidence-eligible advisory candidates when an explicit reviewed activation policy and qualifying evidence are present. It must append audit records, remain non-authoritative, never satisfy gates, and be idempotent over candidate digest and decision digest. Do not require a global default-off environment flag just to make the CLI usable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "lattice playbook_auto_promotion_apply --apply --json activates only evidence-eligible candidates and reports activated, skipped, and blocked counts; missing evidence or missing reviewed policy blocks with precise reasons.",
+      "excludes": [
+        "activating candidates without qualifying evidence",
+        "activating candidates without a reviewed activation policy",
+        "deleting candidate rows",
+        "requiring an always-off environment flag for ordinary CLI use"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With reviewed policy, matching digest, clean lineage, and qualifying outcome evidence, --apply activates the candidate and records an audit row without requiring an always-off environment flag.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Re-running --apply is idempotent and does not duplicate activation or audit rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Without reviewed policy, clean lineage, qualifying outcomes, or current digest, --apply fails closed and writes nothing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add demotion and rollback safety for evidence-activated playbooks",
+      "context": "Provide a bounded rollback path so automatic advisory activation is reversible when later outcomes show harmful, dismissed, stale, or noisy behavior. This can be a demote recommendation consumed by activation status or an explicit demotion command if the existing playbook lifecycle lacks one.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "playbook_promotion_status --json shows automatically activated playbooks, their evidence basis, and any demotion/rollback recommendation when later evidence becomes negative.",
+      "excludes": [
+        "hard-deleting playbooks",
+        "blocking story DONE based on playbook quality",
+        "changing active runtime guidance without audit trail"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A later harmful or dismissed evidence profile produces a demotion/rollback recommendation for an auto-activated advisory playbook.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Manual active playbooks and auto-activated playbooks retain distinct audit provenance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Rollback/demotion cannot erase original candidate, activation, or outcome evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove activation is evidence-driven, not human-blame-driven",
+      "context": "Add a smoke that demonstrates the full local path: seed/proposal/candidate, explicit exposure/outcome, promotion sweep recommend_activate, source lineage check, auto-promotion dry-run eligibility, guarded apply activation, runtime consumption verify, and demotion blocker. Include negative fixtures proving story DONE, human memory alone, and missing policy/evidence do not activate anything.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "The test transcript shows activation happens from evidence thresholds and digest bindings, not from a human manually accepting blame for each candidate.",
+      "excludes": [
+        "live production auto-activation by default",
+        "external service dependency",
+        "unbounded background worker"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/index.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "End-to-end fixture proves evidence-qualified candidate becomes active under reviewed activation policy and qualifying evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A large batch with mixed eligible/ineligible candidates activates only the eligible subset and reports skipped reasons.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Story DONE, stale recommendation, duplicate source lineage, missing policy, or missing exposure cannot activate a candidate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

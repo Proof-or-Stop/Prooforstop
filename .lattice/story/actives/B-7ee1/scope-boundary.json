@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7ee1",
+  "mode": "feature",
+  "allowed": [
+    "Add guarded auto-promotion writer behind explicit flags and reviewed policy",
+    "Add rollback/demotion safety and tests",
+    "Implement evidence-driven advisory playbook activation from existing V1 playbook promotion evidence",
+    "Update playbook promotion docs and command metadata"
+  ],
+  "excluded": [
+    "Default-on automatic activation",
+    "Production remote activation or external service worker",
+    "Treating playbooks as lifecycle gate evidence",
+    "Using story DONE as helped evidence"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly rejected manual blame-based activation and requested a story to make activation evidence-driven.",
+  "createdAt": "2026-07-02T22:12:07.152Z",
+  "updatedAt": "2026-07-02T22:12:07.152Z",
+  "_hash": "59e6f225f00fcdf77f66a53917b6f0447f435fddda699c3dbc30e424ff7309bf"
+}

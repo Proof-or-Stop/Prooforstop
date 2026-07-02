@@ -1,0 +1,213 @@
+{
+  "findings": [
+    {
+      "id": "B-7b4e:F-001",
+      "desc": "Blocking test coverage gap: the quantum claim-admissibility smoke covers missing identity fields and identity/verifier mismatches, but it does not directly exercise stale receipt rejection or missing required receipt rejection, despite the reviewer checklist requiring deterministic stale/missing/mismatched binding checks. The evaluator has stale_evidence and missing_required_receipt branches, and the package script passes, but this story coverage does not prove those branches.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T20:09:59.906Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-003",
+      "_hash": "3a9238687a6609871d0a473e3591a748d0db4196cc383a56a0df8cf8f7486579",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 105b780d9 by adding direct smoke assertions for missing_required_receipt and stale_evidence; verified with npm --prefix packages/main run test:quantum-claim-admissibility showing both cases BLOCK and final smoke passed.",
+      "resolvedAt": "2026-07-02T20:14:04.874Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-002",
+      "desc": "Blocking quality issue: basisOrGrid claims are specified as accepting a basis-set or grid identity, but buildRequiredIdentityFields always adds gridHash for basisOrGrid claims. A valid basis-set-only Q2/Q5/Q9/Q10 receipt with matching basisSetHash and no gridHash will be blocked by identity_mismatch/missing receipt field handling, contradicting the M1 schema/API semantics and making the evaluator over-specific to grid workflows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:10:17.556Z",
+      "reviewRound": "2026-07-02T20:08:07.957Z",
+      "reviewRunId": "B-7b4e:RR-002",
+      "_hash": "95c6426c26972195a8ee5eaf72d7a2645970600641776345caab82c999237742",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|ts|blocking-quality-issue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 105b780d9 by allowing basisOrGrid claims to bind through either matching basisSetHash or matching gridHash while still failing closed on missing basis/grid identity and mismatches; verified by smoke cases valid Q5 basis-set-only evidence PASS, mismatched basisSetHash BLOCK, and missing basis/grid identity BLOCK.",
+      "resolvedAt": "2026-07-02T20:14:09.913Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-003",
+      "desc": "Hard-stop fail-closed reasons are masked by weak_evidence_overclaim in classifyNextAction. In packages/main/src/core/claim-admissibility/quantum.ts:321-330, the function returns degrade whenever any weak_evidence_overclaim reason exists before checking stop-class reasons such as identity_mismatch, verifier_script_mismatch, stale_evidence, unbound_solver_output, or claim_boundary_violation. A Q5 input that both overclaims ground-state and has mismatched or stale evidence remains allowed=false, but nextAction becomes degrade and scopedClaim becomes true, implying a weaker scoped claim can survive even though the evidence is not bound/current. This conflicts with the M0-M1 fail-closed requirement and is not covered by packages/main/src/tasks/quantum-claim-admissibility-smoke.ts, which only tests weak overclaim with otherwise valid evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:31:48.541Z",
+      "reviewRound": "2026-07-02T20:30:05.600Z",
+      "reviewRunId": "B-7b4e:RR-006",
+      "_hash": "eabdeefc9dfa3e7351a1a972ac9a04b77d89bfdd6e55350a434ff7b5561338c1",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|hard-stop-fail",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 90a4493f by prioritizing hard-stop reasons over weak_evidence_overclaim in classifyNextAction; smoke now covers weak ground-state overclaim combined with stale_evidence and asserts BLOCK/stop/no scoped claim. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:quantum-claim-admissibility.",
+      "resolvedAt": "2026-07-02T20:34:56.171Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-004",
+      "desc": "Blocking quality issue after F-003: classifyNextAction hard-stop priority still excludes missing identity reasons. packages/main/src/core/claim-admissibility/quantum.ts:244-257 omits missing_core_identity_field, missing_conditional_identity_field, missing_claim_field, and missing_basis_or_grid_identity from HARD_STOP_REASON_PREFIXES, so packages/main/src/core/claim-admissibility/quantum.ts:336-343 returns degrade when any of those missing-identity reasons appears together with weak_evidence_overclaim. The result remains allowed=false, but packages/main/src/core/claim-admissibility/quantum.ts:512-520 then exposes nextAction=degrade and scopedClaim=true, implying a weaker scoped claim can survive even though required evidence identity is missing. This conflicts with the M0-M1 plan requirement that missing evidence fail closed, and the smoke only asserts hard-stop priority for stale_evidence plus weak overclaim at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:111-119, leaving missing-core/conditional/basis-grid plus overclaim untested.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T20:40:42.245Z",
+      "reviewRound": "2026-07-02T20:34:46.642Z",
+      "reviewRunId": "B-7b4e:RR-010",
+      "_hash": "0f2bcfe02eade4b2ec6d232da01668de1360ec98736442f2c74dd4b273c557a9",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|missing-identity-hard-stop",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 4c8898c9 by adding missing_core_identity_field, missing_conditional_identity_field, missing_claim_field, and missing_basis_or_grid_identity to hard-stop classification; smoke now covers missing basis/grid identity combined with weak_evidence_overclaim and asserts BLOCK/stop/no scoped claim. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:quantum-claim-admissibility.",
+      "resolvedAt": "2026-07-02T20:43:50.972Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-005",
+      "desc": "Blocking quality issue: top-level receipt outputDigest is only checked for presence and is never compared to the active identity. In packages/main/src/core/claim-admissibility/quantum.ts:489 the evaluator only records output_digest_missing when receipt.outputDigest is empty, while packages/main/src/core/claim-admissibility/quantum.ts:502-507 compares active outputDigest only against receipt.identity.outputDigest. Repro: setting buildCompleteQuantumEvidence(\"Q5\").receipts[0].outputDigest = \"sha256:mismatched-output\" returns allowed=true, nextAction=advance, reasons=[], so mismatched solver output can advance despite the fail-closed output identity requirement. The smoke case at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:143-148 deletes both digest fields and does not catch this mismatch.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:06:10.818Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-019",
+      "_hash": "779bd7d6533e6e444a339e5ede4bcba5db5da5ef6884c4685805253a8885ea8b",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|output-digest-binding-gap",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by binding top-level receipt.outputDigest against the active identity and receipt identity outputDigest for solver-run receipts; npm --prefix packages/main run test:quantum-claim-admissibility now reports mismatched top-level solver output digest: BLOCK.",
+      "resolvedAt": "2026-07-02T21:13:32.509Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-006",
+      "desc": "Blocking quality issue: malformed receipts without an identity object crash the evaluator instead of failing closed with stable reason codes. packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity through hasField/fieldValue without defaulting or validating it. Repro: deleting buildCompleteQuantumEvidence(\"Q5\").receipts[0].identity throws Cannot read properties of undefined (reading codeHash) rather than returning allowed=false with missing identity reasons, which violates the M0-M1 malformed/missing evidence fail-closed requirement. The smoke covers missing active core fields at packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 but not missing receipt identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:06:19.065Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-019",
+      "_hash": "7d9ef932b65a23717303051c4d3cff69da8376f00233df1d73237ada040fe890",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|malformed-receipt-identity-crash",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by validating missing or malformed receipt.identity without throwing and returning stable fail-closed reasons; npm --prefix packages/main run test:quantum-claim-admissibility now reports missing receipt identity: BLOCK.",
+      "resolvedAt": "2026-07-02T21:13:39.584Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-007",
+      "desc": "Blocking test-coverage gap: the quantum smoke does not cover mismatched top-level receipt.outputDigest or missing receipt.identity, both within the M0-M1 missing/mismatched/unbound evidence boundary. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:143-148 deletes both identity.outputDigest and receipt.outputDigest for unbound solver output, but has no case where receipt.outputDigest differs while identity.outputDigest remains bound; repro returns allowed=true,nextAction=advance,reasons=[]. Evidence: packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:62-64 covers missing active codeHash, not missing receipt identity, while packages/main/src/core/claim-admissibility/quantum.ts:490 and packages/main/src/core/claim-admissibility/quantum.ts:502-507 dereference receipt.identity; repro deleting receipt.identity throws Cannot read properties of undefined (reading codeHash) instead of returning stable fail-closed reasons.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T21:07:31.736Z",
+      "reviewRound": "2026-07-02T21:03:07.274Z",
+      "reviewRunId": "B-7b4e:RR-020",
+      "_hash": "75794954f28f0c17156eefb1284bfebc22613e6db4310880b48cd19ee8194330",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit bc4c8b3b6 by adding direct smoke coverage for mismatched top-level receipt.outputDigest and missing receipt.identity; focused smoke passes and prints both cases as BLOCK before quantum claim-admissibility smoke passed.",
+      "resolvedAt": "2026-07-02T21:13:46.711Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-008",
+      "desc": "Top-level receipt.outputDigest mismatches are only checked for solver-run receipts. Repro: buildCompleteQuantumEvidence(Q5) or Q12, mutate receipts[0].outputDigest to a different digest, then evaluateQuantumClaim returns allowed=true, nextAction=advance, reasons=[] even though every evidence receipt must bind outputDigest to the active identity. This leaves non-solver required receipts fail-open despite the fail-closed receipt identity rule.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T21:15:59.507Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-021",
+      "_hash": "a1fd0d69592783a5f4fd50f585f4efc3d151cd38f589adbfe0539c1c04083d34",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|level-receipt-outputdigest",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit baffbe55d by applying outputDigest binding to all checked required receipts, not only solver-run; npm --prefix packages/main run test:quantum-claim-admissibility now reports mismatched top-level energy output digest: BLOCK and mismatched top-level figure provenance output digest: BLOCK.",
+      "resolvedAt": "2026-07-02T21:21:42.021Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b4e:F-009",
+      "desc": "Blocking test-coverage gap: the smoke added a mismatched top-level receipt.outputDigest case only for Q4 solver-run receipts, but the story requirement is fail-closed receipt output binding across required evidence receipts. Independent repro with node --input-type=module mutating buildCompleteQuantumEvidence(Q5).receipts[0].outputDigest and buildCompleteQuantumEvidence(Q12).receipts[0].outputDigest returns allowed=true,nextAction=advance,reasons=[] for energy-eigenvalue and figure-table-provenance. The smoke therefore does not cover non-solver top-level receipt.outputDigest mismatches, and the current evaluator advances them instead of failing closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T21:17:33.168Z",
+      "reviewRound": "2026-07-02T21:13:24.113Z",
+      "reviewRunId": "B-7b4e:RR-025",
+      "_hash": "ad742a8a477288177c02bb008c7cb47a74a812a409c1dc60a53363d02d98351d",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "missing|ts|blocking-test-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit baffbe55d by adding direct smoke coverage for Q5 energy-eigenvalue and Q12 figure-table-provenance mismatched top-level receipt.outputDigest; focused smoke passes and prints both new cases as BLOCK.",
+      "resolvedAt": "2026-07-02T21:21:48.811Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7b4e",
+  "sourceText": "User requested: 1) send an Agent to write a markdown document for the claim-admissibility adapter pack framework; 2) simultaneously execute docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md.",
+  "normalizedOutcome": "A framework markdown document exists, and the Quantum plan begins execution through a bounded M0-M1 runtime story that adds schema, identity binding, and fail-closed smoke coverage without claiming scientific or hardware validation.",
+  "acceptanceClaim": "B-7b4e is accepted when the user can run npm --prefix packages/main run test:quantum-claim-admissibility and see quantum claim-admissibility smoke passed, while the framework doc exists separately and Quantum M2-M5 remain pending.",
+  "keyRequirementIds": [
+    "REQ-framework-doc",
+    "REQ-no-scientific-overclaim",
+    "REQ-quantum-m0-m1-runtime"
+  ],
+  "requestHash": "sha256:ae3aa59bbecec90cd63cd0ad34208e2145c538acec221bbd5e890a9f0c60bec3",
+  "createdAt": "2026-07-02T19:55:35.869Z",
+  "updatedAt": "2026-07-02T19:55:35.869Z"
+}
