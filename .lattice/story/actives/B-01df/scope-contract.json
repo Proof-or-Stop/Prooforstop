@@ -46,8 +46,29 @@
       "phase": "DEV",
       "headHash": "ba31bed3bfb79ecf18528345df4508269f9caf0c",
       "materialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required DONE review assurance evidence recording actual Claude CLI and Antigravity CLI read-only host review transcripts for B-01df; this is story-scoped lifecycle evidence, not feature scope expansion.",
+      "timestamp": "2026-07-02T20:01:43.557Z",
+      "paths": [
+        ".lattice/story/actives/B-01df/evidence/host-review-transcripts.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-01df/evidence/host-review-transcripts.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2555b6879333a1d42d60d8d338a7503d9180e4b6",
+      "materialHash": "793e3f3aa56fef5133f6b924e6e496eccdc61ee24faaabf32b710e282bf62b4b",
+      "anchors": [
+        "done.review_assurance_floor",
+        "evidence.host_review_transcripts",
+        "source_lineage_audit.m1_read_only"
+      ]
     }
   ],
   "createdAt": "2026-07-02T19:06:26.225Z",
-  "updatedAt": "2026-07-02T19:22:54.667Z"
+  "updatedAt": "2026-07-02T20:01:43.557Z"
 }
