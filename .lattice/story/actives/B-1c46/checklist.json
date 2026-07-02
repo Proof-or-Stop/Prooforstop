@@ -113,7 +113,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M3 outputs a transcript showing fuzzy auxiliary index hit/fallback counts, unchanged result digests, and improved indexed cold/warm timing over the all-token scan baseline."
+      "userSees": "Expected transcript includes `fuzzyIndexHits=<n>`, `fuzzyFallbacks=<n>`, `parityPass=true`, and no all-token scan for normal fuzzy queries.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "packages/main/src/core/playbook-runtime-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fuzzy/includes query cases are served by a bounded auxiliary index while preserving result digest parity.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prefix/trigram or equivalent fuzzy indexing handles short tokens, file kinds, story phases, and host/context tokens without unbounded scans.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If fuzzy index cannot prove coverage, fallback is bounded and visible in counters rather than silently performing an unreported whole-token scan.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
