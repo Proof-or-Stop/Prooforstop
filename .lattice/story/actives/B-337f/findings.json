@@ -369,6 +369,23 @@
       "resolvedAt": "2026-07-02T23:20:38.298Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-018",
+      "desc": "[host-2 terminal, probe-proven] The secret-path probe still executes workspace code in-process: the probe script path is passed as argv[1], so the imported lib can read argv[1], read the probe source, regex out the secret path, and register a process.on(exit) hook to overwrite the verdict file with true after the probe writes false. Root cause: ANY in-process execution of workspace code is forgeable. Terminal fix: do NOT execute or import the workspace lib at all — statically extract the effective exported literal (anchored ^export const LIMIT = <int>; ; zero/multiple/non-literal all fail). This is a legitimate plan-S6.1 workspace-STATE check, unforgeable because no workspace code runs, and closes the entire F-006..F-018 forgery family.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T23:24:47.682Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "_hash": "d12d1ad758da2dcee4bfac506d268156caf037b959125b9a8c938badcb315743",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-terminal-probe",
+      "signatureTagSource": "auto"
     }
   ]
 }
