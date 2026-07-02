@@ -16,7 +16,36 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node experiments/experience-ablation/protocol.mjs freeze --root=<tmp> --experimentId=exp1 --config=<cfg.json> prints the computed protocolHash and writes .lattice/experiments/experience-ablation/exp1/protocol.json plus memory-snapshot-hash.json under the given root; node protocol.mjs validate --root=<tmp> --experimentId=exp1 exits 0 and prints PASS on the frozen protocol, and exits non-zero naming the offending field after any tamper; node experiments/experience-ablation/protocol-selfcheck.mjs prints a per-case PASS list and exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "freeze on a valid config then validate -> exit 0, protocol.json + memory-snapshot-hash.json exist under the experiment root, printed protocolHash equals the stored one; WHY: M0 exit criterion protocol.json validates",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canonicalization: freezing two configs that differ only in JSON key order -> identical protocolHash; tampering any single field -> validate exits non-zero with hash mismatch; WHY: hash stability is the binding the ledger and future runs depend on",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "missing memorySnapshotHash or malformed perPopulation config -> freeze/validate exits non-zero naming the field; WHY: machine-validated means every required field is enforced, not documented",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "timestamps: createdAt is supplied as input and excluded from the hashed payload -> re-freezing the same config at a different time yields the same protocolHash; WHY: Date.now in hashed payloads breaks reproducibility (repo-wide resume lesson)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

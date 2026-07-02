@@ -1,0 +1,33 @@
+{
+  "task": "Implement the three experiment-side tooling milestones (M0 protocol freeze, M2 pair ledger, M5 sample-size calculator) of the merged rev-2 experience-ablation execution plan as plain .mjs CLIs with hermetic selfchecks under a new experiments/experience-ablation/ directory.",
+  "outcome": "Three runnable tools and three passing selfchecks exist on the story branch: protocol.mjs freezes/validates a machine-checked protocol.json with a canonical sha256 protocolHash and frozen memorySnapshotHash; pair-ledger.mjs builds a deterministic seeded run order + immutable fixture-manifest/pair-ledger jsonl files and refuses to build without a frozen protocol or after a score record exists; sample-size.mjs reproduces the plan-reviewed anchor values (294 at 0.30/0.10 reduction; 62 in-band max at 0.625/0.25; corners 27/58) and implements the Wilson-CI pilot freeze rule (>=15 runs, lower-bound freeze, extend when width > 0.30), writing a per-population adequacy report.",
+  "facts": [
+    "The rev-2 plan (docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md, on main via B-36fd merge 67e993c45) S13 defines M0/M2/M5 reuse pointers and exit criteria; the INIT reviewer re-verified all of them against source on 2026-07-03.",
+    "experiments/recovery-runner/run-driver.mjs lines 121-147 contain the xmur3/mulberry32 string-seeded PRNG + Fisher-Yates seededShuffle pattern to re-implement locally.",
+    "experiments/recovery-runner/checks.mjs and live-engine.mjs contain the sha256 hash-checked acceptance mechanics precedent; analyze.mjs exports twoProportionZ/wilson/clusterBootstrap/benjaminiHochberg (pattern reference; S1 re-implements the small closed-form formulas locally to keep the experiment dir self-contained).",
+    "The S7 anchor numbers were independently verified three times during B-36fd review (Claude quality lane + Codex host-2 twice): pooled two-sided z, alpha 0.05, power 0.80, treatment = baseline MINUS mde: n(0.30,0.10)=293.15->294; n(0.625,0.25)=61.6->62; n(0.5,0.35)=26.9->27; n(0.5,0.25)=57.x->58.",
+    "The runtime artifact root is .lattice/experiments/experience-ablation/<experimentId>/ (plan S12); tools take --root and write only under that experiment root.",
+    "Date.now()/new Date() must not enter any hashed payload (protocol hash must be stable); createdAt is an input parameter.",
+    "The repro-first intake preflight fired at story_create (warn, non-blocking); red evidence will be bound at DEV entry: the sample-size selfcheck fails before the tool exists (genuine red) and passes after (green), the B-36fd pattern."
+  ],
+  "constraints": [
+    "Scope: only experiments/experience-ablation/** may be created; no packages/* or docs/* changes.",
+    "All artifacts English (open-source surface).",
+    "Selfchecks must be hermetic: temp-dir experiment roots, no network, no reliance on repo state outside the new directory, deterministic exit codes.",
+    "Immutability enforced by refusal-on-score-records-present, not filesystem permissions.",
+    "M2 must consume M0's protocolHash (refuse to build without it) — mechanical enforcement of the no-task-without-hash exit criterion.",
+    "Follow the recovery-runner file conventions (plain .mjs, *-selfcheck.mjs, no build step)."
+  ],
+  "unknowns": [
+    "Exact McNemar discordant-pair sizing formula variant to document (Connor approximation vs Miettinen) — resolve during DEV by documenting the chosen formula with a reference comment and covering it with a monotonicity selfcheck rather than a disputed literature constant."
+  ],
+  "touchpoints": [
+    "experiments/experience-ablation/protocol.mjs (create)",
+    "experiments/experience-ablation/protocol-selfcheck.mjs (create)",
+    "experiments/experience-ablation/pair-ledger.mjs (create)",
+    "experiments/experience-ablation/pair-ledger-selfcheck.mjs (create)",
+    "experiments/experience-ablation/sample-size.mjs (create)",
+    "experiments/experience-ablation/sample-size-selfcheck.mjs (create)"
+  ],
+  "timestamp": "2026-07-02T20:52:44.596Z"
+}
