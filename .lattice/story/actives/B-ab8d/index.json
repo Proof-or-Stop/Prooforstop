@@ -4,7 +4,7 @@
   "title": "Experience-ablation M3: full runtime-pack arm switch with experimentId override and control-arm retrieval blocking",
   "description": "Milestone M3 of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Extend the existing render-gate (packages/main/src/core/experience-hint-surface.ts + hint-mode.ts, currently review-entrypoint advisory hints only) to the FULL runtime memory pack (core/playbook-runtime-memory.ts buildMemoryFreshnessPack/renderMemoryFreshnessPack) at all lifecycle entrypoints that render it today (story_create, story_advance, session_brief, host_handoff, done_prepare, done_closure, dev_memory_start), under an experimentId override: when an experiment arm context is active, the arm (control|treatment) overrides resolveHintMode; control computes and logs the pack but does not render it; treatment renders it identically to today. Add mechanical control-arm retrieval blocking at the single CLI choke point (cli-engine.ts, alongside enforceStoryOwnerLeaseGate): retrieval/consumption commands (recall, dev_memory_*, playbook_*, learning_*) are refused on the control arm and every attempt is recorded as a protocol-violation event with a counter (plan section 9). Pack must keep authority=non_authoritative and gateEvidence=false on both arms; the arm must never enter issues/blocker computation or prompt hashes. Exit criteria (plan section 13 M3 row): control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -34,6 +34,15 @@
       "action": "advance",
       "timestamp": "2026-07-02T22:54:52.316Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:55:06.027Z",
+      "branch": "story/B-ab8d",
       "user": "Harmonygo",
       "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
       "agent": "main"

@@ -10,7 +10,30 @@
       "userSees": "A logic test prints: no context -> null; context set -> {experimentId, arm} parsed and validated; invalid arm value -> explicit error naming the accepted values",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Both env vars set with valid values returns {experimentId, arm}",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No vars -> null (no-experiment mode); exactly one var set -> null plus a warning naming the ignored var",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid arm value (e.g. treatmnt) rejected/ignored with an explicit message naming accepted values control|treatment; empty experimentId treated as unset",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
