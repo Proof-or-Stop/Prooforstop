@@ -100,13 +100,14 @@
       ],
       "files": {
         "modify": [
-          "packages/main/src/handlers",
-          "packages/main/src/cli-engine.ts",
-          "packages/main/src/core/command-policy.ts"
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks"
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
         ]
       },
       "status": "pending",
