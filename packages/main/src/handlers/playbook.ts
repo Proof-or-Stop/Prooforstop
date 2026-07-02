@@ -8,6 +8,7 @@
  *   playbook_approve <proposalId> --expected…  -> playbooks.json candidate
  *   playbook_activate <playbookId> --expected… -> playbooks.json active
  *   playbook_outcome_record ...                -> playbook-outcomes.jsonl row
+ *   playbook_promotion_observe --since=14d     -> read-only promotion observations
  *   playbook_reject <proposalId>               -> discard the proposal
  *
  * HARD GUARDRAILS (load-bearing — enforced by smoke + static grep):
@@ -37,6 +38,7 @@ import type {
   PlaybookPromotionAggregate,
   PlaybookPromotionDecisionAction,
   PlaybookPromotionDecisionRow,
+  PlaybookPromotionObserveReport,
   PlaybookProposal,
   PlaybookTrigger,
 } from '../core/experience-layer-types.js';
@@ -45,6 +47,7 @@ import {
   appendPlaybookPromotionDecision,
   appendPlaybookOutcomeEvent,
   appendPlaybook,
+  buildPlaybookPromotionObserveReport,
   buildPlaybookSourceReference,
   collectPlaybookPromotionLearningHealth,
   computePlaybookDigest,
@@ -372,6 +375,11 @@ type PlaybookPromotionStatusArgs = {
   json?: boolean;
 };
 
+type PlaybookPromotionObserveArgs = {
+  since?: string;
+  json?: boolean;
+};
+
 function envFlagEnabled(name: string): { enabled: boolean; raw: string } {
   const raw = (process.env[name] ?? '').trim();
   return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
@@ -542,6 +550,44 @@ function latestDecisions(rows: PlaybookPromotionDecisionRow[], limit: number): P
     .slice()
     .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt))
     .slice(0, limit);
+}
+
+function renderObserveOutput(report: PlaybookPromotionObserveReport, json?: boolean): string {
+  if (json) return JSON.stringify(report, null, 2);
+  const sinceLine = report.since.start
+    ? `${report.since.mode}:${report.since.start}${report.since.input ? ` (${report.since.input})` : ''}`
+    : 'all';
+  return [
+    'Playbook promotion observe',
+    `observedAt: ${report.observedAt}`,
+    `since: ${sinceLine}`,
+    `candidateGenerated.currentCandidates: ${report.candidateGenerated.currentCandidates}`,
+    `candidateGenerated: ${report.candidateGenerated.count}`,
+    ...report.candidateGenerated.candidates.map((row) =>
+      `  - ${row.playbookId} status=${row.status} source=${row.source.sourceKey} digest=${row.playbookDigest}`),
+    `candidateGenerated.malformedPlaybooks: ${report.candidateGenerated.malformedPlaybooks}`,
+    `candidateConsumed.consumedCandidateCount: ${report.candidateConsumed.consumedCandidateCount}`,
+    `candidateConsumed: ${report.candidateConsumed.count}`,
+    `candidateConsumed.uniquePlaybooks: ${report.candidateConsumed.uniquePlaybookCount}`,
+    `candidateConsumed.unconsumedCurrentCandidateIds: ${report.candidateConsumed.unconsumedCurrentCandidateIds.join(', ') || 'none'}`,
+    `candidateConsumed.excluded.exposureModeNone: ${report.candidateConsumed.excluded.exposureModeNone}`,
+    `candidateConsumed.excluded.nonCandidateStatus: ${report.candidateConsumed.excluded.nonCandidateStatus}`,
+    `candidateConsumed.excluded.outsideSince: ${report.candidateConsumed.excluded.outsideSince}`,
+    `candidateConsumed.malformedOutcomeRows: ${report.candidateConsumed.malformedOutcomeRows}`,
+    ...report.candidateConsumed.rows.map((row) =>
+      `  - ${row.observedAt} ${row.playbookId} story=${row.storyId} exposure=${row.exposureMode} verdict=${row.verdict} source=${row.verdictSource}`),
+    `recommendationHandling.actionable: ${report.recommendationHandling.actionableCount}`,
+    `recommendationHandling.handled: ${report.recommendationHandling.handledCount}`,
+    `recommendationHandling.unhandled: ${report.recommendationHandling.unhandledCount}`,
+    `recommendationHandling.excluded.unapplied: ${report.recommendationHandling.excluded.unapplied}`,
+    `recommendationHandling.excluded.nonActionableAction: ${report.recommendationHandling.excluded.nonActionableAction}`,
+    `recommendationHandling.excluded.outsideSince: ${report.recommendationHandling.excluded.outsideSince}`,
+    `recommendationHandling.malformedDecisionRows: ${report.recommendationHandling.malformedDecisionRows}`,
+    ...report.recommendationHandling.recommendations.map((row) =>
+      `  - ${row.decidedAt} ${row.action} ${row.playbookId} ${row.handlingStatus}${row.handledBy ? ` handledBy=${row.handledBy}` : ''} currentStatus=${row.currentPlaybookStatus ?? 'missing'} aggregateDigest=${row.aggregateDigest}`),
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+  ].join('\n');
 }
 
 export function createPlaybookHandlers(ctx: HandlerContext) {
@@ -879,6 +925,17 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
 
       if (!apply) return run();
       return withLearningStoreLock(ctx.root, 'playbook-promotion-sweep', run);
+    },
+
+    /**
+     * Read-only evidence-gathering surface for M7/M8 readiness. It proves
+     * current candidates, explicit candidate consumption rows, and whether
+     * applied actionable recommendations have been handled without writing
+     * learning metadata or changing playbook status.
+     */
+    playbook_promotion_observe(args: PlaybookPromotionObserveArgs = {}): string {
+      const report = buildPlaybookPromotionObserveReport(ctx.root, { since: args.since });
+      return renderObserveOutput(report, args.json);
     },
 
     /**

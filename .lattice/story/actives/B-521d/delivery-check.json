@@ -1,0 +1,53 @@
+{
+  "storyId": "B-521d",
+  "checkedAt": "2026-07-02T17:50:54.926Z",
+  "headHash": "f78b28e08d69ffcdda2e8d04040b25cc81af6dcc",
+  "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+  "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+  "reviewRound": "2026-07-02T17:43:59.586Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "JSON/text output includes candidateGenerated.currentCandidates, candidateConsumed.consumedCandidateCount, and candidateConsumed.unconsumedCurrentCandidateIds based only on explicit learning rows.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Validated via packages/main/src/tasks/playbook-promotion-observe-smoke.js outputs and command readme/plan userSees."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Running \"lattice playbook_promotion_observe --since=14d --json\" prints authority=non_authoritative, gateEvidence=false, candidateGenerated, candidateConsumed, and recommendationHandling.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Verified with node packages/main/dist/cli.js playbook_promotion_observe --since=14d --json."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Smoke output ends with playbook promotion observe smoke passed and the plan says observation is evidence gathering, not automatic promotion.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Confirmed via node packages/main/dist/tasks/playbook-promotion-observe-smoke.js and docs userSees language."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js passed 9 checks including empty-store, synthetic candidates, consumption, recommendation handling, and command metadata."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/cli.js playbook_promotion_observe --since=14d --json output includes candidateConsumed.consumedCandidateCount and recommendationHandling with authority=non_authoritative, gateEvidence=false."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Manual rg check on docs/requirements/decisions/playbook-promotion-worker-execution-plan.md shows observation-only contract, no automatic activation path."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Executed real-machine smoke and command checks for edge cases (empty store, relative since, invalid since path, unconsumed rows) with no remaining TODO blockers."
+  },
+  "_hash": "674fcc10037551bf31ade4e3953ecfe3597c16355d8f3b584dc701b710e7bbdc"
+}

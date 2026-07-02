@@ -344,6 +344,94 @@ export interface PlaybookPromotionDecisionRow {
   gateEvidence: false;
 }
 
+// ── B-521d: read-only playbook promotion observation ─────────────────────────
+
+export type PlaybookPromotionObserveSchemaVersion = 'proofbound.playbook-promotion-observe.v1';
+export type PlaybookPromotionObserveSinceMode = 'all' | 'iso' | 'relative';
+export type PlaybookPromotionActionableRecommendation = Extract<
+  PlaybookPromotionDecisionAction,
+  'recommend_activate' | 'reject' | 'archive' | 'recommend_demote' | 'mark_non_deducible'
+>;
+export type PlaybookPromotionRecommendationHandlingStatus = 'handled' | 'unhandled';
+
+export interface PlaybookPromotionObserveSinceWindow {
+  mode: PlaybookPromotionObserveSinceMode;
+  input?: string;
+  start?: string;
+  end: string;
+}
+
+export interface PlaybookPromotionCandidateGeneratedObservation {
+  playbookId: string;
+  title: string;
+  status: 'candidate';
+  playbookDigest: string;
+  source: PlaybookSourceReference;
+}
+
+export interface PlaybookPromotionCandidateConsumedObservation {
+  eventId: string;
+  observedAt: string;
+  storyId: string;
+  playbookId: string;
+  currentPlaybookStatus?: PlaybookStatus;
+  exposureMode: PlaybookExposureMode;
+  consumer: string;
+  verdict: PlaybookOutcomeVerdict;
+  verdictSource: string;
+}
+
+export interface PlaybookPromotionRecommendationHandlingObservation {
+  decisionId: string;
+  decidedAt: string;
+  playbookId: string;
+  action: PlaybookPromotionActionableRecommendation;
+  aggregateDigest: string;
+  reasonCodes: string[];
+  handlingStatus: PlaybookPromotionRecommendationHandlingStatus;
+  handledBy?: string;
+  currentPlaybookStatus?: PlaybookStatus;
+}
+
+export interface PlaybookPromotionObserveReport {
+  schemaVersion: PlaybookPromotionObserveSchemaVersion;
+  observedAt: string;
+  since: PlaybookPromotionObserveSinceWindow;
+  candidateGenerated: {
+    currentCandidates: number;
+    count: number;
+    malformedPlaybooks: number;
+    candidates: PlaybookPromotionCandidateGeneratedObservation[];
+  };
+  candidateConsumed: {
+    consumedCandidateCount: number;
+    count: number;
+    uniquePlaybookCount: number;
+    unconsumedCurrentCandidateIds: string[];
+    malformedOutcomeRows: number;
+    excluded: {
+      exposureModeNone: number;
+      nonCandidateStatus: number;
+      outsideSince: number;
+    };
+    rows: PlaybookPromotionCandidateConsumedObservation[];
+  };
+  recommendationHandling: {
+    actionableCount: number;
+    handledCount: number;
+    unhandledCount: number;
+    malformedDecisionRows: number;
+    excluded: {
+      unapplied: number;
+      nonActionableAction: number;
+      outsideSince: number;
+    };
+    recommendations: PlaybookPromotionRecommendationHandlingObservation[];
+  };
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 export interface NonDeducibleOverrideEvent {
   overrideId: string;
   acceptedAt: string;

@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Host-neutral workflow commands remain outside adapter namespaces.",
+    "Learning observation is advisory and non-authoritative; it must not become proof or gate evidence.",
+    "Only measure real correctness/workflow questions: candidate existence, consumption, and recommendation backlog.",
+    "Prefer conservative classification over optimistic inference from DONE success."
+  ],
+  "drivers": [
+    "M7/M8 automation should not be built unless real candidate/recommendation backlog exists.",
+    "Users need one command to inspect production learning state without hand-reading JSONL ledgers.",
+    "Candidate playbooks must not leak into active runtime guidance or automatic activation."
+  ],
+  "options": [
+    {
+      "name": "extend-playbook-promotion-status",
+      "pros": [
+        "Smallest surface area",
+        "Reuses an existing read-only command"
+      ],
+      "cons": [
+        "Status command is broad and not shaped around observation-window proof",
+        "Would blur operational posture with M7/M8 readiness analysis"
+      ]
+    },
+    {
+      "name": "add-read-only-observe-command",
+      "pros": [
+        "Creates a purpose-built host-neutral proof surface for candidate generation, consumption, and recommendation handling",
+        "Can support --since relative windows and machine-readable JSON without changing activation behavior"
+      ],
+      "cons": [
+        "Adds one new CLI command that must be registered in policy/catalog/fact-level metadata"
+      ]
+    },
+    {
+      "name": "add-automation-now",
+      "pros": [
+        "Would close more of the activation loop"
+      ],
+      "cons": [
+        "Optimizes before proving backlog exists",
+        "Adds trial traffic or auto-activation risk outside the current evidence boundary"
+      ]
+    }
+  ],
+  "chosen": "add-read-only-observe-command",
+  "rationale": "A dedicated read-only observe command answers the real M7/M8 readiness question without mutating learning state, changing runtime memory, or adding premature automatic activation.",
+  "preMortem": [
+    {
+      "scenario": "Observation accidentally treats DONE success as helped",
+      "trigger": "Implementation counts candidate existence plus story completion as consumption",
+      "consequence": "False evidence that candidates work",
+      "mitigation": "Only count helped/consumed when outcome rows have candidate status and exposureMode != none plus structured verdictSource"
+    },
+    {
+      "scenario": "Recommendation backlog appears handled too optimistically",
+      "trigger": "Any decision row is treated as complete",
+      "consequence": "Missed stale recommendations",
+      "mitigation": "Classify handled from current playbook status or non-deducible registry, otherwise report unhandled"
+    },
+    {
+      "scenario": "Read-only command mutates learning files",
+      "trigger": "Reuse of sweep/apply helpers or locks with append side effects",
+      "consequence": "Observation pollutes evidence source",
+      "mitigation": "Use readPlaybooks/read outcome diagnostics/read decision diagnostics/read registry only and smoke assert no learning files are created for empty store"
+    }
+  ],
+  "timestamp": "2026-07-02T17:18:10.203Z"
+}

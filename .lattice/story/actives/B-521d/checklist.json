@@ -7,15 +7,84 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "User sees candidateGenerated, candidateConsumed, actionableRecommendations, handledRecommendations, and unhandledRecommendations in observation output.",
+      "userSees": "JSON/text output includes \"candidateGenerated.currentCandidates\", \"candidateConsumed.consumedCandidateCount\", and \"candidateConsumed.unconsumedCurrentCandidateIds\" based only on explicit learning rows.",
       "excludes": [
         "traffic experiment serving",
         "timer registration",
         "automatic candidate activation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T17:35:48.958Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/experience-layer-types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic store reports current candidate count and consumed candidate ids from explicit candidate-inspection outcome rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty or missing learning ledgers report zero counts plus malformed row diagnostics without creating files.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE success or candidate existence alone is never counted as helped/consumed; exposureMode=none is excluded from consumed candidate counts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts synthetic current candidate generation, explicit candidate-inspection consumption rows, and candidate existence alone not counted as consumption/help.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts empty store reports zero counts and observe does not create .lattice files; malformed ledgers are reported through diagnostics by the read helpers.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts exposureMode=none is excluded, non-candidate active advisory is excluded from candidate consumption, old rows outside --since are excluded, and candidate existence alone is not helped evidence.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -24,14 +93,84 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "User runs lattice playbook_promotion_observe --since=14d --json and sees JSON proof without mutations.",
+      "userSees": "Running \"lattice playbook_promotion_observe --since=14d --json\" prints \"authority\": \"non_authoritative\", \"gateEvidence\": false, \"candidateGenerated\", \"candidateConsumed\", and \"recommendationHandling\".",
       "excludes": [
         "runtime memory guidance changes",
         "gate evidence changes"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T17:35:57.459Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice playbook_promotion_observe --since=14d --json emits host-neutral JSON with candidateGenerated, candidateConsumed, recommendationHandling, authority=non_authoritative, and gateEvidence=false.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Relative since windows such as 14d are accepted and invalid since values fail with a clear playbook_promotion_observe diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command policy and process-fact metadata classify playbook_promotion_observe as readOnly/L0 and not a Codex/Claude adapter namespace command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_promotion_observe --since=14d --json",
+          "result": "pass",
+          "note": "Direct CLI JSON emitted candidateGenerated.currentCandidates, candidateConsumed.consumedCandidateCount, recommendationHandling, authority=non_authoritative, and gateEvidence=false against the real current learning store.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts relative since values such as 14d parse as relative and invalid since values throw a playbook_promotion_observe diagnostic.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts command metadata includes one host-neutral playbook_promotion_observe command, no codex-prefixed alias, readOnly command policy, destructiveRisk=none, and L0 process fact.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -40,13 +179,111 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "Smoke output includes playbook promotion observe smoke passed and observation says to automate only when real backlog exists.",
+      "userSees": "Smoke output ends with \"playbook promotion observe smoke passed\", and the plan document says observation is evidence gathering, not automatic promotion.",
       "excludes": [
         "automatic candidate activation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T17:36:06.251Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke covers empty store, synthetic candidate generation, candidate consumption, unhandled recommendation, and handled recommendation after explicit activation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation states playbook_promotion_observe is evidence gathering for M7/M8 readiness, not automatic activation, trial traffic, timer registration, or DONE gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves unexposed candidate outcomes and mere candidate existence do not satisfy consumed/helped evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed 9 checks covering empty store, candidate generation, candidate consumption, unhandled/handled recommend_activate, reject/archive/mark_non_deducible handling, invalid since, and command metadata.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"playbook_promotion_observe|evidence-gathering surface|does not activate|automatically promote\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "result": "pass",
+          "note": "Decision plan now states playbook_promotion_observe is an evidence-gathering surface for M7/M8 readiness and does not activate, trial-serve, schedule, or automatically promote playbooks.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-promotion-observe-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves unexposed exposureMode=none rows and mere candidate existence do not satisfy consumed/helped evidence; hold remains non-actionable while reject/archive/mark_non_deducible are classified.",
+          "headHash": "17df4dc957dd8b9f0c0e4822ec5d60634cd62e09",
+          "materialHash": "8dc6c78c9089f2afaebf20549433a64bda4231c51577409045ccac2a4218940c",
+          "storyFilesHash": "1c9a2efb8166d0fd95c90c0b6085394a935817e9bd34e9e23562773c0374f340",
+          "timestamp": "2026-07-02T17:45:53.867Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T17:35:48.958Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed and focused smoke passed"
+    },
+    {
+      "timestamp": "2026-07-02T17:35:57.459Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "CLI registration and metadata verified"
+    },
+    {
+      "timestamp": "2026-07-02T17:36:06.251Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Smoke coverage and documentation boundary verified"
     }
   ]
 }

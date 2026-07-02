@@ -140,6 +140,11 @@ it does not remove the human activation boundary. Fully automatic advisory
 activation is V2+ behind an explicit feature flag and a separate reviewable
 rollout decision.
 
+`playbook_promotion_observe` is an evidence-gathering surface for M7/M8
+readiness: it reports current candidates, explicit candidate-consumption
+outcomes, and handled/unhandled recommendation rows. It is read-only and does
+not activate, trial-serve, schedule, or automatically promote playbooks.
+
 The lifecycle boundary is:
 
 ```text

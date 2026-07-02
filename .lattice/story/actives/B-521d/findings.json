@@ -1,0 +1,100 @@
+{
+  "findings": [
+    {
+      "id": "B-521d:F-001",
+      "desc": "verificationIntent/checklist requires all actionable recommendation classes to be classified, including recommend_demote, but playbook-promotion-observe-smoke and recorded verificationEvidence cover recommend_activate, reject, archive, mark_non_deducible, and hold only. Add an explicit recommend_demote handled/unhandled observation case so the actionable-class contract is covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T17:40:46.638Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-003",
+      "_hash": "5e77c7eb8be1adaa4c5ac0fef1ce5182e9d21aec4a114819c577d2b4f3b221b7",
+      "files": [
+        "packages/main/src/tasks/playbook-promotion-observe-smoke.ts",
+        ".lattice/story/actives/B-521d/checklist.json",
+        ".lattice/story/actives/B-521d/test-evidence.json"
+      ],
+      "signatureTag": "missing|ts|verificationintent-checklist-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added explicit recommend_demote smoke coverage proving active demote recommendations remain unhandled while still active and become handled after status changes away from active. Verified by npm --prefix packages/main run build and node packages/main/dist/tasks/playbook-promotion-observe-smoke.js (11/11 pass).",
+      "resolvedAt": "2026-07-02T17:46:11.542Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-521d:F-002",
+      "desc": "playbook_promotion_observe treats an archive recommendation as handled when the current playbook status is still stale. The evaluator emits action=\"archive\" specifically when aggregate.status === \"stale\" (learning-store.ts:1121-1125), but classifyRecommendationHandling returns handled/current_status_stale for row.action === \"archive\" or \"reject\" (learning-store.ts:1493-1502). That makes a newly applied archive recommendation disappear from unhandled backlog without any archive transition or archived metadata being present; the smoke test encodes this optimistic case at playbook-promotion-observe-smoke.ts:297-317. Archive should remain unhandled while current status is stale, and only become handled when current status/metadata actually records archived (or whatever explicit archive sink is chosen).",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T17:41:12.647Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-002",
+      "_hash": "488e165b9ce7229adcde66d4f1d3114556d04cf14a8ea7342768d9cc1dcd2fe1",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/tasks/playbook-promotion-observe-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-promotion-observe",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed archive recommendation handling so current status stale remains unhandled (current_status_still_stale) and archive is handled only when current status is archived. Smoke now includes archive remains unhandled while stale plus archive handled after archived status. Build and focused smoke passed.",
+      "resolvedAt": "2026-07-02T17:46:18.570Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-521d:F-003",
+      "desc": "CHK-001 userSees requires JSON/text output to include candidateConsumed.unconsumedCurrentCandidateIds, but the report contract only exposes consumedCandidateCount/count/uniquePlaybookCount/malformedOutcomeRows/excluded/rows (experience-layer-types.ts:406-416), buildPlaybookPromotionObserveReport returns the same shape without computing current candidates minus consumed ids (learning-store.ts:1624-1645), and the text renderer has no candidateConsumed.unconsumedCurrentCandidateIds line (handlers/playbook.ts:569-577). This misses the stated output needed to identify current candidates that exist but have no explicit consumption row.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T17:41:41.781Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-002",
+      "_hash": "384eb16983a2566f77a9726b9f567b90393d7c41a22cc7210ce0bdb07893234a",
+      "files": [
+        "packages/main/src/core/experience-layer-types.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts",
+        ".lattice/story/actives/B-521d/checklist.json"
+      ],
+      "signatureTag": "missing|ts|usersees-requires-json",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added candidateConsumed.unconsumedCurrentCandidateIds to the report type, builder, and text output. It is computed as sorted current candidate ids minus consumed candidate rows inside the observation window. Direct CLI JSON now shows the field; smoke asserts empty, unconsumed, and mixed consumed/unconsumed cases.",
+      "resolvedAt": "2026-07-02T17:46:42.681Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-521d:F-004",
+      "desc": "Concept blocker: CHK-001 promises candidateConsumed.unconsumedCurrentCandidateIds so the observe surface directly answers which current candidates are not being consumed before M7/M8 automation. The implemented report type only exposes consumedCandidateCount/count/uniquePlaybookCount/excluded/rows (experience-layer-types.ts:406-417), buildPlaybookPromotionObserveReport returns only those fields (learning-store.ts:1634-1645), and text output renders only counts/rows (handlers/playbook.ts:569-577). Users can infer a backlog by diffing candidateGenerated.candidates against rows, but the command does not provide the explicit current-candidate backlog signal required by the story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T17:41:42.056Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-001",
+      "_hash": "1a15e33c017160f3f0e484263dbbbae4f518e99a80b927aa3ba282e8d74989ef",
+      "files": [
+        "packages/main/src/core/experience-layer-types.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "missing|ts|concept-blocker-promises",
+      "signatureTagSource": "auto",
+      "resolvedReason": "The observe report now directly exposes candidateConsumed.unconsumedCurrentCandidateIds, so users do not need to infer current unconsumed candidate backlog by diffing candidateGenerated.candidates against consumed rows. Text output also prints candidateConsumed.unconsumedCurrentCandidateIds. Verified by focused smoke and direct CLI JSON.",
+      "resolvedAt": "2026-07-02T17:46:47.956Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

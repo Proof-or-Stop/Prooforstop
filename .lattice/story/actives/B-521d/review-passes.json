@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-521d:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review clean: playbook_promotion_observe is described as read-only M7/M8 readiness evidence gathering; command policy/fact text says it writes nothing, never activates candidates, cannot satisfy lifecycle/DONE gate evidence, receipts, release readiness, or production readiness; candidate/status docs avoid claiming active runtime guidance.",
+      "createdAt": "2026-07-02T17:40:39.789Z",
+      "reviewRound": "2026-07-02T17:38:51.131Z",
+      "reviewRunId": "B-521d:RR-004",
+      "_hash": "14e497d71e7a3c0ecae213edf13829c3c5dacf56d12d8cd0d4bac08eff57d019"
+    },
+    {
+      "id": "B-521d:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed files and change surface match implemented behavior. No blockers identified.",
+      "createdAt": "2026-07-02T17:46:04.549Z",
+      "reviewRound": "2026-07-02T17:43:59.586Z",
+      "reviewRunId": "B-521d:RR-009",
+      "_hash": "3cb94e940bbc18ff7cfd0aa474033157f73964c9f22bbfbed2e92684e844bf7f"
+    },
+    {
+      "id": "B-521d:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Implementation appears aligned with checklist intent and existing task scope. No quality blockers.",
+      "createdAt": "2026-07-02T17:46:05.258Z",
+      "reviewRound": "2026-07-02T17:43:59.586Z",
+      "reviewRunId": "B-521d:RR-010",
+      "_hash": "6283da18ef4554c38e23eb7b687e18ac1ae05dab9a178c3daf0e07e7b9dc5fa3"
+    },
+    {
+      "id": "B-521d:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Smoke and verification evidence cover required lanes and edge cases. No coverage gaps.",
+      "createdAt": "2026-07-02T17:46:05.915Z",
+      "reviewRound": "2026-07-02T17:43:59.586Z",
+      "reviewRunId": "B-521d:RR-011",
+      "_hash": "18bc0195e3c36030c74b32175642046c5a270179807a04f5248d488ec39e9ff7"
+    },
+    {
+      "id": "B-521d:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Decision doc text matches behavior contract; no docs blockers.",
+      "createdAt": "2026-07-02T17:46:06.557Z",
+      "reviewRound": "2026-07-02T17:43:59.586Z",
+      "reviewRunId": "B-521d:RR-012",
+      "_hash": "c8136f515c545ca74c05c0ae479d1086d90db6e95259503c8d523b30e61fac28"
+    }
+  ]
+}

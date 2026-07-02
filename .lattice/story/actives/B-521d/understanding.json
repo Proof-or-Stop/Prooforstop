@@ -1,0 +1,29 @@
+{
+  "task": "Add a read-only playbook promotion observation command that proves whether candidates exist, whether candidates were consumed, and whether promotion recommendations were handled.",
+  "outcome": "Users can run lattice playbook_promotion_observe --since=14d --json and get host-neutral JSON/text evidence for candidate generation, candidate consumption, and handled/unhandled recommendation backlog without mutating learning state.",
+  "facts": [
+    "Current playbook promotion V1 records candidates, outcome events, promotion decisions, and non-deducible sources under .lattice/learning.",
+    "Outcome windows can be filtered by observedAt; promotion-decision windows can be filtered by decidedAt.",
+    "Existing diagnostics expose malformed outcome and decision row counts without throwing on absent ledgers.",
+    "Current playbook status and non-deducible registry provide a conservative handled/unhandled classification for recommendation rows.",
+    "Candidate playbooks must remain separate from active runtime memory guidance."
+  ],
+  "constraints": [
+    "Read-only only: no writes to .lattice/learning and no DONE gate evidence side effects.",
+    "Host-neutral CLI surface; no Codex/Claude namespace.",
+    "Do not add automatic activation, trial traffic, timers, or runtime memory guidance changes.",
+    "Use existing learning-store records and structured verdict/exposure fields rather than inferring usefulness from story DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/playbook-promotion-observe-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+  ],
+  "timestamp": "2026-07-02T17:18:10.202Z"
+}

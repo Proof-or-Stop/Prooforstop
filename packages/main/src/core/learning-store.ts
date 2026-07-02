@@ -24,12 +24,15 @@ import type {
   Playbook,
   PlaybookLineage,
   PlaybookOutcomeEvent,
+  PlaybookPromotionActionableRecommendation,
   PlaybookPromotionAggregate,
   PlaybookPromotionConfig,
   PlaybookPromotionDecisionAction,
   PlaybookPromotionDecisionRow,
   PlaybookPromotionEvaluation,
   PlaybookPromotionHealthEvent,
+  PlaybookPromotionObserveReport,
+  PlaybookPromotionObserveSinceWindow,
   PlaybookProposal,
   PlaybookSourceReference,
 } from './experience-layer-types.js';
@@ -811,6 +814,16 @@ export function isPositiveHelpedPlaybookOutcome(event: PlaybookOutcomeEvent): bo
     && STRUCTURED_VERDICT_SOURCE_RE.test(event.outcome.verdictSource);
 }
 
+export function isStructuredPlaybookOutcomeVerdictSource(value: string): boolean {
+  return STRUCTURED_VERDICT_SOURCE_RE.test(value);
+}
+
+export function isCandidateConsumedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
+  return event.playbookStatusAtObservation === 'candidate'
+    && event.exposureMode !== 'none'
+    && isStructuredPlaybookOutcomeVerdictSource(event.outcome.verdictSource);
+}
+
 export function validatePlaybookOutcomeEvent(raw: unknown): { ok: true; event: PlaybookOutcomeEvent } | { ok: false; error: string } {
   if (!isRecord(raw)) return { ok: false, error: 'event must be an object' };
 
@@ -1388,6 +1401,289 @@ export function appendPlaybookPromotionDecision(projectRoot: string, decision: P
 
 export function hasAppliedPlaybookPromotionDecision(projectRoot: string, idempotencyKey: string): boolean {
   return readPlaybookPromotionDecisions(projectRoot).some((row) => row.applied && row.idempotencyKey === idempotencyKey);
+}
+
+const PLAYBOOK_PROMOTION_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-promotion-observe.v1';
+const RELATIVE_OBSERVE_SINCE_RE = /^([1-9][0-9]*)([smhdw])$/i;
+const RELATIVE_OBSERVE_UNITS_MS: Record<string, number> = {
+  s: 1000,
+  m: 60 * 1000,
+  h: 60 * 60 * 1000,
+  d: 24 * 60 * 60 * 1000,
+  w: 7 * 24 * 60 * 60 * 1000,
+};
+
+function toDate(value: Date | string | undefined): Date {
+  if (value instanceof Date && Number.isFinite(value.getTime())) return value;
+  if (typeof value === 'string') {
+    const ms = Date.parse(value);
+    if (Number.isFinite(ms)) return new Date(ms);
+  }
+  return new Date();
+}
+
+export function parsePlaybookPromotionObserveSince(
+  since?: string,
+  nowInput?: Date | string,
+): PlaybookPromotionObserveSinceWindow {
+  const now = toDate(nowInput);
+  const endMs = now.getTime();
+  const end = now.toISOString();
+  const input = typeof since === 'string' ? since.trim() : '';
+  if (!input) return { mode: 'all', end };
+
+  const relative = input.match(RELATIVE_OBSERVE_SINCE_RE);
+  if (relative) {
+    const amount = Number(relative[1]);
+    const unitMs = RELATIVE_OBSERVE_UNITS_MS[relative[2].toLowerCase()];
+    const startMs = endMs - amount * unitMs;
+    return { mode: 'relative', input, start: new Date(startMs).toISOString(), end };
+  }
+
+  const startMs = Date.parse(input);
+  if (Number.isFinite(startMs)) {
+    return { mode: 'iso', input, start: new Date(startMs).toISOString(), end };
+  }
+
+  throw new Error(`playbook_promotion_observe: since must be an ISO timestamp or relative duration like 14d: ${input}`);
+}
+
+function timestampInObserveWindow(timestamp: string, since: PlaybookPromotionObserveSinceWindow): boolean {
+  if (!since.start) return true;
+  const ts = Date.parse(timestamp);
+  const start = Date.parse(since.start);
+  return Number.isFinite(ts) && Number.isFinite(start) && ts >= start;
+}
+
+function isActionablePromotionRecommendation(action: PlaybookPromotionDecisionAction): action is PlaybookPromotionActionableRecommendation {
+  return action === 'recommend_activate'
+    || action === 'reject'
+    || action === 'archive'
+    || action === 'recommend_demote'
+    || action === 'mark_non_deducible';
+}
+
+function classifyRecommendationHandling(
+  row: PlaybookPromotionDecisionRow,
+  current: Playbook | undefined,
+  nonDeducibleSourceKeys: Set<string>,
+): { handlingStatus: 'handled' | 'unhandled'; handledBy?: string; currentPlaybookStatus?: Playbook['status'] } {
+  const currentPlaybookStatus = current?.status;
+  if (row.action === 'recommend_activate') {
+    if (!current) {
+      return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
+    }
+    if (current.status === 'active') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_active', currentPlaybookStatus: current.status };
+    }
+    if (current.status !== 'candidate') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_changed', currentPlaybookStatus: current.status };
+    }
+    return { handlingStatus: 'unhandled', handledBy: 'current_status_still_candidate', currentPlaybookStatus: current.status };
+  }
+  if (row.action === 'recommend_demote') {
+    if (!current) {
+      return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
+    }
+    if (current.status !== 'active') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_changed', currentPlaybookStatus: current.status };
+    }
+    return { handlingStatus: 'unhandled', handledBy: 'current_status_still_active', currentPlaybookStatus: current.status };
+  }
+  if (row.action === 'reject') {
+    if (!current) {
+      return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
+    }
+    if (current.status === 'archived') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_archived', currentPlaybookStatus: current.status };
+    }
+    if (current.status === 'stale') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_stale', currentPlaybookStatus: current.status };
+    }
+    return {
+      handlingStatus: 'unhandled',
+      handledBy: current.status === 'active'
+        ? 'current_status_still_active'
+        : current.status === 'candidate'
+          ? 'current_status_still_candidate'
+          : 'current_status_not_rejected',
+      currentPlaybookStatus: current.status,
+    };
+  }
+  if (row.action === 'archive') {
+    if (!current) {
+      return { handlingStatus: 'unhandled', handledBy: 'playbook_missing' };
+    }
+    if (current.status === 'archived') {
+      return { handlingStatus: 'handled', handledBy: 'current_status_archived', currentPlaybookStatus: current.status };
+    }
+    return {
+      handlingStatus: 'unhandled',
+      handledBy: current.status === 'active'
+        ? 'current_status_still_active'
+        : current.status === 'candidate'
+          ? 'current_status_still_candidate'
+          : current.status === 'stale'
+            ? 'current_status_still_stale'
+            : 'current_status_not_archived',
+      currentPlaybookStatus: current.status,
+    };
+  }
+  if (row.action === 'mark_non_deducible') {
+    const afterKey = row.after.nonDeducibleSourceKey;
+    if (afterKey && nonDeducibleSourceKeys.has(afterKey)) {
+      return { handlingStatus: 'handled', handledBy: 'non_deducible_after_source_key_present', currentPlaybookStatus };
+    }
+    if (nonDeducibleSourceKeys.has(row.before.sourceKey)) {
+      return { handlingStatus: 'handled', handledBy: 'non_deducible_before_source_key_present', currentPlaybookStatus };
+    }
+    return { handlingStatus: 'unhandled', handledBy: 'non_deducible_source_missing', currentPlaybookStatus };
+  }
+  return { handlingStatus: 'unhandled', currentPlaybookStatus };
+}
+
+export function buildPlaybookPromotionObserveReport(
+  projectRoot: string,
+  opts: { since?: string; now?: Date | string } = {},
+): PlaybookPromotionObserveReport {
+  const since = parsePlaybookPromotionObserveSince(opts.since, opts.now);
+  const observedAt = since.end;
+  const rawPlaybooks = readPlaybooks(projectRoot);
+  const playbookById = new Map<string, Playbook>();
+  let malformedPlaybooks = 0;
+  for (const raw of rawPlaybooks) {
+    const validation = validatePlaybook(raw);
+    if (!validation.ok) {
+      malformedPlaybooks += 1;
+      continue;
+    }
+    playbookById.set(validation.playbook.id, validation.playbook);
+  }
+
+  const candidates = [...playbookById.values()]
+    .filter((playbook) => playbook.status === 'candidate')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((playbook) => ({
+      playbookId: playbook.id,
+      title: playbook.title,
+      status: 'candidate' as const,
+      playbookDigest: computePlaybookDigest(playbook),
+      source: buildPlaybookSourceReference(playbook.lineage),
+    }));
+
+  const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(projectRoot);
+  let consumedExposureModeNone = 0;
+  let consumedNonCandidateStatus = 0;
+  let consumedOutsideSince = 0;
+  const consumedRows: PlaybookPromotionObserveReport['candidateConsumed']['rows'] = [];
+  for (const event of outcomeRows.events) {
+    if (event.playbookStatusAtObservation !== 'candidate') {
+      consumedNonCandidateStatus += 1;
+      continue;
+    }
+    if (event.exposureMode === 'none') {
+      consumedExposureModeNone += 1;
+      continue;
+    }
+    if (!isStructuredPlaybookOutcomeVerdictSource(event.outcome.verdictSource)) {
+      continue;
+    }
+    if (!timestampInObserveWindow(event.observedAt, since)) {
+      consumedOutsideSince += 1;
+      continue;
+    }
+    consumedRows.push({
+      eventId: event.eventId,
+      observedAt: event.observedAt,
+      storyId: event.storyId,
+      playbookId: event.playbookId,
+      ...(playbookById.get(event.playbookId) ? { currentPlaybookStatus: playbookById.get(event.playbookId)!.status } : {}),
+      exposureMode: event.exposureMode,
+      consumer: event.consumer,
+      verdict: event.outcome.verdict,
+      verdictSource: event.outcome.verdictSource,
+    });
+  }
+  consumedRows.sort((a, b) => a.observedAt.localeCompare(b.observedAt) || a.eventId.localeCompare(b.eventId));
+  const consumedCandidateIds = new Set(consumedRows.map((row) => row.playbookId));
+  const unconsumedCurrentCandidateIds = candidates
+    .map((row) => row.playbookId)
+    .filter((playbookId) => !consumedCandidateIds.has(playbookId))
+    .sort((a, b) => a.localeCompare(b));
+
+  const decisionRows = readPlaybookPromotionDecisionRows(projectRoot);
+  const nonDeducibleSourceKeys = new Set(readNonDeducibleSourcesRegistry(projectRoot).sources.map((source) => source.source.sourceKey));
+  let recommendationUnapplied = 0;
+  let recommendationNonActionable = 0;
+  let recommendationOutsideSince = 0;
+  const recommendations: PlaybookPromotionObserveReport['recommendationHandling']['recommendations'] = [];
+  for (const row of decisionRows.decisions) {
+    if (!row.applied) {
+      recommendationUnapplied += 1;
+      continue;
+    }
+    if (!isActionablePromotionRecommendation(row.action)) {
+      recommendationNonActionable += 1;
+      continue;
+    }
+    if (!timestampInObserveWindow(row.decidedAt, since)) {
+      recommendationOutsideSince += 1;
+      continue;
+    }
+    const handling = classifyRecommendationHandling(row, playbookById.get(row.playbookId), nonDeducibleSourceKeys);
+    recommendations.push({
+      decisionId: row.decisionId,
+      decidedAt: row.decidedAt,
+      playbookId: row.playbookId,
+      action: row.action,
+      aggregateDigest: row.aggregateDigest,
+      reasonCodes: row.reasonCodes,
+      handlingStatus: handling.handlingStatus,
+      ...(handling.handledBy ? { handledBy: handling.handledBy } : {}),
+      ...(handling.currentPlaybookStatus ? { currentPlaybookStatus: handling.currentPlaybookStatus } : {}),
+    });
+  }
+  recommendations.sort((a, b) => a.decidedAt.localeCompare(b.decidedAt) || a.decisionId.localeCompare(b.decisionId));
+  const handledCount = recommendations.filter((row) => row.handlingStatus === 'handled').length;
+
+  return {
+    schemaVersion: PLAYBOOK_PROMOTION_OBSERVE_SCHEMA_VERSION,
+    observedAt,
+    since,
+    candidateGenerated: {
+      currentCandidates: candidates.length,
+      count: candidates.length,
+      malformedPlaybooks,
+      candidates,
+    },
+    candidateConsumed: {
+      consumedCandidateCount: consumedRows.length,
+      count: consumedRows.length,
+      uniquePlaybookCount: new Set(consumedRows.map((row) => row.playbookId)).size,
+      unconsumedCurrentCandidateIds,
+      malformedOutcomeRows: outcomeRows.malformedCount,
+      excluded: {
+        exposureModeNone: consumedExposureModeNone,
+        nonCandidateStatus: consumedNonCandidateStatus,
+        outsideSince: consumedOutsideSince,
+      },
+      rows: consumedRows,
+    },
+    recommendationHandling: {
+      actionableCount: recommendations.length,
+      handledCount,
+      unhandledCount: recommendations.length - handledCount,
+      malformedDecisionRows: decisionRows.malformedCount,
+      excluded: {
+        unapplied: recommendationUnapplied,
+        nonActionableAction: recommendationNonActionable,
+        outsideSince: recommendationOutsideSince,
+      },
+      recommendations,
+    },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
 }
 
 function emptyNonDeducibleRegistry(now = new Date().toISOString()): NonDeducibleSourcesRegistry {
