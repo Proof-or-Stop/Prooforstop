@@ -411,6 +411,24 @@
       "resolvedAt": "2026-07-02T23:32:46.378Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-020",
+      "desc": "stale-wording: oracleSpec comment (trap-templates.mjs lines 221-228) still describes the superseded secret-path-probe execution design as current ground truth (\"isolated probe whose output path is a SECRET in the oracle own temp dir\") — but the current ORACLE_RUNTIME uses a static node --check-gated literal read with no workspace execution; this contradicts the bf24369fd comment refresh in fixture-generator.mjs and misrepresents the current design to future readers",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T23:35:51.190Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-027",
+      "_hash": "888b2a43bc595779c4c92d0ba232066da9fda7f2f637082d4d238ca85707b01c",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs"
+      ],
+      "signatureTag": "missing|mjs|stale-wording-oraclespec",
+      "signatureTagSource": "auto"
     }
   ]
 }
