@@ -226,7 +226,7 @@
       "desc": "playbook-promotion-worker-execution-plan.md still contains one stale future-worded auto-active open question after fix 277fe1596. Lines 1008-1009 ask what review path is required before enabling automatic active advisory promotion, which implies the current advisory apply path is still not enabled. That conflicts with the same doc boundary at lines 140-144, 668-708, and 922-945: promotion sweep remains recommendation-only, while playbook_auto_promotion_apply is the current evidence-activated advisory candidate-to-active apply writer, requiring reviewed policy/current digest/applied recommend_activate/explicit non-DONE exposure and outcome evidence/clean lineage/rollback readiness, and remaining non-authoritative with gateEvidence:false and no production or gate evidence authority. Recast this open question around future timer-driven or trial-serving promotion variants, or future changes to the reviewed activation policy, rather than enabling the current apply writer.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T23:12:44.883Z",
@@ -237,7 +237,11 @@
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
       "signatureTag": "spec-boundary-docs-stale-auto-active-open-question",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in d9c541b9. The open question no longer frames the current evidence-activated apply writer as not enabled; it now scopes future review questions to timer-driven/trial-serving variants or reviewed policy changes beyond the current playbook_auto_promotion_apply boundary. Grep for the stale automatic active advisory promotion wording returns no matches.",
+      "resolvedAt": "2026-07-02T23:20:52.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ee1:F-011",
