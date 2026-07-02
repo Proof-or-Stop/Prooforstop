@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7ee1",
+  "allowedCommands": [
+    "lattice playbook_* --json",
+    "lattice validate --story=* --json",
+    "node packages/main/dist/tasks/*playbook*smoke*.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/requirements/decisions",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git push",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "createdAt": "2026-07-02T22:12:07.152Z",
+  "updatedAt": "2026-07-02T22:12:07.152Z",
+  "_hash": "6ca99a39a266e2ddb3073bf19d1741d8d972d994e828cd0468cb382072c2e10d"
+}
