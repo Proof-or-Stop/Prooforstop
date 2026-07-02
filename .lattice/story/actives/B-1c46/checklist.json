@@ -331,7 +331,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-02T14:54:59.813Z",
+      "endTime": "2026-07-02T14:57:37.531Z",
       "userSees": "Expected transcript includes `crossProcessCacheHit=true`, `cacheKeyDigest=<sha256>`, `staleMutationMiss=true`, and `gateEvidence=false`.",
       "files": {
         "modify": [
@@ -372,33 +372,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "M4 smoke reports crossProcessCacheHit=true with a sha256 cacheKeyDigest, proving durable cache reuse across a second process for the same bound query/context.",
-          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:00.049Z"
+          "note": "M4 smoke reports crossProcessCacheHit=true with cacheKeyDigest=13cfac49ceba341519f2f30355a7bdde9be39c661959ac40d62be298b57c054e, proving second-process durable cache reuse.",
+          "headHash": "07dc27655ffb51a46a45974ccead2e240a42cccf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:37.791Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "M3/M4 cache cases cover unchanged hits, contributing source mutation misses, stale-irrelevant broad source changes, candidateLimit separation, and advisory-only metadata.",
-          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:00.280Z"
+          "note": "Cache cases cover unchanged hits, stale-irrelevant broad source changes, contributing source misses, candidateLimit separation, projectRoot-bound lookups, and advisory-only metadata.",
+          "headHash": "07dc27655ffb51a46a45974ccead2e240a42cccf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:38.027Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "After contributing source mutation, the second-process run reports staleMutationMiss=true/contributingMisses=1 and cannot consume stale cache as fresh.",
-          "headHash": "8e9be5ff03d402f2b900982822fb2114aaf81fc5",
-          "materialHash": "462e055e176c79fa5d7024e0c41f02ed923fe8f3350f1ddc65c4213d68c05e68",
-          "storyFilesHash": "2c28c6034b0d6cbddab43146d9a627cde57d2690b8d63c999ab6473c72f00354",
-          "timestamp": "2026-07-02T14:55:00.510Z"
+          "note": "After contributing source mutation, the second process reports staleMutationMiss=true/contributingMisses=1 and cannot consume stale durable cache as fresh.",
+          "headHash": "07dc27655ffb51a46a45974ccead2e240a42cccf",
+          "materialHash": "13ff606894f383de53f3af9f31a283067097f8764e048a1af3801ac6f0a03a74",
+          "storyFilesHash": "f9cb2180c28f822505908e2165080ee84d7509987dfedcde083f9db409826773",
+          "timestamp": "2026-07-02T14:57:38.376Z"
         }
       ]
     },
