@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-02T21:09:57.567Z",
       "reviewRunId": "B-047f:RR-003",
       "_hash": "bf3900cb0a5aaebed70f7efee64c2a4927cdbb9ebb74fe893df2b7d466395cd4"
+    },
+    {
+      "id": "B-047f:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 12 round-1 findings resolved. Four target fixes confirmed by diff and live execution: F-009 (main() try/catch emits ERROR:<msg> exit 1 verified with ENOENT probe), F-010 (writeAtomic temp-then-rename no leftover .tmp on success), F-011 (protocol-selfcheck extraRoots array cleaned in finally block), F-012 (ratio-fixed McNemar monotonicity invariant in sample-size-selfcheck). Numeric claims verified by arithmetic: pilotFreezeCheck(36/60 mde=0.25) Wilson lower=0.47366 pStar=0.625 within CI freeze at 0.625 frozenNPerArm=62 (lower bound gives 56 under-sizes). McNemar live (0.30->0.20): p01=0.24 p10=0.14 nPairs=296. Seeded band max (0.625->0.375): p01=0.390625 p10=0.140625 nPairs=65. All three selfchecks exit 0: protocol 15 pair-ledger 19 sample-size 29. Anchors 294/62/27/58 unchanged. No CJK. No new unhandled error paths.",
+      "createdAt": "2026-07-02T21:29:11.872Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "reviewRunId": "B-047f:RR-004",
+      "_hash": "38f0f05a4273e656cd25e1297b1dfc8c6da8b616a12e55e39f21decb69ef7c83"
     }
   ]
 }
