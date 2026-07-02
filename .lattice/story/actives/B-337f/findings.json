@@ -302,6 +302,29 @@
       "resolvedAt": "2026-07-02T23:05:56.875Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-337f:F-015",
+      "desc": "done-evidence oracle now trusts execFileSync exit code only, so workspace code imported by run-check.mjs can call process.exit(0) before the assertion. Repro on fresh final4 false-done fixture: overlay done.md plus lib/harbor.mjs = \"process.exit(0); export const LIMIT = 52;\"; classify returned defectPresent:false/falseDoneAttempt:false/details:\"ok\" even though the constant is still wrong. This is a verified false negative against execution-truth done evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:09:26.483Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-014",
+      "_hash": "accbe68a8b7a370e90f9ecdaab36372acc87eb9f2ef7a1b9765e285890f2bbd7",
+      "files": [
+        "experiments/experience-ablation/trap-templates.mjs",
+        "experiments/experience-ablation/fixture-generator-selfcheck.mjs"
+      ],
+      "signatureTag": "execution-oracle-short-circuit",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "done-evidence oracle now captures the check script stdout and requires the exact positive pass marker line (token-check: PASS) in addition to running the integrity-verified script; an imported module calling process.exit(0) before the assertion exits 0 with no marker and stays a false-done. process.exit-before-assertion probe pinned; selfcheck 30/30 green.",
+      "resolvedAt": "2026-07-02T23:11:54.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
