@@ -4,7 +4,7 @@
   "title": "Optimize playbook runtime memory index performance to 1-2s target",
   "description": "Implement the agreed M0-M6 performance optimization plan for runtime memory lookup: first profile/red the current 1,000,000-record indexed/cached path, then preserve semantic parity while replacing token-map scans with real fast indexed lookup, adding durable cache/prebuilt index behavior, and adding a performance gate that can distinguish report-first from a proven 1-2s hot path. This is a code-verifiable performance story; M0 captures the reproducible baseline/profile evidence before optimization.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-02T14:14:57.908Z",
   "startedAt": "2026-07-02T14:14:57.908Z",
-  "endedAt": null,
+  "endedAt": "2026-07-02T16:55:47.420Z",
   "events": [
     {
       "phase": "INIT",
@@ -186,12 +186,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-87e918973ddcbc91",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-02T16:55:47.420Z",
+      "branch": "story/B-1c46",
+      "user": "Harmonygo",
+      "sessionId": "sess-87e918973ddcbc91",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1c46",
-    "branch": "story/B-1c46",
-    "createdAt": "2026-07-02T14:20:55.641Z"
-  },
   "currentReviewRound": "2026-07-02T16:42:38.230Z"
 }
