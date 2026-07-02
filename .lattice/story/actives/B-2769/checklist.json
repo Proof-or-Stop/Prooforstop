@@ -177,9 +177,9 @@
       "id": "CHK-003",
       "title": "M2 Verifier adapter pack",
       "context": "Add deterministic verifier adapters for PINN residual/BC/IC/baseline/reproducibility/provenance evidence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T16:39:46.968Z",
-      "endTime": null,
+      "endTime": "2026-07-02T16:39:54.846Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
       ],
@@ -220,7 +220,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "chk-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Plan now lists residual, BC/IC, baseline, reproducibility, and provenance evidence requirements plus explicit task set.",
+          "headHash": "76d47f86e0302eb82c3aa3c4441251fce5bc7065",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:54.978Z"
+        },
+        {
+          "intentRef": "chk-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Adapters are constrained by explicit evidence-bound identities and hash/script requirements in document matrices and metrics.",
+          "headHash": "76d47f86e0302eb82c3aa3c4441251fce5bc7065",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:55.097Z"
+        },
+        {
+          "intentRef": "chk-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "result": "pass",
+          "note": "Definition requires deterministic identity checks and does not allow implicit pass on missing or stale evidence.",
+          "headHash": "76d47f86e0302eb82c3aa3c4441251fce5bc7065",
+          "materialHash": "482c89dee7d7af98369280d257869fb0125e67d900044537f77e4bb274930fd0",
+          "storyFilesHash": "ab7b3a65366296f02901edf82fb8a30911512f7d311999e4e0f3aafed22fa52d",
+          "timestamp": "2026-07-02T16:39:55.215Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
