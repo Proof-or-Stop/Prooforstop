@@ -131,6 +131,25 @@
       ],
       "signatureTag": "adversarial|ts|pinn-claim-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-db1b:F-007",
+      "desc": "pinn_report_render still re-emits caller-injected completion/PDE correctness claims from allowlisted benchmark fields. normalizeBenchmarkReport rejects top-level/claims overclaim fields, but then returns caller-controlled suiteStatus and artifactIndex unchanged (handlers/pinn-claim-admissibility.ts:133-143); renderPinnReportText prints those values directly (core/pinn-claim-admissibility.ts:638-641). Repro: call createPinnClaimAdmissibilityHandlers({}).pinn_report_render({ benchmarkJson: JSON.stringify({ ...runPinnClaimBenchmark(), suiteStatus: \"deploymentReadyClaim: true\", artifactIndex: [{ id: \"terminalCompletionClaim: true\", kind: \"claim-boundary\", digest: \"pdeCorrectnessClaim: true\" }] }), format: \"text\" }); output includes suiteStatus: deploymentReadyClaim: true and artifactIndex terminal/PDE overclaim strings. JSON mode also returns those strings in suiteStatus/artifactIndex. This violates the local/admissibility-only report boundary because supplied benchmark content can still surface completion/PDE correctness claims.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T20:09:03.989Z",
+      "reviewRound": "2026-07-02T20:06:35.258Z",
+      "reviewRunId": "B-db1b:RR-009",
+      "_hash": "28e411115764809e7aa73732e3fb35b732d20df6ea92173d708087961485bd58",
+      "files": [
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "packages/main/src/core/pinn-claim-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|pinn-report-render",
+      "signatureTagSource": "auto"
     }
   ]
 }
