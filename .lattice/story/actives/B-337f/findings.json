@@ -243,7 +243,7 @@
       "desc": "[host-2 Codex re-verdict, probe-proven] The hardened done-evidence source check uses src.includes(sourceMustMatch): a comment line // LIMIT = 25 satisfies it while the exported LIMIT remains 52 -> defectPresent:false. Fix: sourcePattern anchored regex (^export const LIMIT = 25;) tested with the m flag so comments cannot satisfy the source-fix requirement; pin the comment-only probe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T22:53:00.006Z",
@@ -253,7 +253,11 @@
         "experiments/experience-ablation/trap-templates.mjs"
       ],
       "signatureTag": "adversarial|mjs|host-codex-verdict",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-evidence sourcePattern is an anchored multiline regex (^export const LIMIT = 25;) tested via new RegExp(spec.sourcePattern, m) — comment lines cannot match ^export; the comment-only probe is pinned in the selfcheck. Codex probe VERIFIED-direction rerun expected in the final verdict round.",
+      "resolvedAt": "2026-07-02T22:53:43.190Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-337f:F-013",
