@@ -1,0 +1,39 @@
+{
+  "storyId": "B-ec3b",
+  "checkedAt": "2026-07-02T10:26:31.719Z",
+  "headHash": "22f568e9d0d6b9035744d83abbb764776fcba132",
+  "materialHash": "2d33af1fcbe70d3c068d0c8fa9b6fcc1c4a86375743ab411ce877d0cb1743409",
+  "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+  "reviewRound": "2026-07-02T03:14:26.399Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "promise": "B-ec3b implements only the M0-M2 indexed runtime memory slice: profiling baseline, derived index with atomic rebuild semantics, and indexed two-stage retrieval with fixture parity; it does not claim M3-M8 runtime rollout.",
+      "status": "verified",
+      "verifiedBy": "checklist_get plus smoke commands",
+      "evidence": "CHK-001/CHK-002/CHK-003 are done with 12 passing verification evidence records; index smoke covers M0/M1/M2 and done_prepare validation passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build PASS; node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js PASS and reports M0 profiling baseline remains non-authoritative."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js PASS: atomic rebuild validates manifest and swaps readable active index; malformed temp index rejects and previous active remains readable."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js PASS: indexed retrieval matches reference ids/boundaries and freshness semantics; MVP1/MVP2, baseline, and health smokes also PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check verified B-ec3b M0-M2 implementation, non-authoritative memory boundary, atomic index behavior, indexed retrieval parity, and current-material validation. Remaining M3-M8 playbook memory rollout is explicitly outside this story."
+  },
+  "_hash": "632e046cea7f9af4d7b2edfafdfea038f3afeef23d880884b3b2a5487836b84c"
+}
