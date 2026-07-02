@@ -16,6 +16,23 @@
       ],
       "signatureTag": "edge|mjs|host-codex-pilotfreezecheck",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-047f:F-002",
+      "desc": "[host-2 Codex P1] buildLedger binds only the protocolHash, not the frozen task-class MEMBERSHIP: validateManifest accepts trapClass not-in-protocol with trapGroup in_store, so unregistered fixtures can enter the run under a valid protocol hash. Fix: consume doc.taskClasses from guardFrozenProtocol and reject rows whose trapClass is not a member of the frozen group matching its trapGroup; add selfcheck case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-02T21:18:04.120Z",
+      "reviewRound": "2026-07-02T21:09:57.567Z",
+      "_hash": "4d8ea0d549af33ab74da3667c3133f29b913afa04ac5047efb396c8160f5b350",
+      "files": [
+        "experiments/experience-ablation/pair-ledger.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-codex-buildledger",
+      "signatureTagSource": "auto"
     }
   ]
 }
