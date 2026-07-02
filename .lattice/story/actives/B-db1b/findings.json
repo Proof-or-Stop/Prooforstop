@@ -391,6 +391,26 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-blocker-target",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-db1b:F-018",
+      "desc": "pinn_* command schemas omit productionReadyClaim from the explicit z.never refusal flags even though the handlers list it in UNSUPPORTED_FLAGS. Repro: node bin/lattice.js pinn_claim_check --format=json --productionReadyClaim=true exits 0 with allowed=true,nextAction=advance,productionReadyClaim=false; node bin/lattice.js pinn_benchmark_run --format=json --productionReadyClaim=true and node bin/lattice.js pinn_report_render --format=json --productionReadyClaim=true also exit 0. Contrast node bin/lattice.js pinn_claim_check --format=json --deploymentReadyClaim=true, which fails CLI validation with expected never. This silently drops an explicit production-readiness overclaim before the handler boundary, so command policy/registration is not fail-closed for productionReadyClaim and the handler refusal path is bypassed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:30:48.378Z",
+      "reviewRound": "2026-07-02T22:26:42.145Z",
+      "reviewRunId": "B-db1b:RR-040",
+      "_hash": "565d99a0f8976abe18a43d1517797bfb9bb853f6e60804a1cda0e6e6e365587d",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/pinn-claim-admissibility.ts",
+        "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "pinn-production-ready-cli-overclaim-flag",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
