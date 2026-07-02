@@ -116,6 +116,25 @@
       ],
       "signatureTag": "edge|ts|freshness-semantics-clean",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6048:F-007",
+      "desc": "packages/main/src/core/playbook-runtime-memory.ts:171 exposes candidateLimit and passes it into indexed selection at lines 734-742, but packages/main/src/core/playbook-runtime-memory-cache.ts:35-47,281-315,415-439 never carries candidateLimit into the cache context, lookup key, or candidate projection. Verified with a temp corpus: first cached request returned mem-000; second cached request with candidateLimit=300 still returned mem-000, while the same second request with useCache=false returned mem-250. Cache stats showed hits=1, so the larger candidate window reused the smaller cached result.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T13:13:28.345Z",
+      "reviewRound": "2026-07-02T13:05:42.539Z",
+      "reviewRunId": "B-6048:RR-008",
+      "_hash": "ac27ba8be264a41fa4600429a2e7a269ea15d21b83931e1a09b3e81197d24e75",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
