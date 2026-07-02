@@ -27,7 +27,7 @@
       "desc": "doc-milestone-label-collision: execution-plan §0 (Autopilot section) uses M1/M2/M3/M4 labels to refer to autopilot-v2 milestones (\"M1 (checkpoint/resume) + M2 (429/network health-aware) are production; M3/M4 (throttle, process-pool) are gated\") in the same document where §2 defines M0–M5 as the Tier-C quorum milestones. A reader scanning the document cannot distinguish autopilot-M1 from quorum-M1 without re-reading from context. The collision is especially confusing at M4 where §0 says \"needed only for the powered run (M4 below)\" — a reader naturally reads that as a self-reference to quorum-M4 (the powered run) but it is actually pointing at an entirely different autopilot-M4. The §0 autopilot labels should be namespaced or referenced by capability name rather than sharing the M-numbering.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-02T22:13:57.085Z",
@@ -39,7 +39,10 @@
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|milestone-label-collision",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 367b05322: autopilot milestones renamed by capability, removing M1-M4 labels that collided with Tier-C M0-M5.",
+      "resolvedAt": "2026-07-02T22:21:32.662Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-ac71:F-003",
