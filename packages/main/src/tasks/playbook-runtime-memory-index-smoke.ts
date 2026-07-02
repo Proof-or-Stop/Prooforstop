@@ -285,6 +285,76 @@ async function run(): Promise<void> {
       ].join(' '));
     });
 
+    check('M2 exact token overflow scans uncapped sources for reference parity', () => {
+      const root = mkRoot(); roots.push(root);
+      const count = 4_120;
+      const sharedToken = 'sharedexacttoken';
+      writeEntries(resolveProjectMemoryPath(root), Array.from({ length: count }, (_, index) => memoryEntry(
+        `mem-exact-overflow-${String(index).padStart(4, '0')}`,
+        {
+          summary: `Exact overflow row ${index} ${sharedToken}`,
+          trigger: `${sharedToken} runtime memory`,
+          lesson: `Exact overflow fallback must find ${sharedToken} rows beyond the capped bucket`,
+          reusePrompt: `${sharedToken} runtime memory`,
+        },
+      )));
+      writePlaybooks(root, Array.from({ length: count }, (_, index) => (
+        playbook(`PB-exact-overflow-${String(index).padStart(4, '0')}`, 'active', sharedToken)
+      )));
+      writeSignatureRegistry(root, { tags: [] });
+      const index = rebuildRuntimeMemoryIndex(root, NOW);
+      assert.ok(index.exactOverflowDevMemoryTokens.includes(sharedToken), 'dev-memory exact overflow should be recorded');
+      assert.ok(index.exactOverflowPlaybookTokens.includes(sharedToken), 'playbook exact overflow should be recorded');
+
+      const candidates = selectRuntimeMemoryIndexCandidates(index, {
+        query: sharedToken,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: count,
+        candidateLimit: count,
+      });
+      const devIds = candidates.devMemoryEntries.map((entry) => entry.id);
+      const playbookIds = candidates.playbooks.map((item) => item.id);
+      assert.ok(devIds.includes('mem-exact-overflow-4119'), 'dev-memory candidate beyond exact cap must surface');
+      assert.ok(playbookIds.includes('PB-exact-overflow-4119'), 'playbook candidate beyond exact cap must surface');
+      assert.ok(candidates.stats.exactOverflowFallbacks > 0, 'exact overflow query must record source fallback');
+      assert.ok(candidates.stats.tokenScanFallbacks > 0, 'exact overflow query must record scan fallback');
+      assert.ok(candidates.stats.tokenMapScannedEntries > 0, 'exact overflow fallback must record scanned source entries');
+
+      const reference = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: sharedToken,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: count,
+        candidateLimit: count,
+        useIndex: false,
+        generatedAt: NOW,
+      });
+      const indexed = buildMemoryFreshnessPack({
+        projectRoot: root,
+        query: sharedToken,
+        consumer: 'session_brief',
+        maxEntries: count,
+        maxPlaybooks: count,
+        candidateLimit: count,
+        runtimeIndex: index,
+        generatedAt: NOW,
+      });
+      assert.deepEqual(indexed.results.devMemoryEntryIds, reference.results.devMemoryEntryIds);
+      assert.deepEqual(indexed.results.playbookIds, reference.results.playbookIds);
+      assert.equal(indexed.authority, 'non_authoritative');
+      assert.equal(indexed.gateEvidence, false);
+      console.log([
+        'exactOverflowFallback=true',
+        `exactOverflowFallbacks=${candidates.stats.exactOverflowFallbacks}`,
+        `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
+        `tokenMapScannedEntries=${candidates.stats.tokenMapScannedEntries}`,
+        `devBeyondCap=${devIds.includes('mem-exact-overflow-4119')}`,
+        `playbookBeyondCap=${playbookIds.includes('PB-exact-overflow-4119')}`,
+      ].join(' '));
+    });
+
     check('M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics', () => {
       clearRuntimeMemoryPackCache();
       const root = mkRoot(); roots.push(root); seed(root);

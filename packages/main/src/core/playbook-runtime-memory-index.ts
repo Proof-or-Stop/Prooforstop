@@ -36,7 +36,7 @@ import {
   type SignatureTagEntry,
 } from './learning-store.js';
 
-export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v2' as const;
+export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v3' as const;
 const RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP = 4096;
 const RUNTIME_MEMORY_INDEX_FUZZY_TOKEN_CAP = 4096;
 const RUNTIME_MEMORY_INDEX_SUBSTRING_FALLBACK_CAP = 512;
@@ -72,6 +72,8 @@ export interface RuntimeMemoryIndex {
   signatureTags: SignatureTagEntry[];
   tokenToDevMemoryIds: Record<string, string[]>;
   tokenToPlaybookIds: Record<string, string[]>;
+  exactOverflowDevMemoryTokens: string[];
+  exactOverflowPlaybookTokens: string[];
   fuzzyTokenToDevMemoryTokens: Record<string, string[]>;
   fuzzyTokenToPlaybookTokens: Record<string, string[]>;
   fuzzyOverflowDevMemoryTokens: string[];
@@ -90,6 +92,7 @@ export interface RuntimeMemoryIndexCandidates {
 export interface RuntimeMemoryIndexCandidateStats {
   queryTokenCount: number;
   exactFastPathHits: number;
+  exactOverflowFallbacks: number;
   fuzzyIndexHits: number;
   fuzzyFallbacks: number;
   tokenScanFallbacks: number;
@@ -129,6 +132,10 @@ function uniqueInOrder(values: Iterable<string>): string[] {
   return result;
 }
 
+function appendValues<T>(target: T[], values: Iterable<T>): void {
+  for (const value of values) target.push(value);
+}
+
 function tokenize(text: string): string[] {
   return uniqueSorted((text.toLowerCase().match(/[a-z0-9][a-z0-9._-]{1,}/g) ?? []));
 }
@@ -137,6 +144,7 @@ function emptyCandidateStats(): RuntimeMemoryIndexCandidateStats {
   return {
     queryTokenCount: 0,
     exactFastPathHits: 0,
+    exactOverflowFallbacks: 0,
     fuzzyIndexHits: 0,
     fuzzyFallbacks: 0,
     tokenScanFallbacks: 0,
@@ -151,6 +159,7 @@ const RUNTIME_MEMORY_INDEX_STATS = emptyCandidateStats();
 function addStats(target: RuntimeMemoryIndexCandidateStats, source: RuntimeMemoryIndexCandidateStats): void {
   target.queryTokenCount += source.queryTokenCount;
   target.exactFastPathHits += source.exactFastPathHits;
+  target.exactOverflowFallbacks += source.exactOverflowFallbacks;
   target.fuzzyIndexHits += source.fuzzyIndexHits;
   target.fuzzyFallbacks += source.fuzzyFallbacks;
   target.tokenScanFallbacks += source.tokenScanFallbacks;
@@ -245,10 +254,14 @@ function signatureText(entry: SignatureTagEntry): string {
   ].join(' ');
 }
 
-function addTokens(map: Record<string, string[]>, id: string, text: string): void {
+function addTokens(map: Record<string, string[]>, overflowTokens: Set<string>, id: string, text: string): void {
   for (const token of tokenize(text)) {
     const list = map[token] ?? [];
-    if (list.length < RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP) list.push(id);
+    if (list.length < RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP) {
+      list.push(id);
+    } else {
+      overflowTokens.add(token);
+    }
     map[token] = list;
   }
 }
@@ -336,6 +349,8 @@ function computeIndexVersion(index: RuntimeMemoryIndex): string {
     signatureTagsDigest: digestSequence(index.signatureTags),
     tokenToDevMemoryIdsDigest: digestIdMap(index.tokenToDevMemoryIds),
     tokenToPlaybookIdsDigest: digestIdMap(index.tokenToPlaybookIds),
+    exactOverflowDevMemoryTokens: index.exactOverflowDevMemoryTokens,
+    exactOverflowPlaybookTokens: index.exactOverflowPlaybookTokens,
     fuzzyTokenToDevMemoryTokensDigest: digestIdMap(index.fuzzyTokenToDevMemoryTokens),
     fuzzyTokenToPlaybookTokensDigest: digestIdMap(index.fuzzyTokenToPlaybookTokens),
     fuzzyOverflowDevMemoryTokens: index.fuzzyOverflowDevMemoryTokens,
@@ -363,25 +378,27 @@ export function buildRuntimeMemoryIndex(projectRoot: string, builtAt = new Date(
   const signatureTags = readSignatureRegistry(projectRoot).tags;
   const tokenToDevMemoryIds: Record<string, string[]> = {};
   const tokenToPlaybookIds: Record<string, string[]> = {};
+  const exactOverflowDevMemoryTokens = new Set<string>();
+  const exactOverflowPlaybookTokens = new Set<string>();
   const playbookStatusIds: Record<string, string[]> = {};
   const projection = buildSupersessionProjection(devMemoryEntries);
   const supersededByDevMemoryIds: Record<string, string[]> = {};
 
   for (const entry of devMemoryEntries) {
-    addTokens(tokenToDevMemoryIds, entry.id, devMemoryText(entry));
+    addTokens(tokenToDevMemoryIds, exactOverflowDevMemoryTokens, entry.id, devMemoryText(entry));
     const supersession = getSupersessionStatus(entry, projection);
     if (supersession.supersededBy.length > 0) {
       supersededByDevMemoryIds[entry.id] = uniqueSorted(supersession.supersededBy);
     }
   }
   for (const playbook of playbooks) {
-    addTokens(tokenToPlaybookIds, playbook.id, playbookText(playbook));
+    addTokens(tokenToPlaybookIds, exactOverflowPlaybookTokens, playbook.id, playbookText(playbook));
     const statusIds = playbookStatusIds[playbook.status] ?? [];
     statusIds.push(playbook.id);
     playbookStatusIds[playbook.status] = statusIds;
   }
   for (const signature of signatureTags) {
-    addTokens(tokenToDevMemoryIds, `signature:${signature.tag}`, signatureText(signature));
+    addTokens(tokenToDevMemoryIds, exactOverflowDevMemoryTokens, `signature:${signature.tag}`, signatureText(signature));
   }
   const normalizedDevMemoryTokenIds = normalizeIdLists(tokenToDevMemoryIds);
   const normalizedPlaybookTokenIds = normalizeIdLists(tokenToPlaybookIds);
@@ -410,6 +427,8 @@ export function buildRuntimeMemoryIndex(projectRoot: string, builtAt = new Date(
     signatureTags,
     tokenToDevMemoryIds: normalizedDevMemoryTokenIds,
     tokenToPlaybookIds: normalizedPlaybookTokenIds,
+    exactOverflowDevMemoryTokens: uniqueSorted(exactOverflowDevMemoryTokens),
+    exactOverflowPlaybookTokens: uniqueSorted(exactOverflowPlaybookTokens),
     fuzzyTokenToDevMemoryTokens: devMemoryFuzzy.fuzzyTokenMap,
     fuzzyTokenToPlaybookTokens: playbookFuzzy.fuzzyTokenMap,
     fuzzyOverflowDevMemoryTokens: devMemoryFuzzy.overflowNeedles,
@@ -435,6 +454,8 @@ export function validateRuntimeMemoryIndex(raw: unknown): RuntimeMemoryIndexVali
   }
   if (
     !index.tokenToDevMemoryIds || !index.tokenToPlaybookIds
+    || !Array.isArray(index.exactOverflowDevMemoryTokens)
+    || !Array.isArray(index.exactOverflowPlaybookTokens)
     || !index.fuzzyTokenToDevMemoryTokens || !index.fuzzyTokenToPlaybookTokens
     || !Array.isArray(index.fuzzyOverflowDevMemoryTokens)
     || !Array.isArray(index.fuzzyOverflowPlaybookTokens)
@@ -560,20 +581,41 @@ function fuzzyTokensContaining(
   };
 }
 
+function tokenMatchesQuery(indexedToken: string, token: string): boolean {
+  return indexedToken === token || indexedToken.includes(token) || token.includes(indexedToken);
+}
+
 function scanMatchingIdsForToken(tokenMap: Record<string, string[]>, token: string): string[] {
   const ids: string[] = [];
   for (const [indexedToken, indexedIds] of Object.entries(tokenMap)) {
-    if (indexedToken === token || indexedToken.includes(token) || token.includes(indexedToken)) {
-      ids.push(...indexedIds);
+    if (tokenMatchesQuery(indexedToken, token)) {
+      appendValues(ids, indexedIds);
     }
   }
   return uniqueInOrder(ids);
 }
 
-function matchingIds(
+function scanSourceMatchingIdsForToken<T extends { id: string }>(
+  sourceItems: T[],
+  textForItem: (item: T) => string,
+  token: string,
+): string[] {
+  const ids: string[] = [];
+  for (const item of sourceItems) {
+    if (tokenize(textForItem(item)).some((indexedToken) => tokenMatchesQuery(indexedToken, token))) {
+      ids.push(item.id);
+    }
+  }
+  return uniqueInOrder(ids);
+}
+
+function matchingIds<T extends { id: string }>(
   tokenMap: Record<string, string[]>,
+  exactOverflowTokens: string[],
   fuzzyTokenMap: Record<string, string[]>,
   fuzzyOverflowNeedles: string[],
+  sourceItems: T[],
+  textForItem: (item: T) => string,
   tokens: string[],
 ): MatchingIdsResult {
   const stats = emptyCandidateStats();
@@ -581,12 +623,20 @@ function matchingIds(
   if (tokens.length === 0) return { ids: [], stats };
 
   const ids: string[] = [];
+  const overflowExactTokens = new Set(exactOverflowTokens);
   const overflowNeedles = new Set(fuzzyOverflowNeedles);
   for (const token of tokens) {
     const exactIds = tokenMap[token] ?? [];
     if (exactIds.length > 0) {
       stats.exactFastPathHits += 1;
-      ids.push(...exactIds);
+      appendValues(ids, exactIds);
+    }
+    if (overflowExactTokens.has(token)) {
+      stats.exactOverflowFallbacks += 1;
+      stats.tokenScanFallbacks += 1;
+      stats.tokenMapScannedEntries += sourceItems.length;
+      appendValues(ids, scanSourceMatchingIdsForToken(sourceItems, textForItem, token));
+      continue;
     }
 
     const containingTokens = fuzzyTokensContaining(token, fuzzyTokenMap, overflowNeedles);
@@ -594,13 +644,13 @@ function matchingIds(
       stats.fuzzyFallbacks += 1;
       stats.tokenScanFallbacks += 1;
       stats.tokenMapScannedEntries += Object.keys(tokenMap).length;
-      ids.push(...scanMatchingIdsForToken(tokenMap, token));
+      appendValues(ids, scanMatchingIdsForToken(tokenMap, token));
       continue;
     }
     if (containingTokens.tokens.length > 0) {
       stats.fuzzyIndexHits += 1;
       for (const indexedToken of containingTokens.tokens) {
-        ids.push(...(tokenMap[indexedToken] ?? []));
+        appendValues(ids, tokenMap[indexedToken] ?? []);
       }
     }
 
@@ -609,13 +659,13 @@ function matchingIds(
       stats.fuzzyFallbacks += 1;
       stats.tokenScanFallbacks += 1;
       stats.tokenMapScannedEntries += Object.keys(tokenMap).length;
-      ids.push(...scanMatchingIdsForToken(tokenMap, token));
+      appendValues(ids, scanMatchingIdsForToken(tokenMap, token));
       continue;
     }
     if (containedTokens.tokens.length > 0) {
       stats.fuzzyIndexHits += 1;
       for (const indexedToken of containedTokens.tokens) {
-        ids.push(...(tokenMap[indexedToken] ?? []));
+        appendValues(ids, tokenMap[indexedToken] ?? []);
       }
     }
   }
@@ -658,8 +708,11 @@ export function selectRuntimeMemoryIndexCandidates(
   } else {
     const matched = matchingIds(
       index.tokenToDevMemoryIds,
+      index.exactOverflowDevMemoryTokens,
       index.fuzzyTokenToDevMemoryTokens,
       index.fuzzyOverflowDevMemoryTokens,
+      index.devMemoryEntries,
+      devMemoryText,
       queryTokens,
     );
     devIds = matched.ids;
@@ -684,8 +737,11 @@ export function selectRuntimeMemoryIndexCandidates(
   } else {
     const matched = matchingIds(
       index.tokenToPlaybookIds,
+      index.exactOverflowPlaybookTokens,
       index.fuzzyTokenToPlaybookTokens,
       index.fuzzyOverflowPlaybookTokens,
+      index.playbooks,
+      playbookText,
       playbookTokens,
     );
     addStats(stats, matched.stats);
