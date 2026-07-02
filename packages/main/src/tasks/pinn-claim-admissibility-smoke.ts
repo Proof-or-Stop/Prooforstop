@@ -131,6 +131,18 @@ for (const narrativeClaim of [
   assert.ok(hasReason(passivePdeNarrativeResult, 'claim_boundary_violation'), `passive PDE narrative has boundary reason: ${narrativeClaim}`);
 }
 
+for (const narrativeClaim of [
+  'Production readiness is proved for this PINN result.',
+  'ready for production',
+  'production-ready',
+]) {
+  const productionReadinessNarrative = buildCompletePinnEvidence('C9');
+  productionReadinessNarrative.narrativeClaim = narrativeClaim;
+  const productionReadinessNarrativeResult = evaluatePinnClaim(productionReadinessNarrative);
+  assert.equal(productionReadinessNarrativeResult.allowed, false, `production-readiness narrative is blocked: ${narrativeClaim}`);
+  assert.ok(hasReason(productionReadinessNarrativeResult, 'claim_boundary_violation'), `production-readiness narrative has boundary reason: ${narrativeClaim}`);
+}
+
 const numericTerminalClaim = buildCompletePinnEvidence('C9');
 (numericTerminalClaim as unknown as Record<string, unknown>).terminalCompletionClaim = 1;
 const numericTerminalClaimResult = evaluatePinnClaim(numericTerminalClaim);
@@ -142,6 +154,12 @@ const numericLegacyClaim = buildCompletePinnEvidence('C9');
 const numericLegacyClaimResult = evaluatePinnClaim(numericLegacyClaim);
 assert.equal(numericLegacyClaimResult.allowed, false, 'numeric legacy completion field is blocked');
 assert.ok(hasReason(numericLegacyClaimResult, 'claim_boundary_violation'), 'numeric legacy completion field has boundary reason');
+
+const directProductionReadyClaim = buildCompletePinnEvidence('C9');
+(directProductionReadyClaim as unknown as Record<string, unknown>).productionReadyClaim = 'true';
+const directProductionReadyClaimResult = evaluatePinnClaim(directProductionReadyClaim);
+assert.equal(directProductionReadyClaimResult.allowed, false, 'direct production readiness field is blocked');
+assert.ok(hasReason(directProductionReadyClaimResult, 'claim_boundary_violation'), 'direct production readiness field has boundary reason');
 
 for (const narrativeClaim of [
   '"terminalCompletionClaim": true',
@@ -346,6 +364,7 @@ assert.throws(
 const reportTempDir = mkdtempSync(join(tmpdir(), 'pinn-report-'));
 try {
   const maliciousBenchmarkPath = join(reportTempDir, 'benchmark.json');
+  const productionReadinessBenchmarkPath = join(reportTempDir, 'production-readiness-benchmark.json');
   writeFileSync(maliciousBenchmarkPath, JSON.stringify({
     ...benchmark,
     artifactIndex: [
@@ -360,6 +379,21 @@ try {
     () => handlers.pinn_report_render({ benchmarkPath: maliciousBenchmarkPath, format: 'text' }),
     /refuses benchmark report overclaims/,
     'report path command rejects nested supplied benchmark narrative overclaims',
+  );
+  writeFileSync(productionReadinessBenchmarkPath, JSON.stringify({
+    ...benchmark,
+    artifactIndex: [
+      {
+        ...benchmark.artifactIndex[0],
+        digest: 'Production readiness is proved by supplied report.',
+      },
+      ...benchmark.artifactIndex.slice(1),
+    ],
+  }));
+  assert.throws(
+    () => handlers.pinn_report_render({ benchmarkPath: productionReadinessBenchmarkPath, format: 'text' }),
+    /refuses benchmark report overclaims/,
+    'report path command rejects nested supplied benchmark production-readiness overclaims',
   );
 } finally {
   rmSync(reportTempDir, { recursive: true, force: true });

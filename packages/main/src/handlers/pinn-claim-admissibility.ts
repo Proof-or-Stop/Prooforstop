@@ -30,6 +30,7 @@ interface PinnClaimCheckArgs extends FormatArgs {
   evidenceJson?: string;
   evidencePath?: string;
   deploymentReadyClaim?: never;
+  productionReadyClaim?: never;
   externalCompletionClaim?: never;
   terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
@@ -37,6 +38,7 @@ interface PinnClaimCheckArgs extends FormatArgs {
 
 interface PinnBenchmarkArgs extends FormatArgs {
   deploymentReadyClaim?: never;
+  productionReadyClaim?: never;
   externalCompletionClaim?: never;
   terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
@@ -46,6 +48,7 @@ interface PinnReportArgs extends FormatArgs {
   benchmarkJson?: string;
   benchmarkPath?: string;
   deploymentReadyClaim?: never;
+  productionReadyClaim?: never;
   externalCompletionClaim?: never;
   terminalCompletionClaim?: never;
   pdeCorrectnessClaim?: never;
@@ -57,6 +60,7 @@ const UNSUPPORTED_FLAGS = [
   'advancePhase',
   'launchReviewers',
   'deploymentReadyClaim',
+  'productionReadyClaim',
   'externalCompletionClaim',
   'terminalCompletionClaim',
   'pdeCorrectnessClaim',
@@ -75,7 +79,7 @@ const RETIRED_REPORT_CLAIM_FIELDS = [
   ['full', 'Authority', 'Done'].join(''),
 ] as readonly string[];
 
-const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
+const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'productionReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 const REPORT_OVERCLAIM_FIELDS = [...REPORT_CLAIM_FIELDS, ...RETIRED_REPORT_CLAIM_FIELDS] as const;
 const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${REPORT_OVERCLAIM_FIELDS.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
 const BENCHMARK_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility_benchmark.v1' as const;

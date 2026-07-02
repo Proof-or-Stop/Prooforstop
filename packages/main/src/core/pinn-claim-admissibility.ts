@@ -78,6 +78,7 @@ export interface PinnClaimCheckInput {
   checklistPassed?: boolean;
   trainingLossLow?: boolean;
   deploymentReadyClaim?: boolean;
+  productionReadyClaim?: boolean;
   externalCompletionClaim?: boolean;
   terminalCompletionClaim?: boolean;
   pdeCorrectnessClaim?: boolean;
@@ -355,7 +356,7 @@ function reason(code: string, subject?: string): string {
 }
 
 const TRUEISH_BOUNDARY_VALUES = new Set(['true', '1', 'yes', 'y', 'on']);
-const CLAIM_BOUNDARY_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
+const CLAIM_BOUNDARY_FIELDS = ['deploymentReadyClaim', 'productionReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 const RETIRED_BOUNDARY_FIELDS = [
   ['production', 'Done'].join(''),
   ['authority', 'Done'].join(''),
@@ -363,7 +364,7 @@ const RETIRED_BOUNDARY_FIELDS = [
 ] as const;
 
 export const PINN_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN =
-  /\b(?:proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:is\s+)?(?:proved|verified|guaranteed|validated|complete)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i;
+  /\b(?:proves?\s+(?:PDE\s+correctness|production[-\s]+readiness)|(?:PDE\s+correctness|production[-\s]+readiness)\s+(?:is\s+)?(?:proved|verified|guaranteed|validated|complete)|deployment\s+ready|ready\s+for\s+deployment|production[-\s]+ready|ready\s+for\s+production|external\s+completion|terminal\s+completion)\b/i;
 
 function isUnsafeBoundaryValue(value: unknown): boolean {
   if (value === true) return true;
