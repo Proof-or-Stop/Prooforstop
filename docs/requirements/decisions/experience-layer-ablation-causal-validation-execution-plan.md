@@ -218,7 +218,7 @@ an order-of-magnitude different baseline:
 | Power | 0.80 | 0.80 |
 | Baseline defect rate | pilot-estimated; planning band 0.5-0.8 (traps are authored to trip the host) | 0.30 |
 | Minimum detectable absolute reduction | 0.25-0.35 | 0.10 |
-| Reference N per arm (unpaired two-proportion) | ~29-58 | ~294 |
+| Reference N per arm (unpaired two-proportion) | ~27-62 over the corners of the planning band | ~294 |
 | Design | full-factorial matched pairs (both arms per fixture) | randomized per story |
 
 The powered N and the primary test apply to the FAULT-BEARING seeded stratum
@@ -252,7 +252,7 @@ powered-run harness already implements (`experiments/recovery-runner`
 enumerates every arm x every task) and it is strictly better here than
 blocked single-arm randomization:
 
-- At realistic N (29-58 fixtures), blocking by five factors (trap class,
+- At realistic N (27-62 fixtures), blocking by five factors (trap class,
   difficulty, source, host family, clean/fault) yields under one task per
   cell — incoherent as a blocked design. Pairing removes between-fixture
   variance instead, giving more power at the same task count.
@@ -461,8 +461,8 @@ pieces are built new.
 | M3 Arm switch for the full pack | Extend the EXISTING render-gate (`experience-hint-surface.ts` + `hint-mode.ts`) from review-entrypoint hints to the full runtime memory pack at all lifecycle entrypoints, under an `experimentId` override; add mechanical control-arm retrieval blocking. | Production arm switch + both-arms `experience_hint_surfaced` logging + `experience-layer-ab-shadow-gate-smoke.ts`. | Control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded. |
 | M4 Deterministic scoring oracle | Structured scoring from validation evidence, DONE rows, `final_response_check`, ground-truth oracles, and lane-provenance facts. No live reviewer in the seeded-phase primary. | `adjudicate.mjs` outcome state machine; `checks.mjs`; `packages/lab` scoring core; `ground-truth.mjs` pattern. | Known positive/negative fixtures score correctly, deterministically, on replay. |
 | M5 Sample-size calculator | Per-population adequacy report (unpaired reference + McNemar paired sizing). | Statistical primitives in `analyze.mjs` (two-proportion, Wilson CI, bootstrap, BH-FDR). | Report shows planned N per population, assumptions, and detectable effect; seeded N re-frozen after the M6 baseline estimate. |
-| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Campaign runner (`run-campaign.mjs` identity-keyed resume). | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated (enough control fault-tasks, ~12-15, to bound the rate); powered N frozen. |
-| M7 Powered controlled study | Full-factorial paired run at the frozen N. | Recovery-runner campaign scaffolding (session-guard/watchdog/resume — already carried a 9,240-cell, ~49h campaign). | Analysis report includes paired primary and secondary outcomes with CI; all score records assert isolated storeRoot. |
+| M6 Controlled seeded pilot | Plumbing, isolation, and leakage validation + baseline-rate estimation. | Committed engine (`run-driver.mjs` / `live-engine.mjs`). The identity-keyed campaign-resume runner proven by the recovery powered campaign exists only as gitignored scratch under `experiments/recovery-runner/powered/`; committing a campaign runner is part of this milestone. | No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated (enough control fault-tasks, ~12-15, to bound the rate); powered N frozen; campaign runner committed. |
+| M7 Powered controlled study | Full-factorial paired run at the frozen N. | The campaign scaffolding PATTERN (session-guard/watchdog/identity-keyed resume) that carried the 9,240-cell ~49h recovery campaign; note those scripts are currently gitignored scratch under `experiments/recovery-runner/powered/` and must be committed via M6 before M7 starts. | Analysis report includes paired primary and secondary outcomes with CI; all score records assert isolated storeRoot. |
 | M8 Live shadow readout | Extend the EXISTING production assignment (`resolveHintMode`) + `learning_effectiveness` observational readout; exploratory only. | Production hint-mode substrate; `experience-effectiveness.ts` computeArmComparison. | Report separates live exploratory results from controlled causal results; no second live assignment system exists. |
 | M9 Paper-ready evidence map | Claim-to-artifact table + no-overclaim summary incl. the circularity disclosure. | Claim-map conventions of the existing paper evidence sections. | Paper section can cite protocol, ledger, score records, leakage audit, and analysis report. |
 
@@ -566,9 +566,11 @@ The M7 campaign draws on the same shared host token budget and
 session-guard/watchdog fleet as other live multi-day runs; schedule it so it
 does not overlap another live campaign. The section 5/6 recovery powered run
 completed on 2026-06-29, so there is no gating dependency on it; at the
-corrected seeded sizing (~29-58 fixtures per group, both arms — roughly
-84-116 paired fault-task runs total) the expected footprint is on the order
-of one to two days of campaign time, a small fraction of a weekly budget.
+corrected seeded sizing (roughly 27-62 powered in-store fault fixtures, each
+run under both arms — i.e. ~54-124 arm-runs — plus the separately sized
+held-out negative-control and clean fixtures) the expected footprint is on
+the order of one to two days of campaign time, a small fraction of a weekly
+budget.
 
 ## 18. Definition Of Done
 
