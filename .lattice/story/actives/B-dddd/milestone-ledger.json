@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-dddd",
+  "state": "confirmed",
+  "ledgerHash": "sha256:b6db7fe6bbd6f1e97cce642f5f3f4980a8d1e939bf39d090ca623d21f11d3689",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Red/repro coverage proves outcome recording must be explicit.",
+      "doneMeans": "Smoke assertions cover explicit recording, DONE success is not helped, and helped without concrete exposure/verdict is rejected.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-002",
+      "claim": "Learning-store type layer defines outcome records and allowed outcome semantics.",
+      "doneMeans": "Leaf types expose playbook outcome records and distinguish observability outcomes from decisive helped/dismissed/harmful samples.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-003",
+      "claim": "Learning-store persistence appends validated outcome records safely.",
+      "doneMeans": "Outcome ledger helpers append records under the shared owner root, preserve existing records, and reject malformed input without corruption.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-004",
+      "claim": "Host-neutral command records outcomes without activation or gate evidence.",
+      "doneMeans": "playbook_outcome_record records explicit outcomes, prints authority non_authoritative and gateEvidence false, and leaves candidate status unchanged.",
+      "requiredEvidence": [
+        "cli_blackbox",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-005",
+      "claim": "Command metadata and process facts classify outcome recording as audit-only metadata.",
+      "doneMeans": "Command catalog, command policy, and process fact registry include the host-neutral command with no Codex/Claude namespace alias and no gate evidence semantics.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T02:55:36.591Z",
+  "updatedAt": "2026-07-02T02:55:42.569Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702025542",
+    "acceptedInterpretationHash": "sha256:41438bea978c0ad9ddd1b3b79d779b8c091834b925e9a862783ad24812be4695",
+    "acceptedAt": "2026-07-02T02:55:42.569Z"
+  }
+}
