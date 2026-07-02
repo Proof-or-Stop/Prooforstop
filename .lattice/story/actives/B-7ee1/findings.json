@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-7ee1:F-001",
+      "desc": "Stale docs still describe advisory auto-promotion as future/default-off/feature-flag gated instead of the B-7ee1 evidence-activated apply path. In playbook-promotion-worker-execution-plan.md, the status/summary and V1 activation paragraphs still say candidate-to-active mutation remains future work or behind an explicit feature flag (for example lines 3-5, 33-34, 137-141, and 665-666), while the new section says evidence-activated promotion is not controlled by a default-off ordinary-use flag. In source-lineage-dedup-playbook-seed-promotion-execution-plan.md, the updated M8 section is correct, but acceptance/safety text still says automatic advisory activation is disabled by default or requires an explicit feature flag (lines 485-486 and 525-527). This leaves the touched decision docs internally inconsistent with the intended boundary: promotion sweep only recommends; separate playbook_auto_promotion_apply may activate only after reviewed policy, current digest, applied recommend_activate decision, explicit exposure/outcome evidence, clean lineage, and rollback readiness, while remaining non-authoritative and non-gate evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:41:57.196Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-002",
+      "_hash": "e645c26ad07a1a7587b05f55eac06332572544376e0a770410658bc5cf837d43",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|stale-docs-still",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
