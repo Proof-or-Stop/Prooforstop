@@ -18,6 +18,27 @@
       ],
       "signatureTag": "spec-boundary|md|stale-docs-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ee1:F-002",
+      "desc": "Evidence-activation smoke is not wired into the routine test surfaces: neither packages/main/package.json nor packages/main/smoke-manifest.json references playbook-evidence-activation-smoke or the delegated playbook-seed-promotion-loop smoke, so the new coverage can be skipped by normal package smoke commands/run-all-smokes despite the file existing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:42:52.364Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-001",
+      "_hash": "34432cb4cb3f046aa172229701accfcbaaef125d734b467c97575eb563360286",
+      "files": [
+        "packages/main/package.json",
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "missing|json|evidence-activation-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
