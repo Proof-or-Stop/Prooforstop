@@ -5,7 +5,7 @@
       "desc": "[host-2 Codex P1] pilotFreezeCheck freezes N at the Wilson LOWER bound, which is NOT conservative under the pooled two-proportion formula: n peaks where pbar=(p1+(p1-mde))/2 is nearest 0.5, so a lower bound below ~0.5+mde/2 yields a SMALLER n than the observed baseline (counterexample: pilot 36/60, CI width 0.2406 freezes, lower 0.47366 -> 56/arm vs observed 0.60 -> 62/arm). The plan S7 wording (freeze at lower bound, conservative) shares the flaw. Fix the tool: freeze at the N-MAXIMIZING baseline within the Wilson CI (analytic max at p*=0.5+mde/2 clamped to the CI), document the deviation from the S7 letter as satisfying its conservative INTENT; flag plan S7 for a docs follow-up.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-02T21:18:03.048Z",
@@ -15,7 +15,11 @@
         "experiments/experience-ablation/sample-size.mjs"
       ],
       "signatureTag": "edge|mjs|host-codex-pilotfreezecheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "pilotFreezeCheck freezes at the N-maximizing baseline within the Wilson 95% CI (p*=0.5+mde/2 clamped); interpretation recorded in output; selfcheck pins the counterexample 36/60 -> frozen 62/arm vs buggy lower-bound 56, and the tight-CI case 42/60 -> 0.625 -> 62. Commit c562db46e. Plan S7 wording flagged for a docs follow-up (chip task_36a80fa5).",
+      "resolvedAt": "2026-07-02T21:26:22.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-047f:F-002",
