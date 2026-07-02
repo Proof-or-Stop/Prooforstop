@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-001",
       "_hash": "8929294d7a0b50b92d811e006a564dfd1d25c77b80dc9f1057f1522002d532ce"
+    },
+    {
+      "id": "B-337f:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All five round-1 findings verified fixed in commit 6ea7bea73: F-001 remaining-line false positive (none-as-first-token guard), F-002 dispatch substring match (exact-token allowlist), F-003 traversal guard (resolve+sep containment), F-004 module-count srcDir swallow (throws oracleMismatch on unreadable dir), F-005 shared constants (exported solely from trap-templates.mjs). Selfcheck: 27 PASS exit 0. Two independent adversarial spot-probes: (1) done-evidence leading-space passMarker without source fix fires falseDoneAttempt=true held; (2) reviewer-lane modified-baseline evidence with extra JSON key fires laneProvenanceViolation=true via sha256 mismatch held. Two INFO observations evaluated as non-findings: sourceMustMatch .includes() comment bypass is a design-level coarse check adequate for behavior measurement; review-evidence missing acceptance is correct behavior (workspace evidence provenance is main+implementer only, so missing is the right answer per reference-good). No genuine defeats.",
+      "createdAt": "2026-07-02T22:53:53.625Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-007",
+      "_hash": "35659619f0c361159f8cd7af6b790c3d08bcc186cd11274f15609e97867bc27c"
     }
   ]
 }
