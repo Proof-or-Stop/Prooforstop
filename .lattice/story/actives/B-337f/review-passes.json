@@ -134,6 +134,15 @@
       "reviewRound": "2026-07-02T22:37:21.893Z",
       "reviewRunId": "B-337f:RR-025",
       "_hash": "6d2fc6a0a4be95bec8fcaeb306311320a695fd8884021f09eaccb0aacbf51639"
+    },
+    {
+      "id": "B-337f:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9 intents (CHK-001..003 x happy/edge/adversarial) each have concrete manual_transcript evidence with result=pass; the selfcheck command node experiments/experience-ablation/fixture-generator-selfcheck.mjs runs 32 PASS exit 0 covering all intent semantics directly: same-seed byte-identical double-emission, pair-ledger S1 integration, per-class counts, fixtureId uniqueness, cwd-independence of emission, trap-artifact presence, in-store/held-out disjointness, leakage audit zero hits, oracle both-direction falsifiability, oracle stability, oracle cwd-independence, and adversarial probes pinning 7 inert-forgery vectors (F-006/F-012/F-014/F-015/F-016/F-017/F-018 — static workspace-state read with no execution makes all in-process forgery attempts inert). No orphaned intentRefs. M1 milestone ledger in the execution plan is unchanged. All 9 must-priority intents covered, 0 must-gaps, 0 waivers.",
+      "createdAt": "2026-07-02T23:36:15.913Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-026",
+      "_hash": "ab4daea76305ff1e53d86bcd40065b7a40d141f2f90e5e5e88f0da4fee4b443c"
     }
   ]
 }
