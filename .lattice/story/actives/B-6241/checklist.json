@@ -133,9 +133,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md#15-commands"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-02T03:59:41.194Z",
       "userSees": "CLI output includes \"dryRun: true\", \"applied: false\", and repeated apply reports \"alreadyApplied\" without activating candidates.",
       "files": {
         "modify": [
@@ -181,7 +181,75 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers dry-run evaluation output while decision row count and story snapshot remain unchanged.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.290Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers apply with PLAYBOOK_PROMOTION_SWEEP_ENABLED=1 writing one decision row per idempotency key.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.384Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers repeated apply reporting alreadyApplied without duplicate rows.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.473Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke covers apply fail-closed when feature flag is absent while dry-run remains available.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.562Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserts recommend_activate remains a recommendation and candidate status never becomes active.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.649Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke snapshots story files before/after dry-run/apply to verify no lifecycle evidence mutation.",
+          "headHash": "f7b09b0a234e5da3b09f876cbe2f97758a0ac5cb",
+          "materialHash": "0e9f79391b3a5a9b06030c7e874b430976ad64e77d0e49eecb85f0708ec29e08",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-02T03:59:41.738Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
