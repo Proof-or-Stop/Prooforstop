@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6048",
+  "sourceText": "User request on 2026-07-02: start executing M3-M6 until all are DONE for playbook-memory-entry-layer optimization.",
+  "normalizedOutcome": "M3 pack cache, M4 consumer rollout, M5 correctness matrix, and M6 one-million-record indexed/cached parity are implemented, verified, and closed through the Proofbound story lifecycle.",
+  "acceptanceClaim": "B-6048 may claim complete only when CHK-001 through CHK-004 are done with passing build, M3-M6 smoke, and full one-million-record parity report showing non-authoritative memory and report-first latency.",
+  "keyRequirementIds": [
+    "REQ-M3",
+    "REQ-M4",
+    "REQ-M5",
+    "REQ-M6"
+  ],
+  "requestHash": "sha256:72cca942c9e72cf969f0a466c30096996ec302ba84192c91a7632bd691ba3b94",
+  "createdAt": "2026-07-02T11:43:35.304Z",
+  "updatedAt": "2026-07-02T11:43:35.304Z"
+}

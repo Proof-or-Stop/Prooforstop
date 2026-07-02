@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-6048",
+  "state": "confirmed",
+  "ledgerHash": "sha256:aa17863354c3338dc316883955c655da24a7a0a70b28ff67a19905390b20089d",
+  "milestones": [
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-M3",
+      "claim": "Pack cache has freshness-safe invalidation and keeps memory non-authoritative.",
+      "doneMeans": "M3 smoke proves unchanged cache hits, contributing-input misses, stale-irrelevant handling, and gateEvidence=false.",
+      "requiredEvidence": [
+        "build",
+        "m3-m6-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4",
+      "claim": "Optimized indexed/cached memory pack is wired into lifecycle consumers as advisory only.",
+      "doneMeans": "Consumer rollout smoke covers session, handoff, story, DONE, and final response paths with authority=non_authoritative and gateEvidence=false.",
+      "requiredEvidence": [
+        "build",
+        "m3-m6-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5",
+      "claim": "Reference and optimized paths match on the correctness matrix.",
+      "doneMeans": "M5 matrix passes for active, candidate, superseded, stale relevant/irrelevant, deprecated residue, malformed row, line cap, and omittedCount cases.",
+      "requiredEvidence": [
+        "build",
+        "m3-m6-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-M6",
+      "claim": "One-million-record reference/indexed/cached parity is proven with report-first latency.",
+      "doneMeans": "Full profile reports recordCount=1000000 plus referenceFullScanMs, indexedColdMs, indexedWarmCacheMs, performancePolicy=report-first, and all parity checks green.",
+      "requiredEvidence": [
+        "build",
+        "m3-m6-smoke",
+        "full-million-baseline"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T11:43:45.726Z",
+  "updatedAt": "2026-07-02T11:43:51.285Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702114351",
+    "acceptedInterpretationHash": "sha256:ef1067b32a2dca023e9a30eaffe3ba2c4acc6892e9e1a0219d5cce636185b4d5",
+    "acceptedAt": "2026-07-02T11:43:51.285Z"
+  }
+}

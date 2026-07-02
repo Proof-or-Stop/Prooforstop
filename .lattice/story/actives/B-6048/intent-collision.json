@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6048",
+  "id": "IC-20260702114351",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Complete exactly M3-M6 for playbook runtime memory: M3 cache, M4 advisory consumer rollout, M5 correctness matrix, and M6 one-million-record parity report. Do not include M7/M8 enforce rollout and do not treat memory as gate evidence.",
+  "acceptedInterpretationHash": "sha256:ef1067b32a2dca023e9a30eaffe3ba2c4acc6892e9e1a0219d5cce636185b4d5",
+  "notes": "Accepted interpretation matches the user request to execute M3-M6 until DONE and the scope-check exclusions. Completion requires all four ledger rows closed, not only a parent/governance artifact.",
+  "ledgerHashBeforeDecision": "sha256:aa17863354c3338dc316883955c655da24a7a0a70b28ff67a19905390b20089d",
+  "confirmedLedgerHash": "sha256:aa17863354c3338dc316883955c655da24a7a0a70b28ff67a19905390b20089d",
+  "createdAt": "2026-07-02T11:43:51.285Z",
+  "updatedAt": "2026-07-02T11:43:51.285Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6048",
+  "records": [
+    {
+      "id": "RED-20260702114358",
+      "trigger": "M3-M6 optimized runtime path missing before implementation",
+      "acceptanceTargetRef": "REQ-M3+REQ-M4+REQ-M5+REQ-M6",
+      "baselineHeadHash": "1e8f3508f68412aced4fddc5737094513088f9e2",
+      "baselineMaterialHash": "2def7c04cdc5c8fb70a16a14d39ccd240410eb366b6a7eabcdd8a385e3ed6471",
+      "observedFailure": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js failed with MODULE_NOT_FOUND because the M3-M6 smoke and optimized runtime parity path are not implemented yet.",
+      "failingCommand": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+      "greenRelation": {
+        "targetRef": "REQ-M3+REQ-M4+REQ-M5+REQ-M6",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js && node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full"
+      },
+      "note": "Pre-DEV red evidence for user-requested M3-M6 completion. The green path must prove cache behavior, consumer rollout, correctness matrix, and one-million-record parity without promoting memory to gate evidence.",
+      "createdAt": "2026-07-02T11:43:58.037Z"
+    }
+  ],
+  "createdAt": "2026-07-02T11:43:58.037Z",
+  "updatedAt": "2026-07-02T11:43:58.037Z"
+}
