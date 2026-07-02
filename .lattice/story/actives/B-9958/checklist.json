@@ -328,9 +328,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T20:31:47.268Z",
-      "endTime": null
+      "endTime": "2026-07-02T20:31:55.135Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies playbook_runtime_consumption_verify detects active playbook consumption across runtime consumers.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:55.486Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Runtime verification reports diagnostics/warn posture for missing active consumption and keeps candidates pending/inert.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:55.846Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies runtime verification output is non-authoritative and gateEvidence=false.",
+          "headHash": "485e7a4a4d6c5679fabe8da409e4735be826c2bb",
+          "materialHash": "ae2fc7b83206eb76a9c1402ca3d409d487494ac8a77def3af1ffaa1d4333522d",
+          "storyFilesHash": "088a7b8eaadea6f54f7caddf1af1838b09b40464484be57e24d9908ea09a1390",
+          "timestamp": "2026-07-02T20:31:56.204Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
