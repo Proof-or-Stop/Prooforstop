@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-02T20:20:52.762Z",
       "reviewRunId": "B-db1b:RR-013",
       "_hash": "9a79c45f91bdc14bd643dffcde9da69be96a053c2521013dd5a5b8c40248fcaf"
+    },
+    {
+      "id": "B-db1b:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-005/F-007 fixed. Direct runtime probes against worktree dist confirmed pinn_report_render rejects supplied benchmarkJson overclaims at top-level, claims, suiteStatus, artifactIndex, nested injections/arms/a4/artifact objects, unsafe key names, and true-ish active/retired completion fields in both JSON and text render paths. benchmarkPath probes also reject supplied overclaim strings/narratives before rendering. Safe supplied reports are reconstructed from allowlisted shape, drop arbitrary caller fields, force local-only admissibility claims false, and generated reports retain the local claim-admissibility boundary without PDE correctness, deployment, external completion, or terminal completion claim.",
+      "createdAt": "2026-07-02T20:24:50.145Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-016",
+      "_hash": "e6056773c27d0dc900ed816f4a09670f4876dfbf4ae12a5d6967e306d14288ac"
     }
   ]
 }
