@@ -380,9 +380,46 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T19:14:58.242Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js pinn_benchmark_run --format=json",
+          "result": "pass",
+          "note": "Benchmark runner reports A1-A4 metrics, totalInjections=15, A4 rejectedInjectionCount=15, and Wilson confidence intervals.",
+          "headHash": "906a8613ed76ef39ff985dbf6f52fc77d1a0ef53",
+          "materialHash": "d8f58bb2e7cd053e97b4274789f9e328abd229e3cf6be2113d99a02ab3aac9ad",
+          "storyFilesHash": "0199f1100986b62e59e7b7af21619f8743627f40e92cc8e003e3ce6f684f4d87",
+          "timestamp": "2026-07-02T19:14:58.824Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
+          "command": "npm run test:pinn-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts A4 rejects every B1-B15 injection while weaker arms have nonzero unsupported/stale acceptance counts.",
+          "headHash": "906a8613ed76ef39ff985dbf6f52fc77d1a0ef53",
+          "materialHash": "d8f58bb2e7cd053e97b4274789f9e328abd229e3cf6be2113d99a02ab3aac9ad",
+          "storyFilesHash": "0199f1100986b62e59e7b7af21619f8743627f40e92cc8e003e3ce6f684f4d87",
+          "timestamp": "2026-07-02T19:14:59.309Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/pinn-claim-admissibility.ts",
+          "command": "node bin/lattice.js pinn_benchmark_run --format=json",
+          "result": "pass",
+          "note": "Benchmark output includes meanWallTimeMs and meanInterventionCount instead of claiming solver or PDE performance.",
+          "headHash": "906a8613ed76ef39ff985dbf6f52fc77d1a0ef53",
+          "materialHash": "d8f58bb2e7cd053e97b4274789f9e328abd229e3cf6be2113d99a02ab3aac9ad",
+          "storyFilesHash": "0199f1100986b62e59e7b7af21619f8743627f40e92cc8e003e3ce6f684f4d87",
+          "timestamp": "2026-07-02T19:14:59.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
