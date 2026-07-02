@@ -1,15 +1,15 @@
 # Proof-or-Stop for PINNs: Cross-Domain Claim-Admissibility Execution Plan
 
-Status: implementation-ready design draft
-Scope: future-domain extension; not a delivered implementation
+Status: local runtime implementation in progress under Story B-db1b
+Scope: local claim-admissibility runtime pack; not a scientific PINN solver or production Authority proof
 Created: 2026-06-27
 Short name: Proof-or-Stop PINN Claim-Admissibility Pack
 
 ## Current implementation status
 
-- This is a documented design package for a future-domain extension.
-- No runtime module changes have been delivered in this story.
-- Scope, vocabulary, benchmark design, and governance wording are now fixed as a future implementation contract.
+- Story B-db1b delivers the local executable runtime pack for M0-M5.
+- Runtime commands are `pinn_claim_check`, `pinn_benchmark_run`, and `pinn_report_render`.
+- Scope remains claim admissibility only: no scientific PINN solver, no PDE correctness proof, no external Authority production verification, and no remote release.
 
 ## Purpose
 
@@ -60,14 +60,16 @@ Stop conditions:
 Allowable file modifications:
 
 - `docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md` (this plan);
-- optional CLI task/code/docs changes only under a future story branch implementing
-  this plan.
+- `packages/main/src/core/pinn-claim-admissibility.ts`;
+- `packages/main/src/handlers/pinn-claim-admissibility.ts`;
+- `packages/main/src/tasks/pinn-claim-admissibility-smoke.ts`;
+- command wiring, command policy, package version/script surfaces, and navigation/docs updates required for the local runtime command surface.
 
 ## Current Status
 
-- No production code changes have been merged for this extension yet.
-- No existing story or runtime module implements a PINN-specific domain pack.
-- This is a documentation-first decision artifact to drive a future story.
+- The local runtime pack is delivered by Story B-db1b, not by the older documentation-only closure.
+- The runtime evaluates claim admissibility for C1-C9 against current identity hashes and verifier receipts.
+- Benchmark/reporting remains local diagnostic evidence and does not assert scientific correctness, production readiness, or external Authority completion.
 
 ## Boundary and Non-Goals
 
@@ -289,9 +291,10 @@ Acceptance:
 
 ## Milestone / delivery status axis
 
-- M0–M5: design artifacts completed in this story.
-- M0–M5 acceptance criteria defined; runtime implementation and verification are out of scope of this story.
-- This avoids duplicate future work by making completed vs. pending scope explicit.
+- M0–M5: local runtime artifacts are delivered by Story B-db1b.
+- M0–M3 cover command boundary, evidence schema, verifier adapters, and gate transitions.
+- M4–M5 cover deterministic A1-A4 benchmark/reporting and governance wording.
+- Scientific PINN solving, numerical PDE correctness proof, and external Authority production verification remain out of scope.
 
 ## Value to Proof-or-Stop
 

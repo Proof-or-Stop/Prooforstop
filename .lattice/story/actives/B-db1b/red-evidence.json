@@ -18,8 +18,25 @@
       },
       "note": "The pre-fix failure is command/runtime absence, not a scientific PINN solver failure.",
       "createdAt": "2026-07-02T18:41:48.008Z"
+    },
+    {
+      "id": "RED-B-db1b-PINN-runtime-absence",
+      "trigger": "PINN M0-M5 runtime command absence before implementation",
+      "acceptanceTargetRef": "sha256:fb87ff20d7ee1c177784508af1efb9b50783da134a510f1952587269d472dbbd",
+      "baselineHeadHash": "856a63d929e1647e4334dace6bda36b94f0f6503",
+      "baselineMaterialHash": "e2c8308ab75c755be389cebf83fee62e66eb0c6c4488b7110925f3e1d0ab57f8",
+      "observedFailure": "Before this story, the canonical repository has a documentation-only PINN plan and no executable pinn_benchmark_run behavior proving the requested schema, adapter, gate, benchmark, and report runtime path.",
+      "failingCommand": "node bin/lattice.js pinn_benchmark_run --format=json",
+      "expectedGreenCommand": "node bin/lattice.js pinn_benchmark_run --format=json",
+      "greenRelation": {
+        "targetRef": "sha256:fb87ff20d7ee1c177784508af1efb9b50783da134a510f1952587269d472dbbd",
+        "relation": "same_acceptance",
+        "command": "node bin/lattice.js pinn_benchmark_run --format=json"
+      },
+      "note": "The red state is runtime command/claim-control absence, not a failure of a scientific PINN solver.",
+      "createdAt": "2026-07-02T18:46:08.228Z"
     }
   ],
   "createdAt": "2026-07-02T18:41:48.008Z",
-  "updatedAt": "2026-07-02T18:41:48.008Z"
+  "updatedAt": "2026-07-02T18:46:08.228Z"
 }
