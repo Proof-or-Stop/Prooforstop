@@ -1,0 +1,51 @@
+{
+  "storyId": "B-2769",
+  "checkedAt": "2026-07-02T16:35:16.537Z",
+  "features": [
+    {
+      "feature": "Scope lock for future-domain PINN claim-admissibility pack",
+      "covered_by": "scope-boundary.json + execution-boundary.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-2769/scope-boundary.json"
+    },
+    {
+      "feature": "Exclude external Authority-server feature changes from this story",
+      "covered_by": "plan scope boundary",
+      "status": "excluded",
+      "excluded_by": "Scope Boundary excluded item",
+      "source": ".lattice/story/actives/B-2769/scope-boundary.json"
+    },
+    {
+      "feature": "Exclude PDE solver accuracy / scientific correctness claims",
+      "covered_by": "problem/warn constraints",
+      "status": "excluded",
+      "excluded_by": "Scope Boundary excluded item",
+      "source": ".lattice/story/actives/B-2769/understanding.json"
+    },
+    {
+      "feature": "Bound execution to PINN claim-admissibility controls (not full scientific claims)",
+      "covered_by": "plan milestone 6 wording",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Keep benchmark task set fixed across A1–A4",
+      "covered_by": "M4 benchmark section + failure injection plan",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "077e8d27307a01992c8e5c61f827eb08e60fddcd9e7a68bda0b72a20eba54ad9"
+}
