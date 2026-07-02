@@ -246,11 +246,11 @@
           "file": "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
           "command": "node bin/lattice.js pinn_benchmark_run --format=json",
           "result": "pass",
-          "note": "Benchmark reports A3 verifier-only accepts 12 unsupported injections while A4 rejects all 15, proving lifecycle gate value beyond receipts alone.",
-          "headHash": "31d31d49f464bcd3b1a306c1f42080065334a469",
-          "materialHash": "d61ecf833379333d8ff74e212264079fa2e6505601116434129defaea9059687",
-          "storyFilesHash": "3422ccb57078fc4e0872db4af1c9cbe3dddf795b4e0461125535f615a2ab4ab5",
-          "timestamp": "2026-07-02T21:01:53.206Z"
+          "note": "Benchmark now reports A3 verifier-only acceptedCount=14 and unsupportedAcceptanceCount=14 while A4 rejects all 15 B1-B15 injections; smoke keeps the invariant that weaker arms expose unsupported/stale acceptance and A4 rejects every injection.",
+          "headHash": "39ec92abb0ea4c0f6452836474fd72dbe00f4c09",
+          "materialHash": "8aa0a3d335fdb76486ff6bffee0cc05a9f0c4da7b0361b2c5fc736258b93a5d5",
+          "storyFilesHash": "7e2af8c427a72d9e7206574c510866a001f3ad76b393b5ae92401391b41bb60d",
+          "timestamp": "2026-07-02T21:26:36.843Z"
         }
       ]
     },
