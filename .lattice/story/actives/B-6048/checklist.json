@@ -6,7 +6,7 @@
       "context": "Add a derived MemoryFreshnessPack cache keyed by schemaVersion, consumer, normalized query/context, contributing source digest tuple, runtime config digest, consumer policy version, top-k/line cap, and indexVersion. Preserve authority=non_authoritative and gateEvidence=false. Related plan section: playbook-memory-entry-layer-optimization-plan.md M3.",
       "status": "done",
       "startTime": "2026-07-02T11:45:18.893Z",
-      "endTime": "2026-07-02T12:10:25.998Z",
+      "endTime": "2026-07-02T13:26:36.504Z",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md#M3 Pack Cache Detailed Checklist"
       ],
@@ -47,35 +47,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "M3-M6 smoke PASS: unchanged requests hit the cache and preserve identical bounded pack digest; build also passed with npm --prefix packages/main run build.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "note": "Build passed after round-2 M3 fixes: cache key/context now include projectRoot and candidateLimit while preserving non_authoritative/gateEvidence=false pack semantics.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:36.740Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
           "result": "pass",
-          "note": "M3-M6 smoke PASS: stale-irrelevant broad source changes are treated as soft cache hits when contributing rows are unchanged.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "note": "Index smoke passes and proves stale-irrelevant unrelated append behavior, project-root cache isolation, and indexed freshness semantics for F-006.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:36.970Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
           "result": "pass",
-          "note": "M3-M6 smoke PASS: contributing source changes miss/invalidate cache; stale-irrelevant freshness changes recompute packDigest; authority remains non_authoritative and gateEvidence=false.",
-          "headHash": "99dd5950b1353f0768ac718141cd8908853c30a7",
-          "materialHash": "d0baa0c015e43e7463020243454dd90780111af97aac10aabccb9362059ab0bf",
-          "storyFilesHash": "1bc33aa6b62c1b42df8e1abb5c82bede2eea424d69fc470631d18fa578025b9e",
-          "timestamp": "2026-07-02T13:05:50.835Z"
+          "note": "M3-M6 smoke passes and includes a candidateLimit cache divergence check proving candidateLimit participates in runtime pack cache identity for F-007.",
+          "headHash": "109254188f99ddc30b99cf7daf6d8478356eb51a",
+          "materialHash": "74259e14eb61190e3d00f05137a19d9a3be985b2f8db79d283f9f474a0a9633e",
+          "storyFilesHash": "78732083b5a0fb2f5af9744faa3cffa53fcaaf38a22cb36d4ae4e00ef0ef4a95",
+          "timestamp": "2026-07-02T13:26:37.183Z"
         }
       ]
     },
