@@ -77,6 +77,17 @@
           "materialHash": "fee2bb12b19e58e5ba89cd6ea36ce2f1c12fd61a1369824630234e0c34880fef",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-02T03:12:27.937Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full && node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+          "result": "pass",
+          "note": "Full baseline is recorded as report-only scale proof (recordCount=1000000, elapsedMs=19934) while runtime index smoke separately proves normal pack output remains authority=non_authoritative and gateEvidence=false; the baseline is not wired into session_brief as gate evidence.",
+          "headHash": "20b56ad043fd772dca3022febd040f36af07e75a",
+          "materialHash": "c661ccf1fe1db638493f605f91d31b3efe3c00b404f714158ef7443840bb82d5",
+          "storyFilesHash": "632b625054601cb33f3e05e1f4b7b4b0075bb1e54f71daabb829d17fd9e6dd74",
+          "timestamp": "2026-07-02T03:13:47.221Z"
         }
       ]
     },
