@@ -18,7 +18,32 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These five files are B-047f own ProofStory lifecycle metadata written by the sanctioned CLI commands (original_intent_snapshot_set, intent_collision_set, milestone_ledger_set, proofstory_contract_set, red_evidence_create) that the enforce-mode ProofStory DEV gate itself required before allowing DEV entry. Story-scoped gate evidence, not product changes; the product deliverables remain the six allowed experiments/experience-ablation/ paths.",
+      "timestamp": "2026-07-02T21:09:56.027Z",
+      "paths": [
+        ".lattice/story/actives/B-047f/intent-collision.json",
+        ".lattice/story/actives/B-047f/milestone-ledger.json",
+        ".lattice/story/actives/B-047f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-047f/proofstory.json",
+        ".lattice/story/actives/B-047f/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-047f/intent-collision.json",
+        ".lattice/story/actives/B-047f/milestone-ledger.json",
+        ".lattice/story/actives/B-047f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-047f/proofstory.json",
+        ".lattice/story/actives/B-047f/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "089d0ce602f55212b8654b5fd93f9851ec0d6938",
+      "materialHash": "ef117155b55d1f255bdff75999d487185d996a122e9f6ea5a2b11dcf5c77baa6"
+    }
+  ],
   "createdAt": "2026-07-02T21:02:12.630Z",
-  "updatedAt": "2026-07-02T21:02:12.630Z"
+  "updatedAt": "2026-07-02T21:09:56.027Z"
 }
