@@ -237,7 +237,19 @@ async function run(): Promise<void> {
       });
       assert.ok(candidates.playbooks.some((item) => item.id === 'PB-active'));
       assert.equal(candidates.playbooks.some((item) => item.id === 'PB-candidate'), false);
-      console.log(`indexedReferenceParity=true candidateFalseSurface=0 authority=${indexed.authority} gateEvidence=${indexed.gateEvidence}`);
+      assert.ok(candidates.stats.exactFastPathHits > 0, 'exact token lookup should be used');
+      assert.ok(candidates.stats.fuzzyIndexHits > 0, 'fuzzy auxiliary index should be used for hyphenated/contains matches');
+      assert.equal(candidates.stats.tokenScanFallbacks, 0, 'normal smoke query should not scan every token-map entry');
+      console.log([
+        'indexedReferenceParity=true',
+        'candidateFalseSurface=0',
+        `exactFastPathHits=${candidates.stats.exactFastPathHits}`,
+        `fuzzyIndexHits=${candidates.stats.fuzzyIndexHits}`,
+        `fuzzyFallbacks=${candidates.stats.fuzzyFallbacks}`,
+        `tokenScanFallbacks=${candidates.stats.tokenScanFallbacks}`,
+        `authority=${indexed.authority}`,
+        `gateEvidence=${indexed.gateEvidence}`,
+      ].join(' '));
     });
 
     check('M2 indexed freshness classification preserves stale-relevant and stale-irrelevant semantics', () => {

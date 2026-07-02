@@ -21,6 +21,9 @@ import {
 } from './playbook-runtime-memory-cache.js';
 import {
   rebuildRuntimeMemoryIndex,
+  getRuntimeMemoryIndexCandidateStats,
+  resetRuntimeMemoryIndexCandidateStats,
+  type RuntimeMemoryIndexCandidateStats,
   type RuntimeMemoryIndex,
 } from './playbook-runtime-memory-index.js';
 
@@ -194,6 +197,8 @@ export interface PlaybookRuntimeOptimizedParityReport {
   referenceFullScanMs: number;
   indexedColdMs: number;
   indexedWarmCacheMs: number;
+  targetWarmMs: number;
+  targetStatus: 'met' | 'unmet';
   performancePolicy: 'report-first';
   parityPass: boolean;
   referenceResultDigest: string;
@@ -210,6 +215,30 @@ export interface PlaybookRuntimeOptimizedParityReport {
   indexedColdUsesRuntimeIndex: boolean;
   indexedColdRuntimeIndexRecordCounts: RuntimeMemoryIndex['manifest']['recordCounts'];
   warmCacheStats: RuntimeMemoryPackCacheStats;
+  cacheHitRate: number;
+  latency: {
+    p50Ms: number;
+    p95Ms: number;
+  };
+  timingBreakdown: {
+    corpusMaterializeMs: number;
+    indexBuildMs: number;
+    referenceQueryMs: number;
+    indexedColdQueryMs: number;
+    warmPrimeQueryMs: number;
+    indexedWarmQueryMs: number;
+    queryCount: number;
+    tokenMatching: {
+      indexedCold: RuntimeMemoryIndexCandidateStats;
+      warmPrime: RuntimeMemoryIndexCandidateStats;
+      indexedWarm: RuntimeMemoryIndexCandidateStats;
+    };
+    cache: RuntimeMemoryPackCacheStats;
+  };
+  performance: {
+    peakRssBytes: number;
+    peakHeapUsedBytes: number;
+  };
   authority: 'non_authoritative';
   gateEvidence: false;
 }
@@ -1123,6 +1152,14 @@ interface RuntimeCorpusMaterialization {
 interface RuntimePackQueryRun {
   elapsedMs: number;
   resultDigest: string;
+  queryElapsedMs: number[];
+}
+
+function percentile(values: number[], pct: number): number {
+  if (values.length === 0) return 0;
+  const sorted = values.slice().sort((a, b) => a - b);
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil((pct / 100) * sorted.length) - 1));
+  return sorted[index];
 }
 
 function runtimeCorpusMemoryEntry(record: BaselineRecord): DevMemoryEntry {
@@ -1265,13 +1302,17 @@ function runRuntimePackQueries(
   overrides: Partial<Omit<BuildMemoryFreshnessPackOptions, 'projectRoot' | 'query'>> = {},
 ): RuntimePackQueryRun {
   const started = performance.now();
-  const packs = gold.queries.map((query) => ({
-    queryId: query.id,
-    pack: buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides)),
-  }));
+  const queryElapsedMs: number[] = [];
+  const packs = gold.queries.map((query) => {
+    const queryStarted = performance.now();
+    const pack = buildMemoryFreshnessPack(packOptionsForGoldQuery(root, query, overrides));
+    queryElapsedMs.push(Math.max(0, Math.round(performance.now() - queryStarted)));
+    return { queryId: query.id, pack };
+  });
   return {
     elapsedMs: roundedElapsed(started),
     resultDigest: memoryPackResultDigest(packs),
+    queryElapsedMs,
   };
 }
 
@@ -1280,7 +1321,9 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
   profile?: PlaybookRuntimeBaselineProfile;
   seed?: number;
   keepGenerated?: boolean;
+  targetWarmMs?: number;
 } = {}): PlaybookRuntimeOptimizedParityReport {
+  const targetWarmMs = Math.max(1, Math.floor(args.targetWarmMs ?? 2000));
   const generated = args.inputDir
     ? undefined
     : generatePlaybookRuntimeBaseline({ profile: args.profile ?? 'small', seed: args.seed, force: true });
@@ -1290,27 +1333,41 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
     const recordsRaw = readFileSync(join(inputDir, 'records.jsonl'), 'utf8');
     const gold = JSON.parse(readFileSync(join(inputDir, 'gold-queries.json'), 'utf8')) as { queries: BaselineGoldQuery[] };
     return withIsolatedGlobalMemory(() => {
+      const corpusStarted = performance.now();
       const corpus = materializeRuntimeCorpus(recordsRaw);
+      const corpusMaterializeMs = roundedElapsed(corpusStarted);
       try {
         clearRuntimeMemoryPackCache();
         const reference = runRuntimePackQueries(corpus.root, gold, { useIndex: false, useCache: false });
+        const indexStarted = performance.now();
         const runtimeIndex = rebuildRuntimeMemoryIndex(corpus.root, BASELINE_RUNTIME_FIXED_TIME);
+        const indexBuildMs = roundedElapsed(indexStarted);
+        resetRuntimeMemoryIndexCandidateStats();
         const indexedCold = runRuntimePackQueries(corpus.root, gold, {
           runtimeIndex,
           useCache: false,
         });
+        const indexedColdTokenStats = getRuntimeMemoryIndexCandidateStats();
         clearRuntimeMemoryPackCache();
-        runRuntimePackQueries(corpus.root, gold, {
+        resetRuntimeMemoryIndexCandidateStats();
+        const warmPrime = runRuntimePackQueries(corpus.root, gold, {
           runtimeIndex,
           useCache: true,
         });
+        const warmPrimeTokenStats = getRuntimeMemoryIndexCandidateStats();
+        resetRuntimeMemoryIndexCandidateStats();
         const indexedWarm = runRuntimePackQueries(corpus.root, gold, {
           runtimeIndex,
           useCache: true,
         });
+        const indexedWarmTokenStats = getRuntimeMemoryIndexCandidateStats();
         const warmCacheStats = getRuntimeMemoryPackCacheStats();
         const parityPass = reference.resultDigest === indexedCold.resultDigest
           && indexedCold.resultDigest === indexedWarm.resultDigest;
+        const memory = process.memoryUsage();
+        const targetStatus = parityPass && indexedWarm.elapsedMs <= targetWarmMs ? 'met' : 'unmet';
+        const cacheHitRate = warmCacheStats.hits / Math.max(1, warmCacheStats.hits + warmCacheStats.misses);
+        const warmLatencies = indexedWarm.queryElapsedMs;
         return {
           schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
           profile: manifest.profile,
@@ -1319,6 +1376,8 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
           referenceFullScanMs: reference.elapsedMs,
           indexedColdMs: indexedCold.elapsedMs,
           indexedWarmCacheMs: indexedWarm.elapsedMs,
+          targetWarmMs,
+          targetStatus,
           performancePolicy: 'report-first',
           parityPass,
           referenceResultDigest: reference.resultDigest,
@@ -1337,6 +1396,30 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
             && runtimeIndex.manifest.recordCounts.signatureTags === BASELINE_SIGNATURE_REGISTRY.tags.length,
           indexedColdRuntimeIndexRecordCounts: runtimeIndex.manifest.recordCounts,
           warmCacheStats,
+          cacheHitRate,
+          latency: {
+            p50Ms: percentile(warmLatencies, 50),
+            p95Ms: percentile(warmLatencies, 95),
+          },
+          timingBreakdown: {
+            corpusMaterializeMs,
+            indexBuildMs,
+            referenceQueryMs: reference.elapsedMs,
+            indexedColdQueryMs: indexedCold.elapsedMs,
+            warmPrimeQueryMs: warmPrime.elapsedMs,
+            indexedWarmQueryMs: indexedWarm.elapsedMs,
+            queryCount: gold.queries.length,
+            tokenMatching: {
+              indexedCold: indexedColdTokenStats,
+              warmPrime: warmPrimeTokenStats,
+              indexedWarm: indexedWarmTokenStats,
+            },
+            cache: warmCacheStats,
+          },
+          performance: {
+            peakRssBytes: memory.rss,
+            peakHeapUsedBytes: memory.heapUsed,
+          },
           authority: 'non_authoritative',
           gateEvidence: false,
         };
