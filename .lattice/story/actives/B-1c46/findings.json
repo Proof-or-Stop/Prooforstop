@@ -37,6 +37,26 @@
       ],
       "signatureTag": "runtime-memory-fuzzy-overflow-parity",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-1c46:F-003",
+      "desc": "Caller-supplied runtimeIndexSourceDigests can turn a stale cached pack into a fresh-looking pack. BuildMemoryFreshnessPackOptions exports runtimeIndexSourceDigests (packages/main/src/core/playbook-runtime-memory.ts:159-174), and resolveRuntimeIndexForPack accepts the runtimeIndex whenever that caller-supplied tuple equals the index manifest, without reading current sources (lines 613-624). On cache hit, getRuntimeMemoryPackCacheHit computes currentSourceDigests via sourceDigestsFor; when a runtimeIndex is present that function uses context.runtimeIndex.manifest.sourceDigests instead of readRuntimeMemorySourceDigests (packages/main/src/core/playbook-runtime-memory-cache.ts:226-228, 426-436). Thus a caller holding an old runtimeIndex plus its manifest tuple can get stale relevant cache content returned as freshness.class=fresh before contribution refs are rechecked. The benchmark passes runtimeIndex.manifest.sourceDigests as this tuple (packages/main/src/core/playbook-runtime-baseline.ts:1449-1467), so the optimization is not bound to an independently current digest proof. This conflicts with the pack contract that freshness reflects current source digests at consumption time, even though authority remains non_authoritative/gateEvidence=false.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:02:23.889Z",
+      "reviewRound": "2026-07-02T14:58:58.853Z",
+      "reviewRunId": "B-1c46:RR-003",
+      "_hash": "9bb1225dae587a4902ade8e1cbdaac9793f098b00c32c3d12e2394e50f2231ec",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "packages/main/src/core/playbook-runtime-memory-cache.ts",
+        "packages/main/src/core/playbook-runtime-baseline.ts"
+      ],
+      "signatureTag": "runtime-memory-stale-cache-proof-boundary",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
