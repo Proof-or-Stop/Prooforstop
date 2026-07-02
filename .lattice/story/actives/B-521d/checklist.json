@@ -58,7 +58,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "User runs lattice playbook_promotion_observe --since=14d --json and sees JSON proof without mutations.",
+      "userSees": "Running \"lattice playbook_promotion_observe --since=14d --json\" prints \"authority\": \"non_authoritative\", \"gateEvidence\": false, \"candidateGenerated\", \"candidateConsumed\", and \"recommendationHandling\".",
       "excludes": [
         "runtime memory guidance changes",
         "gate evidence changes"
