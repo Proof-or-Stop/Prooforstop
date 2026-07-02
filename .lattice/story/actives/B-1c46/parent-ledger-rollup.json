@@ -13,9 +13,19 @@
         "M3",
         "M4"
       ],
-      "status": "planned",
+      "status": "done",
       "evidenceRefs": [
-        "slice_plan:slice-index-core"
+        "test-evidence:CHK-001:happy:0",
+        "test-evidence:CHK-001:edge:0",
+        "test-evidence:CHK-001:adversarial:0",
+        "test-evidence:CHK-002:*",
+        "test-evidence:CHK-003:*",
+        "test-evidence:CHK-004:*",
+        "test-evidence:CHK-005:*",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-baseline-smoke.js --profile=full",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-index-smoke.js",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+        "validate:2026-07-02T16:51:27.154Z"
       ]
     },
     {
@@ -24,13 +34,20 @@
         "M5",
         "M6"
       ],
-      "status": "planned",
+      "status": "done",
       "evidenceRefs": [
-        "slice_plan:slice-performance-rollout"
+        "test-evidence:CHK-006:*",
+        "test-evidence:CHK-007:*",
+        "command:node packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js --profile=full --targetWarmMs=2000",
+        "done-required-evidence:2026-07-02T16:53:24.623Z",
+        "review-escalation:full-3x2:claude-cli+codex-cli",
+        "delivery-check:6fa2f31",
+        "summary:42ede49",
+        "validate:2026-07-02T16:51:27.154Z"
       ]
     }
   ],
-  "rollupHash": "sha256:afb1291f6c0725f986b36a2ffba2745dbe337e4a01f9ef204876ea43b8a237d1",
+  "rollupHash": "sha256:526f2c2fd0a2e6035e559f56607be2e8725f4b79708a5332b330372f53c6280a",
   "createdAt": "2026-07-02T14:28:38.458Z",
-  "updatedAt": "2026-07-02T14:28:38.458Z"
+  "updatedAt": "2026-07-02T16:55:18.340Z"
 }
