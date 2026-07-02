@@ -198,10 +198,45 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-02T12:10:47.533Z",
-      "endTime": null,
-      "userSees": "The M3-M6 smoke prints a correctness matrix where active, candidate, superseded, stale, deprecated, malformed, and line-cap cases all show PASS for reference and optimized paths."
+      "endTime": "2026-07-02T12:10:55.053Z",
+      "userSees": "The M3-M6 smoke prints a correctness matrix where active, candidate, superseded, stale, deprecated, malformed, and line-cap cases all show PASS for reference and optimized paths.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: optimized path matches reference path for active playbook and required IDs on matrix fixtures.",
+          "headHash": "0c8fec4df69335d299cdcc8bd9804156552e1341",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:55.209Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: superseded suppression, stale-relevant/stale-irrelevant classification, and render line cap/omittedCount behavior are verified.",
+          "headHash": "0c8fec4df69335d299cdcc8bd9804156552e1341",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:55.357Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-runtime-memory-m3-m6-smoke.js",
+          "result": "pass",
+          "note": "M3-M6 smoke PASS: candidate and stale playbooks do not surface, deprecated brand residue is only recorded as residue, and malformed rows do not crash or surface as current guidance.",
+          "headHash": "0c8fec4df69335d299cdcc8bd9804156552e1341",
+          "materialHash": "2ab69f29b173e87af16647f01736b7595e395296f40f10fc08c31e06e3fd71a0",
+          "storyFilesHash": "510e4560498e0107780e9cf833e0a1e9e3ae4cc091e463bd1febd98506501ab8",
+          "timestamp": "2026-07-02T12:10:55.503Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -292,6 +327,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M5 correctness matrix evidence closure."
+    },
+    {
+      "timestamp": "2026-07-02T12:10:55.053Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M5 correctness matrix committed and verified by M3-M6 smoke."
     }
   ]
 }
