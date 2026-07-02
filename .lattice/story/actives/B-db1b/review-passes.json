@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-02T20:06:35.258Z",
       "reviewRunId": "B-db1b:RR-010",
       "_hash": "cad439acda1cc2f277c0f97d4b302cb21ed5f792881821c3d793e8ac6e1fdc92"
+    },
+    {
+      "id": "B-db1b:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS. npm run test:pinn-claim-admissibility runs the dist smoke and passed. Reviewed source and dist smoke coverage: B1-B15 plan alignment, A4 rejects all 15 injections, duplicate receipt regression, terminal/legacy narrative boundary regression, top-level/claims overclaim rejection, deep supplied-report overclaim rejection for suiteStatus/artifactIndex strings, nested injections true-ish claim field, and benchmarkPath payload. Direct read-only probes against dist handlers confirmed F-005/F-008 payloads throw refuses benchmark report overclaims.",
+      "createdAt": "2026-07-02T20:23:04.253Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-014",
+      "_hash": "9d05b129306adbf2efa738036468721245021eb3a08a64508caf07dc181d9a39"
     }
   ]
 }
