@@ -1,0 +1,177 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define quantum verifier adapter descriptors",
+      "context": "Add typed adapter definitions for Hamiltonian/spec, basis/grid, solver output, normalization, unitarity/probability conservation, convergence, reference comparison, reproducibility, and figure/table provenance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "Quantum M2 exposes named verifier adapters with explicit evidence kind, required identity fields, and deterministic fail-closed boundaries.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Known M2 adapters are listed with stable ids and evidence kinds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Adapters can be descriptor-only without executing external commands.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No adapter advertises quantum theory, hardware, solver improvement, production, or Authority claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Normalize verifier outputs into quantum receipts",
+      "context": "Add deterministic helper(s) that accept adapter output and active identity, returning QuantumVerifierReceipt-compatible structures or fail-closed reason codes for missing/mismatched output.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "Verifier adapter output can be converted into bound receipts that evaluateQuantumClaim can consume.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid adapter output normalizes to a passing bound receipt consumed by evaluateQuantumClaim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown adapter ids or unsupported output versions return deterministic non-admissible results.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mismatched hamiltonianHash/gridHash/verifierScriptHash/outputDigest remains blocked after normalization.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose quantum pack verifierAdapters through the pack registry",
+      "context": "Wire a quantum ClaimAdmissibilityPack descriptor with verifierAdapters into the read-only registry without replacing the code-runtime pack or creating new proof storage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "listClaimAdmissibilityPacks includes a quantum pack whose verifierAdapters describe M2 capabilities.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/evidence/admissibility/index.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registry lists both code-runtime and quantum packs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Quantum pack remains read-only and uses existing proof-admissibility boundaries.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Adding the quantum pack does not create duplicate ids, aliases, lifecycle gates, storage roots, or completion claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Extend quantum smoke and update M2 status",
+      "context": "Update the focused smoke and quantum plan status to prove M2 is implemented while M3-M5 remain pending.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "npm --prefix packages/main run test:quantum-claim-admissibility prints a passing transcript for M2 verifier adapters.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "packages/main/package.json",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused quantum smoke passes and prints a M2 verifier adapter success line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing M0-M1 stale/missing/mismatch smoke cases still pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The runtime status says M0-M2 implemented and M3-M5 pending, not full quantum validation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
