@@ -557,3 +557,66 @@ export interface SignalSourceFinding {
   /** B-1a91 CHK-003: resolution timestamp; folded into the coverage watermark (`coveredThrough`). */
   resolvedAt?: string;
 }
+
+// -- B-01df M1: read-only learning source lineage audit ----------------------
+
+export type SourceLineageAuditSchemaVersion = 'proofbound.source-lineage-audit.v1';
+export type SourceLineageDomain = 'learning';
+export type SourceLineageAuthority = 'non_authoritative';
+export type SourceLineageCanonicalKeyVersion = 'proofbound.learning-source-key.v1';
+
+export type SourceLineageArtifactKind =
+  | 'dev_memory'
+  | 'finding_signal'
+  | 'finding'
+  | 'playbook_proposal'
+  | 'playbook'
+  | 'playbook_outcome'
+  | 'playbook_promotion_decision';
+
+export interface SourceLineageDiagnostic {
+  code: string;
+  severity: 'info' | 'warning';
+  message: string;
+  path?: string;
+  artifactKind?: SourceLineageArtifactKind;
+  artifactId?: string;
+}
+
+export interface SourceLineageAuditRecord {
+  artifactKind: SourceLineageArtifactKind;
+  artifactId: string;
+  sourceRef: string;
+  canonicalSourceKey: string | null;
+  canonicalSourceKeyVersion: SourceLineageCanonicalKeyVersion;
+  canonicalizationPolicyHash: string;
+  rawSourceKey?: string;
+  sourceStoryId?: string;
+  sourceFindingId?: string;
+  sourceSignature?: string;
+  lineagePresent: boolean;
+  authority: SourceLineageAuthority;
+  gateEvidence: false;
+}
+
+export interface DuplicateCanonicalSourceGroup {
+  canonicalSourceKey: string;
+  recordCount: number;
+  records: SourceLineageAuditRecord[];
+}
+
+export interface SourceLineageAuditReport {
+  schemaVersion: SourceLineageAuditSchemaVersion;
+  domain: SourceLineageDomain;
+  auditedAt: string;
+  canonicalSourceKey: string;
+  canonicalSourceKeyVersion: SourceLineageCanonicalKeyVersion;
+  canonicalizationPolicyHash: string;
+  sourceRecordCount: number;
+  missingLineageCount: number;
+  duplicateCanonicalSourceGroups: DuplicateCanonicalSourceGroup[];
+  records: SourceLineageAuditRecord[];
+  diagnostics: SourceLineageDiagnostic[];
+  authority: SourceLineageAuthority;
+  gateEvidence: false;
+}

@@ -1,0 +1,277 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement playbook_seed_observe as read-only deduped seed view",
+      "context": "M2: build on source_lineage_audit and expose proposable dev-memory/finding-signal/raw-finding seeds, duplicate groups, missing lineage, non_promotable blocks, already represented sources, and observeDigest.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "lattice playbook_seed_observe --json reports seed candidates and observeDigest without writing stores.",
+      "excludes": [
+        "proposal writes during observe",
+        "approval writes during observe",
+        "automatic activation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev-memory with lineage is selected as the preferred primary seed over finding-signal/raw finding for the same canonical source.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing lineage and non_promotable sources are reported as blocked seeds without mutation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "playbook_seed_observe rejects write/apply flags and remains L0/read-only/non-gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement digest-guarded batch proposal and candidate approval",
+      "context": "M3/M4: add dry-run default playbook_seed_propose_batch with observeDigest drift protection, plus playbook_candidate_batch_approve requiring manifest digest before inert candidate persistence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "batch proposal dry-run shows proposed playbook proposal manifest; apply fails if observeDigest drifted; candidate approval fails if manifest digest drifted.",
+      "excludes": [
+        "active playbook activation",
+        "bulk auto-promotion",
+        "lifecycle gate evidence"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "batch apply creates staged proposals from reviewed deduped seeds and approval converts them to candidate playbooks only with matching digests.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "observeDigest or manifest digest drift fails closed without partial writes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "duplicate canonical sources and missing lineage cannot silently create multiple proposal paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire promotion evidence loop without DONE helped inference",
+      "context": "M5: ensure outcomes, promotion recommendations, non_promotable naming/compatibility, and source lineage are connected while preserving the rule that DONE success alone never counts as helped.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "promotion status/observe can show recommendations and non_promotable state tied back to canonical seed sources.",
+      "excludes": [
+        "default-on PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+        "automatic candidate activation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/experience-layer-types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "promotion sweep recommendations are linked to seed lineage and non_promotable state is respected by future seed/proposal commands.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE settlement or DONE success alone cannot produce helped candidate outcome.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "learning decisions remain non_authoritative and gateEvidence=false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement runtime consumption verification for active playbooks",
+      "context": "M6: add a read-only verification surface proving active playbooks can be consumed by session/runtime/final-response entrypoints while candidates remain inert.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "lattice playbook_runtime_consumption_verify --json reports active runtime consumption checks and candidate inertness.",
+      "excludes": [
+        "making playbooks lifecycle gate evidence",
+        "blocking DONE on playbook content"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "active playbook guidance is detectable by runtime verification while candidate playbooks are reported as pending learning only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "empty or stale runtime consumption reports a diagnostic rather than passing silently.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runtime verification output cannot satisfy DONE/review/receipt gates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add health/readiness reporting and disabled auto-promotion guard",
+      "context": "M7/M8 boundary: make source-lineage seed promotion status reusable and expose playbook_auto_promotion_apply as disabled-by-default guard that cannot activate without explicit flag, real outcomes, reviewed policy, and lineage checks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "health/status shows V1 readiness and playbook_auto_promotion_apply dry-run explains why V2 auto activation is disabled by default.",
+      "excludes": [
+        "enabling PLAYBOOK_AUTO_ACTIVE_ENABLED by default",
+        "automatic activation in this story without evidence thresholds"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "status/readiness output names V1 closure and V2 auto-promotion disabled posture.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "auto-promotion apply fails closed when flag or reviewed policy is absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "auto-promotion cannot bypass lineage, exposure, outcome, or safety guard checks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

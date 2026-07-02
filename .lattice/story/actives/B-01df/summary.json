@@ -1,0 +1,55 @@
+{
+  "storyId": "B-01df",
+  "changes": "Added a host-neutral, read-only source_lineage_audit command for learning artifacts, including canonical source key/version/policy hash reporting, duplicate canonical source grouping, missing-lineage diagnostics, command policy/process fact registration, focused smoke coverage, and the execution-plan documentation/NAV entry.",
+  "usage": "Run: lattice source_lineage_audit --domain=learning --json. The command only observes learning lineage stores and prints non_authoritative, gateEvidence=false diagnostics; it does not create proposals, candidates, outcomes, promotion decisions, active playbooks, runtime blocking policy, or DONE settlement rows.",
+  "expectedOutcome": "Operators can prove whether learning artifacts are being double-counted or missing structured lineage before building seed promotion. The JSON should expose record counts, missingLineageCount, duplicateGroups, canonicalSourceKey, canonicalSourceKeyVersion, canonicalizationPolicyHash, authority, and gateEvidence.",
+  "actualTranscript": "Focused CLI transcript passed: source_lineage_audit --domain=learning returned schema proofbound.source-lineage-audit.v1 with 1603 source records, 4 missing-lineage records, 364 duplicate canonical groups, authority non_authoritative, gateEvidence false. Unsupported domain runtime fails clearly. source-lineage-audit-smoke passed 6/6. lattice validate passed all 31 configured commands; DONE-required validation passed packages/main build and root npm test.",
+  "outcomeDiff": "Expected and actual matched for M1 read-only audit. The audit surfaced real lineage duplication/missing-lineage diagnostics but intentionally did not mutate learning stores or activate playbooks.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story completes M1 only. It does not implement seed observe, batch proposal, candidate approval, outcome settlement, automatic promotion, default DONE settlement, runtime consumption enforcement, or semantic dedup as a blocker.",
+  "pitfalls": "done_prepare still has a 300-second no-output timeout failure mode even after validate reaches all configured commands; main advanced during validation once, requiring a second merge. Delivery and review assurance must remain separately signed and must not be inferred from audit output.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 62337
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 532076
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 260423
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1111695
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 506658
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1347196
+    }
+  },
+  "totalDurationMs": 3820848,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T19:55:23.248Z",
+  "updatedAt": "2026-07-02T19:55:23.248Z"
+}

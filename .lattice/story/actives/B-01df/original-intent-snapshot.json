@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-01df",
+  "sourceText": "User asked to start development from docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md after agreeing that source lineage/dedup audit should precede seed promotion and automatic promotion.",
+  "normalizedOutcome": "Implement the first safe milestone: a host-neutral, read-only learning source lineage audit command that reports duplicate and missing lineage without mutating learning stores or enabling candidate creation/promotion.",
+  "acceptanceClaim": "B-01df is complete when source_lineage_audit --domain=learning --json is implemented, classified read-only/L0, covered by smoke tests, and docs clearly state M1 excludes seed proposal, candidate approval, auto-promotion, and DONE settlement default-on.",
+  "keyRequirementIds": [
+    "REQ-HOST-NEUTRAL",
+    "REQ-M1-READONLY-LINEAGE-AUDIT",
+    "REQ-NO-PROMOTION-MUTATION"
+  ],
+  "requestHash": "sha256:7aaef166c9d7cca8461658ed90acad5bf2fcbba1529ff79a008378a02d634973",
+  "createdAt": "2026-07-02T19:04:18.642Z",
+  "updatedAt": "2026-07-02T19:04:18.642Z"
+}
