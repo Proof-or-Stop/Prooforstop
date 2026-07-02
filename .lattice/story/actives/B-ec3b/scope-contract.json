@@ -1,0 +1,25 @@
+{
+  "storyId": "B-ec3b",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/playbook-runtime-memory-index.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp1-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-02T03:13:17.748Z",
+  "updatedAt": "2026-07-02T03:13:17.748Z"
+}
