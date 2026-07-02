@@ -173,25 +173,17 @@
         "test": []
       },
       "verificationIntent": {
-        "happy": [
+        "happy": [],
+        "edge": [],
+        "adversarial": [
           {
-            "id": "pinn-doc-004:happy",
-            "desc": "Success criteria include explicit metrics and comparison rules.",
-            "type": "cli",
-            "requiredIn": "balanced",
-            "priority": "must"
-          }
-        ],
-        "edge": [
-          {
-            "id": "pinn-doc-004:edge",
-            "desc": "Any rate/cost metric includes reproducible output and comparison axes.",
+            "id": "pinn-doc-004:adv",
+            "desc": "Adversarial check that success metrics include reproducible reporting details and confidence intervals for first paper-grade result.",
             "type": "logic",
             "requiredIn": "strict",
             "priority": "must"
           }
-        ],
-        "adversarial": []
+        ]
       },
       "status": "pending",
       "startTime": null,
