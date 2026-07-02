@@ -69,6 +69,25 @@
       "resolvedAt": "2026-07-02T15:28:05.555Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1c46:F-004",
+      "desc": "Exact token bucket overflow can still break reference/full-scan parity after fuzzy fallback. The fuzzy overflow fallback scans tokenMap, but tokenMap ID buckets are capped at 4096, so a common exact token can permanently drop candidates beyond the cap and diverge from reference behavior. The added fuzzy overflow regression only proves unique overflow tokens survive; it does not cover >4096 entries sharing the same exact query token. Fix by tracking exact-token ID overflow and falling back to uncapped source/candidate scan, or storing complete overflow IDs separately; add a regression comparing optimized vs reference for >4096 rows sharing one exact query token.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T15:31:31.207Z",
+      "reviewRound": "2026-07-02T15:27:22.418Z",
+      "reviewRunId": "B-1c46:RR-005",
+      "_hash": "adf0ac1edf0fc2aa0e250786b526039945f066fd85d6b2f1647c6bada9f022c0",
+      "files": [
+        "packages/main/src/core/playbook-runtime-memory-index.ts",
+        "packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts"
+      ],
+      "signatureTag": "runtime-memory-exact-token-overflow-parity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
