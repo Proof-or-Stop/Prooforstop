@@ -29,6 +29,7 @@ import {
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
   type RuntimeMemoryIndexCandidates,
+  type RuntimeMemoryIndexSourceDigests,
 } from './playbook-runtime-memory-index.js';
 import {
   buildRuntimeMemoryPackCacheContext,
@@ -169,6 +170,7 @@ export interface BuildMemoryFreshnessPackOptions {
   useIndex?: boolean;
   useCache?: boolean;
   runtimeIndex?: RuntimeMemoryIndex;
+  runtimeIndexSourceDigests?: RuntimeMemoryIndexSourceDigests;
   candidateLimit?: number;
 }
 
@@ -611,6 +613,16 @@ function omittedCountFor(pack: MemoryFreshnessPack): number {
 function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackOptions): RuntimeMemoryIndex | null {
   if (options.useIndex === false) return null;
   if (options.runtimeIndex) {
+    if (options.runtimeIndexSourceDigests) {
+      const expected = options.runtimeIndex.manifest.sourceDigests;
+      const actual = options.runtimeIndexSourceDigests;
+      return expected.projectDevMemoryDigest === actual.projectDevMemoryDigest
+        && expected.globalDevMemoryDigest === actual.globalDevMemoryDigest
+        && expected.playbookDigest === actual.playbookDigest
+        && expected.signatureRegistryDigest === actual.signatureRegistryDigest
+        ? options.runtimeIndex
+        : null;
+    }
     return isRuntimeMemoryIndexFresh(options.runtimeIndex, options.projectRoot) ? options.runtimeIndex : null;
   }
   const stored = readRuntimeMemoryIndex(options.projectRoot);

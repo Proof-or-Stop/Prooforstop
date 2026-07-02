@@ -308,6 +308,7 @@ async function run(): Promise<void> {
     assert.equal(optimizedParity.recordCount, generated.manifest.recordCount);
     assert.equal(optimizedParity.performancePolicy, 'report-first');
     assert.equal(optimizedParity.parityPass, true);
+    assert.equal(optimizedParity.semanticGuard.pass, true);
     assert.equal(optimizedParity.targetWarmMs, 2000);
     assert.ok(optimizedParity.targetStatus === 'met' || optimizedParity.targetStatus === 'unmet');
     assert.equal(optimizedParity.authority, 'non_authoritative');
@@ -358,12 +359,17 @@ async function run(): Promise<void> {
       'playbook-runtime-memory baseline smoke passed',
       `profile=${verified.profile}`,
       `recordCount=${verified.recordCount}`,
+      'semanticParity=pass',
       `fullProfileExactMillion=${verified.fullProfileExactMillion}`,
       `resultDigestSource=${optimizedParity.resultDigestSource}`,
       `runtimeCorpusRecords=${optimizedParity.runtimeCorpus.sourceRecordCount}`,
       `referenceFullScanMs=${optimizedParity.referenceFullScanMs}`,
       `indexedColdMs=${optimizedParity.indexedColdMs}`,
       `indexedWarmCacheMs=${optimizedParity.indexedWarmCacheMs}`,
+      `candidateFalseSurfaceRate=${optimizedParity.semanticGuard.candidateFalseSurfaceRate}`,
+      `supersededFalseSurfaceRate=${optimizedParity.semanticGuard.supersededFalseSurfaceRate}`,
+      `deprecatedFalseSurfaceRate=${optimizedParity.semanticGuard.deprecatedFalseSurfaceRate}`,
+      `malformedRowsSkipped=${optimizedParity.semanticGuard.malformedRowsSkipped}`,
       `targetWarmMs=${optimizedParity.targetWarmMs}`,
       `targetStatus=${optimizedParity.targetStatus}`,
       `indexBuildMs=${optimizedParity.timingBreakdown.indexBuildMs}`,

@@ -470,6 +470,7 @@ async function run(): Promise<void> {
       assert.equal(report.recordCount, 1_000_000);
       assert.equal(report.performancePolicy, 'report-first');
       assert.equal(report.parityPass, true);
+      assert.equal(report.semanticGuard.pass, true);
       assert.equal(report.targetWarmMs, 2000);
       assert.equal(report.authority, 'non_authoritative');
       assert.equal(report.gateEvidence, false);
@@ -495,6 +496,10 @@ async function run(): Promise<void> {
         'm6Report',
         'semanticParity=pass',
         `recordCount=${report.recordCount}`,
+        `candidateFalseSurfaceRate=${report.semanticGuard.candidateFalseSurfaceRate}`,
+        `supersededFalseSurfaceRate=${report.semanticGuard.supersededFalseSurfaceRate}`,
+        `deprecatedFalseSurfaceRate=${report.semanticGuard.deprecatedFalseSurfaceRate}`,
+        `malformedRowsSkipped=${report.semanticGuard.malformedRowsSkipped}`,
         `resultDigestSource=${report.resultDigestSource}`,
         `referenceResultDigest=${report.referenceResultDigest}`,
         `optimizedResultDigest=${report.indexedWarmCacheResultDigest}`,

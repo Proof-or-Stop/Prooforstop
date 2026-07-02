@@ -5,7 +5,6 @@ import { existsSync, rmSync } from 'node:fs';
 import {
   generatePlaybookRuntimeBaseline,
   runPlaybookRuntimeOptimizedParityReport,
-  verifyPlaybookRuntimeBaseline,
   type PlaybookRuntimeBaselineProfile,
 } from '../core/playbook-runtime-baseline.js';
 
@@ -33,27 +32,13 @@ async function run(): Promise<void> {
   const targetWarmMs = targetWarmMsFromArgs();
   const generated = generatePlaybookRuntimeBaseline({ profile });
   try {
-    const verified = verifyPlaybookRuntimeBaseline({ inputDir: generated.outputDir, profile });
     const report = runPlaybookRuntimeOptimizedParityReport({
       inputDir: generated.outputDir,
       profile,
       targetWarmMs,
     });
-    const semanticPass = verified.status === 'pass'
-      && verified.correctness.expectedIdsFoundRate === 1
-      && verified.correctness.goldQueryPresenceRate === 1
-      && verified.correctness.goldRecordPresenceRate === 1
-      && verified.correctness.expectedSuppressedIdsFoundRate === 1
-      && verified.correctness.expectedDeprecatedTermHitsFoundRate === 1
-      && verified.correctness.candidateFalseSurfaceRate === 0
-      && verified.correctness.supersededFalseSurfaceRate === 0
-      && verified.correctness.deprecatedFalseSurfaceRate === 0
-      && verified.correctness.currentOverSupersededPreferenceRate === 1
-      && verified.correctness.partitionContractPass
-      && verified.correctness.sourceDigestMutationMatrixPass;
-    const advisoryPass = verified.authority === 'non_authoritative'
-      && verified.gateEvidence === false
-      && report.authority === 'non_authoritative'
+    const semanticPass = report.semanticGuard.pass;
+    const advisoryPass = report.authority === 'non_authoritative'
       && report.gateEvidence === false;
     const performancePass = report.parityPass
       && report.indexedWarmCacheMs <= targetWarmMs
@@ -66,6 +51,10 @@ async function run(): Promise<void> {
       `recordCount=${report.recordCount}`,
       `semanticParity=${semanticPass ? 'pass' : 'fail'}`,
       `parityPass=${report.parityPass}`,
+      `candidateFalseSurfaceRate=${report.semanticGuard.candidateFalseSurfaceRate}`,
+      `supersededFalseSurfaceRate=${report.semanticGuard.supersededFalseSurfaceRate}`,
+      `deprecatedFalseSurfaceRate=${report.semanticGuard.deprecatedFalseSurfaceRate}`,
+      `malformedRowsSkipped=${report.semanticGuard.malformedRowsSkipped}`,
       `referenceResultDigest=${report.referenceResultDigest}`,
       `optimizedResultDigest=${report.indexedWarmCacheResultDigest}`,
       `referenceFullScanMs=${report.referenceFullScanMs}`,
