@@ -9,9 +9,12 @@ import {
   renderPinnClaimCheckText,
   renderPinnReportText,
   runPinnClaimBenchmark,
+  type PinnArmMetrics,
+  type PinnArtifactIndexEntry,
   type PinnBenchmarkReport,
   type PinnClaimCheckInput,
   type PinnClaimId,
+  type PinnInjectionSpec,
 } from '../core/pinn-claim-admissibility.js';
 
 interface FormatArgs {
@@ -72,6 +75,12 @@ const RETIRED_REPORT_CLAIM_FIELDS = [
 ] as readonly string[];
 
 const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
+const REPORT_OVERCLAIM_FIELDS = [...REPORT_CLAIM_FIELDS, ...RETIRED_REPORT_CLAIM_FIELDS] as const;
+const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`\b(?:${REPORT_OVERCLAIM_FIELDS.join('|')})\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
+const REPORT_NARRATIVE_OVERCLAIM_PATTERN = /\b(?:proves?\s+PDE\s+correctness|PDE\s+correctness\s+(?:proved|verified|validated|guaranteed|complete)|deployment\s+ready|ready\s+for\s+deployment|external\s+completion|terminal\s+completion)\b/i;
+const BENCHMARK_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility_benchmark.v1' as const;
+const REPORT_INJECTION_CLASSES = ['missing', 'stale', 'unsafe', 'overclaim'] as const;
+const REPORT_ARM_IDS = ['A1', 'A2', 'A3', 'A4'] as const;
 
 const SAFE_REPORT_CLAIMS = {
   deploymentReadyClaim: false,
@@ -102,8 +111,127 @@ function parseJsonObject(text: string, label: string): Record<string, unknown> {
 
 function isUnsafeOverclaimValue(value: unknown): boolean {
   if (value === true) return true;
+  if (value === 1) return true;
   if (typeof value !== 'string') return false;
   return TRUEISH_OVERCLAIM_VALUES.has(value.trim().toLowerCase());
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isUnsafeReportText(value: string): boolean {
+  if (value === PINN_BOUNDARY_PARAGRAPH) return false;
+  return REPORT_FIELD_OVERCLAIM_PATTERN.test(value) || REPORT_NARRATIVE_OVERCLAIM_PATTERN.test(value);
+}
+
+function pushUnique(values: string[], value: string): void {
+  if (!values.includes(value)) values.push(value);
+}
+
+function scanBenchmarkReportOverclaims(value: unknown, path: string, overclaims: string[], seen = new WeakSet<object>()): void {
+  if (typeof value === 'string') {
+    if (isUnsafeReportText(value)) pushUnique(overclaims, path);
+    return;
+  }
+  if (value === null || typeof value !== 'object') return;
+  if (seen.has(value)) return;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => scanBenchmarkReportOverclaims(item, `${path}[${index}]`, overclaims, seen));
+    return;
+  }
+  for (const [key, nestedValue] of Object.entries(value)) {
+    const nestedPath = path ? `${path}.${key}` : key;
+    if (isUnsafeReportText(key)) pushUnique(overclaims, `${nestedPath} key`);
+    if ((REPORT_OVERCLAIM_FIELDS as readonly string[]).includes(key) && isUnsafeOverclaimValue(nestedValue)) {
+      pushUnique(overclaims, nestedPath);
+    }
+    scanBenchmarkReportOverclaims(nestedValue, nestedPath, overclaims, seen);
+  }
+}
+
+function assertValidBenchmarkShape(condition: unknown, label: string, path: string): asserts condition {
+  if (!condition) throw new Error(`${label} has invalid benchmark report shape at ${path}.`);
+}
+
+function stringField(value: unknown, label: string, path: string): string {
+  assertValidBenchmarkShape(typeof value === 'string', label, path);
+  return value;
+}
+
+function numberField(value: unknown, label: string, path: string): number {
+  assertValidBenchmarkShape(typeof value === 'number' && Number.isFinite(value), label, path);
+  return value;
+}
+
+function stringArrayField(value: unknown, label: string, path: string): string[] {
+  assertValidBenchmarkShape(Array.isArray(value), label, path);
+  return value.map((item, index) => stringField(item, label, `${path}[${index}]`));
+}
+
+function recordField(value: unknown, label: string, path: string): Record<string, unknown> {
+  assertValidBenchmarkShape(isRecord(value), label, path);
+  return value;
+}
+
+function isInjectionClass(value: string): value is PinnInjectionSpec['class'] {
+  return (REPORT_INJECTION_CLASSES as readonly string[]).includes(value);
+}
+
+function isArmId(value: string): value is PinnArmMetrics['armId'] {
+  return (REPORT_ARM_IDS as readonly string[]).includes(value);
+}
+
+function sanitizeInjectionSpec(value: unknown, label: string, path: string): PinnInjectionSpec {
+  const record = recordField(value, label, path);
+  const injectionClass = stringField(record.class, label, `${path}.class`);
+  assertValidBenchmarkShape(isInjectionClass(injectionClass), label, `${path}.class`);
+  return {
+    id: stringField(record.id, label, `${path}.id`),
+    title: stringField(record.title, label, `${path}.title`),
+    class: injectionClass,
+    expectedA4Reason: stringField(record.expectedA4Reason, label, `${path}.expectedA4Reason`),
+  };
+}
+
+function sanitizeWilsonInterval(value: unknown, label: string, path: string): PinnArmMetrics['rejectionWilson95'] {
+  const record = recordField(value, label, path);
+  return {
+    low: numberField(record.low, label, `${path}.low`),
+    high: numberField(record.high, label, `${path}.high`),
+  };
+}
+
+function sanitizeArmMetrics(value: unknown, label: string, path: string): PinnArmMetrics {
+  const record = recordField(value, label, path);
+  const armId = stringField(record.armId, label, `${path}.armId`);
+  assertValidBenchmarkShape(isArmId(armId), label, `${path}.armId`);
+  return {
+    armId,
+    name: stringField(record.name, label, `${path}.name`),
+    total: numberField(record.total, label, `${path}.total`),
+    acceptedCount: numberField(record.acceptedCount, label, `${path}.acceptedCount`),
+    rejectedCount: numberField(record.rejectedCount, label, `${path}.rejectedCount`),
+    unsupportedAcceptanceCount: numberField(record.unsupportedAcceptanceCount, label, `${path}.unsupportedAcceptanceCount`),
+    staleAcceptanceCount: numberField(record.staleAcceptanceCount, label, `${path}.staleAcceptanceCount`),
+    rejectedInjectionCount: numberField(record.rejectedInjectionCount, label, `${path}.rejectedInjectionCount`),
+    rejectionRate: numberField(record.rejectionRate, label, `${path}.rejectionRate`),
+    rejectionWilson95: sanitizeWilsonInterval(record.rejectionWilson95, label, `${path}.rejectionWilson95`),
+    meanWallTimeMs: numberField(record.meanWallTimeMs, label, `${path}.meanWallTimeMs`),
+    meanInterventionCount: numberField(record.meanInterventionCount, label, `${path}.meanInterventionCount`),
+    acceptedInjectionIds: stringArrayField(record.acceptedInjectionIds, label, `${path}.acceptedInjectionIds`),
+    rejectedInjectionIds: stringArrayField(record.rejectedInjectionIds, label, `${path}.rejectedInjectionIds`),
+  };
+}
+
+function sanitizeArtifactIndexEntry(value: unknown, label: string, path: string): PinnArtifactIndexEntry {
+  const record = recordField(value, label, path);
+  return {
+    id: stringField(record.id, label, `${path}.id`),
+    kind: stringField(record.kind, label, `${path}.kind`),
+    digest: stringField(record.digest, label, `${path}.digest`),
+  };
 }
 
 function evidenceFromArgs(args: PinnClaimCheckArgs): PinnClaimCheckInput {
@@ -113,34 +241,41 @@ function evidenceFromArgs(args: PinnClaimCheckArgs): PinnClaimCheckInput {
   return buildCompletePinnEvidence(args.claimId ?? 'C9');
 }
 
-function normalizeBenchmarkReport(report: PinnBenchmarkReport, label: string): PinnBenchmarkReport {
-  const rawReport = report as PinnBenchmarkReport & Record<string, unknown>;
+function normalizeBenchmarkReport(report: unknown, label: string): PinnBenchmarkReport {
+  const rawReport = recordField(report, label, 'report');
   const rawClaims = rawReport.claims;
-  const claimRecord = rawClaims && typeof rawClaims === 'object' && !Array.isArray(rawClaims)
-    ? rawClaims as Record<string, unknown>
-    : {};
+  const claimRecord = isRecord(rawClaims) ? rawClaims : {};
   const overclaims: string[] = [];
+  scanBenchmarkReportOverclaims(rawReport, '', overclaims);
   for (const field of REPORT_CLAIM_FIELDS) {
-    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) overclaims.push(field);
+    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) pushUnique(overclaims, field);
   }
   for (const field of RETIRED_REPORT_CLAIM_FIELDS) {
-    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) overclaims.push(field);
+    if (isUnsafeOverclaimValue(rawReport[field]) || isUnsafeOverclaimValue(claimRecord[field])) pushUnique(overclaims, field);
   }
-  if (rawReport.boundary !== undefined && rawReport.boundary !== PINN_BOUNDARY_PARAGRAPH) overclaims.push('boundary');
+  if (rawReport.boundary !== undefined && rawReport.boundary !== PINN_BOUNDARY_PARAGRAPH) pushUnique(overclaims, 'boundary');
   if (overclaims.length > 0) {
     throw new Error(`${label} refuses benchmark report overclaims: ${overclaims.join(', ')}.`);
   }
+  const suiteStatus = stringField(rawReport.suiteStatus, label, 'suiteStatus');
+  assertValidBenchmarkShape(suiteStatus === 'PASS' || suiteStatus === 'FAIL', label, 'suiteStatus');
+  const rawInjections = rawReport.injections;
+  assertValidBenchmarkShape(Array.isArray(rawInjections), label, 'injections');
+  const rawArms = rawReport.arms;
+  assertValidBenchmarkShape(Array.isArray(rawArms), label, 'arms');
+  const rawArtifactIndex = rawReport.artifactIndex;
+  assertValidBenchmarkShape(Array.isArray(rawArtifactIndex), label, 'artifactIndex');
   return {
-    schemaVersion: report.schemaVersion,
-    suiteStatus: report.suiteStatus,
-    generatedAt: report.generatedAt,
-    totalInjections: report.totalInjections,
-    injections: report.injections,
-    arms: report.arms,
-    a4: report.a4,
+    schemaVersion: BENCHMARK_SCHEMA_VERSION,
+    suiteStatus,
+    generatedAt: stringField(rawReport.generatedAt, label, 'generatedAt'),
+    totalInjections: numberField(rawReport.totalInjections, label, 'totalInjections'),
+    injections: rawInjections.map((injection, index) => sanitizeInjectionSpec(injection, label, `injections[${index}]`)),
+    arms: rawArms.map((arm, index) => sanitizeArmMetrics(arm, label, `arms[${index}]`)),
+    a4: sanitizeArmMetrics(rawReport.a4, label, 'a4'),
     claims: { ...SAFE_REPORT_CLAIMS },
     boundary: PINN_BOUNDARY_PARAGRAPH,
-    artifactIndex: report.artifactIndex,
+    artifactIndex: rawArtifactIndex.map((entry, index) => sanitizeArtifactIndexEntry(entry, label, `artifactIndex[${index}]`)),
   };
 }
 

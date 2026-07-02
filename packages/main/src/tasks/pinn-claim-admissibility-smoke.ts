@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   PINN_FAILURE_INJECTIONS,
   buildCompletePinnEvidence,
@@ -142,6 +145,31 @@ const sanitizedReport = handlers.pinn_report_render({
     terminalCompletionClaim: 'off',
     pdeCorrectnessClaim: 0,
     unexpectedCallerField: 'must be removed',
+    injections: [
+      {
+        ...benchmark.injections[0],
+        unexpectedCallerField: 'must be removed',
+      },
+      ...benchmark.injections.slice(1),
+    ],
+    arms: [
+      {
+        ...benchmark.arms[0],
+        unexpectedCallerField: 'must be removed',
+      },
+      ...benchmark.arms.slice(1),
+    ],
+    a4: {
+      ...benchmark.a4,
+      unexpectedCallerField: 'must be removed',
+    },
+    artifactIndex: [
+      {
+        ...benchmark.artifactIndex[0],
+        unexpectedCallerField: 'must be removed',
+      },
+      ...benchmark.artifactIndex.slice(1),
+    ],
     [legacyDoneField]: 'false',
   }),
   format: 'json',
@@ -156,6 +184,10 @@ assert.equal(sanitizedReport.deploymentReadyClaim, undefined, 'report JSON omits
 assert.equal(sanitizedReport.terminalCompletionClaim, undefined, 'report JSON omits caller top-level terminal claim');
 assert.equal(sanitizedReport[legacyDoneField], undefined, 'report JSON omits caller top-level legacy claim');
 assert.equal(sanitizedReport.unexpectedCallerField, undefined, 'report JSON omits arbitrary caller fields');
+assert.equal((sanitizedReport.injections[0] as any).unexpectedCallerField, undefined, 'report JSON omits arbitrary injection fields');
+assert.equal((sanitizedReport.arms[0] as any).unexpectedCallerField, undefined, 'report JSON omits arbitrary arm fields');
+assert.equal((sanitizedReport.a4 as any).unexpectedCallerField, undefined, 'report JSON omits arbitrary A4 fields');
+assert.equal((sanitizedReport.artifactIndex[0] as any).unexpectedCallerField, undefined, 'report JSON omits arbitrary artifact fields');
 assert.throws(
   () => handlers.pinn_report_render({
     benchmarkJson: JSON.stringify({
@@ -175,6 +207,62 @@ assert.throws(
   /refuses benchmark report overclaims/,
   'report command rejects malicious supplied benchmark overclaims',
 );
+assert.throws(
+  () => handlers.pinn_report_render({
+    benchmarkJson: JSON.stringify({
+      ...benchmark,
+      suiteStatus: 'deploymentReadyClaim: true',
+      artifactIndex: [
+        {
+          id: 'terminalCompletionClaim: true',
+          kind: 'pinn-report',
+          digest: 'sha256:report',
+        },
+      ],
+    }),
+    format: 'text',
+  }),
+  /refuses benchmark report overclaims/,
+  'report text command rejects nested supplied benchmark overclaim strings',
+);
+assert.throws(
+  () => handlers.pinn_report_render({
+    benchmarkJson: JSON.stringify({
+      ...benchmark,
+      injections: [
+        {
+          ...benchmark.injections[0],
+          deploymentReadyClaim: 'true',
+        },
+        ...benchmark.injections.slice(1),
+      ],
+    }),
+    format: 'json',
+  }),
+  /refuses benchmark report overclaims/,
+  'report JSON command rejects nested supplied benchmark claim fields',
+);
+const reportTempDir = mkdtempSync(join(tmpdir(), 'pinn-report-'));
+try {
+  const maliciousBenchmarkPath = join(reportTempDir, 'benchmark.json');
+  writeFileSync(maliciousBenchmarkPath, JSON.stringify({
+    ...benchmark,
+    artifactIndex: [
+      {
+        ...benchmark.artifactIndex[0],
+        digest: 'PDE correctness proved by supplied report',
+      },
+      ...benchmark.artifactIndex.slice(1),
+    ],
+  }));
+  assert.throws(
+    () => handlers.pinn_report_render({ benchmarkPath: maliciousBenchmarkPath, format: 'text' }),
+    /refuses benchmark report overclaims/,
+    'report path command rejects nested supplied benchmark narrative overclaims',
+  );
+} finally {
+  rmSync(reportTempDir, { recursive: true, force: true });
+}
 assert.throws(
   () => handlers.pinn_benchmark_run({ deploymentReadyClaim: true } as any),
   /refuses unsupported/,
