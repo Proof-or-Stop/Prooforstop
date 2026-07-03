@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T11:28:04.120Z",
       "reviewRunId": "B-7de9:RR-001",
       "_hash": "cb9cfafb37425908c8ca7b65e7b30521ed9093647245f7dc3d2649a2a5f69b08"
+    },
+    {
+      "id": "B-7de9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001/002/003 × happy/edge/adversarial) are bound to passing verificationEvidence; both smokes (experience-arm-gate-smoke + experience-arm-isolation-e2e-smoke) run clean; validate --json reports covered/required=9/9 status=pass; CHK-002:adversarial is a live playbook_runtime_health wiring oracle (acceptable probe-only); CHK-003:happy is a live parallel_dispatch probe on control arm (parallel_dispatch requires a full project context, hermetic e2e is not feasible); no genuinely uncovered intents found.",
+      "createdAt": "2026-07-03T11:32:22.863Z",
+      "reviewRound": "2026-07-03T11:28:04.120Z",
+      "reviewRunId": "B-7de9:RR-003",
+      "_hash": "7bf59a062e4cb4c865d0f332bad3bb80b088f54fa189d9bab1dca46ec755176b"
     }
   ]
 }
