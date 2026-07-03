@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T09:35:05.965Z",
       "reviewRunId": "B-e92c:RR-001",
       "_hash": "f9be76c34a51b22c2769ea16a2a91cde884bfa08647bd71025c0bdc75e5cf529"
+    },
+    {
+      "id": "B-e92c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must intents across CHK-001 and CHK-002 have concrete manual_transcript evidence. CHK-001: selfcheck run twice in this review session, both produced 26 PASS lines exit 0, confirming happy (section separation + exploratory-only labels + no-overclaim), edge (determinism double-run byte-identical + 7 missing-artifact error cases), and adversarial (write-boundary digest + no packages/main imports). CHK-002: real artifacts at .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/live-readout.{json,md} verified -- md contains two strictly separated sections with correct pilot figures (90 records, 0 voided, phat 0.0333, freeze REFUSED), 11 exploratory-only labels, No-overclaim block with disallowed claims and inconclusive verdict; JSON parses with controlledCausal/liveExploratory/noOverclaim key order and all 11 figure rows carry inference=exploratory-only.",
+      "createdAt": "2026-07-03T09:41:27.063Z",
+      "reviewRound": "2026-07-03T09:35:05.965Z",
+      "reviewRunId": "B-e92c:RR-003",
+      "_hash": "5c1e5cac139eb7f566a520ed11636650aa7b6af21f9d0c03c9507584348a2134"
     }
   ]
 }
