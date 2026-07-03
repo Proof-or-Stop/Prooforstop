@@ -1,0 +1,99 @@
+{
+  "storyId": "B-3779",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-3779/checklist.json",
+      ".lattice/story/actives/B-3779/decision.json",
+      ".lattice/story/actives/B-3779/done-required-evidence.json",
+      ".lattice/story/actives/B-3779/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-3779/findings.json",
+      ".lattice/story/actives/B-3779/index.json",
+      ".lattice/story/actives/B-3779/intent-collision.json",
+      ".lattice/story/actives/B-3779/milestone-ledger.json",
+      ".lattice/story/actives/B-3779/original-intent-snapshot.json",
+      ".lattice/story/actives/B-3779/plan.md",
+      ".lattice/story/actives/B-3779/process-events.jsonl",
+      ".lattice/story/actives/B-3779/process-metrics.json",
+      ".lattice/story/actives/B-3779/proofstory.json",
+      ".lattice/story/actives/B-3779/red-evidence.json",
+      ".lattice/story/actives/B-3779/review-passes.json",
+      ".lattice/story/actives/B-3779/review-runs.json",
+      ".lattice/story/actives/B-3779/review.json",
+      ".lattice/story/actives/B-3779/scope-check.json",
+      ".lattice/story/actives/B-3779/scope-contract.json",
+      ".lattice/story/actives/B-3779/test-evidence.json",
+      ".lattice/story/actives/B-3779/understanding.json",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "packages/main/package.json",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/claim-admissibility/quantum.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/handlers/quantum-claim-admissibility.ts",
+      "packages/main/src/tasks/command-catalog-smoke.ts",
+      "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+      "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-3779/checklist.json       |  170 ++-\n .lattice/story/actives/B-3779/decision.json        |   80 ++\n .../actives/B-3779/done-required-evidence.json     |   83 ++\n .../actives/B-3779/evidence/transcript-diff.md     |  108 ++\n .lattice/story/actives/B-3779/findings.json        |  100 ++\n .lattice/story/actives/B-3779/index.json           |  104 +-\n .../story/actives/B-3779/intent-collision.json     |   14 +\n .../story/actives/B-3779/milestone-ledger.json     |   72 ++\n .../actives/B-3779/original-intent-snapshot.json   |   15 +\n .lattice/story/actives/B-3779/plan.md              |  102 ++\n .lattice/story/actives/B-3779/process-events.jsonl |   36 +\n .lattice/story/actives/B-3779/process-metrics.json |  359 ++++++\n .lattice/story/actives/B-3779/proofstory.json      |   87 ++\n .lattice/story/actives/B-3779/red-evidence.json    |   42 +\n .lattice/story/actives/B-3779/review-passes.json   |  130 +++\n .lattice/story/actives/B-3779/review-runs.json     | 1216 ++++++++++++++++++++\n .lattice/story/actives/B-3779/review.json          |  293 +++++\n .lattice/story/actives/B-3779/scope-check.json     |   80 ++\n .lattice/story/actives/B-3779/scope-contract.json  |   87 ++\n .lattice/story/actives/B-3779/test-evidence.json   |  214 ++++\n .lattice/story/actives/B-3779/understanding.json   |   33 +\n .../claim-admissibility-adapter-pack-framework.md  |   53 +-\n ...p-quantum-claim-admissibility-execution-plan.md |   72 +-\n packages/main/package.json                         |    1 +\n packages/main/src/cli/command-catalog.ts           |   24 +\n .../main/src/core/claim-admissibility/quantum.ts   |  549 ++++++++-\n packages/main/src/core/command-policy.ts           |    2 +\n packages/main/src/core/config.ts                   |    2 +-\n packages/main/src/core/process-fact-levels.ts      |    2 +\n .../src/handlers/quantum-claim-admissibility.ts    |   37 +\n packages/main/src/tasks/command-catalog-smoke.ts   |   40 +-\n .../src/tasks/quantum-claim-admissibility-smoke.ts |    2 +-\n .../src/tasks/quantum-claim-benchmark-smoke.ts     |  172 +++\n 33 files changed, 4329 insertions(+), 52 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "plan.md",
+      "promise": "`quantum_claim_report` renders a reviewer-readable summary that says Quantum local diagnostic M0-M5 are implemented and that M4-M5 remain non-gate, diagnostic proof of control behavior only."
+    },
+    {
+      "source": "plan.md",
+      "promise": "The docs tell hosts exactly what changed, how to run the benchmark/report, and what claims remain out of scope."
+    },
+    {
+      "source": "userSees",
+      "promise": "User runs lattice quantum_claim_benchmark --json and sees \"unsupportedAdvanceRate\":0, \"staleAcceptanceRate\":0, \"diagnosticOnly\":true, \"gateEvidence\":false, \"supportedCases\":4, and \"failureInjections\":15."
+    },
+    {
+      "source": "userSees",
+      "promise": "User runs lattice quantum_claim_report and sees \"Quantum local diagnostic M0-M5: implemented\", \"Benchmark status: PASS\", \"diagnosticOnly: true\", \"gateEvidence: false\", \"productionClaim: false\", and \"authorityClaim: false\"."
+    },
+    {
+      "source": "userSees",
+      "promise": "User opens the Quantum docs and sees \"Runtime status: Quantum local diagnostic runtime status: M0-M5 implemented\" plus \"generic framework gate-policy adapter remains future work\" and \"no quantum theory, hardware, production, or Authority claim\"."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+      "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report && node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report --json",
+      "npm --prefix packages/main run test:command-catalog-smoke",
+      "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:quantum-claim-benchmark",
+      "npm --prefix packages/main run test:quantum-claim-benchmark"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-03T04:21:15.449Z",
+    "headHash": "f7f51559090b04ec1a8510399d10e2a6aeb098ca",
+    "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be",
+    "storyFilesHash": "243dd4e336187927ed3b9483dae78d9edca305b8dd8d5caf8c227daa7e0737e8"
+  },
+  "reviewRound": "2026-07-03T04:22:59.880Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
