@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-03T16:45:06.845Z",
       "reviewRunId": "B-5f5b:RR-005",
       "_hash": "31c8335caf0f514bcf43d2002150857ad185cc16f6bf821d943e26412c4dba31"
+    },
+    {
+      "id": "B-5f5b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review after F-004 fix: CHK-001 covered by playbook-seed-backfill-smoke; CHK-002/CHK-003 covered by playbook-trial-automation-smoke. Confirmed disabled backfill and sweep timer steps assert requested=false, status=disabled, applied=false, dryRun consistency, and step-not-requested messages in dry-run and apply. Registry/policy/process-fact coverage remains present for playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer. Focused smokes passed: node packages/main/dist/tasks/playbook-trial-automation-smoke.js; node packages/main/dist/tasks/playbook-seed-backfill-smoke.js.",
+      "createdAt": "2026-07-03T17:15:08.862Z",
+      "reviewRound": "2026-07-03T17:07:33.188Z",
+      "reviewRunId": "B-5f5b:RR-009",
+      "_hash": "d128cbab20e1630cc0115b2423697bd2266dbcaafe618f26c7851d53dbe39bda"
     }
   ]
 }
