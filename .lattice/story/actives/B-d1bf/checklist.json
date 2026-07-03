@@ -272,11 +272,51 @@
       "title": "Verify Quantum M3: add local gate policy check for claim-admissibility t...",
       "context": "Plan happy, edge, and adversarial checks for: This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.. ReadinessReport(REVIEW) highli...",
       "relatedDocs": [
-        ".lattice/story/actives/B-d1bf/background.md"
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Focused verification prints Quantum M3 gate-policy PASS evidence for complete, weak/degraded, stale/missing/mismatched, and overclaim cases without writing lifecycle evidence.",
+      "excludes": [
+        "No statistical benchmark rates or confidence intervals",
+        "No A1-A4/B1-B15 benchmark matrix",
+        "No report/governance renderer",
+        "No external Authority or production readiness validation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke covers complete bound Q5 evidence and the quantum_claim_check complete JSON path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused smoke covers weak/degraded and missing or stale evidence categories.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused smoke proves overclaiming and external-readiness claims stop rather than advance, with productionDone and authorityDone false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
