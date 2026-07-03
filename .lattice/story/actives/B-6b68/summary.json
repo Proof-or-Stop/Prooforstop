@@ -1,18 +1,18 @@
 {
   "storyId": "B-6b68",
-  "changes": "Changed the claim-admissibility pack framework smoke annotation classification so convergence annotation validation accepts the smoke without changing runtime behavior.",
-  "usage": "Run lattice convergence_check --json or lattice gap_analyze --json to verify code annotations are compliant after the smoke annotation type fix.",
-  "expectedOutcome": "Project convergence no longer reports the claim-admissibility pack smoke annotation type as an annotation error.",
-  "actualTranscript": "lattice done_prepare merged main and validate passed all 32 configured commands; DONE-required validation passed build and root test commands.",
-  "outcomeDiff": "No difference from expected for this story; the remaining project convergence state depends on unrelated active or advisory work.",
+  "changes": "Changed only the task annotation metadata line in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts from invalid @type test to allowed @type chore; smoke runtime assertions and claim-admissibility registry behavior were not changed.",
+  "usage": "Run node scripts/validate-tasks.js to confirm task annotations are valid; run lattice convergence_check --json to confirm Code annotations compliant reports All 81 annotations compliant.",
+  "expectedOutcome": "node scripts/validate-tasks.js passes, the diff changes only the @type metadata line in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts, and convergence no longer reports invalid @type test for that smoke file.",
+  "actualTranscript": "Live smoke exited 0 and printed PASSED: All task annotations are valid plus Code annotations compliant / All 81 annotations compliant. Delivery review also verified the source diff is only @type test to @type chore.",
+  "outcomeDiff": "No difference: actual output and diff match the original intent and acceptance claim.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "No runtime claim-admissibility behavior changed; this story only fixes metadata annotation classification for the smoke file.",
-  "pitfalls": "The story was behind main by 35 commits, so done_prepare had to merge main before final evidence and local assurance were recorded.",
+  "limitations": "No runtime claim-admissibility behavior changed; this story intentionally fixes only metadata annotation classification.",
+  "pitfalls": "A written delivery-context-pack artifact in TEST caused a scope blocker and was removed; use read-only delivery context in TEST unless the artifact path is acknowledged earlier. done_prepare also merged main before final evidence.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 8968585
+      "durationMs": 9005799
     }
   },
-  "totalDurationMs": 10004068,
+  "totalDurationMs": 10041282,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-03T14:26:29.516Z",
-  "updatedAt": "2026-07-03T14:26:35.819Z"
+  "updatedAt": "2026-07-03T14:27:13.032Z"
 }
