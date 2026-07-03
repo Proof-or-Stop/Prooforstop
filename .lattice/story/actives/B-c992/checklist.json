@@ -40,7 +40,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -n \"^#\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "All required sections present by heading grep: 1 Status And Provenance (rev 3 + supersession clause), 2 Trigger (pilot 0.0333 baseline, Wilson CI [0.0059,0.1667], freeze refused, skip_powered_study, lesson-aging), 3 Terminology, 4 Claim Boundary, 5 Revised Hypothesis (H1-prime/H0-prime, capture loop not archival store), 6 Design (6.1 Harvest w/ 30-day window + >=2 occurrences, 6.2 Repro-First Filter citing repro_probe/repro_probe_get/repro_review_set/spike_record + K_min=32 minimum-yield stop, 6.3 Sealed Random Split w/ mechanical disjointness, 6.4 Variant Generation, 6.5 Similarity-Extended Leakage Audit w/ 5-gram Jaccard <0.05 + char 12-gram + identifier overlap + inherited strip-list, 6.6 Experiment Arms identical to rev 2, 6.7 Model Pinning), 7 Metrics And Statistics (7.2 DiD estimator + two-condition decision, 7.3 seeded cluster bootstrap cluster=class B=10000, 7.4 alpha 0.05/power 0.80/MDE band 0.25-0.35, 7.5 explicit derived sizing formula + statement that pilotFreezeCheck does not directly size a DiD + worked table 312-624 arm-runs + 2000 cap), 8 Calibration Mini-Pilot And N Freeze (band [0.3,0.9] justified), 9 Milestones R1-R6 with reuses + exit criteria, 10 Stopping Rules (scorer bug, leakage/isolation, model change, yield, band never met), 11 Circularity And No-Overclaim (shared provenance + permitted/disallowed claims), 12 Evidence Artifacts, 13 Verification Matrix, 14 Recommended Execution Order, 15 Definition Of Done (mechanically checkable, evidence-map-compatible).",
+          "headHash": "9fa9d239d0d9a7702fe91f426148ec0dea908f8f",
+          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
+          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
+          "timestamp": "2026-07-03T14:59:27.007Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
