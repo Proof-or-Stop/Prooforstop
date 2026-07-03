@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T00:54:11.063Z",
       "reviewRunId": "B-d1bf:RR-009",
       "_hash": "6fac8fe3f406a23dc17996a5dc32f63f4176ba1809990138ca75a620ac20777e"
+    },
+    {
+      "id": "B-d1bf:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review inspected only packages/main/src/handlers/quantum-claim-admissibility.ts, packages/main/src/tasks/command-catalog-smoke.ts, packages/main/src/tasks/quantum-claim-admissibility-smoke.ts. Empty evidenceJson fails closed via parseJsonObject; evidencePath with requestedStrength=production is forced through gate policy and covered by CLI smoke as decision stop/allowed false; production/Authority overclaim flags and hard requestedStrength values are rejected or stopped, with authorityDone/productionDone false.",
+      "createdAt": "2026-07-03T01:04:27.412Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-010",
+      "_hash": "a1731c3766a78624c65acf98d2d3334fc3060aa6d0e9469c97e07a6f5fdda62e"
     }
   ]
 }
