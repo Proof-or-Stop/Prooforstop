@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d217",
+  "mode": "feature",
+  "allowed": [
+    "New hermetic selfcheck experiments/experience-ablation/score-selfcheck.mjs",
+    "New run-record input contract doc experiments/experience-ablation/RUN-RECORD.md",
+    "New scorer module experiments/experience-ablation/score.mjs (pure scoreArmRun + CLI wrapper)"
+  ],
+  "excluded": [
+    "Any change to M1 deliverables (fixture-generator.mjs, trap-templates.mjs, fixture-generator-selfcheck.mjs)",
+    "Any change to packages/main (M3 territory, story B-ab8d)",
+    "Campaign runner / pilot execution (M6) and analysis reporting (M7)",
+    "Live reviewer scoring of any kind (excluded from the seeded-phase primary by plan section 6.1)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-02/03: execute the ablation plan milestones to DONE; M4 scope is the plan section 13 M4 row (deterministic scoring oracle), consuming the merged M1 oracle contract and the M3 event vocabulary.",
+  "createdAt": "2026-07-03T00:22:50.882Z",
+  "updatedAt": "2026-07-03T00:22:50.882Z",
+  "_hash": "7d7fb5b56a4aa437ef5fe7cd25f5c0b215153db9b2c542f70da843f64c1d6b8b"
+}
