@@ -54,9 +54,76 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T01:54:19.484Z",
-      "endTime": null
+      "endTime": "2026-07-03T01:54:38.441Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke check B-c28f DONE experience observes stable seeds and approves inert candidates idempotently passed; it asserts playbook_seed_observe returns sourceArtifactKind=done_experience for a DONE story with summary and delivery material.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:38.683Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f smoke observes the same DONE story twice and asserts canonicalSourceKey and canonicalSourceKeyVersion remain stable.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:38.913Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f partial DONE artifacts check passed; it creates a DONE story with partial artifacts and confirms done_experience observation does not crash.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:39.125Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f smoke repeats observe/propose/approve and asserts the represented canonical source blocks a duplicate candidate.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:39.340Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The smoke suite still passes M5/M8 no-helped checks and the B-c28f check asserts DONE-experience candidate creation does not activate runtime guidance.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:39.566Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
