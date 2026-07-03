@@ -6,6 +6,7 @@
       ".lattice/story/actives/B-d1bf/checklist.json",
       ".lattice/story/actives/B-d1bf/decision.json",
       ".lattice/story/actives/B-d1bf/done-required-evidence.json",
+      ".lattice/story/actives/B-d1bf/evidence/delivery-context-pack.json",
       ".lattice/story/actives/B-d1bf/evidence/live-smoke-transcript.json",
       ".lattice/story/actives/B-d1bf/evidence/transcript-diff.md",
       ".lattice/story/actives/B-d1bf/findings.json",
@@ -23,6 +24,7 @@
       ".lattice/story/actives/B-d1bf/review.json",
       ".lattice/story/actives/B-d1bf/scope-check.json",
       ".lattice/story/actives/B-d1bf/scope-contract.json",
+      ".lattice/story/actives/B-d1bf/summary.json",
       ".lattice/story/actives/B-d1bf/test-evidence.json",
       ".lattice/story/actives/B-d1bf/understanding.json",
       "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
@@ -37,7 +39,7 @@
       "packages/main/src/tasks/command-catalog-smoke.ts",
       "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
     ],
-    "summary": " .lattice/story/actives/B-d1bf/checklist.json       |  396 +++-\n .lattice/story/actives/B-d1bf/decision.json        |   79 +\n .../actives/B-d1bf/done-required-evidence.json     |   83 +\n .../B-d1bf/evidence/live-smoke-transcript.json     |   21 +\n .../actives/B-d1bf/evidence/transcript-diff.md     |   29 +\n .lattice/story/actives/B-d1bf/findings.json        |  214 ++\n .lattice/story/actives/B-d1bf/index.json           |  149 +-\n .../story/actives/B-d1bf/intent-collision.json     |   14 +\n .../story/actives/B-d1bf/milestone-ledger.json     |   72 +\n .../actives/B-d1bf/original-intent-snapshot.json   |   15 +\n .lattice/story/actives/B-d1bf/plan.md              |  130 ++\n .lattice/story/actives/B-d1bf/process-events.jsonl |   45 +\n .lattice/story/actives/B-d1bf/process-metrics.json |  359 ++++\n .lattice/story/actives/B-d1bf/proofstory.json      |  109 +\n .lattice/story/actives/B-d1bf/red-evidence.json    |   42 +\n .lattice/story/actives/B-d1bf/review-passes.json   |  148 ++\n .lattice/story/actives/B-d1bf/review-runs.json     | 2226 ++++++++++++++++++++\n .lattice/story/actives/B-d1bf/review.json          |  309 +++\n .lattice/story/actives/B-d1bf/scope-check.json     |  108 +\n .lattice/story/actives/B-d1bf/scope-contract.json  |   48 +\n .lattice/story/actives/B-d1bf/test-evidence.json   |  395 ++++\n .lattice/story/actives/B-d1bf/understanding.json   |   34 +\n .../claim-admissibility-adapter-pack-framework.md  |   64 +-\n ...p-quantum-claim-admissibility-execution-plan.md |   35 +-\n packages/main/src/cli/command-catalog.ts           |   19 +\n .../main/src/core/claim-admissibility/quantum.ts   |  352 +++-\n packages/main/src/core/command-policy.ts           |    1 +\n packages/main/src/core/config.ts                   |    1 +\n packages/main/src/core/process-fact-levels.ts      |    1 +\n .../src/handlers/quantum-claim-admissibility.ts    |  149 ++\n packages/main/src/registry.ts                      |    2 +\n packages/main/src/tasks/command-catalog-smoke.ts   |  115 +-\n .../src/tasks/quantum-claim-admissibility-smoke.ts |  263 ++-\n 33 files changed, 5942 insertions(+), 85 deletions(-)"
+    "summary": " .lattice/story/actives/B-d1bf/checklist.json       |  396 ++-\n .lattice/story/actives/B-d1bf/decision.json        |   79 +\n .../actives/B-d1bf/done-required-evidence.json     |   83 +\n .../B-d1bf/evidence/delivery-context-pack.json     |  105 +\n .../B-d1bf/evidence/live-smoke-transcript.json     |   21 +\n .../actives/B-d1bf/evidence/transcript-diff.md     |   32 +\n .lattice/story/actives/B-d1bf/findings.json        |  236 ++\n .lattice/story/actives/B-d1bf/index.json           |  176 +-\n .../story/actives/B-d1bf/intent-collision.json     |   14 +\n .../story/actives/B-d1bf/milestone-ledger.json     |   72 +\n .../actives/B-d1bf/original-intent-snapshot.json   |   15 +\n .lattice/story/actives/B-d1bf/plan.md              |  130 +\n .lattice/story/actives/B-d1bf/process-events.jsonl |   57 +\n .lattice/story/actives/B-d1bf/process-metrics.json |  359 +++\n .lattice/story/actives/B-d1bf/proofstory.json      |  109 +\n .lattice/story/actives/B-d1bf/red-evidence.json    |   42 +\n .lattice/story/actives/B-d1bf/review-passes.json   |  184 ++\n .lattice/story/actives/B-d1bf/review-runs.json     | 2526 ++++++++++++++++++++\n .lattice/story/actives/B-d1bf/review.json          |  309 +++\n .lattice/story/actives/B-d1bf/scope-check.json     |  108 +\n .lattice/story/actives/B-d1bf/scope-contract.json  |   70 +\n .lattice/story/actives/B-d1bf/summary.json         |   56 +\n .lattice/story/actives/B-d1bf/test-evidence.json   |  395 +++\n .lattice/story/actives/B-d1bf/understanding.json   |   34 +\n .../claim-admissibility-adapter-pack-framework.md  |   64 +-\n ...p-quantum-claim-admissibility-execution-plan.md |   35 +-\n packages/main/src/cli/command-catalog.ts           |   19 +\n .../main/src/core/claim-admissibility/quantum.ts   |  358 ++-\n packages/main/src/core/command-policy.ts           |    1 +\n packages/main/src/core/config.ts                   |    1 +\n packages/main/src/core/process-fact-levels.ts      |    1 +\n .../src/handlers/quantum-claim-admissibility.ts    |  149 ++\n packages/main/src/registry.ts                      |    2 +\n packages/main/src/tasks/command-catalog-smoke.ts   |  115 +-\n .../src/tasks/quantum-claim-admissibility-smoke.ts |  282 ++-\n 35 files changed, 6547 insertions(+), 88 deletions(-)"
   },
   "docsPromises": [
     {
@@ -83,12 +85,12 @@
   "validation": {
     "source": "test-evidence.json",
     "result": "PASS",
-    "timestamp": "2026-07-03T02:20:59.089Z",
-    "headHash": "d56d42926e4db8958616d95ece103ee9f8d5f512",
-    "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
-    "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb"
+    "timestamp": "2026-07-03T02:39:05.478Z",
+    "headHash": "33a46b7447e5eb2623ba0f0ed27064cf71ee3573",
+    "materialHash": "7b0ce267d56d5cbffde02f8130abec209ee87506f73571cb6cd6d4026b2f8ccc",
+    "storyFilesHash": "ef2f0d6a0930baf9896d7edc0b5d7f43eb392fe38e4f44993d10a2c3bd99b215"
   },
-  "reviewRound": "2026-07-03T02:13:31.766Z",
+  "reviewRound": "2026-07-03T02:39:23.212Z",
   "deliveryCheck": {
     "status": "missing",
     "ref": null
