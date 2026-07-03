@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-7de9",
+  "records": [
+    {
+      "id": "RED-20260703112105",
+      "trigger": "Control-arm memory JSON leak: on the control arm, done_closure --json (and the other serialized surfaces) return a populated runtime-memory pack, letting a control-arm host read stored dev-memory content.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "add607f584806328a7959bdb7e3f8a294c207540",
+      "baselineMaterialHash": "d596af65300be46c742f667454edb34a37fc51bb7bf7ff7f82a5fab8975467dc",
+      "observedFailure": "Under pre-fix (B-ab8d) code with LATTICE_EXPERIMENT_ARM=control, done_closure --json returns memoryFreshnessPack.results.devMemoryEntryIds = ['9890b83','7ffe281','a4d08a8','148297b'] (non-empty) — a live control-arm memory leak.",
+      "failingCommand": "LATTICE_EXPERIMENT_ARM=control LATTICE_EXPERIMENT_ID=red node packages/main/dist/cli.js done_closure '{\"storyId\":\"B-7de9\",\"json\":true}'",
+      "failureReceiptHash": "c39fea6b338e6335032c7e3c722a24a7cbfdcffc059978935ad8c2dc7226c453",
+      "expectedGreenCommand": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js"
+      },
+      "createdAt": "2026-07-03T11:21:05.238Z"
+    }
+  ],
+  "createdAt": "2026-07-03T11:21:05.238Z",
+  "updatedAt": "2026-07-03T11:21:05.238Z"
+}

@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-7de9:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "redactMemoryPackForControlArm: no input mutation (spread + fresh sub-objects); TDZ-safe EMPTY_PACK_DIGEST const; fail-closed catch constructs fresh literal without touching pack; returns unchanged off-control. All 5 JSON/file surfaces (done_closure --json, final_response_check, playbook_runtime_health, handoff_create, handoff_resume, host_dispatch preflight+manifest) consistently apply redaction. experienceRefs() is a single chokepoint in lattice-parallel-wave.ts. command-policy.ts adds memoryRetrieval:true to source_lineage_audit and memory_benchmark_real_data only; quantum_claim_* and playbook_candidate_ingest unchanged. All imports used; no dead code; any-cast confined to generic T and test fabrication. Build clean; all 4 smokes pass (gate-smoke 18/18, e2e 21/21, arm-smoke 11/11, switch-smoke 24/24).",
+      "createdAt": "2026-07-03T11:31:25.522Z",
+      "reviewRound": "2026-07-03T11:28:04.120Z",
+      "reviewRunId": "B-7de9:RR-002",
+      "_hash": "3e11f35ea24f1d82fecba78ed84bd14636f8c912c28bbc7970ed14f1a73da422"
+    },
+    {
+      "id": "B-7de9:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness scan PASS. All live host-visible serialization surfaces for memoryFreshnessPack, runtimeMemoryTopHits, sourceDigests, packDigest, and experienceRefs in packages/main/src are covered: (1) done_closure --json uses redactMemoryPackForControlArm; (2) handoff_create --json/--output redacts at pack assignment; (3) handoff_resume --json/--output redacts the projection pack; (4) host_dispatch --json/--output redacts safePreflight + buildHostDispatchPrefetchManifest uses safePack for memoryPackDigest/memoryTopHitIds; (5) playbook_runtime_health topHitIds/packDigest use the redacted shown pack; (6) final_response_check --json uses redactMemoryPackForControlArm AND routes through surfaceRuntimeMemoryPack; (7) experienceRefs() in lattice-parallel-wave.ts returns [] on control before processing includeExperience. Text-render sites (session, story-create, transition-orchestrator, dev-memory, done-prepare, renderHostDispatchProjectionText) are all gated by shouldRenderRuntimeMemoryPack()/surfaced.shouldRender which return false on control — no leak path. command-policy.ts change adds memoryRetrieval:true to source_lineage_audit and memory_benchmark_real_data only; quantum_claim_benchmark and playbook_candidate_ingest are unchanged (no regression). No new control-arm leak found. 0 findings.",
+      "createdAt": "2026-07-03T11:31:37.428Z",
+      "reviewRound": "2026-07-03T11:28:04.120Z",
+      "reviewRunId": "B-7de9:RR-001",
+      "_hash": "cb9cfafb37425908c8ca7b65e7b30521ed9093647245f7dc3d2649a2a5f69b08"
+    },
+    {
+      "id": "B-7de9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001/002/003 × happy/edge/adversarial) are bound to passing verificationEvidence; both smokes (experience-arm-gate-smoke + experience-arm-isolation-e2e-smoke) run clean; validate --json reports covered/required=9/9 status=pass; CHK-002:adversarial is a live playbook_runtime_health wiring oracle (acceptable probe-only); CHK-003:happy is a live parallel_dispatch probe on control arm (parallel_dispatch requires a full project context, hermetic e2e is not feasible); no genuinely uncovered intents found.",
+      "createdAt": "2026-07-03T11:32:22.863Z",
+      "reviewRound": "2026-07-03T11:28:04.120Z",
+      "reviewRunId": "B-7de9:RR-003",
+      "_hash": "7bf59a062e4cb4c865d0f332bad3bb80b088f54fa189d9bab1dca46ec755176b"
+    },
+    {
+      "id": "B-7de9:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff is purely additive (new runtime-memory-arm-gate.ts + redactMemoryPackForControlArm calls at done_closure/final_response_check/host_dispatch/handoff/manifest/health surfaces). Grepped memoryFreshnessPack/memoryTopHitIds/memoryPackDigest across all *.ts — no unredacted leak path found. command-policy.ts confirmed not regressed: quantum_claim_benchmark and playbook_candidate_ingest both present. consumer-wiring regex updated to include surfaceRuntimeMemoryPack and matches the file. experienceRefs() early-return on control arm verified in lattice-parallel-wave.ts. Zero concept-residue blockers.",
+      "createdAt": "2026-07-03T12:11:50.640Z",
+      "reviewRound": "2026-07-03T12:10:15.773Z",
+      "reviewRunId": "B-7de9:RR-004",
+      "_hash": "a8eb9b2f23c9e367cb0330470a7e3b3a424550a27dc86cd9abef42119f203af3"
+    },
+    {
+      "id": "B-7de9:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after assurance-floor quorum refresh (no code changes). redactMemoryPackForControlArm: fails CLOSED on control (throw path returns empty-set pack, no input mutation), pass-through on treatment/normal — verified. All JSON redaction sites covered: done_closure --json, handoff_create, handoff_resume, host_dispatch, playbook_runtime_health, final_response_check — each routes through redactMemoryPackForControlArm at a single chokepoint. experienceRefs single chokepoint in lattice-parallel-wave.ts returns [] on control before includeExperience check. command-policy.ts: quantum_claim_check/quantum_claim_benchmark/quantum_claim_report present; playbook_candidate_ingest present; source_lineage_audit and memory_benchmark_real_data now carry memoryRetrieval:true (the two new additions). No dead code, no unused imports, no empty catch swallowing errors. Build clean; both smokes green (experience-arm-gate-smoke 18/18, experience-arm-isolation-e2e-smoke 21/21).",
+      "createdAt": "2026-07-03T12:12:01.461Z",
+      "reviewRound": "2026-07-03T12:10:15.773Z",
+      "reviewRunId": "B-7de9:RR-005",
+      "_hash": "44bed759291878b17781d375af4bf56c905d9340666ae3b2e3b910f6819c5c12"
+    },
+    {
+      "id": "B-7de9:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 9/9 verificationIntent covered (CHK-001/002/003 × happy/edge/adversarial, all priority=must, all result=pass); both smoke tests green (experience-arm-gate-smoke 18 assertions, experience-arm-isolation-e2e-smoke 21 checks); CHK-002:adversarial probe-only intent documented via playbook_runtime_health wiring oracle; CHK-003:happy parallel_dispatch chokepoint documented via direct CLI evidence; no blocker.",
+      "createdAt": "2026-07-03T12:21:06.437Z",
+      "reviewRound": "2026-07-03T12:10:15.773Z",
+      "reviewRunId": "B-7de9:RR-006",
+      "_hash": "660c2a2bd99e39c9c308a98cb90ec82e3f86eb0e3031448500e005c95f98d130"
+    }
+  ]
+}

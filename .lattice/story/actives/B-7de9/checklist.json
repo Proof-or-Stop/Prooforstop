@@ -40,9 +40,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T11:25:45.444Z",
+      "endTime": "2026-07-03T11:25:45.865Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js",
+          "result": "pass",
+          "note": "e2e asserts control done_closure/final_response_check --json return empty result/item arrays + empty-set packDigest; treatment/normal populated.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-gate-smoke.js",
+          "result": "pass",
+          "note": "gate smoke CHK-B asserts treatment + no-experiment packs returned byte-identical (redaction is a no-op outside control).",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-gate-smoke.js",
+          "result": "pass",
+          "note": "gate smoke CHK-B asserts fail-CLOSED (throwing pack -> empty surfaces + empty-set digest) and sourceDigests fingerprints nulled + no stored id in serialization.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -81,9 +119,46 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T11:25:46.279Z",
+      "endTime": "2026-07-03T11:25:46.686Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js",
+          "result": "pass",
+          "note": "e2e asserts control final_response_check --json pack empty + text omits memoryTopHitIds; treatment/normal populated.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-gate-smoke.js",
+          "result": "pass",
+          "note": "health required-class redaction uses redactMemoryPackForControlArm, whose topHitIds/packDigest emptying is asserted by gate smoke CHK-B (the primitive the health path applies).",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_runtime_health '{\"json\":true}'",
+          "result": "pass",
+          "note": "playbook_runtime_health consumer-wiring:src/handlers/playbook-runtime-memory.ts = pass, i.e. the drift oracle requires surfaceRuntimeMemoryPack at final_response_check; it fails if that routing is removed.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -123,9 +198,46 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T11:25:47.095Z",
+      "endTime": "2026-07-03T11:25:47.519Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "LATTICE_EXPERIMENT_ARM=control LATTICE_EXPERIMENT_ID=v node packages/main/dist/cli.js parallel_dispatch '{\"storyIds\":[\"B-7de9\"],\"hosts\":[\"codex\"],\"includeExperience\":true,\"format\":\"json\"}'",
+          "result": "pass",
+          "note": "control parallel_dispatch --includeExperience returns experienceRefs=[] (verified: count 0); treatment populates them.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js",
+          "result": "pass",
+          "note": "e2e asserts memory_benchmark_real_data + source_lineage_audit refused on control ('memory retrieval is disabled on the control arm'), permitted on no-experiment.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js",
+          "result": "pass",
+          "note": "experienceRefs() is the SINGLE chokepoint gating dispatch/report/plan injection (returns [] on control before includeExperience); the e2e exercises it via parallel_dispatch and the code has exactly one injection site.",
+          "headHash": "9b6fdbabfbb0ed83f59d0641a938f7b4900f4f61",
+          "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+          "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+          "timestamp": "2026-07-03T12:01:40.551Z"
+        }
+      ]
     }
   ]
 }

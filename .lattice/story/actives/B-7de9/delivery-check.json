@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7de9",
+  "checkedAt": "2026-07-03T12:07:56.412Z",
+  "headHash": "6ceb35327a4188421fd074c5e746723138d760e1",
+  "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+  "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
+  "reviewRound": "2026-07-03T11:28:04.120Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "runtime-memory-arm-gate.ts#header-comment",
+      "promise": "redactMemoryPackForControlArm empties results/items/sourceDigests/packDigest at every JSON/file serialization surface on the control arm",
+      "verifiedBy": "git diff main...HEAD runtime-memory-arm-gate.ts; grep redactMemoryPackForControlArm in done-closure.ts, lattice-handoff.ts, playbook-runtime-memory.ts",
+      "evidence": "redactMemoryPackForControlArm exported; applied in done-closure.ts (--json), lattice-handoff.ts (3 sites: prefetch, attach, projection), playbook-runtime-memory.ts (buildRuntimeHealth + final_response_check JSON). CHK-B cases all pass in smoke1."
+    },
+    {
+      "docPath": "playbook-runtime-memory.ts#final_response_check",
+      "promise": "final_response_check routes its render through surfaceRuntimeMemoryPack and redacts its JSON memoryFreshnessPack on control",
+      "verifiedBy": "git diff main...HEAD playbook-runtime-memory.ts shows surfaceRuntimeMemoryPack + redactMemoryPackForControlArm applied in final_response_check",
+      "evidence": "Diff shows final_response_check calls surfaceRuntimeMemoryPack wrapping buildMemoryFreshnessPack then redactMemoryPackForControlArm on the pack. SMOKE2 CONTROL final_response_check --json pack arrays EMPTY confirmed."
+    },
+    {
+      "docPath": "lattice-parallel-wave.ts#experienceRefs",
+      "promise": "parallel dispatch (experienceRefs) injects no dev-memory experience refs on the control arm",
+      "verifiedBy": "git diff main...HEAD lattice-parallel-wave.ts shows isControlArm guard at top of experienceRefs(); SMOKE2 verifies no experience leak",
+      "evidence": "Single chokepoint: if (isControlArm(process.env)) return [] before any other logic. SMOKE2 CONTROL host_dispatch omits memory block confirmed."
+    },
+    {
+      "docPath": "command-policy.ts#memoryRetrieval-markers",
+      "promise": "source_lineage_audit and memory_benchmark_real_data added to memoryRetrieval block; quantum_claim_benchmark and playbook_candidate_ingest untouched",
+      "verifiedBy": "git diff main...HEAD command-policy.ts; git grep quantum_claim_benchmark + playbook_candidate_ingest",
+      "evidence": "Diff confirms memoryRetrieval:true on both entries. quantum_claim_benchmark line 240 and playbook_candidate_ingest line 279 present unchanged. SMOKE2 CONTROL source_lineage_audit and memory_benchmark_real_data REFUSED."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "experience-arm-gate-smoke.js: CHK-B covers control arm empties result/item arrays, packDigest collapsed to empty-set digest, sourceDigests nulled, no stored id survives serialization, treatment/normal pack byte-identical, fail-CLOSED on throwing pack. All cases PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "experience-arm-isolation-e2e-smoke.js: final_response_check --json on all 3 arms: CONTROL arrays empty + empty-set digest, TREATMENT/NORMAL populated. CONTROL text suppressed. 21 checks PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "experience-arm-isolation-e2e-smoke.js: CONTROL recall/dev_memory_start/dev_memory_list/dev_memory_search/memory_benchmark_real_data/source_lineage_audit REFUSED; NORMAL counterparts not refused. CONTROL host_dispatch omits memory block. 21 checks PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "4 delivery promises verified from diff. redactMemoryPackForControlArm applied at all 6 JSON surfaces (done-closure --json, handoff attach+prefetch+projection, buildRuntimeHealth, final_response_check). experienceRefs single-chokepoint control gate confirmed. 2 memoryRetrieval markers added (source_lineage_audit + memory_benchmark_real_data), no quantum_claim_benchmark or playbook_candidate_ingest regression. transcript-diff.md present. Both smokes pass (21+14 cases)."
+  },
+  "_hash": "10d84d93626c725923190457133cd1acdc10980c238d7e6ddde430549095d7c6"
+}

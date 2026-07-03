@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { resolveAuditConfig } from './audit-config.js';
+import { isControlArm } from './runtime-memory-arm-gate.js';
 import { buildCapabilityProbe, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
 import { loadConfig } from './config.js';
@@ -553,6 +554,11 @@ function experienceRef(entry: DevMemoryEntry): ParallelWaveExperienceRef {
 }
 
 function experienceRefs(options: ParallelWaveProjectionOptions = {}): ParallelWaveExperienceRef[] {
+  // Experience-ablation M3 (F-019): on the control arm the dispatch/report/plan
+  // must inject NO dev-memory experienceRefs, even when includeExperience is set
+  // — the experiment runner uses parallel_dispatch, so this is a live surfacing
+  // path. Single chokepoint for every experience-injecting projection.
+  if (isControlArm(process.env)) return [];
   if (!options.includeExperience) return [];
   const limit = boundedExperienceLimit(options.maxExperienceRefs);
   if (limit <= 0) return [];
