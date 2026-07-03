@@ -105,7 +105,7 @@
       "desc": "CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0 all have stale verificationEvidence: materialHash in evidence (ddd0121ab...) does not match the review-entry materialHash (55d863004...) for the same reason as CHK-001 (score-selfcheck.mjs added after CHK-002 evidence was recorded). lattice validate reports these as stale, blocking TEST. score.mjs and RUN-RECORD.md are unchanged since CHK-002 evidence was recorded. Implementer must re-record CHK-002 verificationEvidence with current materialHash to clear the gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T01:02:13.572Z",
@@ -117,7 +117,9 @@
         "experiments/experience-ablation/RUN-RECORD.md"
       ],
       "signatureTag": "missing|mjs|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same refresh run as F-005 (lattice verification_evidence_refresh_stale after commit 2ee5f3e2802999d8cc4503395aa9f8447830a261) re-recorded all three CHK-002 intents with current materialHash; lattice validate --story=B-d217 --json shows coverage 9/9 covered, 0 missing, no stale entries, overall status pass.",
+      "resolvedAt": "2026-07-03T01:12:43.120Z"
     }
   ]
 }
