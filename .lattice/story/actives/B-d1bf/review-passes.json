@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T01:02:59.755Z",
       "reviewRunId": "B-d1bf:RR-011",
       "_hash": "94710d8f1329bd8a5b9e77203d134237621ba110523938ccc8316b303b441a9d"
+    },
+    {
+      "id": "B-d1bf:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-006 re-review PASS: command-catalog smoke asserts quantum_claim_check evidencePath schema and exercises real dist CLI evidenceJson/evidencePath paths plus empty evidenceJson nonzero fail-closed; quantum smoke covers handler blank evidenceJson fail-closed. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:quantum-claim-admissibility; npm --prefix packages/main run test:command-catalog-smoke.",
+      "createdAt": "2026-07-03T01:05:32.473Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-013",
+      "_hash": "38cd44e759f132350d0a0f1a85aba923d823cb3a84403d349e37ebf8bf2cb50d"
     }
   ]
 }
