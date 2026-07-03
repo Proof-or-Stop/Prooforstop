@@ -10,7 +10,30 @@
       "userSees": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> prints one JSON object whose first line contains \"schemaVersion\": \"proofbound.experience-ablation-score.v1\" and includes arm, pairId, trapGroup, defectPresent, retrievalViolationCount, storeRoot; running it twice produces byte-identical output (diff empty)",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "score.mjs against a generated fixture + synthesized run dir prints one JSON record with schemaVersion proofbound.experience-ablation-score.v1 and all section-10 fields; two invocations byte-identical",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional artifacts absent (no done-readiness.json / final-response-check.json) degrades to oracle-only falseDoneAttempt detection and details.sources records the absence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scorer purity: no reads outside fixtureDir/runDir (chdir-independence transcript), timestamps only from inputs, stable key order",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
