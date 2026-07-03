@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Fail closed on stale, missing, mismatched, unbound, or overclaiming evidence.",
+    "Keep Quantum M3 local and read-only; no lifecycle mutation or evidence writing.",
+    "Expose human-readable and JSON guidance that names repair/degrade/escalate/stop actions.",
+    "Preserve explicit no-theory, no-hardware, no-production, and no-Authority boundaries.",
+    "Do not consume M4 benchmark or M5 report/governance scope early."
+  ],
+  "drivers": [
+    "M3 must build on the existing Quantum M0-M2 evaluator and adapter normalization without replacing them.",
+    "Hosts need an executable command surface, not only prose, to inspect quantum claim admissibility.",
+    "Reviewers must be able to verify behavior through deterministic local smoke and docs."
+  ],
+  "options": [
+    {
+      "name": "pure-helper-plus-readonly-command",
+      "pros": [
+        "Keeps policy decisions deterministic and testable in core quantum helpers.",
+        "Gives hosts a concrete quantum_claim_check command without mutating lifecycle state.",
+        "Leaves M4 benchmark and M5 reporting as separate milestones."
+      ],
+      "cons": [
+        "Does not automatically block Story transitions; hosts must consume the diagnostic output intentionally.",
+        "Requires command wiring and docs updates in addition to core helper code."
+      ]
+    },
+    {
+      "name": "global-story-machine-integration",
+      "pros": [
+        "Would make Quantum gate decisions first-class lifecycle blockers immediately.",
+        "Could reduce host discretion for quantum stories."
+      ],
+      "cons": [
+        "Too broad for M3 and risks changing non-quantum Story transitions.",
+        "Harder to review safely and conflicts with the story scope exclusion for global lifecycle mutation."
+      ]
+    },
+    {
+      "name": "docs-only-policy-description",
+      "pros": [
+        "Smallest implementation footprint.",
+        "Low risk of runtime regression."
+      ],
+      "cons": [
+        "Fails the user request for executable Quantum capability.",
+        "Does not provide a reusable command or deterministic proof surface for M4/M5."
+      ]
+    }
+  ],
+  "chosen": "pure-helper-plus-readonly-command",
+  "rationale": "A pure helper plus read-only command gives Quantum M3 real executable capability while preserving Proof-or-Stop boundaries and leaving benchmark/reporting/global lifecycle mutation for later stories.",
+  "preMortem": [
+    {
+      "scenario": "M3 accidentally claims production or Authority readiness.",
+      "trigger": "Command output or docs use generic readiness wording without boundary booleans.",
+      "consequence": "Hosts may treat local quantum claim admissibility as external completion proof.",
+      "mitigation": "Expose authorityDone=false and productionDone=false in command output and smoke-test the boundary wording."
+    },
+    {
+      "scenario": "M3 consumes M4 benchmark scope.",
+      "trigger": "Implementation adds A1-A4/B1-B15 aggregate metrics instead of a few named demo cases.",
+      "consequence": "Milestone boundaries blur and benchmark evidence becomes unreviewed.",
+      "mitigation": "Limit M3 smoke to complete/weak/overclaim demos and reserve rate metrics/confidence intervals for M4."
+    },
+    {
+      "scenario": "M3 mutates lifecycle state.",
+      "trigger": "Handler writes gate evidence or calls story transition helpers.",
+      "consequence": "Read-only diagnostic command becomes a hidden lifecycle actor.",
+      "mitigation": "Command policy marks quantum_claim_check readOnly, tests assert no production/Authority claims, and docs state no Story machine mutation."
+    },
+    {
+      "scenario": "Docs overclaim generic framework milestone completion.",
+      "trigger": "Updating claim-admissibility-adapter-pack-framework.md says generic gate-policy adapter M4 is done because Quantum M3 is done.",
+      "consequence": "Future pack authors misunderstand framework status.",
+      "mitigation": "Document Quantum-specific M3 runtime status only and preserve generic framework future milestones."
+    }
+  ],
+  "timestamp": "2026-07-03T00:12:48.864Z"
+}

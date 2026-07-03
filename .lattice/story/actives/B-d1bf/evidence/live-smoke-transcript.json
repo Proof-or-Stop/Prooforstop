@@ -1,0 +1,21 @@
+{
+  "storyId": "B-d1bf",
+  "expected": "Terminal JSON includes \"decision\":\"advance\" for complete bound evidence, \"decision\":\"degrade\" for weak scoped evidence, and never advances stale, missing, mismatched, production, Authority, hardware, or theory overclaims.",
+  "actual": {
+    "command": "bash -lc 'set -euo pipefail\nROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf\ncomplete=$(node packages/main/dist/cli.js --root \"$ROOT\" quantum_claim_check --case=complete --json | jq -r \"\\\"decision=\\(.decision) allowed=\\(.allowed) writesLifecycleEvidence=\\(.writesLifecycleEvidence) mutatesLifecycle=\\(.mutatesLifecycle) productionClaim=\\(.boundary.productionClaim) authorityClaim=\\(.boundary.authorityClaim)\\\"\")\necho \"complete $complete\"\nstronger=$(node packages/main/dist/cli.js --root \"$ROOT\" quantum_claim_check --case=complete --claimId=Q1 --requestedStrength=quantum-advantage --json | jq -r \"\\\"decision=\\(.decision) allowed=\\(.allowed) reason=\\(.reasons[0]) productionClaim=\\(.boundary.productionClaim) authorityClaim=\\(.boundary.authorityClaim)\\\"\")\necho \"q1-quantum-advantage $stronger\"\noverclaim=$(node packages/main/dist/cli.js --root \"$ROOT\" quantum_claim_check --case=overclaim --json | jq -r \"\\\"decision=\\(.decision) allowed=\\(.allowed) reasons=\\(.reasons|join(\\\",\\\")) productionClaim=\\(.boundary.productionClaim) authorityClaim=\\(.boundary.authorityClaim)\\\"\")\necho \"overclaim $overclaim\"'",
+    "exitCode": 0,
+    "stdout": "complete decision=advance allowed=true writesLifecycleEvidence=false mutatesLifecycle=false productionClaim=false authorityClaim=false\nq1-quantum-advantage decision=degrade allowed=false reason=weak_evidence_overclaim:quantum-advantage productionClaim=false authorityClaim=false\noverclaim decision=stop allowed=false reasons=claim_boundary_violation:requestedStrength.production,claim_boundary_violation:productionClaim,claim_boundary_violation:authorityClaim,claim_boundary_violation:narrativeClaim productionClaim=false authorityClaim=false\n",
+    "stderr": "[0.0s] running quantum_claim_check...\n[0.0s] quantum_claim_check done\n[0.0s] running quantum_claim_check...\n[0.0s] quantum_claim_check done\n[0.0s] running quantum_claim_check...\n[0.0s] quantum_claim_check done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-03T02:43:57.455Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "8a5e771be9c27c7609e53d975a54b39559a1ffb7",
+  "materialHash": "7b0ce267d56d5cbffde02f8130abec209ee87506f73571cb6cd6d4026b2f8ccc"
+}
