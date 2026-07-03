@@ -1,46 +1,23 @@
 {
   "storyId": "B-f57a",
-  "checkedAt": "2026-07-03T11:18:59.527Z",
-  "headHash": "ab11e2193f03adb61198089a5257ccb3a7fa570e",
-  "materialHash": "ec29cf40e8f9d2e5d3c9744fd7c0847ea46c5187b83e7d80267a8ae62fc12317",
-  "storyFilesHash": "0a8e036c413ce43fb72807246b052d3194dd728977a3314a41629abd454df6ce",
-  "reviewRound": "2026-07-03T11:11:00.662Z",
+  "checkedAt": "2026-07-03T11:34:10.686Z",
+  "headHash": "29efb60e6e760a158bc976537f3ce23f69973e7f",
+  "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+  "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+  "reviewRound": "2026-07-03T11:22:51.374Z",
   "agentId": "lattice-review-delivery",
-  "docsPromises": [
-    {
-      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
-      "promise": "M1 is crypto-deferred automatic cross-host review: read-only Codex host-B verdict capture, structured JSON only, stdoutDigest not raw stdout, disagreement surfacing, fail-closed mismatch/no-parse paths, and narrow review-only policy; signed/pinned-key provenance is deferred.",
-      "status": "verified",
-      "verifiedBy": "manual diff/code inspection plus cross_host_review smoke",
-      "evidence": "Inspected execution-plan diff, handlers/cross-host-review.ts, core/codex-review-leaf.ts, core/cross-host-review.ts, dispatch-policy.ts, command-policy.ts, process-fact-levels.ts. node packages/main/dist/tasks/cross-host-review-smoke.js passed 24/24; npm --prefix packages/main run build passed."
-    },
-    {
-      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
-      "promise": "Threat model wording is bounded: M1 is reframed to crypto-deferred cross-host review; pinned-key/signature enforcement is M-crypto, and current independence remains cross-vendor/same-operator rather than Authority, production, release, or Byzantine trust readiness.",
-      "status": "verified",
-      "verifiedBy": "manual diff/grep/code inspection",
-      "evidence": "Inspected threat-model diff and rg results for Authority/production/release/signature wording. New runtime/process policies state local non-authority verdict evidence and explicitly do not set retired remote-completion fields or release readiness."
-    }
-  ],
+  "docsPromises": [],
   "realMachineTests": [
     {
-      "featureId": "CHK-001",
-      "transcript": "PASS: npm --prefix packages/main run build; PASS: node packages/main/dist/tasks/cross-host-review-smoke.js (24 checks), covering registration, structured host-B verdict capture, no raw stdout, policy fail-closed, env redaction/timeout threading, dirty/source/head drift guards, post-write verdict-pair cleanup, and malformed host-A findings."
-    },
-    {
-      "featureId": "CHK-002",
-      "transcript": "PASS: node packages/main/dist/tasks/cross-host-review-smoke.js (24 checks), covering host-A/host-B disagreement surfacing, symmetric onlyHostA/onlyHostB cases, blocked propagation, duplicate finding dedup, materialHash divergence fail-closed, and same-host identity rejection."
-    },
-    {
-      "featureId": "B-f57a-delivery",
-      "transcript": "PASS: npm test completed successfully in /Users/jek/Documents/Work/proofbound/.worktrees/B-f57a; PASS: node scripts/verify-process-fact-contract.mjs; PASS: node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js. Existing lattice evidence also shows lattice validate --story=B-f57a --json PASS 32/32 at 2026-07-03T11:09:44Z, reviewer lanes RP-017/RP-018/RP-019 current PASS, and review_escalation_status full-3x2 local quorum."
+      "featureId": "B-f57a-delivery-readiness",
+      "transcript": "Current delivery-review evidence verified on 2026-07-03: npm --prefix packages/main run build PASS; node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js PASS; node packages/main/dist/tasks/cross-host-review-smoke.js PASS 24/24; node scripts/verify-process-fact-contract.mjs PASS; npm test PASS; lattice validate --story=B-f57a --json PASS allPass=true over 32 configured commands; evidence_plan fresh=24 missing=0 rerun=0 refreshOnly=0; review_escalation_status assuranceLevel=full-3x2 with three valid 2-host local rounds; delivery_context_pack docsPromises=[] and claims authorityDone=false fullAuthorityDone=false productionDone=false."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review PASS for story B-f57a. Scope, docs, code, tests, reviewer lanes, and local quorum are consistent with local non-authority cross-host review evidence only. No Authority, production readiness, release readiness, or signed/pinned-key provenance claim is accepted by this delivery check; remaining DONE lifecycle items such as main sync/done_prepare are host-owned outside this delivery signature."
+    "summary": "Delivery-review PASS for local non-authority scope: verified build, gitroot smoke, cross-host smoke 24/24, process-fact contract, npm test, lattice validate 32/32, fresh evidence plan, current RP-020/RP-021/RP-022, and full-3x2 local quorum; no Authority/release/production claim is in scope."
   },
-  "_hash": "080a956b97fd27d51eb1b0bc8df2e949156c43a878ec1175b901a8b8e96152b7"
+  "_hash": "25cc7103c0d0252f4e2240b619034030331e1bab987ead93405790fdd653e0d0"
 }
