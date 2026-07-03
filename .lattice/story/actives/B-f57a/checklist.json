@@ -6,7 +6,55 @@
       "context": "Reuse dispatch_prepare and the bounded Codex spawn primitive (runBoundedCodexProvider / runCodexRealLeafDispatch); extend checkDispatchPolicy to sanction a bounded Codex real-leaf for REVIEW only. Capture ONLY structured verdict fields (decision plus findings); do NOT promote raw stdout transcript into evidence (respect the credential-safety boundary in codex-cli.ts). Feed the verdict into the existing submitLocalVerdict / autopilot_review_submit path so it binds to the exact materialHash. No cryptographic signing.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Injected fake Codex seam returns stdout carrying a valid JSON fail verdict (schema lattice.codex_review_verdict.v1, decision=fail, materialHash=currentMaterialHash). Assert: host-B verdict is recorded with decision===fail AND materialDigest===currentMaterialHash(root), confirming the capture path binds to the exact code.",
+            "type": "cli"
+          },
+          {
+            "id": "CHK-001:happy:1",
+            "desc": "registry.get(cross_host_review) is defined after handler registration, proving the command is registered in the catalog and registry.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Fail-closed on unparseable output: fake Codex seam returns garbage stdout (no JSON). Assert: host-B verdict decision===blocked, reason includes codex_review_no_parseable_verdict, result exposes stdoutDigest but no raw-stdout field (credential-safety boundary).",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:1",
+            "desc": "Fail-closed on schema mismatch: fake seam returns valid JSON but missing required fields (e.g. no decision field). Assert: decision===blocked, reason codex_review_no_parseable_verdict.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:2",
+            "desc": "Rebinding guard: fake Codex seam returns a structurally valid verdict whose materialHash differs from the orchestrator-computed digest. Assert: decision===blocked, reason mentions materialHash mismatch.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:3",
+            "desc": "Codex process exits non-zero (seam simulates crash or timeout). Assert: decision===blocked, stdoutDigest present, no raw stdout promoted.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "Raw stdout injection: fake Codex seam returns stdout containing both a valid verdict JSON block AND malicious text outside it (e.g. fake credentials, prompt-injection attempts). Assert: only the structured JSON verdict fields are parsed and recorded; no raw stdout text appears in the recorded verdict or evidence.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:adversarial:1",
+            "desc": "Dispatch-policy bypass: attempt to run a codex implementation subprocess (not review-only) through the new allowReviewOnlyRealHostSubprocess flag. Assert: checkDispatchPolicy still refuses non-review codex/gemini/antigravity implementation calls even when the review-only flag is set.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
