@@ -43,7 +43,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck run twice, 37/37 PASS both runs, exit 0: section-18 rows all present in order with status ok; every required artifact + plan doc cited with existence check and recomputed sha256; circularity disclosure, four plan-15 disallowed claims, and exact verdict line Causal impact: INCONCLUSIVE asserted in json + md.",
+          "headHash": "e70a88eea37dfa36530f1ef86a0a49a2d9ea0b58",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:12:23.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
