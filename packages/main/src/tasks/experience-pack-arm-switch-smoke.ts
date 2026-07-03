@@ -37,7 +37,12 @@
  *   (i) ADJUSTMENT 2 (eighth surface): the host_dispatch text projection
  *       (renderHostDispatchProjectionText) prints NO memoryPackDigest /
  *       memoryTopHitIds / memoryAuthority / memoryGateEvidence lines on
- *       control and is byte-identical on treatment vs no-env.
+ *       control and is byte-identical on treatment vs no-env;
+ *   (j) F-001 (ninth surface): handoff_resume text output suppresses the
+ *       whole "Runtime memory advisory:" section (header, pack lines,
+ *       hostPolicy lines, memoryCompletionProof) on control, stays
+ *       byte-identical on treatment vs no-env, and the JSON projection keeps
+ *       pack + hostPolicy on control (render-only gating).
  *
  *   Runs entirely in OS temp dirs (mkdtemp), isolates global dev-memory via
  *   LATTICE_GLOBAL_MEMORY_DIR, saves/restores process.env + cwd, and never
@@ -78,6 +83,7 @@ import { resolveReviewPromptHash } from '../core/review-run.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { Playbook } from '../core/experience-layer-types.js';
+import { createLatticeHandoffHandlers } from '../handlers/lattice-handoff.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
@@ -838,6 +844,41 @@ async function run(): Promise<void> {
       }
       const plainMinusMemory = plain.split('\n').filter((line) => !MEMORY_PROJECTION_LINE.test(line)).join('\n');
       assert.equal(control, plainMinusMemory, 'control equals no-env minus exactly the four memory lines');
+      clearArm();
+    });
+
+    // ── (j) ninth surface: handoff_resume text render (F-001) ─────────────────
+
+    check('(j) edge — handoff_resume text: control suppresses the whole memory advisory section; treatment byte-identical to no-env; JSON keeps pack + hostPolicy', () => {
+      const fixture = mkGitStoryRoot('B-resume', 'DEV');
+      const handoff = createLatticeHandoffHandlers(fixture.ctx);
+      const packPath = join(fixture.root, 'handoff-pack.json');
+      clearArm();
+      handoff.handoff_create({ storyId: 'B-resume', fromHost: 'codex-cli', toHost: 'claude-cli', json: true, output: packPath });
+
+      const advisoryHeader = 'Runtime memory advisory:';
+      const plain = handoff.handoff_resume({ file: packPath }) as string;
+      assert.ok(plain.includes(advisoryHeader), 'no-env resume renders the advisory section header');
+      assert.ok(plain.includes('memoryPackDigest: '), 'no-env advisory includes the pack summary lines');
+      assert.ok(plain.includes('hostPolicy: '), 'no-env advisory includes the hostPolicy lines');
+      assert.ok(plain.includes('memoryCompletionProof: false'), 'no-env advisory includes the completion-proof line');
+
+      setArm('treatment');
+      const treatment = handoff.handoff_resume({ file: packPath }) as string;
+      assert.equal(treatment, plain, 'treatment resume text byte-identical to no-env');
+
+      setArm('control');
+      const control = handoff.handoff_resume({ file: packPath }) as string;
+      for (const marker of [advisoryHeader, 'memoryPackDigest:', 'memoryTopHitIds:', 'hostPolicy:', 'memoryCompletionProof:']) {
+        assert.ok(!control.includes(marker), `control resume omits ${marker}`);
+      }
+      const sectionStart = plain.indexOf(`\n\n${advisoryHeader}`);
+      assert.ok(sectionStart >= 0, 'baseline contains the advisory section for the exact-diff check');
+      assert.equal(control, plain.slice(0, sectionStart), 'control output equals the no-env baseline minus exactly the advisory section');
+
+      const controlJson = handoff.handoff_resume({ file: packPath, json: true }) as Record<string, unknown>;
+      assert.ok(controlJson.memoryFreshnessPack, 'control JSON projection keeps memoryFreshnessPack (lossless measurement)');
+      assert.ok(controlJson.runtimeHostPolicy, 'control JSON projection keeps runtimeHostPolicy');
       clearArm();
     });
 

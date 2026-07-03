@@ -758,10 +758,21 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       }
       if (wantsJson(args)) return enriched;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
-      // B-ab8d CHK-002: control arm hides the rendered memory section only —
-      // the JSON projection above keeps the pack for lossless measurement.
-      const { memoryFreshnessPack: _hiddenOnControl, ...enrichedWithoutPack } = enriched;
-      const renderProjection = shouldRenderRuntimeMemoryPack() ? enriched : enrichedWithoutPack;
+      // B-ab8d CHK-002 + F-001: control arm suppresses the whole rendered
+      // "Runtime memory advisory:" section. The pack lines AND the hostPolicy
+      // lines share that single section header (renderOptionalMemoryLines
+      // fires when EITHER arg is present), so runtimeHostPolicy must be
+      // stripped from the render projection too — otherwise the header +
+      // hostPolicy lines would still render on control. Render-only gating:
+      // the JSON projection above keeps pack + hostPolicy for lossless
+      // measurement, and the host policy itself was already enforced by
+      // assertRuntimeHostPolicyAllowed regardless of arm.
+      const {
+        memoryFreshnessPack: _hiddenOnControl,
+        runtimeHostPolicy: _hostPolicyHiddenOnControl,
+        ...enrichedWithoutAdvisory
+      } = enriched;
+      const renderProjection = shouldRenderRuntimeMemoryPack() ? enriched : enrichedWithoutAdvisory;
       return [renderHandoffResumeText(renderProjection), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     handoff_receipt_submit(args: {
