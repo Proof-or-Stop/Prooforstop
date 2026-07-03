@@ -9,6 +9,8 @@
  *   Proves candidate trial automation writes only unknown candidate exposures
  *   plus matched controls, is idempotent, skips active playbooks, and the
  *   bounded timer cannot activate candidates that lack helped evidence.
+ * @changes
+ *   - [CHK-002] Cover candidate trial, matched-control, and timer safety invariants with a smoke test.
  */
 
 import assert from 'node:assert/strict';

@@ -9,6 +9,8 @@
  *   Proves historical seed backfill processes all deduped seeds by default,
  *   requires a fresh observeDigest for apply, converts only inert candidates,
  *   clears staged seed proposals, and writes no outcome evidence.
+ * @changes
+ *   - [CHK-001] Cover historical playbook seed backfill invariants with a smoke test.
  */
 
 import assert from 'node:assert/strict';
