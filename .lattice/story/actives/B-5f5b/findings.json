@@ -78,7 +78,7 @@
       "desc": "CHK-003:edge:0 disabled action reporting is not actually covered in the current smoke. packages/main/src/tasks/playbook-trial-automation-smoke.ts:224 runs playbook_promotion_timer with backfill/sweep unrequested, but the assertions around lines 232-236 and 248-251 only check trial/activate statuses. The smoke never asserts that unrequested backfill/sweep steps are present with status=disabled and messages such as the implementation branches at packages/main/src/core/playbook-seed.ts:2339 and packages/main/src/core/playbook-seed.ts:2418. This would pass if the timer silently omitted disabled actions, so the evidence note overclaims CHK-003 disabled action reporting coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T17:01:55.003Z",
@@ -90,7 +90,11 @@
         "packages/main/src/core/playbook-seed.ts"
       ],
       "signatureTag": "missing|ts|edge-disabled-action",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "playbook-trial-automation-smoke now asserts unrequested timer backfill and sweep steps are present in both dry-run and apply reports with requested=false, status=disabled, applied=false, matching dryRun mode, and exact 'step not requested' messages. Evidence: npm run build; node packages/main/dist/tasks/playbook-trial-automation-smoke.js passed with 3/3 checks after commit 9a718ffb1.",
+      "resolvedAt": "2026-07-03T17:07:58.392Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
