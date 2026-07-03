@@ -60,6 +60,24 @@
       "resolvedAt": "2026-07-03T02:14:37.265Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c28f:F-004",
+      "desc": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md now documents playbook_seed_observe --source=done-experience --json at line 249 and repeats the candidate-only/no-helped/no-activation boundary around lines 281-284 and 313, but it still does not document the JSON/source lineage field spelling sourceArtifactKind: done_experience; rg -n \"sourceArtifactKind|done_experience\" over the reviewed docs returns no matches. B-c28f:F-001 requested that exact artifact kind be discoverable, so the docs fix is incomplete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T02:16:39.284Z",
+      "reviewRound": "2026-07-03T02:10:51.088Z",
+      "reviewRunId": "B-c28f:RR-006",
+      "_hash": "b90985748b94e0a0da153a03a1f0c451d6bd203bfe37a29bc49c75ef73b674d7",
+      "files": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "missing-docs-done-experience-source-artifact-kind",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
