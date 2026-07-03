@@ -602,6 +602,19 @@ function run(): void {
       seedDoneExperienceStory(store);
       const handlers = createPlaybookHandlers(ctx);
 
+      const cliObserve = runCliJson<any>(root, ['playbook_seed_observe', '--source=done-experience', '--json']);
+      assert.equal(cliObserve.proposableSeeds.length, 1, 'dist CLI accepts done-experience observe source');
+      assert.equal(cliObserve.proposableSeeds[0].sourceArtifactKind, 'done_experience');
+
+      const cliPropose = runCliJson<any>(root, [
+        'playbook_seed_propose_batch',
+        JSON.stringify({ source: 'done-experience', json: true }),
+      ]);
+      assert.equal(cliPropose.dryRun, true);
+      assert.equal(cliPropose.applied, false);
+      assert.equal(cliPropose.proposals[0].seed.sourceArtifactKind, 'done_experience');
+      assert.equal(listProposals(root).length, 0, 'dist CLI done-experience propose dry-run does not stage proposals');
+
       const observe1 = parseJson<any>(handlers.playbook_seed_observe({
         source: 'done-experience',
         json: true,

@@ -246,12 +246,15 @@ Proofbound learning-specific read-only view built on top of
 lattice playbook_seed_observe --json
 lattice playbook_seed_observe --source=dev-memory --json
 lattice playbook_seed_observe --source=finding-signals --json
+lattice playbook_seed_observe --source=done-experience --json
 ```
 
 Reports:
 
 - proposable dev-memory seeds;
 - proposable finding-signal seeds;
+- proposable DONE experience seeds from DONE summaries, pitfalls, and
+  delivery-check material;
 - raw findings without distilled experience;
 - duplicate seed groups;
 - seeds blocked by missing lineage;
@@ -268,6 +271,7 @@ dry-run (implemented by B-9958).
 ```bash
 lattice playbook_seed_propose_batch --dryRun --limit=20
 lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --observeDigest=<digest>
+lattice playbook_seed_propose_batch --apply --source=done-experience --limit=20 --observeDigest=<digest>
 ```
 
 Rules:
@@ -275,6 +279,8 @@ Rules:
 - uses the primary source selected by `playbook_seed_observe`;
 - treats finding-signal seeds as proposable only when the source-lineage audit
   carries enough support and valid anchors; absent quality data fails closed;
+- treats DONE experience seeds as non-authoritative candidate material only,
+  never as helped evidence or active guidance;
 - records the seed source and canonical source key;
 - `--apply` requires `--observeDigest` from `playbook_seed_observe`;
 - `--apply` fails if the current observe digest differs from the reviewed
