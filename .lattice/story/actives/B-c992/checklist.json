@@ -145,6 +145,18 @@
           "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
           "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
           "timestamp": "2026-07-03T16:20:58.510Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "git diff HEAD~1 HEAD -- docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "Safeguards strengthened, none deleted — spot list: (1) freeze refusal paths grew from 2 (budget cap, band) to 4 (+ freeze_mde_exceeds_achievable_did, + coverage-simulation failure); (2) stopping rules grew from 8 to 10 bullets and every existing stop kept (scorer bug, isolation breach, arm contract, model change, yield, band, freeze refusal, mid-study fix) — model-change stop WIDENED to host-CLI-version, below-frozen-m stop GENERALIZED from one void cause to any cause; (3) leakage audit grew from 5 checks to 8 (containment replaces the weaker Jaccard — strictly stronger since verbatim inclusion now fails; allowlist governance became stricter: frozen earlier at R2, mechanical admission, edits are amendments; denylist and format-only proof are new); (4) K_min RAISED 32->40 and n_cal RAISED 4->8 (harder gates, not weaker); (5) split gained stratification + family cap while keeping seeded PRNG + seal-before-run + guardImmutable; (6) freeze ordering ADDED variants-before-split while retaining lessons-before-variants; (7) disallowed-claims list grew from 6 to 8 bullets, none removed; (8) DoD grew from 10 to 12 rows, none removed; verification matrix grew from 13 to 26 rows, all originals retained (two rows extended: wrong-model-id row split into missing vs mismatched, store isolation extended to harvest runs); (9) rev 2 file byte-untouched (sha256 match); permitted-claim template and required disclosures retained and expanded with paraphrase-residual disclosure.",
+          "headHash": "ae55e99e60ab8793645d2062423a1d3166a493a0",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:59.760Z"
         }
       ]
     }
