@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T12:10:15.773Z",
       "reviewRunId": "B-7de9:RR-004",
       "_hash": "a8eb9b2f23c9e367cb0330470a7e3b3a424550a27dc86cd9abef42119f203af3"
+    },
+    {
+      "id": "B-7de9:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after assurance-floor quorum refresh (no code changes). redactMemoryPackForControlArm: fails CLOSED on control (throw path returns empty-set pack, no input mutation), pass-through on treatment/normal — verified. All JSON redaction sites covered: done_closure --json, handoff_create, handoff_resume, host_dispatch, playbook_runtime_health, final_response_check — each routes through redactMemoryPackForControlArm at a single chokepoint. experienceRefs single chokepoint in lattice-parallel-wave.ts returns [] on control before includeExperience check. command-policy.ts: quantum_claim_check/quantum_claim_benchmark/quantum_claim_report present; playbook_candidate_ingest present; source_lineage_audit and memory_benchmark_real_data now carry memoryRetrieval:true (the two new additions). No dead code, no unused imports, no empty catch swallowing errors. Build clean; both smokes green (experience-arm-gate-smoke 18/18, experience-arm-isolation-e2e-smoke 21/21).",
+      "createdAt": "2026-07-03T12:12:01.461Z",
+      "reviewRound": "2026-07-03T12:10:15.773Z",
+      "reviewRunId": "B-7de9:RR-005",
+      "_hash": "44bed759291878b17781d375af4bf56c905d9340666ae3b2e3b910f6819c5c12"
     }
   ]
 }
