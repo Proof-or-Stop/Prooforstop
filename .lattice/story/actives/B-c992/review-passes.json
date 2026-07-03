@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T16:21:59.999Z",
       "reviewRunId": "B-c992:RR-002",
       "_hash": "e429a521e8e98e11ffa0ec8669dae573008715fd58ea863db7547915def04f61"
+    },
+    {
+      "id": "B-c992:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001 3/3 must intents covered: happy=docs_check sections grep-verified (all 15 sections present incl H1-prime, DiD, repro-first, R1-R6, stopping rules, DoD); edge=manual_transcript shasum reproduced 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 matches claim; adversarial=docs_check CJK=0 confirmed, supersession clause names only M7 route. CHK-002 3/3 must intents covered: happy=docs_check 5 spot-check fixes present in doc (freeze_mde_exceeds_achievable_did x6, containment metric, modelId REQUIRED run.json field, allowlist frozen at R2, lesson-aging disallowed bullet line 923); edge=manual_transcript finding_list shows findings=[] zero open; adversarial=docs_check safeguards strengthened not weakened (K_min 32->40, n_cal 4->8, stopping rules 8->10, disallowed-claims 6->8, DoD 10->12 rows). No stale or unreproducible evidence found.",
+      "createdAt": "2026-07-03T16:27:30.957Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-004",
+      "_hash": "73c33f4ab94845e82d1ee8fc26a9461dacc3db9f59a0709120770ed1add7edeb"
     }
   ]
 }
