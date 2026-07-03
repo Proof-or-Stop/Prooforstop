@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
 import {
+  QUANTUM_CLAIM_IDS,
   QUANTUM_CLAIM_CHECK_CASES,
+  QUANTUM_REQUESTED_STRENGTHS,
   buildQuantumClaimCheckCase,
   evaluateQuantumClaimGatePolicy,
   renderQuantumClaimGatePolicyText,
@@ -92,6 +94,26 @@ function isQuantumClaimCheckCase(value: string): value is QuantumClaimCheckCase 
   return (QUANTUM_CLAIM_CHECK_CASES as readonly string[]).includes(value);
 }
 
+function isQuantumClaimId(value: unknown): value is QuantumClaimId {
+  return typeof value === 'string' && (QUANTUM_CLAIM_IDS as readonly string[]).includes(value);
+}
+
+function isQuantumRequestedStrength(value: unknown): value is QuantumRequestedStrength {
+  return typeof value === 'string' && (QUANTUM_REQUESTED_STRENGTHS as readonly string[]).includes(value);
+}
+
+function assertQuantumClaimId(value: unknown): asserts value is QuantumClaimId {
+  if (!isQuantumClaimId(value)) {
+    throw new Error(`Unknown quantum claimId: ${String(value)}. Expected one of ${QUANTUM_CLAIM_IDS.join(', ')}.`);
+  }
+}
+
+function assertQuantumRequestedStrength(value: unknown): asserts value is QuantumRequestedStrength {
+  if (!isQuantumRequestedStrength(value)) {
+    throw new Error(`Unknown quantum requestedStrength: ${String(value)}. Expected one of ${QUANTUM_REQUESTED_STRENGTHS.join(', ')}.`);
+  }
+}
+
 function evidenceFromArgs(args: QuantumClaimCheckArgs): QuantumClaimCheckInput {
   if (hasArg(args, 'evidenceJson')) return parseJsonObject(args.evidenceJson, 'evidenceJson') as unknown as QuantumClaimCheckInput;
   if (hasArg(args, 'evidencePath')) {
@@ -104,7 +126,9 @@ function evidenceFromArgs(args: QuantumClaimCheckArgs): QuantumClaimCheckInput {
   if (!isQuantumClaimCheckCase(caseName)) {
     throw new Error(`Unknown quantum claim check case: ${caseName}`);
   }
-  return buildQuantumClaimCheckCase(caseName, args.claimId ?? 'Q5');
+  const claimId = args.claimId ?? 'Q5';
+  assertQuantumClaimId(claimId);
+  return buildQuantumClaimCheckCase(caseName, claimId);
 }
 
 export function createQuantumClaimAdmissibilityHandlers(_ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -112,7 +136,10 @@ export function createQuantumClaimAdmissibilityHandlers(_ctx: HandlerContext): R
     quantum_claim_check(args: QuantumClaimCheckArgs = {}) {
       assertReadOnlyBoundary('quantum_claim_check', args as Record<string, unknown>);
       const input = evidenceFromArgs(args);
-      const effectiveInput = args.requestedStrength ? { ...input, requestedStrength: args.requestedStrength } : input;
+      if (args.requestedStrength !== undefined) {
+        assertQuantumRequestedStrength(args.requestedStrength);
+      }
+      const effectiveInput = args.requestedStrength !== undefined ? { ...input, requestedStrength: args.requestedStrength } : input;
       const result = evaluateQuantumClaimGatePolicy(effectiveInput);
       return wantsJson(args) ? result : renderQuantumClaimGatePolicyText(result);
     },

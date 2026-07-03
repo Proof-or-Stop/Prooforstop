@@ -35,6 +35,20 @@ function hasReason(result: { reasons: readonly string[] }, code: string): boolea
   return result.reasons.some((reason) => reason === code || reason.startsWith(`${code}:`));
 }
 
+function expectDeterministicInputError(label: string, fn: () => unknown, expectedMessage: RegExp): void {
+  assert.throws(
+    fn,
+    (error: unknown): boolean => {
+      assert.ok(error instanceof Error, `${label} should throw an Error`);
+      assert.equal(error instanceof TypeError, false, `${label} should not leak a raw TypeError`);
+      assert.match(error.message, expectedMessage, `${label} should report a deterministic validation message`);
+      return true;
+    },
+    `${label} should fail closed`,
+  );
+  console.log(`${label}: INPUT BLOCK`);
+}
+
 function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -529,12 +543,35 @@ const handlerComplete = handlers.quantum_claim_check({ case: 'complete', format:
 assert.equal(handlerComplete.decision, 'advance', 'handler complete JSON advances');
 assert.equal(handlerComplete.boundary.productionClaim, false, 'handler complete JSON boundary.productionClaim false');
 assert.equal(handlerComplete.boundary.authorityClaim, false, 'handler complete JSON boundary.authorityClaim false');
+const handlerCompleteQ12 = handlers.quantum_claim_check({
+  case: 'complete',
+  claimId: 'Q12',
+  requestedStrength: 'scoped',
+  format: 'json',
+}) as QuantumClaimGatePolicyResult;
+assert.equal(handlerCompleteQ12.decision, 'advance', 'handler complete Q12 JSON advances');
+assert.equal(handlerCompleteQ12.claimId, 'Q12', 'handler complete Q12 preserves requested claimId');
 const handlerDegraded = handlers.quantum_claim_check({ case: 'degraded', format: 'json' }) as QuantumClaimGatePolicyResult;
 assert.equal(handlerDegraded.decision, 'degrade', 'handler degraded JSON degrades');
 const handlerOverclaimText = handlers.quantum_claim_check({ case: 'overclaim' }) as string;
 assert.match(handlerOverclaimText, /decision: stop/, 'handler overclaim text stops');
 assert.match(handlerOverclaimText, /productionClaim: false/, 'handler overclaim text boundary.productionClaim false');
 assert.match(handlerOverclaimText, /authorityClaim: false/, 'handler overclaim text boundary.authorityClaim false');
+expectDeterministicInputError(
+  'handler invalid requestedStrength',
+  () => handlers.quantum_claim_check({ case: 'complete', requestedStrength: 'productionn', format: 'json' } as any),
+  /Unknown quantum requestedStrength: productionn/,
+);
+expectDeterministicInputError(
+  'handler invalid built-in claimId',
+  () => handlers.quantum_claim_check({ case: 'complete', claimId: 'Q404', format: 'json' } as any),
+  /Unknown quantum claimId: Q404/,
+);
+expectDeterministicInputError(
+  'core complete fixture invalid claimId',
+  () => buildQuantumClaimCheckCase('complete', 'Q404' as any),
+  /Unknown quantum claimId: Q404/,
+);
 const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
 const directCompleteEvidenceObject = JSON.parse(directCompleteEvidenceJson) as QuantumClaimCheckInput;
 for (const blankEvidenceJson of ['', '   ']) {

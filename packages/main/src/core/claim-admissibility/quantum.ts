@@ -185,17 +185,19 @@ export type QuantumVerifierNormalizationResult =
       readonly reasons: readonly string[];
     };
 
-export type QuantumRequestedStrength =
-  | 'scoped'
-  | 'ground-state'
-  | 'convergence'
-  | 'quantum-advantage'
-  | 'theory'
-  | 'hardware'
-  | 'physical-validation'
-  | 'solver-improvement'
-  | 'production'
-  | 'authority';
+export const QUANTUM_REQUESTED_STRENGTHS = [
+  'scoped',
+  'ground-state',
+  'convergence',
+  'quantum-advantage',
+  'theory',
+  'hardware',
+  'physical-validation',
+  'solver-improvement',
+  'production',
+  'authority',
+] as const;
+export type QuantumRequestedStrength = typeof QUANTUM_REQUESTED_STRENGTHS[number];
 
 export const QUANTUM_CLAIM_CHECK_CASES = [
   'complete',
@@ -392,6 +394,12 @@ const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
 
 function isKnownClaim(claimId: string): claimId is QuantumClaimId {
   return (QUANTUM_CLAIM_IDS as readonly string[]).includes(claimId);
+}
+
+function assertKnownClaim(claimId: string): asserts claimId is QuantumClaimId {
+  if (!isKnownClaim(claimId)) {
+    throw new Error(`Unknown quantum claimId: ${claimId}. Expected one of ${QUANTUM_CLAIM_IDS.join(', ')}.`);
+  }
 }
 
 function isKnownEvidenceKind(evidenceKind: string): evidenceKind is QuantumEvidenceKind {
@@ -941,12 +949,14 @@ function completeReceipt(evidenceKind: QuantumEvidenceKind, identity: QuantumEvi
 }
 
 export function buildCompleteQuantumEvidence(claimId: QuantumClaimId = 'Q5'): QuantumClaimCheckInput {
+  const knownClaimId = String(claimId);
+  assertKnownClaim(knownClaimId);
   const activeIdentity = completeIdentity();
   return {
     schemaVersion: QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
-    claimId,
+    claimId: knownClaimId,
     activeIdentity,
-    receipts: expectedReceiptKinds(claimId).map((evidenceKind) => completeReceipt(evidenceKind, activeIdentity)),
+    receipts: expectedReceiptKinds(knownClaimId).map((evidenceKind) => completeReceipt(evidenceKind, activeIdentity)),
     requestedStrength: 'scoped',
     narrativeClaim: 'Local scoped computational quantum claim with current bound evidence.',
   };
@@ -956,7 +966,9 @@ export function buildQuantumClaimCheckCase(
   caseName: QuantumClaimCheckCase = 'complete',
   claimId: QuantumClaimId = 'Q5',
 ): QuantumClaimCheckInput {
-  if (caseName === 'complete') return buildCompleteQuantumEvidence(claimId);
+  const knownClaimId = String(claimId);
+  assertKnownClaim(knownClaimId);
+  if (caseName === 'complete') return buildCompleteQuantumEvidence(knownClaimId);
 
   if (caseName === 'weak' || caseName === 'degraded') {
     const input = buildCompleteQuantumEvidence('Q5');
