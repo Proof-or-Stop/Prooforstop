@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5f5b",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node *",
+    "npm *",
+    "pnpm *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/src",
+    "pnpm-lock.yaml"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation remains local and uses Lattice lifecycle gates.",
+  "createdAt": "2026-07-03T15:11:40.248Z",
+  "updatedAt": "2026-07-03T15:11:40.248Z",
+  "_hash": "64c629f9141a830218158de53d11604f35221e94a7993370df412928e292ff83"
+}

@@ -1,0 +1,159 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add historical all-seed backfill orchestration",
+      "context": "Create a digest-bound command that can dry-run and apply all currently proposable historical seeds into inert candidate playbooks with idempotent resume and clear counts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "Historical seeds can be converted into candidate playbooks without manual 20-item loops.",
+      "excludes": [
+        "No candidate becomes active from backfill alone",
+        "No lifecycle gate evidence is created"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-backfill-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fixture with multiple proposable seeds backfills all candidates in one apply run.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A second apply run is idempotent and reports already represented seeds instead of duplicating candidates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Backfill refuses stale observe digest and never activates candidates or writes outcome rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add bounded candidate trial exposure and matched-control observation",
+      "context": "Add a non-authoritative trial surface that can record candidate inspection exposures and matched control observations for evidence gathering without surfacing candidates as active runtime guidance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md"
+      ],
+      "userSees": "Candidate playbooks can collect real exposure/outcome data before activation.",
+      "excludes": [
+        "No trial traffic can satisfy DONE",
+        "No matched control can replace explicit outcome evidence"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A candidate trial records concrete exposure and matched control rows and promotion status reports them.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Trial is bounded by candidate status, limit, and deterministic match keys.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Trial refuses active-only mutation, authority claims, and activation without helped outcome evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add timer automation entrypoint with fail-closed policy",
+      "context": "Add an explicit timer/sweep command that can run backfill, promotion sweep, and evidence activation according to flags and policy while remaining non-authoritative and bounded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "The playbook lifecycle can be advanced by a repeatable automation command instead of relying on a human remembering each step.",
+      "excludes": [
+        "No hidden background daemon",
+        "No unreviewed auto-active path",
+        "No remote publish"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Timer dry-run explains planned work and apply only runs enabled bounded actions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Disabled actions are reported as skipped, not silently ignored.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Timer cannot activate candidates unless existing evidence activation guards pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
