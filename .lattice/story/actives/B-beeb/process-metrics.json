@@ -1,13 +1,13 @@
 {
   "storyId": "B-beeb",
-  "generatedAt": "2026-07-03T01:45:49.363Z",
+  "generatedAt": "2026-07-03T04:14:18.476Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
-    "checklistItems": 4,
+    "checklistItems": 5,
     "reviewRounds": 5,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -100,7 +100,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -116,7 +116,7 @@
           ]
         },
         "postDevChecklistChurn": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -184,7 +184,7 @@
     },
     "planning": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -202,7 +202,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 1,
+          "value": 0.8,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -238,7 +238,7 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -247,7 +247,7 @@
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -258,7 +258,7 @@
           "note": "proxy: uses reviewer findings as signal, not git commit author data"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -266,7 +266,7 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
