@@ -29,6 +29,25 @@
       "_hash": "9694d43e44b9292079013b35983a1261ec9a3f38be82ef335c47e19529d5d27e",
       "signatureTag": "missing|unknown|packages-main-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c28f:F-003",
+      "desc": "B-c28f marks CHK-001:happy:0 and CHK-002:happy:0 as CLI verification, but the smoke test covers done-experience observe/propose only through createPlaybookHandlers direct handler calls at packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts:605 and :626. The real CLI command schema still restricts --source to dev-memory|finding-signals|raw-findings|all at packages/main/src/cli/command-catalog.ts:1955 and :1960, so node packages/main/dist/cli.js playbook_seed_observe --source=done-experience --json fails validation with “Invalid option”. Tests therefore do not cover the required CLI path for done_experience observe/propose and miss a user-visible rejection.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T01:58:51.562Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-004",
+      "_hash": "a9b8850a1baf55c98f7a121a12c8909106bafffcc8abc6bb2f45593b6c17ac3b",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "test-coverage-cli-schema-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
