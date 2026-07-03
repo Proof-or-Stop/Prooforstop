@@ -68,6 +68,18 @@
           "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
           "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
           "timestamp": "2026-07-03T02:06:41.756Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "result": "pass",
+          "note": "Case (5): with --scratchDir inside a git checkout the runner spawned observability_snapshot --json in the isolated cwd, saw resolvedLearningRoot escape to the git toplevel, exited 1 with store-isolation assertion failed BEFORE host execution (stub marker file untouched, no run.json, cell_abort row on the progress ledger). Case (2): missing leakage-audit.jsonl and a pass:false row both refuse with exit 1 naming the audit/fixture before any host run; probe env strips LATTICE_PROJECT_ROOT (case 3 ran with it poisoned at the production repo and still resolved the mkdtemp root).",
+          "headHash": "c8413b524cec9375aef6a33d1a68f7b60781e278",
+          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
+          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
+          "timestamp": "2026-07-03T02:06:42.549Z"
         }
       ]
     },
