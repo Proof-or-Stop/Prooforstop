@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T01:55:18.656Z",
       "reviewRunId": "B-c28f:RR-005",
       "_hash": "cd4c709e52992086b81a0a3ff0a186afdb9493323586ae99218769521e31883a"
+    },
+    {
+      "id": "B-c28f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review for B-c28f:F-002 passed. packages/main/src/cli/command-catalog.ts includes done-experience in the source enum for playbook_seed_observe and playbook_seed_propose_batch; worktree dist CLI help lists done-experience for both commands; direct dist CLI runs accepted --source=done-experience for observe and dry-run propose with sourceFilter=done-experience; node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js passed 16/16. No new quality issues found in the related command-catalog or smoke/doc updates.",
+      "createdAt": "2026-07-03T02:18:24.941Z",
+      "reviewRound": "2026-07-03T02:10:51.088Z",
+      "reviewRunId": "B-c28f:RR-007",
+      "_hash": "6ae4fef77a5cdeab9670a2617161520fba2f57095612234f8b9c1b899b9cf105"
     }
   ]
 }
