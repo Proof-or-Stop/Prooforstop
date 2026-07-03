@@ -399,6 +399,25 @@ try {
     runTool(errArgs(makeRoot(tmp, 'root-drift-records', { scoreText: stubScoreRecordsText(drifted) })), { cwd: tmp }),
     'pilot baseline recount');
 
+  // --- store isolation: separator-safe production-store prefix check (F-001) -------------------------
+  // A SIBLING path <root>/.lattice/learning-extra/... shares the string prefix
+  // <root>/.lattice/learning but is NOT inside the production store — must pass.
+  const siblingRoot = join(tmp, 'root-sibling-store');
+  const siblingRecords = stubRecords().map((r) => ({ ...r, storeRoot: join(siblingRoot, '.lattice', 'learning-extra', 'x') }));
+  makeRoot(tmp, 'root-sibling-store', { scoreText: stubScoreRecordsText(siblingRecords) });
+  const siblingOut = join(tmp, 'out-sibling-store');
+  const sibling = runTool([`--root=${siblingRoot}`, `--experimentId=${EXP_ID}`, `--out=${siblingOut}`], { cwd: tmp });
+  check('store isolation: sibling storeRoot <root>/.lattice/learning-extra/x does NOT trigger the violation',
+    sibling.status === 0,
+    `status=${sibling.status} stderr=${sibling.stderr}`);
+  // A path UNDER the production store <root>/.lattice/learning/... MUST fail.
+  const prodStoreRoot = join(tmp, 'root-production-store');
+  const prodRecords = stubRecords();
+  prodRecords[0].storeRoot = join(prodStoreRoot, '.lattice', 'learning', 'x'); // fx-1 control (non-voided)
+  makeRoot(tmp, 'root-production-store', { scoreText: stubScoreRecordsText(prodRecords) });
+  assertOneLineError('store isolation: storeRoot <root>/.lattice/learning/x MUST trigger the violation',
+    runTool(errArgs(prodStoreRoot), { cwd: tmp }), 'per-run store isolation');
+
   // --- fail-closed verdict guard ------------------------------------------------------------------------
   assertOneLineError('fail closed: n-freeze verdict not refused -> map refuses to claim INCONCLUSIVE',
     runTool(errArgs(makeRoot(tmp, 'root-frozen', { nFreezeOverrides: { freezeVerdict: 'frozen' } })), { cwd: tmp }),

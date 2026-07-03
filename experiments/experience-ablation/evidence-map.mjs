@@ -55,7 +55,7 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import {
   canonicalStringify,
   extractPayload,
@@ -287,10 +287,14 @@ export function buildEvidenceMap({ root, experimentId, generatedAt, artifacts, p
       'every non-voided record logs surfacedMemoryIds in both arms (retrieval computed regardless of rendering)'),
   ];
 
-  // Row 4 — store isolation + leakage audit.
+  // Row 4 — store isolation + leakage audit. The production-store test is
+  // separator-safe (exact match OR prefix + path separator, mirroring the
+  // selfcheck digestTree skip pattern) so a SIBLING path like
+  // <root>/.lattice/learning-extra/... is NOT flagged as a violation.
   const productionStore = join(root, '.lattice', 'learning');
+  const insideProductionStore = (p) => p === productionStore || p.startsWith(productionStore + sep);
   const isolationOk = liveRecs.every((r) =>
-    typeof r.storeRoot === 'string' && r.storeRoot.length > 0 && !r.storeRoot.startsWith(productionStore) && r.retrievalViolationCount === 0);
+    typeof r.storeRoot === 'string' && r.storeRoot.length > 0 && !insideProductionStore(r.storeRoot) && r.retrievalViolationCount === 0);
   if (leakageRows.length === 0) fail('leakage-audit.jsonl has no rows — run the leakage audit (leakage-audit.mjs)');
   const row4Checks = [
     crossCheck('per-run store isolation', isolationOk,
