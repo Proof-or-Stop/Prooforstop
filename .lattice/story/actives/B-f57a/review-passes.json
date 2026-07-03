@@ -188,6 +188,15 @@
       "reviewRound": "2026-07-03T11:22:51.374Z",
       "reviewRunId": "B-f57a:RR-034",
       "_hash": "f38f9c2abc7fa77c06a4773f63e39161db79d540c133e72490b0c33ced4ff535"
+    },
+    {
+      "id": "B-f57a:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS round 12 after main merge 9850f7601: cross_host_review remains local non-authority evidence, storyScopedMutating and owner-gated by command policy, with explicit review-only Codex dispatch authorization before any spawn. gitCwd routing is consistent for HEAD, material/story hashes, dirty checks, head drift guards, and clean snapshot worktree cleanup. Final verdict pair write is guarded by pre/post material and HEAD checks with cleanup on post-write drift before process-event append. DEFAULT_PHASE_TOOLS all-phase exposure aligns with command-policy/process-fact allowedPhases=all and does not bypass handler/policy guards.",
+      "createdAt": "2026-07-03T11:25:59.203Z",
+      "reviewRound": "2026-07-03T11:22:51.374Z",
+      "reviewRunId": "B-f57a:RR-035",
+      "_hash": "5ffc69bb879b6d6d390b0c10beeceb67b8a3593d427e9c4cd260a1ab0879c939"
     }
   ]
 }
