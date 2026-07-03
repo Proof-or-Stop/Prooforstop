@@ -1,0 +1,64 @@
+{
+  "storyId": "B-c28f",
+  "checkedAt": "2026-07-03T02:45:11.681Z",
+  "headHash": "045314df574d2a007630e2959a6728a2746a6a18",
+  "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+  "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+  "reviewRound": "2026-07-03T02:29:23.535Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "DONE experience JSON/source-lineage rows document sourceArtifactKind as done_experience while the CLI uses --source=done-experience.",
+      "status": "verified",
+      "verifiedBy": "manual file review plus validation docs intent CHK-003",
+      "evidence": "Lines 266-285 document sourceArtifactKind: done_experience, authority non_authoritative, gateEvidence false; lattice validate output records CHK-003 docs coverage as covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "DONE experience is candidate-only material and must not count DONE success alone as helped or activate runtime guidance.",
+      "status": "verified",
+      "verifiedBy": "manual file review plus focused smoke",
+      "evidence": "Lines 158-160, 283-285, 303-310, and 327-334 state proposal/candidate-only, no helped, no activation; smoke asserts candidate status, zero outcome rows, helpedCount 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Promotion policy keeps DONE settlement from counting as helped unless explicit exposure and structured verdict exist.",
+      "status": "verified",
+      "verifiedBy": "manual file review",
+      "evidence": "Lines 306-309 state DONE success alone cannot settle a candidate as helped and DONE experience seeds never record helped or activate runtime guidance."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "The CLI path is documented for observe, propose, and candidate approval: playbook_seed_observe, playbook_seed_propose_batch, and playbook_candidate_batch_approve.",
+      "status": "verified",
+      "verifiedBy": "manual file review plus smoke transcript",
+      "evidence": "Lines 246-264, 292-310, and 315-333 document observe/propose/approve; transcript-diff records observe --source=done-experience, propose --apply --observeDigest, approve --apply --manifestDigest."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-c28f-build",
+      "transcript": "npm --prefix packages/main run build passed; recorded in done-required-evidence.json receipt packages/main build with status PASS exitCode 0."
+    },
+    {
+      "featureId": "B-c28f-focused-smoke",
+      "transcript": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js passed 16/16; transcript-diff records B-c28f DONE experience observes stable seeds and approves inert candidates idempotently - PASS, including observe/propose/approve, candidate status, zero outcome rows, helpedCount 0."
+    },
+    {
+      "featureId": "B-c28f-validate",
+      "transcript": "lattice validate --story=B-c28f --json passed: test-evidence.json output has status pass, allPass true, 32 configured commands with zero exit codes, and verificationCoverage 11/11 required covered with 0 missing."
+    },
+    {
+      "featureId": "B-c28f-done-required",
+      "transcript": "lattice done_required_validate --storyId=B-c28f --json passed: done-required-evidence.json status PASS, including packages/main build PASS and root full test suite PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed changed code, docs, transcript-diff, validation, DONE-required evidence, and review quorum. DONE experience becomes non-authoritative done_experience seed material that can be observed, proposed, and approved into an inert candidate only; DONE success alone does not create helped outcomes or active runtime guidance. No delivery blockers found."
+  },
+  "_hash": "32da6163cde38b8d69450357b22b701e8ef0d109bc6700b2423d85c97a16b22e"
+}
