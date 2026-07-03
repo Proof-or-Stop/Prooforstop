@@ -1,0 +1,99 @@
+{
+  "storyId": "B-c28f",
+  "checkedAt": "2026-07-03T01:44:18.430Z",
+  "features": [
+    {
+      "feature": "CHK-001 Add DONE experience source lineage",
+      "covered_by": "CHK-001 is covered by plan section CHK-001, checklist files packages/main/src/core/experience-layer-types.ts, packages/main/src/core/source-lineage-audit.ts, packages/main/src/core/playbook-seed.ts, test packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts, and verification intents for done_experience seed output, stable canonicalSourceKey/version, partial DONE artifacts, dedup, and no helped/active outcome.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist/scope-contract/docs review"
+    },
+    {
+      "feature": "CHK-002 Convert DONE experience seed into proposal and candidate",
+      "covered_by": "CHK-002 is covered by plan section CHK-002, checklist files packages/main/src/core/playbook-seed.ts and packages/main/src/handlers/playbook.ts, test packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts, and verification intents for observeDigest proposal apply, manifestDigest candidate approval, digest drift failure, and candidate inertness.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist/scope-contract/docs review"
+    },
+    {
+      "feature": "CHK-003 Document DONE-experience candidate boundary",
+      "covered_by": "CHK-003 is covered by plan section CHK-003, checklist doc files docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md and docs/requirements/decisions/playbook-promotion-worker-execution-plan.md, and docs verification intents for the exact candidate-only boundary and historical-backfill separation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist/scope-contract/docs review"
+    },
+    {
+      "feature": "exclusion automatic active playbook activation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan says automatic activation is out of scope; scope contract explicitExcludes includes automatic active playbook activation; decision docs require separate evidence-activated apply for activation.",
+      "source": "plan/scope-contract/docs review"
+    },
+    {
+      "feature": "exclusion historical seed backfill execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan says historical backfill is out of scope; scope contract explicitExcludes includes historical seed backfill execution; decision docs separate current DONE story seeding from later historical backfill.",
+      "source": "plan/scope-contract/docs review"
+    },
+    {
+      "feature": "exclusion semantic LLM dedup",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan says semantic LLM dedup is out of scope; scope contract explicitExcludes includes semantic LLM dedup; decision docs say V1 guarantees structured lineage dedup only and warns on semantic similarity.",
+      "source": "plan/scope-contract/docs review"
+    },
+    {
+      "feature": "exclusion DONE gate semantics and helped settlement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan says DONE gate behavior changes are out of scope and DONE success alone never records helped, activates runtime guidance, or satisfies gate evidence; scope contract explicitExcludes includes DONE gate semantics; decision docs keep DONE settlement as non-blocking health only.",
+      "source": "plan/scope-contract/docs review"
+    },
+    {
+      "feature": "exclusion remote publish",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan says remote publish is out of scope; scope contract explicitExcludes includes remote publish.",
+      "source": "plan/scope-contract review"
+    },
+    {
+      "feature": "exclusion protected runtime and lifecycle gate files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Scope contract protectedFiles are packages/main/src/core/learning-store.ts, packages/main/src/core/playbook-runtime-memory.ts, packages/main/src/handlers/story-advance.ts, and packages/main/src/handlers/phase-gates.ts, keeping Story 1 away from runtime memory consumption and lifecycle gate behavior.",
+      "source": "scope-contract review"
+    },
+    {
+      "feature": "scope-contract alignment with current PLAN lifecycle metadata",
+      "covered_by": "scope_contract_check shows mode=enforce and current scope gate fails on story-local lifecycle artifacts .lattice/story/actives/B-c28f/intent-collision.json, original-intent-snapshot.json, and proofstory.json as unknown out-of-scope paths.",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "scope_contract_check review"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 3,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "844035f7e70b04898d17689efb199cc87acd3eee928605a125f83949d8e4a975",
+  "openQuestions": [
+    {
+      "id": "OQ-B-c28f-scope-contract-lifecycle-metadata",
+      "q": "The product scope, checklist, plan, and documented exclusions align, but the enforce-mode scope contract currently fails on changed story-local ProofStory lifecycle artifacts. Should .lattice/story/actives/B-c28f/intent-collision.json, original-intent-snapshot.json, and proofstory.json be explicitly acknowledged/covered by the contract or treated as registry-covered lifecycle metadata before PLAN advances?",
+      "evidence": "lattice scope_contract_check --storyId=B-c28f reports Scope gate: fail with OUT_OF_SCOPE for intent-collision.json, original-intent-snapshot.json, and proofstory.json even though the implementation file scope itself matches CHK-001 through CHK-003.",
+      "sourcePointers": [
+        "lattice scope_contract_check --storyId=B-c28f",
+        "lattice scope_contract_show --storyId=B-c28f",
+        "lattice plan_get --storyId=B-c28f",
+        "lattice checklist_get --storyId=B-c28f"
+      ]
+    }
+  ]
+}
