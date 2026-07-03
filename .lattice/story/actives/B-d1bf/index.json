@@ -4,7 +4,7 @@
   "title": "Quantum M3: add local gate policy check for claim-admissibility transitions",
   "description": "Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md. This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "quantum",
@@ -84,6 +84,15 @@
       "branch": "story/B-d1bf",
       "user": "Harmonygo",
       "sessionId": "sess-3db278a6df514f4f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:58:21.364Z",
+      "branch": "story/B-d1bf",
+      "user": "Harmonygo",
+      "sessionId": "sess-6b7487d0b6fa0f6c",
       "agent": "main"
     }
   ],
