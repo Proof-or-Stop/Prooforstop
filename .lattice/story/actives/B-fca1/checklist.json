@@ -56,6 +56,18 @@
           "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
           "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
           "timestamp": "2026-07-03T10:12:23.061Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "result": "pass",
+          "note": "Determinism cases PASS: double run byte-identical for json + md with --generatedAt, and without the flag generatedAt records null while staying byte-identical. Missing-artifact loop PASS: each of the 12 required evidence artifacts plus the plan document, when omitted from a hermetic stub root, fails with exactly one actionable stderr line prefixed evidence-map: naming the artifact.",
+          "headHash": "079fca5200e1dd44951ef18add67042874af05d8",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:12:37.955Z"
         }
       ]
     },
