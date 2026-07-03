@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T02:19:40.977Z",
       "reviewRunId": "B-f57a:RR-003",
       "_hash": "3034a672b0abde4b2710487f1205e0040c6cf400a6335b658717ee7d416e20b4"
+    },
+    {
+      "id": "B-f57a:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-consistency review. F-001 fix verified: threat-model.md lines 6/39/44/71 all retargeted M1→M-crypto; \"core M1 fix\" → \"core M-crypto fix\" with clarifying note; §4/§6 headings updated. Execution-plan.md fully consistent: M1 heading now \"Automatic cross-host review + disagreement surfacing (crypto-deferred)\"; old \"Provenance: signed verdict + public-key pinning\" content lives under M-crypto heading. Dependency chain updated M0→M1→M2→M3→M-crypto→M4→M5. Independence ceiling intact: cross-host-review.ts:12-13 states \"cross-vendor (Claude host A / Codex host B), same-operator orchestrated — the honest ceiling stated in the threat model\"; no Byzantine/mutually-distrusting language anywhere in new modules. No crypto leaked into M1 modules: receipt-bundle.ts and authority-signing.ts untouched (zero diff); canonicalDigest import in handlers/cross-host-review.ts is SHA-256 hashing only. Plan-promised interface delivered: diffFindings/jointDecision/submitLocalVerdict all implemented; allowReviewOnlyRealHostSubprocess distinct from allowRealHostSubprocess in dispatch-policy.ts. Residue grep for old M1=provenance/signed-verdict/public-key-pinning concept: one hit at execution-plan.md:94 is the M-crypto heading (correct). Other M1 hits in B-337f/B-d217/B-ac71 are (a) different program milestones (experience-ablation) or (b) immutable historical audit records for a completed story — not active concept residue. No doc-promise-undelivered found. Zero findings.",
+      "createdAt": "2026-07-03T02:40:53.464Z",
+      "reviewRound": "2026-07-03T02:38:16.913Z",
+      "reviewRunId": "B-f57a:RR-004",
+      "_hash": "e396cd5c61d57b7498af49ee829e1a1680c7c0c96d96e7abfbd2a0f1e2ca4450"
     }
   ]
 }
