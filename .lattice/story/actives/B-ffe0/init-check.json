@@ -1,0 +1,46 @@
+{
+  "storyId": "B-ffe0",
+  "checkedAt": "2026-07-03T00:25:04.919Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-002 gate signature (renderedLines: string[]) must handle both renderMemoryFreshnessPack (full 60-line) and renderMemoryFreshnessPackSummary (4-line summary) call sites — done-prepare.ts and done-closure.ts both use the summary variant. The context says to update the wiring oracle but does not enumerate which oracle regexes will break; the implementer must track two distinct rendered-output shapes through the same gate, which is a design-clarity gap not captured explicitly in the checklist context."
+    },
+    {
+      "severity": "low",
+      "desc": "Background cites authority/gateEvidence at playbook-runtime-memory.ts:92-93/156/558/713 as a single-location cluster, but line 713 is `authority: non_authoritative` and line 714 is `gateEvidence: false`; the 714 line is omitted from the citation. Immaterial for implementation but the line-reference is off-by-one for the second field."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-003 lists playbook_diff/playbook_activate-class read paths as commands to block but neither name appears in command-policy.ts under those exact identifiers. The smoke test will enumerate them, but the background-level claim should be verified against actual registered command names to avoid the implementer blocking phantom commands or missing real retrieval-surfacing commands."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-03T00:24:14.759Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-03T00:25:04.919Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 gate signature (renderedLines: string[]) must handle both renderMemoryFreshnessPack (full 60-line) and renderMemoryFreshnessPackSummary (4-line summary) call sites — done-prepare.ts and done-closure.ts both use the summary variant. The context says to update the wiring oracle but does not enumerate which oracle regexes will break; the implementer must track two distinct rendered-output shapes through the same gate, which is a design-clarity gap not captured explicitly in the checklist context."
+        },
+        {
+          "severity": "low",
+          "desc": "Background cites authority/gateEvidence at playbook-runtime-memory.ts:92-93/156/558/713 as a single-location cluster, but line 713 is `authority: non_authoritative` and line 714 is `gateEvidence: false`; the 714 line is omitted from the citation. Immaterial for implementation but the line-reference is off-by-one for the second field."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-003 lists playbook_diff/playbook_activate-class read paths as commands to block but neither name appears in command-policy.ts under those exact identifiers. The smoke test will enumerate them, but the background-level claim should be verified against actual registered command names to avoid the implementer blocking phantom commands or missing real retrieval-surfacing commands."
+        }
+      ]
+    }
+  ],
+  "_hash": "c48de551a75fd4bbdb0ca93c14e53e4104380fec040980b0ce87408e7534b5b8"
+}
