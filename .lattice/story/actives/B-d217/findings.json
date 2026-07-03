@@ -71,6 +71,24 @@
       ],
       "signatureTag": "missing|mjs|quality-cleanup-score",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d217:F-005",
+      "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 all have stale verificationEvidence: materialHash in evidence (2239eca68...) does not match the review-entry materialHash (55d863004...) because score-selfcheck.mjs was added as a material file in the CHK-003 commit after these evidence items were recorded. lattice validate reports verification coverage missing 6 required intents (status stale). Evidence for CHK-001 was recorded while score.mjs was already final and has not changed, but the stale gate blocks TEST. Implementer must re-record CHK-001 verificationEvidence with current materialHash to clear the gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T01:02:07.730Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-003",
+      "_hash": "fbfc55c70862f51b217beb4d871b38646a00bb073a8f0b98068cf035f2c48961",
+      "files": [
+        "experiments/experience-ablation/score.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
