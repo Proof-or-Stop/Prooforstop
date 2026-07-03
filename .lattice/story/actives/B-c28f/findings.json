@@ -14,6 +14,21 @@
       "_hash": "39b474d0c9c979396dedbdead35ac5d55370d500695fba929ff0453709da8f15",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c28f:F-002",
+      "desc": "packages/main/src/cli/command-catalog.ts:1956 and packages/main/src/cli/command-catalog.ts:1961 MEDIUM: the new done-experience source filter is implemented in core/handler code but omitted from the CLI z.enum for playbook_seed_observe and playbook_seed_propose_batch, so the built CLI rejects source=done-experience before the handler runs; this leaves CHK-001/CHK-002 without the requested user-facing filtered observe/propose path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T01:58:24.454Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-001",
+      "_hash": "9694d43e44b9292079013b35983a1261ec9a3f38be82ef335c47e19529d5d27e",
+      "signatureTag": "missing|unknown|packages-main-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
