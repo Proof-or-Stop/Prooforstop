@@ -51,10 +51,10 @@
           "command": "node experiments/experience-ablation/score.mjs --fixture=corpus/fx-bd7417c9-0 --run=run-a (x2) + diff",
           "result": "pass",
           "note": "Generated corpus (seed chk001-verify), synthesized control-arm run dir (stale-doc reference-bad payload, 2 retrieval_violation + 1 experience_pack_surfaced events). Output: one JSON record, schemaVersion proofbound.experience-ablation-score.v1, all section-10 fields in SCORE_KEY_ORDER (experimentId..evidenceRefs); diff of two invocations empty (byte-identical); oracleMismatch=true, defectPresent=true, retrievalViolationCount=2, memoryPackShown=false, surfacedMemoryIds=[mem-001,mem-002], timeToDoneMs=270000 from startedAt/endedAt inputs.",
-          "headHash": "8525d21a683d40f6bdc883f6d6677b2c22399f63",
-          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
-          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
-          "timestamp": "2026-07-03T00:41:08.785Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "node score.mjs --fixture=corpus/<false-done-fx> --run=run-fd (without/with done-readiness.json + final-response-check.json)",
           "result": "pass",
           "note": "Run dir with NO done-readiness.json/final-response-check.json: falseDoneAttempt=true via oracle fallback, details.sources.falseDoneAttempt=oracle-fallback, sources.doneReadiness=absent. With done-readiness.json all-ready: structured precedence overrides oracle (falseDoneAttempt=false, source=structured-none-fired, evidenceRefs gains run:done-readiness.json). With not-ready row + failing final-response-check record: falseDoneAttempt=true, source=done-readiness+final-response-check.",
-          "headHash": "30996e268366a498628f1842f035c4dd6aa8b891",
-          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
-          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
-          "timestamp": "2026-07-03T00:41:23.843Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "cd / && node score.mjs --fixture=<abs> --run=<abs>; cd /tmp && node score.mjs ... ; cmp outputs; grep -n \"Date.now|new Date\" score.mjs",
           "result": "pass",
           "note": "Identical output from cwd=/ and cwd=/tmp with absolute args (CHDIR-INDEPENDENT). grep for Date.now/new Date in score.mjs: zero hits — timeToDoneMs derived only from run.json timeToDoneMs or startedAt/endedAt inputs. Stable key order enforced by SCORE_KEY_ORDER in renderScoreRecord (rejects unknown keys); --out file byte-identical to stdout. storeRoot must be absolute (cwd-resolution rejected at validation).",
-          "headHash": "8397b140c4cb6ffc6cfb13cfff6e37d9f56ad1f4",
-          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
-          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
-          "timestamp": "2026-07-03T00:41:24.781Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         }
       ]
     },
@@ -135,10 +135,10 @@
           "command": "for f in experimentId arm hostId storeRoot timeToDoneMs startedAt endedAt commandCount doneReached validationPass experience_pack_surfaced retrieval_violation topHitIds done-readiness.json final-response-check.json rows records ready verdict activity.jsonl workspace productionLearningRoot; do grep -c $f score.mjs; done",
           "result": "pass",
           "note": "RUN-RECORD.md documents the full run-dir layout (run.json required fields incl. timings alternative, activity.jsonl slice with both M3 event mappings, workspace/, optional done-readiness.json + final-response-check.json, degradation semantics, voiding, error catalog) and states it is the BINDING producer contract for the M6 campaign runner. Grep cross-check: every documented field/artifact has >=2 hits in score.mjs reads; reverse check: all runtime-validated run.json fields (arm, commandCount, storeRoot, timeToDoneMs) are documented.",
-          "headHash": "6ad8fcb8a30a6db7a2ba959d5a15901a614f3a7a",
-          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
-          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
-          "timestamp": "2026-07-03T00:43:08.226Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "node score.mjs --fixture=<fx> --run=run-empty; node score.mjs --fixture=<fx> --run=run-fd (optional files absent)",
           "result": "pass",
           "note": "Empty run dir: exit=1, stderr exactly one line: score: missing required run record file: <path>/run.json. Missing activity.jsonl similarly one-line + exit 1. Missing OPTIONAL done-readiness.json/final-response-check.json does NOT error: record emitted with details.sources oracle-fallback (CHK-001 edge transcript).",
-          "headHash": "aae88574c328582afe237cf6916593b633a7aa83",
-          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
-          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
-          "timestamp": "2026-07-03T00:43:10.313Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "run.json storeRoot=<repoRoot>/.lattice/learning -> score; run.json arm=CONTROL -> score",
           "result": "pass",
           "note": "storeRoot set to the default production learning root (<repoRoot>/.lattice/learning derived from score.mjs location): record voided=true, voidReason names store isolation breach (plan section 12) with both paths. Malformed arm CONTROL: exit=1, exactly one line: score: run.json field \"arm\" must be \"control\" or \"treatment\" (got \"CONTROL\").",
-          "headHash": "e35ffa563c8cd926990defe52bb02495c08e35d5",
-          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
-          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
-          "timestamp": "2026-07-03T00:43:11.882Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         }
       ]
     },
@@ -220,10 +220,10 @@
           "command": "node experiments/experience-ablation/score-selfcheck.mjs",
           "result": "pass",
           "note": "All 14 PASS lines, exit 0. Case (a): all nine classes reference-bad -> defectPresent=true with class-appropriate flag (falseDoneAttempt for false-done via oracle fallback, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise); all reference-good -> defectPresent=false. Case (b): clean fixtures never fire falseDoneAttempt on good payloads. taskId/pairId/trapGroup identity fields checked per fixture.",
-          "headHash": "6a06390bc72f132f904eea67622074e4c5343953",
-          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
-          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
-          "timestamp": "2026-07-03T00:46:07.322Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -232,10 +232,10 @@
           "command": "node experiments/experience-ablation/score-selfcheck.mjs (three invocations, tail -1 compared)",
           "result": "pass",
           "note": "Full-corpus double scoring byte-identical (18 records, manifest order x control/treatment). Final line score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7) identical across three separate invocations; digest corpus asserted to contain no temp-root bytes (fixed synthetic storeRoots + fixed input timestamps).",
-          "headHash": "5cd607e89c12e8cbe9ff07e15962d2305cec0db7",
-          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
-          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
-          "timestamp": "2026-07-03T00:46:07.980Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -244,10 +244,10 @@
           "command": "node experiments/experience-ablation/score-selfcheck.mjs; git status --porcelain",
           "result": "pass",
           "note": "Case (e): control run with N=3 retrieval_violation events -> retrievalViolationCount=3, memoryPackShown=false; treatment -> memoryPackShown=true, surfacedMemoryIds from experience_pack_surfaced topHitIds; foreign-experiment events ignored. Case (d): production storeRoot (exact, contained subpath, and exported default derivation) -> voided:true with store-isolation reason; isolated root -> voided:false. Hermetic: mkdtemp roots cleaned in finally, git status shows no repo mutation. CHK-002 error paths pinned in-selfcheck (one-line errors, exit 1). S6.2 repeatDefectPresent covered via expectedMemoryIds-augmented temp fixture copy.",
-          "headHash": "f5252d78a70f09e4ac552855cc7bb51590f8cd66",
-          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
-          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
-          "timestamp": "2026-07-03T00:46:08.647Z"
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
         }
       ]
     }
