@@ -14,7 +14,32 @@
     "experiments/**",
     "packages/**"
   ],
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated ProofStory lifecycle metadata required by the enforce-mode ProofStory gates; same lifecycle-registry gap acknowledged across B-6b39/B-ab8d/B-d217/B-beeb/B-e92c/B-fca1.",
+      "timestamp": "2026-07-03T16:21:58.532Z",
+      "paths": [
+        ".lattice/story/actives/B-c992/intent-collision.json",
+        ".lattice/story/actives/B-c992/milestone-ledger.json",
+        ".lattice/story/actives/B-c992/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c992/proofstory.json",
+        ".lattice/story/actives/B-c992/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c992/intent-collision.json",
+        ".lattice/story/actives/B-c992/milestone-ledger.json",
+        ".lattice/story/actives/B-c992/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c992/proofstory.json",
+        ".lattice/story/actives/B-c992/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "76fa5ebc9e84dbd757a622932d2dd5af7f1ed718",
+      "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd"
+    }
+  ],
   "createdAt": "2026-07-03T14:49:08.719Z",
-  "updatedAt": "2026-07-03T14:49:08.719Z"
+  "updatedAt": "2026-07-03T16:21:58.532Z"
 }
