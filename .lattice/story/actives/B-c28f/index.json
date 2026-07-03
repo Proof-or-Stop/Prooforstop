@@ -4,7 +4,7 @@
   "title": "Route DONE experience into playbook candidate generation",
   "description": "DONE settlement is now default-on, but a DONE story currently only records settlement health. This story makes DONE summaries, pitfalls, and delivery-check evidence visible as structured playbook seed material, then proves those seeds can become inert candidate playbooks without counting DONE success as helped or activating runtime guidance.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-07-03T01:35:13.338Z",
   "startedAt": "2026-07-03T01:35:13.338Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T02:46:00.289Z",
   "events": [
     {
       "phase": "INIT",
@@ -108,12 +108,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-ca806ac626fd6ddc",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T02:46:00.289Z",
+      "branch": "story/B-c28f",
+      "user": "Harmonygo",
+      "sessionId": "sess-ca806ac626fd6ddc",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c28f",
-    "branch": "story/B-c28f",
-    "createdAt": "2026-07-03T01:38:40.748Z"
-  },
   "currentReviewRound": "2026-07-03T02:29:23.535Z"
 }
