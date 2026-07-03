@@ -49,9 +49,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-03T03:46:45.821Z",
       "userSees": "User runs lattice quantum_claim_benchmark --json and sees \"unsupportedAdvanceRate\":0, \"staleAcceptanceRate\":0, \"diagnosticOnly\":true, \"gateEvidence\":false, \"supportedCases\":4, and \"failureInjections\":15.",
       "verificationEvidence": [
         {
@@ -274,6 +274,17 @@
           "timestamp": "2026-07-03T03:46:41.604Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T03:46:45.821Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M4 benchmark harness implemented and verified by quantum-claim-benchmark smoke plus CLI JSON output."
     }
   ]
 }
