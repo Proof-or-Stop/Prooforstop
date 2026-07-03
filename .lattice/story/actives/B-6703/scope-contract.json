@@ -1,0 +1,24 @@
+{
+  "storyId": "B-6703",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    ".omx/**",
+    "historical seed backfill",
+    "timer/daemon promotion",
+    "blocking policy generation"
+  ],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T02:59:14.881Z",
+  "updatedAt": "2026-07-03T02:59:14.881Z"
+}

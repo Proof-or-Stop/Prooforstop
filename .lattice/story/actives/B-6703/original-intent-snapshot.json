@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6703",
+  "sourceText": "User asked to implement Story 1 and Story 2 first so playbook can consume experience: Story 1 proves each DONE story experience can become a candidate; Story 2 proves candidate exposure plus structured outcome can trigger evidence-based activation and runtime consumption, without default-off fake closure or human subjective promotion.",
+  "normalizedOutcome": "Story 2 is complete when an explicit candidate exposure with structured helped outcomes can be activated by lattice playbook_auto_promotion_apply --apply --json and then verified as active runtime guidance, while DONE success alone still cannot count as helped evidence.",
+  "acceptanceClaim": "A real CLI smoke shows seed-to-candidate, explicit outcome recording, playbook_auto_promotion_apply --apply activatedCount=1, runtime consumption verification consumedByAll=true, idempotent second apply, and fail-closed behavior before explicit outcomes or for DONE-settlement/no-exposure rows.",
+  "keyRequirementIds": [
+    "REQ-B6703-EVIDENCE-ACTIVATION",
+    "REQ-B6703-NO-DONE-SUCCESS-HELPED",
+    "REQ-B6703-RUNTIME-CONSUMPTION"
+  ],
+  "requestHash": "sha256:7ef10b421eff33c706988573fcf9a5cd66515fd59f8f760385ec235a49760260",
+  "createdAt": "2026-07-03T02:59:14.435Z",
+  "updatedAt": "2026-07-03T02:59:14.435Z"
+}
