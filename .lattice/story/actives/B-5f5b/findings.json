@@ -18,6 +18,29 @@
       ],
       "signatureTag": "missing|ts|happy-fully-covered",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5f5b:F-002",
+      "desc": "Command registration coverage is missing for the new B-5f5b command surfaces: the new smokes call core builders directly (packages/main/src/tasks/playbook-seed-backfill-smoke.ts:181 and packages/main/src/tasks/playbook-trial-automation-smoke.ts:140,206) instead of dispatching playbook_seed_backfill/playbook_trial_run/playbook_promotion_timer through CLI or createMainRegistry. The existing registration smoke at packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts:1449 lists earlier playbook commands but omits playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer, so validation does not prove MAIN_TOOLS/registry/COMMAND_POLICIES/PROCESS_FACT_LEVELS wiring for these new commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T16:35:55.243Z",
+      "reviewRound": "2026-07-03T16:31:16.209Z",
+      "reviewRunId": "B-5f5b:RR-003",
+      "_hash": "a5e167b55085c931fbe01122b9a97c4917e010779b06f1e1952c825970dd571e",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+        "packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|command-registration-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
