@@ -1,0 +1,48 @@
+{
+  "storyId": "B-6703",
+  "name": "playbook-evidence-activation-loop",
+  "title": "Evidence-activate candidate playbooks after explicit exposure outcomes",
+  "description": "Story 1 proved DONE experience can become an inert candidate playbook. The remaining product gap is that a candidate with explicit exposure and structured helped outcomes must be activatable by evidence, without asking a human to manually promote it or relying on a default-off sweep flag. This story makes the evidence-activation apply path write the needed recommendation evidence and activation audit atomically enough for user-facing CLI use, then proves active playbooks are consumed by runtime memory while DONE success alone remains insufficient.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user",
+  "depends": [
+    "B-c28f"
+  ],
+  "keywords": [
+    "playbook",
+    "evidence-activation",
+    "learning",
+    "runtime-memory",
+    "done-experience"
+  ],
+  "createdAt": "2026-07-03T02:48:57.463Z",
+  "startedAt": "2026-07-03T02:48:57.463Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T02:48:57.807Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-cae53e1a1344f268",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T02:52:58.402Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6703",
+    "branch": "story/B-6703",
+    "createdAt": "2026-07-03T02:52:56.909Z"
+  }
+}
