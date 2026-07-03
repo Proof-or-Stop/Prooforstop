@@ -17,7 +17,30 @@
     "experiments/experience-ablation/fixture-generator-selfcheck.mjs",
     "packages/**"
   ],
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory lifecycle metadata artifacts written by the lattice CLI itself (original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, red_evidence_create) as required by the enforce-mode ProofStory gates; CLI-generated metadata absent from the lifecycle registry (same registry gap acknowledged in B-6b39 and B-ab8d).",
+      "timestamp": "2026-07-03T00:47:45.195Z",
+      "paths": [
+        ".lattice/story/actives/B-d217/intent-collision.json",
+        ".lattice/story/actives/B-d217/original-intent-snapshot.json",
+        ".lattice/story/actives/B-d217/proofstory.json",
+        ".lattice/story/actives/B-d217/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-d217/intent-collision.json",
+        ".lattice/story/actives/B-d217/original-intent-snapshot.json",
+        ".lattice/story/actives/B-d217/proofstory.json",
+        ".lattice/story/actives/B-d217/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "80abafeedd0af5273e26d9ec0109f1b904d1dd43",
+      "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826"
+    }
+  ],
   "createdAt": "2026-07-03T00:24:36.051Z",
-  "updatedAt": "2026-07-03T00:24:36.051Z"
+  "updatedAt": "2026-07-03T00:47:45.195Z"
 }
