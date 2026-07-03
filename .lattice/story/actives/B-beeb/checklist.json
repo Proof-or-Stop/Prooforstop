@@ -272,6 +272,18 @@
           "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
           "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
           "timestamp": "2026-07-03T02:39:20.448Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/snapshot-builder.mjs",
+          "command": "env -u LATTICE_PROJECT_ROOT LATTICE_EXPERIMENT_ID=exp-probe LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js session_brief (cwd = bare mkdtemp non-git workspace)",
+          "result": "pass",
+          "note": "Empirical edge probes against the real built CLI: (1) a story-less isolated root EARLY-RETURNS from session_brief (No active story) with NO pack section and NO event — the frozen snapshot therefore carries a minimal anchor story (story/actives/B-mem0/index.json) which empirically unlocks the production Memory Runtime Preflight render path; (2) the operator machine global store (~/.lattice/dev-memory) leaked entries 9890b83/a4d08a8 into the pack — fixed by pinning LATTICE_GLOBAL_MEMORY_DIR to an empty dir inside the isolated root (pack shows global=none); (3) session_brief creates runtime-memory-pack-cache under .lattice/learning, so post-run snapshot verification hashes exactly the frozen file set (relpath+bytes, hashDirectorySnapshot-compatible), not the whole dir.",
+          "headHash": "45a6ae93172999fc31043e5c56bfccae15a646a3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T02:39:33.931Z"
         }
       ]
     }
