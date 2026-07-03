@@ -4,7 +4,7 @@
   "title": "Fix claim-admissibility pack smoke annotation type",
   "description": "Resolve the project convergence annotation error by changing the claim-admissibility pack framework smoke @type from invalid test to an allowed task type without changing runtime behavior.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "riskSignals": [
     {
@@ -56,6 +56,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-03T11:50:14.801Z",
+      "branch": "story/B-6b68",
+      "user": "Harmonygo",
+      "sessionId": "sess-2fdd8f490fc9bafd",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T11:57:07.233Z",
       "branch": "story/B-6b68",
       "user": "Harmonygo",
       "sessionId": "sess-2fdd8f490fc9bafd",

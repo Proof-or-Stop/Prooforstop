@@ -1,0 +1,21 @@
+{
+  "storyId": "B-6b68",
+  "expected": "node scripts/validate-tasks.js prints PASSED: All task annotations are valid, and lattice convergence_check --json no longer reports the claim-admissibility pack smoke @type error.",
+  "actual": {
+    "command": "bash -lc 'set -o pipefail; node scripts/validate-tasks.js | rg \"PASSED: All task annotations are valid\" && lattice convergence_check | rg \"Code annotations|All 81 annotations\"'",
+    "exitCode": 0,
+    "stdout": "PASSED: All task annotations are valid.\n      \"name\": \"Code annotations compliant\",\n      \"detail\": \"All 81 annotations compliant\"\n",
+    "stderr": "[0.0s] running convergence_check...\n[0.3s] convergence_check done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-03T11:58:10.213Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "f612bd701bf162a5ed3c463dcd9498fe8917a1d6",
+  "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4"
+}
