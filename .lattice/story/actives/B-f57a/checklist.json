@@ -255,11 +255,11 @@
           "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
           "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
           "result": "pass",
-          "note": "Smoke check CHK-001:adversarial:6: dirty source worktree fails closed before spawn; Codex receives a detached snapshot pinned to the captured HEAD SHA; post-spawn source drift fails closed before verdict record; post-spawn clean HEAD drift fails closed with cross_host_review_head_drift before verdict record; no verdict is recorded on drift; .lattice-only metadata drift still proceeds.",
-          "headHash": "0c27d45e6e7f74e63f1b81156b08df7593bd3e7f",
-          "materialHash": "569ffd2bcc8072da7fd9db58358c0f4882505c0adaa88ef6990a5b397a846e45",
-          "storyFilesHash": "874ce5d5417a596642157cb9ff5e79ce30189a913cbad8e1570de226470b360c",
-          "timestamp": "2026-07-03T10:01:42.213Z"
+          "note": "Smoke check CHK-001:adversarial:6: dirty source worktree fails closed before spawn; review binding captures HEAD before material/story hashes; a clean commit after captured HEAD but before hash binding fails closed with cross_host_review_head_drift before Codex spawn; Codex receives a detached snapshot pinned to the captured HEAD SHA; post-spawn source drift and post-spawn clean HEAD drift fail closed before verdict record; no verdict is recorded on drift; .lattice-only metadata drift still proceeds.",
+          "headHash": "96fcfb0a3b8484f1f6a73bf2a6167a622a41f9bf",
+          "materialHash": "425794cd99e10cda316e238c755e5f6405b520456344766efa974b7a3c3eef95",
+          "storyFilesHash": "45c323232f7c5b34670a2f66af3922c7b037733bb874e15576791fa642f03fd9",
+          "timestamp": "2026-07-03T10:11:40.600Z"
         },
         {
           "intentRef": "CHK-001:adversarial:7",
