@@ -140,8 +140,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-03T03:16:06.558Z",
       "endTime": null
     },
     {
@@ -201,6 +201,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented by commit edad40d1b and verified by build plus playbook seed promotion smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:06.558Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting verification of the full CLI seed/candidate/outcome/activation/runtime loop.",
       "agent": "lattice-implementer"
     }
   ]
