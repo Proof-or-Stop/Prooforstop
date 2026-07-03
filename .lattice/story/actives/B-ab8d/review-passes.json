@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-03T00:54:53.624Z",
       "reviewRunId": "B-ab8d:RR-010",
       "_hash": "aea1215dbb7f83519ce42b2000bad8cc33d5e4b6b8d7bae2ae7dfee3a64ca25e"
+    },
+    {
+      "id": "B-ab8d:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round-3 behavioral re-verification of command-policy.ts merge conflict resolution. Confirmed: (1) playbook_promotion_status on control arm BLOCKED with retrieval_violation event appended to activity log; (2) playbook_auto_promotion_apply on control arm BLOCKED with retrieval_violation event appended; (3) treatment arm passes through normally; (4) no-env mode passes through normally; (5) non-memory command (story_list) on control arm works normally. The memoryRetrieval:true marker was correctly restored on all playbook-family commands including playbook_auto_promotion_apply (the entry whose reason text changed in the merge). Gate behavior is unaffected by the merge conflict resolution.",
+      "createdAt": "2026-07-03T00:57:39.228Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-011",
+      "_hash": "850e678a43f4b8840a4e550c2b3ebd0943742e2920aa9e0604d6d1906d302b06"
     }
   ]
 }
