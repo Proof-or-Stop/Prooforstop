@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: tier-c-crosshost-quorum-threat-model.md still attributes pinned-key enforcement to M1 (4 residual references at lines 6, 39, 44, 71) after this story redefined M1 to crypto-deferred cross-host review and moved pinned-key work to M-crypto; the phrase \"this is the core M1 fix\" at line 44 now points at the wrong milestone",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T02:22:19.248Z",
@@ -16,7 +16,10 @@
         "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
       ],
       "signatureTag": "missing|md|concept-cleanup-tier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ca7615450 (see commit body); smoke 21 checks green, tsc clean.",
+      "resolvedAt": "2026-07-03T02:38:35.736Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-f57a:F-002",
