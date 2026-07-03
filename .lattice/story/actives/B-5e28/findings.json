@@ -5,7 +5,7 @@
       "desc": "Default-on DONE settlement is implemented and surfaced, but the rollout docs still contain old default-off language: playbook-promotion-worker-execution-plan.md:710-713 says absent/malformed flags are disabled, and source-lineage-dedup-playbook-seed-promotion-execution-plan.md:388-410 says default-on after B-5e28 while still saying the flag is experimental/local-only until later criteria. This leaves the activation/backfill boundary ambiguous even though runtime settlement is learning-only and non-gate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T00:29:58.665Z",
@@ -18,7 +18,11 @@
         "packages/main/src/handlers/done-effects.ts"
       ],
       "signatureTag": "doc-code-drift|md|default-settlement-implemented",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed stale default-off and experimental-only rollout wording. Docs now state promotion sweep apply remains flag-gated, while DONE settlement is default-on unless explicitly opted out with false/0/no/off. Verified by rg no stale phrases, npm build, playbook-promotion-worker-smoke 6/6, and playbook_promotion_status showing enabled=true defaultPolicy=default-on gateEvidence=false.",
+      "resolvedAt": "2026-07-03T00:31:41.980Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
