@@ -136,7 +136,7 @@
       "desc": "quality-cleanup: handlers/cross-host-review.ts:48 buildRedactedEnv empty-allowlist semantics undocumented and unsafe-by-default — when policy.envAllowlist is [] (the default from createDispatchPolicy and normalizeDispatchPolicyRecord), `allowlist.size>0` is false and the allowlist guard is completely bypassed, so every env var not matching UNSAFE_ENV_PATTERN passes through to the codex subprocess (e.g. DATABASE_URL, OPENAI_ORG_ID, GH_HOST, any non-standard secret names). The function comment says `ONLY those names may pass` but qualifies it with `If the policy declares an envAllowlist`, making the empty-allowlist=allow-all behavior a silent footgun. The fix is to document this explicitly in the function comment (e.g. `empty allowlist = allow-all minus denylist/pattern — this is intentional but callers should set an explicit allowlist for production use`) and ideally emit a warning or treat empty allowlist as deny-all for the review subprocess path, which is the higher-security default.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T02:41:33.840Z",
@@ -147,7 +147,10 @@
         "packages/main/src/handlers/cross-host-review.ts"
       ],
       "signatureTag": "edge|ts|quality-cleanup-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Broadened UNSAFE_ENV_PATTERN to catch DATABASE/DSN/CONNECTION/AUTH/SESSION/COOKIE/PRIVATE/ACCESS/*_URL/*_URI + documented empty-allowlist semantics (ecbce6853)",
+      "resolvedAt": "2026-07-03T02:53:41.366Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-f57a:F-008",
