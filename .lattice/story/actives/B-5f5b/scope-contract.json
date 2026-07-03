@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5f5b",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-required-validation.ts"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "remote publish",
+    "authority receipt gates",
+    "DONE gate semantics",
+    "hidden background daemon"
+  ],
+  "scopeChangeReason": "High-assurance scope narrowed to playbook learning-store automation only; lifecycle gates and authority surfaces are protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T15:15:16.808Z",
+  "updatedAt": "2026-07-03T15:15:16.808Z"
+}

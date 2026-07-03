@@ -1,0 +1,38 @@
+{
+  "storyId": "B-5f5b",
+  "checkedAt": "2026-07-03T15:17:55.934Z",
+  "features": [
+    {
+      "feature": "historical all-seed backfill",
+      "covered_by": "original_intent_snapshot keyRequirementIds includes REQ-BACKFILL-ALL-SEEDS; background Trigger Event/Key Insights identify historical 1400+ seed backfill / all historical seeds as the remaining gap; understanding task/outcome/facts/constraints require full historical seed backfill, 2074 proposable seeds, idempotent digest-bound processing, no activation/outcomes; CHK-001 and plan M1 require dry-run default, observe digest on apply, all currently proposable seeds unless explicitly limited, candidate-only writes, counts, idempotency, stale digest refusal; decision principles/drivers/preMortem require historical backfill as inert candidate material only; proofstory acceptance ACC-B5F5B-CLI-CLOSURE binds CHK-001 and M1-historical-backfill.",
+      "status": "covered",
+      "excluded_by": "CHK-001 excludes activation from backfill and lifecycle gate evidence; scope contract excludes DONE gate semantics and authority receipt gates; related decisions require historical seeds/candidates/outcomes remain gateEvidence:false and DONE success alone never counts as helped.",
+      "source": "Reviewed via lattice background_get, checklist_get, understanding_get, decision_get, plan_get, scope_contract_show, proofstory_contract_get, original_intent_snapshot_get; cross-checked related decision docs."
+    },
+    {
+      "feature": "bounded candidate trial/matched-control observation",
+      "covered_by": "original_intent_snapshot keyRequirementIds includes REQ-TRIAL-MATCHED-CONTROL; background names trial/matched-control/timer automatic experiments and requires candidate trials without treating candidate existence or DONE success as helped evidence; understanding task/outcome/constraints require bounded candidate trials, matched-control observation, host-neutral non-authoritative behavior; CHK-002 and plan M2 require exposure/control rows, candidate/limit/match-key bounds, append-only non-authoritative trial ledger, candidate exclusion from active runtime packs, surfaced counts, and refusal of authority/activation bypasses; decision drivers/preMortem require candidate exposure/outcome path while preventing trial exposure from being helped outcome; proofstory acceptance ACC-B5F5B-CLI-CLOSURE binds CHK-002 and M2-trial-matched-control.",
+      "status": "covered",
+      "excluded_by": "CHK-002 excludes trial traffic satisfying DONE and matched control replacing explicit outcome evidence; related decisions keep candidate/trial learning artifacts non-authoritative and gateEvidence:false.",
+      "source": "Reviewed via lattice background_get, checklist_get, understanding_get, decision_get, plan_get, scope_contract_show, proofstory_contract_get, original_intent_snapshot_get; cross-checked related decision docs."
+    },
+    {
+      "feature": "timer automation entrypoint",
+      "covered_by": "original_intent_snapshot keyRequirementIds includes REQ-BOUNDED-TIMER; background names timer automatic experiments and Solution Tradeoffs require dry-run default, digest-bound/idempotent, reviewed policy-limited automation; understanding task/outcome/constraints require a timer command that advances only evidence-safe actions and is bounded, explicit, fail-closed, host-neutral, non-authoritative, no hidden daemon/gate evidence; CHK-003 and plan M3 require explicit timer/sweep command, dry-run default, explicitly enabled bounded actions, disabled-action reporting, activation guard delegation, no hidden daemon, no lifecycle gate evidence; decision chosen/rationale/preMortem select single_explicit_cli_closure and reject hidden daemon or activation-from-backfill; scope contract excludes hidden background daemon, remote publish, authority receipt gates, DONE gate semantics; proofstory acceptance ACC-B5F5B-CLI-CLOSURE binds CHK-003 and M3-bounded-timer.",
+      "status": "covered",
+      "excluded_by": "CHK-003 excludes hidden background daemon, unreviewed auto-active path, remote publish; scope contract excludes hidden background daemon, remote publish, authority receipt gates, DONE gate semantics; related decisions require timer/worker actions never create lifecycle gate evidence or bypass promotion/activation guards.",
+      "source": "Reviewed via lattice background_get, checklist_get, understanding_get, decision_get, plan_get, scope_contract_show, proofstory_contract_get, original_intent_snapshot_get; cross-checked related decision docs."
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2536f32260687f4785ca5dc40b888ff4e5294ed6556956dd454656d88162614d",
+  "openQuestions": []
+}

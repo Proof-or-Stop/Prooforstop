@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-5f5b",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:43408063239033b50ef9697baf7c0b8bce9613307fe1caaf332877b9b02cf786",
+  "acceptanceBindings": [
+    {
+      "id": "ACC-B5F5B-CLI-CLOSURE",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1-historical-backfill",
+        "M2-trial-matched-control",
+        "M3-bounded-timer"
+      ],
+      "acceptanceClaim": "A validated B-5f5b implementation adds commands and tests proving full historical backfill creates only candidate playbooks, trial exposure records non-authoritative evidence, and timer automation delegates to guarded apply paths without bypassing activation evidence.",
+      "note": "The user-facing acceptance is the combined CLI closure, but each safety boundary is verified through checklist-specific intent refs."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-5f5b ProofStory contract binds the requested backfill/trial/timer closure to all checklist verification intents while preserving inert candidates and evidence-only activation.",
+  "createdAt": "2026-07-03T15:15:42.827Z",
+  "updatedAt": "2026-07-03T15:15:42.827Z"
+}
