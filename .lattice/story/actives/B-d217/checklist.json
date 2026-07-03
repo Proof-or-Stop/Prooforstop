@@ -33,6 +33,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/score.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
       }
     },
     {

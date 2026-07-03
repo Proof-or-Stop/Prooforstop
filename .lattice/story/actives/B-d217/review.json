@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-03T00:28:57.972Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Pure score-record builder assembling ExperienceAblationScore v1 from on-disk arm-run artifacts + Run-record input contract documented and validated with actionable errors are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d217\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"fixture-generator.mjs used by score-selfcheck.mjs to generate corpus (CHK-003 depends on M1 fixture generator already existing)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "b0422df2b95bda34579588c44b591e24882202df30ba8855066feb5b0b316c21"
+    },
+    {
+      "timestamp": "2026-07-03T00:29:31.706Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Pure score-record builder assembling ExperienceAblationScore v1 from on-disk arm-run artifacts + Run-record input contract documented and validated with actionable errors are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d217\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"fixture-generator.mjs used by score-selfcheck.mjs to generate corpus (CHK-003 depends on M1 fixture generator already existing)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "b6f41d218f0ca8a9c9bd4a7068129527abac1391dd352aacbb4c8c94597a0cb7"
+    }
+  ]
+}
