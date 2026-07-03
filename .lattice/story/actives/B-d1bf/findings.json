@@ -186,6 +186,25 @@
       "resolvedAt": "2026-07-03T01:58:59.294Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d1bf:F-009",
+      "desc": "Retired Authority/DONE vocabulary fields authorityDone, fullAuthorityDone, and productionDone are not rejected by the quantum_claim_check handler unsupported-flag guard or core boundary-field detection. Direct handler, core payload, and evidenceJson payloads with otherwise complete Q5 evidence plus any of those fields can return decision=advance, allowed=true, reasons=[]. This violates the Quantum M3 no Authority/DONE/production overclaim fail-closed boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T02:02:24.066Z",
+      "reviewRound": "2026-07-03T01:58:48.046Z",
+      "reviewRunId": "B-d1bf:RR-023",
+      "_hash": "a11ddfb245e3ea75b173f4fad158a1c25f18e653c5e51576fb5694c8858c59f7",
+      "files": [
+        "packages/main/src/handlers/quantum-claim-admissibility.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "retired-authority-done-payload-boundary-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
