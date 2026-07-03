@@ -287,6 +287,25 @@
       "resolvedAt": "2026-07-03T10:05:04.739Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f57a:F-014",
+      "desc": "cross_host_review still hashes the moving HEAD before capturing the HEAD SHA: packages/main/src/handlers/cross-host-review.ts:545-553 computes materialDigest and storyFilesHash with ref \"HEAD\" before currentGitHead captures headHash. A clean concurrent commit between those separate git commands yields old materialDigest/storyFilesHash but new headHash; assertReviewHeadStillCurrent then treats the new HEAD as expected, createCleanHeadReviewWorktree snapshots that new SHA, and the post-spawn HEAD check can pass, so submitLocalVerdict records a verdict whose material binding does not match the reviewed snapshot. Bind in the opposite order: capture headHash first, compute currentMaterialHash/currentStoryFilesHash against that exact SHA (or recompare current HEAD/material/story hashes to the captured tuple before spawn and before record), and add smoke coverage for a clean commit between material-hash capture and headHash capture.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T10:08:01.616Z",
+      "reviewRound": "2026-07-03T10:04:46.771Z",
+      "reviewRunId": "B-f57a:RR-017",
+      "_hash": "ba6adae876198823ea822277973368d1ca570a75ae7aaf83b9992814d0492344",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/tasks/cross-host-review-smoke.ts"
+      ],
+      "signatureTag": "adversarial-ts-cross-host-review-pre-capture-head-race",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
