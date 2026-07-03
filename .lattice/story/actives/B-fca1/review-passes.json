@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-03T10:25:12.220Z",
       "reviewRunId": "B-fca1:RR-005",
       "_hash": "5e35eba5f0c494b05837c66cc3b0eea39dcf04b24f3ec023399c27f18e259bbe"
+    },
+    {
+      "id": "B-fca1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 2: 6/6 must-intents covered (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial), all evidence bound to fix commit a37257c. Selfcheck runs 39/39 PASS twice (exit 0). Evidence notes say 37/37 from pre-fix text but hashes are refreshed to a37257c and reproduced reality is 39/39; stale note text only, not a substantive error. Persisted evidence-map.md line 83 verdict Causal impact: INCONCLUSIVE confirmed present.",
+      "createdAt": "2026-07-03T10:29:01.303Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-006",
+      "_hash": "ad72d5f579e09c1e0547ef454fada055b755b3af12679e17bc3c5b53c317bf62"
     }
   ]
 }
