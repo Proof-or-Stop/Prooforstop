@@ -263,6 +263,27 @@ Reports:
 - seeds already represented by a proposal / candidate / active playbook;
 - `observeDigest` over the reviewed seed set.
 
+DONE experience uses a hyphenated CLI source flag, but JSON/source-lineage rows
+use the exact artifact kind spelling `sourceArtifactKind: "done_experience"`:
+
+```json
+{
+  "proposableSeeds": [
+    {
+      "sourceArtifactKind": "done_experience",
+      "sourceArtifactId": "B-example",
+      "sourceSummary": "DONE experience summary captured durable behavior."
+    }
+  ],
+  "authority": "non_authoritative",
+  "gateEvidence": false
+}
+```
+
+This row is candidate-only seed material. It may enter proposal and candidate
+approval through the digest-guarded flow below, but it is not helped evidence and
+does not activate runtime guidance.
+
 ### 8.3 `playbook_seed_propose_batch`
 
 Command for creating proposals from deduped historical seeds. Default is

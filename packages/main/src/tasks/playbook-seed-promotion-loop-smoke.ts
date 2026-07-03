@@ -608,7 +608,9 @@ function run(): void {
 
       const cliPropose = runCliJson<any>(root, [
         'playbook_seed_propose_batch',
-        JSON.stringify({ source: 'done-experience', json: true }),
+        '--source=done-experience',
+        '--limit=1',
+        '--json',
       ]);
       assert.equal(cliPropose.dryRun, true);
       assert.equal(cliPropose.applied, false);
@@ -636,12 +638,15 @@ function run(): void {
       assert.equal(observe2.proposableSeeds[0].canonicalSourceKey, seed1.canonicalSourceKey);
       assert.equal(observe2.proposableSeeds[0].canonicalSourceKeyVersion, seed1.canonicalSourceKeyVersion);
 
-      const proposed = parseJson<any>(handlers.playbook_seed_propose_batch({
-        source: 'done-experience',
-        apply: true,
-        observeDigest: observe1.observeDigest,
-        json: true,
-      }));
+      const proposed = runCliJson<any>(root, [
+        'playbook_seed_propose_batch',
+        '--source=done-experience',
+        '--apply',
+        `--observeDigest=${observe1.observeDigest}`,
+        '--limit=1',
+        '--json',
+      ]);
+      assert.equal(proposed.applied, true);
       assert.equal(proposed.proposalCount, 1);
       assert.equal(proposed.proposals[0].seed.sourceArtifactKind, 'done_experience');
       assert.equal(listProposals(root).length, 1);
@@ -664,14 +669,15 @@ function run(): void {
       assert.equal(repeatedPropose.proposalCount, 0);
       assert.equal(listProposals(root).length, 1, 'repeated propose did not duplicate proposal rows');
 
-      const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      const manifest = runCliJson<any>(root, ['playbook_candidate_batch_approve', '--json']);
       assert.equal(manifest.proposalCount, 1);
       assert.equal(manifest.proposals[0].sourceArtifactKind, 'done_experience');
-      const approved = parseJson<any>(handlers.playbook_candidate_batch_approve({
-        apply: true,
-        manifestDigest: manifest.manifestDigest,
-        json: true,
-      }));
+      const approved = runCliJson<any>(root, [
+        'playbook_candidate_batch_approve',
+        '--apply',
+        `--manifestDigest=${manifest.manifestDigest}`,
+        '--json',
+      ]);
       assert.equal(approved.applied, true);
       assert.equal(readPlaybooks(root).length, 1);
       const candidate = readPlaybooks(root)[0];
