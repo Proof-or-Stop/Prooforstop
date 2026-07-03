@@ -89,11 +89,15 @@
       "q": "The product scope, checklist, plan, and documented exclusions align, but the enforce-mode scope contract currently fails on changed story-local ProofStory lifecycle artifacts. Should .lattice/story/actives/B-c28f/intent-collision.json, original-intent-snapshot.json, and proofstory.json be explicitly acknowledged/covered by the contract or treated as registry-covered lifecycle metadata before PLAN advances?",
       "evidence": "lattice scope_contract_check --storyId=B-c28f reports Scope gate: fail with OUT_OF_SCOPE for intent-collision.json, original-intent-snapshot.json, and proofstory.json even though the implementation file scope itself matches CHK-001 through CHK-003.",
       "sourcePointers": [
-        "lattice scope_contract_check --storyId=B-c28f",
-        "lattice scope_contract_show --storyId=B-c28f",
-        "lattice plan_get --storyId=B-c28f",
-        "lattice checklist_get --storyId=B-c28f"
-      ]
+        ".lattice/story/actives/B-c28f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c28f/intent-collision.json",
+        ".lattice/story/actives/B-c28f/proofstory.json",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "resolution": "The three flagged files are story-local ProofStory lifecycle metadata required by the PLAN and DEV gates: original-intent-snapshot.json, intent-collision.json, and proofstory.json. They do not broaden product code scope and should be allowed only under this story metadata directory.",
+      "resolvedAt": "2026-07-03T01:45:01.864Z"
     }
   ]
 }
