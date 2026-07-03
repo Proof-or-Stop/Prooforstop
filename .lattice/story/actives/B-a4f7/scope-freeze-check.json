@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a4f7",
+  "checkedAt": "2026-07-03T10:16:22.299Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "837f6bedfc23aefb49ca334daf39bc0be6aaff9fd1743e575fc98737f0c61783",
+  "executionBoundaryHash": "21a2a68ac5cc418e0edcf360d5089d75ef7841eb61cc3705e06eb892dd59c652",
+  "freshnessHash": "add701224e9e904f36e16ef614494089b648660a90165ae4eaa58a261b12fb0b",
+  "effectiveExcludedKeywords": [
+    "blocking policy or gate evidence",
+    "direct active activation from DONE",
+    "DONE success as helped evidence",
+    "historical bulk backfill",
+    "timer daemon"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "blocking policy or gate evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "blocking policy or gate evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "direct active activation from DONE",
+      "source": "scopeBoundary.excluded",
+      "text": "direct active activation from DONE",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE success as helped evidence",
+      "source": "checklist.excludes",
+      "text": "DONE success as helped evidence",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE success as helped evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE success as helped evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "historical bulk backfill",
+      "source": "scopeBoundary.excluded",
+      "text": "historical bulk backfill",
+      "excluded": true
+    },
+    {
+      "keyword": "timer daemon",
+      "source": "scopeBoundary.excluded",
+      "text": "timer daemon",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "98852c6927b6a2750b20429711838c539ea6ed3b0e68e79e4c722337a5543a4f"
+}

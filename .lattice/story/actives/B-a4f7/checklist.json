@@ -1,0 +1,213 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a digest-bound playbook_candidate_ingest command",
+      "context": "Wrap playbook_seed_observe -> playbook_seed_propose_batch --apply -> playbook_candidate_batch_approve --apply with observeDigest and manifestDigest checks, source/story filters, limits, shared learning-store locking, and idempotent no-duplicate behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "A single command can convert eligible DONE/story seeds into candidate playbooks and report created/skipped/blocked counts.",
+      "excludes": [
+        "direct active playbook activation",
+        "DONE success as helped evidence",
+        "timer or daemon scheduling",
+        "historical all-seed backfill"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given DONE experience seeds and no existing playbooks, playbook_candidate_ingest --apply creates candidate playbooks and reports candidatePlaybooks > 0 without activating them.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Re-running the command with the same source/story is idempotent and does not duplicate proposals or candidates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Digest drift, duplicate canonical source, non_promotable source, or invalid source filter fails closed without creating active playbooks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire post-DONE settlement to non-blocking candidate ingestion",
+      "context": "After story_advance DONE records learning settlement, optionally run candidate ingestion for that DONE story with a small per-story limit. The hook must be default-on unless explicitly disabled, non-blocking for DONE, and must write health diagnostics on success or failure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "A new DONE story can automatically leave behind candidate playbook material instead of only settlement health rows.",
+      "excludes": [
+        "blocking DONE on learning ingestion failure",
+        "background timer",
+        "bulk historical backfill"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A simulated post-DONE settlement runs candidate ingestion and produces at least one inert candidate for the completed story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If no eligible DONE seed exists, DONE still succeeds and records a clear zero-created health diagnostic.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ingestion errors are captured as non-authoritative health rows and never mark a candidate helped or active.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove candidate consumption boundary remains safe",
+      "context": "Candidates produced by automatic ingestion must remain separate from active runtime guidance until explicit exposure/outcome evidence satisfies playbook_auto_promotion_apply. Story completion itself remains source material rather than outcome proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "playbook_runtime_consumption_verify shows candidates are inert and active playbooks only appear after evidence activation.",
+      "excludes": [
+        "candidate guidance mixed into active runtime pack",
+        "activation without exposure outcome"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After ingestion, runtime verification reports candidate inertness and no active playbook unless evidence activation is separately applied.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A candidate with only DONE-settlement rows cannot be activated.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Candidate ingestion never writes playbook outcome helped rows and never writes auto-activation audit rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update execution docs and status surfaces",
+      "context": "Document the new automatic ingestion layer, config/flag boundary, command sequence, health output, and distinction between candidate ingestion and evidence activation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "Status commands make it obvious whether story data is only settled, converted to candidate, or activated.",
+      "excludes": [
+        "renaming legacy lattice storage paths",
+        "publishing external docs"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs and status output mention playbook_candidate_ingest and DONE candidate ingestion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs clearly state history backfill is separate and candidate ingestion does not auto-activate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs preserve gateEvidence=false authority boundary for candidate ingestion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
