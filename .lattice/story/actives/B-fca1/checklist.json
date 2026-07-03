@@ -123,7 +123,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/evidence-map.mjs --root=<main> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot> --generatedAt=2026-07-03T11:20:00Z",
+          "result": "pass",
+          "note": "evidence-map.md claim-to-artifact table lists all 10 plan-section-18 rows, every artifact exists with sha256 recorded and status ok (protocol.json, protocol-config, memory-snapshot-hash, fixture-manifest, pair-ledger, run-order-seed, score-records, leakage-audit, n-freeze, m7-decision, live-readout pair, self rows).",
+          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:13:55.362Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e require(evidence-map.json) keys",
+          "result": "pass",
+          "note": "evidence-map.json parses; content mirrors the md (rows/figures spot-checked).",
+          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:13:55.362Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -n Causal impact evidence-map.md; grep -c unpowered",
+          "result": "pass",
+          "note": "Final verdict line 83: Causal impact: INCONCLUSIVE with the invalidated-assumption basis; paper-table figures carry unpowered labels; circularity disclosure and the four disallowed claims present.",
+          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:13:55.362Z"
+        }
+      ]
     }
   ]
 }
