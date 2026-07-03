@@ -52,7 +52,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User runs lattice quantum_claim_benchmark --json and sees \"unsupportedAdvanceRate\":0, \"staleAcceptanceRate\":0, \"diagnosticOnly\":true, \"gateEvidence\":false, \"supportedCases\":4, and \"failureInjections\":15."
+      "userSees": "User runs lattice quantum_claim_benchmark --json and sees \"unsupportedAdvanceRate\":0, \"staleAcceptanceRate\":0, \"diagnosticOnly\":true, \"gateEvidence\":false, \"supportedCases\":4, and \"failureInjections\":15.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Smoke asserts A1-A4 supported cases produce expected advance/degrade outcomes, supportedCasesPassed=4/4, diagnosticOnly=true, and gateEvidence=false.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Smoke asserts unsupportedAdvanceRate, staleAcceptanceRate, boundaryViolationRate, falseStopRate, Wilson confidence intervals, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Smoke asserts all B1-B15 failure injections block/repair/degrade as expected and that no production, Authority, hardware, theory, or solver-improvement claim is emitted.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -101,7 +142,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User runs lattice quantum_claim_report and sees \"Quantum local diagnostic M0-M5: implemented\", \"Benchmark status: PASS\", \"diagnosticOnly: true\", \"gateEvidence: false\", \"productionClaim: false\", and \"authorityClaim: false\"."
+      "userSees": "User runs lattice quantum_claim_report and sees \"Quantum local diagnostic M0-M5: implemented\", \"Benchmark status: PASS\", \"diagnosticOnly: true\", \"gateEvidence: false\", \"productionClaim: false\", and \"authorityClaim: false\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report && node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report --json",
+          "result": "pass",
+          "note": "CLI report renders text and JSON governance output with suiteStatus PASS, benchmark totals, pass rates, limitation text, diagnosticOnly=true, and gateEvidence=false.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Smoke asserts report artifacts are diagnostic-only, non-gate evidence, no lifecycle writes, and no lifecycle mutation unless a future gate consumes them.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Smoke asserts report boundary booleans keep productionClaim=false, authorityClaim=false, hardwareValidationClaim=false, quantumTheoryClaim=false, physicalValidationClaim=false, and solverImprovementClaim=false.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -151,7 +232,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User opens the Quantum docs and sees \"Runtime status: Quantum local diagnostic runtime status: M0-M5 implemented\" plus \"generic framework gate-policy adapter remains future work\" and \"no quantum theory, hardware, production, or Authority claim\"."
+      "userSees": "User opens the Quantum docs and sees \"Runtime status: Quantum local diagnostic runtime status: M0-M5 implemented\" plus \"generic framework gate-policy adapter remains future work\" and \"no quantum theory, hardware, production, or Authority claim\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Docs and runtime smoke assert Quantum local diagnostic runtime status is M0-M5 implemented and commands quantum_claim_benchmark / quantum_claim_report exist.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke",
+          "result": "pass",
+          "note": "Docs distinguish the completed local Quantum diagnostic M4-M5 slice from the future generic framework gate-policy adapter and lifecycle integration.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
+          "result": "pass",
+          "note": "Docs and smoke retain the no-overclaim boundary: no quantum theory, hardware, production, Authority, solver-improvement, external solver, or broad quantum-advantage claim.",
+          "headHash": "2a0169356da64a88e2317008cd47f42dcdcd435b",
+          "materialHash": "f99e284086532ce45e6034d34883e47dcf341cb5ddf4cdadeaddc8abe66c90a5",
+          "storyFilesHash": "836d3b33e165af8f254a6fd36eab79fc32cab2645276e3267514c611df81e280",
+          "timestamp": "2026-07-03T03:46:41.604Z"
+        }
+      ]
     }
   ]
 }
