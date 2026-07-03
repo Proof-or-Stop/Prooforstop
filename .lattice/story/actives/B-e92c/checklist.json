@@ -123,7 +123,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/live-readout.mjs --root=<main> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot> --generatedAt=2026-07-03T07:00:00Z",
+          "result": "pass",
+          "note": "live-readout.md opens with Controlled causal (seeded pilot) carrying real figures: 90 records (45/45 arms), voided 0, baseline 1/30 phat 0.0333 with Wilson CI [0.0059,0.1667], replay digest match, freeze REFUSED both mde attempts; followed by Live exploratory section with real learning_effectiveness figures (714 stories scanned, source cli-json).",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e require(live-readout.json) + section keys",
+          "result": "pass",
+          "note": "live-readout.json parses and mirrors the md content (machine/human consistency verified on section keys and figures).",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -c exploratory-only live-readout.md; grep No-overclaim",
+          "result": "pass",
+          "note": "Every live figure line carries [exploratory-only]; the live section header states non-inferential/cannot answer H1 per plan 5.2/15; the controlled section embeds the m7-decision skip_powered_study context; the No-overclaim block is present.",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        }
+      ]
     }
   ]
 }
