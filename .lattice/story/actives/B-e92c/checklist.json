@@ -68,6 +68,18 @@
           "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
           "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
           "timestamp": "2026-07-03T09:33:42.767Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs && grep -n \"packages/main\" experiments/experience-ablation/live-readout.mjs",
+          "result": "pass",
+          "note": "No second live assignment system: live-readout.mjs imports only node:fs/node:path/node:child_process (zero packages/main imports; grep shows packages/main only inside the spawn path join(root,packages,main,dist,cli.js) and error hints). Write-boundary selfcheck case PASS: recursive sha256 tree digest of the stub root before/after a run (out dirs excluded) is identical, proving the tool writes only under --out. Selfcheck never spawns the real CLI (--effectivenessJson stub injection on every run).",
+          "headHash": "a0070f23408a7f5c08f552cd705ee79d34dcb999",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:43.763Z"
         }
       ]
     },
