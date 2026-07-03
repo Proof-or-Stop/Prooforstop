@@ -1,0 +1,27 @@
+{
+  "task": "Close the candidate playbook activation loop by letting explicit exposure and structured outcome evidence activate advisory playbooks through playbook_auto_promotion_apply.",
+  "outcome": "After a candidate receives three explicit helped candidate-inspection outcomes, running lattice playbook_auto_promotion_apply --apply --json prints activatedCount:1, then lattice playbook_runtime_consumption_verify --json shows that playbook consumed by active runtime checks; the same command fails closed before outcome evidence and DONE success alone never counts as helped.",
+  "facts": [
+    "B-c28f already made DONE experience observable as done_experience seeds and candidate playbooks, but candidates remain inert.",
+    "Current playbook_auto_promotion_apply implements guarded activation, but a separate promotion_sweep apply flag/manual step is still needed to write recommend_activate decisions.",
+    "PLAYBOOK_DONE_SETTLEMENT_ENABLED is default-on and writes health rows only; DONE success alone is not helped outcome evidence.",
+    "playbook_runtime_consumption_verify can prove active playbooks surface while candidates remain inert."
+  ],
+  "constraints": [
+    "Do not create lifecycle gate evidence, production readiness, or blocking policy from playbooks.",
+    "Do not add timer/daemon rollout mechanics, historical backfill, or broad rollout mechanics in this story.",
+    "Activation must require explicit concrete exposure, structured helped outcomes, clean lineage, current candidate digest, and no harmful/wrong-claim signals.",
+    "Use host-neutral Lattice workflow commands and keep Codex/Claude naming out of workflow command namespaces."
+  ],
+  "unknowns": [
+    "Whether the existing auto-apply report can write the deterministic recommend_activate decision itself without weakening digest checks.",
+    "Whether the existing smoke can be extended through real dist CLI for outcome_record, auto_promotion_apply, and runtime verification without requiring live project data mutation."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "timestamp": "2026-07-03T02:53:48.856Z"
+}

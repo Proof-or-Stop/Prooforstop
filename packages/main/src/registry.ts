@@ -92,6 +92,7 @@ import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createReproIntakeHandlers } from './handlers/repro-intake.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
 import { createPinnClaimAdmissibilityHandlers } from './handlers/pinn-claim-admissibility.js';
+import { createQuantumClaimAdmissibilityHandlers } from './handlers/quantum-claim-admissibility.js';
 import { createPlaybookRuntimeMemoryHandlers } from './handlers/playbook-runtime-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
@@ -346,6 +347,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
   registry.registerBatch(createPinnClaimAdmissibilityHandlers(ctx));
+  registry.registerBatch(createQuantumClaimAdmissibilityHandlers(ctx));
   registry.registerBatch(createPlaybookRuntimeMemoryHandlers(ctx));
 
   // Host-neutral capability discovery for Proofbound adapters.

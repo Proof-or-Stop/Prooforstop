@@ -1,0 +1,381 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make evidence activation self-contained after explicit outcomes",
+      "context": "playbook_auto_promotion_apply --apply should activate qualifying candidates using deterministic recommendation evidence without requiring PLAYBOOK_PROMOTION_SWEEP_ENABLED as a separate manual gate. It must remain fail-closed without real exposure/outcome evidence, clean lineage, current digest, and non-harmful aggregate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "lattice playbook_auto_promotion_apply --apply --json activates eligible candidates after explicit helped outcomes.",
+      "excludes": [
+        "timer-driven promotion",
+        "historical seed backfill",
+        "DONE success counted as helped",
+        "blocking policy generation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Candidate with three explicit helped candidate-inspection outcomes activates via playbook_auto_promotion_apply --apply without setting PLAYBOOK_PROMOTION_SWEEP_ENABLED.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Candidate with outcomes but stale candidate digest or duplicate lineage remains blocked.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE-settlement helped rows and exposureMode=none cannot activate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-03T03:00:00.354Z",
+      "endTime": "2026-07-03T03:27:53.884Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke check M8 proves explicit helped candidate-inspection outcomes activate through playbook_auto_promotion_apply --apply without PLAYBOOK_PROMOTION_SWEEP_ENABLED.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.055Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers stale candidate digest / stale recommendation fail-closed, duplicate idempotency key no-op at append time, and duplicate lineage candidate/proposal rejection paths.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.214Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers DONE-settlement rows, exposureMode=none rows, pre-outcome apply, malformed activation log, harmful/wrong-claim guards, and fail-closed no mutation.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.372Z"
+        },
+        {
+          "intentRef": "CHK-001:F-001-regression",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts duplicate applied promotion decision idempotency keys no-op at the append chokepoint, covering the shared promotion-decision ledger issue.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.529Z"
+        },
+        {
+          "intentRef": "CHK-001:build-after-F-001",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after F-001 locking/idempotency fix.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.685Z"
+        },
+        {
+          "intentRef": "CHK-001:diff-check-after-F-001",
+          "kind": "manual_transcript",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Whitespace check passed after F-001 fix.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.844Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the full CLI consumption loop",
+      "context": "A real dist CLI smoke should run seed observe/propose/approve, record explicit outcomes, apply evidence activation, and verify active runtime consumption while candidates remain inert until activation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "playbook seed becomes candidate, candidate receives outcome evidence, auto promotion activates it, and runtime consumption verification sees it active.",
+      "excludes": [
+        "manual playbook_activate path",
+        "browser/UI tests"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Dist CLI path reports activatedCount=1 and runtime activeChecks consumedByAll=true.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Second apply is idempotent and does not duplicate activation audit rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Activation apply fails closed before explicit outcomes and does not mutate playbooks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-03T03:16:06.558Z",
+      "endTime": "2026-07-03T03:16:07.011Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses built CLI for seed observe/propose/approve, outcome record, playbook_auto_promotion_apply --apply activatedCount=1, and runtime consumption verification.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts second apply returns activatedCount=0 and leaves exactly one recommendation row plus one activation audit row.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts activation apply fails closed before explicit outcomes and does not mutate playbooks or learning artifacts.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-002:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Built dist CLI used by smoke.",
+          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:07.645Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document Story 2 activation boundary",
+      "context": "Docs must say V2 evidence activation is usable through playbook_auto_promotion_apply, but remains advisory/non-authoritative and separate from timers, trial traffic, historical backfill, and gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "Docs show the exact commands and explain that activation is evidence-based, not human subjective promotion and not DONE-success inference.",
+      "excludes": [
+        "claiming production/blocking policy readiness"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs include playbook_auto_promotion_apply --apply and runtime consumption verification command sequence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish automatic evidence activation from timer-driven promotion and historical backfill.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly forbid DONE success alone as helped or active guidance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-03T03:16:16.563Z",
+      "endTime": "2026-07-03T03:16:16.992Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"playbook_auto_promotion_apply --apply|runtime consumption\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs include the evidence activation command and runtime consumption verification boundary.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"historical seed backfill|timer\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs distinguish this apply path from historical backfill, timer-driven promotion, trial serving, and broad rollout mechanics.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"DONE success alone|gate evidence\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly forbid DONE success alone as helped evidence and state activation remains non-authoritative non-gate evidence.",
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
+        },
+        {
+          "intentRef": "CHK-003:smoke",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Runtime behavior matches documented boundary: advisory activation only after explicit exposure/outcome evidence.",
+          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:17.618Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T03:15:57.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented by commit edad40d1b and verified by build plus playbook seed promotion smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:06.558Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting verification of the full CLI seed/candidate/outcome/activation/runtime loop.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:07.011Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Verified by the built dist CLI path inside playbook-seed-promotion-loop-smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:16.563Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting documentation boundary synchronization.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:16.992Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs updated by commit 7d4ce26bd and verified with rg plus build/smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:22:21.919Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened to fix B-6703:F-001 shared promotion-decision ledger locking/idempotency issue.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:27:26.170Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Resolved B-6703:F-001 by serializing playbook promotion decision writers on a shared learning-store lock and making appendPlaybookPromotionDecision idempotent for applied keys.",
+      "agent": "lattice-implementer"
+    }
+  ]
+}

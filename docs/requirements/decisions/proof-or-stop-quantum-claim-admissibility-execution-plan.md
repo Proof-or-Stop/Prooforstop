@@ -1,7 +1,7 @@
 # Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan
 
 Status: formal story source of truth for B-7b4e
-Runtime status: Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending.
+Runtime status: Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented.
 Created: 2026-07-02
 Scope: local computational quantum-mechanics claim-admissibility controls
 
@@ -18,7 +18,8 @@ evidence to advance across lifecycle stages.
 
 ## Current Implementation Slice
 
-B-7b4e and B-5118 implement Milestones 0 through 2:
+B-7b4e, B-5118, B-d1bf, and B-3779 implement the local diagnostic Milestones 0
+through 5:
 
 - M0: scope, policy, non-goals, claim IDs, boundary semantics, and fail-closed
   reason vocabulary.
@@ -26,12 +27,28 @@ B-7b4e and B-5118 implement Milestones 0 through 2:
   stale, missing, mismatched, weak, or unbound evidence.
 - M2: read-only verifier adapter descriptors plus deterministic normalization
   from supplied adapter output into local quantum verifier receipts.
+- M3: local read-only gate-policy projection that maps existing evaluator output
+  to `advance`, `repair`, `degrade`, `escalate`, or `stop`, exposed through
+  `quantum_claim_check` without writing lifecycle evidence or mutating the Story
+  machine.
+- M4: deterministic local benchmark harness exposed through
+  `quantum_claim_benchmark`. It covers supported cases A1-A4 and failure
+  injections B1-B15, reports unsupported advance, stale acceptance, boundary
+  violation, and false-stop rates with deterministic confidence intervals, and
+  remains diagnostic-only with `gateEvidence=false`.
+- M5: deterministic local governance report exposed through
+  `quantum_claim_report`. It summarizes benchmark totals, status, artifact
+  indexes, limitations, and the non-claim boundary while keeping production,
+  Authority, hardware, theory, and solver-improvement booleans false.
 
-M3 through M5 remain pending:
+The following remain future work and out of scope for the current local slice:
 
-- no lifecycle transition engine integration;
-- no benchmark harness or failure-injection runner;
-- no reporting/governance integration beyond the local smoke task.
+- no global lifecycle transition engine integration or Story phase mutation;
+- no generic framework `gatePolicies` adapter/plugin completion;
+- no proof-admissibility core rule change;
+- no Authority/DONE/production claim;
+- no quantum theory, hardware, lab, external solver execution, or
+  solver-improvement validation claim.
 
 ## Execution Boundary
 
@@ -238,9 +255,10 @@ Gate result:
 Stop. Regenerate the figure from the current source run and plotting script.
 ```
 
-## Future Failure Injection Set
+## Implemented Diagnostic Failure Injection Set
 
-M4 may later implement a benchmark using these deterministic injections:
+M4 implements a deterministic local benchmark using these diagnostic
+injections:
 
 1. Hamiltonian changed while old eigenvalue reused.
 2. Potential changed while old wavefunction reused.
@@ -266,7 +284,8 @@ Deliverables:
 
 - domain model freeze for quantum claim/admissibility scope;
 - schema and boundary definitions for non-goals and failure semantics;
-- test plan for future A1-A4 and B1-B15 injections.
+- implemented diagnostic test plan for A1-A4 supported cases and B1-B15
+  failure injections.
 
 Acceptance:
 
@@ -302,26 +321,72 @@ lifecycle gates, or claim full quantum validation.
 
 ### Milestone 3 - Gate policy and transition engine updates
 
-Pending. Future work may bind lifecycle transitions to the claim/evidence
-registry and expose controlled `repair`, `degrade`, `escalate`, or `stop`
-behavior.
+Implemented as a local read-only M3 gate-policy check. The implementation maps
+the existing Quantum evaluator reason codes into `advance`, `repair`, `degrade`,
+`escalate`, or `stop` decisions for claim-admissibility transitions only. It
+does not mutate the global Story lifecycle, write lifecycle evidence, claim
+production readiness or Authority status, or validate quantum theory, hardware,
+lab results, physical systems, or solver improvements.
+
+The read-only CLI surface is:
+
+```bash
+lattice quantum_claim_check --case=complete --json
+```
+
+The `complete` case advances only the local Q5 claim-admissibility projection
+and keeps `boundary.productionClaim=false`, `boundary.authorityClaim=false`,
+`localClaimAdmissibilityOnly=true`, `writesLifecycleEvidence=false`, and
+`mutatesLifecycle=false`. The weak/degraded case returns `degrade`, and hard
+overclaim cases return `stop`.
 
 ### Milestone 4 - Benchmark harness
 
-Pending. Future work may add A1-A4 baseline comparison, B1-B15 failure
-injections, rate metrics, confidence intervals, and bounded runtime fixtures.
+Implemented for the local diagnostic slice. `quantum_claim_benchmark` is
+read-only and deterministic. It includes supported cases:
+
+- A1: complete Q5 energy evidence, expected `advance`.
+- A2: weak Q5 energy evidence asked to support a stronger ground-state claim,
+  expected `degrade` with `weak_evidence_overclaim`.
+- A3: complete Q12 figure/table provenance evidence, expected `advance`.
+- A4: complete Q1 Hamiltonian/spec evidence asked to support a stronger
+  convergence claim, expected `degrade` with `weak_evidence_overclaim`.
+
+It also includes B1-B15 failure injections for stale, missing, mismatched, and
+fail-closed behavior. No failure injection may advance; each injection carries
+an exact expected reason category so smoke tests catch wrong-stop regressions.
+Metrics include `unsupportedAdvanceRate`, `staleAcceptanceRate`,
+`boundaryViolationRate`, `falseStopRate`, deterministic confidence intervals,
+`diagnosticOnly=true`, `gateEvidence=false`, `writesLifecycleEvidence=false`,
+and `mutatesLifecycle=false`.
+
+```bash
+lattice quantum_claim_benchmark --json
+```
 
 ### Milestone 5 - Reporting and governance integration
 
-Pending. Future work may add artifact indexes, report format, and downstream
-non-claim wording.
+Implemented for the local diagnostic slice. `quantum_claim_report` is read-only
+and deterministic. It renders benchmark totals/status, artifact indexes, and
+limitations, and keeps `productionClaim=false`, `authorityClaim=false`,
+`hardwareValidationClaim=false`, `quantumTheoryClaim=false`, and
+`solverImprovementClaim=false`.
+
+```bash
+lattice quantum_claim_report
+```
+
+Generic framework gate-adapter/plugin completion, lifecycle mutation,
+`done_prepare`, Authority/DONE/production claims, quantum theory validation,
+hardware/lab validation, external solver execution, and solver-improvement
+claims remain future/out of scope.
 
 ## Ready-to-Quote Boundary Paragraph
 
 Proof-or-Stop can be extended to computational quantum mechanics as local
 claim-admissibility control. It does not prove quantum mechanics, validate a
 physical system, improve solvers, prove broad quantum advantage, or create
-production/Authority completion. It checks whether a reported quantum-simulation
+production-readiness or Authority claims. It checks whether a reported quantum-simulation
 claim has enough current, bound, admissible evidence to advance across scoped
 lifecycle stages such as model/spec freeze, solver execution, invariant checking,
 convergence analysis, reference comparison, reproducibility, and result

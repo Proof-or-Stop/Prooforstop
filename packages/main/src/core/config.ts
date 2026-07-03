@@ -249,6 +249,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or release readiness
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'pinn_*', // B-db1b: PINN claim-admissibility check/benchmark/report commands are local read-only diagnostics in all phases
+    'quantum_claim_*', // B-d1bf/B-3779: Quantum local read-only claim-admissibility diagnostics (M3 check, M4 benchmark, M5 report); no lifecycle evidence writes
     'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
     'lattice_config_doctor', // Proofbound CLI 0.3.6: CLI-first migration/config status; no Mac App dependency

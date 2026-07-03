@@ -1,0 +1,184 @@
+{
+  "passes": [
+    {
+      "id": "B-3779:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS for Quantum local diagnostic M4-M5. Inspected committed core, handlers, catalog/policy/config/docs, pack registry, benchmark smoke, and report JSON. quantum_claim_benchmark/report stay local/read-only/diagnostic-only with gateEvidence=false, writesLifecycleEvidence=false, mutatesLifecycle=false; generic pack gatePolicies remain empty; output keeps production/Authority/hardware/lab/theory/external-solver/solver-improvement claims false/out of scope.",
+      "createdAt": "2026-07-03T03:51:53.959Z",
+      "reviewRound": "2026-07-03T03:49:01.968Z",
+      "reviewRunId": "B-3779:RR-003",
+      "_hash": "81e166613c1624b41d4cf63df7c0c44cbc6728f08c9eae894ebb65290e32deeb"
+    },
+    {
+      "id": "B-3779:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: inspected CHK-001/CHK-002/CHK-003 verification coverage. Evidence_plan reports 9/9 required intents fresh; targeted smokes passed (test:quantum-claim-benchmark, test:quantum-claim-admissibility, test:command-catalog-smoke). Worktree dist CLI benchmark/report outputs cover A1-A4, B1-B15, metrics, text/JSON report boundaries, diagnosticOnly/gateEvidence false, no lifecycle mutation, and no production/Authority/hardware/theory/solver-improvement overclaims.",
+      "createdAt": "2026-07-03T03:52:10.039Z",
+      "reviewRound": "2026-07-03T03:49:01.968Z",
+      "reviewRunId": "B-3779:RR-002",
+      "_hash": "ef8135cc8bdf9e02ef6876c9846506c66084efa7085ce3ba83fa41fc36f637e2"
+    },
+    {
+      "id": "B-3779:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS: B-3779:F-001 fixed on docs re-review. The Quantum execution plan now labels M4/A1-A4/B1-B15 as implemented local diagnostic benchmark content, not future work; the future/out-of-scope bullets exclude M4/A1-A4/B1-B15 and retain generic framework gatePolicies/lifecycle integration plus scientific/production/Authority/hardware/theory/solver-improvement claims out of scope. Framework doc likewise keeps Quantum diagnostics separate from generic gatePolicies/lifecycle integration.",
+      "createdAt": "2026-07-03T03:59:30.017Z",
+      "reviewRound": "2026-07-03T03:58:23.240Z",
+      "reviewRunId": "B-3779:RR-006",
+      "_hash": "fb89ce31f4170437d8bde9950efe3f97572299be46919bd4ad09c08c09fa9b9e"
+    },
+    {
+      "id": "B-3779:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review PASS for B-3779:F-002. Verified quantum_claim_benchmark and quantum_claim_report are classified in PROCESS_FACT_LEVELS as L0 quantum-claim-admissibility-read entries, COMMAND_POLICIES marks both readOnly/all-phase/no destructive risk, catalog schemas reject side-effect and overclaim flags, handlers enforce assertReadOnlyBoundary, and focused verification passed: npm --prefix packages/main run build; npm --prefix packages/main run test:lifecycle-registry-contract; npm --prefix packages/main run test:quantum-claim-benchmark; npm --prefix packages/main run test:command-catalog-smoke.",
+      "createdAt": "2026-07-03T04:00:46.998Z",
+      "reviewRound": "2026-07-03T03:58:23.240Z",
+      "reviewRunId": "B-3779:RR-007",
+      "_hash": "41e8889c6805a87c63bcfa2ded5795d36ba7d303901c83687dbbb5849a9d0d59"
+    },
+    {
+      "id": "B-3779:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review PASS: F-004 is fixed. Verified B1-B15 runtime/smoke coverage now matches the documented domain scenarios, target smoke passes, and benchmark/report boundaries remain diagnosticOnly=true, gateEvidence=false with no production, Authority, hardware, theory, or solver-improvement claims.",
+      "createdAt": "2026-07-03T04:11:57.849Z",
+      "reviewRound": "2026-07-03T04:09:39.690Z",
+      "reviewRunId": "B-3779:RR-010",
+      "_hash": "590a313f4e75d46e507ea5a50e0562c1215a733a21da48fbbe18d77ccda39044"
+    },
+    {
+      "id": "B-3779:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept/adversarial review PASS for current head 8e73ba3. Verified F-003 fixed: B1-B15 runtime failure-injection corpus and smoke assertions now match the story plan and quantum decision doc domain scenarios; npm --prefix packages/main run test:quantum-claim-benchmark passed; CLI benchmark/report JSON keeps diagnosticOnly=true, gateEvidence=false, all B1-B15 non-advancing, and no Authority, production, hardware, theory, solver-improvement, generic lifecycle, or scientific correctness claim.",
+      "createdAt": "2026-07-03T04:12:04.692Z",
+      "reviewRound": "2026-07-03T04:09:39.690Z",
+      "reviewRunId": "B-3779:RR-009",
+      "_hash": "c8a0c3e69043ebebbff917ce0a49dc698084d9b56aea1ca82778bc9aa7bc0981"
+    },
+    {
+      "id": "B-3779:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS for current round: F-002 is fixed by L0 read-only diagnostic process-fact entries for quantum_claim_benchmark and quantum_claim_report; lifecycle registry contract passes with 0 divergences and command catalog smoke passes.",
+      "createdAt": "2026-07-03T04:12:09.204Z",
+      "reviewRound": "2026-07-03T04:09:39.690Z",
+      "reviewRunId": "B-3779:RR-011",
+      "_hash": "7600534c453132d547c7cfd2213796ceef747b96ce1c45599c343269df9a69e8"
+    },
+    {
+      "id": "B-3779:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS. F-001 remains fixed: the Quantum plan says local diagnostic M0-M5 are implemented and M4/M5 are implemented local benchmark/report slices, not future-only. The plan and runtime now align on the domain B1-B15 corpus: Hamiltonian, potential, boundary condition, basis/grid, timestep, normalization, residual, invariant, units/reference mismatch, baseline grid/basis, checkpoint config, verifier threshold, stale figure, random seed, and edited table/plot. quantum_claim_benchmark --json reports diagnosticOnly=true, gateEvidence=false, 15 failure injections; quantum_claim_report --json keeps production/Authority/hardware/theory/solver-improvement claims false and states generic framework/lifecycle integration remains future/out of scope. No docs blocker found.",
+      "createdAt": "2026-07-03T04:12:19.176Z",
+      "reviewRound": "2026-07-03T04:09:39.690Z",
+      "reviewRunId": "B-3779:RR-012",
+      "_hash": "0dc03597e9c932587f576d6e8d4c665aa0526fcdc6aeecea0d8beef5a7b1f897"
+    },
+    {
+      "id": "B-3779:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept/adversarial re-review after main merge PASS. Verified B-3779 remains a scoped quantum claim-admissibility local diagnostic slice: npm --prefix packages/main run test:quantum-claim-benchmark passed; quantum_claim_benchmark --json reports suiteStatus PASS, failureInjectionTotal 15, unsupportedAdvanceRate 0/15, all B1-B15 non-advancing or repair-only as expected; quantum_claim_report --json reports diagnosticOnly=true, gateEvidence=false, writesLifecycleEvidence=false, mutatesLifecycle=false, and all Authority/production/hardware/theory/solver-improvement/scientific correctness boundary claims false. Runtime B1-B15 corpus remains aligned with story plan and quantum decision doc domain scenarios.",
+      "createdAt": "2026-07-03T04:23:48.861Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-013",
+      "_hash": "0720d47665dbc37a4e3f009c097c2ef86a2dcc0d17cebfe817ada5068bc7f32b"
+    },
+    {
+      "id": "B-3779:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after main-merge REVIEW rebuild. Verified quantum-claim-benchmark-smoke asserts A1-A4 plus documented B1-B15 domain scenarios; npm --prefix packages/main run test:quantum-claim-benchmark PASS; quantum_claim_benchmark/report JSON keep diagnosticOnly=true, gateEvidence=false, writesLifecycleEvidence=false, mutatesLifecycle=false, and no production/Authority/hardware/theory/solver-improvement claims.",
+      "createdAt": "2026-07-03T04:23:52.553Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-014",
+      "_hash": "e3dd88d1e31fd64c0600a17d0ac2392454cbf1f408d08bb858d0a8bc4ec039fa"
+    },
+    {
+      "id": "B-3779:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review after main merge PASS: Quantum plan and adapter-pack framework doc still state local diagnostic M0-M5 implemented; generic framework lifecycle integration remains future/out of scope; B1-B15 documented corpus aligns with quantum_claim_benchmark/report output; no Authority, production, hardware, lab, theory, solver-improvement, scientific-correctness, or gate-evidence claim is made.",
+      "createdAt": "2026-07-03T04:24:14.039Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-015",
+      "_hash": "1aea52abd7e75474c05ec66ae539e4ee865ed74b804fc2dd98d88f7d6d8d18c9"
+    },
+    {
+      "id": "B-3779:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review PASS after main-merge REVIEW rebuild. Verified quantum_claim_benchmark and quantum_claim_report remain read-only diagnostic commands across COMMAND_POLICIES, command catalog, handler boundary, and PROCESS_FACT_LEVELS L0 quantum-claim-admissibility-read classification. npm --prefix packages/main run test:lifecycle-registry-contract PASS with 0 divergences; npm --prefix packages/main run test:command-catalog-smoke PASS with 307 commands. No blocker found.",
+      "createdAt": "2026-07-03T04:24:17.232Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-016",
+      "_hash": "b511d74eb19c0f35225a58cb49445dfe1cf430b6743509b2121e6d3fdb0e30d3"
+    },
+    {
+      "id": "B-3779:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality review after main merge PASS. Verified quantum_claim_benchmark and quantum_claim_report remain read-only local diagnostic commands: npm --prefix packages/main run test:lifecycle-registry-contract passed with 0 divergences; npm --prefix packages/main run test:command-catalog-smoke passed with 307 commands; quantum_claim_report --json reports diagnosticOnly=true, gateEvidence=false, writesLifecycleEvidence=false, mutatesLifecycle=false, and no Authority/production/hardware/theory/solver-improvement claims.",
+      "createdAt": "2026-07-03T04:24:39.608Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-017",
+      "_hash": "2c9789e422af479faa902c275ac763e8285a6f4c29b8ea669d1a07ae38f1951e"
+    },
+    {
+      "id": "B-3779:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Docs review after main merge PASS. Verified B-3779 plan and quantum claim admissibility docs say Quantum local diagnostic M0-M5, M4 benchmark, and M5 governance report are implemented diagnostic-only with gateEvidence=false; generic framework gatePolicies/lifecycle integration remains future/out of scope; no production, Authority, hardware, theory, physical-validation, solver-improvement, or broad scientific correctness claim is made.",
+      "createdAt": "2026-07-03T04:24:40.055Z",
+      "reviewRound": "2026-07-03T04:22:59.880Z",
+      "reviewRunId": "B-3779:RR-018",
+      "_hash": "5f6f2689b3beb997e8a7de2794aa93be1397e1e24da14f85fa1ed818abc2c95b"
+    },
+    {
+      "id": "B-3779:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS for metadata-only REVIEW round after delivery context scope acknowledgement. No business code/docs material changed since the full reviewed Quantum M4-M5 implementation; B1-B15 runtime/doc alignment and diagnostic-only/no-overclaim boundary remain covered by prior fixed findings, fresh validation, and delivery review.",
+      "createdAt": "2026-07-03T04:32:45.544Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-019",
+      "_hash": "2ebbd7de36a748c7c236830292ea24128a0fbf95510f591d98cf2df1389e8fe1"
+    },
+    {
+      "id": "B-3779:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS for metadata-only REVIEW round after delivery context scope acknowledgement. Current scope_contract_check is warning-only with acknowledgement for delivery-context-pack.json; lifecycle/process-fact classification was already verified after main merge with lifecycle-registry-contract PASS and command-catalog-smoke PASS. No blocker found.",
+      "createdAt": "2026-07-03T04:32:51.269Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-020",
+      "_hash": "2f4b4299d1fa3c17926049713eec3616c91a6abf1c7d7b7a691a7064d5f4cebd"
+    },
+    {
+      "id": "B-3779:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage PASS for metadata-only REVIEW round after delivery context scope acknowledgement. No test surface changed since the fresh validation and delivery review; quantum benchmark smoke still pins A1-A4 and B1-B15 decisions/reasons/title concepts, command-catalog smoke covers schema side-effect refusals, and delivery reviewer reran build plus quantum benchmark/admissibility/catalog tests.",
+      "createdAt": "2026-07-03T04:33:08.700Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-021",
+      "_hash": "a5261e53a5c5e1d62f22832659b2b7d9af82186dc10aa593f07465d5b7c8ca2f"
+    },
+    {
+      "id": "B-3779:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage rebind PASS after delivery/summary/scope metadata. review_incremental_context reported scopeChanged=false and changedFiles=[] since prior test-coverage PASS; B-3779 test evidence remains PASS, quantum benchmark smoke passed in delivery review, and B1-B15 domain failure injection coverage remains asserted by quantum-claim-benchmark-smoke.",
+      "createdAt": "2026-07-03T04:33:16.937Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-022",
+      "_hash": "dc30e336e48d71a565e5399fcc7622f1de34c531910f87c71c6b1c1634af1838"
+    },
+    {
+      "id": "B-3779:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Docs rebind PASS after delivery/summary/scope metadata. review_incremental_context reported scopeChanged=false and changedFiles=[] since prior docs PASS; delivery-check and summary preserve the same documented boundary: Quantum local diagnostic M0-M5 implemented, M4/M5 diagnostic-only, gateEvidence=false, and no Authority/production/hardware/theory/solver-improvement/scientific correctness claim.",
+      "createdAt": "2026-07-03T04:33:17.351Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-023",
+      "_hash": "ce44e7c12cfa19389fb263cc53f370d79f536b846811317ebf70358e66abe038"
+    },
+    {
+      "id": "B-3779:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS for metadata-only REVIEW round after delivery context scope acknowledgement. Quantum plan/story docs remain aligned with implemented local diagnostic M0-M5, M4 benchmark and M5 report; generic lifecycle/gate-policy framework, Authority, production, hardware, quantum theory, and solver-improvement claims remain explicitly out of scope.",
+      "createdAt": "2026-07-03T04:33:17.791Z",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "reviewRunId": "B-3779:RR-024",
+      "_hash": "57aa5050f4438f26ac59e751bf7715228d95e274a04432c97687a2a8fcdaafd8"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "storyId": "B-3779",
+  "checkedAt": "2026-07-03T03:28:20.570Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-001 relies on A1-A4 benchmark arm labels, but the B-3779 checklist and Quantum source doc explicitly enumerate only B1-B15; define or cross-reference A1-A4 arm semantics so expected advance/degrade outcomes are unambiguous."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-03T03:28:15.827Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001/CHK-002 use A1-A4 as the benchmark arms, but B-3779 background/checklist and the listed Quantum/framework relatedDocs do not define those A1-A4 supported cases. From a product/user-value perspective, the outcome is otherwise clear, but the completion signal should make the four arms explicit so a user can recognize exactly what was benchmarked without relying on cross-domain PINN or experiment conventions."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-03T03:28:20.570Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 relies on A1-A4 benchmark arm labels, but the B-3779 checklist and Quantum source doc explicitly enumerate only B1-B15; define or cross-reference A1-A4 arm semantics so expected advance/degrade outcomes are unambiguous."
+        }
+      ]
+    }
+  ],
+  "_hash": "fa0490448b0b960ff3d75e0f736ec757f96b17d67008d0d12146539f889ca79d"
+}

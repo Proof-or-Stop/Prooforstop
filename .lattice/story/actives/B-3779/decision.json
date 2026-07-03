@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Benchmark proves claim-admissibility control effectiveness, not quantum truth.",
+    "All Quantum M4-M5 outputs stay local, read-only, diagnostic-only, and non-gate evidence.",
+    "Supported and failure-injection cases must be deterministic and reviewer-readable.",
+    "Boundary booleans for theory, hardware, solver improvement, production, and Authority remain false.",
+    "Prefer a minimal Quantum-specific slice over generic framework gate integration."
+  ],
+  "drivers": [
+    "M0-M3 evaluator and gate-policy projection already exist and should be reused rather than duplicated.",
+    "INIT reviewers require A1-A4 semantics to be explicit before REVIEW.",
+    "High-risk auto-elevation from the word production requires clear no-production preMortem and evidence."
+  ],
+  "options": [
+    {
+      "name": "docs-only M4-M5 closeout",
+      "pros": [
+        "Fast",
+        "Low code risk"
+      ],
+      "cons": [
+        "Does not actually complete benchmark/report runtime capability",
+        "Cannot prove B1-B15 behavior mechanically"
+      ]
+    },
+    {
+      "name": "local deterministic benchmark and report commands",
+      "pros": [
+        "Completes M4-M5 as runnable local diagnostics",
+        "Reuses existing evaluator",
+        "Keeps lifecycle gates unchanged",
+        "Produces strong smoke evidence"
+      ],
+      "cons": [
+        "Adds command/catalog/policy wiring",
+        "Requires careful no-overclaim wording"
+      ]
+    },
+    {
+      "name": "generic lifecycle gate-policy adapter plus benchmark",
+      "pros": [
+        "Moves toward full framework vision"
+      ],
+      "cons": [
+        "Too broad for this story",
+        "Risks weakening or duplicating lifecycle gates",
+        "Conflates Quantum local completion with generic framework M4"
+      ]
+    }
+  ],
+  "chosen": "local deterministic benchmark and report commands",
+  "rationale": "This option completes the remaining Quantum local diagnostic milestones with concrete runnable evidence while preserving all proof-or-stop boundaries and avoiding generic lifecycle gate integration scope creep.",
+  "preMortem": [
+    {
+      "scenario": "A1-A4 supported cases remain undefined",
+      "trigger": "Benchmark emits opaque A1/A2 labels without docs or stable case meaning",
+      "consequence": "Reviewers cannot tell whether M4 is complete or just label-driven",
+      "mitigation": "Define A1-A4 in code and docs as supported-control cases with explicit expected decisions."
+    },
+    {
+      "scenario": "Benchmark report is mistaken for production or Authority proof",
+      "trigger": "Report wording uses completion language without boundary qualifiers",
+      "consequence": "Host or user may overclaim quantum readiness or release readiness",
+      "mitigation": "Every report includes diagnosticOnly=true, gateEvidence=false, productionClaim=false, authorityClaim=false, and explicit limitations."
+    },
+    {
+      "scenario": "Failure injections pass for the wrong reason",
+      "trigger": "B1-B15 expected stop/degrade assertions only check non-advance without validating reason categories",
+      "consequence": "The harness hides regressions in stale/mismatch/boundary handling",
+      "mitigation": "Each injected case records expected decision and required reason prefix; smoke asserts exact category coverage."
+    },
+    {
+      "scenario": "Generic framework M4 gets accidentally claimed complete",
+      "trigger": "Docs say M4/M5 implemented without saying local Quantum diagnostic slice",
+      "consequence": "Framework roadmap becomes false and future gate adapter work is obscured",
+      "mitigation": "Docs explicitly distinguish Quantum local M4-M5 from generic framework gate-policy adapter work."
+    }
+  ],
+  "timestamp": "2026-07-03T03:29:33.300Z"
+}

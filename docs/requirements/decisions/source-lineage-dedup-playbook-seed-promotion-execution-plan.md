@@ -144,8 +144,9 @@ Recommended priority:
 
 1. `dev-memory` with explicit `sourceStoryId` and `evidenceRefs`.
 2. `finding-signal` with support above a configured threshold and valid anchors.
-3. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
-4. Manual operator source with explicit reason.
+3. `done-experience` from DONE summary, pitfalls, and delivery-check material.
+4. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
+5. Manual operator source with explicit reason.
 
 Rules:
 
@@ -154,6 +155,9 @@ Rules:
   per-finding playbooks for the same canonical source.
 - A dev-memory entry may propose a playbook only when it has enough lineage to
   trace back to source facts.
+- A DONE experience seed may propose only through the same observeDigest,
+  proposal, and candidate approval flow; it is not helped evidence and is never
+  active by default.
 - A source marked `non_promotable` must not generate another candidate unless an
   explicit override reason is recorded.
 - `non_promotable` means "this source must not generate a playbook candidate."
@@ -242,12 +246,15 @@ Proofbound learning-specific read-only view built on top of
 lattice playbook_seed_observe --json
 lattice playbook_seed_observe --source=dev-memory --json
 lattice playbook_seed_observe --source=finding-signals --json
+lattice playbook_seed_observe --source=done-experience --json
 ```
 
 Reports:
 
 - proposable dev-memory seeds;
 - proposable finding-signal seeds;
+- proposable DONE experience seeds from DONE summaries, pitfalls, and
+  delivery-check material;
 - raw findings without distilled experience;
 - duplicate seed groups;
 - seeds blocked by missing lineage;
@@ -255,6 +262,27 @@ Reports:
 - seeds blocked by `non_promotable`;
 - seeds already represented by a proposal / candidate / active playbook;
 - `observeDigest` over the reviewed seed set.
+
+DONE experience uses a hyphenated CLI source flag, but JSON/source-lineage rows
+use the exact artifact kind spelling `sourceArtifactKind: "done_experience"`:
+
+```json
+{
+  "proposableSeeds": [
+    {
+      "sourceArtifactKind": "done_experience",
+      "sourceArtifactId": "B-example",
+      "sourceSummary": "DONE experience summary captured durable behavior."
+    }
+  ],
+  "authority": "non_authoritative",
+  "gateEvidence": false
+}
+```
+
+This row is candidate-only seed material. It may enter proposal and candidate
+approval through the digest-guarded flow below, but it is not helped evidence and
+does not activate runtime guidance.
 
 ### 8.3 `playbook_seed_propose_batch`
 
@@ -264,6 +292,7 @@ dry-run (implemented by B-9958).
 ```bash
 lattice playbook_seed_propose_batch --dryRun --limit=20
 lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --observeDigest=<digest>
+lattice playbook_seed_propose_batch --apply --source=done-experience --limit=20 --observeDigest=<digest>
 ```
 
 Rules:
@@ -271,6 +300,8 @@ Rules:
 - uses the primary source selected by `playbook_seed_observe`;
 - treats finding-signal seeds as proposable only when the source-lineage audit
   carries enough support and valid anchors; absent quality data fails closed;
+- treats DONE experience seeds as non-authoritative candidate material only,
+  never as helped evidence or active guidance;
 - records the seed source and canonical source key;
 - `--apply` requires `--observeDigest` from `playbook_seed_observe`;
 - `--apply` fails if the current observe digest differs from the reviewed
@@ -300,6 +331,7 @@ Rules:
   source is already represented by another proposal, candidate, active, stale,
   or archived playbook;
 - writes candidate playbooks only, never active playbooks or gate evidence.
+- DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
 ### 8.5 Promotion And Auto-Promotion
 
@@ -320,8 +352,9 @@ V1 behavior:
 - It may recommend activation, reject, archive, recommend demotion, or mark a
   source as `non_promotable`.
 
-V2 controlled advisory auto-promotion is implemented by B-7ee1 as an
-evidence-activated apply surface, not as a default-off placeholder guard:
+V2 controlled advisory auto-promotion is implemented as an evidence-activated
+apply surface, not as a default-off placeholder guard. B-6703 makes the single
+apply command self-contained for already-qualified candidates:
 
 ```bash
 lattice playbook_auto_promotion_apply --dryRun
@@ -331,8 +364,10 @@ lattice playbook_auto_promotion_apply --apply
 Allowed only when:
 
 - the reviewed evidence activation policy is present;
-- an applied `recommend_activate` decision matches the current aggregate and
-  candidate digest;
+- a deterministic `recommend_activate` decision matches the current aggregate
+  and candidate digest, either because promotion sweep already wrote it or
+  because `playbook_auto_promotion_apply --apply` appends it idempotently during
+  the same guarded apply path;
 - the candidate has explicit exposure records;
 - decisive samples meet the configured threshold;
 - helped / dismissed / harmful counts meet evaluator thresholds;
@@ -346,9 +381,11 @@ Execution phase boundary:
 
 - Promotion sweep still stops at recommendation rows and runtime-consumption
   verification. Evidence activation is a separate apply command that consumes
-  those rows after the candidate evidence passes.
+  or writes digest-bound recommendation evidence after the candidate evidence
+  passes.
 - Evidence activation must fail closed until V1 has real outcome records and a
-  reviewed threshold policy.
+  reviewed threshold policy. DONE success alone is not a helped outcome and
+  cannot create active guidance.
 - `candidate -> active` writes are allowed only through the guarded apply path
   with those inputs; blanket default-on activation remains disallowed.
 
@@ -476,8 +513,11 @@ Make the mechanism reusable outside this repository.
 
 Enable advisory activation only through `playbook_auto_promotion_apply` after
 V1 has real outcome records, a reviewed threshold policy, current candidate
-digest, applied `recommend_activate` decision, explicit exposure/outcome
-evidence, clean lineage, and rollback readiness.
+digest, deterministic `recommend_activate` evidence, explicit exposure/outcome
+evidence, clean lineage, and rollback readiness. The apply path may append the
+missing matching recommendation row itself, but it may not activate from
+historical seed presence, DONE success, neutral/unknown outcomes, or
+`done-settlement` verdict sources.
 
 ## 12. Acceptance Criteria
 
@@ -532,7 +572,9 @@ This plan adds that missing audit layer.
 - `playbook_auto_promotion_apply` is separate from promotion sweep; it is
   evidence-activated, non-authoritative, non-gate, and can only activate
   advisory playbooks that satisfy the reviewed policy and current digest-bound
-  evidence contract.
+  evidence contract. It may write the missing digest-bound recommendation row
+  for an otherwise eligible candidate, but dry-run remains read-only and stale
+  recommendation/candidate digests fail closed.
 - DONE settlement remains non-blocking and cannot infer helped from DONE
   success.
 

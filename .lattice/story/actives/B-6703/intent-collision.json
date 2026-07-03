@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6703",
+  "id": "IC-20260703025914",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the evidence-based activation half of the playbook learning loop: candidates remain inert until explicit exposure and structured outcome evidence satisfy promotion thresholds; then playbook_auto_promotion_apply --apply may write deterministic recommendation evidence, activate advisory runtime playbooks, and prove runtime consumption. Historical backfill, timer/daemon promotion, trial serving, blocking policy generation, and DONE-success-as-helped are out of scope.",
+  "acceptedInterpretationHash": "sha256:d72f40c154504531dd045e61f265057eb00606bf7ade04c839c832f02331f9be",
+  "notes": "Accepted interpretation matches the user request to avoid fake default-off activation while preserving evidence boundaries and excluding historical backfill for a separate story.",
+  "createdAt": "2026-07-03T02:59:14.657Z",
+  "updatedAt": "2026-07-03T02:59:14.657Z"
+}

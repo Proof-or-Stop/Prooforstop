@@ -1,0 +1,67 @@
+{
+  "storyId": "B-3779",
+  "checkedAt": "2026-07-03T04:31:50.192Z",
+  "headHash": "8b7a60cf9c7c9bce3b668ec7364332d99a1a7c8d",
+  "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be",
+  "storyFilesHash": "243dd4e336187927ed3b9483dae78d9edca305b8dd8d5caf8c227daa7e0737e8",
+  "reviewRound": "2026-07-03T04:22:59.880Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-3779/plan.md",
+      "promise": "quantum_claim_report renders a reviewer-readable summary saying Quantum local diagnostic M0-M5 are implemented and M4-M5 remain non-gate, diagnostic proof of control behavior only",
+      "status": "verified",
+      "verifiedBy": "manual transcript: node packages/main/dist/cli.js --root $PWD quantum_claim_report (text and --json)",
+      "evidence": "Report prints: Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented. / suiteStatus: PASS / diagnosticOnly: true / gateEvidence: false / writesLifecycleEvidence: false / mutatesLifecycle: false, plus limitation line: Local diagnostic benchmark only; it is not Proofbound lifecycle gate evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "The docs tell hosts exactly what changed, how to run the benchmark/report, and what claims remain out of scope",
+      "status": "verified",
+      "verifiedBy": "docs check: grep and read of the Quantum execution plan in the B-3779 worktree",
+      "evidence": "Line 4 states runtime status local diagnostic M0-M5 implemented; lines 35-42 describe the M4 benchmark (A1-A4 supported cases, failure injections) and M5 report; lines 345/364 and 369/376 mark both commands implemented for the local diagnostic slice with run commands lattice quantum_claim_benchmark --json and lattice quantum_claim_report; lines 44-51 enumerate out-of-scope claims: no lifecycle transition engine integration, no generic framework gatePolicies adapter/plugin completion, no proof-admissibility core rule change, no Authority/DONE/production claim, no quantum theory/hardware/lab/external-solver/solver-improvement validation claim."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3779/checklist.json#CHK-001.userSees",
+      "promise": "User runs lattice quantum_claim_benchmark --json and sees unsupportedAdvanceRate 0, staleAcceptanceRate 0, diagnosticOnly true, gateEvidence false, 4 supported cases, and 15 failure injections",
+      "status": "verified",
+      "verifiedBy": "manual transcript: node packages/main/dist/cli.js --root $PWD quantum_claim_benchmark --json",
+      "evidence": "JSON output shows suiteStatus PASS, supportedCases array length 4 (supportedCaseTotal 4), failureInjections array length 15 (failureInjectionTotal 15), metrics.unsupportedAdvanceRate rate 0 (count 0 of 15), metrics.staleAcceptanceRate rate 0, metrics.diagnosticOnly true, metrics.gateEvidence false."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3779/checklist.json#CHK-002.userSees",
+      "promise": "User runs lattice quantum_claim_report and sees M0-M5 implemented, benchmark PASS, diagnosticOnly true, gateEvidence false, productionClaim false, authorityClaim false",
+      "status": "verified",
+      "verifiedBy": "manual transcript: node packages/main/dist/cli.js --root $PWD quantum_claim_report (text and --json)",
+      "evidence": "Actual output delivers every promised fact: runtime status line reads Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented. (userSees literal was Quantum local diagnostic M0-M5: implemented); benchmark status is rendered as suiteStatus: PASS (userSees literal was Benchmark status: PASS); diagnosticOnly: true, gateEvidence: false, productionClaim: false, authorityClaim: false appear verbatim. Semantic content fully delivered; two label wordings differ from the userSees literals as noted here for audit transparency."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3779/checklist.json#CHK-003.userSees",
+      "promise": "User opens the Quantum docs and sees runtime status M0-M5 implemented, generic framework gate-policy adapter remains future work, and no quantum theory, hardware, production, or Authority claim",
+      "status": "verified",
+      "verifiedBy": "docs check: grep and read of docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "evidence": "Doc line 4: Runtime status: Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented. Lines 44-51 under the-following-remain-future-work list: no generic framework gatePolicies adapter/plugin completion; no Authority/DONE/production claim; no quantum theory, hardware, lab, external solver execution, or solver-improvement validation claim. Semantic content delivered; label wording differs slightly from the userSees literal (claim-admissibility runtime status vs local diagnostic runtime status), noted for audit transparency. F-001 stale future-wording finding verified resolved in review run B-3779:RR-006."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:quantum-claim-benchmark -> quantum claim benchmark smoke passed. node packages/main/dist/cli.js --root $PWD quantum_claim_benchmark --json -> suiteStatus PASS; 4/4 supported cases advance; 15/15 failure injections B1-B15 non-advancing and passed=true, covering the documented domain corpus (Hamiltonian, potential, boundary condition, basis/grid, timestep, normalization, residual, invariant, units mismatch, baseline grid/basis, solver checkpoint config, verifier threshold, stale figure, missing random seed, manually edited table/plot); unsupportedAdvanceRate 0/15; staleAcceptanceRate 0; boundaryViolationRate 0; falseStopRate 0/4; diagnosticOnly true; gateEvidence false; all six claim booleans false."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/cli.js --root $PWD quantum_claim_report and quantum_claim_report --json -> governance report renders runtime status local diagnostic M0-M5 implemented, suiteStatus PASS, supportedCasesPassed 4/4, failureInjectionsBlocked 15/15, all four rates 0.000, limitations block (local diagnostic only, not lifecycle gate evidence; no Authority/DONE/production/hardware/laboratory/quantum-theory/external-solver/solver-improvement claim; generic gate-adapter and lifecycle integration remain future work), boundaryText, artifactIndex digests, and quantumTheoryClaim/physicalValidationClaim/hardwareValidationClaim/solverImprovementClaim/productionClaim/authorityClaim all false."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Docs alignment verified against live runtime output: proof-or-stop-quantum-claim-admissibility-execution-plan.md line 4 runtime status matches quantum_claim_report output; M4/M5 sections (lines 345-376) say implemented for the local diagnostic slice and give the exact run commands exercised above; out-of-scope list (lines 44-51) matches the report limitations and false claim booleans. F-001 (stale Future Failure Injection wording) resolved+verified in RR-006; F-003/F-004 B1-B15 corpus mismatch resolved+verified in RR-009/RR-010 with runtime, smoke test, and docs now aligned on the same B1-B15 domain scenarios."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery ready: findings F-001..F-004 all resolved with verified evidence; reviewer lanes concept/quality/test-coverage/docs pass with full-3x2 review escalation and 3/3 voluntary quorum rounds; benchmark smoke, quantum_claim_benchmark --json, and quantum_claim_report run clean on the real CLI with suiteStatus PASS, 15/15 domain failure injections blocked, diagnosticOnly=true, gateEvidence=false, and zero Authority/production/hardware/theory/solver-improvement/scientific-correctness claims; no TODO/FIXME residue in the changed quantum sources. One owner-side non-delivery item remains before DONE: the scope path gate flags .lattice/story/actives/B-3779/evidence/delivery-context-pack.json as an unmatched path requiring scope_contract_acknowledge or revert by the story owner."
+  },
+  "_hash": "7b8df5ee32295ad6bb132a78acf296543414251c4b094dbd3b588cf38c309465"
+}

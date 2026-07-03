@@ -9,9 +9,10 @@
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "A DONE story can appear as a first-class playbook seed source instead of only a settlement health row.",
+      "userSees": "CLI JSON includes \"sourceArtifactKind\":\"done_experience\", \"canonicalSourceKeyVersion\":\"proofbound.learning-source-key.v1\", and a stable canonicalSourceKey for the same DONE story.",
       "files": {
         "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
           "packages/main/src/core/source-lineage-audit.ts",
           "packages/main/src/core/playbook-seed.ts"
         ],
@@ -26,11 +27,21 @@
             "desc": "playbook_seed_observe reports a done_experience seed for a DONE story with summary and delivery material.",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "The same DONE story produces a stable done_experience canonicalSourceKey and canonicalSourceKeyVersion across repeated observations.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
           {
             "desc": "DONE stories with partial or missing optional fields do not crash observation and either produce a bounded seed or a clear diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeated observe/propose/approve for the same DONE story is deduped through canonical source representation and cannot create duplicate proposal or candidate rows.",
             "type": "logic",
             "priority": "must"
           }
@@ -43,9 +54,76 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T01:54:19.484Z",
+      "endTime": "2026-07-03T01:54:38.441Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke check B-c28f DONE experience observes stable seeds and approves inert candidates idempotently passed; it asserts playbook_seed_observe returns sourceArtifactKind=done_experience for a DONE story with summary and delivery material.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f smoke observes the same DONE story twice and asserts canonicalSourceKey and canonicalSourceKeyVersion remain stable.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f partial DONE artifacts check passed; it creates a DONE story with partial artifacts and confirms done_experience observation does not crash.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The B-c28f smoke repeats observe/propose/approve and asserts the represented canonical source blocks a duplicate candidate.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The smoke suite still passes M5/M8 no-helped checks and the B-c28f check asserts DONE-experience candidate creation does not activate runtime guidance.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -55,11 +133,12 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "The seed-to-candidate path is mechanically provable with CLI commands and digest guards.",
+      "userSees": "CLI output from playbook_seed_propose_batch shows \"applied\":true and playbook_candidate_batch_approve shows \"candidatePlaybookIds\":[\"PBP-...\"] while every new row has \"status\":\"candidate\".",
       "files": {
         "modify": [
           "packages/main/src/core/playbook-seed.ts",
-          "packages/main/src/handlers/playbook.ts"
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": [
@@ -89,9 +168,50 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T01:54:19.758Z",
+      "endTime": "2026-07-03T02:10:43.826Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "After review fix bbe7daf9, focused smoke stages done_experience through real dist CLI observe/propose paths and approves it into a candidate with manifestDigest.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Observe/apply digest drift smoke remains green after adding done-experience CLI schema support.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "The resulting done_experience playbook remains candidate/inert and runtime verification continues to exclude candidates from active guidance.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -101,7 +221,7 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "The docs explain why Story 1 creates candidate material but does not automatically activate playbooks.",
+      "userSees": "Docs contain the sentence \"DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.\"",
       "files": {
         "modify": [
           "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
@@ -133,9 +253,62 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T01:54:20.029Z",
+      "endTime": "2026-07-03T01:55:04.774Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "command": "rg \"DONE experience|candidate playbooks only\" docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md docs/requirements/decisions/playbook-promotion-worker-execution-plan.md -n",
+          "result": "pass",
+          "note": "Docs now describe the DONE experience seed path and the candidate-only boundary in both source-lineage and promotion-worker plans.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "command": "rg \"historical backfill|DONE settlement\" docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md -n",
+          "result": "pass",
+          "note": "Docs distinguish continuous new DONE story seeding from later historical backfill and stronger automation rollout criteria.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "command": "rg \"DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance\" docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md docs/requirements/decisions/playbook-promotion-worker-execution-plan.md -n",
+          "result": "pass",
+          "note": "The required sentence appears in both docs, explicitly forbidding helped inference and activation from DONE success alone.",
+          "headHash": "1405a017e6f80ffa3292bb2dadfc24fd4ad63574",
+          "materialHash": "b50c727ab2a3fd46b76540e07f97413bd0d12b8f5c6ffa56e36c868ae5033197",
+          "storyFilesHash": "2349df709a7905fd6edd411d9fe5d42c0f43e6c65a8ce307e72ee968ac901a3c",
+          "timestamp": "2026-07-03T02:26:25.590Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T02:03:17.985Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Review findings F-002/F-003 show real CLI schema rejects done-experience; add command-catalog.ts to CHK-002 scope and reopen for fix.",
+      "agent": "main-owner"
     }
   ]
 }

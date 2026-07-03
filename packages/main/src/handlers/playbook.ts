@@ -1005,7 +1005,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       };
 
       if (!apply) return run();
-      return withLearningStoreLock(ctx.root, 'playbook-promotion-sweep', run);
+      return withLearningStoreLock(ctx.root, 'playbook-promotion-decisions', run);
     },
 
     /**
@@ -1229,7 +1229,8 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         apply,
       }), args.json);
       if (!apply) return run();
-      return withPlaybookWriteLock(ctx, 'playbook_auto_promotion_apply', run);
+      return withLearningStoreLock(ctx.root, 'playbook-promotion-decisions', () =>
+        withPlaybookWriteLock(ctx, 'playbook_auto_promotion_apply', run));
     },
 
     /**
