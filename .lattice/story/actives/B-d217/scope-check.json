@@ -600,8 +600,11 @@
       "q": "CHK-003 context says score-selfcheck.mjs uses fixture-generator.mjs to generate a corpus in a temp root, but fixture-generator.mjs is an M1 deliverable. The story description and checklist do not address whether fixture-generator.mjs is expected to already exist (from a prior story) or must be created within B-d217. If it does not yet exist, the CHK-003 selfcheck cannot run. Is fixture-generator.mjs a pre-existing artifact (from M1 preceding this M4 story) or does it need to be created as part of B-d217?",
       "evidence": "CHK-003 context: \"(a) generate a corpus with fixture-generator.mjs into a temp root\"; M4 milestone in section 13 lists reuses: \"adjudicate.mjs outcome state machine; checks.mjs; packages/lab scoring core; ground-truth.mjs pattern\" — fixture-generator.mjs is NOT listed as reused and is not listed as a new deliverable either. M1 exit criteria (section 13): \"Generator emits deterministic fixtures with oracle labels; per-trap answer-source strip list documented.\"",
       "sourcePointers": [
-        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-implementation-milestones"
-      ]
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-implementation-milestones",
+        "experiments/experience-ablation/fixture-generator.mjs"
+      ],
+      "resolution": "fixture-generator.mjs is a PRE-EXISTING M1 artifact, not a B-d217 deliverable. Story B-337f (milestone M1) reached DONE and merged to main on 2026-07-03 before B-d217 was created; the file exists in this worktree at experiments/experience-ablation/fixture-generator.mjs (verified by ls and git log). B-d217 consumes it read-only as its selfcheck corpus source, exactly like the plan section 13 M4 row reuses the M1 ground-truth pattern; the B-d217 scope contract explicitly lists it under explicitExcludes (must not be modified). No creation work is in scope.",
+      "resolvedAt": "2026-07-03T00:28:52.327Z"
     }
   ]
 }
