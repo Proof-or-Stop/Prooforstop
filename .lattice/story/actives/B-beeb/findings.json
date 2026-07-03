@@ -5,7 +5,7 @@
       "desc": "dead code: run-pilot-selfcheck.mjs:49 imports mkdirSync from node:fs but never calls it directly in the outer selfcheck module — it only appears inside a string literal (the generated stub host script at lines 132/140). The outer import is unused.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T04:14:18.459Z",
@@ -16,7 +16,9 @@
         "experiments/experience-ablation/run-pilot-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-pilot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the dead mkdirSync import from run-pilot-selfcheck.mjs line 49 (commit 60f28346f); it only appeared inside the generated stub-host string literal, which keeps its own import. Also removed ANCHOR_STORY_ID from the snapshot-builder import since the F-002 fix made it dead too. Selfcheck reruns 40/40 PASS.",
+      "resolvedAt": "2026-07-03T04:48:51.323Z"
     },
     {
       "id": "B-beeb:F-002",
