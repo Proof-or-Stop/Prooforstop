@@ -67,6 +67,18 @@
           "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
           "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
           "timestamp": "2026-07-03T00:41:23.843Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "cd / && node score.mjs --fixture=<abs> --run=<abs>; cd /tmp && node score.mjs ... ; cmp outputs; grep -n \"Date.now|new Date\" score.mjs",
+          "result": "pass",
+          "note": "Identical output from cwd=/ and cwd=/tmp with absolute args (CHDIR-INDEPENDENT). grep for Date.now/new Date in score.mjs: zero hits — timeToDoneMs derived only from run.json timeToDoneMs or startedAt/endedAt inputs. Stable key order enforced by SCORE_KEY_ORDER in renderScoreRecord (rejects unknown keys); --out file byte-identical to stdout. storeRoot must be absolute (cwd-resolution rejected at validation).",
+          "headHash": "8397b140c4cb6ffc6cfb13cfff6e37d9f56ad1f4",
+          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
+          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
+          "timestamp": "2026-07-03T00:41:24.781Z"
         }
       ]
     },
