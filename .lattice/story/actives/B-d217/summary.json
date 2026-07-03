@@ -1,18 +1,18 @@
 {
   "storyId": "B-d217",
-  "changes": "Milestone M4 of the experience-layer ablation plan: three new files in experiments/experience-ablation/. score.mjs — pure scoreArmRun({fixtureDir, runDir}) + CLI emitting one ExperienceAblationScore v1 record (plan section 10 schema, stable key order) from on-disk artifacts only: fixture task.json labels, hidden oracle classify() against the run workspace copy, run.json metadata, activity.jsonl events (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds; retrieval_violation -> retrievalViolationCount); deterministic composite defectPresent per section 6.1 with structured-DONE-rows precedence over oracle fallback for falseDoneAttempt (details.sources records which fired); storeRoot voiding per section 12. RUN-RECORD.md — the binding producer contract for the M6 campaign runner incl. error catalog. score-selfcheck.mjs — hermetic 20-case suite proving per-class label correctness for all nine trap classes on M1 reference payloads, replay byte-identity with stable corpus digest, voiding, and event mapping.",
-  "usage": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> [--out=<file>] prints one score record JSON; node experiments/experience-ablation/score-selfcheck.mjs runs the full proof suite.",
-  "expectedOutcome": "score-selfcheck prints 20 PASS lines ending: score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7), exit 0, digest identical across consecutive runs.",
-  "actualTranscript": "score-selfcheck.mjs: 20/20 PASS, exit 0, final line digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7 — identical across three independent runs (delivery reviewer reconfirmed); lattice validate coverage 9/9 covered 0 missing; CLI happy path prints schemaVersion proofbound.experience-ablation-score.v1 with byte-identical double invocation.",
-  "outcomeDiff": "No difference — expected and actual match, including the M4 exit criterion (correct, deterministic, on replay).",
+  "changes": "Milestone M4 of the experience-layer ablation plan, delivering the FULL original intent: a pure standalone scorer (experiments/experience-ablation/score.mjs) turns any archived arm-run directory plus its fixture into one ExperienceAblationScore v1 JSON record with deterministic byte-identical replay; a binding RUN-RECORD.md input contract tells the M6 campaign runner exactly what to produce (required run.json fields, activity.jsonl slice, workspace/, optional done-readiness.json and final-response-check.json, error catalog, degradation semantics); and a hermetic selfcheck (score-selfcheck.mjs, 20 cases) proves every M1 reference-good/reference-bad payload scores with the correct labels and a stable corpus digest. Scoring consumes fixture task.json labels, the hidden oracle classify() against the run workspace copy, run.json metadata, and the M3 activity events (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds; retrieval_violation -> retrievalViolationCount); defectPresent is the deterministic section-6.1 composite with structured done-readiness/final-response-check precedence over oracle fallback for falseDoneAttempt; runs whose storeRoot resolves to the shared production learning store are voided per section 12.",
+  "usage": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> [--out=<file>] emits one score record; node experiments/experience-ablation/score-selfcheck.mjs runs the full proof suite; RUN-RECORD.md is the binding producer contract for M6.",
+  "expectedOutcome": "node experiments/experience-ablation/score-selfcheck.mjs exits 0 printing score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7) — covering class-appropriate defect flags for all nine classes on known-bad payloads, clean known-good passes, byte-identical replay with identical digest on re-run, store-isolation voiding, and control/treatment event mapping.",
+  "actualTranscript": "score-selfcheck.mjs printed 20 PASS lines and the exact final line score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7), exit 0, digest identical across three independent runs (delivery reviewer reconfirmed); score.mjs CLI double invocation byte-identical with schemaVersion proofbound.experience-ablation-score.v1; lattice validate coverage 9/9 covered 0 missing.",
+  "outcomeDiff": "No difference — the delivered outcome matches the original intent snapshot in full: standalone pure scorer with deterministic replay, binding RUN-RECORD.md producer contract for M6, and hermetic selfcheck over all nine M1 classes with stable corpus digest. No scope was dropped or narrowed.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Scorer consumes archived run dirs; producing them (isolated mkdtemp store roots, campaign resume) is M6 scope. Live-phase reviewer findings remain excluded from the seeded primary by design.",
-  "pitfalls": "Round-1 review found 6 findings, all fixed in one commit (2ee5f3e2): dead existsSync guard; tmpdir symlink false-pass risk on macOS (realpathSync both sides); two unpinned error-catalog cases; structured false-DONE precedence path untested; plus two administrative evidence-staleness findings (CHK-003 commit landed after CHK-001/002 evidence — verification_evidence_refresh_stale re-ran and rebound 9/9). Same lesson as B-ab8d: any story-owned commit stales reviewer receipts; cycle DEV->REVIEW for a fresh round instead of retrying review_run_start.",
+  "limitations": "Producing run dirs (isolated mkdtemp store roots, campaign resume) is M6 scope by design; live-phase reviewer findings stay excluded from the seeded primary per plan section 6.1.",
+  "pitfalls": "Round-1 review: 6 findings fixed in commit 2ee5f3e2 (dead guard; macOS tmpdir symlink false-pass fixed with realpathSync; two error-catalog cases pinned; structured false-DONE precedence covered; two administrative evidence-staleness findings cleared by verification_evidence_refresh_stale re-running 9/9). Story-owned commits stale reviewer receipts: cycle DEV->REVIEW for a fresh round instead of retrying review_run_start. The DONE intent-equivalence lightweight heuristic compares summary text against the intent snapshot: write the DONE summary to cover the snapshot outcome wording fully, or it flags unconfirmed_single_outcome_shrinkage.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 678667
     },
     "DEV": {
-      "count": 2,
-      "durationMs": 803899
+      "count": 3,
+      "durationMs": 805396
     },
     "REVIEW": {
-      "count": 2,
-      "durationMs": 1847717
+      "count": 3,
+      "durationMs": 1982855
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 229249
+      "count": 2,
+      "durationMs": 623723
     }
   },
-  "totalDurationMs": 3744699,
+  "totalDurationMs": 4275808,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-03T01:22:23.940Z",
-  "updatedAt": "2026-07-03T01:22:23.940Z"
+  "updatedAt": "2026-07-03T01:31:15.050Z"
 }
