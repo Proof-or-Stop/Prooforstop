@@ -71,7 +71,7 @@
       "desc": "doc-promise-undelivered: handlers/cross-host-review.ts CrossHostReviewArgs.policy (line 26) and command-catalog description promise \"Optional dispatch policy name governing the read-only Codex subprocess\" but args.policy is never read or applied in the handler — the Codex subprocess runs unconditionally with no policy enforcement; the envDenylist, allowedPaths, maxRuntimeMinutes, and commandAllowlist from any supplied policy are silently ignored",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T02:23:31.546Z",
@@ -83,7 +83,10 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ca7615450 (see commit body); smoke 21 checks green, tsc clean.",
+      "resolvedAt": "2026-07-03T02:38:37.977Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-f57a:F-005",
