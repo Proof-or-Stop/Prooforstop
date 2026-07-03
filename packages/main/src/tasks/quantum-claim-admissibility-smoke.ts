@@ -534,6 +534,23 @@ assert.match(handlerOverclaimText, /authorityDone: false/, 'handler overclaim te
 assert.match(handlerOverclaimText, /productionDone: false/, 'handler overclaim text productionDone false');
 const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
 const directCompleteEvidenceObject = JSON.parse(directCompleteEvidenceJson) as QuantumClaimCheckInput;
+for (const blankEvidenceJson of ['', '   ']) {
+  assert.throws(
+    () => handlers.quantum_claim_check({ evidenceJson: blankEvidenceJson, format: 'json' } as any),
+    /evidenceJson must be a non-empty JSON object/,
+    'handler blank evidenceJson fails closed instead of falling back to complete fixture',
+  );
+}
+assert.throws(
+  () => handlers.quantum_claim_check({ evidenceJson: '[]', format: 'json' } as any),
+  /evidenceJson must be a JSON object/,
+  'handler evidenceJson arrays fail closed instead of falling back to complete fixture',
+);
+assert.throws(
+  () => handlers.quantum_claim_check({ evidenceJson: '{', format: 'json' } as any),
+  SyntaxError,
+  'handler malformed evidenceJson fails closed instead of falling back to complete fixture',
+);
 const handlerEvidenceJsonOverclaim = handlers.quantum_claim_check({
   evidenceJson: directCompleteEvidenceJson,
   requestedStrength: 'production',

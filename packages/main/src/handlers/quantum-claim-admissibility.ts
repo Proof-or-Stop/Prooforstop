@@ -80,6 +80,9 @@ function assertReadOnlyBoundary(command: string, args: Record<string, unknown>):
 }
 
 function parseJsonObject(value: unknown, label: string): Record<string, unknown> {
+  if (typeof value === 'string' && value.trim().length === 0) {
+    throw new Error(`${label} must be a non-empty JSON object`);
+  }
   const parsed = typeof value === 'string' ? JSON.parse(value) as unknown : value;
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error(`${label} must be a JSON object`);
@@ -87,13 +90,22 @@ function parseJsonObject(value: unknown, label: string): Record<string, unknown>
   return parsed as Record<string, unknown>;
 }
 
+function hasArg(args: QuantumClaimCheckArgs, key: keyof QuantumClaimCheckArgs): boolean {
+  return Object.prototype.hasOwnProperty.call(args, key);
+}
+
 function isQuantumClaimCheckCase(value: string): value is QuantumClaimCheckCase {
   return (QUANTUM_CLAIM_CHECK_CASES as readonly string[]).includes(value);
 }
 
 function evidenceFromArgs(args: QuantumClaimCheckArgs): QuantumClaimCheckInput {
-  if (args.evidenceJson) return parseJsonObject(args.evidenceJson, 'evidenceJson') as unknown as QuantumClaimCheckInput;
-  if (args.evidencePath) return parseJsonObject(readFileSync(args.evidencePath, 'utf-8'), 'evidencePath') as unknown as QuantumClaimCheckInput;
+  if (hasArg(args, 'evidenceJson')) return parseJsonObject(args.evidenceJson, 'evidenceJson') as unknown as QuantumClaimCheckInput;
+  if (hasArg(args, 'evidencePath')) {
+    if (typeof args.evidencePath !== 'string' || args.evidencePath.trim().length === 0) {
+      throw new Error('evidencePath must be a non-empty path');
+    }
+    return parseJsonObject(readFileSync(args.evidencePath, 'utf-8'), 'evidencePath') as unknown as QuantumClaimCheckInput;
+  }
   const caseName = args.case ?? 'complete';
   if (!isQuantumClaimCheckCase(caseName)) {
     throw new Error(`Unknown quantum claim check case: ${caseName}`);
