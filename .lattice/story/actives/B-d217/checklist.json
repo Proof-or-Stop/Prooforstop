@@ -224,6 +224,18 @@
           "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
           "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
           "timestamp": "2026-07-03T00:46:07.322Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs (three invocations, tail -1 compared)",
+          "result": "pass",
+          "note": "Full-corpus double scoring byte-identical (18 records, manifest order x control/treatment). Final line score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7) identical across three separate invocations; digest corpus asserted to contain no temp-root bytes (fixed synthetic storeRoots + fixed input timestamps).",
+          "headHash": "5cd607e89c12e8cbe9ff07e15962d2305cec0db7",
+          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
+          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
+          "timestamp": "2026-07-03T00:46:07.980Z"
         }
       ]
     }
