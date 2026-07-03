@@ -1,0 +1,74 @@
+{
+  "storyId": "B-d1bf",
+  "checkedAt": "2026-07-03T02:47:55.776Z",
+  "headHash": "2ad0e801faec9cc58de9beb6ab9be5c7f473b962",
+  "materialHash": "7b0ce267d56d5cbffde02f8130abec209ee87506f73571cb6cd6d4026b2f8ccc",
+  "storyFilesHash": "ef2f0d6a0930baf9896d7edc0b5d7f43eb392fe38e4f44993d10a2c3bd99b215",
+  "reviewRound": "2026-07-03T02:39:23.212Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "Quantum runtime status is limited to M0-M3 implemented; M4-M5 remain pending, with no theory, hardware, production, Authority, benchmark, or report/governance completion claim.",
+      "status": "verified",
+      "verifiedBy": "rg + delivery context review",
+      "evidence": "proof-or-stop quantum plan states M0-M3 implemented; M4-M5 pending and excludes theory/hardware/production/Authority completion; delivery-context-pack docsPromises and full validate CHK-004 cover the same claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "promise": "Quantum M0-M3 is a read-only domain-specific surface; generic framework M4 gatePolicies and benchmark/reporting remain pending.",
+      "status": "verified",
+      "verifiedBy": "doc review + validation evidence",
+      "evidence": "adapter-pack framework documents Quantum M0-M3 read-only surfaces and pending generic gatePolicies/benchmark/reporting; validation CHK-004 passed against both docs."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/evidence/transcript-diff.md",
+      "promise": "Real-machine CLI transcript includes complete advance, non-Q5 Q1 quantum-advantage degrade allowed=false, and production/Authority overclaim stop.",
+      "status": "verified",
+      "verifiedBy": "live smoke transcript review",
+      "evidence": "live-smoke-transcript.json is present-fresh and transcript-diff.md records complete decision=advance allowed=true, q1-quantum-advantage decision=degrade allowed=false, and overclaim decision=stop allowed=false."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/test-evidence.json",
+      "promise": "Full story validation passes with all verification intents covered and no missing required evidence.",
+      "status": "verified",
+      "verifiedBy": "lattice validate evidence review",
+      "evidence": "test-evidence.json result=PASS; verificationCoverage total=18 required=18 covered=18 missingRequired=0; lifecycle_check reports evidence freshness PASS by materialHash/storyFilesHash."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/done-required-evidence.json",
+      "promise": "DONE-required local validation passes for build and root full test suite.",
+      "status": "verified",
+      "verifiedBy": "done-required evidence review",
+      "evidence": "done-required-evidence.json status=PASS with packages/main build PASS and root full test suite PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/review-runs.json",
+      "promise": "Review assurance has full 3x2 quorum and all review findings are resolved/verified.",
+      "status": "verified",
+      "verifiedBy": "lattice review_escalation_status + findings review",
+      "evidence": "review_escalation_status assuranceLevel=full-3x2 with three valid rounds and two hosts per round; findings.json shows F-001 through F-010 resolved with evidenceState=verified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002/CHK-006-live-smoke",
+      "transcript": "evidence/live-smoke-transcript.json present-fresh: complete decision=advance allowed=true writesLifecycleEvidence=false mutatesLifecycle=false productionClaim=false authorityClaim=false; q1-quantum-advantage decision=degrade allowed=false reason=weak_evidence_overclaim:quantum-advantage productionClaim=false authorityClaim=false; overclaim decision=stop allowed=false with claim_boundary_violation reasons."
+    },
+    {
+      "featureId": "CHK-001/CHK-003/CHK-005-validate",
+      "transcript": "test-evidence.json PASS, verificationCoverage 18/18, materialHash/storyFilesHash fresh; quantum claim-admissibility smoke covers complete, weak/degraded, stale, missing, mismatched, unbound, invalid, retired, production, Authority, hardware, theory, and non-Q5 stronger requestedStrength overclaims."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "done-required-evidence.json PASS: npm --prefix packages/main run build PASS and npm test root full suite PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: docs promises are evidence-backed; live-smoke is present-fresh and covers complete advance, Q1 quantum-advantage degrade allowed=false, and overclaim stop; full validate PASS 18/18; done-required PASS; review escalation full-3x2; no unresolved TODO/FIXME in story-owned material changes; no claim overreach beyond Quantum M0-M3 read-only scope; delivery-context-pack scope warning is acknowledged and non-blocking."
+  },
+  "_hash": "681426cf47ef81e8c193880de2a8369ea00170f5691cb25fb6088f225813cdb0"
+}
