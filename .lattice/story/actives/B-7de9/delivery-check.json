@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7de9",
+  "checkedAt": "2026-07-03T11:51:20.253Z",
+  "headHash": "88fca18c75e0eb6420f30c6f91c03c2dd7ead25b",
+  "materialHash": "d596af65300be46c742f667454edb34a37fc51bb7bf7ff7f82a5fab8975467dc",
+  "storyFilesHash": "42b8d50bf90c85d1db5ecf8686a321562508e951d2a142a21d14322e10ef7fb3",
+  "reviewRound": "2026-07-03T11:28:04.120Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-7de9/plan.md",
+      "promise": "CHK-001: redactMemoryPackForControlArm empties every serialized memory-pack surface on control (results/items/sourceDigests/packDigest) at done_closure --json, host_dispatch, handoff_create, handoff_resume, and playbook_runtime_health",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD + smoke run",
+      "evidence": "runtime-memory-arm-gate.ts (new file) exports isControlArm+redactMemoryPackForControlArm with fail-CLOSED; applied in done-closure.ts, lattice-handoff.ts (host_dispatch, handoff_create, handoff_resume, buildHostDispatchPrefetchManifest), and playbook-runtime-memory.ts. experience-arm-gate-smoke: all 18 CHK-A/B/D cases passed. experience-arm-isolation-e2e: 21 checks passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7de9/plan.md",
+      "promise": "CHK-002: final_response_check routes through surfaceRuntimeMemoryPack (fires event, suppresses TEXT on control) and redacts JSON pack; consumer-wiring health oracle strengthened to require surfaceRuntimeMemoryPack at the site",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD + e2e smoke",
+      "evidence": "playbook-runtime-memory.ts final_response_check now calls surfaceRuntimeMemoryPack then redactMemoryPackForControlArm; consumer-wiring pattern updated to match /final_response_check[\\s\\S]*surfaceRuntimeMemoryPack/. e2e smoke checks: CONTROL final_response_check --json pack empty + text suppressed; TREATMENT populated (9 of 21 checks cover this)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7de9/plan.md",
+      "promise": "CHK-003: parallel dispatch injects no experienceRefs on control (single chokepoint in experienceRefs()); memory_benchmark_real_data and source_lineage_audit gain memoryRetrieval:true; quantum_claim_benchmark and playbook_candidate_ingest policies unchanged",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD + grep + e2e smoke",
+      "evidence": "lattice-parallel-wave.ts: experienceRefs() returns [] when isControlArm. command-policy.ts: memory_benchmark_real_data and source_lineage_audit now have memoryRetrieval:true; grep confirms quantum_claim_benchmark (line 240) and playbook_candidate_ingest (line 279) are present and unmodified. e2e smoke: CONTROL parallel_dispatch experienceRefs=0, both corpus tools refused on control, permitted on no-experiment (6 checks)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7de9/plan.md",
+      "promise": "Stored-evidence exports (story_export/test_list) are intentionally OUT of scope — documented as the F-022 boundary in runtime-memory-arm-gate.ts header comment",
+      "status": "verified",
+      "verifiedBy": "git diff + plan.md scope boundary",
+      "evidence": "runtime-memory-arm-gate.ts header explicitly documents OUT boundary: stored historical evidence in test-evidence.output and canonicalStory.evidence[].output exported by story_export/test_list/handoff_create is replayed audit data, not live retrieval. This is an intentional design decision (F-022), not an undelivered promise."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003",
+      "transcript": "Run on Darwin arm64 at commit 6ee8f25e2. (1) node packages/main/dist/tasks/experience-arm-gate-smoke.js -> 18 cases passed: isControlArm true/false cases, pack redaction (arrays empty, packDigest=empty-set, sourceDigests nulled, no stored id survives, treatment byte-identical, fail-CLOSED), host_dispatch text gate. (2) node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js -> 21 checks passed: CONTROL final_response_check --json pack empty + text suppressed; TREATMENT/NORMAL populated; recall/dev_memory_start/dev_memory_list/dev_memory_search/memory_benchmark_real_data/source_lineage_audit refused on control, permitted on normal; CONTROL parallel_dispatch experienceRefs=0. Real-machine probes in transcript-diff.md: CONTROL done_closure --json ids=[] digest=4f53cda1, sourceDigests-null=True; TREATMENT populated with 3 ids; CONTROL source_lineage_audit refused."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 plan promises delivered and verified on real machine. redactMemoryPackForControlArm applied at all 6 JSON/file surfaces (done_closure, host_dispatch prefetch manifest, handoff_create, handoff_resume, playbook_runtime_health, final_response_check). experienceRefs gated at the single chokepoint. Both memoryRetrieval markers added. Regression markers quantum_claim_benchmark and playbook_candidate_ingest confirmed present. Fail-CLOSED behavior tested. Scope boundary (stored exports out of scope) is documented and intentional. No unresolved TODOs."
+  },
+  "_hash": "6eaaa4a6d8073894e74eb2f15f6a7f74c922ac550c3a596876ca1bdc38a07e8b"
+}
