@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-d217",
+  "id": "IC-20260703002435",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement M4 as a standalone pure scoring module in experiments/experience-ablation/ (score.mjs + RUN-RECORD.md + score-selfcheck.mjs): consume M1 fixture/oracle artifacts and M3 event vocabulary from disk, emit plan-section-10 ExperienceAblationScore v1 records with deterministic replay, void records violating store isolation, and prove correctness via a hermetic selfcheck over the M1 reference payload corpus. No packages/main changes, no M1 file changes, no campaign execution.",
+  "acceptedInterpretationHash": "sha256:e639e838717a3b3300abd87800c8b183fde66bebd9ea7d5d38f02d0771fd0049",
+  "notes": "Interpretive choices (standalone vs in-runner scoring; precedence of structured DONE rows over oracle fallback for falseDoneAttempt) resolved in decision_set with preMortem coverage.",
+  "createdAt": "2026-07-03T00:24:35.639Z",
+  "updatedAt": "2026-07-03T00:24:35.639Z"
+}

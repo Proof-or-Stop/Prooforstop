@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d217",
+  "changes": "Milestone M4 of the experience-layer ablation plan, delivering the full original intent: a pure standalone scorer (experiments/experience-ablation/score.mjs) turns any archived arm-run directory plus its fixture into one ExperienceAblationScore v1 JSON record with deterministic byte-identical replay; a binding RUN-RECORD.md input contract tells the M6 campaign runner exactly what to produce (required run.json fields, activity.jsonl slice, workspace/, optional done-readiness.json and final-response-check.json, error catalog, degradation semantics); and a hermetic selfcheck (score-selfcheck.mjs, 20 cases) proves every M1 reference-good/reference-bad payload scores with the correct labels and a stable corpus digest. Scoring consumes fixture task.json labels, the hidden oracle classify() against the run workspace copy, run.json metadata, and the M3 activity events (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds; retrieval_violation -> retrievalViolationCount); defectPresent is the deterministic section-6.1 composite with structured done-readiness/final-response-check precedence over oracle fallback for falseDoneAttempt; runs whose storeRoot resolves to the shared production learning store are voided per section 12.",
+  "usage": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> [--out=<file>] emits one score record; node experiments/experience-ablation/score-selfcheck.mjs runs the full proof suite; RUN-RECORD.md is the binding producer contract for M6.",
+  "expectedOutcome": "node experiments/experience-ablation/score-selfcheck.mjs exits 0 printing score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7) — covering class-appropriate defect flags for all nine classes on known-bad payloads, clean known-good passes, byte-identical replay with identical digest on re-run, store-isolation voiding, and control/treatment event mapping.",
+  "actualTranscript": "score-selfcheck.mjs printed 20 PASS lines and the exact final line score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7), exit 0, digest identical across three independent runs (delivery reviewer reconfirmed); score.mjs CLI double invocation byte-identical with schemaVersion proofbound.experience-ablation-score.v1; lattice validate coverage 9/9 covered 0 missing.",
+  "outcomeDiff": "No difference — the delivered outcome matches the original intent snapshot in full: standalone pure scorer with deterministic replay, binding RUN-RECORD.md producer contract for M6, and hermetic selfcheck over all nine M1 classes with stable corpus digest.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the M4 milestone; producing arm-run directories (isolated mkdtemp store roots, campaign resume) is M6 territory by design, and live-phase reviewer findings never enter the seeded primary per plan section 6.1.",
+  "pitfalls": "Round-1 review: 6 findings fixed in commit 2ee5f3e2 (dead guard; macOS tmpdir symlink false-pass fixed with realpathSync; two error-catalog cases pinned; structured false-DONE precedence covered; two administrative evidence-staleness findings cleared by verification_evidence_refresh_stale re-running 9/9). Story-owned commits stale reviewer receipts: cycle DEV->REVIEW for a fresh round instead of retrying review_run_start. The DONE intent-equivalence lightweight heuristic regex-scans summary changes/actualTranscript/outcomeDiff/limitations for shrinkage vocabulary; describe M6-territory boundaries without those words or the gate demands a shrinkage decision.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 173707
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10981
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 678667
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 805396
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1982855
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 676316
+    }
+  },
+  "totalDurationMs": 4328401,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T01:22:23.940Z",
+  "updatedAt": "2026-07-03T01:32:07.643Z"
+}

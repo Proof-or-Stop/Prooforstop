@@ -1,0 +1,26 @@
+{
+  "task": "Build the M4 deterministic scoring layer: a pure scorer that turns one arm-run of one fixture (on-disk artifacts only) into an ExperienceAblationScore v1 record, plus a documented run-record input contract and a hermetic selfcheck proving known positive/negative fixtures score correctly and replay byte-identically.",
+  "outcome": "node experiments/experience-ablation/score.mjs --fixture=<dir> --run=<dir> prints one stable-key-order JSON record containing \"schemaVersion\": \"proofbound.experience-ablation-score.v1\" with arm/pairId/trapGroup/defectPresent/retrievalViolationCount/storeRoot; node experiments/experience-ablation/score-selfcheck.mjs prints per-case PASS lines ending score-selfcheck: all cases passed (corpus digest <sha256>) with exit 0 and an identical digest on re-run.",
+  "facts": [
+    "M1 merged on main: fixture-generator.mjs emits per-fixture task.json {schemaVersion proofbound.experience-ablation-fixture.v1, fixtureId, trapClass, trapGroup in_store|held_out|clean, oracleRef, workspaceRoot, seedTag}, workspace/, acceptance.mjs, oracle.mjs, reference-good/ and reference-bad/ payload dirs; manifest.json rows {fixtureId, trapClass, trapGroup, oracleRef}",
+    "Oracle contract (trap-templates.mjs:32-45,394-431): classify(workspaceDir) -> {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; defectPresent = OR of the three flags; purity convention reads only under workspaceDir",
+    "Nine classes: stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane (in_store); tmp-absolute-path, silent-catch (held_out); clean",
+    "M3 (B-ab8d, REVIEW) event vocabulary: experience_pack_surfaced {experimentId, arm, consumer, packDigest, hintIds/topHitIds} and retrieval_violation {experimentId, command, timestamp} appended to .lattice/activity.jsonl",
+    "Plan section 10 fixes the score schema: pairId shared by paired arm-runs, memoryPackShown, expectedMemoryIds vs surfacedMemoryIds, storeRoot assertion, retrievalViolationCount, timeToDoneMs, commandCount, evidenceRefs",
+    "Plan section 12: a run whose resolved learning root is the shared production store is voided; reuse pattern is recovery-runner adjudicate.mjs (pure offline), checks.mjs (hash-checked acceptance)"
+  ],
+  "constraints": [
+    "Scorer must be pure: no network, no clock, no mutation; inputs from disk only; stable key order for byte-identical replay",
+    "Live LLM reviewer input excluded from the seeded-phase primary (plan section 6.1)",
+    "No changes to M1 files or packages/main; three new files only",
+    "Runtime validation with one-line actionable errors (repo Handler convention)",
+    "English-only artifacts"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/experience-ablation/score.mjs (new)",
+    "experiments/experience-ablation/score-selfcheck.mjs (new)",
+    "experiments/experience-ablation/RUN-RECORD.md (new)"
+  ],
+  "timestamp": "2026-07-03T00:23:48.994Z"
+}
