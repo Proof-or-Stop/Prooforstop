@@ -143,6 +143,15 @@
       "reviewRound": "2026-07-03T10:52:51.266Z",
       "reviewRunId": "B-f57a:RR-028",
       "_hash": "426552c7ba860619a166485831429c84a66f6f9eb1076bffb108672986095065"
+    },
+    {
+      "id": "B-f57a:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "DEFAULT_PHASE_TOOLS wildcard addition for cross_host_review is minimal and consistent with command-policy allowedPhases=all; policy/handler still require owner-scoped write, explicit review-only codex policy, bounded timeout, and dirty/head fail-closed guards. Checks passed: node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run build.",
+      "createdAt": "2026-07-03T11:13:08.002Z",
+      "reviewRound": "2026-07-03T11:11:00.662Z",
+      "reviewRunId": "B-f57a:RR-031",
+      "_hash": "73b54a141496cf99562a101791c3f1c6b3c53880ddd12517ddb0ed1b0985ecd7"
     }
   ]
 }
