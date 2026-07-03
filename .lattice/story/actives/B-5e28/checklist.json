@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Make DONE settlement default-on with explicit opt-out",
-      "context": "Change PLAYBOOK_DONE_SETTLEMENT_ENABLED handling so unset means enabled, while false/0/no disables. Preserve learning-only authority and no lifecycle blocking.",
+      "context": "Change PLAYBOOK_DONE_SETTLEMENT_ENABLED handling so unset means enabled, while false/0/no disables. Preserve learning-only, non-gate behavior and do not block lifecycle DONE.",
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
