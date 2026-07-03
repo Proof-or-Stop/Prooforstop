@@ -74,17 +74,19 @@ Boundary rules:
 
 - The Proofbound code runtime pack is the existing, mature path.
 - PINN remains a design contract for a future domain pack.
-- Quantum M0-M3 is implemented and registered by default as a read-only
-  descriptor/normalization plus local gate-policy projection. It exposes scoped
-  claim/evidence schema descriptors, read-receipt-only verifier adapter
-  descriptors for normalized local receipts, and a `quantum_claim_check`
-  diagnostic that maps existing evaluator output to local
+- Quantum M0-M3 is implemented as two explicitly separated read-only surfaces.
+  The default-registered Quantum pack remains descriptor/normalization-only: it
+  exposes scoped claim/evidence schema descriptors and read-receipt-only
+  verifier adapter descriptors for normalized local receipts, and its
+  `gatePolicies` registry entry remains empty. The Quantum M3 local gate-policy
+  projection is exposed separately through the `quantum_claim_check` diagnostic,
+  which maps existing evaluator output to local
   `advance`/`repair`/`degrade`/`escalate`/`stop` decisions without mutating
   lifecycle state.
 - Full future domain-pack capabilities such as command-backed verifier
-  execution, global lifecycle gate integration, benchmark harnesses, and
-  benchmark reporting remain pending. Theory, hardware, production, and
-  Authority claims remain non-goals.
+  execution, generic framework M4 pack `gatePolicies`, global lifecycle gate
+  integration, benchmark harnesses, and benchmark reporting remain pending.
+  Theory, hardware, production, and Authority claims remain non-goals.
 - Future packs may claim only claim admissibility. They must not claim
   scientific truth, mathematical proof, physical reality, solver quality, or
   experimental validation.
@@ -275,7 +277,8 @@ Acceptance:
 - PINN and full Quantum domain-pack capabilities are described as future
   domain-pack contracts;
 - Quantum M0-M3 is distinguished as the current read-only
-  descriptor/normalization plus local gate-policy projection implementation;
+  descriptor/normalization pack plus separately exposed local
+  `quantum_claim_check` gate-policy projection;
 - non-goals prevent second proof systems and scientific truth claims.
 
 ### M1: Pack Interface And Registry
@@ -293,10 +296,11 @@ Acceptance:
 
 Add a schema loader for pack-owned claim and evidence schemas. The current
 Quantum M0-M3 slice also delivers the default-registered read-only quantum
-descriptor/normalization pack and local gate-policy projection: scoped
-claim/evidence descriptors, read-receipt-only verifier adapter descriptors,
-normalization of supplied local receipts, and `quantum_claim_check` output for
-local claim-admissibility decisions.
+descriptor/normalization pack: scoped claim/evidence descriptors,
+read-receipt-only verifier adapter descriptors, and normalization of supplied
+local receipts. The Quantum M3 local gate-policy projection is exposed
+separately through `quantum_claim_check` output for local claim-admissibility
+decisions; it is not registered as a generic pack `gatePolicies` adapter.
 
 Quantum M3 does not execute external commands, create storage, create ledgers,
 create global lifecycle gates, add benchmark harnesses or reporting, claim
@@ -310,7 +314,9 @@ Acceptance:
 - required identity fields are validated deterministically;
 - strict-shape failures map to existing admissibility reason codes.
 - the default registry includes the read-only quantum descriptor/normalization
-  and local gate-policy projection without adding lifecycle gate authority.
+  pack only; the Quantum pack `gatePolicies` list remains empty, and the local
+  `quantum_claim_check` projection remains separate from lifecycle gate
+  authority.
 
 ### M3: Verifier Adapter Contract
 
@@ -326,6 +332,9 @@ Acceptance:
 ### M4: Gate Policy Adapter
 
 Map pack claims into existing lifecycle consumers through a gate policy adapter.
+This generic framework milestone remains future work; Quantum M3's
+`quantum_claim_check` projection is local-only and does not complete generic
+pack `gatePolicies` integration.
 
 Acceptance:
 
@@ -371,5 +380,6 @@ Acceptance:
 - Whether verifier adapters should execute commands directly or only normalize
   receipts produced by existing command runners.
 - How much of the existing code/runtime proof path should be re-described as a
-  built-in pack before adding PINN packs or expanding Quantum beyond the M2
-  read-only descriptor/normalization slice.
+  built-in pack before adding PINN packs or expanding Quantum beyond the M3, or
+  equivalent, read-only descriptor/normalization plus separate local projection
+  slice.

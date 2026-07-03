@@ -106,7 +106,7 @@ export function createQuantumClaimAdmissibilityHandlers(_ctx: HandlerContext): R
     quantum_claim_check(args: QuantumClaimCheckArgs = {}) {
       assertReadOnlyBoundary('quantum_claim_check', args as Record<string, unknown>);
       const input = evidenceFromArgs(args);
-      if (args.requestedStrength && !args.evidenceJson && !args.evidencePath) {
+      if (args.requestedStrength) {
         input.requestedStrength = args.requestedStrength;
       }
       const result = evaluateQuantumClaimGatePolicy(input);

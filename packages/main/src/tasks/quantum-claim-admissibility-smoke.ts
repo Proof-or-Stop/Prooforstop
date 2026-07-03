@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   buildCompleteQuantumEvidence,
   buildQuantumClaimCheckCase,
@@ -529,6 +532,38 @@ const handlerOverclaimText = handlers.quantum_claim_check({ case: 'overclaim' })
 assert.match(handlerOverclaimText, /decision: stop/, 'handler overclaim text stops');
 assert.match(handlerOverclaimText, /authorityDone: false/, 'handler overclaim text authorityDone false');
 assert.match(handlerOverclaimText, /productionDone: false/, 'handler overclaim text productionDone false');
+const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
+const handlerEvidenceJsonOverclaim = handlers.quantum_claim_check({
+  evidenceJson: directCompleteEvidenceJson,
+  requestedStrength: 'production',
+  format: 'json',
+}) as QuantumClaimGatePolicyResult;
+assert.equal(handlerEvidenceJsonOverclaim.decision, 'stop', 'handler evidenceJson requestedStrength=production stops');
+assert.equal(handlerEvidenceJsonOverclaim.allowed, false, 'handler evidenceJson requestedStrength=production fails closed');
+assert.ok(
+  hasReason(handlerEvidenceJsonOverclaim, 'claim_boundary_violation'),
+  'handler evidenceJson requestedStrength=production has boundary violation',
+);
+assert.equal(handlerEvidenceJsonOverclaim.authorityDone, false, 'handler evidenceJson overclaim authorityDone false');
+assert.equal(handlerEvidenceJsonOverclaim.productionDone, false, 'handler evidenceJson overclaim productionDone false');
+const evidencePathRoot = mkdtempSync(join(tmpdir(), 'quantum-claim-admissibility-'));
+const directCompleteEvidencePath = join(evidencePathRoot, 'complete-q5.json');
+try {
+  writeFileSync(directCompleteEvidencePath, directCompleteEvidenceJson);
+  const handlerEvidencePathOverclaim = handlers.quantum_claim_check({
+    evidencePath: directCompleteEvidencePath,
+    requestedStrength: 'production',
+    format: 'json',
+  }) as QuantumClaimGatePolicyResult;
+  assert.equal(handlerEvidencePathOverclaim.decision, 'stop', 'handler evidencePath requestedStrength=production stops');
+  assert.equal(handlerEvidencePathOverclaim.allowed, false, 'handler evidencePath requestedStrength=production fails closed');
+  assert.ok(
+    hasReason(handlerEvidencePathOverclaim, 'claim_boundary_violation'),
+    'handler evidencePath requestedStrength=production has boundary violation',
+  );
+} finally {
+  rmSync(evidencePathRoot, { recursive: true, force: true });
+}
 assert.throws(
   () => handlers.quantum_claim_check({ productionDone: true } as any),
   /refuses unsupported/,
