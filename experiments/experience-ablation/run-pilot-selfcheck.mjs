@@ -46,7 +46,7 @@
 //       poisoned content.
 
 import {
-  appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync,
+  appendFileSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync,
 } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -57,7 +57,7 @@ import { freezeProtocol } from './protocol.mjs';
 import { buildLedger } from './pair-ledger.mjs';
 import { experimentRoot } from './protocol.mjs';
 import { MEMORY_PACK_SECTION_HEADER, PROGRESS_FILENAME, runDirName } from './run-pilot.mjs';
-import { ANCHOR_STORY_ID, assertSnapshotDisjoint, buildSnapshotFiles, emitSnapshot, inStoreClasses } from './snapshot-builder.mjs';
+import { assertSnapshotDisjoint, buildSnapshotFiles, emitSnapshot, inStoreClasses } from './snapshot-builder.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const RUN_PILOT = join(HERE, 'run-pilot.mjs');
@@ -321,7 +321,11 @@ try {
   // --- (6)+(7)+(8) CHK-005 both-arms snapshot/prompt/event assertions --------------
   // Both cells are terminal after case (4); inspect the captured run dirs.
   {
-    const snapshotRelPaths = ['dev-memory/experience.jsonl', 'learning/playbooks.json', `story/actives/${ANCHOR_STORY_ID}/index.json`];
+    // Derive the authoritative snapshot file set from the builder itself so a
+    // future snapshot file is automatically covered by the byte-identity check.
+    const snapshotRelPaths = Object.keys(buildSnapshotFiles());
+    check('(6) snapshot byte-identity path list derives from buildSnapshotFiles() (non-empty)',
+      snapshotRelPaths.length >= 3, JSON.stringify(snapshotRelPaths));
     const rawPrompt = readFileSync(join(corpus, fixtureId, 'prompt.md'), 'utf8');
     for (const arm of ['control', 'treatment']) {
       const runDir = join(expRoot, 'runs', runDirName(fixtureId, arm));
