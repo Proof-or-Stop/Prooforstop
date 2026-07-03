@@ -46,7 +46,7 @@
       "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 — all three must-priority intents are stale: verificationEvidence was recorded at materialHash dbde79... but run-pilot.mjs and run-pilot-selfcheck.mjs were materially modified by CHK-005 (commit 8c21903), advancing the materialHash to 5a9d21.... The current selfcheck runs 39/39 PASS (I ran it live), confirming the behavior is sound, but the framework gate requires fresh evidence bound to the current materialHash. Evidence must be refreshed via lattice verification_evidence_add or verification_evidence_refresh_stale.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T04:39:37.099Z",
@@ -58,7 +58,9 @@
         "experiments/experience-ablation/run-pilot-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "After the F-001/F-002 fix commit 60f28346f, ran lattice verification_evidence_refresh_stale which refreshed 15/15 stale evidence items including all three CHK-001 lanes, re-binding them to the current head a513162 / materialHash 4abee7d8. lattice validate --story=B-beeb --json now reports verification coverage 15/15 covered, 0 required missing, with CHK-001:happy/edge/adversarial:0 all covered.",
+      "resolvedAt": "2026-07-03T04:49:04.628Z"
     },
     {
       "id": "B-beeb:F-004",
