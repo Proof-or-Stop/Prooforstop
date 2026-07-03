@@ -55,7 +55,39 @@
       "userSees": "node experiments/experience-ablation/leakage-audit.mjs --corpus=<dir> prints per-fixture PASS lines ending leakage-audit: all fixtures clean (N fixtures) with exit 0 and writes leakage-audit.jsonl",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/leakage-audit.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/leakage-audit.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Clean generated corpus -> per-fixture PASS lines ending leakage-audit: all fixtures clean (N fixtures), exit 0, leakage-audit.jsonl written",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A deliberately poisoned fixture (strip-list marker injected into workspace) -> nonzero exit naming the fixture and marker",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit asserts oracle.mjs/reference payloads live outside workspace/ and prompt.md never names the trap class",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
