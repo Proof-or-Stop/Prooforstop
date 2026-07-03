@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-03T04:49:40.181Z",
       "reviewRunId": "B-beeb:RR-005",
       "_hash": "7300345569cb6895d462dcff6078bb45027caa39bf87e914b2b5002c60756316"
+    },
+    {
+      "id": "B-beeb:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review: delta is single file run-pilot-selfcheck.mjs. Fix commit 60f28346f removed (a) dead mkdirSync import from top-level import list (still legitimately used in generated stub-host string at lines 132/140), and (b) ANCHOR_STORY_ID import since case-6 snapshotRelPaths is now derived from buildSnapshotFiles() instead of hardcoded. ANCHOR_STORY_ID concept is NOT deleted: it remains defined and actively used in snapshot-builder.mjs lines 72/174/181/204. buildSnapshotFiles() returns 3 keys including story/actives/B-mem0/index.json (B-mem0 = ANCHOR_STORY_ID), confirming derived path list matches snapshot-builder export. Selfcheck 40/40 PASS confirmed by node run. No concept deletion or replacement; no residue; no doc-promise-undelivered findings.",
+      "createdAt": "2026-07-03T04:51:16.171Z",
+      "reviewRound": "2026-07-03T04:49:40.181Z",
+      "reviewRunId": "B-beeb:RR-004",
+      "_hash": "63f6562fbfa2acf4705427b4381d825d360d04b525a3667c9c4233e37f874bab"
     }
   ]
 }
