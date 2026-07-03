@@ -47,7 +47,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-03T03:00:00.354Z",
       "endTime": "2026-07-03T03:15:57.949Z",
       "verificationEvidence": [
@@ -333,6 +333,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Docs updated by commit 7d4ce26bd and verified with rg plus build/smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:22:21.919Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened to fix B-6703:F-001 shared promotion-decision ledger locking/idempotency issue.",
       "agent": "lattice-implementer"
     }
   ]
