@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c992",
+  "sourceText": "User (2026-07-03): make the new one — start a design story, rev 3 replacing the original M7 route, pass adversarial review before starting work. Design essence quoted by the user: lessons stay the same age as the model (harvest the current model current failures); the study tests whether captured lessons can hold the line during the window before model evolution absorbs a new failure mode; if even this shows no effect, only then can one conclude the memory layer is not useful. Cost/risk table acknowledged: new work = failure harvester + same-mode variant generator (1-2 stories), everything else reused; main risk = environmentally flaky failures filtered via the repro-first machinery; secondary risk = variant-vs-lesson leakage requiring a similarity-extended audit; cost structure = harvest campaign (medium) -> calibration mini-pilot (cheap) -> powered paired study (same order as the original plan).",
+  "normalizedOutcome": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md exists as a complete rev 3 pre-registration (trigger/supersession, H1-prime, harvest + repro-first filter, random lessonize-vs-holdout split, same-mode variant generation with similarity audit, DiD statistics with sizing, model-version pinning, milestones R1-R6, stopping rules, no-overclaim, definition of done), the rev 2 file is byte-untouched, and every adversarial design-review finding across the six named dimensions is resolved in the document.",
+  "acceptanceClaim": "The rev 3 document exists with all required sections grep-verifiable; shasum of the rev 2 plan still equals 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471; lattice finding_list for B-c992 shows all adversarial review findings resolved; the story delivery check confirms each of the six attack dimensions was covered by a registered finding or explicit reviewer pass.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:5d4dcd3199342955ea3b07031b84fffc5f8407595bfd1e1f4802d046f2ad6922",
+  "createdAt": "2026-07-03T14:48:37.266Z",
+  "updatedAt": "2026-07-03T14:48:37.266Z"
+}

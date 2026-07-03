@@ -1,0 +1,106 @@
+{
+  "storyId": "B-c992",
+  "checkedAt": "2026-07-03T16:39:13.535Z",
+  "headHash": "9f8652324fe60cdbcb9f92575c5891be355dec8e",
+  "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+  "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+  "reviewRound": "2026-07-03T16:21:59.999Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#1-status-and-provenance",
+      "promise": "Supersession clause binds ONLY the M7 powered-run route of rev 2; rev 2 file stays byte-untouched",
+      "verifiedBy": "grep line 8 + shasum",
+      "evidence": "Line 8: supersedes ONLY the M7 powered-run route of; shasum -a 256 of rev 2 file = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 exact match to expected digest"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#5-revised-hypothesis",
+      "promise": "H1-prime hypothesis: within the pre-absorption window, surfacing a freshly captured lesson reduces recurrence of that failure mode on same-mode variants; value under test = capture loop not archival store",
+      "verifiedBy": "grep section headings",
+      "evidence": "Section H1-prime at line 125; lines 129-134 define DiD > 0 claim inside pinned-model window; H0-prime at line 142; capture loop explicitly distinguished from archival store"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#6.1-harvest-and-6.2-repro-first-filter",
+      "promise": "Harvest section with findings-corpus mining + harvest campaign, repro-first filter, K_min=40 with published Bin(8,p) attrition model",
+      "verifiedBy": "grep K_min + grep Bin",
+      "evidence": "Section 6.1 Harvest at line 201; section 6.2 Repro-First Filter at line 271; K_min = 40 at line 234-235; explicit Bin(8,p) binomial attrition model at lines 248-268 with P(3<=Bin(8,p)<=7) table for p=0.35->0.572 etc."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#6.3-ordered-freezes-and-sealed-random-split",
+      "promise": "Sealed ordering: lessons -> variants -> split -> snapshot",
+      "verifiedBy": "grep section 6.3",
+      "evidence": "Line 273: The freeze order is: lessons -> variants -> split -> snapshot. in section 6.3 Ordered Freezes And Sealed Random Split"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#6.5-similarity-extended-leakage-audit",
+      "promise": "Similarity-extended leakage audit with containment metric, R2-frozen allowlist, answer-token denylist, acceptance-both-overlays proof",
+      "verifiedBy": "grep lines 358-446",
+      "evidence": "Section 6.5 at line 358: word 5-gram containment replaces Jaccard at lines 383-388; char 12-gram containment at line 389; per-class answer-token denylist at line 397; R2-frozen similarity allowlist with mechanical admission rule at line 429; acceptance.mjs exits 0 on BOTH overlays in R3 exit criteria at line 834"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#6.7-model-and-host-stack-pinning",
+      "promise": "Model pinning with dated snapshot id, modelId/hostCliVersion per-run fields, and voids for mismatch",
+      "verifiedBy": "grep section 6.7 + grep modelId + grep hostCliVersion",
+      "evidence": "Section 6.7 at line 489; protocol.json requires date-suffixed snapshot id with regex check, aliases refused at line 495; modelId required field in run.json at line 505; hostCliVersion required field at line 506; scorer voids runs with mismatch at lines 507-508; model/host-stack change is stopping-rule breach at lines 536-537"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#7.2-primary-estimator-did",
+      "promise": "DiD statistics with freeze_mde_exceeds_achievable_did guard, pinned n=6, staleness cap, pre-registered drift test",
+      "verifiedBy": "grep freeze_mde_exceeds_achievable_did + grep n=6 + grep staleness + grep drift",
+      "evidence": "freeze_mde_exceeds_achievable_did guard at line 703-710; n = 6 pinned in sizing at line 720; staleness cap = 45 days at line 520; pre-registered drift test: two-proportion 95% CI at line 527 with consequence applied; confirmed in R4/R5/R6 milestone exit criteria"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#9-milestones-r1-r6",
+      "promise": "Milestones R1-R6 with exit criteria present",
+      "verifiedBy": "grep section 9 milestones table",
+      "evidence": "Section 9 at line 825; table with R1 Harvester+repro filter, R2 Lessonizer+protocol freeze, R3 Variant generator+audits+sealed split, R4 Calibration+N freeze, R5 Powered paired run, R6 Analysis+evidence map -- each row has Goal, Reuses, and Exit criteria columns"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#10-stopping-rules",
+      "promise": "Stopping rules including model-version change mid-study",
+      "verifiedBy": "grep section 10 + grep MODEL-OR-HOST-STACK",
+      "evidence": "Section 10 Stopping Rules at line 839; MODEL-OR-HOST-STACK CHANGE stop at line 851-852; plus yield stop, scorer bug stop, leakage/isolation stop, band-never-met stop all present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#11-circularity-and-no-overclaim",
+      "promise": "Circularity + no-overclaim including the lesson-aging disallowed bullet",
+      "verifiedBy": "grep section 11 + grep lesson-aging",
+      "evidence": "Section 11 at line 880; disallowed claims at line 921-930 include model improvement, gate evidence, generalization, permanence, and explicitly lesson-aging at line 923: any causal claim about lesson aging, decay, or model absorption"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md#15-definition-of-done",
+      "promise": "Definition of done with artifact bindings, mechanically checkable and evidence-map-compatible",
+      "verifiedBy": "sed lines 1025-1076",
+      "evidence": "Section 15 Definition Of Done at line 1025; all rows name artifact files: protocol.json, harvest-ledger.jsonl, score-records.jsonl, analysis-report.json, evidence-map.json etc.; section states evidence-map.mjs SECTION-rows pattern for digest-verification"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "promise": "Rev 2 file byte-untouched, sha256 = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471",
+      "verifiedBy": "shasum -a 256",
+      "evidence": "shasum -a 256 output: 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md -- exact match; rev 2 file does not appear in git diff main...HEAD changed files list"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c992/findings.json + commit 172b55142",
+      "promise": "Adversarial review trail: three attack reports produced 30 findings, all applied in CHK-002; REVIEW-phase F-001 resolved",
+      "verifiedBy": "git log + lattice finding_list",
+      "evidence": "Commit 172b55142 message: B-c992 CHK-002: resolve 30 adversarial design findings -- 533 insertions, 181 deletions to rev 3 doc. finding_list shows F-001 status=resolved resolvedAt=2026-07-03T16:32:35.791Z resolutionType=fixed. No open findings remain."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs-only story: verification via grep/shasum transcripts. All 15 top-level section headings present via grep -n ^# (lines 1-1076). grep line 8 confirms supersedes ONLY M7. shasum -a 256 rev2 = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 exact match. grep CJK = 0 English-only. K_min=40 at line 234 with Bin(8,p) model at line 251. Freeze order at line 273 confirms lessons->variants->split->snapshot. modelId and hostCliVersion required fields in section 6.7. freeze_mde_exceeds_achievable_did at line 703. grep TODO/TBD/FIXME: 0 matches in rev 3 doc. Commit 9fa9d239d authored file with 724 insertions."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "docs-only story: verification via git log + finding_list transcripts. Commit 172b55142 message confirms 30 adversarial design findings resolved with 533 insertions and 181 deletions hardening rev 3 doc. finding_list shows exactly 1 finding F-001 from lattice-review-test-coverage, high severity, status=resolved, resolvedAt=2026-07-03T16:32:35.791Z, resolvedReason confirms verification_evidence_refresh_stale rebound all 3 stale CHK-001 records to current HEAD. No open or unresolved findings remain."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 13 docsPromises verified independently via grep/shasum on the diff. Rev 3 document contains all required sections: supersession clause naming only M7, H1-prime with DiD framing, K_min=40 with Bin(8,p) attrition model, sealed ordering lessons->variants->split->snapshot, similarity-extended leakage audit with containment metric + R2-frozen allowlist + answer-token denylist + acceptance-both-overlays proof, model pinning with dated snapshot id + modelId/hostCliVersion run fields + voids, DiD with freeze_mde_exceeds_achievable_did guard + pinned n=6 + 45-day staleness cap + pre-registered drift test, milestones R1-R6, stopping rules, circularity + no-overclaim with lesson-aging disallowed bullet, definition of done with artifact bindings. Rev 2 sha256 confirmed byte-identical. Zero TODOs/TBDs/FIXMEs. CHK-002 adversarial trail: 30 findings resolved in commit 172b55142; REVIEW F-001 resolved."
+  },
+  "_hash": "f141c8e67907d3384c09dcfcf113b9b4fce28ee7d836ad6176eccc92fbcec699"
+}

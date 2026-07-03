@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-c992:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change. No code files changed; dead code, type safety, and I/O isolation checks N/A. Full review of the execution plan document. (b) leakage/similarity: all six properties present - 5-gram containment metric 0.05 threshold, allowlist frozen at R2 with >=3 occurrences mechanical admission rule, answer-token denylist auto-extracted from reference-good/bad line-diff overlays including spelled-out numerals, acceptance.mjs format-only proof exits 0 on BOTH overlays, full-pack audited surface, tokenization defined once frozen in protocol hash. (d) model pinning: dated snapshot id required with regex, modelId parsed from provider JSON into REQUIRED run.json, scorer voids on mismatch, hostCliVersion per run, 45-day staleness cap, drift check pre-registered with statistic+threshold+consequence. Statistics fixes coherent: freeze_mde_exceeds_achievable_did L_in from >=104 runs correct; n=6 pinned with correct vacuousness argument; Bin(8,0.35)=0.572 spot-checked; K=40 floor derivation plausible; pessimistic row m=33 verified. All rev 2 scripts exist. CLI commands verified at 0.3.153. No doc-promise-undelivered issues.",
+      "createdAt": "2026-07-03T16:26:46.707Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-002",
+      "_hash": "e429a521e8e98e11ffa0ec8669dae573008715fd58ea863db7547915def04f61"
+    },
+    {
+      "id": "B-c992:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001 3/3 must intents covered: happy=docs_check sections grep-verified (all 15 sections present incl H1-prime, DiD, repro-first, R1-R6, stopping rules, DoD); edge=manual_transcript shasum reproduced 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 matches claim; adversarial=docs_check CJK=0 confirmed, supersession clause names only M7 route. CHK-002 3/3 must intents covered: happy=docs_check 5 spot-check fixes present in doc (freeze_mde_exceeds_achievable_did x6, containment metric, modelId REQUIRED run.json field, allowlist frozen at R2, lesson-aging disallowed bullet line 923); edge=manual_transcript finding_list shows findings=[] zero open; adversarial=docs_check safeguards strengthened not weakened (K_min 32->40, n_cal 4->8, stopping rules 8->10, disallowed-claims 6->8, DoD 10->12 rows). No stale or unreproducible evidence found.",
+      "createdAt": "2026-07-03T16:27:30.957Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-004",
+      "_hash": "73c33f4ab94845e82d1ee8fc26a9461dacc3db9f59a0709120770ed1add7edeb"
+    },
+    {
+      "id": "B-c992:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. This is a docs-only addition (new pre-registration file). Key concept checks: (1) Stale-term scan zero hits in the plan doc for K_min=32, n_cal=4 as operational values — the two occurrences of those numbers are deliberate historical rationale prose explaining why they were raised. (2) K_min=40 consistent across sections 6/7/8/9/10/13/14/15 (11 occurrences). (3) n_cal=8 consistent across all references. (4) n pinned=6 with variant indices 8-13 consistent across sections 6.4, 7.5, 8, 9 milestone table, 15 DoD. (5) Budget rows consistent: 312/432/624 powered arm-runs, 640 base calibration at K_min floor. (6) freeze_mde_exceeds_achievable_did guard present in sections 7.5, 8, 10, 13, 15. (7) Rev 2 file byte-untouched (sha256=2ef4122e...835471 verified). (8) Supersession scope consistent: ONLY M7 powered-run route replaced. (9) Referenced instruments resolve: repro_probe/repro_probe_get/repro_review_set/spike_record implemented in packages/main/src/handlers/repro-intake.ts; sample-size.mjs and evidence-map.mjs exist. (10) No doc-promise-undelivered: no new CLI commands or handler schemas introduced. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T16:28:15.265Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-001",
+      "_hash": "c1db8bc7c1e5387d9d31d8c48b1ef2917fb07f1a17026d38f3910cbae5a82d31"
+    },
+    {
+      "id": "B-c992:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 applied (pure docs diff; Step 1 symbol set empty). New document: docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md (1076 lines). Full-text scan against 9 committed instrument files in experiments/experience-ablation/ and 5 lattice repro_* CLI commands. Paragraphs compared: all sections of the new doc cross-checked against: protocol.mjs (freeze/validate/hashDirectorySnapshot/validateProtocolPayload), pair-ledger.mjs (guardImmutable + seeded PRNG), sample-size.mjs (pilotFreezeCheck/twoProportionNPerArm/mcnemarDiscordantPairs/wilson95/freeze_baseline_too_low), run-pilot.mjs (DEFAULT_HOST_CMD/validateRunRecord/RUN-RECORD.md), score.mjs (voiding/SCORE_KEY_ORDER), leakage-audit.mjs (auditFixture checks), snapshot-builder.mjs (inStoreClasses/assertSnapshotDisjoint), evidence-map.mjs (PLAN_DOC_RELPATH/REQUIRED_ARTIFACTS/SECTION18_ROWS), fixture-generator.mjs (oracle/reference-good-bad patterns), analyze.mjs (clusterBootstrap/BH), and repro_probe/repro_probe_get/repro_review_set/spike_record/story_create_from_repro CLI schemas. No blockers: every mechanical behavior not currently in committed code is correctly labeled as a pre-registered delta (R1-R6 build work) with explicit milestone attribution. Specifically: (1) run-pilot.mjs model-pin flags and validateRunRecord modelId/hostCliVersion fields are correctly called out as two pre-registered section-6.6 deltas required at R4; (2) score.mjs modelId/hostCliVersion void class is the third pre-registered delta at R4; (3) protocol.mjs hostModelId/hostCliVersion/seeds/staleness-cap fields are R2 additions; (4) leakage-audit.mjs 5-gram/12-gram/identifier/denylist/similarity extensions are R3 pre-registered extensions with explicit current-scanner acknowledgment; (5) snapshot-builder.mjs lesson-table adaptation is R3; (6) freeze_mde_exceeds_achievable_did refusal code does not exist yet but is correctly framed as R4 adaptation. Committed instruments verified as claimed: all repro_* CLI fields match (CLI 0.3.153 confirmed), pilotFreezeCheck/guardImmutable/hashDirectorySnapshot/xmur3+mulberry32+Fisher-Yates all present and behave as described, finding-signals.json count (1511 findings, 333 stories) matches doc exactly, 0 symbols changed (pure doc diff).",
+      "createdAt": "2026-07-03T16:30:05.677Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-003",
+      "_hash": "2429af1a0b94a2f14ad57401e1029081e1ba01458a1dda2c8b3f6b2a09b0eeb3"
+    }
+  ]
+}

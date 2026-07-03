@@ -8,9 +8,77 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "The new file exists at docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; its header states rev 3 and the supersession scope; grep shows sections for H1-prime, difference-in-differences, repro-first filter, similarity audit, model-version pinning, milestones R1-R6, stopping rules and definition of done; the rev 2 file is byte-identical to before (sha256 unchanged: 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471)",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T14:50:39.074Z",
+      "endTime": "2026-07-03T14:59:50.461Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The rev 3 document exists with every required section grep-verifiable: supersession statement, H1-prime, harvest + repro-first filter, random split, variant generation + similarity audit, DiD statistics with explicit sizing, model-version pinning, milestones R1-R6 with exit criteria, stopping rules, no-overclaim, definition of done",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The rev 2 plan is byte-untouched: shasum -a 256 equals 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 after the story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document is entirely English, self-contained (terms defined on first use), and its supersession clause names ONLY the M7 route (not the rev 2 evidence or completed milestones)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -n \"^#\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "All required sections present by heading grep: 1 Status And Provenance (rev 3 + supersession clause), 2 Trigger (pilot 0.0333 baseline, Wilson CI [0.0059,0.1667], freeze refused, skip_powered_study, lesson-aging), 3 Terminology, 4 Claim Boundary, 5 Revised Hypothesis (H1-prime/H0-prime, capture loop not archival store), 6 Design (6.1 Harvest w/ 30-day window + >=2 occurrences, 6.2 Repro-First Filter citing repro_probe/repro_probe_get/repro_review_set/spike_record + K_min=32 minimum-yield stop, 6.3 Sealed Random Split w/ mechanical disjointness, 6.4 Variant Generation, 6.5 Similarity-Extended Leakage Audit w/ 5-gram Jaccard <0.05 + char 12-gram + identifier overlap + inherited strip-list, 6.6 Experiment Arms identical to rev 2, 6.7 Model Pinning), 7 Metrics And Statistics (7.2 DiD estimator + two-condition decision, 7.3 seeded cluster bootstrap cluster=class B=10000, 7.4 alpha 0.05/power 0.80/MDE band 0.25-0.35, 7.5 explicit derived sizing formula + statement that pilotFreezeCheck does not directly size a DiD + worked table 312-624 arm-runs + 2000 cap), 8 Calibration Mini-Pilot And N Freeze (band [0.3,0.9] justified), 9 Milestones R1-R6 with reuses + exit criteria, 10 Stopping Rules (scorer bug, leakage/isolation, model change, yield, band never met), 11 Circularity And No-Overclaim (shared provenance + permitted/disallowed claims), 12 Evidence Artifacts, 13 Verification Matrix, 14 Recommended Execution Order, 15 Definition Of Done (mechanically checkable, evidence-map-compatible).",
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "command": "shasum -a 256 docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "result": "pass",
+          "note": "Transcript after authoring+committing the rev 3 doc: shasum -a 256 output = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471, byte-identical to the digest recorded in the M9 evidence map (evidence-map.mjs PLAN_DOC_RELPATH) and quoted in rev 3 section 1. The rev 2 file is untouched; commit 9fa9d239d touches only the one new file (git show --stat: 1 file changed, 724 insertions, create mode).",
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -cP \"[\\x{4e00}-\\x{9fff}]\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; grep -n \"supersedes ONLY the M7\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "English-only: CJK grep count = 0 over the whole document. Supersession scope mechanically limited: section 1 states the doc supersedes ONLY the M7 powered-run route of rev 2; rev 2 M0-M6/M8/M9 evidence and completed milestones remain authoritative; rev 2 file stays byte-untouched (digest re-verified); the rev 2 INCONCLUSIVE verdict is explicitly preserved, and section 4/11 forbid claims about the archival store, model improvement, gate evidence, generalization beyond harvested modes, and permanence beyond the pinned-model window.",
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +88,77 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "lattice finding_list for this story shows every review finding resolved; the final document incorporates the fixes; story reaches DONE with the delivery check confirming the review dimensions were each covered by a registered reviewer finding or explicit pass",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T15:13:53.082Z",
+      "endTime": "2026-07-03T16:21:00.915Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every adversarial finding registered by reviewers across the six dimensions (statistics, leakage, repro yield, window validity, circularity/no-overclaim, supersession hygiene) is resolved and the fixes are present in the document",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finding_list shows zero open findings at story end; each of the six dimensions traceable to a registered finding or an explicit reviewer pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No resolution weakened the pre-registration (spot-check: sizing numbers, stopping rules and disallowed claims were strengthened or clarified, never deleted, across review rounds)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "git show 172b55142 -- docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "Per-finding fix mapping. Stats report (10): F1 critical MDE-achievability refusal freeze_mde_exceeds_achievable_did (S7.5+S8+S10+S13); F2 high n pinned=6, grid search deleted with vacuity rationale, S8 floor 13/split re-derived at n=6 (S7.5); F3 high n_cal raised 4->8, explicit binomial attrition model published, K_min recomputed 32->40 (S6.2+S8); F4 med R4 seeded coverage simulation >=93% with BCa/cluster-t fallback ladder (S7.3+S8); F5 med ANOVA MoM rho estimator named, calibration bootstrap seed committed at R2, pessimistic worked row sigma2=0.5/rho=0.4 -> m=33/split (S7.5); F6 med generalized below-frozen-m stop any cause + 0/0 class exits m_S (S7.1+S10); F7 low p-hat_c rename, strict CI boundary rule, asymmetric-m Var(DiD) formula, calibration cost incl dropped+retries (S8+S7.2+S7.5); F8 high harvest budget 500 runs/21 days makes K_min stop decidable + matrix row (S6.2+S10+S13); F9 med split stratified by source+task family, family cap<=2 (S6.3+S7.3); F10 pass-with-pointers resolved via F2/F3/F6 fixes. Leakage/window report (11): F1 high Jaccard->containment |lesson-grams∩surface|/|lesson-grams|<0.05 (S6.5.2); F2 critical allowlist frozen in protocol.json at R2 pre-variants, mechanical admission rule (>=3 classes reproducers or fixed framework scan), answer tokens denied by construction, edits=protocol amendment (S6.5.7); F3 high per-class answer-token denylist auto-extracted from reference-good/bad distinguishing bytes + spelled-out numerals, paraphrase residual disclosed un-mechanizable (S6.5.5+S6.5.8+S11); F4 high lesson surface=full rendered pack bytes (playbook+anchor), acceptance.mjs added to scan surface, acceptance format-only proof exit 0 on BOTH overlays (S6.5.1+S6.5.6+S6.4); F5 med strip-list per-class derivation rule + non-empty marker selfcheck (S6.5.6); F6 med shared tokenizer split on [^a-z0-9_-]+, all checks over full surface incl prompt.md in check 4, binary handling (S6.5.1); F7 critical mechanical model pin: --model in frozen hostCmd, --output-format json parsed into REQUIRED modelId run.json field, fail-closed absent, scorer void, named as the two deltas from rev 2 reuse (S6.6+S6.7); F8 high dated snapshot id regex, aliases refused at freeze (S6.7+S13); F9 high hostCliVersion per-run recorded+voided, auto-update disabled, hostCmdHash frozen, stopping rule extended (S6.7+S10); F10 med 45-day staleness cap + drift test statistic/threshold/consequence (S6.7+S10+S13); F11 med Source B isolation contract, lessonize to study-local root, reproducer re-check pre-R5 and R5-close voids non-firing classes (S6.1+S6.3+S10). Claims/hygiene report (9): F1 high reorder lessons->variants->split->snapshot + generator-manifest input hashes lesson-free (S6.3+S6.4+S9+S14); F2 high disallowed lesson-aging/decay/absorption causal-claim bullet incl rev-2-null (S11); F3 med rev 2 already-established reworded to consistent-with-but-not-proving (S5+S2); F4 med fail-closed non-empty-pack assertion on held-out treatment cells + per-split pack-size reporting (S6.6+S7.6+S13); F5 med capture-loop reframed to surfacing within pinned window + pipeline-viability disallowed bullet (S3+S5+S11); F6 med m7-decision rejected-rev-3 reconciliation note (S1); F7 low DoD row 10 bound to analysis-report.md+evidence-map.md, budget-cap DoD row added, rows verified via score-records protocolHash binding (S15); F8 low rev 2 overhead qualified as 5-fixture unpowered exploratory no cost data (S7.6); F9 low 0.1667 N-maximizing upper bound parenthetical (S2).",
+          "headHash": "172b55142ce6c53c585d0e0b21ef8e1ea6829acd",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:29.824Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -cE \"freeze_mde_exceeds_achievable_did|K_min = 40|n_cal = 8|answer-denylist|hostCmdHash|45-day|p-hat_c\" <doc>",
+          "result": "pass",
+          "note": "Counts: 30/30 findings addressed (stats+repro 10/10 incl 1 critical + 3 high; leakage+window 11/11 incl 2 critical + 4 high; claims+hygiene 9/9 incl 2 high). Stale-term scan zero hits (K_min=32, d-hat, Jaccard-similarity check, indices 0-3, n_max, grid search, 256 arm-runs, Lessons-first-split-second, reused-unchanged, MODEL-VERSION CHANGE all gone); new-term counts: freeze_mde_exceeds_achievable_did x6, K_min=40 x11, n_cal=8 x5, answer-denylist x7, hostCmdHash x5, 45-day x4, p-hat_c x3. Re-derived sizing after findings 1-3: n pinned 6 keeps floor table m=13/18/26 per split (312/432/624 powered arm-runs); attrition model Bin(8,p) acceptance with retry 0.817/0.900/0.978/0.997 at p=0.35/0.40/0.50/0.625, planning a=0.8 -> K_min=40 gives P(both splits>=13)=0.937 vs 0.358 at old 32; calibration 640 base/~800 retries at floor, 960/~1200 at target 60; pooled control runs >=320 at floor; total budget worst planning case 1944 < 2000 cap. CJK count 0; rev 2 file sha256 verified unchanged 2ef4122e...835471; only the rev 3 doc changed (533 insertions, 181 deletions); lattice validate all green; commit 172b55142.",
+          "headHash": "88401bf7ac1884ad35ec0cd0e06a33d0a2dc62cb",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:58.510Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "git diff HEAD~1 HEAD -- docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "Safeguards strengthened, none deleted — spot list: (1) freeze refusal paths grew from 2 (budget cap, band) to 4 (+ freeze_mde_exceeds_achievable_did, + coverage-simulation failure); (2) stopping rules grew from 8 to 10 bullets and every existing stop kept (scorer bug, isolation breach, arm contract, model change, yield, band, freeze refusal, mid-study fix) — model-change stop WIDENED to host-CLI-version, below-frozen-m stop GENERALIZED from one void cause to any cause; (3) leakage audit grew from 5 checks to 8 (containment replaces the weaker Jaccard — strictly stronger since verbatim inclusion now fails; allowlist governance became stricter: frozen earlier at R2, mechanical admission, edits are amendments; denylist and format-only proof are new); (4) K_min RAISED 32->40 and n_cal RAISED 4->8 (harder gates, not weaker); (5) split gained stratification + family cap while keeping seeded PRNG + seal-before-run + guardImmutable; (6) freeze ordering ADDED variants-before-split while retaining lessons-before-variants; (7) disallowed-claims list grew from 6 to 8 bullets, none removed; (8) DoD grew from 10 to 12 rows, none removed; verification matrix grew from 13 to 26 rows, all originals retained (two rows extended: wrong-model-id row split into missing vs mismatched, store isolation extended to harvest runs); (9) rev 2 file byte-untouched (sha256 match); permitted-claim template and required disclosures retained and expanded with paraphrase-residual disclosure.",
+          "headHash": "ae55e99e60ab8793645d2062423a1d3166a493a0",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:59.760Z"
+        }
+      ]
     }
   ]
 }

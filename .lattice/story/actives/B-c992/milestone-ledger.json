@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-c992",
+  "state": "confirmed",
+  "ledgerHash": "sha256:f896bb38023bb293bf1b58e3d634fa59e650b5f9dd7473287258b1a75be84ba8",
+  "milestones": [
+    {
+      "id": "REV3-DOC",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Rev 3 pre-registration document authored with all required sections, rev 2 byte-untouched",
+      "doneMeans": "File exists with grep-verifiable sections (supersession, H1-prime, harvest/repro filter, split, variants+similarity audit, DiD sizing, model pinning, R1-R6, stopping rules, no-overclaim, DoD); rev 2 sha256 unchanged",
+      "requiredEvidence": [
+        "docs_check",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "REV3-REVIEW",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Adversarial design review passed across six dimensions with all findings resolved in-document",
+      "doneMeans": "finding_list shows zero open findings; six dimensions each traceable to a registered finding or explicit pass; resolutions strengthened rather than weakened the pre-registration",
+      "requiredEvidence": [
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-03T14:49:35.433Z",
+  "updatedAt": "2026-07-03T14:49:35.684Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703144908",
+    "acceptedInterpretationHash": "sha256:14ad9ea36c61d49f6a71a6913e290871852b008dcb316497051cb306067911c1",
+    "acceptedAt": "2026-07-03T14:49:35.684Z"
+  }
+}
