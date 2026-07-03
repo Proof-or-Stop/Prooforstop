@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T11:28:04.120Z",
       "reviewRunId": "B-7de9:RR-002",
       "_hash": "3e11f35ea24f1d82fecba78ed84bd14636f8c912c28bbc7970ed14f1a73da422"
+    },
+    {
+      "id": "B-7de9:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness scan PASS. All live host-visible serialization surfaces for memoryFreshnessPack, runtimeMemoryTopHits, sourceDigests, packDigest, and experienceRefs in packages/main/src are covered: (1) done_closure --json uses redactMemoryPackForControlArm; (2) handoff_create --json/--output redacts at pack assignment; (3) handoff_resume --json/--output redacts the projection pack; (4) host_dispatch --json/--output redacts safePreflight + buildHostDispatchPrefetchManifest uses safePack for memoryPackDigest/memoryTopHitIds; (5) playbook_runtime_health topHitIds/packDigest use the redacted shown pack; (6) final_response_check --json uses redactMemoryPackForControlArm AND routes through surfaceRuntimeMemoryPack; (7) experienceRefs() in lattice-parallel-wave.ts returns [] on control before processing includeExperience. Text-render sites (session, story-create, transition-orchestrator, dev-memory, done-prepare, renderHostDispatchProjectionText) are all gated by shouldRenderRuntimeMemoryPack()/surfaced.shouldRender which return false on control — no leak path. command-policy.ts change adds memoryRetrieval:true to source_lineage_audit and memory_benchmark_real_data only; quantum_claim_benchmark and playbook_candidate_ingest are unchanged (no regression). No new control-arm leak found. 0 findings.",
+      "createdAt": "2026-07-03T11:31:37.428Z",
+      "reviewRound": "2026-07-03T11:28:04.120Z",
+      "reviewRunId": "B-7de9:RR-001",
+      "_hash": "cb9cfafb37425908c8ca7b65e7b30521ed9093647245f7dc3d2649a2a5f69b08"
     }
   ]
 }
