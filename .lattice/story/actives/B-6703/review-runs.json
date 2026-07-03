@@ -250,6 +250,77 @@
         "bindingHash": "96e763133a6106dae6753624e6ff451b3a432fc21fa76c67a813cc0f7d529424"
       },
       "_hash": "cac3388caeab2b1f5a27138402f5911918e947b03d903b108a8e789b0a14eb12"
+    },
+    {
+      "reviewRunId": "B-6703:RR-005",
+      "storyId": "B-6703",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-03T03:28:19.709Z",
+      "startedAt": "2026-07-03T03:31:26.955Z",
+      "headHash": "e60603bafc4c607aabc45356af7c606c0148f8af",
+      "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+      "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+      "promptHash": "82b5035365fd43482fbc86f7a98425efa61c698c8267a583a06160a677c075c5",
+      "scopeBinding": {
+        "scopeContractHash": "17a8ba9bd2e3a48136642d89629976fb4fba7eb95d3bc960abf08afb1019ffc8",
+        "diffPackHash": "a9c2702866d35d40ad18f0ca80e5d15ed3cbdeb09eb2032b818e9a04eae51652",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "066f537c07b467f62586310d623227e6effd8c5e22b5f1a5ce47d93d06f7bc3b",
+          "068daa1fcc43e3e42c9eb5129ed7dc11598270aa9911ab7ddab89c49858b70d9",
+          "167344792c5f6b20c60a7723691b68e7b1f5f96a49dd9b170bd60223bc92afcf",
+          "201b9388954efbd0cca6a386171dc00e2c69349bd43ffae8ec0e7502712e5927",
+          "331ecb92a6cdb4b7ef85794ced957141222c4f1bf30fab89b131a83682b814dd",
+          "36e9041e04feac588f80ac4a9b386e58638b22ced31cf15efa450d0952cc6e05",
+          "6442dfa204d109a1ce259ae30cd4bef4bbffea680f7d3bd5bc8a0b704b071e36",
+          "664862e74fcbe5a9dea1c331acb8d0aae5056e2e7421c1b14dd3efcfc1580ae4",
+          "6d3853bfd820d4e2cc750e774e92f0a0a12134b8249ff95065f9c19d0bb0f8b6",
+          "74c1f159a6392e8a7e419981422ea1a67636955561d1c93142a0a59fbdc4432e",
+          "7d9a9c5b31dc578af39cb73c5087b9e2fbd2cb7527ef53376194995e36bef708",
+          "87b2a202d7bba5eabf1827ddd673f93af46503d530927a93ff509caa853b75e2",
+          "9ad20bebd7872175f2f1cf9b0f39e9886f24a0ea7a2dffde0b310eab7047b18c",
+          "9e4adc29b6c07f5ae2456802c0750cac977125703e90de9e0bd833ecb4e471a7",
+          "9e877be45a1fd8f4ce8a26faf7b1d5f03a8cbc27b123db8c4114ed91a3c2f467",
+          "bd548c37ab137f9b5c3b81a279bc9f6b4d26079490d7df236d75c0a69fa94af1",
+          "cab36206dd9608bf712dc5780941935b67bfb763e9649f73fee8d6c692b26869",
+          "d346a55ee49eba2de423c705a643892cabfa7d155a041188cb87cbd0c9299cf8",
+          "e7a48f4549c061eae77bac3f34da07c9554241dcfde2ca9b04a2651da9c55069",
+          "f76e82e8f3f97202caa90224aa7f1b69e94f77976b89cc5a0aef2b2d93b246cd"
+        ],
+        "bindingHash": "5e6e89208e678742e3a3f5722bce40a39b095a60ed50a19fa448e9ecae4f8233"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6703",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6703",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6703",
+        "workspaceMode": "story-worktree",
+        "headHash": "e60603bafc4c607aabc45356af7c606c0148f8af",
+        "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+        "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+        "bindingHash": "0efea34775741f258c0986dc4a99c68f9e40e88e673d8736254b00ce26d17650"
+      },
+      "_hash": "214df060dc01e340a826b7ee5bba5215c0057598800e61f329c3d68b31ff73a4"
     }
   ]
 }
