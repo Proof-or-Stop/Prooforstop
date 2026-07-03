@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5f5b",
+  "changes": "Added playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer command surfaces with learning-store support, matched-control ledger reporting, promotion status trial/control counts, command policy/process fact registration, and smoke coverage for backfill, trial, timer, and disabled step reporting.",
+  "usage": "Use node packages/main/dist/cli.js playbook_seed_backfill --json for dry-run preview, then --apply --observeDigest=<digest> after DONE; use playbook_trial_run --storyId=<story> --limit=N --json for bounded candidate exposure/control dry-run; use playbook_promotion_timer --backfill --trial --activate --storyId=<story> --json for one-shot bounded automation.",
+  "expectedOutcome": "The CLI exposes safe dry-run default backfill, trial, and timer automation; backfill creates only inert candidates when applied with a fresh digest; trial writes only unknown candidate exposure and matched-control rows when applied; timer reports disabled unrequested steps and cannot activate candidates without evidence guards passing.",
+  "actualTranscript": "Full lattice validate passed 32 configured commands with 9/9 verification intents covered. User acceptance transcript at .lattice/story/actives/B-5f5b/evidence/transcript-diff.md shows command help present, seed backfill dry-run planned 3 candidates with createdCount=0, trial dry-run selected 3 of 5 candidates with outcomeCreatedCount=0 and controlCreatedCount=0, and timer dry-run reported sweep disabled plus activate blocked=5.",
+  "outcomeDiff": "No functional difference from expected: all tested commands defaulted to dry-run, remained non-authoritative, produced gateEvidence=false, and did not activate candidates.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Global lattice shim will expose these new commands only after DONE merge and dist/version sync; the historical apply is intentionally deferred until canonical main is updated. Existing candidate count was 5 in the local learning store before full historical apply.",
+  "pitfalls": "Review found four coverage issues. F-001/F-003 required promotion_status to report trial/control ledger counts. F-002 required registry/policy/process-fact command coverage instead of helper-only smokes. F-004 required explicit assertions that unrequested timer steps are rendered as disabled. Validation evidence became stale after review-fix metadata and test commits, so stale evidence had to be refreshed before each full validate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 135552
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7418
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 263234
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 4887078
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2235662
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 123685
+    }
+  },
+  "totalDurationMs": 7652972,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T17:19:13.220Z",
+  "updatedAt": "2026-07-03T17:19:13.220Z"
+}
