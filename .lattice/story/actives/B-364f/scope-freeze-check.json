@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-364f",
+  "checkedAt": "2026-07-03T17:49:46.695Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "56bac40ce1372f1a6ecb964d6920aa96c5b63697e67b18cc1949d5abb7435a6d",
+  "executionBoundaryHash": "31448c3513b970cb8b86eab730f7ef6c974f1483e3fdaf52c0fe68a3f00a3f7e",
+  "freshnessHash": "aed43c60800f40578730eb351b9bdbd38937dabd211c17832fd831664422a0ad",
+  "effectiveExcludedKeywords": [
+    "Activating playbooks",
+    "Authority",
+    "Changing playbook behavior",
+    "Changing validator semantics",
+    "customerKeyRef",
+    "Layer4",
+    "Re-running historical backfill",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Activating playbooks",
+      "source": "scopeBoundary.excluded",
+      "text": "Activating playbooks",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing playbook behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing playbook behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing validator semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing validator semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-running historical backfill",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-running historical backfill",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "aadb3a6042df04ae1902f504f13d4cbe9d0a8c269524079c79e8ea1fc9d6fccd"
+}
