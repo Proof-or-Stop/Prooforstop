@@ -13,7 +13,33 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate required original intent, collision, red evidence, and proofstory contract metadata. These files are story evidence for B-5e28, not business-code scope expansion.",
+      "timestamp": "2026-07-03T00:26:33.177Z",
+      "paths": [
+        ".lattice/story/actives/B-5e28/intent-collision.json",
+        ".lattice/story/actives/B-5e28/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5e28/proofstory.json",
+        ".lattice/story/actives/B-5e28/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5e28/intent-collision.json",
+        ".lattice/story/actives/B-5e28/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5e28/proofstory.json",
+        ".lattice/story/actives/B-5e28/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "cf8feb8a0cbd100cbf5258a49dca91ee7053a66d",
+      "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+      "anchors": [
+        "proofstory_dev_gate"
+      ]
+    }
+  ],
   "createdAt": "2026-07-03T00:19:47.299Z",
-  "updatedAt": "2026-07-03T00:19:47.299Z"
+  "updatedAt": "2026-07-03T00:26:33.177Z"
 }
