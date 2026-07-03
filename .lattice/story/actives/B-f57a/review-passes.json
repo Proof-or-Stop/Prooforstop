@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T02:53:26.313Z",
       "reviewRunId": "B-f57a:RR-008",
       "_hash": "50fde829b032fe901b8ff0feb71e43fbe0d15e9f90bfab313c3da1ae29828bcc"
+    },
+    {
+      "id": "B-f57a:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 21 intents across CHK-001 (12: happy:0-1, edge:0-3, adversarial:0-5) and CHK-002 (9: happy:0-1, edge:0-4, adversarial:0-1) each have non-stale logic_test evidence bound to materialHash a7602537... All 21 smoke checks green. The 4 newly-registered adversarial intents (CHK-001:adversarial:2-5) have genuine non-hollow evidence with specific assertions (mutual-exclusion refusal, missing-policy fail-closed, unauthorized-policy fail-closed, env-denylist+timeout threading). intent_coverage_check reports 0 diagnostic gaps. validate allPass:true (32 commands).",
+      "createdAt": "2026-07-03T03:02:52.826Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-009",
+      "_hash": "14b10f9188dd3868ec1fdd14ab3fa54684364b1e98652e9420b402217b580dac"
     }
   ]
 }
