@@ -26,7 +26,7 @@
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed; Bug10: a MALFORMED policy (maxRuntimeMinutes:"bogus") → authorizeReviewPolicy refuses (no spawn, no verdict, no unbounded ceiling).
  *   CHK-001:adversarial:5 (F-004) closed-allowlist env redaction by construction (base var forwarded; credential/arbitrary names dropped EVEN IF in the policy envAllowlist; envDenylist can drop a base var) + timeout ceiling threaded to the runner.
- *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; post-spawn source drift and clean HEAD drift fail closed before verdict record; .lattice-only dirty → proceeds.
+ *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; pre-hash clean HEAD drift, post-spawn source drift, and post-spawn clean HEAD drift fail closed before verdict record; .lattice-only dirty → proceeds.
  *   CHK-001:adversarial:7 (NEW INTENT) malformed host-A findings file (missing field / EXTRA key / wrong type / not-an-array) → fail-closed (no spawn, no verdict); well-formed control passes. Requires a NEW verificationIntent registration.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
@@ -1132,12 +1132,12 @@ async function run(): Promise<void> {
     // Codex reviews a detached HEAD snapshot and the recorded verdict binds to the
     // HEAD materialHash (the committed tree). If the live worktree has uncommitted
     // MATERIAL (source) drift, the handler must FAIL CLOSED before any codex spawn
-    // and record NO verdict. If source drift appears after the preflight, Codex must
-    // still be reviewing a clean captured-HEAD snapshot, and the handler must
-    // re-check both live worktree cleanliness and HEAD identity before recording.
-    // Control: a worktree dirty ONLY under .lattice/ metadata (which Codex never
-    // reads and which churns constantly during a story) proceeds normally.
-    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; clean HEAD drift blocked; .lattice-only dirty → proceeds', async () => {
+    // and record NO verdict. If source/HEAD drift appears after the binding starts,
+    // Codex must still be reviewing a clean captured-HEAD snapshot, and the handler
+    // must re-check both live worktree cleanliness and HEAD identity before
+    // recording. Control: a worktree dirty ONLY under .lattice/ metadata (which
+    // Codex never reads and which churns constantly during a story) proceeds normally.
+    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash and post-spawn clean HEAD drift blocked; .lattice-only dirty → proceeds', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // (1) Make a TRACKED SOURCE file dirty (uncommitted) — this is exactly the
       // tree divergence the HEAD materialHash cannot honestly bind.
@@ -1191,7 +1191,48 @@ async function run(): Promise<void> {
       const recordedToctou = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === toctouRunId);
       assert.equal(recordedToctou.length, 0, 'no verdict recorded when source drift appears after the Codex run starts');
 
-      // (3) TOCTOU clean-commit control: a concurrent commit can move HEAD while
+      // (3) PRE-HASH clean-commit control: a concurrent commit can move HEAD after
+      // the handler captures the binding HEAD but before material/storyFiles hashes
+      // are read. The hashes must still use the captured SHA, and the handler must
+      // fail closed BEFORE spawning Codex because live HEAD no longer equals the
+      // captured binding.
+      let preHashHeadDriftSeamInvoked = false;
+      let preHashHeadDriftCommitted = false;
+      const preHashHeadBeforeDrift = git(root, ['rev-parse', 'HEAD']);
+      const preHashHeadDriftRunId = `${STORY_ID}-xhr-prehash-head-drift`;
+      const preHashHeadDriftHandlers = createCrossHostReviewHandlers(ctx, {
+        afterHeadCaptured: () => {
+          assert.equal(git(root, ['rev-parse', 'HEAD']), preHashHeadBeforeDrift, 'pre-hash hook starts from the captured HEAD');
+          write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\nexport const cleanHeadDriftBeforeHash = true;\n');
+          git(root, ['add', 'packages/main/src/index.ts']);
+          git(root, [...COMMIT_ENV, 'commit', '-m', 'clean head drift before hash']);
+          preHashHeadDriftCommitted = true;
+          assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'pre-hash concurrent commit leaves the live source path clean');
+          assert.notEqual(git(root, ['rev-parse', 'HEAD']), preHashHeadBeforeDrift, 'pre-hash concurrent commit moved HEAD');
+        },
+        codexRunner: () => {
+          preHashHeadDriftSeamInvoked = true;
+          return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false };
+        },
+      });
+      try {
+        await assert.rejects(
+          () => Promise.resolve(preHashHeadDriftHandlers.cross_host_review({ storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: preHashHeadDriftRunId, json: true })),
+          new RegExp(CROSS_HOST_REVIEW_HEAD_DRIFT),
+          'pre-hash clean HEAD drift throws the fail-closed head-drift reason before Codex spawn',
+        );
+      } finally {
+        if (preHashHeadDriftCommitted) {
+          write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\n');
+          git(root, ['add', 'packages/main/src/index.ts']);
+          git(root, [...COMMIT_ENV, 'commit', '-m', 'restore prehash head drift fixture']);
+        }
+      }
+      assert.equal(preHashHeadDriftSeamInvoked, false, 'codex seam is never invoked when clean HEAD drift happens before material hash binding completes');
+      assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === preHashHeadDriftRunId).length, 0, 'no verdict recorded when a clean concurrent commit moves HEAD before hash binding completes');
+      assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the pre-hash HEAD drift case');
+
+      // (4) TOCTOU clean-commit control: a concurrent commit can move HEAD while
       // leaving the live worktree clean. The review snapshot must still be pinned
       // to the captured HEAD SHA, and the handler must fail closed before recording
       // because the story's committed tree changed after the material binding.
@@ -1230,7 +1271,7 @@ async function run(): Promise<void> {
       assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === headDriftRunId).length, 0, 'no verdict recorded when a clean concurrent commit moves HEAD');
       assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the clean HEAD drift case');
 
-      // (4) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
+      // (5) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
       // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
       write(root, '.lattice/story/actives/some-churn.json', JSON.stringify({ churn: Date.now() }) + '\n');
       write(root, '.lattice/activity.jsonl', 'ignored-metadata-churn\n');

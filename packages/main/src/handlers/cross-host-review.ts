@@ -524,6 +524,8 @@ function authorizeReviewPolicy(root: string, policy: string | DispatchPolicy | u
 export interface CreateCrossHostReviewHandlersOptions {
   /** Injectable Codex process seam so the smoke can pass a fake (no real CLI). */
   codexRunner?: CodexReviewRunner;
+  /** Internal smoke seam for adversarial git-race coverage; never exposed through the CLI. */
+  afterHeadCaptured?: () => void | Promise<void>;
 }
 
 export function createCrossHostReviewHandlers(
@@ -542,17 +544,19 @@ export function createCrossHostReviewHandlers(
       const projectRoot = workspace.signedWorkspaceRoot;
       const metadataRoot = workspace.metadataRoot || ctx.root;
 
-      const materialDigest = currentMaterialHash(projectRoot, 'HEAD', metadataRoot);
-      if (!materialDigest) {
-        throw new Error('cross_host_review: cannot compute current materialHash; refusing to record verdicts with an empty materialDigest');
-      }
-      const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', metadataRoot);
-      if (!storyFilesHash) {
-        throw new Error('cross_host_review: cannot compute current storyFilesHash; refusing to record verdicts without the story-owned file hash');
-      }
       const headHash = currentGitHead(projectRoot);
       if (!headHash) {
         throw new Error('cross_host_review: cannot resolve current HEAD; refusing to record verdicts without a committed-tree binding');
+      }
+      await options.afterHeadCaptured?.();
+
+      const materialDigest = currentMaterialHash(projectRoot, headHash, metadataRoot);
+      if (!materialDigest) {
+        throw new Error(`cross_host_review: cannot compute materialHash for captured HEAD ${headHash}; refusing to record verdicts with an empty materialDigest`);
+      }
+      const storyFilesHash = currentStoryFilesHash(projectRoot, headHash, metadataRoot);
+      if (!storyFilesHash) {
+        throw new Error(`cross_host_review: cannot compute storyFilesHash for captured HEAD ${headHash}; refusing to record verdicts without the story-owned file hash`);
       }
 
       // F-004: authorize + load the review-only dispatch policy BEFORE anything
