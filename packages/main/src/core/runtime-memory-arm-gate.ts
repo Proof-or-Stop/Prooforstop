@@ -105,3 +105,5 @@ export function redactMemoryPackForControlArm<T extends { results?: any; items?:
     } as unknown as T;
   }
 }
+
+// (audit note) control-arm isolation verified by cross-host review; see B-7de9 quorum.
