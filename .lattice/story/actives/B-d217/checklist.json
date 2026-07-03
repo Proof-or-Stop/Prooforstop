@@ -80,7 +80,30 @@
       "userSees": "node experiments/experience-ablation/score-selfcheck.mjs prints per-case PASS lines ending score-selfcheck: all cases passed (corpus digest <sha256>) with exit code 0, and a second invocation prints the identical digest",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selfcheck: every fixture known-bad payload scores defectPresent true with the class-appropriate flag; known-good scores false; clean never fires falseDoneAttempt on good payloads",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay determinism: scoring the whole corpus twice yields byte-identical records and the same printed corpus digest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Event mapping: control run with N retrieval_violation events yields retrievalViolationCount=N and memoryPackShown=false; treatment yields memoryPackShown=true with surfacedMemoryIds from the event; voiding case covered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
