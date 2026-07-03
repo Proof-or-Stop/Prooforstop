@@ -43,7 +43,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/run-pilot.mjs",
+          "command": "node run-pilot.mjs --plan --root=<demoRoot> --experimentId=exp-plan-demo --corpus=<demoRoot>/corpus",
+          "result": "pass",
+          "note": "--plan printed the cell table in seeded run order (4 cells: fx-bba8fe78-0/fx-04ea3882-0 x treatment/control, all pending, totals line 4 cells 0 done 4 pending, leakage-audit: PASS line), exit 0. Smoke cell coverage: run-pilot-selfcheck.mjs case (3) --smoke produced runs/<fixtureId>__<arm>/ with run.json (all RUN-RECORD required fields, commandCount=1, doneReached/validationPass true) + activity.jsonl + workspace/; node score.mjs --fixture --run exited 0 with voided=false voidReason=null, taskId bound to the armRunId.",
+          "headHash": "f0354beb7816f7a2ccd841438defef30158d5a52",
+          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
+          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
+          "timestamp": "2026-07-03T02:06:25.469Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
