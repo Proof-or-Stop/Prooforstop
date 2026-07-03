@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-7ee1:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: evidence-activated advisory promotion is implemented as a real --apply writer without the old default-off env flag; activation remains digest/evidence/lineage/policy gated, non-authoritative with gateEvidence=false, excludes DONE-settlement-only evidence, and does not blanket-activate candidates.",
+      "createdAt": "2026-07-02T22:43:17.542Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-005",
+      "_hash": "e35bd3ea102f4b033f1d00d2cb3336bef7b314abb9c0314c1bce5460c23bfadb"
+    },
+    {
+      "id": "B-7ee1:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted test-coverage review passed: routine smoke packages/main test:playbook-evidence-activation covers no-evidence fail-closed, outcomes-without-applied-decision fail-closed, successful activation, idempotency, malformed activation audit rollback, and old PLAYBOOK_AUTO_ACTIVE_ENABLED absence; source-lineage-audit smoke covers playbook_auto_activation lineage audit records and malformed-store diagnostics.",
+      "createdAt": "2026-07-02T23:04:31.198Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-008",
+      "_hash": "227995dc72c303040e9f258b2bfd9feabbf2c0179c969b070c69f237b6c067f9"
+    },
+    {
+      "id": "B-7ee1:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified npm --prefix packages/main run test:playbook-evidence-activation passes and covers DONE-settlement helped exclusion, no-evidence and missing-applied-decision fail-closed paths, success activation, idempotency, rollback/audit failure safety, demotion rollback recommendation, and source lineage audit-backed guard coverage.",
+      "createdAt": "2026-07-02T23:13:37.885Z",
+      "reviewRound": "2026-07-02T23:10:29.584Z",
+      "reviewRunId": "B-7ee1:RR-012",
+      "_hash": "e2c031f9dbd784c5562ff2b726d81b67b97180216a6c3706c5c0fc63e4597568"
+    },
+    {
+      "id": "B-7ee1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after 277fe1596: DONE-settlement/story DONE rows no longer count as helped or decisive activation evidence; promotion sweep remains recommendation-only; playbook_auto_promotion_apply remains advisory non-authoritative gateEvidence=false; no Authority/receipt/DONE gate semantic change found.",
+      "createdAt": "2026-07-02T23:14:08.093Z",
+      "reviewRound": "2026-07-02T23:10:29.584Z",
+      "reviewRunId": "B-7ee1:RR-010",
+      "_hash": "d1445fa6d1e5570e3a0b1301785a3c5997e8507399d027645ec286e812c85669"
+    },
+    {
+      "id": "B-7ee1:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs touched by B-7ee1/d9c541b9 reviewed for stale future/default-off/feature-flag-only auto-active wording. Promotion sweep remains recommendation-only; playbook_auto_promotion_apply is documented as the current evidence-activated advisory apply writer; future questions are scoped to timer/trial/policy variants; non-authoritative gateEvidence=false and no production/gate-evidence overclaim boundaries are clear.",
+      "createdAt": "2026-07-02T23:23:14.264Z",
+      "reviewRound": "2026-07-02T23:20:43.004Z",
+      "reviewRunId": "B-7ee1:RR-017",
+      "_hash": "36d970ae39c6f199662cd916b630d17791dc0d8f30d51d8031930d33543e7414"
+    },
+    {
+      "id": "B-7ee1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round test coverage reviewed after d9c541b9. Focused playbook evidence activation smoke passes and covers duplicate outcome idempotency, DONE-settlement exclusion, fail-closed no-evidence/no-decision guards, successful activation, apply idempotency, rollback/audit guards; source lineage audit smoke also passes via routine runner discovery.",
+      "createdAt": "2026-07-02T23:23:44.660Z",
+      "reviewRound": "2026-07-02T23:20:43.004Z",
+      "reviewRunId": "B-7ee1:RR-016",
+      "_hash": "c51dfdefc59d5cd3ba602f36437c26c20edaeb63291d98c46ada761d994a0493"
+    },
+    {
+      "id": "B-7ee1:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed after d9c541b9: advisory activation remains non-authoritative/gateEvidence=false; DONE-settlement rows are excluded from decisive/helped activation evidence; duplicate outcome idempotency keys no-op on append and dedupe aggregate thresholds; no Authority, receipt, or DONE gate semantics changed.",
+      "createdAt": "2026-07-02T23:25:05.051Z",
+      "reviewRound": "2026-07-02T23:20:43.004Z",
+      "reviewRunId": "B-7ee1:RR-014",
+      "_hash": "1b104328a8ad28cdb4b9754f4c1753f086d1def2e5f8becb07c10cac3eaf231c"
+    },
+    {
+      "id": "B-7ee1:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker after d9c541b9: checked outcome idempotency append/aggregate dedupe, DONE-settlement exclusion, activation audit rollback/idempotency, write locks/fail-closed paths, and authority/gateEvidence boundaries. Verified with npm --prefix packages/main run build -- --noEmit, npm --prefix packages/main run test:playbook-evidence-activation, and node packages/main/dist/tasks/source-lineage-audit-smoke.js.",
+      "createdAt": "2026-07-02T23:25:14.165Z",
+      "reviewRound": "2026-07-02T23:20:43.004Z",
+      "reviewRunId": "B-7ee1:RR-015",
+      "_hash": "6eb62899c08b45bd9df3e9500a7d4e2a6bf4013ecbdb1b9d9f64b8e0c14cb068"
+    },
+    {
+      "id": "B-7ee1:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Fresh post-main-merge concept review found no blocker: evidence activation remains non-authoritative/gateEvidence=false, DONE-settlement and duplicate outcome idempotency keys cannot inflate activation evidence, and changed policy/process-fact surfaces do not alter Authority/receipt/DONE gate semantics.",
+      "createdAt": "2026-07-02T23:40:52.862Z",
+      "reviewRound": "2026-07-02T23:38:55.659Z",
+      "reviewRunId": "B-7ee1:RR-018",
+      "_hash": "d1da90f8605ebd0b912928a87d82084b0d159b1011187aa6e9a8759a330bc874"
+    },
+    {
+      "id": "B-7ee1:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed post-main-merge touched docs: no stale default-off/future-only auto-active blocker; promotion sweep remains recommendation-only; playbook_auto_promotion_apply is documented as current evidence-activated advisory writer with non-authoritative gateEvidence=false boundary; future questions limited to timer/trial/policy variants.",
+      "createdAt": "2026-07-02T23:41:35.307Z",
+      "reviewRound": "2026-07-02T23:38:55.659Z",
+      "reviewRunId": "B-7ee1:RR-021",
+      "_hash": "f8aaeff19737656412a6f8b51c08edee9e8d783b699e6b4a493339bd8f959ba7"
+    },
+    {
+      "id": "B-7ee1:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh post-main-merge quality review found no blocker. Checked outcome idempotency/aggregate dedupe, DONE-settlement exclusion, activation audit rollback/idempotency, source-lineage inclusion for activation rows, write/lock boundaries, fail-closed behavior, and non-authoritative/no-gate leakage. Current done-required validation also passed.",
+      "createdAt": "2026-07-02T23:43:38.031Z",
+      "reviewRound": "2026-07-02T23:38:55.659Z",
+      "reviewRunId": "B-7ee1:RR-020",
+      "_hash": "3b4d7b4bf3d82c833e9f1781230d6fd4b1af57c8fbe63da7a07be59725918d09"
+    },
+    {
+      "id": "B-7ee1:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-main-merge coverage review passed: playbook evidence activation smoke covers evidence activation, DONE-settlement exclusion, duplicate idempotency protection, fail-closed paths, successful activation, re-apply idempotency, demotion/rollback recommendation, and append-only provenance; source-lineage audit smoke covers post-merge lineage audit collectors/read-only diagnostics. Targeted smokes passed locally.",
+      "createdAt": "2026-07-02T23:43:38.617Z",
+      "reviewRound": "2026-07-02T23:38:55.659Z",
+      "reviewRunId": "B-7ee1:RR-019",
+      "_hash": "4395466d0b1acbb29ddb130cb0020961ff1a774135495dbcf278f83be107a4db"
+    }
+  ]
+}

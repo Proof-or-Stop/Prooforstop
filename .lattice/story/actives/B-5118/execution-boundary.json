@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5118",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/quantum-claim-admissibility-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+    "npm --prefix packages/main run test:quantum-claim-admissibility"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks/*benchmark*"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "M2 may edit the quantum runtime, pack descriptor/export surface, focused smoke, package script, and quantum plan status only.",
+  "createdAt": "2026-07-02T23:05:09.191Z",
+  "updatedAt": "2026-07-02T23:05:09.191Z",
+  "_hash": "08c721c4a7b8cf6d3a3ea178233ad806387d1d610e3ef84bdb611a5ff6884c6c"
+}

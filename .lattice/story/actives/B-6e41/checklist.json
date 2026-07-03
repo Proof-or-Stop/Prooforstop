@@ -41,9 +41,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:40:48.305Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke proves the built-in code-runtime pack descriptor validates under the ClaimAdmissibilityPack contract and is listed/resolved by the default registry.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.487Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke asserts the code-runtime pack has no benchmarkHarnesses property and remains valid, proving benchmark harness definitions are optional for M1.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.655Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke checks the pack JSON excludes forbidden production/scientific/hardware/solver/authority claim fields; follow-up commit also tightened claim boundary completion/external gate flags to literal false.",
+          "headHash": "825646455313d17c6f2279b0a6c84d6ee9f2e4cb",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:48.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -85,9 +123,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:40:58.202Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke validates the default registry, lists the built-in code-runtime pack, and resolves it by id.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.379Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke asserts registry.resolve(missing-pack) returns deterministic not_found instead of throwing.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.547Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke constructs duplicate pack ids, claim schema ids, evidence schema ids, artifact kinds, aliases, and claim ids and verifies each produces blocking validation issues.",
+          "headHash": "fcf0b1c1e0bd3407476ab7e11b7e7f7c5e5c0f95",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:40:58.704Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -130,9 +206,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:41:08.627Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke imports the compatibility entrypoint and asserts listClaimAdmissibilityPacks is exported as a function.",
+          "headHash": "c850ef88b4039fba91bdd4bf52080338c61c67e1",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:08.897Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework && npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Focused smoke asserts getProofSurfaceDefinition remains available through the compatibility entrypoint; existing proof-admissibility smoke also passed after the re-export.",
+          "headHash": "c850ef88b4039fba91bdd4bf52080338c61c67e1",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:09.156Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Static review and build show the framework is an in-memory read-only descriptor/registry only; no StoryStore, file writes, lifecycle command, second ledger, storage root, or gate command is introduced, and retired vocabulary guard passes.",
+          "headHash": "c850ef88b4039fba91bdd4bf52080338c61c67e1",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:09.324Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -174,9 +288,85 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:41:19.938Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Focused smoke passed and printed pack contract exposes code-runtime pack, duplicate pack ids: BLOCK, duplicate artifact aliases: BLOCK, compat entrypoint exports pack registry, and final line claim-admissibility pack framework smoke passed.",
+          "headHash": "dccbc9214928e517d2813170a83315dca76f03df",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:20.109Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+          "result": "pass",
+          "note": "Smoke covers optional benchmarkHarnesses absence and deterministic not_found lookup behavior for unknown packs.",
+          "headHash": "dccbc9214928e517d2813170a83315dca76f03df",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:20.275Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves duplicates fail closed and pack JSON excludes forbidden production/scientific/hardware/solver/authority claim fields; retired vocabulary guard also passes after avoiding retired literal source pollution.",
+          "headHash": "dccbc9214928e517d2813170a83315dca76f03df",
+          "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+          "storyFilesHash": "89fb7bf7d48db6f880ef75347c325839d40a3377b24d3dbe006b8b226e65780f",
+          "timestamp": "2026-07-02T22:41:20.436Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-02T22:40:48.305Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
+    },
+    {
+      "timestamp": "2026-07-02T22:40:58.202Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
+    },
+    {
+      "timestamp": "2026-07-02T22:41:08.627Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
+    },
+    {
+      "timestamp": "2026-07-02T22:41:19.938Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified by commits 9e6b30e8f, 248e32799, and 825646455."
     }
   ]
 }

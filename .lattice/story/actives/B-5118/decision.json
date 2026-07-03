@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Adapters are declarative and local-only; they normalize evidence but do not run external quantum jobs.",
+    "Fail closed on unknown adapter ids, unsupported output versions, missing identity, stale receipts, and digest mismatch.",
+    "Quantum pack integration reuses the existing ClaimAdmissibilityPack registry and never creates storage, lifecycle gates, or completion claims.",
+    "M2 updates status precisely: M0-M2 implemented; M3-M5 still pending."
+  ],
+  "drivers": [
+    "Keep M2 separate from M3/M4/M5 to preserve reviewable Lattice scope.",
+    "Preserve existing M0-M1 evaluator behavior and focused smoke coverage.",
+    "Avoid circular imports while exposing quantum verifierAdapters in the pack registry."
+  ],
+  "options": [
+    {
+      "name": "descriptor-and-normalizer-only",
+      "pros": [
+        "Smallest M2 slice with deterministic evidence conversion",
+        "Keeps lifecycle gate and benchmark work out of scope",
+        "Easy to prove with focused smoke"
+      ],
+      "cons": [
+        "Does not yet enforce quantum gate transitions",
+        "Does not execute real solver/verifier commands"
+      ]
+    },
+    {
+      "name": "full-domain-pack-now",
+      "pros": [
+        "Would expose gate policy and benchmarks in one larger runtime package",
+        "Might reduce future story count"
+      ],
+      "cons": [
+        "Mixes M2 with M3/M4/M5 and weakens scope control",
+        "Harder to review and likely to overclaim scientific correctness"
+      ]
+    },
+    {
+      "name": "docs-only-m2",
+      "pros": [
+        "Lowest implementation risk",
+        "Could clarify future adapter names"
+      ],
+      "cons": [
+        "Does not deliver runtime capability",
+        "Would leave package registry and smoke unable to prove M2 behavior"
+      ]
+    }
+  ],
+  "chosen": "descriptor-and-normalizer-only",
+  "rationale": "Choose a descriptor-and-normalizer-only M2 because it adds real runtime capability while keeping lifecycle policy, benchmark execution, reporting, and scientific/production/Authority claims out of scope.",
+  "preMortem": [
+    {
+      "scenario": "Quantum pack import creates a circular dependency between pack-framework.ts and quantum.ts.",
+      "trigger": "pack-framework imports concrete quantum runtime while quantum imports pack types.",
+      "consequence": "Build or runtime import fails and registry becomes unreliable.",
+      "mitigation": "Keep quantum exports independent from pack-framework types where possible, or isolate shared descriptor literals to avoid reverse imports."
+    },
+    {
+      "scenario": "Adapter normalization accepts weak or mismatched evidence as admissible.",
+      "trigger": "Normalizer copies active identity into receipts instead of checking verifier output identity.",
+      "consequence": "Mismatched hamiltonian/grid/verifier/output evidence can incorrectly advance.",
+      "mitigation": "Smoke must cover mismatched identity and digest after normalization and confirm evaluateQuantumClaim blocks it."
+    },
+    {
+      "scenario": "M2 wording implies quantum theory, hardware, solver improvement, production, or Authority validation.",
+      "trigger": "Runtime status/doc text says quantum verifier pack validates results too broadly.",
+      "consequence": "Users may overclaim scientific or deployment correctness from local admissibility checks.",
+      "mitigation": "Boundary booleans and doc status must keep those claims false/pending, with adversarial smoke assertions."
+    },
+    {
+      "scenario": "M2 accidentally implements gate policy or benchmark harness.",
+      "trigger": "Adapter descriptor includes lifecycle transition behavior or benchmark execution hooks.",
+      "consequence": "Story scope overlaps M3/M4 and review burden increases.",
+      "mitigation": "Only add adapter descriptors and normalization; checklist excludes transition engine and benchmark files."
+    }
+  ],
+  "timestamp": "2026-07-02T23:08:08.731Z"
+}

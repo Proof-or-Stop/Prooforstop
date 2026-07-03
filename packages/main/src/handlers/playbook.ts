@@ -67,6 +67,7 @@ import {
   readProposal,
   resolveLearningOwnerRoot,
   resolveNonDeducibleSourcesPath,
+  resolvePlaybookAutoActivationsPath,
   resolvePlaybookPromotionDecisionsPath,
   resolvePlaybookPromotionHealthPath,
   resolvePlaybookOutcomesPath,
@@ -1051,9 +1052,9 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const latest = latestDecisions(decisionRows.decisions, limit);
       const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
       const settlementFlag = envFlagEnabled('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
-      const autoActiveFlag = envFlagEnabled('PLAYBOOK_AUTO_ACTIVE_ENABLED');
       const seedObservation = buildPlaybookSeedObservation({ projectRoot: ctx.root, store: ctx.store });
       const runtimeConsumption = buildPlaybookRuntimeConsumptionVerifyReport({ projectRoot: ctx.root });
+      const autoPromotion = buildPlaybookAutoPromotionApplyReport({ projectRoot: ctx.root, store: ctx.store });
       const latestSettlement = latestDecisions([], 1); // keep status payload shape stable below.
       void latestSettlement;
 
@@ -1080,18 +1081,21 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
             runtimeDiagnostics: runtimeConsumption.diagnostics,
           },
           v2: {
-            autoPromotionDefaultEnabled: autoActiveFlag.enabled,
-            activationImplemented: false,
-            posture: 'disabled-by-default/fail-closed',
+            activationImplemented: autoPromotion.activationImplemented,
+            posture: 'evidence-activated/apply-eligible-candidates',
+            activationPolicyDigest: autoPromotion.activationPolicy?.policyDigest,
+            eligibleCandidates: autoPromotion.candidateGuards.filter((guard) => guard.eligible).length,
+            blockedCandidates: autoPromotion.blockedCount,
+            demotionRecommendations: autoPromotion.demotionRecommendations.length,
           },
         },
         featureFlags: {
           PLAYBOOK_PROMOTION_SWEEP_ENABLED: sweepFlag,
           PLAYBOOK_DONE_SETTLEMENT_ENABLED: settlementFlag,
-          PLAYBOOK_AUTO_ACTIVE_ENABLED: autoActiveFlag,
         },
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
+          autoActivations: resolvePlaybookAutoActivationsPath(ctx.root),
           nonPromotableSources: resolveNonDeducibleSourcesPath(ctx.root),
           settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
         },
@@ -1110,7 +1114,6 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         'gateEvidence: false',
         `featureFlags.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${sweepFlag.enabled} (${sweepFlag.raw || 'unset'})`,
         `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'})`,
-        `featureFlags.PLAYBOOK_AUTO_ACTIVE_ENABLED: ${autoActiveFlag.enabled} (${autoActiveFlag.raw || 'unset'})`,
         `pendingLearning: ${pendingLearning.length}`,
         ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
         `activeNegativeSignals: ${activeNegativeSignals.length}`,
@@ -1122,7 +1125,10 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         `seedPromotionReadiness.v1.proposableSeeds: ${seedObservation.proposableSeeds.length}`,
         `seedPromotionReadiness.v1.blockedSeeds: ${seedObservation.blockingSeeds.length}`,
         `seedPromotionReadiness.v1.runtimeConsumptionStatus: ${runtimeConsumption.status}`,
-        `seedPromotionReadiness.v2.posture: disabled-by-default/fail-closed`,
+        `seedPromotionReadiness.v2.posture: evidence-activated/apply-eligible-candidates`,
+        `seedPromotionReadiness.v2.activationPolicyDigest: ${autoPromotion.activationPolicy?.policyDigest ?? 'missing'}`,
+        `seedPromotionReadiness.v2.eligibleCandidates: ${autoPromotion.candidateGuards.filter((guard) => guard.eligible).length}`,
+        `seedPromotionReadiness.v2.blockedCandidates: ${autoPromotion.blockedCount}`,
         `settlementHealth: ${healthRows.events.length}`,
         ...healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit)
           .map((event) => `  - ${event.observedAt} settlementStatus: ${event.settlementStatus ?? 'n/a'} story=${event.storyId ?? 'n/a'} ${event.message}`),
@@ -1199,19 +1205,20 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * M8 guard: future V2 auto activation remains disabled-by-default and
-     * fail-closed. Dry-run explains prerequisites; apply never activates here.
+     * Evidence-activated advisory promotion. Dry-run explains eligibility;
+     * apply activates only candidates whose digest-bound evidence passes.
      */
     playbook_auto_promotion_apply(args: PlaybookAutoPromotionApplyArgs = {}): string {
       const apply = normalizeOptionalBoolean(args.apply);
       const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
       if (apply && dryRunFlag) throw new Error('playbook_auto_promotion_apply: pass either apply or dryRun, not both');
-      const report = buildPlaybookAutoPromotionApplyReport({
+      const run = (): string => renderPlaybookAutoPromotionApply(buildPlaybookAutoPromotionApplyReport({
         projectRoot: ctx.root,
         store: ctx.store,
         apply,
-      });
-      return renderPlaybookAutoPromotionApply(report, args.json);
+      }), args.json);
+      if (!apply) return run();
+      return withPlaybookWriteLock(ctx, 'playbook_auto_promotion_apply', run);
     },
 
     /**

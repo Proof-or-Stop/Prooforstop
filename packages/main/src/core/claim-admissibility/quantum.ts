@@ -2,9 +2,10 @@ import { createHash } from 'node:crypto';
 
 export const QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.quantum_claim_admissibility.v1' as const;
 export const QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.quantum_claim_admissibility_verifier.v1' as const;
+export const QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION = 'lattice.quantum_verifier_adapter_output.v1' as const;
 
 export const QUANTUM_RUNTIME_STATUS =
-  'Quantum claim-admissibility runtime status: M0-M1 implemented; M2-M5 pending.' as const;
+  'Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending.' as const;
 
 export const QUANTUM_BOUNDARY_PARAGRAPH =
   'Proof-or-Stop for computational quantum mechanics is a local claim-admissibility control layer. It checks whether a stated quantum-simulation claim has current, bound evidence before advancing; it does not prove quantum mechanics, validate physical systems or hardware, improve solvers, make production deployment claims, or act as Authority.';
@@ -96,6 +97,92 @@ export interface QuantumVerifierReceipt {
   stale?: boolean;
   note?: string;
 }
+
+export type QuantumVerifierAdapterId =
+  | 'quantum.hamiltonian-spec'
+  | 'quantum.basis-grid'
+  | 'quantum.solver-output'
+  | 'quantum.normalization'
+  | 'quantum.unitarity-probability-conservation'
+  | 'quantum.convergence'
+  | 'quantum.reference-comparison'
+  | 'quantum.reproducibility'
+  | 'quantum.figure-table-provenance';
+
+export interface QuantumVerifierAdapterClaimBoundary {
+  readonly localOnly: true;
+  readonly scopedComputationalClaim: true;
+  readonly quantumTheoryClaim: false;
+  readonly physicalValidationClaim: false;
+  readonly hardwareValidationClaim: false;
+  readonly solverImprovementClaim: false;
+  readonly productionClaim: false;
+  readonly authorityClaim: false;
+}
+
+export interface QuantumVerifierAdapterEvidenceProfile {
+  readonly evidenceKind: QuantumEvidenceKind;
+  readonly claimIds: readonly QuantumClaimId[];
+  readonly requiredIdentityFields: readonly QuantumIdentityField[];
+  readonly requiresBasisOrGrid?: boolean;
+}
+
+export interface QuantumVerifierAdapterDescriptor {
+  readonly id: QuantumVerifierAdapterId;
+  readonly version: typeof QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION;
+  readonly displayName: string;
+  readonly description: string;
+  readonly executionBoundary: 'read-receipt-only';
+  readonly supportedOutputVersions: readonly [typeof QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION];
+  readonly evidenceProfiles: readonly QuantumVerifierAdapterEvidenceProfile[];
+  readonly claimBoundary: QuantumVerifierAdapterClaimBoundary;
+}
+
+export interface QuantumVerifierAdapterOutput {
+  readonly adapterId: QuantumVerifierAdapterId | string;
+  readonly outputVersion: typeof QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION | string;
+  readonly evidenceKind: QuantumEvidenceKind | string;
+  readonly status: 'pass' | 'fail';
+  readonly exitCode: number;
+  readonly identity?: Partial<QuantumEvidenceIdentity>;
+  readonly verifierScriptHash?: string;
+  readonly outputDigest?: string;
+  readonly observedAt?: string;
+  readonly stale?: boolean;
+  readonly note?: string;
+}
+
+export type QuantumVerifierNormalizationFailureCode =
+  | 'unknown_adapter_id'
+  | 'unsupported_output_version'
+  | 'unsupported_evidence_kind'
+  | 'missing_output_identity'
+  | 'missing_active_identity'
+  | 'missing_basis_or_grid_identity'
+  | 'identity_mismatch'
+  | 'stale_output'
+  | 'output_status_not_pass'
+  | 'output_exit_nonzero'
+  | 'verifier_script_mismatch'
+  | 'output_digest_missing'
+  | 'output_digest_mismatch';
+
+export type QuantumVerifierNormalizationResult =
+  | {
+      readonly ok: true;
+      readonly status: 'normalized';
+      readonly adapterId: QuantumVerifierAdapterId;
+      readonly evidenceKind: QuantumEvidenceKind;
+      readonly receipt: QuantumVerifierReceipt;
+    }
+  | {
+      readonly ok: false;
+      readonly status: 'blocked';
+      readonly adapterId?: string;
+      readonly evidenceKind?: string;
+      readonly reason: QuantumVerifierNormalizationFailureCode;
+      readonly reasons: readonly string[];
+    };
 
 export type QuantumRequestedStrength =
   | 'scoped'
@@ -284,6 +371,194 @@ function reason(code: QuantumReasonPrefix, subject?: string): string {
   return subject ? `${code}:${subject}` : code;
 }
 
+function normalizationReason(code: QuantumVerifierNormalizationFailureCode, subject?: string): string {
+  return subject ? `${code}:${subject}` : code;
+}
+
+const QUANTUM_VERIFIER_ADAPTER_CLAIM_BOUNDARY: QuantumVerifierAdapterClaimBoundary = Object.freeze({
+  localOnly: true,
+  scopedComputationalClaim: true,
+  quantumTheoryClaim: false,
+  physicalValidationClaim: false,
+  hardwareValidationClaim: false,
+  solverImprovementClaim: false,
+  productionClaim: false,
+  authorityClaim: false,
+});
+
+function freezeQuantumEvidenceProfile(profile: QuantumVerifierAdapterEvidenceProfile): QuantumVerifierAdapterEvidenceProfile {
+  return Object.freeze({
+    ...profile,
+    claimIds: Object.freeze([...profile.claimIds]),
+    requiredIdentityFields: Object.freeze([...profile.requiredIdentityFields]),
+  });
+}
+
+function defineQuantumVerifierAdapter(
+  descriptor: Omit<QuantumVerifierAdapterDescriptor, 'claimBoundary' | 'supportedOutputVersions' | 'evidenceProfiles'>
+    & { readonly evidenceProfiles: readonly QuantumVerifierAdapterEvidenceProfile[] },
+): QuantumVerifierAdapterDescriptor {
+  return Object.freeze({
+    ...descriptor,
+    supportedOutputVersions: Object.freeze([QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION]) as readonly [typeof QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION],
+    evidenceProfiles: Object.freeze(descriptor.evidenceProfiles.map((profile) => freezeQuantumEvidenceProfile(profile))),
+    claimBoundary: QUANTUM_VERIFIER_ADAPTER_CLAIM_BOUNDARY,
+  });
+}
+
+export const QUANTUM_VERIFIER_ADAPTER_DESCRIPTORS: readonly QuantumVerifierAdapterDescriptor[] = Object.freeze([
+  defineQuantumVerifierAdapter({
+    id: 'quantum.hamiltonian-spec',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Hamiltonian/spec verifier adapter',
+    description: 'Descriptor for hash-bound Hamiltonian, potential, domain, and boundary-condition freeze receipts.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'hamiltonian-freeze',
+        claimIds: ['Q1'],
+        requiredIdentityFields: ['hamiltonianHash', 'potentialHash', 'domainHash', 'boundaryConditionHash'],
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.basis-grid',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Basis/grid verifier adapter',
+    description: 'Descriptor for basis, grid, discretization, and tolerance-policy freeze receipts.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'basis-grid-freeze',
+        claimIds: ['Q2'],
+        requiredIdentityFields: ['discretizationHash', 'tolerancePolicyHash'],
+        requiresBasisOrGrid: true,
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.solver-output',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Solver output verifier adapter',
+    description: 'Descriptor for solver-run and energy/eigenvalue output receipts bound to the active computational identity.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'solver-run',
+        claimIds: ['Q4'],
+        requiredIdentityFields: ['hamiltonianHash'],
+      },
+      {
+        evidenceKind: 'energy-eigenvalue',
+        claimIds: ['Q5'],
+        requiredIdentityFields: [
+          'hamiltonianHash',
+          'potentialHash',
+          'domainHash',
+          'boundaryConditionHash',
+          'discretizationHash',
+          'tolerancePolicyHash',
+        ],
+        requiresBasisOrGrid: true,
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.normalization',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Normalization verifier adapter',
+    description: 'Descriptor for wavefunction or state-vector normalization receipts.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'normalization',
+        claimIds: ['Q6'],
+        requiredIdentityFields: ['initialStateHash', 'tolerancePolicyHash'],
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.unitarity-probability-conservation',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Unitarity/probability-conservation verifier adapter',
+    description: 'Descriptor for timestep-bound norm-drift and probability-conservation receipts.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'unitarity',
+        claimIds: ['Q7'],
+        requiredIdentityFields: ['initialStateHash', 'timeStepHash', 'tolerancePolicyHash'],
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.convergence',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Convergence verifier adapter',
+    description: 'Descriptor for grid or basis refinement receipts scoped to declared tolerances.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'convergence',
+        claimIds: ['Q9'],
+        requiredIdentityFields: ['hamiltonianHash', 'discretizationHash', 'tolerancePolicyHash'],
+        requiresBasisOrGrid: true,
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.reference-comparison',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Reference comparison verifier adapter',
+    description: 'Descriptor for baseline/reference comparison receipts bound to shared metrics and identities.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'reference-comparison',
+        claimIds: ['Q10'],
+        requiredIdentityFields: ['hamiltonianHash', 'referenceDataHash', 'tolerancePolicyHash', 'metricDefinitionHash'],
+        requiresBasisOrGrid: true,
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.reproducibility',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Reproducibility verifier adapter',
+    description: 'Descriptor for rerun/stability receipts under the same solver identity and tolerance policy.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'reproducibility',
+        claimIds: ['Q11'],
+        requiredIdentityFields: ['hamiltonianHash', 'tolerancePolicyHash'],
+      },
+    ],
+  }),
+  defineQuantumVerifierAdapter({
+    id: 'quantum.figure-table-provenance',
+    version: QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Figure/table provenance verifier adapter',
+    description: 'Descriptor for plot/table receipts bound to source run, plot script, and plot configuration identity.',
+    executionBoundary: 'read-receipt-only',
+    evidenceProfiles: [
+      {
+        evidenceKind: 'figure-table-provenance',
+        claimIds: ['Q12'],
+        requiredIdentityFields: ['plotScriptHash', 'sourceRunId', 'plotConfigHash'],
+      },
+    ],
+  }),
+]);
+
+export function listQuantumVerifierAdapterDescriptors(): readonly QuantumVerifierAdapterDescriptor[] {
+  return QUANTUM_VERIFIER_ADAPTER_DESCRIPTORS;
+}
+
+export function getQuantumVerifierAdapterDescriptor(id: string): QuantumVerifierAdapterDescriptor | undefined {
+  return QUANTUM_VERIFIER_ADAPTER_DESCRIPTORS.find((adapter) => adapter.id === id);
+}
+
 function stableStringify(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map((item) => stableStringify(item)).join(',')}]`;
@@ -371,6 +646,176 @@ function fieldValue(identity: unknown, field: QuantumIdentityField): string | un
   if (!isRecord(identity)) return undefined;
   const value = identity[field];
   return isNonEmptyString(value) ? value : undefined;
+}
+
+function normalizationBlocked(
+  code: QuantumVerifierNormalizationFailureCode,
+  options: {
+    readonly adapterId?: string;
+    readonly evidenceKind?: string;
+    readonly subject?: string;
+  } = {},
+): QuantumVerifierNormalizationResult {
+  return Object.freeze({
+    ok: false,
+    status: 'blocked',
+    adapterId: options.adapterId,
+    evidenceKind: options.evidenceKind,
+    reason: code,
+    reasons: Object.freeze([normalizationReason(code, options.subject ?? options.evidenceKind ?? options.adapterId)]),
+  });
+}
+
+function evidenceProfileFor(
+  adapter: QuantumVerifierAdapterDescriptor,
+  evidenceKind: string,
+): QuantumVerifierAdapterEvidenceProfile | undefined {
+  if (!isKnownEvidenceKind(evidenceKind)) return undefined;
+  return adapter.evidenceProfiles.find((profile) => profile.evidenceKind === evidenceKind);
+}
+
+function hasBasisOrGridIdentity(identity: unknown): boolean {
+  return Boolean(fieldValue(identity, 'basisSetHash') || fieldValue(identity, 'gridHash'));
+}
+
+function identityFieldsForProfile(
+  profile: QuantumVerifierAdapterEvidenceProfile,
+  activeIdentity: Partial<QuantumEvidenceIdentity> | undefined,
+): readonly QuantumIdentityField[] {
+  const fields: QuantumIdentityField[] = [...QUANTUM_CORE_IDENTITY_FIELDS, ...profile.requiredIdentityFields];
+  if (profile.requiresBasisOrGrid === true) {
+    if (fieldValue(activeIdentity, 'basisSetHash')) fields.push('basisSetHash');
+    if (fieldValue(activeIdentity, 'gridHash')) fields.push('gridHash');
+  }
+  return [...new Set(fields)];
+}
+
+function normalizationFieldSubject(evidenceKind: string, field: QuantumIdentityField): string {
+  return `${evidenceKind}.${field}`;
+}
+
+export function normalizeQuantumVerifierAdapterOutput(
+  output: QuantumVerifierAdapterOutput,
+  activeIdentity: Partial<QuantumEvidenceIdentity> | undefined,
+): QuantumVerifierNormalizationResult {
+  const adapterId = String(output.adapterId);
+  const evidenceKind = String(output.evidenceKind);
+  const adapter = getQuantumVerifierAdapterDescriptor(adapterId);
+  if (!adapter) {
+    return normalizationBlocked('unknown_adapter_id', { adapterId });
+  }
+
+  if (!adapter.supportedOutputVersions.includes(output.outputVersion as typeof QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION)) {
+    return normalizationBlocked('unsupported_output_version', {
+      adapterId,
+      evidenceKind,
+      subject: String(output.outputVersion),
+    });
+  }
+
+  const profile = evidenceProfileFor(adapter, evidenceKind);
+  if (!profile) {
+    return normalizationBlocked('unsupported_evidence_kind', { adapterId, evidenceKind });
+  }
+
+  if (output.status !== 'pass') {
+    return normalizationBlocked('output_status_not_pass', { adapterId, evidenceKind });
+  }
+  if (output.exitCode !== 0) {
+    return normalizationBlocked('output_exit_nonzero', { adapterId, evidenceKind });
+  }
+  if (output.stale === true) {
+    return normalizationBlocked('stale_output', { adapterId, evidenceKind });
+  }
+
+  const outputIdentity = output.identity;
+  if (!isRecord(outputIdentity)) {
+    return normalizationBlocked('missing_output_identity', { adapterId, evidenceKind });
+  }
+
+  if (profile.requiresBasisOrGrid === true) {
+    if (!hasBasisOrGridIdentity(activeIdentity)) {
+      return normalizationBlocked('missing_basis_or_grid_identity', {
+        adapterId,
+        evidenceKind,
+        subject: `${evidenceKind}.active`,
+      });
+    }
+    if (!hasBasisOrGridIdentity(outputIdentity)) {
+      return normalizationBlocked('missing_basis_or_grid_identity', {
+        adapterId,
+        evidenceKind,
+        subject: `${evidenceKind}.output`,
+      });
+    }
+  }
+
+  for (const field of identityFieldsForProfile(profile, activeIdentity)) {
+    if (field === 'verifierScriptHash' || field === 'outputDigest') continue;
+    const activeValue = fieldValue(activeIdentity, field);
+    const outputValue = fieldValue(outputIdentity, field);
+    if (!activeValue) {
+      return normalizationBlocked('missing_active_identity', {
+        adapterId,
+        evidenceKind,
+        subject: normalizationFieldSubject(evidenceKind, field),
+      });
+    }
+    if (!outputValue) {
+      return normalizationBlocked('missing_output_identity', {
+        adapterId,
+        evidenceKind,
+        subject: normalizationFieldSubject(evidenceKind, field),
+      });
+    }
+    if (activeValue !== outputValue) {
+      return normalizationBlocked('identity_mismatch', {
+        adapterId,
+        evidenceKind,
+        subject: normalizationFieldSubject(evidenceKind, field),
+      });
+    }
+  }
+
+  const activeVerifierScriptHash = fieldValue(activeIdentity, 'verifierScriptHash');
+  const identityVerifierScriptHash = fieldValue(outputIdentity, 'verifierScriptHash');
+  const outputVerifierScriptHash = isNonEmptyString(output.verifierScriptHash) ? output.verifierScriptHash : undefined;
+  if (
+    !activeVerifierScriptHash
+    || !identityVerifierScriptHash
+    || !outputVerifierScriptHash
+    || activeVerifierScriptHash !== identityVerifierScriptHash
+    || activeVerifierScriptHash !== outputVerifierScriptHash
+  ) {
+    return normalizationBlocked('verifier_script_mismatch', { adapterId, evidenceKind });
+  }
+
+  const activeOutputDigest = fieldValue(activeIdentity, 'outputDigest');
+  const identityOutputDigest = fieldValue(outputIdentity, 'outputDigest');
+  const outputDigest = isNonEmptyString(output.outputDigest) ? output.outputDigest : undefined;
+  if (!activeOutputDigest || !identityOutputDigest || !outputDigest) {
+    return normalizationBlocked('output_digest_missing', { adapterId, evidenceKind });
+  }
+  if (activeOutputDigest !== identityOutputDigest || activeOutputDigest !== outputDigest) {
+    return normalizationBlocked('output_digest_mismatch', { adapterId, evidenceKind });
+  }
+
+  return Object.freeze({
+    ok: true,
+    status: 'normalized',
+    adapterId: adapter.id,
+    evidenceKind: profile.evidenceKind,
+    receipt: Object.freeze({
+      evidenceKind: profile.evidenceKind,
+      status: 'pass',
+      exitCode: 0,
+      identity: Object.freeze({ ...output.identity }),
+      verifierScriptHash: outputVerifierScriptHash,
+      outputDigest,
+      observedAt: output.observedAt,
+      note: output.note,
+    }),
+  });
 }
 
 function completeIdentity(): QuantumEvidenceIdentity {

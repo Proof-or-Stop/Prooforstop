@@ -1,0 +1,271 @@
+{
+  "findings": [
+    {
+      "id": "B-7ee1:F-001",
+      "desc": "Stale docs still describe advisory auto-promotion as future/default-off/feature-flag gated instead of the B-7ee1 evidence-activated apply path. In playbook-promotion-worker-execution-plan.md, the status/summary and V1 activation paragraphs still say candidate-to-active mutation remains future work or behind an explicit feature flag (for example lines 3-5, 33-34, 137-141, and 665-666), while the new section says evidence-activated promotion is not controlled by a default-off ordinary-use flag. In source-lineage-dedup-playbook-seed-promotion-execution-plan.md, the updated M8 section is correct, but acceptance/safety text still says automatic advisory activation is disabled by default or requires an explicit feature flag (lines 485-486 and 525-527). This leaves the touched decision docs internally inconsistent with the intended boundary: promotion sweep only recommends; separate playbook_auto_promotion_apply may activate only after reviewed policy, current digest, applied recommend_activate decision, explicit exposure/outcome evidence, clean lineage, and rollback readiness, while remaining non-authoritative and non-gate evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:41:57.196Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-002",
+      "_hash": "e645c26ad07a1a7587b05f55eac06332572544376e0a770410658bc5cf837d43",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|stale-docs-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed stale docs in a09ef69f/c22e761. Decision docs now state promotion sweep remains recommendation-only and playbook_auto_promotion_apply is a separate evidence-activated non-authoritative apply path; grep confirms touched docs no longer present old PLAYBOOK_AUTO_ACTIVE/default-off/future-only wording.",
+      "resolvedAt": "2026-07-02T23:00:29.874Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-002",
+      "desc": "Evidence-activation smoke is not wired into the routine test surfaces: neither packages/main/package.json nor packages/main/smoke-manifest.json references playbook-evidence-activation-smoke or the delegated playbook-seed-promotion-loop smoke, so the new coverage can be skipped by normal package smoke commands/run-all-smokes despite the file existing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:42:52.364Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-001",
+      "_hash": "34432cb4cb3f046aa172229701accfcbaaef125d734b467c97575eb563360286",
+      "files": [
+        "packages/main/package.json",
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/tasks/playbook-evidence-activation-smoke.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "missing|json|evidence-activation-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f by adding package script test:playbook-evidence-activation and smoke-manifest entry playbook-evidence-activation. Verified with npm --prefix packages/main run test:playbook-evidence-activation and node packages/main/dist/tasks/run-all-smokes.js --select playbook-evidence-activation --jobs 1.",
+      "resolvedAt": "2026-07-02T23:00:44.827Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-003",
+      "desc": "M8 coverage does not exercise the fail-closed path where a candidate has enough real helped/exposure outcomes to evaluate as recommend_activate but no applied recommend_activate decision row exists. The smoke records three helped outcomes and immediately runs playbook_promotion_sweep before calling playbook_auto_promotion_apply, so a regression that activated on outcomes alone would not be caught. The same block also only checks second-apply idempotency after the playbook is already active, not the digest-bound activation idempotency/audit key branch for an already-recorded activation row while the candidate remains candidate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:43:15.162Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-001",
+      "_hash": "03af27a8c55aebb2dff9ab2d7fb564abbaded20f294bd23db3d716c265ed05d8",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/core/playbook-seed.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-exercise-fail",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f/c22e761 by extending playbook-seed-promotion-loop-smoke: sufficient helped/exposure outcomes without applied recommend_activate fail closed; already-recorded activation audit while candidate remains candidate blocks activation; malformed activation ledger fails closed and leaves candidate candidate. Verified by playbook-evidence-activation smoke.",
+      "resolvedAt": "2026-07-02T23:00:29.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-004",
+      "desc": "playbook_auto_promotion_apply writes playbooks.json before appending playbook-auto-activations.jsonl. If the activation audit append fails, for example because the existing audit JSONL contains a malformed/truncated row that readPlaybookAutoActivationEvents skips but atomicAppendCanonicalJsonLine later refuses to rewrite, the command can leave the candidate persisted as active without the required append-only activation audit row. This violates the story requirement that every activation be digest-bound, auditable, and append-only, and it also breaks later idempotency/demotion provenance because the active playbook no longer has an auto-activation record.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:37.792Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-003",
+      "_hash": "453444bb486329f13a05d9d19cae7e803f2160619052a24bf368f6b6f4c95e5e",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-auto-promotion",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c22e761. Apply now preflights activation-audit append path before mutating playbooks, writes active status, appends/verifies activation audit, and rolls back playbooks if audit append/verification fails. Smoke covers malformed activation JSONL leaving candidate status candidate with no valid activation row.",
+      "resolvedAt": "2026-07-02T23:00:49.540Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-005",
+      "desc": "B-7ee1 introduces playbook-auto-activations.jsonl as a new derived learning artifact with lineageCanonicalSourceKey, decision digest, policy digest, and gateEvidence=false, but SourceLineageArtifactKind and buildLearningSourceLineageAudit still collect only dev_memory, finding_signal, finding, playbook_proposal, playbook, playbook_outcome, and playbook_promotion_decision. As a result source_lineage_audit no longer audits every learning artifact created by the playbook promotion loop, cannot report malformed/missing lineage for activation rows, and the source-lineage smoke does not assert coverage for the new audit artifact kind.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T22:43:45.018Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "reviewRunId": "B-7ee1:RR-003",
+      "_hash": "fd7f68f47a2ca6e5f9162e89458ad4fe92437ba68ad8e2df0f5df9f91a42e401",
+      "files": [
+        "packages/main/src/core/experience-layer-types.ts",
+        "packages/main/src/core/source-lineage-audit.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/tasks/source-lineage-audit-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|7ee1-introduces-playbook",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a09ef69f. Added playbook_auto_activation to SourceLineageArtifactKind and buildLearningSourceLineageAudit, with source-lineage-audit-smoke coverage for collector and malformed store diagnostics. Verified by node packages/main/dist/tasks/source-lineage-audit-smoke.js.",
+      "resolvedAt": "2026-07-02T23:00:53.554Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-006",
+      "desc": "B-7ee1:F-001 resolved: docs no longer describe advisory auto-promotion as future/default-off/feature-flag gated. The touched decision docs now state promotion sweep remains recommendation-only and playbook_auto_promotion_apply is the separate evidence-activated, non-authoritative apply path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Stale wording removed/updated in commit a09ef69f and c22e761; rg no longer finds PLAYBOOK_AUTO_ACTIVE/default-off/future-only wording in the two touched docs except test guard references elsewhere.",
+        "sourceRefs": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+        ],
+        "reproCommand": "rg \"PLAYBOOK_AUTO_ACTIVE|disabled by default|disabled-by-default|future-only|auto-active promotion|automatic candidate-to-active mutation remain future\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md packages/main/src -n"
+      },
+      "agent": "main-agent",
+      "createdAt": "2026-07-02T22:58:25.488Z",
+      "reviewRound": "2026-07-02T22:39:58.811Z",
+      "_hash": "961574bc9f79b36653279c86ea3f50ed47f4948359f037fbf59e8630414fce80",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary-docs-stale-resolved",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded/cleanup: F-006 was an accidental disproven counter-evidence finding created by the main agent before finding_resolve was identified. The original F-001 is resolved directly; F-006 is not an independent issue.",
+      "resolvedAt": "2026-07-02T23:01:00.061Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-007",
+      "desc": "playbook-promotion-worker-execution-plan.md still has stale M8/backlog text after the B-7ee1 docs fix. Lines 922-936 keep \"Future Auto Active And Timer\", \"optional automatic advisory activation\", \"disabled flag causes no-op\", and \"auto-active remains advisory\"; lines 964-997 say V2+ still needs separate acceptance criteria for auto-active advisory promotion, suggest M8 auto-active/timer later, and leave the review path before enabling automatic active advisory promotion as an open question. That contradicts the same doc lines 139-144 and 668-708, plus source-lineage doc lines 323-353/472-489/528-532, which define the current boundary: promotion sweep remains recommendation-only, while the separate playbook_auto_promotion_apply evidence-activated apply path may activate only qualifying advisory candidates and remains non-authoritative/gateEvidence=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T23:03:35.960Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-009",
+      "_hash": "4b775796ff636df60fb50bd1d89530ae06c4ec56978a860dc28cc3e63edc1710",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary-docs-stale-m8-auto-active-future",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 277fe1596. The stale M8/backlog text in playbook-promotion-worker-execution-plan.md now describes playbook_auto_promotion_apply as the current evidence-activated advisory apply writer, while promotion sweep remains recommendation-only and the activated guidance remains non-authoritative/gateEvidence=false. Stale-doc grep returns no docs matches except the intentional smoke assertion that PLAYBOOK_AUTO_ACTIVE_ENABLED is not part of the activation contract.",
+      "resolvedAt": "2026-07-02T23:10:37.599Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-008",
+      "desc": "DONE-settlement-labelled helped rows can still contribute to evidence-activation thresholds when mixed with one real outcome. buildPlaybookAutoPromotionApplyReport excludes verdictSource=done-settlement only from the realOutcomeCount/exposure guard, but aggregatePlaybookPromotion counts any helped row with exposureMode!=none and a structured verdictSource. A temp fixture with two helped done-settlement candidate-inspection rows plus one reviewer helped row produced eligible=true, blockers=[], recommendation=recommend_activate, helpedCount=3, decisiveSamples=3, realOutcomeCount=1. This violates the B-7ee1 concept boundary that story DONE/DONE settlement must not be helped evidence and that DONE-settlement rows cannot make an advisory candidate activation-eligible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-02T23:05:22.299Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-006",
+      "_hash": "3b48c5e96e62b88ab8694f52d5eee2d2d5474518178acbf43b5e084bca82868e",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|settlement-labelled-helped",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 277fe1596. DONE-settlement verdictSource rows are excluded from promotion decisive/helped/dismissed/harmful/wrong-claim evidence and candidate consumption evidence. Smoke now proves helped done-settlement rows with concrete exposure plus one real neutral reviewer exposure cannot produce recommend_activate or eligible=true. Verified by npm --prefix packages/main run test:playbook-evidence-activation (14/14).",
+      "resolvedAt": "2026-07-02T23:10:42.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-009",
+      "desc": "playbook_auto_promotion_apply can activate from DONE-settlement helped rows because aggregatePlaybookPromotion counts any structured helped outcome as decisive at learning-store.ts:819-823 and 1076-1095, while the activation guard in playbook-seed.ts:1080-1096 only requires at least one non-DONE real exposure row separately. A candidate with three helped verdictSource=done-settlement rows plus one neutral reviewer exposure gets playbook_promotion_sweep recommend_activate and dry-run eligible=true with no blockers; a hermetic dist repro returned decisiveSamples=3 helpedCount=3 realOutcomeCount=1 exposureCount=1. This violates the CHK-001/CHK-004 contract that DONE settlement rows and story DONE cannot contribute to activation evidence; the current smoke only covers neutral done-settlement rows and does not catch helped done-settlement rows with non-none exposure.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:05:41.348Z",
+      "reviewRound": "2026-07-02T23:00:09.833Z",
+      "reviewRunId": "B-7ee1:RR-007",
+      "_hash": "426928ad940cdf80b117128ace844ffeea86ab81e4acee55534592ca176ab0eb",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|playbook-auto-promotion",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 277fe1596. Aggregation/evaluator no longer counts verdictSource=done-settlement rows as decisive activation evidence, so story DONE/DONE settlement cannot make an advisory candidate activation-eligible even when mixed with a real neutral exposure. Verified by test:playbook-evidence-activation and source-lineage-audit-smoke.",
+      "resolvedAt": "2026-07-02T23:10:46.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-010",
+      "desc": "playbook-promotion-worker-execution-plan.md still contains one stale future-worded auto-active open question after fix 277fe1596. Lines 1008-1009 ask what review path is required before enabling automatic active advisory promotion, which implies the current advisory apply path is still not enabled. That conflicts with the same doc boundary at lines 140-144, 668-708, and 922-945: promotion sweep remains recommendation-only, while playbook_auto_promotion_apply is the current evidence-activated advisory candidate-to-active apply writer, requiring reviewed policy/current digest/applied recommend_activate/explicit non-DONE exposure and outcome evidence/clean lineage/rollback readiness, and remaining non-authoritative with gateEvidence:false and no production or gate evidence authority. Recast this open question around future timer-driven or trial-serving promotion variants, or future changes to the reviewed activation policy, rather than enabling the current apply writer.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T23:12:44.883Z",
+      "reviewRound": "2026-07-02T23:10:29.584Z",
+      "reviewRunId": "B-7ee1:RR-013",
+      "_hash": "e519e64edd9b2782f188a05cc6b90ff5bb328140b1fe78c5ef64445a4515bd35",
+      "files": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary-docs-stale-auto-active-open-question",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in d9c541b9. The open question no longer frames the current evidence-activated apply writer as not enabled; it now scopes future review questions to timer-driven/trial-serving variants or reviewed policy changes beyond the current playbook_auto_promotion_apply boundary. Grep for the stale automatic active advisory promotion wording returns no matches.",
+      "resolvedAt": "2026-07-02T23:20:52.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ee1:F-011",
+      "desc": "Duplicate playbook outcome idempotency keys are counted as distinct promotion evidence. appendPlaybookOutcomeEvent/playbook_outcome_record appends repeated idempotencyKey rows without rejecting or deduping them, and aggregatePlaybookPromotion counts every valid row. I reproduced a temp project with two rows using idempotencyKey=same-key plus one other helped row; aggregate returned helpedCount=3, decisiveSamples=3, contextClassCount=2, and evaluatePlaybookPromotion returned recommend_activate even though there were only two unique outcome keys. This breaks M8 aggregation/idempotency: retries or duplicate outcome submissions can satisfy activation thresholds and then playbook_auto_promotion_apply treats the duplicated rows as real outcome evidence. Count unique idempotency keys, or fail closed on duplicate outcome idempotency keys before aggregation/apply.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:15:43.517Z",
+      "reviewRound": "2026-07-02T23:10:29.584Z",
+      "reviewRunId": "B-7ee1:RR-011",
+      "_hash": "187eb7741eda913557ca9b3752e033903bf931d3afb3390f612411f85abcf64a",
+      "files": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "packages/main/src/core/playbook-seed.ts"
+      ],
+      "signatureTag": "edge|ts|duplicate-playbook-outcome",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d9c541b9. appendPlaybookOutcomeEvent now no-ops for an existing valid idempotencyKey, and aggregatePlaybookPromotion dedupes valid outcome rows by idempotencyKey before counting, so historical duplicate rows cannot satisfy activation thresholds. Smoke covers duplicate append and duplicate historical aggregate rows. Verified by build, test:playbook-evidence-activation, and source-lineage-audit-smoke.",
+      "resolvedAt": "2026-07-02T23:20:57.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

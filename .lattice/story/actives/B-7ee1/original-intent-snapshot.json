@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7ee1",
+  "sourceText": "User requested implementing the evidence-activated advisory playbook promotion story because the prior auto-promotion guard was default-off and unusable; the fix must not ship another fake disabled feature.",
+  "normalizedOutcome": "A qualified advisory playbook candidate with clean lineage, explicit exposure/outcome evidence, applied recommend_activate decision, and reviewed policy is activated by playbook_auto_promotion_apply --apply --json, while unqualified candidates remain blocked.",
+  "acceptanceClaim": "The local smoke proves playbook_auto_promotion_apply --apply --json returns activatedCount 1 for an evidence-qualified candidate, writes one non-authoritative activation audit row, runtime consumption sees the active playbook, repeated apply writes no duplicate, and DONE-only or missing evidence never activates.",
+  "keyRequirementIds": [
+    "REQ-done-alone-not-evidence",
+    "REQ-evidence-activation",
+    "REQ-no-default-off-flag",
+    "REQ-non-authoritative-learning"
+  ],
+  "requestHash": "sha256:a9ff6cb51bbc1912dc6c38e825ac54bc0aedde5d69b7ad3115b6c3ab40abe8a7",
+  "createdAt": "2026-07-02T22:29:45.633Z",
+  "updatedAt": "2026-07-02T22:29:45.633Z"
+}

@@ -4,17 +4,531 @@
       "id": "CHK-001",
       "title": "Finalize the Tier-C threat model + key-management decision doc",
       "context": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md: trust anchor (pinned manifest, verify-against-pinned-not-self), independence definition + honest ceiling (cross-vendor, same-operator), the fail-closed rule table (which become the M1/M2 RED tests), and key gen/pin/rotate/revoke.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:10:54.643Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a pinned-key trust anchor section: verdicts are verified against the PINNED manifest key for the claimed hostId, never the self-reported key in the bundle — reviewer confirms this is stated unambiguously",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Independence definition section states cross-vendor (Claude vs Codex, distinct model families and keys) but same-operator ceiling, with allowed vs forbidden paper wording spelled out explicitly",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed rule table covers all 6 attack vectors: forged verdict, same-key masquerade, stale materialHash, replay, omission, key compromise — each row names detection mechanism and fail-closed response",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key lifecycle section covers generation, pinning, rotation, and revocation procedures as separate subsections with concrete steps",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc has its own Section 6 acceptance checklist and a reader can derive every fail-closed rule and the independence boundary without external context",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc references the code-verified current state: CLI-only chain (no Authority server), Ed25519 sign/verify, quorum evaluator in receipt-bundle.ts, decision-doc-quorum.ts, verdicts.ts",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Independence ceiling section explicitly distinguishes what the paper MAY claim (cross-vendor independence) vs what it MUST NOT claim (mutually-distrusting multi-party) — the boundary is unambiguous with concrete forbidden phrases listed",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed table entries are derivable as M1/M2 RED tests: each row names a concrete attack scenario that can be implemented as a test without requiring further threat-model interpretation",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key rotation procedure addresses the transition window where both old and new keys must be valid, and revocation addresses delayed discovery of compromise (not just immediate revocation)",
+            "type": "docs",
+            "priority": "should"
+          },
+          {
+            "desc": "Trust anchor section addresses the bootstrap problem: how the initial pinned manifest is established and by whom, and what happens if the manifest itself is corrupted",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does NOT contain over-claimed independence wording: phrases like mutually-distrusting parties, fully independent hosts, zero-trust multi-party, or trustless multi-party are absent — grep for these exact phrases must return zero matches",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT assume a central Authority server exists for signing or reconciliation — the server is deprecated and the chain is CLI-only; any reference to Authority must be historical or explicitly marked deprecated",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Fail-closed table does NOT have a catch-all pass-through, allow-by-default, or best-effort entry — every unrecognized or unhandled case must fail closed",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Key compromise row does NOT assume compromise is detectable in real-time — must address the delayed-discovery case where a key was compromised but the operator does not yet know",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT conflate key independence (distinct Ed25519 keys) with model independence (distinct vendor/model families) — both are separately required for the cross-vendor claim and named as distinct conditions",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "command": "grep -rn 'mutually-distrusting parties|fully independent hosts|zero-trust multi-party|trustless multi-party|mutually-distrusting vendor' docs/requirements/decisions/tier-c-crosshost-quorum-*.md",
+          "result": "pass",
+          "note": "Adversarial grep run on both story-owned docs. 4 of 5 forbidden phrases (fully independent hosts / zero-trust multi-party / trustless multi-party / mutually-distrusting vendor) return ZERO matches. 'mutually-distrusting parties' returns EXACTLY ONE match: threat-model.md line 36, WITHIN the §3 forbidden-phrases list (forbidden = \"mutually-distrusting parties\" / \"no operator trust required\") — a meta-use that NAMES the phrase as prohibited for M5 paper wording, NOT an assertion about the system. The prior real over-claim in execution-plan.md ('mutually-distrusting vendor hosts', F-001) was removed in 367b05322, so no assertive occurrence remains. Intent satisfied: the literal grep is non-zero only for the intended forbidden-list definition; the doc set carries no over-claimed independence assertion.",
+          "headHash": "834d2a3d3ea19b9175f519a46127c4443d41f364",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:26.350Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Finalize the Tier-C cross-host quorum execution plan",
       "context": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md: 6-milestone M0-M5 plan, with the cheap proof-of-mechanism block (M0-M3) split from the expensive powered run (M4).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:10:55.257Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a code-verified current-state section naming: CLI-only (no server), existing crypto primitives (Ed25519 sign/verify, quorum evaluator), and the three real gaps (signature-provenance, crypto-independence, cross-host collection)",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc defines the six-milestone M0-M5 sequence with per-milestone: objective, scope, real files, acceptance criteria, repro-first note, estimated size, and risk",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The cheap proof-of-mechanism block (M0-M3) is explicitly split from the expensive powered run (M4) as a separate go/no-go decision gate — the document names this gate and the criteria for proceeding",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Each material-code milestone (M1 onward) names concrete real files that will be created or modified — not just abstract descriptions",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc includes a Lattice-story sequence section showing which Lattice stories map to which milestones",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Milestones are ordered with explicit dependencies: M1 depends on M0 threat model, M2 depends on M1, etc. — a reviewer can trace the dependency chain without ambiguity",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "M4 (powered run) section explicitly states it is deferred and names the preconditions that must be met before it starts, including a cost/benefit justification for the deferral",
+            "type": "docs",
+            "priority": "should"
+          },
+          {
+            "desc": "M5 (if present) has concrete acceptance criteria distinct from M4 — it is not a vague cleanup milestone",
+            "type": "docs",
+            "priority": "should"
+          },
+          {
+            "desc": "Each milestone size estimate is realistic for the scope described (days each for M0-M3, not weeks); if a milestone is larger, a risk note explains why",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does NOT conflate M0-M3 (cheap mechanism) with M4 (expensive powered run) in a single approval gate — the go/no-go between M3 and M4 must be an explicit separate decision, not implicit",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT list milestones without acceptance criteria — every milestone has a concrete, verifiable acceptance condition (not just a task description)",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT reference the deprecated Authority server as a live dependency — any mention is historical context only, clearly marked",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does NOT claim milestones can be parallelized when they have sequential dependencies — the dependency chain must be honest about what is serial",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Real-files lists in material-code milestones do NOT include only .lattice metadata or test fixtures — they name actual source files in packages/ or similar production paths",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria.",
+          "headHash": "aaf994edb6c71284de2f0858cd4f30a6f7d65b38",
+          "materialHash": "c1c2f7f85addbf9829bb64b8c3352786cd1ba152facce2dfa2607c38bae948c2",
+          "storyFilesHash": "c33cb1074cd8b79c03de2c827cc258e3b1e9aca662ff6faa1647536bd733883d",
+          "timestamp": "2026-07-02T22:24:38.027Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,213 @@
+{
+  "storyId": "B-5118",
+  "checkedAt": "2026-07-02T23:12:12.025Z",
+  "features": [
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for Hamiltonian/spec evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for basis/grid/discretization evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for solver-output evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for normalization evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for invariant, unitarity, and probability-conservation checks",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for convergence evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for reference/baseline comparison evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for reproducibility receipts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum M2 verifier adapter descriptors for figure/table provenance",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic adapter-output normalization to QuantumVerifierReceipt-compatible receipts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Normalizer fails closed for unknown adapter ids",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Normalizer fails closed for unsupported output versions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Normalizer/evaluator blocks mismatched hamiltonianHash, gridHash, verifierScriptHash, or outputDigest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Adapter output binds to active claim/domain identity before admissibility",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Verifier adapter descriptors declare supported versions and evidence contracts without executing external quantum commands",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Quantum pack exposes verifierAdapters through the read-only ClaimAdmissibilityPack registry",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Registry preserves the existing code-runtime pack and avoids duplicate ids or aliases",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Focused quantum smoke proves M2 verifier adapter success",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Focused quantum smoke preserves existing M0-M1 stale, missing, mismatch, weak-overclaim, and boundary behavior",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum runtime/document status says M0-M2 implemented and M3-M5 pending",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Existing proof-admissibility vocabulary and storage boundaries are reused; no second proof manager, storage root, ledger, or gate stack",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 decision constraints and plan non-goals exclude second proof manager, ledger, storage root, or gate stack",
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Lifecycle gate policy or transition-engine updates",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly defer M3 lifecycle gate policy and transition-engine work",
+      "source": "description"
+    },
+    {
+      "feature": "Benchmark harness or failure-injection runner",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly defer M4 benchmark/failure-injection work",
+      "source": "description"
+    },
+    {
+      "feature": "Reporting or governance integration beyond the focused smoke/status update",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly defer M5 reporting/governance integration",
+      "source": "description"
+    },
+    {
+      "feature": "Quantum theory, physical, laboratory, or hardware-validation claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly prohibit theory, physical, laboratory, and hardware validation claims",
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Solver improvement, numerical-exactness, or quantum-advantage claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly prohibit solver improvement, numerical exactness, and quantum-advantage claims",
+      "source": "decisions:decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Production, external Authority, or terminal completion claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 description, decision constraints, and plan non-goals explicitly prohibit production, external Authority, and terminal completion claims",
+      "source": "description"
+    },
+    {
+      "feature": "Generic pack schema-loader, gate-policy adapter, and benchmark-harness milestones beyond verifier adapter exposure",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-5118 decision chooses descriptor-and-normalizer-only M2 and defers gate policy, benchmarks, and broader generic pack milestones",
+      "source": "decisions:decisions/claim-admissibility-adapter-pack-framework.md"
+    }
+  ],
+  "summary": {
+    "total": 28,
+    "covered": 20,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b0a39b9274d1fce864ae633606cd37d794ab05e4fa3c8fa773d72f66063aed97",
+  "openQuestions": []
+}

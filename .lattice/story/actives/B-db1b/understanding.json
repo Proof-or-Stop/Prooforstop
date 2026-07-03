@@ -1,0 +1,36 @@
+{
+  "task": "Implement a local runtime pack that turns the PINN Proof-or-Stop M0-M5 plan into executable schema, verifier, gate, benchmark, and report commands.",
+  "outcome": "After completion, running node bin/lattice.js pinn_benchmark_run --format=json prints suiteStatus PASS, A4 rejectedInjectionCount 15, productionDone false, and boundary text saying this controls claim admissibility but does not prove PDE correctness.",
+  "facts": [
+    "B-2769 already completed a documentation-only PINN plan and explicitly did not deliver runtime code.",
+    "The user asked on 2026-07-02 to start and continue until all M0-M5 work is DONE.",
+    "The runtime pack must remain local-only and must not claim PDE correctness, solver quality, remote Authority completion, or production readiness.",
+    "Existing Proofbound command registration uses registry.ts, command-catalog.ts, command-policy.ts, handlers, core modules, and smoke tasks."
+  ],
+  "constraints": [
+    "Do not run omx or touch .omx/.",
+    "Do not edit unrelated dirty user files in main.",
+    "Use Lattice commands for story metadata and evidence; do not directly edit story JSON.",
+    "Use deterministic local fixtures; no networking, no scientific PINN solver, no production Authority claims.",
+    "Version bump is required because CLI/runtime behavior changes."
+  ],
+  "unknowns": [
+    "Exact command names may be adjusted to match CLI naming conventions before implementation.",
+    "Whether full lattice validate will require unrelated active-story cleanup is unknown until TEST.",
+    "Whether local worktree dependencies require npm install or symlinks before build is unknown until DEV."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/pinn-claim-admissibility.ts",
+    "packages/main/src/handlers/pinn-claim-admissibility.ts",
+    "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "package.json",
+    "packages/main/package.json",
+    "package-lock.json"
+  ],
+  "timestamp": "2026-07-02T18:41:17.834Z"
+}

@@ -1,0 +1,292 @@
+{
+  "passes": [
+    {
+      "id": "B-db1b:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage re-review: B1-B15 corpus matches governing plan, smoke and benchmark show A4 rejects all 15 with expected reasons, and F-001/F-003 regression coverage is present and passing.",
+      "createdAt": "2026-07-02T19:50:33.337Z",
+      "reviewRound": "2026-07-02T19:30:39.568Z",
+      "reviewRunId": "B-db1b:RR-008",
+      "_hash": "4d0b99e8cfdfd681e4d6fb888a820b5f436002503452794bd8cdcb99f8595af8"
+    },
+    {
+      "id": "B-db1b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs re-review: F-004 wording fixed; decision doc now limits delivered scope to read-only receipt checks, deterministic fixtures/benchmark, diagnostic nextAction/reporting, sanitized reports, with no verifier evidence generation, lifecycle mutation, PDE proof, or Authority/deployment completion claim.",
+      "createdAt": "2026-07-02T19:50:53.330Z",
+      "reviewRound": "2026-07-02T19:30:39.568Z",
+      "reviewRunId": "B-db1b:RR-007",
+      "_hash": "7cfa6dc66a3192153d393f925d152c31178fab0d2c82101b369322753be0b5df"
+    },
+    {
+      "id": "B-db1b:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS: Targeted docs review confirmed proof-or-stop-pinn-claim-admissibility execution plan explicitly lists M0-M5 as six delivered local-runtime milestones, truthfully scopes the implementation as local claim-admissibility only, avoids evidence-producing verifier/PDE correctness/deployment/external-completion overpromises, and matches current PINN command/help wording plus worktree CLI output. Global lattice command discovery lag was observed for pinn_* but worktree dist/bin includes and runs the commands; this is consistent with self-hosting CLI lag rather than a docs-lane blocker.",
+      "createdAt": "2026-07-02T20:09:40.446Z",
+      "reviewRound": "2026-07-02T20:06:35.258Z",
+      "reviewRunId": "B-db1b:RR-012",
+      "_hash": "45c78d028e9dcb14988f51a14babe7799a101f9ea97e59927eef4a94beba6ec1"
+    },
+    {
+      "id": "B-db1b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current-round scope changed since prior pass, so re-reviewed packages/main/src/core/pinn-claim-admissibility.ts, packages/main/src/handlers/pinn-claim-admissibility.ts, and packages/main/src/tasks/pinn-claim-admissibility-smoke.ts. Committed smoke asserts B1-B15 exact plan alignment, A4 rejects all 15 while weaker arms expose unsupported/stale acceptance, duplicate_receipt fail-closed, malicious supplied benchmarkJson overclaim rejection/sanitization, and terminal/dynamic legacy narrative overclaim rejection. I ran npm run test:pinn-claim-admissibility successfully and an additional read-only Node probe confirming direct terminalCompletionClaim/dynamic legacy true-ish fields reject, benchmarkJson rejects top-level+claims true-ish strings and dynamic legacy fields, and benchmarkPath via /dev/stdin rejects the same malicious report through normalizeBenchmarkReport.",
+      "createdAt": "2026-07-02T20:10:00.483Z",
+      "reviewRound": "2026-07-02T20:06:35.258Z",
+      "reviewRunId": "B-db1b:RR-010",
+      "_hash": "cad439acda1cc2f277c0f97d4b302cb21ed5f792881821c3d793e8ac6e1fdc92"
+    },
+    {
+      "id": "B-db1b:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS. npm run test:pinn-claim-admissibility runs the dist smoke and passed. Reviewed source and dist smoke coverage: B1-B15 plan alignment, A4 rejects all 15 injections, duplicate receipt regression, terminal/legacy narrative boundary regression, top-level/claims overclaim rejection, deep supplied-report overclaim rejection for suiteStatus/artifactIndex strings, nested injections true-ish claim field, and benchmarkPath payload. Direct read-only probes against dist handlers confirmed F-005/F-008 payloads throw refuses benchmark report overclaims.",
+      "createdAt": "2026-07-02T20:23:04.253Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-014",
+      "_hash": "9d05b129306adbf2efa738036468721245021eb3a08a64508caf07dc181d9a39"
+    },
+    {
+      "id": "B-db1b:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane PASS after deep supplied-report sanitization change: M0-M5 remain explicitly listed as six completed milestones with checkmarks; decision doc and command wording keep the local-only/read-only claim-admissibility boundary; no PDE correctness, deployment readiness, evidence-producing verifier scripts, lifecycle mutation, remote release, or external terminal completion is promised. Read-only worktree CLI/handler probes confirm normal report output keeps all claim fields false and nested supplied-report overclaims are rejected rather than rendered.",
+      "createdAt": "2026-07-02T20:23:12.523Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-013",
+      "_hash": "9a79c45f91bdc14bd643dffcde9da69be96a053c2521013dd5a5b8c40248fcaf"
+    },
+    {
+      "id": "B-db1b:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-005/F-007 fixed. Direct runtime probes against worktree dist confirmed pinn_report_render rejects supplied benchmarkJson overclaims at top-level, claims, suiteStatus, artifactIndex, nested injections/arms/a4/artifact objects, unsafe key names, and true-ish active/retired completion fields in both JSON and text render paths. benchmarkPath probes also reject supplied overclaim strings/narratives before rendering. Safe supplied reports are reconstructed from allowlisted shape, drop arbitrary caller fields, force local-only admissibility claims false, and generated reports retain the local claim-admissibility boundary without PDE correctness, deployment, external completion, or terminal completion claim.",
+      "createdAt": "2026-07-02T20:24:50.145Z",
+      "reviewRound": "2026-07-02T20:20:52.762Z",
+      "reviewRunId": "B-db1b:RR-016",
+      "_hash": "e6056773c27d0dc900ed816f4a09670f4876dfbf4ae12a5d6967e306d14288ac"
+    },
+    {
+      "id": "B-db1b:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: verified current dist smoke covers F-009 quoted JSON-like assignment regressions for claim narrative (double/single-quoted terminalCompletionClaim and legacy completion fields) and supplied report strings (quoted artifact digest, quoted suiteStatus, nested injection field, benchmarkPath narrative). Existing smoke still asserts B1-B15 corpus, A4 rejects all 15 injections, weaker arms expose unsafe/stale acceptance, duplicate receipts fail closed, and deep supplied-report sanitization strips arbitrary nested fields. npm run test:pinn-claim-admissibility passed.",
+      "createdAt": "2026-07-02T20:34:56.251Z",
+      "reviewRound": "2026-07-02T20:33:29.331Z",
+      "reviewRunId": "B-db1b:RR-017",
+      "_hash": "6f932da970abca601c2efcdba9874946e491c1de63943a13be4f31ae313a2872"
+    },
+    {
+      "id": "B-db1b:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs lane after F-009. Verified the decision doc still lists exactly M0-M5 as six checked milestones, preserves local-only/read-only claim-admissibility scope, and explicitly excludes PDE correctness, deployment readiness, evidence-producing verifier scripts, lifecycle mutation, external Authority production verification, and remote release. Command catalog/policy wording for pinn_claim_check, pinn_benchmark_run, and pinn_report_render remains bounded to read-only local diagnostics/reporting; implementation renders sanitized report claims false and the boundary paragraph does not overclaim.",
+      "createdAt": "2026-07-02T20:34:59.710Z",
+      "reviewRound": "2026-07-02T20:33:29.331Z",
+      "reviewRunId": "B-db1b:RR-019",
+      "_hash": "355eb892ee31b2d1c57b805b52aafc26a94df6c9b8f76c937dbcdbf59810256b"
+    },
+    {
+      "id": "B-db1b:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current REVIEW round test-coverage recheck after F-010/F-011. npm run test:pinn-claim-admissibility passed and runs packages/main/dist/tasks/pinn-claim-admissibility-smoke.js. Reviewed source and dist smoke: F-010 passive PDE correctness narratives (proved/verified/guaranteed/validated) are covered with claim_boundary_violation assertions; F-011 numeric direct true-ish claim fields are covered for terminalCompletionClaim=1 and dynamic legacy completion field=1. Prior coverage remains present for exact B1-B15 corpus, A4 rejecting all 15 injections while weaker arms expose gaps, duplicate receipt fail-closed behavior, deep supplied-report sanitization/rejection across suiteStatus/artifactIndex/nested injections/benchmarkPath, and quoted assignment regressions.",
+      "createdAt": "2026-07-02T20:46:02.150Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-021",
+      "_hash": "d54b1029ea095fe6658fac69ff2b184304244ef2bb94bf962dea2d29b472b919"
+    },
+    {
+      "id": "B-db1b:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane PASS for current REVIEW round. Decision doc still explicitly lists M0-M5 as six checked milestones and describes only local/read-only PINN claim-admissibility scope. After F-010/F-011 fixes, code/smoke continue to reject passive PDE-correctness narratives and numeric/quoted overclaim fields, matching docs. No PDE correctness, deployment readiness, external completion, evidence-producing verifier scripts, lifecycle mutation, remote release, or external Authority production verification is promised.",
+      "createdAt": "2026-07-02T20:46:09.782Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-022",
+      "_hash": "91263a4d77a746de357663d16f398e410e2a29768fe2170db60b38bd20749728"
+    },
+    {
+      "id": "B-db1b:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Confirmed F-010 is fixed. Passive PDE correctness narratives (proved/verified/guaranteed/validated, with and without is) are blocked with claim_boundary_violation. Also probed local-only/admissibility-only boundary across claim check and report render: F-005/F-007/F-009 top-level, claims, suiteStatus, artifactIndex, nested, and quoted supplied report overclaims reject in JSON and text paths; generated reports keep claim fields false.",
+      "createdAt": "2026-07-02T20:46:27.720Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-023",
+      "_hash": "d80605de587ac5b8bc6123e7c0e3dead5cc3c09eaa533cb8b5f6007f78bf4c5d"
+    },
+    {
+      "id": "B-db1b:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "PASS: confirmed F-011 fixed. Direct numeric true-ish active field terminalCompletionClaim=1 and dynamic legacy numeric field are blocked with claim_boundary_violation. Rechecked F-006 string/bool true-ish direct and narrative overclaims, F-009 quoted JSON-like assignment strings, F-008 deep supplied-report sanitization across JSON/text and benchmarkPath, and duplicate receipt fail-closed. Verification: npm --prefix packages/main run build, npm run test:pinn-claim-admissibility, retired-authority-vocabulary-guard smoke, plus direct dist API/handler probes.",
+      "createdAt": "2026-07-02T20:47:16.756Z",
+      "reviewRound": "2026-07-02T20:44:40.430Z",
+      "reviewRunId": "B-db1b:RR-024",
+      "_hash": "ec9ede47a6d10040131f2e12ade9dc5a9db08ebe4bf84269c65f67eef09e7b7d"
+    },
+    {
+      "id": "B-db1b:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: test coverage re-reviewed current B-db1b head. npm run test:pinn-claim-admissibility passed; smoke covers exact B1-B15 corpus, A1-A4 benchmark with A4 rejecting all 15, duplicate_receipt fail-closed, F-001..F-011 overclaim/report-sanitization regressions, CLI negative flags, supplied report JSON/path sanitization, and evidence_plan/done_closure show verification and DONE-required evidence fresh.",
+      "createdAt": "2026-07-02T21:17:01.724Z",
+      "reviewRound": "2026-07-02T21:14:45.759Z",
+      "reviewRunId": "B-db1b:RR-025",
+      "_hash": "bf766df8dc454defcfae446038d7268710ef7f9d715038a29fded7bfe303f790"
+    },
+    {
+      "id": "B-db1b:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "PASS: current concept review confirms M0-M5 local PINN claim-admissibility scope is satisfied: complete C9 only advances as bounded admissibility evidence, B1-B15 A4 benchmark blocks unsupported/stale/mismatched claims, report and narrative overclaims are rejected or sanitized, commands are read-only and refuse lifecycle/side-effect flags, and docs preserve no-PDE-correctness/no-deployment/no-external-completion wording.",
+      "createdAt": "2026-07-02T21:17:09.231Z",
+      "reviewRound": "2026-07-02T21:14:45.759Z",
+      "reviewRunId": "B-db1b:RR-028",
+      "_hash": "0b6c50b1dd2076e672e955ce95d00faf68cc115dd19eb0003dc71ba83531da94"
+    },
+    {
+      "id": "B-db1b:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: F-012 evidence matches live A3 acceptedCount=14/unsupportedAcceptanceCount=14 and A4 rejects 15/15; M0-M5 scope, report artifact index, boundary wording, and command surfaces verified.",
+      "createdAt": "2026-07-02T21:30:29.735Z",
+      "reviewRound": "2026-07-02T21:27:07.783Z",
+      "reviewRunId": "B-db1b:RR-032",
+      "_hash": "ca509b9f5a8fa2460a99a8430b7dc2dc06b4397d1955602e34f2db09b2e0b84a"
+    },
+    {
+      "id": "B-db1b:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: rechecked current B-db1b local PINN claim-admissibility semantics after F-012/F-013/F-014. A3 benchmark count is 14/14 and A4 rejects 15/15; passive PDE/report overclaim probes stop or refuse; malformed evidence returns allowed=false nextAction=stop; docs keep M0-M5 local-only no-PDE no-production no-external-completion boundary.",
+      "createdAt": "2026-07-02T21:31:31.854Z",
+      "reviewRound": "2026-07-02T21:27:07.783Z",
+      "reviewRunId": "B-db1b:RR-030",
+      "_hash": "d33565b630a309fa258a74dca93a4fae04e41c0f39ac7a8083d7f9a2d28d38bb"
+    },
+    {
+      "id": "B-db1b:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: F-013/F-014 repros rejected; deterministic CLI/report, duplicate receipt, malformed evidence, report sanitization, and read-only command policy verified.",
+      "createdAt": "2026-07-02T21:31:43.810Z",
+      "reviewRound": "2026-07-02T21:27:07.783Z",
+      "reviewRunId": "B-db1b:RR-031",
+      "_hash": "159be75c802a3c7755fafa9fc9e6b6d3c37402497d6b25ca046a9bbe2a70f9a9"
+    },
+    {
+      "id": "B-db1b:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage re-reviewed B1-B15/A1-A4 and F001-F014 regressions; focused smoke and CLI probes cover F013/F014, report sanitization, duplicate receipts, malformed evidence, and negative flags. DONE freshness remains a host done_prepare refresh concern.",
+      "createdAt": "2026-07-02T21:32:36.301Z",
+      "reviewRound": "2026-07-02T21:27:07.783Z",
+      "reviewRunId": "B-db1b:RR-033",
+      "_hash": "09629354f754cb372f22f04780caf8069b0dc790c4f387042059f75a5f6f6b2a"
+    },
+    {
+      "id": "B-db1b:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "PASS: current docs review after final main sync verified the decision doc M0-M5 table, local-only boundary wording, A3 acceptedCount=14/unsupportedAcceptanceCount=14 evidence, A4 rejects 15/15 evidence, report artifact index/boundary output, no PDE correctness/production readiness/external completion claims, and command wording/output for node bin/lattice.js pinn_claim_check, pinn_benchmark_run, and pinn_report_render. Focused smoke passed and all prior docs findings are resolved.",
+      "createdAt": "2026-07-02T22:08:40.389Z",
+      "reviewRound": "2026-07-02T22:05:42.879Z",
+      "reviewRunId": "B-db1b:RR-034",
+      "_hash": "9c6aebbbe5a4adaf20f20086cd10842a631b758e3c0924a6236ab09894a1b995"
+    },
+    {
+      "id": "B-db1b:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: decision doc and evidence consistently describe six milestones M0-M5, read-only local claim-admissibility scope, A3=14/A4=15 benchmark facts, sanitized reports, and non-claim boundary.",
+      "createdAt": "2026-07-02T22:09:46.936Z",
+      "reviewRound": "2026-07-02T22:05:42.879Z",
+      "reviewRunId": "B-db1b:RR-034",
+      "_hash": "56488c775fa06fc692c296357c3ff8ee53b203e1abfa8dda8f3bda8c2124bedc"
+    },
+    {
+      "id": "B-db1b:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: final B-db1b material remains local claim-admissibility only, blocks production/deployment/PDE/completion overclaims including supplied reports and malformed evidence, and resolves F-001..F-016.",
+      "createdAt": "2026-07-02T22:29:03.654Z",
+      "reviewRound": "2026-07-02T22:26:42.145Z",
+      "reviewRunId": "B-db1b:RR-038",
+      "_hash": "09a5576bf4759c5f91e3af7ea6c8231ae12ce639ee2863f43995eeaaef987e2c"
+    },
+    {
+      "id": "B-db1b:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review pass: final B-db1b evidence covers M0-M5, A1-A4/B1-B15, malformed/duplicate/supplied-report/production-readiness regressions, and all F-001..F-016 fixes.",
+      "createdAt": "2026-07-02T22:29:55.074Z",
+      "reviewRound": "2026-07-02T22:26:42.145Z",
+      "reviewRunId": "B-db1b:RR-041",
+      "_hash": "5f9d6a6db4b8fd611100aa6d565085f9588db32f621242de302990b374937a4d"
+    },
+    {
+      "id": "B-db1b:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: final docs/evidence consistently describe M0-M5, local-only read-only scope, A3=14/A4=15 benchmark diagnostics, sanitized reports, and non-claim boundary including production readiness.",
+      "createdAt": "2026-07-02T22:44:53.594Z",
+      "reviewRound": "2026-07-02T22:41:51.810Z",
+      "reviewRunId": "B-db1b:RR-042",
+      "_hash": "a26bf1ef52a6bd392a1f03aff1e0e094ffc173fb307b52fcce736f17345d1641"
+    },
+    {
+      "id": "B-db1b:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review pass: final B-db1b evidence covers M0-M5, A1-A4/B1-B15, CLI productionReadyClaim refusal, supplied-report/malformed/duplicate regressions, and F-001..F-018 fixes.",
+      "createdAt": "2026-07-02T22:45:22.398Z",
+      "reviewRound": "2026-07-02T22:41:51.810Z",
+      "reviewRunId": "B-db1b:RR-043",
+      "_hash": "7cef9f65d54c5b1872c5bbdcdde4b06bb67af83306683faabb3bc6e72bc567f4"
+    },
+    {
+      "id": "B-db1b:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: final B-db1b material remains local claim-admissibility only, rejects production/deployment/PDE/completion overclaims at CLI/runtime/report boundaries, documents A3=14/A4=15 as local diagnostics, and resolves F-001..F-018.",
+      "createdAt": "2026-07-02T22:45:37.058Z",
+      "reviewRound": "2026-07-02T22:41:51.810Z",
+      "reviewRunId": "B-db1b:RR-044",
+      "_hash": "18024cefb292ad0b21a03298c8c45b999d3ccd754a45d81328ef2c5e8f95a095"
+    },
+    {
+      "id": "B-db1b:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: final B-db1b CLI/runtime/report boundaries fail closed for productionReadyClaim and related overclaims, evidence handling is deterministic, and F-001..F-018 remain resolved.",
+      "createdAt": "2026-07-02T22:46:15.635Z",
+      "reviewRound": "2026-07-02T22:41:51.810Z",
+      "reviewRunId": "B-db1b:RR-045",
+      "_hash": "69a28ae52ac5e31ebad29bf526ca2ad54423d8c7ea94adb0d1c1611fee1648ab"
+    },
+    {
+      "id": "B-db1b:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md lines 10-13 document M0-M5 delivery, A3 acceptedCount=14/unsupportedAcceptanceCount=14, A4 rejects 15/15, and the local-only/no PDE/no production/no external Authority boundary; lines 300-307 explicitly mark M0-M5 complete and preserve the same boundary.",
+      "createdAt": "2026-07-02T23:15:50.465Z",
+      "reviewRound": "2026-07-02T23:14:20.832Z",
+      "reviewRunId": "B-db1b:RR-046",
+      "_hash": "5ace6159e164c3c80e2f7b37c5c5ee9993fb0bbbb20b831f77b82a0d94a521ee"
+    },
+    {
+      "id": "B-db1b:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: evidence_plan fresh 18/18; npm run test:pinn-claim-admissibility passed; benchmark JSON shows A3 accepted/unsupported=14 and A4 rejected=15/15; CLI overclaim probes productionDone, pdeCorrectnessClaim, productionReadyClaim, and authorityDone all reject with expected-never validation; done_closure rows PASS for test-evidence, verification coverage, evidence freshness, and DONE-required validation.",
+      "createdAt": "2026-07-02T23:16:41.470Z",
+      "reviewRound": "2026-07-02T23:14:20.832Z",
+      "reviewRunId": "B-db1b:RR-049",
+      "_hash": "7a3bdcdfb989d25c12e736e191d840c5c61daec01ade658142fad120b64f4c20"
+    },
+    {
+      "id": "B-db1b:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: reviewed final PINN doc, core/handler/task implementation, command catalog/registry/config/policy, process facts, summary/delivery evidence. Local-only claim-admissibility boundary holds: no PDE correctness, production/deployment readiness, lifecycle mutation, remote Authority, or external completion claim. A3 facts are acceptedCount=14 and unsupportedAcceptanceCount=14; A4 rejects 15/15 B1-B15. Missing/malformed/stale/mismatched/overclaim inputs fail closed. pinn_* commands are registered after pack-framework merge as readOnly diagnostics and L0 process facts.",
+      "createdAt": "2026-07-02T23:17:13.266Z",
+      "reviewRound": "2026-07-02T23:14:20.832Z",
+      "reviewRunId": "B-db1b:RR-048",
+      "_hash": "91e788ccae3c53a5c55c0c6e7201db203a67efc8ed16f47631b319153093b932"
+    },
+    {
+      "id": "B-db1b:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: tsc --noEmit passed; root/package PINN smokes passed; claim-admissibility pack framework smoke passed; command catalog, ownership, and runtime fact contracts passed. Direct CLI probes confirmed complete C9 local-only advance, B1 fail-closed, A4 rejects 15/15 injections, and productionReadyClaim/productionDone are rejected or normalized false. npm run lint:tasks still fails on an unchanged pre-existing main annotation in claim-admissibility-pack-framework-smoke.ts (@type test), not introduced by B-db1b.",
+      "createdAt": "2026-07-02T23:18:28.941Z",
+      "reviewRound": "2026-07-02T23:14:20.832Z",
+      "reviewRunId": "B-db1b:RR-047",
+      "_hash": "97d2c1351fd8e8dd7a3de0b1e2880221753d866d69c1a7fdb3794b988e438869"
+    },
+    {
+      "id": "B-db1b:RP-032",
+      "agent": "lattice-review-docs",
+      "note": "PASS Round 13 narrow docs: parent-ledger-rollup covers exactly M0-M5, matches slice-plan ledger/plan hashes and M0-M3/M4-M5 grouping, and every child carries summary/test/done-required/delivery/quorum evidenceRefs. milestone ledger and decision doc still mark M0-M5 covered/complete; boundary remains local-only with no PDE correctness, production readiness, external completion, production Authority, lifecycle mutation, or remote release claim. done_intent_equivalence_check passed strict_milestone with no gaps.",
+      "createdAt": "2026-07-02T23:24:57.169Z",
+      "reviewRound": "2026-07-02T23:22:39.503Z",
+      "reviewRunId": "B-db1b:RR-050",
+      "_hash": "d8f655dd9ca77ce1464479ff419207cbca9c7286ff57bea9c4af0ff6239d4022"
+    }
+  ]
+}

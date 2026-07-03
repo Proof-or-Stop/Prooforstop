@@ -1,0 +1,50 @@
+{
+  "findings": [
+    {
+      "id": "B-5118:F-001",
+      "desc": "Framework doc still says Quantum is a future design contract, not a delivered runtime implementation, but B-5118 registers a read-only quantum ClaimAdmissibilityPack by default through QUANTUM_CLAIM_ADMISSIBILITY_PACK and DEFAULT_CLAIM_ADMISSIBILITY_PACKS. Update wording to distinguish full future pack/gate integration from the now-implemented M2 read-only descriptor and normalization pack.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T23:32:35.647Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-002",
+      "_hash": "078c8c863564a2e648231b0515d28d8f5a5d0acc13e5a5efd993139bbcfd4776",
+      "files": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "packages/main/src/core/claim-admissibility/pack-framework.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|framework-still-says",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed doc/code drift by updating claim-admissibility-adapter-pack-framework.md to state Quantum M2 read-only descriptor/normalization pack is implemented and default-registered while full gate policy, benchmarks, reporting/governance, production, Authority, hardware, and theory claims remain pending/non-goals. Verified by npm --prefix packages/main run test:quantum-claim-admissibility and full lattice validate PASS.",
+      "resolvedAt": "2026-07-02T23:42:25.722Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5118:F-002",
+      "desc": "Quantum pack read-only descriptors are only shallow-frozen: QUANTUM_CLAIM_IDS and QUANTUM_EVIDENCE_KINDS are exported as const arrays in quantum.ts lines 13-29, then reused directly as claimIds and artifactKinds in pack-framework.ts lines 454 and 470. freezeItems at pack-framework.ts lines 218-220 freezes only the schema object and containing array, not those nested arrays, so consumers can mutate listClaimAdmissibilityPacks()[quantum].claimSchemas[0].claimIds or evidenceSchemas[0].artifactKinds at runtime despite the read-only/declarative boundary. Freeze or defensive-copy these nested arrays before exposing the pack descriptor.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-02T23:33:39.534Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-004",
+      "_hash": "552d271bf0cc4213fce00b6cc5863cfd8814942e2f55ed781a9eaf14116cd554",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/core/claim-admissibility/pack-framework.ts"
+      ],
+      "signatureTag": "edge|ts|quantum-pack-read",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed shallow immutability by defensively copying and Object.freeze-ing direct array fields in pack descriptor items before exposing registry descriptors. Added quantum smoke assertions that listClaimAdmissibilityPacks()[quantum].claimSchemas[0].claimIds and evidenceSchemas[0].artifactKinds are runtime-frozen and reject mutation. Verified by build, quantum smoke, pack-framework smoke, git diff --check, and full lattice validate PASS.",
+      "resolvedAt": "2026-07-02T23:42:33.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

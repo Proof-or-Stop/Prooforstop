@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-5118:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 12 verification intents have fresh real test evidence; focused quantum and pack smokes pass; validate PASS coverage 12/12.",
+      "createdAt": "2026-07-02T23:32:30.912Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-003",
+      "_hash": "8f1cd7e0b63096df5d5e287de148b9f0d85ec5234aba03141fb795c610f712b2"
+    },
+    {
+      "id": "B-5118:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passes: Quantum M2 is descriptor/normalization/registry/status only, with no theory, hardware, production, Authority, M3 gate, M4 benchmark, or M5 reporting overclaim.",
+      "createdAt": "2026-07-02T23:32:44.594Z",
+      "reviewRound": "2026-07-02T23:29:37.794Z",
+      "reviewRunId": "B-5118:RR-001",
+      "_hash": "7b099f021fcdffdf9da952a5749c97675c130fb0e9ac4af3a68129791f95addd"
+    },
+    {
+      "id": "B-5118:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after B-5118:F-001 and B-5118:F-002 fixes: PASS. The inspected doc, pack descriptor, and quantum smoke task keep Quantum scoped to M2 read-only descriptor/normalization and explicitly preserve no theory, hardware, solver-improvement, production, Authority, lifecycle-gate, benchmark, or M3-M5 completion claim.",
+      "createdAt": "2026-07-02T23:44:28.763Z",
+      "reviewRound": "2026-07-02T23:42:11.661Z",
+      "reviewRunId": "B-5118:RR-005",
+      "_hash": "338dace9a073fd60a1e492bbb65f293da07900da157ce9d097d3ec6d0686ad2a"
+    },
+    {
+      "id": "B-5118:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs re-review found no blocker. Verified F-001 wording is fixed: the framework doc now states Quantum M2 is implemented and default-registered as a read-only descriptor/normalization pack, while full domain-pack/gate/benchmark/reporting capabilities and theory/hardware/production/Authority claims remain pending or non-goals. Quantum execution plan status also says M0-M2 implemented and M3-M5 pending.",
+      "createdAt": "2026-07-02T23:44:55.992Z",
+      "reviewRound": "2026-07-02T23:42:11.661Z",
+      "reviewRunId": "B-5118:RR-006",
+      "_hash": "58939890fe107bceb7fa73fab2850bcfb1909f848e71897cde9f75df9436f701"
+    },
+    {
+      "id": "B-5118:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage re-review PASS: F-002 immutability regression is covered by focused smoke assertions for frozen claimIds/artifactKinds; all 12 verification intents are fresh for the current material/story hashes; latest full validate evidence is PASS after fixes.",
+      "createdAt": "2026-07-02T23:45:23.113Z",
+      "reviewRound": "2026-07-02T23:42:11.661Z",
+      "reviewRunId": "B-5118:RR-007",
+      "_hash": "bffa37f2e2256a6b9bb66dd748134310d17c74d1985093f7199e498a39e768e9"
+    },
+    {
+      "id": "B-5118:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality re-review PASS. Verified B-5118:F-002 is fixed: registry-exposed quantum claimIds and artifactKinds are defensively copied and runtime-frozen via freezeDescriptorItem before exposure through listClaimAdmissibilityPacks; smoke asserts mutation attempts throw and arrays remain unchanged. The implementation is minimal/type-safe enough for the descriptor shapes, preserves read-only receipt-only adapters, adds no command execution, and introduces no circular import or broad runtime behavior change.",
+      "createdAt": "2026-07-02T23:45:33.583Z",
+      "reviewRound": "2026-07-02T23:42:11.661Z",
+      "reviewRunId": "B-5118:RR-008",
+      "_hash": "fdc863b7d9d123e6920c94ad1c9036338629b76bfe944282d2459b48141e14e1"
+    },
+    {
+      "id": "B-5118:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-review PASS: delivery context scope acknowledgement is story-local evidence only; implementation, docs, and tests remain bounded to the Quantum M2 read-only verifier adapter pack, with M3-M5, hardware/theory, production, and Authority explicitly pending or excluded.",
+      "createdAt": "2026-07-03T00:00:47.955Z",
+      "reviewRound": "2026-07-02T23:59:01.496Z",
+      "reviewRunId": "B-5118:RR-009",
+      "_hash": "ebb7f3be858afd9743da2a809ba0c7713d7b444ed361dfe1773d4fc80d93a60c"
+    }
+  ]
+}

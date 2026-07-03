@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-6b39:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change. All three amended passages (S7 freeze rule, M6 exit-criteria row, S17 step 2 echo) are mutually consistent and use the N-maximizing baseline rule. Statistical formula p* = 0.5 + mde/2 is mathematically correct. No stale lower-bound references remain. sample-size.mjs pilotFreezeCheck reference is forward-looking in a planning doc (M5 artifact), not a doc-promise-undelivered issue. English-only; no unrelated edits. No dead code, type safety, or I/O isolation issues (pure doc change). No findings.",
+      "createdAt": "2026-07-02T21:40:04.560Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-002",
+      "_hash": "373246e0b52ee3cd136d73f1b4e9566f9203f22ab71066ecbfdab531ab52f035"
+    },
+    {
+      "id": "B-6b39:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified. The old freeze rule (freeze powered N at the LOWER bound of the Wilson 95% CI, labeled conservative) has been fully replaced in all three target passages (S7 paragraph, S13 M6 exit-criteria row, S17 step 2 echo). Remaining occurrences of lower bound in the target doc are part of the NEW corrected wording explaining why the lower bound alone is not conservative — not stale freeze instructions. Other docs mentioning Wilson lower bound (lattice-baseline-two-host-multi-agent-execution-plan.md, lattice-experience-layer-effectiveness-record.md) are in unrelated contexts (baseline suite success-rate reporting, not ablation pilot N-freeze). Story metadata files referencing the old phrase are historical audit artifacts. No concept residue found; no doc-promise-undelivered issues identified.",
+      "createdAt": "2026-07-02T21:40:41.253Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-001",
+      "_hash": "18f5e7a05904b52822e29a747fcf4c1ce20010aa96d7696433c8d9695d171e79"
+    },
+    {
+      "id": "B-6b39:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 (pure docs diff, 0 exported symbols). 3 doc passages compared against pilotFreezeCheck implementation on story/B-047f. All three passages (S7 freeze-rule paragraph, M6 exit-criteria table row, S17 step-2 echo) are mutually consistent and match the code: freeze at clamp(p*=0.5+mde/2, ci.lower, ci.upper). No stale lower-bound wording remains. No other docs reference the freeze rule with conflicting wording. Closing self-check: no doc-promise-undelivered issues (doc-only diff). No blockers.",
+      "createdAt": "2026-07-02T21:41:39.132Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-003",
+      "_hash": "5863be1657a1a5cc42e10f134eb28a223b59077d310a4cdb5c3334006080f353"
+    },
+    {
+      "id": "B-6b39:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Happy CHK-001:happy:0: grep -n N-maximizing reproduces 3 matches at lines 231/473/566 as claimed. Edge CHK-001:edge:0: grep -inE reproduces zero matches for lower-bound freeze phrasing as claimed. Adversarial CHK-001:adversarial:0: git diff main...HEAD -- docs/ --stat confirms only the plan doc changed in docs/; git show --stat e157925d5 confirms 1 file 11+6 as claimed; no CJK found. All 3 must-intents have valid passing manual_transcript evidence bound to commit e157925d5.",
+      "createdAt": "2026-07-02T21:46:42.327Z",
+      "reviewRound": "2026-07-02T21:37:38.733Z",
+      "reviewRunId": "B-6b39:RR-004",
+      "_hash": "af035a14839f42dfa91c589b593ef18e8a85f7d1472fbef0469d92b2753bfae2"
+    }
+  ]
+}

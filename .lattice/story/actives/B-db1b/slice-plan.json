@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-db1b",
+  "ledgerHash": "sha256:86060f3879159b4603659f98f73396121eb54298fae8689816a64309a7aaf4a7",
+  "slices": [
+    {
+      "id": "slice-runtime-gate",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "reason": "M0-M3 form one inseparable runtime control path: command boundary, claim schema, verifier receipts, and gate transitions must be implemented and verified together."
+    },
+    {
+      "id": "slice-benchmark-reporting",
+      "milestoneIds": [
+        "M4",
+        "M5"
+      ],
+      "reason": "M4-M5 consume the same runtime engine to produce benchmark metrics and governance reports, so they are verified as the reporting slice of the same local pack."
+    }
+  ],
+  "planHash": "sha256:5d4504c5590d6b7a8c9a9ea4ed5eb5c279fe84deb8d127c95a3f1305d51957b6",
+  "createdAt": "2026-07-02T18:45:51.972Z",
+  "updatedAt": "2026-07-02T18:45:51.972Z"
+}
