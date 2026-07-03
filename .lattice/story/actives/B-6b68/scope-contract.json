@@ -1,0 +1,44 @@
+{
+  "storyId": "B-6b68",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "scripts/validate-tasks.js"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story-local ProofStory intent artifacts are required gate evidence for this annotated source fix and do not expand product code scope.",
+      "timestamp": "2026-07-03T11:50:03.200Z",
+      "paths": [
+        ".lattice/story/actives/B-6b68/intent-collision.json",
+        ".lattice/story/actives/B-6b68/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6b68/proofstory.json",
+        ".lattice/story/actives/B-6b68/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6b68/intent-collision.json",
+        ".lattice/story/actives/B-6b68/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6b68/proofstory.json",
+        ".lattice/story/actives/B-6b68/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "bb50071a91a2692726ad78c91c6dc2fa4f3b4638",
+      "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+      "anchors": [
+        "proofstory_gate_evidence",
+        "story_local_lifecycle_proof"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-03T11:48:29.673Z",
+  "updatedAt": "2026-07-03T11:50:03.200Z"
+}

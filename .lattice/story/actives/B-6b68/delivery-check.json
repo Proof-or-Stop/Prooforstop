@@ -1,0 +1,31 @@
+{
+  "storyId": "B-6b68",
+  "checkedAt": "2026-07-03T14:22:04.186Z",
+  "headHash": "80dabc7af6d3301f0d430848ca01e47d35f2ec51",
+  "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+  "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
+  "reviewRound": "2026-07-03T11:50:14.801Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-6b68/checklist.json",
+      "promise": "node scripts/validate-tasks.js prints PASSED: All task annotations are valid, and lattice convergence_check --json no longer reports the claim-admissibility pack smoke @type error.",
+      "status": "verified",
+      "verifiedBy": "live-smoke-transcript + manual delivery review",
+      "evidence": ".lattice/story/actives/B-6b68/evidence/live-smoke-transcript.json has exitCode 0 and stdout includes PASSED: All task annotations are valid. plus All 81 annotations compliant."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live smoke command: bash -lc set -o pipefail; node scripts/validate-tasks.js | rg PASSED: All task annotations are valid && lattice convergence_check | rg Code annotations|All 81 annotations. Exit code 0. Output: PASSED: All task annotations are valid.; Code annotations compliant; All 81 annotations compliant."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review for metadata-only annotation fix: manual diff inspection shows only @type test changed to @type chore in claim-admissibility-pack-framework-smoke.ts; live smoke validates task annotations pass and convergence_check reports all 81 annotations compliant; edge coverage verifies the convergence annotation gate no longer reports the claim-admissibility pack smoke @type error; no unresolved TODOs in reviewed scope."
+  },
+  "_hash": "b457c7d32092436abd0b011aa5c23468441b1517b96f0dc0ada46e6a0c72e581"
+}

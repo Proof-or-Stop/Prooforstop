@@ -1,0 +1,20 @@
+{
+  "task": "Fix the invalid @type value on the claim-admissibility pack framework smoke task annotation.",
+  "outcome": "When the host runs node scripts/validate-tasks.js, the terminal prints PASSED: All task annotations are valid. When the host runs lattice convergence_check --json, the Code annotations compliant row no longer reports the B-6b68-triggering invalid @type test error.",
+  "facts": [
+    "validate-tasks reported packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts:2 invalid @type: test",
+    "Allowed task annotation types are feature, bugfix, refactor, chore",
+    "The intended fix is metadata-only: change @type test to an allowed type without changing smoke assertions"
+  ],
+  "constraints": [
+    "Do not modify claim-admissibility runtime logic",
+    "Do not rewrite framework docs or quantum/PINN contracts",
+    "Use Lattice CLI for lifecycle metadata"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "scripts/validate-tasks.js"
+  ],
+  "timestamp": "2026-07-03T11:43:31.818Z"
+}

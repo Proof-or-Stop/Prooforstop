@@ -39,9 +39,45 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-03T11:48:22.561Z",
+      "userSees": "node scripts/validate-tasks.js prints PASSED: All task annotations are valid, and lattice convergence_check --json no longer reports the claim-admissibility pack smoke @type error.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/validate-tasks.js",
+          "result": "pass",
+          "note": "Task annotation validator passed after changing claim-admissibility-pack-framework-smoke @type from test to chore; output ended with PASSED: All task annotations are valid.",
+          "headHash": "321d6c28ae4848087ce31242a478b59a7554ffdc",
+          "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+          "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
+          "timestamp": "2026-07-03T11:48:06.011Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "lattice convergence_check --json",
+          "result": "pass",
+          "note": "convergence_check reports Code annotations compliant passed with detail All 81 annotations compliant; remaining non-convergence is only unfinished stories B-6b68, B-7de9, and B-ffe0.",
+          "headHash": "984f9454cb2d9efe72c62f01980ba7deda422ae9",
+          "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+          "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
+          "timestamp": "2026-07-03T11:48:11.794Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff HEAD~1..HEAD -- packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "result": "pass",
+          "note": "Manual diff inspection shows the only source change is @type test -> @type chore in the top @task comment; no imports, assertions, registry calls, or runtime smoke logic changed.",
+          "headHash": "07cd3f56f8c8e992d5b5ca0762feab0efc296aff",
+          "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+          "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
+          "timestamp": "2026-07-03T11:48:18.268Z"
+        }
+      ]
     }
   ]
 }
