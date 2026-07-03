@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a4f7",
+  "mode": "feature",
+  "allowed": [
+    "execution docs",
+    "learning-store health diagnostics",
+    "playbook candidate ingest command",
+    "post-DONE non-blocking candidate ingest hook",
+    "smoke tests"
+  ],
+  "excluded": [
+    "blocking policy or gate evidence",
+    "direct active activation from DONE",
+    "DONE success as helped evidence",
+    "historical bulk backfill",
+    "timer daemon"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested automatic processing from DONE story seeds to candidate playbooks; direct active activation and historical backfill remain out of scope for this story.",
+  "createdAt": "2026-07-03T10:15:04.500Z",
+  "updatedAt": "2026-07-03T10:15:04.500Z",
+  "_hash": "837f6bedfc23aefb49ca334daf39bc0be6aaff9fd1743e575fc98737f0c61783"
+}

@@ -1,0 +1,37 @@
+{
+  "storyId": "B-a4f7",
+  "name": "done-candidate-ingest",
+  "title": "Automatically ingest DONE story experience into candidate playbooks",
+  "description": "Add a host-neutral, digest-bound playbook candidate ingestion path so DONE story settlement can automatically convert eligible done-experience seeds into inert candidate playbooks without directly activating them.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-request",
+  "keywords": [
+    "playbook",
+    "done-experience",
+    "candidate-ingest",
+    "learning-source",
+    "runtime-memory"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-07-03T10:15:04.500Z",
+  "startedAt": "2026-07-03T10:15:04.500Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T10:15:04.829Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}
