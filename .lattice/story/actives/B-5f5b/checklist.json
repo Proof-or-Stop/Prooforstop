@@ -47,9 +47,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T16:20:19.926Z",
-      "endTime": null
+      "endTime": "2026-07-03T16:20:43.194Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke backfilled 131 deduped dev-memory seeds in one apply run, including a pre-staged proposal converted to a candidate.",
+          "headHash": "0d8daa38aaf9d0cacd6e07f53ed74278c6112ec2",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:20:43.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Repeat apply with the current observeDigest created zero duplicate candidates and reported all sources already represented.",
+          "headHash": "0d8daa38aaf9d0cacd6e07f53ed74278c6112ec2",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:20:44.422Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted stale observeDigest refusal, all resulting playbooks stayed status=candidate, staged proposal was deleted, and no outcome rows were written.",
+          "headHash": "0d8daa38aaf9d0cacd6e07f53ed74278c6112ec2",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:20:45.015Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
