@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d217",
+  "changes": "Milestone M4 of the experience-layer ablation plan: three new files in experiments/experience-ablation/. score.mjs — pure scoreArmRun({fixtureDir, runDir}) + CLI emitting one ExperienceAblationScore v1 record (plan section 10 schema, stable key order) from on-disk artifacts only: fixture task.json labels, hidden oracle classify() against the run workspace copy, run.json metadata, activity.jsonl events (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds; retrieval_violation -> retrievalViolationCount); deterministic composite defectPresent per section 6.1 with structured-DONE-rows precedence over oracle fallback for falseDoneAttempt (details.sources records which fired); storeRoot voiding per section 12. RUN-RECORD.md — the binding producer contract for the M6 campaign runner incl. error catalog. score-selfcheck.mjs — hermetic 20-case suite proving per-class label correctness for all nine trap classes on M1 reference payloads, replay byte-identity with stable corpus digest, voiding, and event mapping.",
+  "usage": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> [--out=<file>] prints one score record JSON; node experiments/experience-ablation/score-selfcheck.mjs runs the full proof suite.",
+  "expectedOutcome": "score-selfcheck prints 20 PASS lines ending: score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7), exit 0, digest identical across consecutive runs.",
+  "actualTranscript": "score-selfcheck.mjs: 20/20 PASS, exit 0, final line digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7 — identical across three independent runs (delivery reviewer reconfirmed); lattice validate coverage 9/9 covered 0 missing; CLI happy path prints schemaVersion proofbound.experience-ablation-score.v1 with byte-identical double invocation.",
+  "outcomeDiff": "No difference — expected and actual match, including the M4 exit criterion (correct, deterministic, on replay).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scorer consumes archived run dirs; producing them (isolated mkdtemp store roots, campaign resume) is M6 scope. Live-phase reviewer findings remain excluded from the seeded primary by design.",
+  "pitfalls": "Round-1 review found 6 findings, all fixed in one commit (2ee5f3e2): dead existsSync guard; tmpdir symlink false-pass risk on macOS (realpathSync both sides); two unpinned error-catalog cases; structured false-DONE precedence path untested; plus two administrative evidence-staleness findings (CHK-003 commit landed after CHK-001/002 evidence — verification_evidence_refresh_stale re-ran and rebound 9/9). Same lesson as B-ab8d: any story-owned commit stales reviewer receipts; cycle DEV->REVIEW for a fresh round instead of retrying review_run_start.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 173707
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10981
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 678667
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 803899
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1847717
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 229249
+    }
+  },
+  "totalDurationMs": 3744699,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T01:22:23.940Z",
+  "updatedAt": "2026-07-03T01:22:23.940Z"
+}
