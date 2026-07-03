@@ -62,6 +62,27 @@
       ],
       "signatureTag": "adversarial|ts|3779-claims-implemented",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3779:F-004",
+      "desc": "Test-coverage re-review finds a B1-B15 corpus mismatch. The Story plan lines 24-39 and Quantum source doc lines 263-277 promise domain injections such as Hamiltonian, potential, boundary, timestep, normalization, residual, invariant, unit mismatch, random-seed/config missing, and manually edited plot/table cases. The runtime corpus in packages/main/src/core/claim-admissibility/quantum.ts lines 1445-1460 instead implements receipt/schema/unknown-claim evaluator failures, and packages/main/src/tasks/quantum-claim-benchmark-smoke.ts lines 47-63 asserts that alternate corpus. npm --prefix packages/main run test:quantum-claim-benchmark passes, but it only proves the implemented corpus, so the benchmark/report can claim B1-B15 PASS without exercising the documented B1-B15 domain scenarios. Align docs/plan/checklist promise to the implemented evaluator-failure corpus or implement and test the documented domain cases; preserve diagnosticOnly/gateEvidence=false and no production, Authority, hardware, theory, solver-improvement, or generic lifecycle claims.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:01:45.013Z",
+      "reviewRound": "2026-07-03T03:58:23.240Z",
+      "reviewRunId": "B-3779:RR-008",
+      "_hash": "b7adf031918fa950fe2fa4e77a61f95e49b9a81d3f44db8eb6091c631626d791",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        ".lattice/story/actives/B-3779/plan.md"
+      ],
+      "signatureTag": "missing|ts|b3779-b1-b15-corpus-mismatch",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
