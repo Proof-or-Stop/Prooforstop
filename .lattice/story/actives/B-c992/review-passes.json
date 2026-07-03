@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T16:21:59.999Z",
       "reviewRunId": "B-c992:RR-004",
       "_hash": "73c33f4ab94845e82d1ee8fc26a9461dacc3db9f59a0709120770ed1add7edeb"
+    },
+    {
+      "id": "B-c992:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. This is a docs-only addition (new pre-registration file). Key concept checks: (1) Stale-term scan zero hits in the plan doc for K_min=32, n_cal=4 as operational values — the two occurrences of those numbers are deliberate historical rationale prose explaining why they were raised. (2) K_min=40 consistent across sections 6/7/8/9/10/13/14/15 (11 occurrences). (3) n_cal=8 consistent across all references. (4) n pinned=6 with variant indices 8-13 consistent across sections 6.4, 7.5, 8, 9 milestone table, 15 DoD. (5) Budget rows consistent: 312/432/624 powered arm-runs, 640 base calibration at K_min floor. (6) freeze_mde_exceeds_achievable_did guard present in sections 7.5, 8, 10, 13, 15. (7) Rev 2 file byte-untouched (sha256=2ef4122e...835471 verified). (8) Supersession scope consistent: ONLY M7 powered-run route replaced. (9) Referenced instruments resolve: repro_probe/repro_probe_get/repro_review_set/spike_record implemented in packages/main/src/handlers/repro-intake.ts; sample-size.mjs and evidence-map.mjs exist. (10) No doc-promise-undelivered: no new CLI commands or handler schemas introduced. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T16:28:15.265Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-001",
+      "_hash": "c1db8bc7c1e5387d9d31d8c48b1ef2917fb07f1a17026d38f3910cbae5a82d31"
     }
   ]
 }
