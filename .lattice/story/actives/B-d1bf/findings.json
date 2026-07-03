@@ -123,7 +123,7 @@
       "desc": "F-004 coverage is still incomplete for evidencePath at the real CLI/schema level. Handler coverage now exercises evidenceJson strings, parsed evidenceJson objects, and evidencePath combined with requestedStrength=production in packages/main/src/tasks/quantum-claim-admissibility-smoke.ts:537-575, and command-catalog smoke covers evidenceJson schema plus a real dist CLI call with --evidenceJson --requestedStrength=production in packages/main/src/tasks/command-catalog-smoke.ts:121-127 and :187-208. However there is no matching schemaAccepts assertion for quantum_claim_check.evidencePath and no real CLI --evidencePath --requestedStrength=production smoke; an rg scan for evidencePath schema/--evidencePath in smoke/test paths returned no coverage. Because the requested re-review criterion requires evidenceJson/evidencePath with requestedStrength=production at handler and real CLI/schema level, the evidencePath half remains unproven by the command-catalog/CLI smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T00:57:31.268Z",
@@ -135,7 +135,11 @@
         "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "coverage-gap|quantum-claim-check|evidence-path-real-cli",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit c8ca775e6: command-catalog smoke now includes evidencePath schema assertion and real dist CLI smoke for --evidencePath <file> --requestedStrength=production --json, returning decision=stop and allowed=false with claim_boundary_violation:requestedStrength.production.",
+      "resolvedAt": "2026-07-03T01:03:14.980Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
