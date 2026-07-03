@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T09:35:05.965Z",
       "reviewRunId": "B-e92c:RR-002",
       "_hash": "1c5f7cbc425785c2f9cba35c37cab1a91e28757c7f82af8288fe885c88137720"
+    },
+    {
+      "id": "B-e92c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion/replacement check complete. The diff is purely additive (2 new .mjs files + story metadata mutations). No concept words were deleted or replaced en masse. Key findings: (1) No deleted source lines except story metadata phase/status fields. (2) The new exports in live-readout.mjs (READOUT_SCHEMA_VERSION, parseScoreRecordsText, summarizeRecords, renderMarkdown, buildReadout, etc.) do not collide with or replace existing repo concepts — identically named functions in other files (summarizeRecords in usage-ledger, renderMarkdown in bug-report) are in different domains with no import relationship. (3) Artifact shape interfaces (n-freeze.json, m7-decision.json, score-records.jsonl) consumed by live-readout.mjs match the real expabl-m6-pilot-v1 artifacts exactly; selfcheck stub shapes are consistent. (4) schemaVersion proofbound.experience-ablation-n-freeze.v1 and proofbound.experience-ablation-m7-decision.v1 appear only in the new selfcheck stubs and the real runtime evidence files; no residue or stale references. (5) No TODO/FIXME/HACK markers in the new files. (6) No doc-promise-undelivered: CLAUDE.md and plan doc make no new CLI command or ENV var promises tied to this diff. (7) CLI spawn path (node cli.js learning_effectiveness --json) is valid; flag format parsed by parseFlags in cli-engine.ts. Zero concept deletion findings.",
+      "createdAt": "2026-07-03T09:40:10.177Z",
+      "reviewRound": "2026-07-03T09:35:05.965Z",
+      "reviewRunId": "B-e92c:RR-001",
+      "_hash": "f9be76c34a51b22c2769ea16a2a91cde884bfa08647bd71025c0bdc75e5cf529"
     }
   ]
 }
