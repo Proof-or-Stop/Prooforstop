@@ -1,44 +1,102 @@
 # B-f57a — Real-machine acceptance transcript & diff (TEST)
 
-Story: Tier-C M1 (crypto-deferred) — `cross_host_review` auto cross-host review collection +
+Story: Tier-C M1 (crypto-deferred) — `cross_host_review` auto cross-host review collection and
 finding-level disagreement surfacing.
-Rhythm: PLAN outcome = **expected** → run on real machine → **actual** → **diff**.
 
-Scope note: M1 delivers the CAPABILITY (the command + leaf + disagreement diff), verified
-deterministically via an injected fake-Codex seam. A single LIVE end-to-end 2-host run against the
-real Codex CLI is the separate **M3 (proof-of-mechanism)** milestone — deliberately NOT in M1's scope.
+Rhythm: PLAN outcome = expected -> run on real machine -> actual -> diff.
 
-## Expected (PLAN)
-1. `cross_host_review` is a registered command.
-2. It auto-runs a read-only Codex reviewer, captures a STRUCTURED verdict bound to the exact
-   materialHash via the existing `submitLocalVerdict` path, and FAILS CLOSED on unparseable /
-   schema-invalid / materialHash-mismatched / non-zero-exit output (never surfacing raw stdout).
-3. It combines host-A (Claude) + host-B (Codex) verdicts into a joint decision that surfaces
-   finding-level disagreements (findings raised by exactly one host); pass iff both pass AND no
-   disagreement.
-4. The review-only codex subprocess is gated by a sanctioned dispatch policy (fail-closed if
-   missing/unauthorized), cannot reach the implementation dispatch path, and receives a
-   credential-redacted env + a policy timeout ceiling.
+Scope note: M1 delivers the local capability: the command, bounded Codex reviewer leaf, host-verdict
+recording, and disagreement diff. A live external two-host run against a real Codex CLI remains the
+separate M3 proof-of-mechanism milestone and is deliberately outside this M1 acceptance check.
 
-## Run + actual
-- `node packages/main/dist/tasks/cross-host-review-smoke.js` → **21/21 checks pass**:
-  - CHK-001 (12): registration; fail-verdict capture + materialDigest binding; fail-closed on
-    garbage / missing-field / material-mismatch / non-zero-exit; no-raw-stdout; malicious-text
-    injection ignored; dispatch-policy refuses non-review codex + gemini/antigravity; both-flags
-    mutual-exclusion refused; missing/unauthorized policy fail-closed; env-denylist+secret-strip+
-    timeout-ceiling threaded to the spawn.
-  - CHK-002 (9): disagreement (host-B-only), agreeing pass, symmetric host-A-only, one-pass-one-fail,
-    title-case normalization, both-fail-same-findings, blocked-propagation, divergent-materialHash
-    blocked, duplicate-finding dedup.
-- `lattice validate` → **allPass: true** (32 configured commands incl. the full smoke suite; build tsc clean).
-- `intent_coverage_check` → 21/21 intents covered, 0 gaps, evidence fresh (non-stale, bound to current materialHash).
+## Expected
+
+1. `cross_host_review` is registered in the command registry.
+2. It can run a read-only Codex reviewer through an authorized review-only dispatch policy.
+3. It captures a structured host-B verdict bound to the orchestrator material hash and never exposes
+   raw stdout as evidence.
+4. It fails closed on malformed stdout, schema mismatch, materialHash mismatch, abnormal process
+   exit, timeout, truncated stdout, missing/unauthorized policy, malformed policy, same-host identity,
+   untrusted host-A findings input, dirty source worktree, and clean HEAD drift.
+5. It records host-A and host-B verdicts as one cross-host pair and does not retain stale or partial
+   verdict files if HEAD/source drift is detected at the final write boundary.
+6. It combines the two verdicts into a joint decision that passes only when both hosts pass and no
+   finding-level disagreement exists.
+
+## Actual Run
+
+Focused real-machine commands:
+
+```text
+$ npm --prefix packages/main run build
+> @lattice/core@0.3.146 build
+> tsc
+PASS
+
+$ node packages/main/dist/tasks/cross-host-review-smoke.js
+PASS: cross_host_review smoke passed (24 checks)
+```
+
+Full story validation:
+
+```text
+$ lattice validate --story=B-f57a --json
+PASS: Project validation commands passed
+allPass: true
+configured validate.commands: 32/32 passed
+elapsed: approximately 141.2s
+```
+
+Freshness check after validation:
+
+```text
+$ lattice evidence_plan --storyId=B-f57a --json
+missing: 0
+rerun: 0
+refreshOnly: 0
+fresh: 24
+```
+
+Reviewer acceptance:
+
+```text
+concept: PASS B-f57a:RP-011
+test-coverage: PASS B-f57a:RP-012
+quality: PASS B-f57a:RP-013
+open findings: 0
+```
+
+## Coverage Notes
+
+The current `cross-host-review-smoke` suite covers:
+
+- registry presence;
+- structured fake Codex verdict capture;
+- materialDigest binding;
+- garbage stdout / missing decision / wrong materialHash fail-closed paths;
+- non-zero exit, timeout, and truncated stdout fail-closed paths;
+- malicious stdout injection and strict schema rejection;
+- review-only dispatch policy authorization and malformed policy rejection;
+- env redaction and timeout-ceiling threading;
+- same-host identity rejection before spawn/record;
+- malformed host-A findings rejection before spawn/record;
+- dirty source worktree rejection before spawn;
+- pre-hash clean HEAD drift rejection;
+- post-spawn source drift rejection;
+- post-spawn clean HEAD drift rejection;
+- F-016 final-record post-write clean HEAD drift cleanup: the handler deletes the just-written
+  host verdict pair and leaves no stale or partial verdict files for the drifted runId;
+- `.lattice/`-only metadata churn control;
+- disagreement diff and jointDecision behavior across pass/fail/blocked/material-divergence cases.
 
 ## Diff
-No diff — expected == actual. Every PLAN-promised behavior is exercised by a labelled, non-hollow
-check (confirmed by the test-coverage lane RP-005). All nine REVIEW findings (F-001…F-009 across two
-rounds) were fixed and re-reviewed clean in Round 3 (concept RP-003, quality PASS, test-coverage RP-005).
+
+Expected == actual. The only acceptance-scope change since the older transcript is additional
+hardening: the suite grew from 21 to 24 checks, and `CHK-001:adversarial:6` now explicitly covers
+the final verdict-record write boundary that produced F-016.
 
 ## Verdict
-Accepted. The cross-host review capability is delivered and deterministically verified; the
-independence claim stays honestly bounded (cross-vendor, same-operator; no crypto — deferred to
-M-crypto). A live real-Codex end-to-end run is M3, not M1.
+
+Accepted. M1 local cross-host review capability is delivered and verified. The independence claim
+remains honestly bounded to local review lanes and structured verdict recording; cryptographic
+signing / external Authority proof remains out of scope for this story.
