@@ -52,10 +52,10 @@
           "command": "node run-pilot.mjs --plan --root=<demoRoot> --experimentId=exp-plan-demo --corpus=<demoRoot>/corpus",
           "result": "pass",
           "note": "--plan printed the cell table in seeded run order (4 cells: fx-bba8fe78-0/fx-04ea3882-0 x treatment/control, all pending, totals line 4 cells 0 done 4 pending, leakage-audit: PASS line), exit 0. Smoke cell coverage: run-pilot-selfcheck.mjs case (3) --smoke produced runs/<fixtureId>__<arm>/ with run.json (all RUN-RECORD required fields, commandCount=1, doneReached/validationPass true) + activity.jsonl + workspace/; node score.mjs --fixture --run exited 0 with voided=false voidReason=null, taskId bound to the armRunId.",
-          "headHash": "f0354beb7816f7a2ccd841438defef30158d5a52",
-          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
-          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
-          "timestamp": "2026-07-03T02:06:25.469Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
           "result": "pass",
           "note": "Hermetic stub host, zero tokens. Case (4): second invocation printed 1 skipped / 1 executed / 0 still pending and the skipped cells run.json stayed byte-identical (no double execution); progress jsonl gained the cell_skip row (append-only); third invocation printed 2 skipped / 0 executed. Identity key = (experimentId, fixtureId, arm) via terminal run.json detection. Full selfcheck: 24/24 PASS, rerun stable (exit 0 twice).",
-          "headHash": "21c9bfe3935d1f84885ae0387eca07ead0fc09e5",
-          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
-          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
-          "timestamp": "2026-07-03T02:06:41.756Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
           "result": "pass",
           "note": "Case (5): with --scratchDir inside a git checkout the runner spawned observability_snapshot --json in the isolated cwd, saw resolvedLearningRoot escape to the git toplevel, exited 1 with store-isolation assertion failed BEFORE host execution (stub marker file untouched, no run.json, cell_abort row on the progress ledger). Case (2): missing leakage-audit.jsonl and a pass:false row both refuse with exit 1 naming the audit/fixture before any host run; probe env strips LATTICE_PROJECT_ROOT (case 3 ran with it poisoned at the production repo and still resolved the mkdtemp root).",
-          "headHash": "c8413b524cec9375aef6a33d1a68f7b60781e278",
-          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
-          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
-          "timestamp": "2026-07-03T02:06:42.549Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         }
       ]
     },
@@ -134,10 +134,10 @@
           "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
           "result": "pass",
           "note": "Selftest clean phase: generator corpus (9 fixtures, perClass=1) audited via spawned CLI -> exit 0, 9 PASS lines, final line leakage-audit: all fixtures clean (9 fixtures), leakage-audit.jsonl rows {fixtureId, checks, pass} all pass and sorted. Also manually ran --corpus on an 18-fixture demo corpus: sorted PASS lines + clean summary + jsonl written, exit 0.",
-          "headHash": "aed48ef50ceba043586404072f9112353500e6e4",
-          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
-          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
-          "timestamp": "2026-07-03T01:50:36.853Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -146,10 +146,10 @@
           "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
           "result": "pass",
           "note": "Selftest poison phase: copied the clean corpus, injected strip-list marker memory pack into fx-0d5b8958-0 workspace/config.json, spawned CLI on the copy -> exit 1, stderr LEAK line names fixture fx-0d5b8958-0, the marker (quoted memory pack) and the poisoned file; jsonl row has pass=false with workspaceMarkers check failed while unpoisoned fixtures still pass.",
-          "headHash": "90b0d34478224056831e819a3694522dc2dda7f6",
-          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
-          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
-          "timestamp": "2026-07-03T01:50:44.838Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,10 +158,10 @@
           "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
           "result": "pass",
           "note": "Per-fixture checks hiddenArtifactsOutsideWorkspace (oracle.mjs + reference-good/ + reference-bad/ must exist at fixture root and never appear under workspace/**, verified by recursive walk of workspace path segments) and promptOmitsTrapClass (prompt.md must not contain the task.json trapClass, case-insensitive) are enforced on every audited fixture; both checks pass=true in every jsonl row of the 9-fixture selftest corpus and the 18-fixture demo corpus, and any hit fails the fixture with a LEAK line + nonzero exit.",
-          "headHash": "0cba50e3d2158d852f1a9ecc573a1e455422c2c7",
-          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
-          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
-          "timestamp": "2026-07-03T01:50:57.260Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         }
       ]
     },
@@ -213,10 +213,10 @@
           "command": "node experiments/experience-ablation/run-pilot.mjs --experimentId=expabl-m6-pilot-v1 --corpus=... --memorySnapshotDir=...",
           "result": "pass",
           "note": "pilot: 90 cells, 1 skipped (terminal smoke), 89 executed, 0 still pending. Control fault runs 40 (in-store 30) >= 15. score-records.jsonl 90 records. Evidence persisted at <mainRepo>/.lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ (protocol.mjs validate PASS there, hash 22705b73).",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -224,10 +224,10 @@
           "command": "score all 90 runs twice + sha256 compare",
           "result": "pass",
           "note": "replayByteIdentical true; scoreDigest 8cea19029c633dbd identical across two full re-scoring passes of all archived run dirs.",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -235,10 +235,10 @@
           "command": "summary over score-records.jsonl + protocol.mjs validate + leakage-audit",
           "result": "pass",
           "note": "voided=0 across all 90 runs (store isolation held); memoryPackShown 0/45 control vs 45/45 treatment; leakage-audit: all fixtures clean (45); protocol validates.",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         }
       ]
     },
@@ -290,10 +290,10 @@
           "command": "pilotFreezeCheck({defects:1,n:30}, rule, {alpha:0.05, power:0.80, mde:0.25|0.35})",
           "result": "pass",
           "note": "Freeze transcript in n-freeze.json: N=30, K=1, p=0.0333, Wilson CI [0.0059, 0.1667] width 0.1608 <= 0.30; verdict REFUSED (freeze_baseline_too_low) across the entire pre-registered MDE band — recorded as the documented out-of-band recompute path per plan section 7 and the CHK-004 context (record the recompute instead of silently proceeding).",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -301,10 +301,10 @@
           "command": "wilson95(1,30) width gate",
           "result": "pass",
           "note": "CI width 0.1608 <= 0.30: the extend-pilot gate did not fire; the refusal is freeze_baseline_too_low, i.e. baseline invalidation, not insufficient pilot size.",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -312,10 +312,10 @@
           "command": "independent recomputation via sample-size.mjs pilotFreezeCheck (mde 0.25 and 0.35)",
           "result": "pass",
           "note": "n-freeze.json freezeAttempts embed exact pilotFreezeCheck outputs (ok:false, freeze_baseline_too_low, sizing baseline 0.1667); no hand-derived numbers; outOfBandFinding documents the plan-section-7 consequence for M7.",
-          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T04:11:41.646Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         }
       ]
     },
@@ -338,10 +338,10 @@
           "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
           "result": "pass",
           "note": "Extended selfcheck ALL PASS (39 checks) twice for determinism. Happy path: snapshot materialized byte-identically on BOTH arms (case 6), treatment host prompt = rendered Memory Runtime Preflight section + raw prompt with surfaced-lesson union covering all six in-store classes (case 7: pb-host-policy/pb-reviewer-lane/pb-stale-doc/pb-deprecated-brand/pb-false-done + les-parent-roadmap), control host prompt byte-identical to fixture prompt.md, experience_pack_surfaced prelude event present in both arms captured slices with frozen-store topHitIds (case 8), run.json binds memorySnapshotHash and memoryPackRendered=true only on treatment.",
-          "headHash": "8c2190342469182eb2fa90d218d399c711bcb6ce",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T02:39:20.448Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -350,10 +350,10 @@
           "command": "env -u LATTICE_PROJECT_ROOT LATTICE_EXPERIMENT_ID=exp-probe LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js session_brief (cwd = bare mkdtemp non-git workspace)",
           "result": "pass",
           "note": "Empirical edge probes against the real built CLI: (1) a story-less isolated root EARLY-RETURNS from session_brief (No active story) with NO pack section and NO event — the frozen snapshot therefore carries a minimal anchor story (story/actives/B-mem0/index.json) which empirically unlocks the production Memory Runtime Preflight render path; (2) the operator machine global store (~/.lattice/dev-memory) leaked entries 9890b83/a4d08a8 into the pack — fixed by pinning LATTICE_GLOBAL_MEMORY_DIR to an empty dir inside the isolated root (pack shows global=none); (3) session_brief creates runtime-memory-pack-cache under .lattice/learning, so post-run snapshot verification hashes exactly the frozen file set (relpath+bytes, hashDirectorySnapshot-compatible), not the whole dir.",
-          "headHash": "45a6ae93172999fc31043e5c56bfccae15a646a3",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T02:39:33.931Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -362,10 +362,10 @@
           "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
           "result": "pass",
           "note": "Fail-closed adversarial cases all PASS: (9a) a tampered --memorySnapshotDir (hash disagrees with frozen protocol.json memorySnapshotHash) refuses the campaign BEFORE any host execution — no runs dir, stub host never ran, exit 1 naming frozen memory snapshot mismatch; (9b) a host that mutates the materialized store (appends to .lattice/dev-memory/experience.jsonl) aborts the cell AFTER the run — no run.json written, cell_abort progress row naming the post-run verification; (10) mechanical disjointness assertion rejects snapshot content mentioning a held-out class (tmp-absolute-path) and a store missing an in-store class lesson; builder re-emit reproduces the identical sha256. Arm contract in run-pilot additionally aborts on control-rendered or treatment-missing pack sections and on missing/empty surfaced events.",
-          "headHash": "a8bdedc27cb9b9aa01e14ccf263e68834eb2f549",
-          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
-          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
-          "timestamp": "2026-07-03T02:39:45.743Z"
+          "headHash": "a5131629c9bcd7e7f456554ed08bf19df85e3ced",
+          "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+          "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+          "timestamp": "2026-07-03T04:42:49.655Z"
         }
       ],
       "verificationIntent": {
