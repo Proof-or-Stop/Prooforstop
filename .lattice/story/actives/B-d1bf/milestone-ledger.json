@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-d1bf",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3792ee8e8280e6e4eddfa8f70186d4502cd56d61ff2f53001c22277970f190b6",
+  "milestones": [
+    {
+      "id": "M3-1",
+      "sourceRequirementId": "REQ-M3-GATE-POLICY",
+      "claim": "Quantum claim results map to advance, repair, degrade, escalate, or stop decisions.",
+      "doneMeans": "Core helper returns deterministic gate-policy decisions for complete, weak, stale, missing, mismatched, and overclaiming evidence.",
+      "requiredEvidence": [
+        "logic_test",
+        "focused_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3-2",
+      "sourceRequirementId": "REQ-M3-READONLY-COMMAND",
+      "claim": "quantum_claim_check exposes local read-only diagnostics for the M3 policy.",
+      "doneMeans": "Command renders JSON/text for complete, weak, and overclaim demo cases without writing gate evidence or mutating lifecycle state.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "command_policy_check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3-3",
+      "sourceRequirementId": "REQ-M3-NO-OVERCLAIM",
+      "claim": "M3 preserves no production, Authority, hardware, theory, benchmark, or report completion claims.",
+      "doneMeans": "Focused smoke and docs assert boundary booleans remain false and M4-M5 remain pending.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_review"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-03T00:13:35.511Z",
+  "updatedAt": "2026-07-03T00:14:10.071Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703001410",
+    "acceptedInterpretationHash": "sha256:2e59eb8565cff809b83c4a796d4e754be9a6532b1f5385443af3f40a36c0af44",
+    "acceptedAt": "2026-07-03T00:14:10.071Z"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "storyId": "B-d1bf",
+  "checkedAt": "2026-07-03T03:05:06.590Z",
+  "headHash": "08f9657f7b3ebd7216128a30a88fba5cc0311ab8",
+  "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+  "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+  "reviewRound": "2026-07-03T02:53:19.220Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "promise": "Quantum runtime status is M0-M3 implemented and M4-M5 pending, with M3 limited to a local read-only gate-policy projection and no production, Authority, hardware, theory, benchmark, or report/governance completion claim.",
+      "status": "verified",
+      "verifiedBy": "read-only doc/code review plus focused smoke",
+      "evidence": "Doc lines 21-38 state M0-M3 implemented and M4-M5 pending; lines 307-326 define M3 as local read-only quantum_claim_check with writesLifecycleEvidence=false and mutatesLifecycle=false; lines 51-61 and 338-344 exclude theory, hardware, production, Authority, broad quantum advantage, and physical validation claims. Code returns localClaimAdmissibilityOnly=true, writesLifecycleEvidence=false, mutatesLifecycle=false, and boundary production/authority false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "promise": "Adapter-pack framework keeps Quantum M0-M3 as read-only descriptor/normalization plus separate quantum_claim_check projection; generic M4 gatePolicies and M5 benchmark/reporting remain pending.",
+      "status": "verified",
+      "verifiedBy": "read-only doc/code review",
+      "evidence": "Doc lines 77-89 and 297-311 state the Quantum pack is descriptor/normalization-only, gatePolicies remains empty, quantum_claim_check is separate local projection, and M4/M5 capabilities remain pending. Lines 334-339 state generic framework M4 remains future work."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/test-evidence.json",
+      "promise": "Post-main-sync validation evidence is PASS, current, and covers all required verification intents.",
+      "status": "verified",
+      "verifiedBy": "jq read of test-evidence plus session_brief",
+      "evidence": "test-evidence.json result=PASS at 2026-07-03T03:00:35.139Z with materialHash dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a and verificationCoverage total=18 required=18 covered=18 missingRequired=0; session_brief reports Test evidence PASS and Evidence freshness PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/done-required-evidence.json",
+      "promise": "DONE-required local validation passes for build and root full test suite at the current material hash.",
+      "status": "verified",
+      "verifiedBy": "jq read of done-required-evidence",
+      "evidence": "done-required-evidence.json status=PASS endedAt=2026-07-03T03:02:36.153Z with current materialHash dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a; receipts show packages/main build PASS and root full test suite PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d1bf/review-passes.json",
+      "promise": "Review/quorum evidence passes and all registered findings are resolved/verified.",
+      "status": "verified",
+      "verifiedBy": "lattice review_escalation_status and jq findings review",
+      "evidence": "review_escalation_status reports ok=true, assuranceLevel=full-3x2, fullQuorum 3/3 rounds x 2 hosts, materialHash dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a. findings.json has no open findings; F-001 through F-010 are resolved with evidenceState=verified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "quantum_claim_check-complete-read-only",
+      "transcript": "Read-only reviewer rerun: node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json exited 0 and returned decision=advance, allowed=true, transition=claim-admissibility, localOnly=true, localClaimAdmissibilityOnly=true, writesLifecycleEvidence=false, mutatesLifecycle=false, productionClaim=false, authorityClaim=false, runtimeStatus M0-M3 implemented; M4-M5 pending."
+    },
+    {
+      "featureId": "quantum_claim_check-q1-quantum-advantage-degrade",
+      "transcript": "Read-only reviewer rerun: node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --claimId=Q1 --requestedStrength=quantum-advantage --json exited 0 and returned decision=degrade, allowed=false, degradedClaimAvailable=true, reason weak_evidence_overclaim:quantum-advantage, writesLifecycleEvidence=false, mutatesLifecycle=false, productionClaim=false, authorityClaim=false."
+    },
+    {
+      "featureId": "quantum_claim_check-overclaim-stop",
+      "transcript": "Read-only reviewer rerun: node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json exited 0 and returned decision=stop, allowed=false, claim_boundary_violation reasons for requestedStrength.production, productionClaim, authorityClaim, and narrativeClaim; boundary theory, hardware, production, and authority claims remained false."
+    },
+    {
+      "featureId": "focused-quantum-smoke",
+      "transcript": "Read-only reviewer rerun: npm --prefix packages/main run test:quantum-claim-admissibility exited 0; output included quantum M3 complete gate-policy case PASS, Q1 ground-state/convergence stronger-strength overclaim PASS, Q12 quantum-advantage stronger-strength overclaim PASS, hard theory/hardware/physical-validation/solver-improvement/production/authority overclaim PASS, handler gate-policy cases PASS, and quantum claim-admissibility smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: session_brief shows every DONE pre-check except stale delivery-check is PASS or non-blocking warn; current evidence contains post-main-sync validate PASS, DONE-required PASS, and full-3x2 review/quorum PASS; docs and implementation keep Quantum M3 as local/read-only claim-admissibility gate policy only; no productionDone, Authority, hardware, theory, M4, or M5 claim is made; real-machine smoke covers complete advance/read-only, Q1 quantum-advantage degrade, and overclaim stop."
+  },
+  "_hash": "0be368f1c452b38df6227f54e4c88ced26eba99afe0c02e3f06a2cbe45bab9f8"
+}

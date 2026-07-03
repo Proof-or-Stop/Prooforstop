@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3779",
+  "allowedCommands": [
+    "lattice done_prepare *",
+    "lattice story_advance *",
+    "lattice validate --story=*",
+    "node packages/main/dist/cli.js --root * quantum_claim_benchmark *",
+    "node packages/main/dist/cli.js --root * quantum_claim_report *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:command-catalog-smoke",
+    "npm --prefix packages/main run test:quantum-claim-admissibility",
+    "npm --prefix packages/main run test:quantum-claim-benchmark"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/quantum-claim-admissibility.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push origin main",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Local implementation and verification only; no remote publish and no OMX.",
+  "createdAt": "2026-07-03T03:27:12.444Z",
+  "updatedAt": "2026-07-03T03:27:12.444Z",
+  "_hash": "f70424da620f8dc6e2a1e96cc575ae348f0ad0d4dc6fbc3e42f437a15ef15bf8"
+}

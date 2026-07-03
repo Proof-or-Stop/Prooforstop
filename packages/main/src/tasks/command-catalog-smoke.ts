@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
+import { buildQuantumClaimCheckCase } from '../core/claim-admissibility/quantum.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');
@@ -46,6 +48,37 @@ function runCli(args: string[]): string {
       LATTICE_NO_HOOKS: '1',
     },
   });
+}
+
+function runDistCli(args: string[]): string {
+  const distCli = join(pkgRoot, 'dist', 'cli.js');
+  return execFileSync('node', [distCli, ...args], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: {
+      ...process.env,
+      LATTICE_NO_HOOKS: '1',
+    },
+  });
+}
+
+function runDistCliProbe(args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const distCli = join(pkgRoot, 'dist', 'cli.js');
+  const result = spawnSync('node', [distCli, ...args], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: {
+      ...process.env,
+      LATTICE_NO_HOOKS: '1',
+    },
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
 }
 
 const duplicateNames = toolNames.filter((name, index) => toolNames.indexOf(name) !== index);
@@ -104,6 +137,16 @@ for (const retiredCommand of [
   assert.equal(toolByName.has(retiredCommand), false, `${retiredCommand} must remain retired from MAIN_TOOLS`);
 }
 
+const quantumCompleteEvidence = buildQuantumClaimCheckCase('complete');
+const quantumCompleteEvidenceJson = JSON.stringify(quantumCompleteEvidence);
+assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', quantumCompleteEvidenceJson), true, 'quantum evidenceJson schema accepts inline JSON strings');
+assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', quantumCompleteEvidence), true, 'quantum evidenceJson schema accepts parser-produced JSON objects');
+assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', [quantumCompleteEvidence]), false, 'quantum evidenceJson schema rejects arrays');
+assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', 1), false, 'quantum evidenceJson schema rejects scalar non-JSON values');
+assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', '/tmp/complete-q5.json'), true, 'quantum evidencePath schema accepts file path strings');
+assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', quantumCompleteEvidence), false, 'quantum evidencePath schema rejects parser-produced JSON objects');
+assert.equal(schemaAccepts('quantum_claim_check', 'productionClaim', true), false, 'quantum command schema keeps productionClaim unsupported');
+
 const currentHostText = [
   findTool('host_runtime_list').description,
   findTool('host_runtime_probe').description,
@@ -161,5 +204,73 @@ const helpOutput = runCli(['help']);
 assert.match(helpOutput, /Proofbound CLI/, 'lattice help should retain Proofbound branding');
 assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
 assert.match(helpOutput, /antigravity/, 'lattice help should include antigravity host text');
+
+const quantumCliOutput = runDistCli([
+  '--root',
+  repoRoot,
+  'quantum_claim_check',
+  '--evidenceJson',
+  quantumCompleteEvidenceJson,
+  '--requestedStrength=production',
+  '--json',
+]);
+const quantumCliResult = JSON.parse(quantumCliOutput) as {
+  decision?: unknown;
+  allowed?: unknown;
+  reason?: unknown;
+  reasons?: unknown;
+};
+assert.equal(quantumCliResult.decision, 'stop', 'real CLI quantum evidenceJson requestedStrength=production stops');
+assert.equal(quantumCliResult.allowed, false, 'real CLI quantum evidenceJson requestedStrength=production is not allowed');
+assert.equal(
+  Array.isArray(quantumCliResult.reasons) && quantumCliResult.reasons.includes('claim_boundary_violation:requestedStrength.production'),
+  true,
+  'real CLI quantum evidenceJson requestedStrength=production reports the production overclaim reason',
+);
+
+const emptyEvidenceJsonProbe = runDistCliProbe([
+  '--root',
+  repoRoot,
+  'quantum_claim_check',
+  '--evidenceJson',
+  '',
+  '--json',
+]);
+assert.notEqual(emptyEvidenceJsonProbe.status, 0, 'real CLI quantum empty evidenceJson exits nonzero instead of falling back to complete evidence');
+assert.match(
+  emptyEvidenceJsonProbe.stderr,
+  /evidenceJson must be a non-empty JSON object/,
+  'real CLI quantum empty evidenceJson reports the fail-closed input error',
+);
+
+const quantumEvidencePathRoot = mkdtempSync(join(tmpdir(), 'quantum-command-catalog-'));
+try {
+  const quantumCompleteEvidencePath = join(quantumEvidencePathRoot, 'complete-q5.json');
+  writeFileSync(quantumCompleteEvidencePath, quantumCompleteEvidenceJson);
+  const quantumEvidencePathOutput = runDistCli([
+    '--root',
+    repoRoot,
+    'quantum_claim_check',
+    '--evidencePath',
+    quantumCompleteEvidencePath,
+    '--requestedStrength=production',
+    '--json',
+  ]);
+  const quantumEvidencePathResult = JSON.parse(quantumEvidencePathOutput) as {
+    decision?: unknown;
+    allowed?: unknown;
+    reasons?: unknown;
+  };
+  assert.equal(quantumEvidencePathResult.decision, 'stop', 'real CLI quantum evidencePath requestedStrength=production stops');
+  assert.equal(quantumEvidencePathResult.allowed, false, 'real CLI quantum evidencePath requestedStrength=production is not allowed');
+  assert.equal(
+    Array.isArray(quantumEvidencePathResult.reasons)
+      && quantumEvidencePathResult.reasons.includes('claim_boundary_violation:requestedStrength.production'),
+    true,
+    'real CLI quantum evidencePath requestedStrength=production reports the production overclaim reason',
+  );
+} finally {
+  rmSync(quantumEvidencePathRoot, { recursive: true, force: true });
+}
 
 process.stdout.write(`command catalog smoke passed: ${MAIN_TOOLS.length} commands\n`);

@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "A local Quantum gate check returns deterministic transition guidance for admissible, weak, stale, missing, mismatched, and overclaiming evidence.",
+      "userSees": "Terminal JSON includes \"decision\":\"advance\" for complete bound evidence, \"decision\":\"degrade\" for weak scoped evidence, and never advances stale, missing, mismatched, production, Authority, hardware, or theory overclaims.",
       "excludes": [
         "No Story machine mutation",
         "No benchmark harness",
@@ -46,9 +46,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T00:38:32.726Z",
+      "endTime": "2026-07-03T00:38:41.904Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts complete bound Q5 evidence maps to Quantum M3 gate-policy decision advance with local claim-admissibility only.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts weak scoped Q5 evidence maps to decision degrade and degradedClaimAvailable=true instead of a false hard pass.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts stale, missing, mismatched, unbound, production, Authority, hardware, theory, physical-validation, and solver-improvement overclaims never advance.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -58,7 +96,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
-      "userSees": "Hosts can run quantum_claim_check to inspect local quantum claim admissibility and gate-policy guidance without changing story lifecycle state.",
+      "userSees": "Running lattice quantum_claim_check --case=complete --json prints a read-only local result with \"decision\":\"advance\", \"authorityDone\":false, and \"productionDone\":false.",
       "excludes": [
         "No lifecycle phase advance",
         "No evidence writing",
@@ -103,9 +141,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T00:38:33.860Z",
+      "endTime": "2026-07-03T00:38:42.648Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
+          "result": "pass",
+          "note": "CLI complete JSON output includes decision=advance, boundary.productionClaim=false, boundary.authorityClaim=false, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=degraded --json",
+          "result": "pass",
+          "note": "CLI degraded JSON output includes decision=degrade and keeps lifecycle mutation/evidence writing disabled.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json",
+          "result": "pass",
+          "note": "CLI overclaim JSON output includes decision=stop with boundary.productionClaim=false and boundary.authorityClaim=false.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -114,7 +190,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "The focused smoke transcript includes Quantum M3 gate policy pass/degrade/stop cases and the quantum_claim_check command surface.",
+      "userSees": "The focused smoke output includes \"quantum M3 gate policy passed\" and command-path checks for complete, weak, missing/stale, and overclaim cases.",
       "excludes": [
         "No A1-A4 benchmark metrics",
         "No B1-B15 failure-injection matrix",
@@ -152,9 +228,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T00:38:35.067Z",
+      "endTime": "2026-07-03T00:38:43.299Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Focused smoke prints Quantum M3 gate-policy PASS lines for the complete case and handler path.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Focused smoke covers weak/degraded, stale, missing, mismatched, and unbound evidence categories.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Focused smoke asserts no M4/M5, external readiness, production/Authority boundary claim, hardware, theory, or solver-improvement claim is emitted by M3 command behavior.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -164,7 +278,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
-      "userSees": "The docs accurately state that M3 adds local read-only gate policy guidance and that benchmark/reporting remain pending.",
+      "userSees": "Docs say \"Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending\" and do not claim generic framework M4, benchmark/reporting, production, Authority, hardware, or theory completion.",
       "excludes": [
         "Do not claim full lifecycle transition integration",
         "Do not claim benchmark/report/governance completion"
@@ -202,9 +316,259 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T00:38:37.785Z",
+      "endTime": "2026-07-03T00:38:43.958Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "result": "pass",
+          "note": "Quantum execution plan states runtime status M0-M3 implemented and M4-M5 pending, using current boundary.productionClaim/boundary.authorityClaim wording.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "result": "pass",
+          "note": "Docs distinguish Quantum-specific local read-only M3 gate-policy diagnostics from generic framework M4 gate-policy adapter completion and global Story machine mutation.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "result": "pass",
+          "note": "Docs retain no quantum theory, hardware, production/Authority boundary, benchmark, or report/governance completion claim.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement Quantum M3: add local gate policy check for claim-admissibility t...",
+      "context": "Story description source: Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md.. ReadinessReport(REVIEW) highlighted: branch_behind_main_advisory, checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-03T00:38:38.997Z",
+      "endTime": "2026-07-03T00:38:44.909Z",
+      "userSees": "User sees JSON output containing \"decision\":\"advance\", \"authorityDone\":false, \"productionDone\":false for the complete case, and M3 implementation files are committed without benchmark/report/lifecycle mutation files.",
+      "excludes": [
+        "No global Story machine mutation",
+        "No M4 benchmark harness",
+        "No M5 report/governance renderer",
+        "No quantum theory/hardware/production/Authority claim"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/quantum-claim-admissibility.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The implemented M3 slice exposes pure policy helpers and a read-only quantum_claim_check command over existing Quantum M0-M2 evaluator output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The implementation keeps weak/scoped evidence in degrade guidance and does not silently convert it into advance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation does not add lifecycle mutation, M4 benchmark, M5 report/governance, production, Authority, hardware, theory, or solver-improvement claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/claim-admissibility/quantum.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with Quantum M3 pure helper, handler, registry, command policy, and config wiring committed.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Committed implementation keeps weak/scoped evidence in degrade guidance and does not convert it into advance.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:command-catalog-smoke",
+          "result": "pass",
+          "note": "Command ownership and catalog smoke prove quantum_claim_check is dispatchable/read-only and does not add lifecycle mutation or benchmark/report command scope.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Verify Quantum M3: add local gate policy check for claim-admissibility t...",
+      "context": "Plan happy, edge, and adversarial checks for: This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.. ReadinessReport(REVIEW) highli...",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-03T00:38:40.030Z",
+      "endTime": "2026-07-03T00:38:45.670Z",
+      "userSees": "User sees smoke output lines \"quantum M0-M3 claim admissibility smoke: PASS\" and \"quantum_claim_check complete/degraded/overclaim cases: PASS\" with no lifecycle evidence write.",
+      "excludes": [
+        "No statistical benchmark rates or confidence intervals",
+        "No A1-A4/B1-B15 benchmark matrix",
+        "No report/governance renderer",
+        "No external Authority or production readiness validation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke covers complete bound Q5 evidence and the quantum_claim_check complete JSON path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused smoke covers weak/degraded and missing or stale evidence categories.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused smoke proves overclaiming and external-readiness claims stop rather than advance, with productionDone and authorityDone false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
+          "result": "pass",
+          "note": "CLI complete JSON path was rerun and returned decision=advance with boundary.productionClaim=false and boundary.authorityClaim=false.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.935Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
+          "result": "pass",
+          "note": "Smoke rerun covers weak/degraded and missing/stale evidence categories with deterministic PASS output.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.936Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json",
+          "result": "pass",
+          "note": "CLI overclaim path was rerun and stopped instead of advancing, while keeping boundary.productionClaim=false and boundary.authorityClaim=false.",
+          "headHash": "f3ec46b2a2572931b2406271b274991a47469d91",
+          "materialHash": "dc29eed0d78f27f4d368038c197c7e45eb102f2f869bcea6c37e9b6abe25769a",
+          "storyFilesHash": "57c23576cdaefc07cfef7a8e44c71ea5cb135ef8179c5799e88966a58b283b93",
+          "timestamp": "2026-07-03T02:50:08.936Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T00:15:24.080Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Implement Quantum M3: add local gate policy check for claim-admissibility t...",
+      "addedContext": "Story description source: Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md.. ReadinessReport(REVIEW) highlighted: branch_behind_main_advisory, checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-07-03T00:15:24.152Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Verify Quantum M3: add local gate policy check for claim-admissibility t...",
+      "addedContext": "Plan happy, edge, and adversarial checks for: This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.. ReadinessReport(REVIEW) highli..."
     }
   ]
 }

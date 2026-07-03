@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d1bf",
+  "records": [
+    {
+      "id": "RED-20260703001335",
+      "trigger": "Quantum M3 command and gate-policy behavior are absent before implementation.",
+      "acceptanceTargetRef": "REQ-M3-READONLY-COMMAND",
+      "baselineHeadHash": "6d6b2c1f5dd489487fa2462a1318d9d6b5b72da9",
+      "baselineMaterialHash": "84eb591c5d37a85cf8b6d6ec21a8daecaa12ae749733cd50d3fd958481dd96fb",
+      "observedFailure": "Before B-d1bf implementation, lattice quantum_claim_check is not a registered command and cannot produce Quantum M3 gate-policy decisions.",
+      "failingCommand": "lattice quantum_claim_check --case=complete --json",
+      "expectedGreenCommand": "lattice quantum_claim_check --case=complete --json",
+      "greenRelation": {
+        "targetRef": "REQ-M3-READONLY-COMMAND",
+        "relation": "same_acceptance",
+        "command": "lattice quantum_claim_check --case=complete --json"
+      },
+      "note": "Red evidence binds the planned M3 command absence to the expected green command; this is feature-baseline evidence, not a product bug.",
+      "createdAt": "2026-07-03T00:13:35.565Z"
+    },
+    {
+      "id": "RED-20260703001429",
+      "trigger": "Quantum M3 acceptance is red before implementation because no quantum_claim_check command or gate-policy output exists.",
+      "acceptanceTargetRef": "BIND-M3",
+      "baselineHeadHash": "6d6b2c1f5dd489487fa2462a1318d9d6b5b72da9",
+      "baselineMaterialHash": "84eb591c5d37a85cf8b6d6ec21a8daecaa12ae749733cd50d3fd958481dd96fb",
+      "observedFailure": "Before B-d1bf implementation, the accepted M3 outcome cannot be observed: quantum_claim_check is not registered and cannot emit advance/degrade/stop policy guidance.",
+      "failingCommand": "lattice quantum_claim_check --case=complete --json",
+      "expectedGreenCommand": "lattice quantum_claim_check --case=complete --json",
+      "greenRelation": {
+        "targetRef": "BIND-M3",
+        "relation": "same_acceptance",
+        "command": "lattice quantum_claim_check --case=complete --json"
+      },
+      "note": "Acceptance-level red evidence for ProofStory DEV admission; green will be the same command returning complete-case M3 JSON output after implementation.",
+      "createdAt": "2026-07-03T00:14:29.431Z"
+    }
+  ],
+  "createdAt": "2026-07-03T00:13:35.565Z",
+  "updatedAt": "2026-07-03T00:14:29.431Z"
+}

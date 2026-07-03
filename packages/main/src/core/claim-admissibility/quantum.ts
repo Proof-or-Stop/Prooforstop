@@ -3,9 +3,10 @@ import { createHash } from 'node:crypto';
 export const QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.quantum_claim_admissibility.v1' as const;
 export const QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.quantum_claim_admissibility_verifier.v1' as const;
 export const QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION = 'lattice.quantum_verifier_adapter_output.v1' as const;
+export const QUANTUM_CLAIM_GATE_POLICY_SCHEMA_VERSION = 'lattice.quantum_claim_gate_policy.v1' as const;
 
 export const QUANTUM_RUNTIME_STATUS =
-  'Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending.' as const;
+  'Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending.' as const;
 
 export const QUANTUM_BOUNDARY_PARAGRAPH =
   'Proof-or-Stop for computational quantum mechanics is a local claim-admissibility control layer. It checks whether a stated quantum-simulation claim has current, bound evidence before advancing; it does not prove quantum mechanics, validate physical systems or hardware, improve solvers, make production deployment claims, or act as Authority.';
@@ -184,17 +185,31 @@ export type QuantumVerifierNormalizationResult =
       readonly reasons: readonly string[];
     };
 
-export type QuantumRequestedStrength =
-  | 'scoped'
-  | 'ground-state'
-  | 'convergence'
-  | 'quantum-advantage'
-  | 'theory'
-  | 'hardware'
-  | 'physical-validation'
-  | 'solver-improvement'
-  | 'production'
-  | 'authority';
+export const QUANTUM_REQUESTED_STRENGTHS = [
+  'scoped',
+  'ground-state',
+  'convergence',
+  'quantum-advantage',
+  'theory',
+  'hardware',
+  'physical-validation',
+  'solver-improvement',
+  'production',
+  'authority',
+] as const;
+export type QuantumRequestedStrength = typeof QUANTUM_REQUESTED_STRENGTHS[number];
+
+export const QUANTUM_CLAIM_CHECK_CASES = [
+  'complete',
+  'weak',
+  'degraded',
+  'stale',
+  'missing',
+  'mismatched',
+  'unbound',
+  'overclaim',
+] as const;
+export type QuantumClaimCheckCase = typeof QUANTUM_CLAIM_CHECK_CASES[number];
 
 export interface QuantumClaimCheckInput {
   schemaVersion?: string;
@@ -236,6 +251,32 @@ export interface QuantumClaimCheckResult {
   checkedReceipts: QuantumEvidenceKind[];
   missingReceipts: QuantumEvidenceKind[];
   requiredIdentityFields: QuantumIdentityField[];
+  boundary: QuantumBoundaryBooleans;
+  boundaryText: string;
+  runtimeStatus: typeof QUANTUM_RUNTIME_STATUS;
+  artifactIndex: QuantumArtifactIndexEntry[];
+}
+
+export type QuantumGatePolicyDecision = 'advance' | 'repair' | 'degrade' | 'escalate' | 'stop';
+
+export interface QuantumClaimGatePolicyResult {
+  schemaVersion: typeof QUANTUM_CLAIM_GATE_POLICY_SCHEMA_VERSION;
+  claimCheckSchemaVersion: typeof QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION;
+  verifierVersion: typeof QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION;
+  claimId: string;
+  decision: QuantumGatePolicyDecision;
+  allowed: boolean;
+  transition: 'claim-admissibility';
+  localOnly: true;
+  localClaimAdmissibilityOnly: true;
+  writesLifecycleEvidence: false;
+  mutatesLifecycle: false;
+  sourceNextAction: QuantumClaimCheckResult['nextAction'];
+  scopedClaim: boolean;
+  degradedClaimAvailable: boolean;
+  reasons: string[];
+  checkedReceipts: QuantumEvidenceKind[];
+  missingReceipts: QuantumEvidenceKind[];
   boundary: QuantumBoundaryBooleans;
   boundaryText: string;
   runtimeStatus: typeof QUANTUM_RUNTIME_STATUS;
@@ -309,6 +350,7 @@ const CLAIM_REQUIREMENTS: Record<QuantumClaimId, ClaimRequirements> = {
 const ALL_REASON_PREFIXES = [
   'unsupported_schema_version',
   'unknown_claim',
+  'invalid_requested_strength',
   'claim_boundary_violation',
   'missing_core_identity_field',
   'missing_conditional_identity_field',
@@ -332,6 +374,7 @@ export type QuantumReasonPrefix = typeof ALL_REASON_PREFIXES[number];
 
 const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
   'unknown_claim',
+  'invalid_requested_strength',
   'claim_boundary_violation',
   'missing_core_identity_field',
   'missing_conditional_identity_field',
@@ -355,8 +398,18 @@ function isKnownClaim(claimId: string): claimId is QuantumClaimId {
   return (QUANTUM_CLAIM_IDS as readonly string[]).includes(claimId);
 }
 
+function assertKnownClaim(claimId: string): asserts claimId is QuantumClaimId {
+  if (!isKnownClaim(claimId)) {
+    throw new Error(`Unknown quantum claimId: ${claimId}. Expected one of ${QUANTUM_CLAIM_IDS.join(', ')}.`);
+  }
+}
+
 function isKnownEvidenceKind(evidenceKind: string): evidenceKind is QuantumEvidenceKind {
   return (QUANTUM_EVIDENCE_KINDS as readonly string[]).includes(evidenceKind);
+}
+
+function isKnownRequestedStrength(value: unknown): value is QuantumRequestedStrength {
+  return typeof value === 'string' && (QUANTUM_REQUESTED_STRENGTHS as readonly string[]).includes(value);
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -365,6 +418,101 @@ function isNonEmptyString(value: unknown): value is string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+const TRUEISH_OVERCLAIM_VALUES = new Set(['true', '1', 'yes', 'y', 'on']);
+
+const QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS = [
+  'quantumTheoryClaim',
+  'physicalValidationClaim',
+  'hardwareValidationClaim',
+  'solverImprovementClaim',
+  'productionClaim',
+  'authorityClaim',
+  'productionReadyClaim',
+] as const;
+
+export const QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES = [
+  'authority' + 'Done',
+  'fullAuthority' + 'Done',
+  'production' + 'Done',
+] as const;
+
+const QUANTUM_BOUNDARY_FIELD_NAMES = [
+  ...QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS,
+  ...QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES,
+] as const;
+
+const QUANTUM_BOUNDARY_FIELD_OVERCLAIM_PATTERN = new RegExp(
+  String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${QUANTUM_BOUNDARY_FIELD_NAMES.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`,
+  'i',
+);
+
+const QUANTUM_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN =
+  /\b(?:(?:proves?|proved|proven|verifies?|verified|validates?|validated|guarantees?|guaranteed)\s+(?:quantum\s+(?:mechanics|theory)|physical\s+(?:system|reality)|hardware|laboratory|lab)|(?:quantum\s+(?:mechanics|theory)|physical\s+(?:system|validation|reality)|hardware|laboratory|lab)\s+(?:is\s+)?(?:proved|proven|verified|validated|guaranteed|complete)|(?:hardware|physical|laboratory|lab)\s+validation\s+(?:proved|proven|verified|validated|guaranteed|complete)|solver\s+(?:improvement|quality|improved|optimized|optimal)|(?:production|authority|external|terminal)\s+(?:done|complete|completion|ready|readiness)|ready\s+for\s+production|production-ready)\b/i;
+
+function isUnsafeBoundaryOverclaimValue(value: unknown): boolean {
+  if (value === true) return true;
+  if (value === 1) return true;
+  if (typeof value !== 'string') return false;
+  return TRUEISH_OVERCLAIM_VALUES.has(value.trim().toLowerCase());
+}
+
+function hasRetiredBoundaryFieldOverclaim(value: unknown, visited = new WeakSet<object>()): boolean {
+  if (!value || typeof value !== 'object') return false;
+  if (visited.has(value)) return false;
+  visited.add(value);
+
+  if (Array.isArray(value)) {
+    return value.some((item) => hasRetiredBoundaryFieldOverclaim(item, visited));
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const [key, fieldValue] of Object.entries(record)) {
+    if (
+      QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES.includes(key)
+      && isUnsafeBoundaryOverclaimValue(fieldValue)
+    ) {
+      return true;
+    }
+    if (hasRetiredBoundaryFieldOverclaim(fieldValue, visited)) return true;
+  }
+  return false;
+}
+
+function boundaryViolationReasons(input: QuantumClaimCheckInput): string[] {
+  const violations: string[] = [];
+  if (
+    input.requestedStrength === 'theory'
+    || input.requestedStrength === 'hardware'
+    || input.requestedStrength === 'physical-validation'
+    || input.requestedStrength === 'solver-improvement'
+    || input.requestedStrength === 'production'
+    || input.requestedStrength === 'authority'
+  ) {
+    violations.push(`requestedStrength.${input.requestedStrength}`);
+  }
+
+  const record = input as unknown as Record<string, unknown>;
+  for (const field of QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS) {
+    if (isUnsafeBoundaryOverclaimValue(record[field])) violations.push(field);
+  }
+  if (hasRetiredBoundaryFieldOverclaim(input)) {
+    violations.push('retired_boundary_field');
+  }
+
+  const text = input.narrativeClaim ?? '';
+  if (
+    text !== ''
+    && (
+      QUANTUM_BOUNDARY_FIELD_OVERCLAIM_PATTERN.test(text)
+      || QUANTUM_CLAIM_BOUNDARY_NARRATIVE_OVERCLAIM_PATTERN.test(text)
+    )
+  ) {
+    violations.push('narrativeClaim');
+  }
+
+  return [...new Set(violations)];
 }
 
 function reason(code: QuantumReasonPrefix, subject?: string): string {
@@ -593,27 +741,12 @@ function expectedReceiptKinds(claimId: QuantumClaimId): readonly QuantumEvidence
   return CLAIM_REQUIREMENTS[claimId].receiptKinds;
 }
 
-function boundaryViolation(input: QuantumClaimCheckInput): boolean {
-  if (
-    input.requestedStrength === 'theory'
-    || input.requestedStrength === 'hardware'
-    || input.requestedStrength === 'physical-validation'
-    || input.requestedStrength === 'solver-improvement'
-    || input.requestedStrength === 'production'
-    || input.requestedStrength === 'authority'
-  ) {
-    return true;
-  }
-  const text = input.narrativeClaim ?? '';
-  return /\b(proves?\s+quantum\s+mechanics|physical\s+validation|validated\s+physical\s+system|hardware\s+validated|solver\s+improvement|production\s+complete|authority\s+done)\b/i.test(text);
-}
+const QUANTUM_WEAK_EVIDENCE_REQUESTED_STRENGTHS = ['ground-state', 'convergence', 'quantum-advantage'] as const;
 
 function requestedStrengthOverclaims(input: QuantumClaimCheckInput): string | undefined {
-  if (input.claimId !== 'Q5') return undefined;
   if (
-    input.requestedStrength === 'ground-state'
-    || input.requestedStrength === 'convergence'
-    || input.requestedStrength === 'quantum-advantage'
+    input.requestedStrength !== undefined
+    && (QUANTUM_WEAK_EVIDENCE_REQUESTED_STRENGTHS as readonly string[]).includes(input.requestedStrength)
   ) {
     return input.requestedStrength;
   }
@@ -858,15 +991,70 @@ function completeReceipt(evidenceKind: QuantumEvidenceKind, identity: QuantumEvi
 }
 
 export function buildCompleteQuantumEvidence(claimId: QuantumClaimId = 'Q5'): QuantumClaimCheckInput {
+  const knownClaimId = String(claimId);
+  assertKnownClaim(knownClaimId);
   const activeIdentity = completeIdentity();
   return {
     schemaVersion: QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
-    claimId,
+    claimId: knownClaimId,
     activeIdentity,
-    receipts: expectedReceiptKinds(claimId).map((evidenceKind) => completeReceipt(evidenceKind, activeIdentity)),
+    receipts: expectedReceiptKinds(knownClaimId).map((evidenceKind) => completeReceipt(evidenceKind, activeIdentity)),
     requestedStrength: 'scoped',
     narrativeClaim: 'Local scoped computational quantum claim with current bound evidence.',
   };
+}
+
+export function buildQuantumClaimCheckCase(
+  caseName: QuantumClaimCheckCase = 'complete',
+  claimId: QuantumClaimId = 'Q5',
+): QuantumClaimCheckInput {
+  const knownClaimId = String(claimId);
+  assertKnownClaim(knownClaimId);
+  if (caseName === 'complete') return buildCompleteQuantumEvidence(knownClaimId);
+
+  if (caseName === 'weak' || caseName === 'degraded') {
+    const input = buildCompleteQuantumEvidence('Q5');
+    input.requestedStrength = 'ground-state';
+    input.narrativeClaim = 'A single bound Q5 energy receipt is being asked to prove a stronger ground-state result.';
+    return input;
+  }
+
+  if (caseName === 'stale') {
+    const input = buildCompleteQuantumEvidence('Q5');
+    if (input.receipts?.[0]) input.receipts[0].stale = true;
+    return input;
+  }
+
+  if (caseName === 'missing') {
+    const input = buildCompleteQuantumEvidence('Q5');
+    input.receipts = [];
+    return input;
+  }
+
+  if (caseName === 'mismatched') {
+    const input = buildCompleteQuantumEvidence('Q5');
+    if (input.receipts?.[0]) {
+      input.receipts[0].identity.hamiltonianHash = 'sha256:mismatched-hamiltonian';
+    }
+    return input;
+  }
+
+  if (caseName === 'unbound') {
+    const input = buildCompleteQuantumEvidence('Q4');
+    if (input.receipts?.[0]) {
+      delete input.receipts[0].identity.outputDigest;
+      delete input.receipts[0].outputDigest;
+    }
+    return input;
+  }
+
+  const input = buildCompleteQuantumEvidence('Q5');
+  input.requestedStrength = 'production';
+  input.narrativeClaim = 'productionClaim: true; authorityClaim: true; hardware validation complete; quantum theory proven.';
+  const unsafeRecord = input as unknown as Record<string, unknown>;
+  unsafeRecord.productionClaim = true;
+  unsafeRecord.authorityClaim = true;
+  return input;
 }
 
 export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClaimCheckResult {
@@ -876,12 +1064,16 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
     reasons.push(reason('unsupported_schema_version', schemaVersion));
   }
 
+  if (input.requestedStrength !== undefined && !isKnownRequestedStrength(input.requestedStrength)) {
+    reasons.push(reason('invalid_requested_strength', String(input.requestedStrength)));
+  }
+
   const claimId = String(input.claimId);
   if (!isKnownClaim(claimId)) {
     reasons.push(reason('unknown_claim', claimId));
   }
-  if (boundaryViolation(input)) {
-    reasons.push('claim_boundary_violation');
+  for (const violation of boundaryViolationReasons(input)) {
+    reasons.push(reason('claim_boundary_violation', violation));
   }
 
   const identity = input.activeIdentity ?? {};
@@ -1015,6 +1207,77 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
   };
 }
 
+const QUANTUM_GATE_POLICY_REPAIR_REASON_PREFIXES = [
+  'missing_core_identity_field',
+  'missing_conditional_identity_field',
+  'missing_claim_field',
+  'missing_basis_or_grid_identity',
+  'missing_required_receipt',
+  'missing_receipt_identity',
+  'output_digest_missing',
+] as const satisfies readonly QuantumReasonPrefix[];
+
+const QUANTUM_GATE_POLICY_STOP_REASON_PREFIXES = [
+  'unknown_claim',
+  'invalid_requested_strength',
+  'claim_boundary_violation',
+  'duplicate_receipt',
+  'receipt_exit_nonzero',
+  'receipt_status_not_pass',
+  'stale_evidence',
+  'output_digest_mismatch',
+  'unbound_solver_output',
+  'unbound_plot_table',
+  'verifier_script_mismatch',
+  'identity_mismatch',
+] as const satisfies readonly QuantumReasonPrefix[];
+
+function hasReasonPrefix(reasons: readonly string[], prefix: string): boolean {
+  return reasons.some((item) => item === prefix || item.startsWith(`${prefix}:`));
+}
+
+function hasAnyReasonPrefix(reasons: readonly string[], prefixes: readonly string[]): boolean {
+  return prefixes.some((prefix) => hasReasonPrefix(reasons, prefix));
+}
+
+export function decideQuantumClaimGatePolicy(result: QuantumClaimCheckResult): QuantumGatePolicyDecision {
+  if (result.allowed && result.reasons.length === 0) return 'advance';
+  if (hasReasonPrefix(result.reasons, 'unsupported_schema_version')) return 'escalate';
+  if (hasAnyReasonPrefix(result.reasons, QUANTUM_GATE_POLICY_STOP_REASON_PREFIXES)) return 'stop';
+  if (hasAnyReasonPrefix(result.reasons, QUANTUM_GATE_POLICY_REPAIR_REASON_PREFIXES)) return 'repair';
+  if (hasReasonPrefix(result.reasons, 'weak_evidence_overclaim')) return 'degrade';
+  return result.nextAction;
+}
+
+export function evaluateQuantumClaimGatePolicy(input: QuantumClaimCheckInput): QuantumClaimGatePolicyResult {
+  const check = evaluateQuantumClaim(input);
+  const decision = decideQuantumClaimGatePolicy(check);
+  const allowed = decision === 'advance' && check.allowed;
+  return {
+    schemaVersion: QUANTUM_CLAIM_GATE_POLICY_SCHEMA_VERSION,
+    claimCheckSchemaVersion: check.schemaVersion,
+    verifierVersion: check.verifierVersion,
+    claimId: check.claimId,
+    decision,
+    allowed,
+    transition: 'claim-admissibility',
+    localOnly: true,
+    localClaimAdmissibilityOnly: true,
+    writesLifecycleEvidence: false,
+    mutatesLifecycle: false,
+    sourceNextAction: check.nextAction,
+    scopedClaim: check.scopedClaim,
+    degradedClaimAvailable: decision === 'degrade' && check.scopedClaim,
+    reasons: check.reasons,
+    checkedReceipts: check.checkedReceipts,
+    missingReceipts: check.missingReceipts,
+    boundary: check.boundary,
+    boundaryText: check.boundaryText,
+    runtimeStatus: check.runtimeStatus,
+    artifactIndex: check.artifactIndex,
+  };
+}
+
 export function renderQuantumClaimCheckText(result: QuantumClaimCheckResult): string {
   return [
     `Quantum claim check (${result.schemaVersion})`,
@@ -1023,6 +1286,33 @@ export function renderQuantumClaimCheckText(result: QuantumClaimCheckResult): st
     `allowed: ${result.allowed}`,
     `nextAction: ${result.nextAction}`,
     `scopedClaim: ${result.scopedClaim}`,
+    `reasons: ${result.reasons.join(', ') || 'none'}`,
+    `checkedReceipts: ${result.checkedReceipts.join(', ') || 'none'}`,
+    `missingReceipts: ${result.missingReceipts.join(', ') || 'none'}`,
+    `quantumTheoryClaim: ${result.boundary.quantumTheoryClaim}`,
+    `physicalValidationClaim: ${result.boundary.physicalValidationClaim}`,
+    `hardwareValidationClaim: ${result.boundary.hardwareValidationClaim}`,
+    `solverImprovementClaim: ${result.boundary.solverImprovementClaim}`,
+    `productionClaim: ${result.boundary.productionClaim}`,
+    `authorityClaim: ${result.boundary.authorityClaim}`,
+    result.boundaryText,
+  ].join('\n');
+}
+
+export function renderQuantumClaimGatePolicyText(result: QuantumClaimGatePolicyResult): string {
+  return [
+    `Quantum claim gate policy (${result.schemaVersion})`,
+    result.runtimeStatus,
+    `claimId: ${result.claimId}`,
+    `decision: ${result.decision}`,
+    `allowed: ${result.allowed}`,
+    `transition: ${result.transition}`,
+    `localClaimAdmissibilityOnly: ${result.localClaimAdmissibilityOnly}`,
+    `writesLifecycleEvidence: ${result.writesLifecycleEvidence}`,
+    `mutatesLifecycle: ${result.mutatesLifecycle}`,
+    `sourceNextAction: ${result.sourceNextAction}`,
+    `scopedClaim: ${result.scopedClaim}`,
+    `degradedClaimAvailable: ${result.degradedClaimAvailable}`,
     `reasons: ${result.reasons.join(', ') || 'none'}`,
     `checkedReceipts: ${result.checkedReceipts.join(', ') || 'none'}`,
     `missingReceipts: ${result.missingReceipts.join(', ') || 'none'}`,
