@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5f5b",
+  "checkedAt": "2026-07-03T15:13:49.190Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "4d17bdc8b2541b852de9a98cb1a3912ce2aa61ab52cd9f988c94aa27a7c46330",
+  "executionBoundaryHash": "64c629f9141a830218158de53d11604f35221e94a7993370df412928e292ff83",
+  "freshnessHash": "392af7df9d910fd859e7e23d0cad8623ee30071534d5c3c34e7a3a5763b82299",
+  "effectiveExcludedKeywords": [
+    "activating candidates from historical backfill alone",
+    "making playbooks authoritative gate evidence",
+    "remote publish",
+    "unbounded background daemon"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "activating candidates from historical backfill alone",
+      "source": "scopeBoundary.excluded",
+      "text": "activating candidates from historical backfill alone",
+      "excluded": true
+    },
+    {
+      "keyword": "making playbooks authoritative gate evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "making playbooks authoritative gate evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "remote publish",
+      "source": "checklist.excludes",
+      "text": "No remote publish",
+      "itemId": "CHK-003",
+      "excluded": true
+    },
+    {
+      "keyword": "remote publish",
+      "source": "scopeBoundary.excluded",
+      "text": "remote publish",
+      "excluded": true
+    },
+    {
+      "keyword": "unbounded background daemon",
+      "source": "scopeBoundary.excluded",
+      "text": "unbounded background daemon",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7af343b818c9b7f122002c78d62c7a0e24f1914601502b622264b933218db053"
+}
