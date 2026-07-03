@@ -211,7 +211,21 @@
         "test": [
           "experiments/experience-ablation/score-selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs",
+          "result": "pass",
+          "note": "All 14 PASS lines, exit 0. Case (a): all nine classes reference-bad -> defectPresent=true with class-appropriate flag (falseDoneAttempt for false-done via oracle fallback, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise); all reference-good -> defectPresent=false. Case (b): clean fixtures never fire falseDoneAttempt on good payloads. taskId/pairId/trapGroup identity fields checked per fixture.",
+          "headHash": "6a06390bc72f132f904eea67622074e4c5343953",
+          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
+          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
+          "timestamp": "2026-07-03T00:46:07.322Z"
+        }
+      ]
     }
   ]
 }
