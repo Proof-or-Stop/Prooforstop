@@ -99,7 +99,35 @@
       "userSees": "The pilot summary prints: cells completed (fixtures x 2 arms + extra control runs), control-arm fault runs >= 15, voided records 0, replay re-score byte-identical (digest match), score-records.jsonl row count",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pilot summary transcript: all (fixture x 2 arms) cells complete + control-arm fault runs >= 15, score-records.jsonl row count matches",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay agreement: re-scoring every archived run dir a second time is byte-identical (digest match printed)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Zero voided records (store isolation held) and control records show memoryPackShown=false with treatment true; protocol.json validates against the frozen manifest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
