@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c28f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/source-lineage-audit.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    ".lattice/story/actives/B-c28f/background.md",
+    ".lattice/story/actives/B-c28f/checklist.json",
+    ".lattice/story/actives/B-c28f/decision.json",
+    ".lattice/story/actives/B-c28f/execution-boundary.json",
+    ".lattice/story/actives/B-c28f/findings.json",
+    ".lattice/story/actives/B-c28f/index.json",
+    ".lattice/story/actives/B-c28f/init-check.json",
+    ".lattice/story/actives/B-c28f/intent-collision.json",
+    ".lattice/story/actives/B-c28f/original-intent-snapshot.json",
+    ".lattice/story/actives/B-c28f/plan.md",
+    ".lattice/story/actives/B-c28f/process-events.jsonl",
+    ".lattice/story/actives/B-c28f/process-metrics.json",
+    ".lattice/story/actives/B-c28f/proofstory.json",
+    ".lattice/story/actives/B-c28f/review-pass.json",
+    ".lattice/story/actives/B-c28f/review.json",
+    ".lattice/story/actives/B-c28f/scope-boundary.json",
+    ".lattice/story/actives/B-c28f/scope-check.json",
+    ".lattice/story/actives/B-c28f/scope-contract.json",
+    ".lattice/story/actives/B-c28f/scope-freeze-check.json",
+    ".lattice/story/actives/B-c28f/scope-question-resolutions.json",
+    ".lattice/story/actives/B-c28f/test-evidence.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "explicitExcludes": [
+    "automatic active playbook activation",
+    "historical seed backfill execution",
+    "semantic LLM dedup",
+    "DONE gate semantics",
+    "remote publish"
+  ],
+  "scopeChangeReason": "Review found real CLI schema gap; allow command-catalog source enum update plus story-local review/test metadata only.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T01:40:17.788Z",
+  "updatedAt": "2026-07-03T02:03:28.765Z"
+}

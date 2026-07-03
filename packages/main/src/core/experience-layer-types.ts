@@ -153,7 +153,13 @@ export interface PlaybookTrigger {
 /** Lifecycle status of a Playbook. `active` requires explicit activation. */
 export type PlaybookStatus = 'proposed' | 'candidate' | 'active' | 'stale' | 'archived';
 
-export type PlaybookSeedSourceKind = 'dev_memory' | 'finding_signal' | 'finding';
+export type PlaybookSeedSourceKind = 'dev_memory' | 'finding_signal' | 'done_experience' | 'finding';
+
+export interface PlaybookSeedMaterial {
+  sourceSummary?: string;
+  sourcePitfalls?: string[];
+  sourceVerification?: string[];
+}
 
 /**
  * Additive metadata for proposals created by the historical seed batch flow.
@@ -628,6 +634,7 @@ export type SourceLineageCanonicalKeyVersion = 'proofbound.learning-source-key.v
 export type SourceLineageArtifactKind =
   | 'dev_memory'
   | 'finding_signal'
+  | 'done_experience'
   | 'finding'
   | 'playbook_proposal'
   | 'playbook'
@@ -657,6 +664,9 @@ export interface SourceLineageAuditRecord {
   sourceSignature?: string;
   support?: number;
   anchorRefs?: string[];
+  sourceSummary?: string;
+  sourcePitfalls?: string[];
+  sourceVerification?: string[];
   lineagePresent: boolean;
   authority: SourceLineageAuthority;
   gateEvidence: false;
