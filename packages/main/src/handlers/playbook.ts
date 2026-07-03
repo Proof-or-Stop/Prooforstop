@@ -64,6 +64,7 @@ import {
   readPlaybookOutcomeEventsWithDiagnostics,
   readPlaybookPromotionDecisionRows,
   readPlaybookPromotionHealthEvents,
+  readPlaybookTrialControlEventsWithDiagnostics,
   readProposal,
   resolveLearningOwnerRoot,
   resolveNonDeducibleSourcesPath,
@@ -71,6 +72,7 @@ import {
   resolvePlaybookPromotionDecisionsPath,
   resolvePlaybookPromotionHealthPath,
   resolvePlaybookOutcomesPath,
+  resolvePlaybookTrialControlsPath,
   recordNonDeducibleOverride,
   validatePlaybook,
   withLearningStoreLock,
@@ -684,6 +686,40 @@ function latestDecisions(rows: PlaybookPromotionDecisionRow[], limit: number): P
     .slice(0, limit);
 }
 
+function buildTrialControlSummary(
+  outcomeRows: ReturnType<typeof readPlaybookOutcomeEventsWithDiagnostics>,
+  controlRows: ReturnType<typeof readPlaybookTrialControlEventsWithDiagnostics>,
+  playbookId?: string,
+) {
+  const scopedTrialOutcomes = outcomeRows.events.filter((event) =>
+    (!playbookId || event.playbookId === playbookId)
+    && event.playbookStatusAtObservation === 'candidate'
+    && event.exposureMode === 'candidate-inspection'
+    && event.outcome.verdictSource === 'candidate-trial');
+  const scopedControls = controlRows.events.filter((event) =>
+    (!playbookId || event.playbookId === playbookId)
+    && event.control.exposureMode === 'none'
+    && event.control.verdictSource === 'matched-control');
+  const playbookIds = uniqSorted([
+    ...scopedTrialOutcomes.map((event) => event.playbookId),
+    ...scopedControls.map((event) => event.playbookId),
+  ]);
+
+  return {
+    outcomeTrialExposureRows: scopedTrialOutcomes.length,
+    matchedControlRows: scopedControls.length,
+    malformedOutcomeRows: outcomeRows.malformedCount,
+    malformedControlRows: controlRows.malformedCount,
+    candidateTrialPlaybookCount: new Set(scopedTrialOutcomes.map((event) => event.playbookId)).size,
+    matchedControlPlaybookCount: new Set(scopedControls.map((event) => event.playbookId)).size,
+    perPlaybook: playbookIds.map((id) => ({
+      playbookId: id,
+      outcomeTrialExposureRows: scopedTrialOutcomes.filter((event) => event.playbookId === id).length,
+      matchedControlRows: scopedControls.filter((event) => event.playbookId === id).length,
+    })),
+  };
+}
+
 function renderObserveOutput(report: PlaybookPromotionObserveReport, json?: boolean): string {
   if (json) return JSON.stringify(report, null, 2);
   const sinceLine = report.since.start
@@ -1079,6 +1115,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const limit = Math.max(1, Math.min(50, Number.isFinite(args.limit) ? Number(args.limit) : 10));
       const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(ctx.root);
       const decisionRows = readPlaybookPromotionDecisionRows(ctx.root);
+      const controlRows = readPlaybookTrialControlEventsWithDiagnostics(ctx.root);
       const events = outcomeRows.events;
       const registry = readNonDeducibleSourcesRegistry(ctx.root);
       const healthRows = readPlaybookPromotionHealthEvents(ctx.root);
@@ -1120,11 +1157,13 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const autoPromotion = buildPlaybookAutoPromotionApplyReport({ projectRoot: ctx.root, store: ctx.store });
       const latestSettlement = latestDecisions([], 1); // keep status payload shape stable below.
       void latestSettlement;
+      const trialControlSummary = buildTrialControlSummary(outcomeRows, controlRows, playbookId);
 
       const payload = {
         pendingLearning,
         activeNegativeSignals,
         latestDecisions: latest,
+        trialControlSummary,
         nonPromotableSources: registry.sources,
         settlementHealth: {
           latest: healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit),
@@ -1160,6 +1199,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
           autoActivations: resolvePlaybookAutoActivationsPath(ctx.root),
+          trialControls: resolvePlaybookTrialControlsPath(ctx.root),
           nonPromotableSources: resolveNonDeducibleSourcesPath(ctx.root),
           settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
         },
@@ -1185,6 +1225,12 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
         `latestDecisions: ${latest.length}`,
         ...latest.map((row) => `  - ${row.decidedAt} ${row.action} ${row.playbookId} aggregateDigest=${row.aggregateDigest} applied=${row.applied}`),
+        `trialControlSummary.outcomeTrialExposureRows: ${trialControlSummary.outcomeTrialExposureRows}`,
+        `trialControlSummary.matchedControlRows: ${trialControlSummary.matchedControlRows}`,
+        `trialControlSummary.malformedOutcomeRows: ${trialControlSummary.malformedOutcomeRows}`,
+        `trialControlSummary.malformedControlRows: ${trialControlSummary.malformedControlRows}`,
+        ...trialControlSummary.perPlaybook.map((row) =>
+          `  - ${row.playbookId} outcomeTrialExposureRows=${row.outcomeTrialExposureRows} matchedControlRows=${row.matchedControlRows}`),
         `nonPromotableSources: ${registry.sources.length} (legacy storage: non_deducible)`,
         ...registry.sources.map((source) => `  - ${source.source.sourceKey} finding=${source.source.sourceFindingId} reasons=${source.reasonCodes.join(',')}`),
         `seedPromotionReadiness.v1.proposableSeeds: ${seedObservation.proposableSeeds.length}`,

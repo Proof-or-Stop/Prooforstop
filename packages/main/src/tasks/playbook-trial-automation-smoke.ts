@@ -16,10 +16,14 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
+import { READ_ONLY_COMMANDS } from '../cli/activity-policy.js';
+import { MAIN_TOOLS } from '../cli-engine.js';
+import { COMMAND_POLICIES } from '../core/command-policy.js';
+import { isCommandAllowed } from '../core/config.js';
 import type { Playbook } from '../core/experience-layer-types.js';
-import {
-  buildPlaybookPromotionTimerReport,
-  buildPlaybookTrialRunReport,
+import type {
+  PlaybookPromotionTimerReport,
+  PlaybookTrialRunReport,
 } from '../core/playbook-seed.js';
 import {
   readPlaybookAutoActivationEvents,
@@ -28,8 +32,11 @@ import {
   readPlaybooks,
   writePlaybooks,
 } from '../core/learning-store.js';
+import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { createMainRegistry, type Registry } from '../registry.js';
 
 const NOW = '2026-07-03T01:00:00.000Z';
 const STORY_ID = 'B-trial';
@@ -65,6 +72,23 @@ function mkProject(): { root: string; store: StoryStore } {
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return { root, store: new StoryStore(root) };
+}
+
+function mkRegistry(root: string, store: StoryStore): Registry {
+  const ctx: HandlerContext = { root, store, scanRoot: join(root, 'packages/main'), log: () => {} };
+  return createMainRegistry(ctx);
+}
+
+function runJson<T>(registry: Registry, name: string, args: Record<string, unknown>): T {
+  const handler = registry.get(name);
+  assert.ok(handler, `registry includes ${name}`);
+  return JSON.parse(String(handler(args))) as T;
+}
+
+function runText(registry: Registry, name: string, args: Record<string, unknown>): string {
+  const handler = registry.get(name);
+  assert.ok(handler, `registry includes ${name}`);
+  return String(handler(args));
 }
 
 function story(): StoryInfo {
@@ -123,27 +147,24 @@ try {
     const { root, store } = mkProject();
     roots.push(root);
     seed(root, store);
+    const registry = mkRegistry(root, store);
 
-    const dryRun = buildPlaybookTrialRunReport({
-      projectRoot: root,
-      store,
+    const dryRun = runJson<PlaybookTrialRunReport>(registry, 'playbook_trial_run', {
       storyId: STORY_ID,
       apply: false,
       limit: 1,
-      now: NOW,
+      json: true,
     });
     assert.equal(dryRun.dryRun, true);
     assert.equal(dryRun.selectedCount, 1);
     assert.equal(readPlaybookOutcomeEvents(root).length, 0);
     assert.equal(readPlaybookTrialControlEvents(root).length, 0);
 
-    const applied = buildPlaybookTrialRunReport({
-      projectRoot: root,
-      store,
+    const applied = runJson<PlaybookTrialRunReport>(registry, 'playbook_trial_run', {
       storyId: STORY_ID,
       apply: true,
       limit: 1,
-      now: NOW,
+      json: true,
     });
     assert.equal(applied.outcomeCreatedCount, 1);
     assert.equal(applied.controlCreatedCount, 1);
@@ -165,13 +186,26 @@ try {
     assert.equal(controls[0].control.verdict, 'unknown');
     assert.equal(controls[0].control.verdictSource, 'matched-control');
 
-    const repeat = buildPlaybookTrialRunReport({
-      projectRoot: root,
-      store,
+    const status = runJson<any>(registry, 'playbook_promotion_status', { json: true });
+    assert.equal(status.trialControlSummary.outcomeTrialExposureRows, 1);
+    assert.equal(status.trialControlSummary.matchedControlRows, 1);
+    assert.equal(status.trialControlSummary.malformedControlRows, 0);
+    assert.deepEqual(status.trialControlSummary.perPlaybook, [{
+      playbookId: 'PBP-101',
+      outcomeTrialExposureRows: 1,
+      matchedControlRows: 1,
+    }]);
+    assert.equal(typeof status.paths.trialControls, 'string');
+    const statusText = runText(registry, 'playbook_promotion_status', {});
+    assert.match(statusText, /^trialControlSummary\.outcomeTrialExposureRows: 1$/m);
+    assert.match(statusText, /^trialControlSummary\.matchedControlRows: 1$/m);
+    assert.match(statusText, /PBP-101 outcomeTrialExposureRows=1 matchedControlRows=1/);
+
+    const repeat = runJson<PlaybookTrialRunReport>(registry, 'playbook_trial_run', {
       storyId: STORY_ID,
       apply: true,
       limit: 1,
-      now: '2026-07-03T01:05:00.000Z',
+      json: true,
     });
     assert.equal(repeat.outcomeCreatedCount, 0);
     assert.equal(repeat.controlCreatedCount, 0);
@@ -185,16 +219,15 @@ try {
     const { root, store } = mkProject();
     roots.push(root);
     seed(root, store);
+    const registry = mkRegistry(root, store);
 
-    const dryRun = buildPlaybookPromotionTimerReport({
-      projectRoot: root,
-      store,
+    const dryRun = runJson<PlaybookPromotionTimerReport>(registry, 'playbook_promotion_timer', {
       storyId: STORY_ID,
       trial: true,
       activate: true,
       trialLimit: 2,
       apply: false,
-      now: NOW,
+      json: true,
     });
     assert.equal(dryRun.dryRun, true);
     assert.equal(dryRun.bounded, true);
@@ -203,15 +236,13 @@ try {
     assert.equal(dryRun.steps.find((step) => step.step === 'activate')?.status, 'dry-run');
     assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'timer dry-run writes no outcomes');
 
-    const applied = buildPlaybookPromotionTimerReport({
-      projectRoot: root,
-      store,
+    const applied = runJson<PlaybookPromotionTimerReport>(registry, 'playbook_promotion_timer', {
       storyId: STORY_ID,
       trial: true,
       activate: true,
       trialLimit: 2,
       apply: true,
-      now: NOW,
+      json: true,
     });
     const trialStep = applied.steps.find((step) => step.step === 'trial');
     const activateStep = applied.steps.find((step) => step.step === 'activate');
@@ -226,6 +257,23 @@ try {
     assert.equal(statuses.get('PBP-101'), 'candidate');
     assert.equal(statuses.get('PBP-102'), 'candidate');
     assert.equal(statuses.get('PBP-999'), 'active');
+  });
+
+  check('command catalog, registry, policies, and process fact levels wire automation commands', () => {
+    const { root, store } = mkProject();
+    roots.push(root);
+    const registry = mkRegistry(root, store);
+    const names = ['playbook_seed_backfill', 'playbook_trial_run', 'playbook_promotion_timer'] as const;
+    for (const name of names) {
+      assert.ok(MAIN_TOOLS.some((tool) => tool.name === name), `MAIN_TOOLS includes ${name}`);
+      assert.equal(registry.has(name), true, `registry includes ${name}`);
+      assert.equal(COMMAND_POLICIES[name].ownershipClass, 'mainSharedMutating', `${name} ownership policy`);
+      assert.equal(COMMAND_POLICIES[name].destructiveRisk, 'metadata-write', `${name} destructive risk`);
+      assert.equal((COMMAND_POLICIES as any)[name]?.gateEvidence, undefined, `${name} is not gate evidence`);
+      assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === name)?.level, 'L2', `${name} fact level`);
+      assert.equal(isCommandAllowed(name, 'DEV'), true, `${name} allowed in DEV by playbook_* phase pattern`);
+      assert.equal(READ_ONLY_COMMANDS.has(name), false, `${name} is not read-only`);
+    }
   });
 } finally {
   for (const root of roots) rmSync(root, { recursive: true, force: true });
