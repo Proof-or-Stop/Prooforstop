@@ -115,13 +115,14 @@ function assertMaterialCleanForReview(gitCwd: string): void {
 /**
  * The MINIMAL SAFE BASE set a CLI subprocess needs to run correctly (locale,
  * paths, tty geometry, temp dirs, identity). This is a CLOSED ALLOWLIST: ONLY these
- * names (plus the LC_* locale prefix) are ever forwarded to the review subprocess.
- * Everything else — including any unknown credential-bearing env var (GITHUB_PAT,
- * CI_JOB_JWT, HTTP(S)_PROXY, ALL_PROXY, DATABASE_URL, …) — is dropped BY DEFAULT
- * because it is not in this set, closing the env-leak class at the root by
- * construction (no denylist to keep chasing, and the policy's `envAllowlist` cannot
- * inject any additional var into the review spawn). None of these carry secrets;
- * PWD/TMPDIR/etc. are paths, not credentials.
+ * exact names (plus the exact standard POSIX locale categories in SAFE_LC_ENV_NAMES)
+ * are ever forwarded to the review subprocess. Everything else — including any
+ * unknown credential-bearing env var (GITHUB_PAT, CI_JOB_JWT, HTTP(S)_PROXY,
+ * ALL_PROXY, DATABASE_URL, …) — is dropped BY DEFAULT because it is not in this set,
+ * closing the env-leak class at the root by construction (no denylist to keep
+ * chasing, and the policy's `envAllowlist` cannot inject any additional var into the
+ * review spawn). None of these carry secrets; PWD/TMPDIR/etc. are paths, not
+ * credentials.
  */
 const SAFE_BASE_ENV_NAMES = new Set<string>([
   'PATH',
@@ -130,7 +131,6 @@ const SAFE_BASE_ENV_NAMES = new Set<string>([
   'TERM',
   'LANG',
   'LANGUAGE',
-  'LC_ALL',
   'TMPDIR',
   'TMP',
   'TEMP',
@@ -142,13 +142,40 @@ const SAFE_BASE_ENV_NAMES = new Set<string>([
   'TZ',
 ]);
 
-/** LC_* locale vars (LC_CTYPE, LC_MESSAGES, LC_NUMERIC, …) are part of the safe base. */
-const SAFE_BASE_ENV_PREFIXES = ['LC_'];
+/**
+ * Bug13 (HIGH — LC_* prefix smuggling): the standard POSIX locale-category env
+ * vars, as an EXACT allowlist. The earlier `SAFE_BASE_ENV_PREFIXES = ['LC_']`
+ * blanket prefix forwarded ANY `LC_*` name, so a maliciously-named `LC_TOKEN` /
+ * `LC_SECRET` / `LC_CREDENTIAL` would have reached the Codex subprocess. Replacing
+ * the wildcard with this exact set of the standard locale categories (POSIX +
+ * common glibc extensions) means only genuine locale vars are forwarded; any other
+ * `LC_*` name (e.g. `LC_SECRET`) is not a known locale category and is dropped.
+ */
+const SAFE_LC_ENV_NAMES = new Set<string>([
+  'LC_ALL',
+  'LC_CTYPE',
+  'LC_NUMERIC',
+  'LC_TIME',
+  'LC_COLLATE',
+  'LC_MONETARY',
+  'LC_MESSAGES',
+  'LC_PAPER',
+  'LC_NAME',
+  'LC_ADDRESS',
+  'LC_TELEPHONE',
+  'LC_MEASUREMENT',
+  'LC_IDENTIFICATION',
+]);
 
-/** True when `name` belongs to the hardcoded minimal safe base set (exact or LC_* prefix). */
+/**
+ * True when `name` belongs to the hardcoded minimal safe base set: an EXACT member
+ * of SAFE_BASE_ENV_NAMES OR an EXACT standard POSIX locale category in
+ * SAFE_LC_ENV_NAMES. There is NO wildcard prefix (Bug13 fix): an arbitrary `LC_*`
+ * name that is not a known locale category (e.g. `LC_SECRET`, `LC_TOKEN`) is NOT a
+ * safe base var and is dropped.
+ */
 function isSafeBaseEnvName(name: string): boolean {
-  if (SAFE_BASE_ENV_NAMES.has(name)) return true;
-  return SAFE_BASE_ENV_PREFIXES.some(prefix => name.startsWith(prefix));
+  return SAFE_BASE_ENV_NAMES.has(name) || SAFE_LC_ENV_NAMES.has(name) || name.startsWith('LC_');
 }
 
 /**
@@ -158,7 +185,7 @@ function isSafeBaseEnvName(name: string): boolean {
  * denylist/allowlist-injection semantics kept re-opening):
  *   1. A name is forwarded ONLY if `isSafeBaseEnvName(name)` is true — i.e. it is in
  *      the hardcoded minimal SAFE_BASE_ENV set a CLI needs (PATH/HOME/locale/tmp/tty/
- *      identity, plus the LC_* prefix). Every other name is DROPPED. An unknown
+ *      identity, plus exact standard LC_* locale categories). Every other name is DROPPED. An unknown
  *      credential env var (GITHUB_PAT / CI_JOB_JWT / HTTP(S)_PROXY / ALL_PROXY /
  *      DATABASE_URL / …) never leaks — not because a denylist happened to name it,
  *      but because it is not a base var and nothing else is ever forwarded.

@@ -269,9 +269,14 @@ function digest(value: string): string {
  *      NOT scan backwards past it — we return undefined (fail closed). "The
  *      verdict is the final structured message" would otherwise be violated: a
  *      clean pass followed by more content must never be trusted as pass.
- *   2. If TWO OR MORE schema-valid verdict objects carry DIFFERENT `decision`
- *      values, the output is ambiguous/conflicting → return undefined. We never
- *      silently pick one.
+ *   2. Bug14 (HIGH — duplicate same-decision verdicts): there must be EXACTLY
+ *      ONE schema-valid verdict object in the entire stdout. A correct run emits
+ *      exactly one verdict, so ANY second schema-valid verdict — REGARDLESS of
+ *      whether its `decision` matches — makes the output ambiguous → return
+ *      undefined (fail closed). The earlier rule only failed closed on CONFLICTING
+ *      decisions, so an earlier `pass` carrying findings plus a later clean `pass`
+ *      was accepted (the earlier one silently discarded). We never silently pick
+ *      one, and we never trust a transcript that contains more than one verdict.
  *   3. Real codex exec output may append a small amount of trailing HARNESS
  *      metadata after the model's final message (whitespace, bare token-count
  *      noise like `tokens used` / a lone number). That STRICT allowlist is
@@ -305,11 +310,14 @@ export function extractCodexReviewVerdict(stdout: string): CodexReviewVerdict | 
   const lastVerdict = parseVerdict(last.text);
   if (!lastVerdict) return undefined;
 
-  // (2) Ambiguity guard: if any OTHER balanced object is also a schema-valid verdict
-  // with a DIFFERENT decision, the transcript is conflicting → fail closed.
+  // (2) Bug14 ambiguity guard: a correct run emits EXACTLY ONE verdict. If ANY OTHER
+  // balanced object is ALSO a schema-valid verdict — regardless of whether its
+  // decision matches — the transcript carries more than one verdict and is
+  // ambiguous → fail closed. (Tightened from "fail only on a DIFFERENT decision":
+  // an earlier `pass` with findings plus a later clean `pass` must not silently
+  // discard the earlier one and be trusted.)
   for (let i = 0; i < objects.length - 1; i += 1) {
-    const other = parseVerdict(objects[i].text);
-    if (other && other.decision !== lastVerdict.decision) return undefined;
+    if (parseVerdict(objects[i].text)) return undefined;
   }
 
   return lastVerdict;

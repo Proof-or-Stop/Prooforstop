@@ -548,6 +548,35 @@ async function run(): Promise<void> {
       assert.match(String(trailingObjResult.hostB.reason), /codex_review_no_parseable_verdict/, 'trailing-object case fails closed with no_parseable_verdict');
       assert.equal(trailingObjResult.jointDecision.jointDecision, 'blocked', 'joint decision blocked (trailing object → no verdict)');
 
+      // (2a) Bug14 FAIL-CLOSED (duplicate SAME-decision verdicts): a correct run emits
+      // EXACTLY ONE verdict. Stdout carrying TWO schema-valid `pass` verdicts (SAME
+      // decision, DIFFERENT findings — an earlier `pass` with a finding, then a later
+      // clean `pass`) is ambiguous and MUST fail closed. The OLD rule only failed closed
+      // on CONFLICTING decisions, so it silently discarded the earlier verdict and
+      // trusted the later clean pass. Now ANY duplicate schema-valid verdict → blocked,
+      // codex_review_no_parseable_verdict. RED-verify: reverting Bug14 makes this accept
+      // the later clean pass (decision 'pass') and this assertion fails.
+      const dupEarlierPass = verdictJsonStdout(materialHash, 'pass', [hostBOnlyFinding], 'a finding but I still pass');
+      const dupLaterCleanPass = verdictJsonStdout(materialHash, 'pass', [], 'on reflection everything is clean');
+      const duplicateVerdictStdout = [dupEarlierPass, dupLaterCleanPass].join('\n');
+      const duplicateHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: fakeSeam(duplicateVerdictStdout),
+      });
+      const duplicateResult = await duplicateHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-adv0-duplicate-verdict`,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(duplicateResult.hostB.decision, 'blocked', 'TWO schema-valid pass verdicts (same decision, different findings) are ambiguous → blocked (Bug14)');
+      assert.match(String(duplicateResult.hostB.reason), /codex_review_no_parseable_verdict/, 'duplicate same-decision verdicts fail closed with no_parseable_verdict (Bug14)');
+      assert.equal(duplicateResult.jointDecision.jointDecision, 'blocked', 'joint decision blocked (duplicate verdict → no verdict recorded)');
+      // No verdict is honored: the recorded codex verdict is blocked, never either pass.
+      const duplicateVerdictRecord = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === `${STORY_ID}-xhr-adv0-duplicate-verdict` && v.provider === 'codex');
+      assert.ok(duplicateVerdictRecord, 'codex verdict recorded on the duplicate-verdict case');
+      assert.equal(duplicateVerdictRecord!.decision, 'blocked', 'recorded codex verdict is blocked on duplicate verdicts, never a pass');
+
       // (2b) FAIL-CLOSED (CLASS 2 root fix): a valid `pass` verdict FOLLOWED BY a
       // TERSE trailer that the OLD `looksLikeSentence` heuristic let through must now
       // fail closed. `actually fail` and `disregard verdict` are two-word lowercase
@@ -958,6 +987,12 @@ async function run(): Promise<void> {
       const prevGithubPat = process.env.GITHUB_PAT;
       const prevCiJwt = process.env.CI_JOB_JWT;
       const prevPgUrl = process.env.POSTGRES_URL_NON_POOLING;
+      // Bug13: a maliciously-named LC_* var in the base env (LC_SECRET/LC_TOKEN) must
+      // NOT be forwarded, while real POSIX locale categories (LC_CTYPE/LC_ALL) ARE.
+      const prevLcSecret = process.env.LC_SECRET;
+      const prevLcToken = process.env.LC_TOKEN;
+      const prevLcCtype = process.env.LC_CTYPE;
+      const prevLcAll = process.env.LC_ALL;
       process.env.FOO_BAR = 'plain-value-not-a-secret';
       process.env.XHR_SMOKE_ALLOWED = 'keep-me';
       process.env.HTTPS_PROXY = 'http://user:pw@proxy:8080';
@@ -966,6 +1001,10 @@ async function run(): Promise<void> {
       process.env.GITHUB_PAT = 'ghp_deadbeef';
       process.env.CI_JOB_JWT = 'eyJhbGciOiJ...';
       process.env.POSTGRES_URL_NON_POOLING = 'postgres://user:pw@host:5432/db';
+      process.env.LC_SECRET = 'super-secret-value';
+      process.env.LC_TOKEN = 'ghp_lc_smuggled';
+      process.env.LC_CTYPE = 'en_US.UTF-8';
+      process.env.LC_ALL = 'en_US.UTF-8';
       // PATH is a base var that MUST be present in the process env to assert forwarding.
       const prevPath = process.env.PATH;
       if (!process.env.PATH) process.env.PATH = '/usr/bin:/bin';
@@ -1012,11 +1051,20 @@ async function run(): Promise<void> {
         assert.equal(env.POSTGRES_URL_NON_POOLING, undefined, 'POSTGRES_URL_NON_POOLING is dropped even though it is on the policy envAllowlist');
         assert.equal(env.XHR_SMOKE_ALLOWED, undefined, 'a non-base var is dropped EVEN WHEN allowlisted (allowlist no longer injects into the review spawn)');
         assert.equal(env.FOO_BAR, undefined, 'a plain non-base var (FOO_BAR) is dropped even when allowlisted (closed allowlist by construction)');
+        // (b3) Bug13 through the handler: a real locale var (LC_CTYPE/LC_ALL) in the base
+        // process env IS forwarded, but a maliciously-named LC_SECRET/LC_TOKEN is DROPPED
+        // (not a known locale category — no wildcard LC_ prefix).
+        assert.equal(env.LC_CTYPE, 'en_US.UTF-8', 'a real locale var (LC_CTYPE) in the base env IS forwarded to the runner');
+        assert.equal(env.LC_ALL, 'en_US.UTF-8', 'a real locale var (LC_ALL) in the base env IS forwarded to the runner');
+        assert.equal(env.LC_SECRET, undefined, 'LC_SECRET in the base env is DROPPED (Bug13: not a known locale category)');
+        assert.equal(env.LC_TOKEN, undefined, 'LC_TOKEN in the base env is DROPPED (Bug13: not a known locale category)');
         // Belt-and-suspenders: none of the credential VALUES surface anywhere on the env.
         const envSerialized = JSON.stringify(env);
         assert.ok(!envSerialized.includes('postgres://'), 'the postgres connection string value never reaches the runner env');
         assert.ok(!envSerialized.includes('ghp_deadbeef'), 'the github PAT value never reaches the runner env');
         assert.ok(!envSerialized.includes('proxy:8080'), 'the proxy credential value never reaches the runner env');
+        assert.ok(!envSerialized.includes('super-secret-value'), 'the LC_SECRET value never reaches the runner env');
+        assert.ok(!envSerialized.includes('ghp_lc_smuggled'), 'the LC_TOKEN value never reaches the runner env');
         // (b, direct + RED-verifiable) Assert the same closed-allowlist semantics
         // directly against buildRedactedEnv: an allowlisted credential name is STILL
         // dropped. Re-adding allowlist-injection to buildRedactedEnv makes GITHUB_PAT
@@ -1029,6 +1077,30 @@ async function run(): Promise<void> {
         assert.equal(directEnv.GITHUB_PAT, undefined, 'buildRedactedEnv DROPS an allowlisted credential name GITHUB_PAT (allowlist no longer injects — RED-verifiable)');
         assert.equal(directEnv.XHR_SMOKE_ALLOWED, undefined, 'buildRedactedEnv drops a non-base allowlisted var (closed allowlist)');
         assert.equal(directEnv.FOO_BAR, undefined, 'buildRedactedEnv drops a plain non-base allowlisted var');
+        // (b2) Bug13 (HIGH — LC_* prefix smuggling): the old `SAFE_BASE_ENV_PREFIXES=['LC_']`
+        // blanket prefix forwarded ANY `LC_*` var. A real POSIX locale category (LC_CTYPE,
+        // LC_ALL) MUST still be forwarded, but a maliciously-named `LC_SECRET`/`LC_TOKEN`
+        // is NOT a known locale category and MUST be dropped. RED-verify: reinstating the
+        // wildcard prefix makes LC_SECRET/LC_TOKEN leak here and these assertions fail.
+        const localeEnv = buildRedactedEnv(
+          {
+            PATH: '/usr/bin:/bin',
+            LC_CTYPE: 'en_US.UTF-8',
+            LC_ALL: 'en_US.UTF-8',
+            LC_SECRET: 'super-secret-value',
+            LC_TOKEN: 'ghp_lc_smuggled',
+            LC_CREDENTIAL: 'creds-in-a-locale-name',
+          },
+          reviewOnlyPolicy({ envAllowlist: [], envDenylist: [] }),
+        );
+        assert.equal(localeEnv.LC_CTYPE, 'en_US.UTF-8', 'buildRedactedEnv forwards a real POSIX locale category (LC_CTYPE)');
+        assert.equal(localeEnv.LC_ALL, 'en_US.UTF-8', 'buildRedactedEnv forwards LC_ALL (a real locale category)');
+        assert.equal(localeEnv.LC_SECRET, undefined, 'buildRedactedEnv DROPS LC_SECRET — not a known locale category (Bug13: no wildcard LC_ prefix)');
+        assert.equal(localeEnv.LC_TOKEN, undefined, 'buildRedactedEnv DROPS LC_TOKEN — not a known locale category (Bug13)');
+        assert.equal(localeEnv.LC_CREDENTIAL, undefined, 'buildRedactedEnv DROPS LC_CREDENTIAL — not a known locale category (Bug13)');
+        const localeEnvSerialized = JSON.stringify(localeEnv);
+        assert.ok(!localeEnvSerialized.includes('super-secret-value'), 'the LC_SECRET value never reaches the review env');
+        assert.ok(!localeEnvSerialized.includes('ghp_lc_smuggled'), 'the LC_TOKEN value never reaches the review env');
         // (c) envDenylist can RESTRICT the base set: denying PATH drops it (restrict-only).
         const denyPathEnv = buildRedactedEnv(
           { PATH: '/usr/bin:/bin', HOME: '/home/x', TERM: 'xterm' },
@@ -1046,6 +1118,10 @@ async function run(): Promise<void> {
         if (prevGithubPat === undefined) delete process.env.GITHUB_PAT; else process.env.GITHUB_PAT = prevGithubPat;
         if (prevCiJwt === undefined) delete process.env.CI_JOB_JWT; else process.env.CI_JOB_JWT = prevCiJwt;
         if (prevPgUrl === undefined) delete process.env.POSTGRES_URL_NON_POOLING; else process.env.POSTGRES_URL_NON_POOLING = prevPgUrl;
+        if (prevLcSecret === undefined) delete process.env.LC_SECRET; else process.env.LC_SECRET = prevLcSecret;
+        if (prevLcToken === undefined) delete process.env.LC_TOKEN; else process.env.LC_TOKEN = prevLcToken;
+        if (prevLcCtype === undefined) delete process.env.LC_CTYPE; else process.env.LC_CTYPE = prevLcCtype;
+        if (prevLcAll === undefined) delete process.env.LC_ALL; else process.env.LC_ALL = prevLcAll;
         if (prevPath === undefined) delete process.env.PATH; else process.env.PATH = prevPath;
       }
     });
