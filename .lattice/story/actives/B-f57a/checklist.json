@@ -260,6 +260,19 @@
           "materialHash": "df171a4ee7df67dac3182b8b5de8f7860a034313389028fee40100622c38572d",
           "storyFilesHash": "87318fa2ee58c77ce4c8575b96cb4ff26edb88eb6fb76c724b4d6d706a311aec",
           "timestamp": "2026-07-03T03:28:27.229Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:7",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:7\": malformed host-A findings file (missing/extra/wrong-typed keys or non-array) -> cross_host_review fails closed via strict Zod Finding[] validation, not trusting raw JSON.parse. RED-verified.",
+          "headHash": "9211498177ae3c4625b01c5604cbb3789dd7780a",
+          "materialHash": "79c9d000c1a4b3e0aebebb03f5148481b1fe4c2c21b90bf1f6c1588cf36238b8",
+          "storyFilesHash": "b2ae80e0a15d4d75c5b93d8ecd97b93c527c7b00000b115a96b14810f3d2a7d3",
+          "timestamp": "2026-07-03T04:20:59.110Z"
         }
       ]
     },
