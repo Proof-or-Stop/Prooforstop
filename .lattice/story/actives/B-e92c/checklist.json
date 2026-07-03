@@ -43,7 +43,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "result": "pass",
+          "note": "26 PASS lines ending live-readout-selfcheck: all cases passed, exit 0, run twice. Section-separation case asserts controlled heading index < live heading index < no-overclaim; label case asserts all 11 live figure bullets carry [exploratory-only] and controlled section carries none; no-overclaim cases assert plan-15 disallowed claims (agents smarter / memory proves DONE / eliminates defects / generalizes) plus final verdict Causal impact: inconclusive - design assumption invalidated by the pilot baseline.",
+          "headHash": "a9e336b8c692aea6abedd54d035f919413c6d9ef",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:23.868Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
