@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e92c:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed live-readout.mjs and live-readout-selfcheck.mjs (the only changed code files). No dead code: all imports used, no commented-out code blocks, no unreferenced functions. No empty catch blocks: all catch delegates to fail() which always throws, or assigns a variable. Brace-depth parser correctly handles escaped chars, braces-in-strings, double-backslash; manually verified. Determinism discipline correct: sortedCounts and freezeAttempts both sort keys, liveFigureRows uses fixed push order, generatedAt comes from flag only with no wall clock. CLI-JSON-first/text-fallback in parseEffectivenessPayload is robust: syntactic parse failure falls back to text scrape; structurally wrong but syntactically valid JSON fails with actionable error (intentional design). Error messages all carry actionable hints via fail(). Section separation enforced by both JSON key order and markdown heading order. Selfcheck 26 assertions verified correct and tight (section order, label coverage, figure values, pilot summary, freeze/M7 context, no-overclaim block, JSON key order, byte-identical determinism x2, write boundary, text fallback, 5 error cases, usage, 4 unit functions). No I/O shell isolation violations (no bridge.ts pattern). No type-safety issues (pure JS .mjs, no as-any). No doc-promise-undelivered content found in diff.",
+      "createdAt": "2026-07-03T09:39:21.195Z",
+      "reviewRound": "2026-07-03T09:35:05.965Z",
+      "reviewRunId": "B-e92c:RR-002",
+      "_hash": "1c5f7cbc425785c2f9cba35c37cab1a91e28757c7f82af8288fe885c88137720"
+    }
+  ]
+}
