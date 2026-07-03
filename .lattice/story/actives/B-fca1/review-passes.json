@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-03T10:13:57.436Z",
       "reviewRunId": "B-fca1:RR-003",
       "_hash": "3109b4eaf4ba233b195463a3da2ec905ec0e580131d1dff4aedaaddf59a05cc5"
+    },
+    {
+      "id": "B-fca1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check on fix commit a37257c (separator-safe production-store prefix check). Delta: evidence-map.mjs + evidence-map-selfcheck.mjs only. Old naive startsWith(productionStore) replaced by insideProductionStore(p) = (p===productionStore || p.startsWith(productionStore+sep)); no residue of old pattern in any live source file. findings.json mentions it only as historical bug description — not live code. Selfcheck sanity-run: 39/39 PASS (0 FAIL), including both new sibling-path and production-path cases. No concept deletion/replacement that leaves residue. No blocker.",
+      "createdAt": "2026-07-03T10:26:28.752Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-004",
+      "_hash": "894aa0564fe7e7dec94e4388440d52b12c36a4baf6120495b2259d82250c619a"
     }
   ]
 }
