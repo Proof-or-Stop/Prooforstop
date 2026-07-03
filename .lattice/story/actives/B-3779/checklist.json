@@ -62,10 +62,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Smoke asserts A1-A4 supported cases produce expected advance/degrade outcomes, supportedCasesPassed=4/4, diagnosticOnly=true, and gateEvidence=false.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -75,10 +75,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Smoke asserts unsupportedAdvanceRate, staleAcceptanceRate, boundaryViolationRate, falseStopRate, Wilson confidence intervals, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -88,10 +88,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Smoke asserts all B1-B15 failure injections block/repair/degrade as expected and that no production, Authority, hardware, theory, or solver-improvement claim is emitted.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         }
       ]
     },
@@ -151,10 +151,10 @@
           "command": "node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report && node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report --json",
           "result": "pass",
           "note": "CLI report renders text and JSON governance output with suiteStatus PASS, benchmark totals, pass rates, limitation text, diagnosticOnly=true, and gateEvidence=false.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -164,10 +164,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Smoke asserts report artifacts are diagnostic-only, non-gate evidence, no lifecycle writes, and no lifecycle mutation unless a future gate consumes them.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -177,10 +177,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Smoke asserts report boundary booleans keep productionClaim=false, authorityClaim=false, hardwareValidationClaim=false, quantumTheoryClaim=false, physicalValidationClaim=false, and solverImprovementClaim=false.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         }
       ]
     },
@@ -242,10 +242,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Docs and runtime smoke assert Quantum local diagnostic runtime status is M0-M5 implemented and commands quantum_claim_benchmark / quantum_claim_report exist.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -255,10 +255,10 @@
           "command": "npm --prefix packages/main run test:command-catalog-smoke",
           "result": "pass",
           "note": "Docs distinguish the completed local Quantum diagnostic M4-M5 slice from the future generic framework gate-policy adapter and lifecycle integration.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -268,10 +268,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-benchmark",
           "result": "pass",
           "note": "Docs and smoke retain the no-overclaim boundary: no quantum theory, hardware, production, Authority, solver-improvement, external solver, or broad quantum-advantage claim.",
-          "headHash": "1a06816eddac852c4524300edc774c2314e435fc",
-          "materialHash": "d1881a43c84d5410adc9ff6d1c554e40f9d00e2f7e2a28e19c0a9227c526e877",
-          "storyFilesHash": "75e9b310b420e70290fef2581b7631a1ef555f1631ca20d4286a062990feb574",
-          "timestamp": "2026-07-03T03:56:08.710Z"
+          "headHash": "e86b170a1019c50939d32cc9be743dc754deae34",
+          "materialHash": "de1b0b17ea393344936e37a6dfc01ba1924870dc602949c9381fb91581038e4e",
+          "storyFilesHash": "d60eb39525d8564bc584e167ecc62de11004e6537f33cd7060b85185b6cf5078",
+          "timestamp": "2026-07-03T04:07:34.619Z"
         }
       ]
     }
