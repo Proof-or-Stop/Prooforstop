@@ -21,6 +21,10 @@
  *   CHK-001:edge:3        non-zero exit / timeout, no verdict → blocked, stdoutDigest present, no raw.
  *   CHK-001:adversarial:0 verdict JSON + malicious out-of-band text → only structured fields parsed.
  *   CHK-001:adversarial:1 dispatch policy still refuses non-review codex impl + gemini/antigravity.
+ *   CHK-001:adversarial:2 (F-003) codex with BOTH real-host + review-only flags → REFUSED (impl intent wins).
+ *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
+ *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed.
+ *   CHK-001:adversarial:5 (F-004) policy env-denylist + timeout ceiling threaded to the runner.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
  *   CHK-002:edge:0        host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric).
@@ -48,6 +52,7 @@ import type { Finding } from '../core/adversarial-review.js';
 import {
   CODEX_REVIEW_VERDICT_SCHEMA,
   type CodexReviewRunner,
+  type CodexReviewRunnerOptions,
   type CodexReviewRunnerResult,
 } from '../core/codex-review-leaf.js';
 import {
@@ -139,9 +144,56 @@ function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; 
   return { root, store, ctx, registry };
 }
 
+/**
+ * A valid review-only dispatch policy fixture: grants a read-only codex reviewer
+ * (allowReviewOnlyRealHostSubprocess=true, codex in allowedHosts) WITHOUT the
+ * implementation flag, and declares budget+network so checkDispatchPolicy
+ * authorizes (not merely supervised). Used as the `policy` arg for the passing
+ * handler cases (F-004 fail-closed enforcement).
+ */
+function reviewOnlyPolicy(overrides: Partial<DispatchPolicy> = {}): DispatchPolicy {
+  return {
+    schemaVersion: 'lattice.dispatch_policy.v1',
+    policy: 'xhr-review-only',
+    allowedHosts: ['codex'],
+    allowedPaths: ['packages/main/src/'],
+    deniedPaths: [],
+    maxParallel: 1,
+    maxRuntimeMinutes: 12,
+    maxBudgetUSD: 1.0,
+    network: 'none',
+    envAllowlist: [],
+    envDenylist: [],
+    commandAllowlist: ['codex exec -s read-only'],
+    retryLimit: 0,
+    requireReceipt: true,
+    requireReview: true,
+    allowRealHostSubprocess: false,
+    allowReviewOnlyRealHostSubprocess: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+    createdAt: '2026-07-03T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
 /** A fake seam that returns a canned stdout transcript wrapping a verdict JSON. */
 function fakeSeam(stdout: string): CodexReviewRunner {
   return (): CodexReviewRunnerResult => ({ stdout, exitCode: 0, timedOut: false });
+}
+
+/**
+ * A capturing fake seam: records the CodexReviewRunnerOptions it was handed (env,
+ * timeoutMs, ...) so tests can assert the policy's env-denylist / timeout were
+ * threaded to the runner, and returns a canned verdict transcript.
+ */
+function capturingSeam(stdout: string): { runner: CodexReviewRunner; last: () => CodexReviewRunnerOptions | undefined } {
+  let captured: CodexReviewRunnerOptions | undefined;
+  const runner: CodexReviewRunner = (opts): CodexReviewRunnerResult => {
+    captured = opts;
+    return { stdout, exitCode: 0, timedOut: false };
+  };
+  return { runner, last: () => captured };
 }
 
 /** A fake seam with explicit process outcome (non-zero exit / timeout, arbitrary stdout). */
@@ -210,6 +262,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-a`,
         json: true,
@@ -238,6 +291,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-b`,
         json: true,
@@ -271,6 +325,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-e1`,
         json: true,
@@ -288,6 +343,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-c`,
         json: true,
@@ -306,6 +362,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-e3`,
         json: true,
@@ -338,6 +395,7 @@ async function run(): Promise<void> {
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
         hostAFindingsFile,
         runId: `${STORY_ID}-xhr-adv0`,
         json: true,
@@ -391,6 +449,132 @@ async function run(): Promise<void> {
       const agyReviewOnly = checkDispatchPolicy(root, { ...base, allowedHosts: ['antigravity'], allowReviewOnlyRealHostSubprocess: true } as DispatchPolicy);
       assert.equal(agyReviewOnly.status, 'refused', 'antigravity remains refused under the review-only flag');
       assert.ok(agyReviewOnly.reasons.some(r => /antigravity/.test(r)), 'refusal names antigravity');
+    });
+
+    // CHK-001:adversarial:2 (F-003) — codex with BOTH allowRealHostSubprocess=true
+    // AND allowReviewOnlyRealHostSubprocess=true expresses IMPLEMENTATION intent and
+    // MUST be refused: the review-only exclusion applies only to a PURE review-only
+    // policy. Otherwise such a policy would pass the check AND reach the codex
+    // implementation path (runCodexRealLeafDispatch fires on
+    // selectedHost==='codex' && allowRealHostSubprocess===true), defeating the grant.
+    await check('CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED', () => {
+      const base: Omit<DispatchPolicy, 'allowedHosts'> = {
+        schemaVersion: 'lattice.dispatch_policy.v1',
+        policy: 'fake',
+        allowedPaths: ['packages/main/src/generated/'],
+        deniedPaths: [],
+        maxParallel: 2,
+        maxRuntimeMinutes: 60,
+        maxBudgetUSD: 1.0,
+        network: 'none',
+        envAllowlist: [],
+        envDenylist: [],
+        commandAllowlist: ['node -e "process.exit(0)"'],
+        retryLimit: 0,
+        requireReceipt: true,
+        requireReview: true,
+        allowRealHostSubprocess: true,
+        allowReviewOnlyRealHostSubprocess: true,
+        allowAutoMerge: false,
+        allowProductionDone: false,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      };
+      const bothFlags = checkDispatchPolicy(root, { ...base, allowedHosts: ['codex'] } as DispatchPolicy);
+      assert.equal(bothFlags.status, 'refused', 'codex with BOTH flags is refused (implementation intent wins over review-only)');
+      assert.ok(bothFlags.reasons.some(r => /claude-code only/.test(r) && /codex/.test(r)), 'refusal names codex as a scaffolded/refused real-host target even with the review-only flag');
+      // Control: the SAME policy WITHOUT the implementation flag (pure review-only) is NOT refused for codex.
+      const pureReviewOnly = checkDispatchPolicy(root, { ...base, allowRealHostSubprocess: false, allowedHosts: ['codex'] } as DispatchPolicy);
+      assert.notEqual(pureReviewOnly.status, 'refused', 'a PURE review-only codex policy (no impl flag) is authorized/supervised, not refused');
+    });
+
+    // CHK-001:adversarial:3 (F-004) — a MISSING policy fails closed: no codex spawn,
+    // no verdict recorded. The injected seam MUST NOT be invoked.
+    await check('CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      let seamInvoked = false;
+      const handlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: () => { seamInvoked = true; return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false }; },
+      });
+      const runId = `${STORY_ID}-xhr-nopolicy`;
+      await assert.rejects(
+        () => Promise.resolve(handlers.cross_host_review({ storyId: STORY_ID, hostAFindingsFile, runId, json: true })),
+        /review-only dispatch policy is required/,
+        'missing policy throws a fail-closed error',
+      );
+      assert.equal(seamInvoked, false, 'codex seam is NEVER invoked when the policy is missing');
+      const recorded = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === runId);
+      assert.equal(recorded.length, 0, 'no verdict recorded on a fail-closed missing policy');
+    });
+
+    // CHK-001:adversarial:4 (F-004) — an UNAUTHORIZED policy (does not grant a
+    // read-only codex reviewer) fails closed: no spawn, no verdict recorded.
+    await check('CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      let seamInvoked = false;
+      const handlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: () => { seamInvoked = true; return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false }; },
+      });
+      // A policy that authorizes but does NOT grant allowReviewOnlyRealHostSubprocess for codex.
+      const noReviewGrant = reviewOnlyPolicy({ allowReviewOnlyRealHostSubprocess: false, allowedHosts: ['fake'] });
+      const runId = `${STORY_ID}-xhr-unauth`;
+      await assert.rejects(
+        () => Promise.resolve(handlers.cross_host_review({ storyId: STORY_ID, policy: noReviewGrant, hostAFindingsFile, runId, json: true })),
+        /does not grant a read-only codex reviewer/,
+        'unauthorized policy throws a fail-closed error',
+      );
+      assert.equal(seamInvoked, false, 'codex seam is NEVER invoked when the policy does not grant a codex reviewer');
+      const recorded = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === runId);
+      assert.equal(recorded.length, 0, 'no verdict recorded on a fail-closed unauthorized policy');
+    });
+
+    // CHK-001:adversarial:5 (F-004) — the policy's env DENYLIST and its
+    // maxRuntimeMinutes ceiling are THREADED to the runner. Assert via the seam
+    // capturing the RunCodexReviewLeafOptions it received: a denylisted / secret
+    // env name is stripped, an allowlisted name survives, and timeoutMs reflects
+    // the SMALLER of the requested minutes and the policy ceiling.
+    await check('CHK-001:adversarial:5 policy env-denylist + timeout ceiling threaded to the runner', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      const prevAllowed = process.env.XHR_SMOKE_ALLOWED;
+      const prevDenied = process.env.XHR_SMOKE_DENIED;
+      const prevSecret = process.env.XHR_SMOKE_TOKEN;
+      process.env.XHR_SMOKE_ALLOWED = 'keep-me';
+      process.env.XHR_SMOKE_DENIED = 'drop-me';
+      process.env.XHR_SMOKE_TOKEN = 'super-secret';
+      try {
+        const capture = capturingSeam(verdictJsonStdout(materialHash, 'pass', [], 'looks fine'));
+        const handlers = createCrossHostReviewHandlers(ctx, { codexRunner: capture.runner });
+        // Policy: an EMPTY allowlist lets non-denied, non-secret vars pass (so ALLOWED
+        // survives), the denylist drops DENIED, and the secret pattern drops TOKEN
+        // regardless of the lists (checkDispatchPolicy itself forbids a secret name in
+        // envAllowlist, so the secret-pattern strip is the defense-in-depth layer).
+        // maxRuntimeMinutes=3 is the ceiling below the requested 12.
+        const policy = reviewOnlyPolicy({
+          envAllowlist: [],
+          envDenylist: ['XHR_SMOKE_DENIED'],
+          maxRuntimeMinutes: 3,
+        });
+        const result = await handlers.cross_host_review({
+          storyId: STORY_ID,
+          policy,
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-envtimeout`,
+          timeoutMinutes: 12,
+          json: true,
+        }) as CrossHostReviewResult;
+        assert.equal(result.hostB.decision, 'pass', 'authorized policy → codex spawned and verdict recorded');
+        const opts = capture.last();
+        assert.ok(opts, 'the runner received options');
+        // Timeout: min(requested 12, policy ceiling 3) = 3 minutes.
+        assert.equal(opts!.timeoutMs, 3 * 60 * 1000, 'timeoutMs is the policy ceiling (3 min), not the requested 12');
+        const env = opts!.env ?? {};
+        assert.equal(env.XHR_SMOKE_ALLOWED, 'keep-me', 'allowlisted env var is threaded to the runner');
+        assert.equal(env.XHR_SMOKE_DENIED, undefined, 'denylisted env var is stripped from the runner env');
+        assert.equal(env.XHR_SMOKE_TOKEN, undefined, 'secret-pattern env var is stripped from the runner env');
+      } finally {
+        if (prevAllowed === undefined) delete process.env.XHR_SMOKE_ALLOWED; else process.env.XHR_SMOKE_ALLOWED = prevAllowed;
+        if (prevDenied === undefined) delete process.env.XHR_SMOKE_DENIED; else process.env.XHR_SMOKE_DENIED = prevDenied;
+        if (prevSecret === undefined) delete process.env.XHR_SMOKE_TOKEN; else process.env.XHR_SMOKE_TOKEN = prevSecret;
+      }
     });
 
     // ── CHK-002: diff / joint-decision cases (direct pure-function calls) ────────

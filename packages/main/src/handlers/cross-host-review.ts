@@ -18,12 +18,51 @@ import {
   type DisagreementReport,
   type JointDecisionResult,
 } from '../core/cross-host-review.js';
+import {
+  checkDispatchPolicy,
+  type DispatchPolicy,
+} from '../core/dispatch-policy.js';
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
 
+/** Env-var names that must NEVER be forwarded to the review subprocess. */
+const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL/i;
+
+/**
+ * F-004: build the redacted env the review-only codex subprocess is allowed to
+ * see, from the base process env and the authorized policy. Fail-closed layering:
+ *   1. If the policy declares an `envAllowlist`, ONLY those names may pass
+ *      (everything else is dropped) — a strict allowlist.
+ *   2. Any name matching the policy `envDenylist` is removed.
+ *   3. Any name matching the secret pattern (TOKEN/SECRET/PASSWORD/KEY/CREDENTIAL)
+ *      is removed regardless of the lists — provider transcripts must never carry
+ *      operator secrets.
+ * The result is a concrete env object (never `process.env` by reference).
+ */
+function buildRedactedEnv(base: NodeJS.ProcessEnv, policy: DispatchPolicy): NodeJS.ProcessEnv {
+  const allowlist = new Set((policy.envAllowlist ?? []).map(name => name.trim()).filter(Boolean));
+  const denylist = new Set((policy.envDenylist ?? []).map(name => name.trim()).filter(Boolean));
+  const redacted: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(base)) {
+    if (value === undefined) continue;
+    if (allowlist.size > 0 && !allowlist.has(name)) continue;
+    if (denylist.has(name)) continue;
+    if (UNSAFE_ENV_PATTERN.test(name)) continue;
+    redacted[name] = value;
+  }
+  return redacted;
+}
+
 export type CrossHostReviewArgs = {
   storyId: string;
-  policy?: string;
+  /**
+   * F-004: the review-only dispatch policy that authorizes and constrains the
+   * codex review subprocess. Either a named policy (loaded from
+   * .lattice/dispatch-policies/<name>.json) or an inline DispatchPolicy object —
+   * both are accepted by checkDispatchPolicy. REQUIRED: the handler fails closed
+   * (no codex spawn) when it is missing or unauthorized.
+   */
+  policy?: string | DispatchPolicy;
   hostAFindingsFile?: string;
   hostA?: string;
   hostB?: string;
@@ -173,6 +212,46 @@ function formatResult(result: CrossHostReviewResult): string {
   ].join('\n');
 }
 
+/**
+ * F-004: load + ENFORCE the review-only dispatch policy that authorizes the codex
+ * review subprocess. Accepts a named policy (loaded from disk by checkDispatchPolicy)
+ * or an inline DispatchPolicy. FAIL-CLOSED — throws (so no codex leaf is ever
+ * spawned) when:
+ *   - no policy is supplied;
+ *   - the policy does not exist / is malformed / is otherwise refused;
+ *   - the policy does not grant allowReviewOnlyRealHostSubprocess for a codex host
+ *     (i.e. it does not actually authorize an independent read-only codex reviewer).
+ * Returns the normalized authorized policy so its env/timeout constraints can be
+ * applied to the spawn.
+ */
+function authorizeReviewPolicy(root: string, policy: string | DispatchPolicy | undefined): DispatchPolicy {
+  if (policy === undefined || (typeof policy === 'string' && policy.trim() === '')) {
+    throw new Error(
+      'cross_host_review: a review-only dispatch policy is required to spawn the codex review subprocess; '
+      + 'refusing to run an unconstrained subprocess (fail-closed). Pass --policy=<name> or an inline policy '
+      + 'that grants allowReviewOnlyRealHostSubprocess for a codex host.',
+    );
+  }
+  const check = checkDispatchPolicy(root, policy);
+  if (!check.authorized) {
+    throw new Error(
+      `cross_host_review: dispatch policy "${check.policy}" is not authorized (${check.status}); `
+      + `refusing to spawn the codex review subprocess. reasons: ${check.reasons.join('; ') || '(none)'}`,
+    );
+  }
+  const authorized = check.normalizedPolicy;
+  const grantsReviewOnlyCodex = authorized.allowReviewOnlyRealHostSubprocess === true
+    && (authorized.allowedHosts ?? []).includes('codex');
+  if (!grantsReviewOnlyCodex) {
+    throw new Error(
+      `cross_host_review: dispatch policy "${authorized.policy}" does not grant a read-only codex reviewer `
+      + '(requires allowReviewOnlyRealHostSubprocess=true AND codex in allowedHosts); '
+      + 'refusing to spawn the codex review subprocess (fail-closed).',
+    );
+  }
+  return authorized;
+}
+
 export interface CreateCrossHostReviewHandlersOptions {
   /** Injectable Codex process seam so the smoke can pass a fake (no real CLI). */
   codexRunner?: CodexReviewRunner;
@@ -204,13 +283,30 @@ export function createCrossHostReviewHandlers(
       }
       const headHash = currentGitHead(projectRoot);
 
+      // F-004: authorize + load the review-only dispatch policy BEFORE anything
+      // spawns. Fail-closed: on a missing / unauthorized / non-review-granting
+      // policy this throws and NO codex subprocess is ever started, and no verdict
+      // is recorded.
+      const reviewPolicy = authorizeReviewPolicy(metadataRoot, args.policy);
+
       const hostAFindings: Finding[] = args.hostAFindingsFile
         ? loadHostAFindings(normalizeString(args.hostAFindingsFile))
         : [];
 
-      const timeoutMinutes = typeof args.timeoutMinutes === 'number' && args.timeoutMinutes > 0
+      // F-004: the effective runtime bound is the SMALLER of the caller-requested
+      // timeout and the policy's maxRuntimeMinutes ceiling — the policy can only
+      // TIGHTEN, never widen, the bound.
+      const requestedMinutes = typeof args.timeoutMinutes === 'number' && args.timeoutMinutes > 0
         ? args.timeoutMinutes
         : DEFAULT_TIMEOUT_MINUTES;
+      const policyMaxMinutes = typeof reviewPolicy.maxRuntimeMinutes === 'number' && reviewPolicy.maxRuntimeMinutes > 0
+        ? reviewPolicy.maxRuntimeMinutes
+        : requestedMinutes;
+      const timeoutMinutes = Math.min(requestedMinutes, policyMaxMinutes);
+
+      // F-004: the codex subprocess only sees a redacted env honoring the policy's
+      // allowlist/denylist (and never operator secrets).
+      const redactedEnv = buildRedactedEnv(process.env, reviewPolicy);
 
       // Host B (Codex): auto-run the read-only review leaf against the SAME
       // worktree so its embedded materialHash matches the computed digest.
@@ -221,6 +317,7 @@ export function createCrossHostReviewHandlers(
           materialHash: materialDigest,
           hostAFindings,
           timeoutMs: timeoutMinutes * 60 * 1000,
+          env: redactedEnv,
         },
         options.codexRunner,
       );
@@ -284,7 +381,16 @@ export function createCrossHostReviewHandlers(
       });
 
       const disagreement = diffFindings(hostAFindings, hostBVerdict.findings);
-      const joint = jointDecision(hostADecision, hostBVerdict.decision, disagreement);
+      // F-005: bind the joint decision to both hosts' material state so the
+      // divergence guard is LIVE in production — a joint PASS can never be
+      // asserted across two divergent code states. Host A reviewed the
+      // orchestrator-computed materialDigest; host B's verdict carries its own
+      // materialHash (already fail-closed-validated against materialDigest by the
+      // leaf, so a genuine mismatch has already blocked host B upstream).
+      const joint = jointDecision(hostADecision, hostBVerdict.decision, disagreement, {
+        hostAMaterialHash: materialDigest,
+        hostBMaterialHash: hostBVerdict.materialHash,
+      });
 
       const result: CrossHostReviewResult = {
         schemaVersion: 'lattice.cross_host_review.v1',

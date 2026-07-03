@@ -6,8 +6,12 @@
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/core/cross-host-review.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     "packages/main/package.json",
     "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
     ".lattice/story/actives/B-f57a/**"
   ],
   "allowedCreate": [
@@ -29,8 +33,8 @@
     "packages/main/src/core/claim-admissibility/",
     "experiments/experience-ablation/"
   ],
-  "scopeChangeReason": "Add story-metadata dir (.lattice/story/actives/B-f57a) to allowed paths — Lattice bookkeeping files (index/checklist/plan/proofstory/evidence) are written by the CLI itself, not material code. Also allow modifying cross-host-review.ts (jointDecision materialHash guard).",
+  "scopeChangeReason": "Round-1 review fixes: register command in command-policy + process-fact-levels (F-002), sync threat-model M1->M-crypto (F-001), tighten dispatch-policy codex exclusion + handler policy enforcement + jointDecision binding (F-003/F-004/F-005).",
   "acknowledgements": [],
   "createdAt": "2026-07-03T01:51:30.384Z",
-  "updatedAt": "2026-07-03T02:19:40.138Z"
+  "updatedAt": "2026-07-03T02:26:29.437Z"
 }

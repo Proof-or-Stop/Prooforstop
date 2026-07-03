@@ -270,12 +270,17 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
   if (typeof allowRealHostSubprocess !== 'boolean') {
     errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
   } else {
-    // The IMPLEMENTATION real-host path supports claude-code only. codex is a
-    // refused implementation target UNLESS the narrower review-only flag permits it
-    // as a read-only reviewer (B-f57a); gemini/antigravity always remain refused.
+    // F-003: the IMPLEMENTATION real-host path supports claude-code only. codex may
+    // be excluded from this refusal ONLY for a PURE review-only policy — the narrow
+    // review-only grant WITHOUT the implementation flag. When allowRealHostSubprocess
+    // is true the policy expresses IMPLEMENTATION intent and codex stays refused
+    // (codex is the live impl target at lattice-dispatch.ts's runCodexRealLeafDispatch,
+    // which fires on selectedHost==='codex' && allowRealHostSubprocess===true), so the
+    // two flags are mutually exclusive for codex. gemini/antigravity always remain refused.
+    const reviewOnlyCodex = allowReviewOnlyRealHostSubprocess && !allowRealHostSubprocess;
     const unsupportedRealHosts = allowedHosts.filter((host) => {
       if (host === 'antigravity' || host === 'gemini') return true;
-      if (host === 'codex') return !allowReviewOnlyRealHostSubprocess;
+      if (host === 'codex') return !reviewOnlyCodex;
       return false;
     });
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
@@ -429,10 +434,18 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
-    // codex is a refused IMPLEMENTATION real-host target UNLESS the narrower
-    // review-only flag permits it as a read-only reviewer (B-f57a);
+    // F-003: codex may be excluded from this IMPLEMENTATION-path refusal ONLY for
+    // a PURE review-only policy — i.e. the narrow review-only grant WITHOUT the
+    // implementation flag. When allowRealHostSubprocess === true the policy
+    // expresses IMPLEMENTATION intent, and codex is the live impl target at
+    // lattice-dispatch.ts (runCodexRealLeafDispatch fires whenever
+    // selectedHost==='codex' && allowRealHostSubprocess===true). So codex must
+    // stay refused here regardless of allowReviewOnlyRealHostSubprocess, making
+    // the two flags mutually exclusive for codex: a review-only policy can never
+    // also carry the implementation flag, so it can never reach that impl path.
     // gemini/antigravity always remain refused.
-    const reviewOnlyCodex = policyRecord.allowReviewOnlyRealHostSubprocess === true;
+    const reviewOnlyCodex = policyRecord.allowReviewOnlyRealHostSubprocess === true
+      && policyRecord.allowRealHostSubprocess !== true;
     const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter((host) => {
       if (host === 'antigravity' || host === 'gemini') return true;
       if (host === 'codex') return !reviewOnlyCodex;
