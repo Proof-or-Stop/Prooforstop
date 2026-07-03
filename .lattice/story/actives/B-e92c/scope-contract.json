@@ -1,0 +1,23 @@
+{
+  "storyId": "B-e92c",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedCreate": [
+    "experiments/experience-ablation/live-readout.mjs",
+    "experiments/experience-ablation/live-readout-selfcheck.mjs",
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/live-readout-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/**",
+    "experiments/recovery-runner/**"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T09:21:47.438Z",
+  "updatedAt": "2026-07-03T09:21:47.438Z"
+}
