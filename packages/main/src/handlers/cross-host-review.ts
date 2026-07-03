@@ -175,7 +175,7 @@ const SAFE_LC_ENV_NAMES = new Set<string>([
  * safe base var and is dropped.
  */
 function isSafeBaseEnvName(name: string): boolean {
-  return SAFE_BASE_ENV_NAMES.has(name) || SAFE_LC_ENV_NAMES.has(name) || name.startsWith('LC_');
+  return SAFE_BASE_ENV_NAMES.has(name) || SAFE_LC_ENV_NAMES.has(name);
 }
 
 /**
