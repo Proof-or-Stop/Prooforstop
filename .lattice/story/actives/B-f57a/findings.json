@@ -109,6 +109,24 @@
       "resolvedReason": "Fixed in ca7615450 (see commit body); smoke 21 checks green, tsc clean.",
       "resolvedAt": "2026-07-03T02:38:38.728Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-f57a:F-006",
+      "desc": "dead-code: dispatch-policy.ts:447-448 reviewOnlyCodex is always false inside checkDispatchPolicy — the variable is computed as `allowReviewOnlyRealHostSubprocess===true && allowRealHostSubprocess!==true` but the entire enclosing block is `if (policyRecord.allowRealHostSubprocess===true)`, making the second operand permanently false. The variable is never true, so its only use at L451 (`!reviewOnlyCodex`) never fires. The surrounding comment correctly states codex must stay refused here regardless, so the behavior is intentional — but the dead variable misleads readers into thinking a review-only exemption exists within this branch. The dead variable should be removed and the filter simplified to `if (host===antigravity || host===gemini || host===codex) return true` (with a one-line comment referencing the mutual-exclusion invariant).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T02:41:21.750Z",
+      "reviewRound": "2026-07-03T02:38:16.913Z",
+      "reviewRunId": "B-f57a:RR-005",
+      "_hash": "cc0e9068554e713beb3378976076a379752c9280f2895cce514d42e5d2c16376",
+      "files": [
+        "packages/main/src/core/dispatch-policy.ts"
+      ],
+      "signatureTag": "edge|ts|dead-code-dispatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
