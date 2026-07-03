@@ -151,6 +151,18 @@
           "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
           "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
           "timestamp": "2026-07-03T00:43:10.313Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "run.json storeRoot=<repoRoot>/.lattice/learning -> score; run.json arm=CONTROL -> score",
+          "result": "pass",
+          "note": "storeRoot set to the default production learning root (<repoRoot>/.lattice/learning derived from score.mjs location): record voided=true, voidReason names store isolation breach (plan section 12) with both paths. Malformed arm CONTROL: exit=1, exactly one line: score: run.json field \"arm\" must be \"control\" or \"treatment\" (got \"CONTROL\").",
+          "headHash": "e35ffa563c8cd926990defe52bb02495c08e35d5",
+          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
+          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
+          "timestamp": "2026-07-03T00:43:11.882Z"
         }
       ]
     },
