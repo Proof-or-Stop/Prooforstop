@@ -36,23 +36,22 @@ import {
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
 
-/** Fail-closed reason: the worktree carries uncommitted MATERIAL (source) state, so the HEAD materialHash cannot honestly bind a review Codex runs against the LIVE tree. */
+/** Fail-closed reason: the worktree carries uncommitted MATERIAL (source) state, so the HEAD materialHash cannot honestly bind a review result. */
 export const CROSS_HOST_REVIEW_DIRTY_WORKTREE = 'cross_host_review_dirty_worktree' as const;
+/** Fail-closed reason: the committed HEAD moved after the review binding was computed, so the verdict would bind to a stale commit. */
+export const CROSS_HOST_REVIEW_HEAD_DRIFT = 'cross_host_review_head_drift' as const;
 
 /**
  * Integrity preflight (host-B escalation-lane fix): FAIL CLOSED before any codex
  * spawn when the worktree has uncommitted MATERIAL (source) drift versus HEAD.
  *
  * WHY: the recorded verdict is bound to `currentMaterialHash(root,'HEAD',...)`,
- * which hashes the COMMITTED tree (`git ls-tree HEAD`). But the Codex review leaf
- * runs `codex exec -C <worktree>` against the LIVE worktree. If the worktree has
- * uncommitted modifications to tracked files OR untracked files that Codex would
- * see, Codex reviews a DIFFERENT tree than the HEAD materialHash the verdict is
- * bound to — so a `pass` bound to HEAD could reflect a review of uncommitted code
- * that is later discarded. Throwing here guarantees HEAD === the tree Codex
- * reviews (modulo `.lattice/` metadata Codex never reads), so the bound
- * materialHash is HONEST. This matches the repo's "commit before review"
- * discipline.
+ * which hashes the COMMITTED tree (`git ls-tree HEAD`). Codex reviews a detached
+ * snapshot of that committed tree, so the live worktree must not contain material
+ * source edits that are outside the captured commit. Throwing here guarantees the
+ * operator's source state is exactly the captured HEAD tree (modulo `.lattice/`
+ * metadata Codex never reads), so the bound materialHash is HONEST. This matches
+ * the repo's "commit before review" discipline.
  *
  * `.lattice/` EXCLUSION: the story's own Lattice metadata dir churns constantly
  * DURING a story (activity log, locks, the story's own test-evidence/checklist),
@@ -107,9 +106,9 @@ function assertMaterialCleanForReview(gitCwd: string): void {
     const sample = [...new Set(material)].sort().slice(0, 5).join(', ');
     throw new Error(
       `cross_host_review: ${CROSS_HOST_REVIEW_DIRTY_WORKTREE} — the worktree has uncommitted MATERIAL (source) changes `
-      + `versus HEAD (${sample}${material.length > 5 ? ', …' : ''}). Codex reviews the LIVE worktree, but the recorded `
-      + `verdict binds to the HEAD materialHash (the committed tree), so a review of uncommitted code would be bound to a `
-      + `tree it did not review. Commit or stash the source changes before cross_host_review (commit-before-review), or `
+      + `versus HEAD (${sample}${material.length > 5 ? ', …' : ''}). Codex reviews a detached snapshot of HEAD, and the `
+      + `recorded verdict binds to that HEAD materialHash (the committed tree), so uncommitted source state would make the `
+      + `operator-facing review result misleading. Commit or stash the source changes before cross_host_review (commit-before-review), or `
       + `exclude only .lattice/ metadata. Refusing to spawn the codex review subprocess (fail-closed).`,
     );
   }
@@ -311,11 +310,21 @@ function assertHostIndependence(hostA: CrossHostIdentity, hostB: CrossHostIdenti
   }
 }
 
-function createCleanHeadReviewWorktree(projectRoot: string): { worktree: string; cleanup: () => void } {
+function assertReviewHeadStillCurrent(gitCwd: string, expectedHeadHash: string): void {
+  const currentHead = currentGitHead(gitCwd);
+  if (currentHead !== expectedHeadHash) {
+    throw new Error(
+      `cross_host_review: ${CROSS_HOST_REVIEW_HEAD_DRIFT} — HEAD changed from ${expectedHeadHash} to ${currentHead ?? 'unknown'} `
+      + 'after the review binding was computed; refusing to record a verdict bound to a stale committed tree (fail-closed).',
+    );
+  }
+}
+
+function createCleanHeadReviewWorktree(projectRoot: string, headHash: string): { worktree: string; cleanup: () => void } {
   const parent = mkdtempSync(join(tmpdir(), 'lattice-xhr-review-'));
   const worktree = join(parent, 'worktree');
   try {
-    execFileSync('git', ['worktree', 'add', '--detach', worktree, 'HEAD'], {
+    execFileSync('git', ['worktree', 'add', '--detach', worktree, headHash], {
       cwd: projectRoot,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -324,7 +333,7 @@ function createCleanHeadReviewWorktree(projectRoot: string): { worktree: string;
   } catch (err) {
     rmSync(parent, { recursive: true, force: true });
     throw new Error(
-      `cross_host_review: cannot create a clean HEAD review snapshot for codex (${err instanceof Error ? err.message : String(err)}); `
+      `cross_host_review: cannot create a clean HEAD review snapshot for codex at ${headHash} (${err instanceof Error ? err.message : String(err)}); `
       + 'refusing to review the mutable live worktree (fail-closed).',
     );
   }
@@ -542,6 +551,9 @@ export function createCrossHostReviewHandlers(
         throw new Error('cross_host_review: cannot compute current storyFilesHash; refusing to record verdicts without the story-owned file hash');
       }
       const headHash = currentGitHead(projectRoot);
+      if (!headHash) {
+        throw new Error('cross_host_review: cannot resolve current HEAD; refusing to record verdicts without a committed-tree binding');
+      }
 
       // F-004: authorize + load the review-only dispatch policy BEFORE anything
       // spawns. Fail-closed: on a missing / unauthorized / non-review-granting
@@ -613,13 +625,15 @@ export function createCrossHostReviewHandlers(
       // metadata is excluded (Codex never reads story bookkeeping, and it churns
       // constantly).
       assertMaterialCleanForReview(projectRoot);
+      assertReviewHeadStillCurrent(projectRoot, headHash);
 
       // F-010: Codex must not review the mutable story worktree after the clean
-      // preflight. Give it an immutable detached HEAD snapshot instead, then
+      // preflight. Give it an immutable detached snapshot of the captured HEAD
+      // SHA instead, then
       // re-check the original worktree before recording. A concurrent source edit
-      // after the snapshot cannot influence what Codex reviewed, and if it remains
-      // dirty we refuse to bind/record the verdict.
-      const snapshot = createCleanHeadReviewWorktree(projectRoot);
+      // or clean HEAD move after the snapshot cannot influence what Codex reviewed,
+      // and we refuse to bind/record the verdict if either drift is still present.
+      const snapshot = createCleanHeadReviewWorktree(projectRoot, headHash);
       let leaf: CodexReviewLeafResult;
       try {
         leaf = await runCodexReviewLeaf(
@@ -636,6 +650,7 @@ export function createCrossHostReviewHandlers(
       } finally {
         snapshot.cleanup();
       }
+      assertReviewHeadStillCurrent(projectRoot, headHash);
       assertMaterialCleanForReview(projectRoot);
       const hostBVerdict: CodexReviewVerdict = leaf.hostBVerdict;
 
