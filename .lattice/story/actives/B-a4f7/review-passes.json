@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T10:44:20.132Z",
       "reviewRunId": "B-a4f7:RR-001",
       "_hash": "7238e2c94734a9405333dff57fadd0070d52cbea9b74277798615ae49fec776f"
+    },
+    {
+      "id": "B-a4f7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Reviewed checklist verificationEvidence and smoke additions. Coverage includes playbook_candidate_ingest dry-run immutability, apply creation of inert candidates, same-story rerun idempotency, unrelated staged proposal preservation, DONE hook default-on behavior and opt-out, zero helped outcome/auto-activation rows, runtime candidate inertness/no DONE-only activation, docs/status flag and gateEvidence=false surfaces. Re-ran npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js; node packages/main/dist/cli.js playbook_candidate_ingest --json; node packages/main/dist/cli.js playbook_promotion_status --json; docs rg checks; evidence_inspect fresh.",
+      "createdAt": "2026-07-03T10:48:29.943Z",
+      "reviewRound": "2026-07-03T10:44:20.132Z",
+      "reviewRunId": "B-a4f7:RR-003",
+      "_hash": "4ecc5b5fe664977c5daf6680c56a9568345def1cfcf949fa37d3b3d2b75bea6c"
     }
   ]
 }
