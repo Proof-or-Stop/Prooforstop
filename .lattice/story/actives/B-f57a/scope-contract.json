@@ -34,7 +34,28 @@
     "experiments/experience-ablation/"
   ],
   "scopeChangeReason": "Round-1 review fixes: register command in command-policy + process-fact-levels (F-002), sync threat-model M1->M-crypto (F-001), tighten dispatch-policy codex exclusion + handler policy enforcement + jointDecision binding (F-003/F-004/F-005).",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve process-fact-contract drift: cross_host_review is an L4 gateEvidence command with allowedPhases=all, so DEFAULT_PHASE_TOOLS must expose it in every phase while handler and command policy keep owner lease, review-only dispatch policy, and dirty/head guards fail-closed.",
+      "timestamp": "2026-07-03T11:10:44.341Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "751065e9b22c048c6e2e1c17c0836f6c89b7f7c5",
+      "materialHash": "ec29cf40e8f9d2e5d3c9744fd7c0847ea46c5187b83e7d80267a8ae62fc12317",
+      "anchors": [
+        "cross_host_review.DEFAULT_PHASE_TOOLS",
+        "process_fact_contract.L4_phase_alignment"
+      ]
+    }
+  ],
   "createdAt": "2026-07-03T01:51:30.384Z",
-  "updatedAt": "2026-07-03T02:26:29.437Z"
+  "updatedAt": "2026-07-03T11:10:44.341Z"
 }
