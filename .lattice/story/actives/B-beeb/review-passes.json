@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T04:49:40.181Z",
       "reviewRunId": "B-beeb:RR-004",
       "_hash": "63f6562fbfa2acf4705427b4381d825d360d04b525a3667c9c4233e37f874bab"
+    },
+    {
+      "id": "B-beeb:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 15 verificationIntents covered by valid verificationEvidence. 12 must intents covered (CHK-001/002/003/004 each have 3 must lanes via manual_transcript and logic_test, all result=pass). CHK-005 3 should intents covered via verification_intent_repair with concrete descriptions. 0 must gaps. 0 waivers. Drift since evidence refresh is metadata-only; storyFilesHash consistent across all 15 evidence records. lattice validate: status=pass allPass=true covered=15 missingRequired=0.",
+      "createdAt": "2026-07-03T04:58:17.554Z",
+      "reviewRound": "2026-07-03T04:49:40.181Z",
+      "reviewRunId": "B-beeb:RR-008",
+      "_hash": "b354cd597553d84f166d195ca6524d4ddffbb9b585d5c2a8759e922de452f975"
     }
   ]
 }
