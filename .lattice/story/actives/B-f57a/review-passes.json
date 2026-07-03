@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-03T10:27:22.324Z",
       "reviewRunId": "B-f57a:RR-024",
       "_hash": "04dabb9956e6295ff81dbd8dd74ab8b3db8721b008dbb82e402f0a02bd629138"
+    },
+    {
+      "id": "B-f57a:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "CHK-001:adversarial:6 evidence is sufficient after F-016: smoke covers dirty source drift fail-closed with no spawn/no verdict, pre-hash clean HEAD drift before spawn, post-spawn source and clean HEAD drift before record, post-write clean HEAD drift cleanup leaving no stale/partial verdict pair, and .lattice-only dirty control. Evidence plan shows 24/24 fresh intents and lifecycle REVIEW localReady=true; latest validate snapshot PASS with unchanged material/storyFiles hashes.",
+      "createdAt": "2026-07-03T10:30:23.629Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-026",
+      "_hash": "89559a6cd5e49c9cae4703c60a55d98325d0b39a2680d144d39600e1d41a2069"
     }
   ]
 }
