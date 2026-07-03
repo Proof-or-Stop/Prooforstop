@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c28f",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/*",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    ".worktrees",
+    "docs/requirements/decisions",
+    "packages/main/dist",
+    "packages/main/src"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation stays inside Proofbound CLI, docs, tests, and Lattice metadata.",
+  "createdAt": "2026-07-03T01:35:13.338Z",
+  "updatedAt": "2026-07-03T01:35:13.338Z",
+  "_hash": "496f00c22c0174b6606791d759cee73feaaa3a270c8e2bd86cdbfe2efc4fe42e"
+}

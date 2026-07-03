@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-d217",
+  "sourceText": "User (2026-07-02, continuing 2026-07-03): execute the experience-layer ablation causal-validation plan (docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md) milestone by milestone until all are DONE. This story is milestone M4 (plan section 13): Deterministic scoring oracle — structured scoring from validation evidence, DONE rows, final_response_check, ground-truth oracles, and lane-provenance facts. No live reviewer in the seeded-phase primary. Exit criteria: Known positive/negative fixtures score correctly, deterministically, on replay.",
+  "normalizedOutcome": "A pure standalone scorer (score.mjs) turns any archived arm-run directory plus its fixture into one ExperienceAblationScore v1 JSON record with deterministic byte-identical replay; a binding RUN-RECORD.md input contract tells M6 what to produce; a hermetic selfcheck proves every M1 reference-good/reference-bad payload scores with the correct labels and a stable corpus digest.",
+  "acceptanceClaim": "node experiments/experience-ablation/score-selfcheck.mjs exits 0 printing score-selfcheck: all cases passed (corpus digest <sha256>) — covering class-appropriate defect flags for all nine classes on known-bad, clean known-good passes, byte-identical replay with identical digest on re-run, store-isolation voiding, and control/treatment event mapping.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:6318f61719c7369d1864815a6fe1583a2258505380b3437e5de55fc97a26d6bf",
+  "createdAt": "2026-07-03T00:24:34.535Z",
+  "updatedAt": "2026-07-03T00:24:34.535Z"
+}

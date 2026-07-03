@@ -1953,12 +1953,12 @@ Behavior:
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_seed_observe', description: 'Read-only deduped historical playbook seed view with observeDigest (non-authoritative)', schema: {
-    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    source: z.enum(['dev-memory', 'finding-signals', 'done-experience', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
     json: z.boolean().optional().describe('Emit structured JSON including observeDigest.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'playbook_seed_propose_batch', description: 'Dry-run default batch proposal staging from deduped seeds; --apply requires observeDigest and never creates candidates/active', schema: {
-    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    source: z.enum(['dev-memory', 'finding-signals', 'done-experience', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
     dryRun: z.boolean().optional().describe('Preview staged proposals without writing. Default true unless apply=true.'),
     apply: z.boolean().optional().describe('Write proposal files only. Requires observeDigest; fails closed on observe drift.'),
     limit: z.coerce.number().int().optional().describe('Maximum seeds to stage (default 20, max 100).'),

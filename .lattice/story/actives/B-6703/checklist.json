@@ -1,0 +1,149 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make evidence activation self-contained after explicit outcomes",
+      "context": "playbook_auto_promotion_apply --apply should activate qualifying candidates using deterministic recommendation evidence without requiring PLAYBOOK_PROMOTION_SWEEP_ENABLED as a separate manual gate. It must remain fail-closed without real exposure/outcome evidence, clean lineage, current digest, and non-harmful aggregate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "lattice playbook_auto_promotion_apply --apply --json activates eligible candidates after explicit helped outcomes.",
+      "excludes": [
+        "timer-driven promotion",
+        "historical seed backfill",
+        "DONE success counted as helped",
+        "blocking policy generation"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Candidate with three explicit helped candidate-inspection outcomes activates via playbook_auto_promotion_apply --apply without setting PLAYBOOK_PROMOTION_SWEEP_ENABLED.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Candidate with outcomes but stale candidate digest or duplicate lineage remains blocked.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE-settlement helped rows and exposureMode=none cannot activate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the full CLI consumption loop",
+      "context": "A real dist CLI smoke should run seed observe/propose/approve, record explicit outcomes, apply evidence activation, and verify active runtime consumption while candidates remain inert until activation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "playbook seed becomes candidate, candidate receives outcome evidence, auto promotion activates it, and runtime consumption verification sees it active.",
+      "excludes": [
+        "manual playbook_activate path",
+        "browser/UI tests"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Dist CLI path reports activatedCount=1 and runtime activeChecks consumedByAll=true.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Second apply is idempotent and does not duplicate activation audit rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Activation apply fails closed before explicit outcomes and does not mutate playbooks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document Story 2 activation boundary",
+      "context": "Docs must say V2 evidence activation is usable through playbook_auto_promotion_apply, but remains advisory/non-authoritative and separate from timers, trial traffic, historical backfill, and gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "Docs show the exact commands and explain that activation is evidence-based, not human subjective promotion and not DONE-success inference.",
+      "excludes": [
+        "claiming production/blocking policy readiness"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs include playbook_auto_promotion_apply --apply and runtime consumption verification command sequence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish automatic evidence activation from timer-driven promotion and historical backfill.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly forbid DONE success alone as helped or active guidance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

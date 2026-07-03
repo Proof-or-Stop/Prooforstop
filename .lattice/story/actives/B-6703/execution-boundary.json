@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6703",
+  "allowedCommands": [
+    "lattice done_required_validate --storyId=<storyId> --json",
+    "lattice playbook_* --json",
+    "lattice validate --story=<storyId> --json",
+    "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "codex",
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/<storyId>/**",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "omx",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Keep Story 2 local, host-neutral, and evidence-only; no remote publish or OMX.",
+  "createdAt": "2026-07-03T02:48:57.463Z",
+  "updatedAt": "2026-07-03T02:48:57.463Z",
+  "_hash": "d9566d3a387f84db47b42fbeeb517beb5f1907127ea95ef4a7bbc7853905e833"
+}

@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-d217:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. All three new files (score.mjs, RUN-RECORD.md, score-selfcheck.mjs) are pure additions — no concept deleted or replaced. Verified: (1) SCORE_KEY_ORDER fields align with plan section 10 schema plus declared voiding/provenance extensions (voided, voidReason, details); (2) M3 event vocabulary (experience_pack_surfaced, retrieval_violation) referenced only within experiments/experience-ablation/ plus the plan doc; (3) all referenced artifacts (fixture-generator.mjs, pair-ledger.mjs, oracle/classify interface via trap-templates.mjs) exist; (4) B-ab8d story exists; (5) M6 campaign runner references are intentional future-milestone forward declarations, not dangling; (6) error catalog in RUN-RECORD.md matches actual fail() messages in score.mjs; (7) 14 check() calls in score-selfcheck.mjs; (8) no doc-promise-undelivered items (no CLAUDE.md/README changes); (9) no TODO/FIXME markers. No blocker.",
+      "createdAt": "2026-07-03T00:53:00.395Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-001",
+      "_hash": "9db53c3e175a5a164178dd66dc2d96d84996d461bcb7f6d412e4e31f7e51a6c8"
+    },
+    {
+      "id": "B-d217:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of fix commit 2ee5f3e2. All four original findings (F-001 through F-004) verified satisfied: F-001 dead guard removed from score.mjs (runJsonPath existsSync check deleted; readJsonFile already does the same check at line 77); F-002 corpus digest temp-root leak now scans all four forms (tmpdir raw, tmpdir realpath, corpus raw, corpus realpath) via realpathSync; F-003 missing workspace/ and missing activity.jsonl error-path cases added with exact catalog-line message assertions using triple-equality; F-004 structured false-DONE precedence now covered by four new selfcheck scenarios (done-readiness fires, final-response-check fires, both merge into decidedBy label, structured-present-but-clean does NOT fall back to oracle). node score-selfcheck.mjs exits 0 with 20 PASS. No new dead code, type-safety issues, or I/O isolation violations found in the changed files.",
+      "createdAt": "2026-07-03T01:15:13.990Z",
+      "reviewRound": "2026-07-03T01:13:13.004Z",
+      "reviewRunId": "B-d217:RR-006",
+      "_hash": "93decd35b32c4d48acc2d4d55a53b154729bd3c414343b604d5ada91d9ba5e69"
+    },
+    {
+      "id": "B-d217:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check of fix commit 2ee5f3e2 (F-001..F-004). Delta scope: score.mjs + score-selfcheck.mjs. No concept deletion or en-masse replacement found. F-001: deleted local variable runJsonPath (dead existsSync guard) is purely local; the identically-named function in lattice-autopilot.ts is unrelated. F-002: old simple temp-root bytes check replaced with realpath-robust tempRootForms scan; no named concept removed. F-003: two new error-catalog selfcheck cases added; assertions match RUN-RECORD.md catalog verbatim (exact string match confirmed); RUN-RECORD.md itself untouched. F-004: falseDoneAttempt structured precedence concepts (done-readiness, final-response-check, structured-none-fired, oracle-fallback, decidedBy) consistently used across score.mjs + score-selfcheck.mjs + RUN-RECORD.md with zero orphaned references. No stale references, no incomplete concept cleanup, no doc-promise-undelivered items found in the delta. Zero findings registered.",
+      "createdAt": "2026-07-03T01:15:45.701Z",
+      "reviewRound": "2026-07-03T01:13:13.004Z",
+      "reviewRunId": "B-d217:RR-004",
+      "_hash": "f900641e41aa2bf8b3ceb7be68ddfd25e3e2b731b1c03234ce7745f650952af7"
+    },
+    {
+      "id": "B-d217:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9/9 must-intents covered across CHK-001/CHK-002/CHK-003 (3 happy, 3 edge, 3 adversarial); all evidence is manual_transcript/docs_check with result=pass and behavior-specific notes; evidence headHash 2ee5f3e2 matches fix commit; storyFilesHash stable; selfcheck 20 PASS with stable digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7 confirmed at current HEAD; intervening commits since evidence headHash are metadata-only (no material file changes).",
+      "createdAt": "2026-07-03T01:17:54.627Z",
+      "reviewRound": "2026-07-03T01:13:13.004Z",
+      "reviewRunId": "B-d217:RR-005",
+      "_hash": "755e2d485f612eb3081f6647da6fd374d29bbbcee3d243954269303c7823e4e4"
+    },
+    {
+      "id": "B-d217:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review: no concept deletion or replacement in this diff. The three deliverable files (score.mjs, score-selfcheck.mjs, RUN-RECORD.md) are byte-identical since round-2 pass (acaaf02d4). Package source changes come from B-ab8d/B-5e28 merges into main — all additions, zero deletions. score-selfcheck.mjs: 20 PASS, exit 0. No residue scan needed — no concept words were deleted or replaced. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T01:29:42.893Z",
+      "reviewRound": "2026-07-03T01:28:01.886Z",
+      "reviewRunId": "B-d217:RR-007",
+      "_hash": "2c48cc9ee307c511088db5321f1e7c50ad8f0358b820669229329fe17338de38"
+    }
+  ]
+}

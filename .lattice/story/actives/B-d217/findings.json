@@ -1,0 +1,125 @@
+{
+  "findings": [
+    {
+      "id": "B-d217:F-001",
+      "desc": "quality-cleanup: score.mjs:223 explicit existsSync pre-check before readJsonFile call on line 224 is redundant dead code — readJsonFile at line 77 performs the identical existsSync check and produces the same error message (\"missing required run record file: <path>\"); the guard on line 223 can never be the only line that catches the missing-file case",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:20.465Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "64048e6a8f7975b6d8929da84ece162992dc42144edaff56bf7b063f27383c6e",
+      "files": [
+        "experiments/experience-ablation/score.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the redundant existsSync pre-check before readJsonFile for run.json in score.mjs (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261); readJsonFile emits the identical one-line error, and the selfcheck error-path pin for missing run.json still passes with the exact catalog text.",
+      "resolvedAt": "2026-07-03T01:12:16.136Z"
+    },
+    {
+      "id": "B-d217:F-002",
+      "desc": "quality-cleanup: score-selfcheck.mjs:196 tmpdir()-based digest-stability check may produce a false-pass on macOS — os.tmpdir() can return /var/folders/... while mkdtempSync resolves to a /private/var/folders/... path (symlink target); the string-inclusion check for tmpdir() would miss a leaked resolved path. The corpus variable check on the same line is more reliable. Fix: also check the resolved (realpath) form of tmpdir(), or use only the corpus variable check which is already the actual temp root used",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:29.105Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "c4a3b2cedd719bc3236ab57de62b68bdeaa743e4d315300107413cb56e8eaaff",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "edge|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Digest temp-root leak check in score-selfcheck.mjs now scans for both the raw and fs.realpathSync-resolved forms of tmpdir() and the corpus root (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261), closing the macOS /var/folders vs /private/var/folders symlink false-pass; digest 634f398b... stable across two consecutive runs.",
+      "resolvedAt": "2026-07-03T01:12:28.471Z"
+    },
+    {
+      "id": "B-d217:F-003",
+      "desc": "quality-cleanup: score-selfcheck.mjs: the CHK-002 error-path section only pins two error cases (missing run.json, malformed arm); the documented RUN-RECORD.md error catalog includes at least two further required-file errors (activity.jsonl missing, workspace/ missing) that are not pinned as CLI one-line error checks. A scorer that produces a multi-line or wrongly-formatted error for these cases would pass selfcheck undetected. Lines ~387-408 cover only --run missing run.json and arm malformation",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:38.892Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "2407a6910c4f464327b059df0b1d4a91f756b9787db1597c1518a41d7d647bfe",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Pinned the two missing RUN-RECORD.md error-catalog cases in score-selfcheck.mjs (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261): missing workspace/ and missing activity.jsonl each asserted as exit 1 with exactly one line matching the catalog text verbatim; no RUN-RECORD.md change needed since assertions match the existing catalog lines.",
+      "resolvedAt": "2026-07-03T01:12:29.116Z"
+    },
+    {
+      "id": "B-d217:F-004",
+      "desc": "quality-cleanup: score-selfcheck.mjs: the structured false-DONE precedence path (resolveFalseDoneAttempt when done-readiness.json or final-response-check.json are present, score.mjs lines 606-645) is never exercised by the selfcheck — all synthRunDir calls omit these optional files, so the selfcheck corpus always exercises the oracle-fallback path only. The precedence logic (structured beats oracle, done-readiness+final-response-check merge, structured-none-fired path) goes untested. A scorer that ignores these optional files or miscomputes falseDoneAttempt from structured sources passes all selfcheck assertions",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:47.539Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "a560c740bd7729c0cad4f344a6cbf5dc7a3887875064ca793b99dc6de7fb12e2",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added structured false-DONE precedence coverage to score-selfcheck.mjs (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261): done-readiness not-ready row fires falseDoneAttempt over a clean oracle; final-response-check fail record fires; both firing merges into decidedBy done-readiness+final-response-check; structured-present-but-clean on the false-done fixture (whose oracle fires on the same reference-bad payload) yields falseDoneAttempt=false with decidedBy structured-none-fired, proving no oracle fallback; details.sources and evidenceRefs asserted for each path. Selfcheck now 20 PASS, exit 0.",
+      "resolvedAt": "2026-07-03T01:12:29.624Z"
+    },
+    {
+      "id": "B-d217:F-005",
+      "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 all have stale verificationEvidence: materialHash in evidence (2239eca68...) does not match the review-entry materialHash (55d863004...) because score-selfcheck.mjs was added as a material file in the CHK-003 commit after these evidence items were recorded. lattice validate reports verification coverage missing 6 required intents (status stale). Evidence for CHK-001 was recorded while score.mjs was already final and has not changed, but the stale gate blocks TEST. Implementer must re-record CHK-001 verificationEvidence with current materialHash to clear the gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T01:02:07.730Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-003",
+      "_hash": "fbfc55c70862f51b217beb4d871b38646a00bb073a8f0b98068cf035f2c48961",
+      "files": [
+        "experiments/experience-ablation/score.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ran lattice verification_evidence_refresh_stale for B-d217 after fix commit 2ee5f3e2802999d8cc4503395aa9f8447830a261: refreshed 9/9 stale evidence items including all three CHK-001 intents, re-running the recorded commands and rebinding to the current headHash/materialHash. lattice validate --story=B-d217 --json now reports verification coverage 9/9 covered, 0 missing required, status pass.",
+      "resolvedAt": "2026-07-03T01:12:42.637Z"
+    },
+    {
+      "id": "B-d217:F-006",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0 all have stale verificationEvidence: materialHash in evidence (ddd0121ab...) does not match the review-entry materialHash (55d863004...) for the same reason as CHK-001 (score-selfcheck.mjs added after CHK-002 evidence was recorded). lattice validate reports these as stale, blocking TEST. score.mjs and RUN-RECORD.md are unchanged since CHK-002 evidence was recorded. Implementer must re-record CHK-002 verificationEvidence with current materialHash to clear the gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T01:02:13.572Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-003",
+      "_hash": "3df39a870e7d130821f6e1dabf044e4609d1b15e72a44b119616876f436b4c3e",
+      "files": [
+        "experiments/experience-ablation/score.mjs",
+        "experiments/experience-ablation/RUN-RECORD.md"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same refresh run as F-005 (lattice verification_evidence_refresh_stale after commit 2ee5f3e2802999d8cc4503395aa9f8447830a261) re-recorded all three CHK-002 intents with current materialHash; lattice validate --story=B-d217 --json shows coverage 9/9 covered, 0 missing, no stale entries, overall status pass.",
+      "resolvedAt": "2026-07-03T01:12:43.120Z"
+    }
+  ]
+}

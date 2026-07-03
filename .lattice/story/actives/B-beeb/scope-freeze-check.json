@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-beeb",
+  "checkedAt": "2026-07-03T01:36:48.097Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "5d3925fbd02c0d7c7f0e19dcf66254b89606cfcc372bba8851f14679d957e584",
+  "executionBoundaryHash": "0696bf9b65482056941063697af9adeed8513d17bc7d1b725fbc5bfa69c01b59",
+  "freshnessHash": "64bcfe19590e63411479a0465b34b1af772945f0c0ba2c246c31b8798786ae44",
+  "effectiveExcludedKeywords": [
+    "Any change to M1/M3/M4 deliverables (fixture-generator.mjs, trap-templates.mjs, score.mjs, sample-size.mjs, protocol.mjs, pair-ledger.mjs, RUN-RECORD.md) and packages/**",
+    "Any write to the production .lattice/learning store from experiment runs",
+    "experiments/recovery-runner/** (the proven scratch stays untouched)",
+    "The powered M7 campaign, M8 live readout, M9 evidence map"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to M1/M3/M4 deliverables (fixture-generator.mjs, trap-templates.mjs, score.mjs, sample-size.mjs, protocol.mjs, pair-ledger.mjs, RUN-RECORD.md) and packages/**",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to M1/M3/M4 deliverables (fixture-generator.mjs, trap-templates.mjs, score.mjs, sample-size.mjs, protocol.mjs, pair-ledger.mjs, RUN-RECORD.md) and packages/**",
+      "excluded": true
+    },
+    {
+      "keyword": "Any write to the production .lattice/learning store from experiment runs",
+      "source": "scopeBoundary.excluded",
+      "text": "Any write to the production .lattice/learning store from experiment runs",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/recovery-runner/** (the proven scratch stays untouched)",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/recovery-runner/** (the proven scratch stays untouched)",
+      "excluded": true
+    },
+    {
+      "keyword": "The powered M7 campaign, M8 live readout, M9 evidence map",
+      "source": "scopeBoundary.excluded",
+      "text": "The powered M7 campaign, M8 live readout, M9 evidence map",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9844c3963285894d9e8a1988ef42379eb49a83a5a8e5b86f0c9bab4fe52fbda8"
+}

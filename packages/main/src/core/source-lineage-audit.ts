@@ -40,6 +40,7 @@ const CANONICALIZATION_POLICY = {
   trimWhitespace: true,
   sourcePriority: [
     'finding-backed tuple: sourceStoryId + sourceFindingId + optional sourceSignature',
+    'DONE experience tuple: sourceStoryId + synthetic DONE-EXPERIENCE sourceFindingId + done_experience signature',
     'raw source key when a learning store already persisted one',
     'story-backed tuple: sourceStoryId + artifactKind + artifactId',
   ],
@@ -50,7 +51,10 @@ export const SOURCE_LINEAGE_CANONICALIZATION_POLICY_HASH = digestCanonicalJson(C
 
 interface SourceLineageStorePort {
   listStoryIds(): string[];
+  readStory?(storyId: string): { phase?: unknown; title?: unknown; description?: unknown; type?: unknown };
   readFindings(storyId: string): { findings?: unknown[] };
+  readSummary?(storyId: string): unknown | null;
+  readDeliveryCheck?(storyId: string): unknown | null;
   storyFilePath?(storyId: string, file: string): string;
 }
 
@@ -70,10 +74,16 @@ interface LineageInput {
   canonicalSourceKey?: string;
   support?: number;
   anchorRefs?: string[];
+  sourceSummary?: string;
+  sourcePitfalls?: string[];
+  sourceVerification?: string[];
 }
 
 const FINDING_REF_RE = /\b(B-[A-Za-z0-9][A-Za-z0-9._-]*:F-[0-9]+)\b/;
 const STORY_REF_RE = /\b(B-[A-Za-z0-9][A-Za-z0-9._-]*)\b/;
+const DONE_EXPERIENCE_SIGNATURE = 'done_experience';
+const DONE_EXPERIENCE_SOURCE_FINDING_SUFFIX = 'DONE-EXPERIENCE';
+const SOURCE_MATERIAL_TEXT_LIMIT = 640;
 
 function trim(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
@@ -84,6 +94,27 @@ function trim(value: unknown): string | undefined {
 function stringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean);
+}
+
+function uniqueBoundedStrings(values: Iterable<unknown>, limit = 8): string[] {
+  const out = new Set<string>();
+  for (const value of values) {
+    const trimmed = compactText(value);
+    if (trimmed) out.add(trimmed);
+    if (out.size >= limit) break;
+  }
+  return [...out];
+}
+
+function compactText(value: unknown, limit = SOURCE_MATERIAL_TEXT_LIMIT): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const compact = value.replace(/\s+/g, ' ').trim();
+  if (!compact) return undefined;
+  return compact.length > limit ? compact.slice(0, limit - 1).trimEnd() : compact;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function presentAnchorRefs(projectRoot: string, refs: string[]): string[] {
@@ -153,6 +184,9 @@ function makeRecord(input: LineageInput & { sourceRef: string }): SourceLineageA
   const rawSourceKey = trim(input.rawSourceKey) ?? sourceKeyFromLineage({ sourceStoryId, sourceFindingId, sourceSignature });
   const support = typeof input.support === 'number' && Number.isFinite(input.support) ? Math.max(0, Math.floor(input.support)) : undefined;
   const anchorRefs = stringArray(input.anchorRefs);
+  const sourceSummary = compactText(input.sourceSummary);
+  const sourcePitfalls = uniqueBoundedStrings(input.sourcePitfalls ?? []);
+  const sourceVerification = uniqueBoundedStrings(input.sourceVerification ?? []);
   const canonical = canonicalSourceKey({
     artifactKind: input.artifactKind,
     artifactId: input.artifactId,
@@ -175,6 +209,9 @@ function makeRecord(input: LineageInput & { sourceRef: string }): SourceLineageA
     ...(sourceSignature ? { sourceSignature } : {}),
     ...(support !== undefined ? { support } : {}),
     ...(anchorRefs.length > 0 ? { anchorRefs } : {}),
+    ...(sourceSummary ? { sourceSummary } : {}),
+    ...(sourcePitfalls.length > 0 ? { sourcePitfalls } : {}),
+    ...(sourceVerification.length > 0 ? { sourceVerification } : {}),
     lineagePresent: canonical !== null,
     authority: 'non_authoritative',
     gateEvidence: false,
@@ -317,6 +354,152 @@ function collectFindingSignals(projectRoot: string, records: SourceLineageAuditR
       }));
     });
   });
+}
+
+function doneExperienceSourceFindingId(storyId: string): string {
+  return `${storyId}:${DONE_EXPERIENCE_SOURCE_FINDING_SUFFIX}`;
+}
+
+function readOptionalStoryArtifact(
+  store: SourceLineageStorePort,
+  storyId: string,
+  artifactName: 'summary' | 'delivery-check',
+  diagnostics: SourceLineageDiagnostic[],
+): unknown | null {
+  try {
+    if (artifactName === 'summary') return store.readSummary?.(storyId) ?? null;
+    return store.readDeliveryCheck?.(storyId) ?? null;
+  } catch (err) {
+    diagnostic(diagnostics, 'done_experience_artifact_read_failed', `could not read ${artifactName} for ${storyId}: ${(err as Error).message}`, {
+      artifactKind: 'done_experience',
+      artifactId: storyId,
+    });
+    return null;
+  }
+}
+
+function doneSummaryMaterial(summary: unknown): {
+  sourceSummary?: string;
+  sourcePitfalls: string[];
+  sourceVerification: string[];
+} {
+  if (!isRecord(summary)) return { sourcePitfalls: [], sourceVerification: [] };
+  const realMachineCoverage = isRecord(summary.realMachineCoverage) ? summary.realMachineCoverage : {};
+  const ran = Array.isArray(realMachineCoverage.ran) ? realMachineCoverage.ran : [];
+  const skipped = Array.isArray(realMachineCoverage.skipped) ? realMachineCoverage.skipped : [];
+  const sourceSummary = compactText([
+    compactText(summary.changes),
+    compactText(summary.usage),
+    compactText(summary.limitations),
+    compactText(summary.expectedOutcome),
+    compactText(summary.actualTranscript),
+    compactText(summary.outcomeDiff),
+    compactText(summary.acceptanceVerdict),
+  ].filter(Boolean).join(' | '));
+  return {
+    ...(sourceSummary ? { sourceSummary } : {}),
+    sourcePitfalls: uniqueBoundedStrings([summary.pitfalls, summary.limitations]),
+    sourceVerification: uniqueBoundedStrings([
+      ...ran.map((row) => isRecord(row) ? `${compactText(row.name) ?? 'verification'}: ${compactText(row.where) ?? 'recorded'}` : undefined),
+      ...skipped.map((row) => isRecord(row) ? `not run ${compactText(row.name) ?? 'verification'}: ${compactText(row.reason) ?? 'no reason recorded'}` : undefined),
+      summary.actualTranscript,
+    ]),
+  };
+}
+
+function doneDeliveryMaterial(delivery: unknown): {
+  sourceSummary?: string;
+  sourcePitfalls: string[];
+  sourceVerification: string[];
+} {
+  if (!isRecord(delivery)) return { sourcePitfalls: [], sourceVerification: [] };
+  const closing = isRecord(delivery.closingSelfCheck) ? delivery.closingSelfCheck : {};
+  const docsPromises = Array.isArray(delivery.docsPromises) ? delivery.docsPromises : [];
+  const realMachineTests = Array.isArray(delivery.realMachineTests) ? delivery.realMachineTests : [];
+  const sourceSummary = compactText([
+    compactText(closing.summary),
+    ...docsPromises.map((row) => isRecord(row) ? compactText(row.promise) : undefined),
+  ].filter(Boolean).join(' | '));
+  return {
+    ...(sourceSummary ? { sourceSummary } : {}),
+    sourcePitfalls: uniqueBoundedStrings([
+      ...docsPromises.map((row) => isRecord(row) && row.status === 'unverified' ? `unverified docs promise: ${compactText(row.promise) ?? compactText(row.docPath) ?? 'unknown'}` : undefined),
+      isRecord(closing) && closing.hasUnresolvedTodos === true ? closing.summary : undefined,
+    ]),
+    sourceVerification: uniqueBoundedStrings([
+      ...docsPromises.map((row) => isRecord(row) ? `${compactText(row.docPath) ?? 'docs promise'}: ${compactText(row.status) ?? 'recorded'}` : undefined),
+      ...realMachineTests.map((row) => isRecord(row) ? `${compactText(row.featureId) ?? 'real-machine test'}: ${compactText(row.transcript) ?? compactText(row.waiverReason) ?? 'recorded'}` : undefined),
+      closing.summary,
+    ]),
+  };
+}
+
+function combineDoneMaterial(parts: Array<ReturnType<typeof doneSummaryMaterial>>): {
+  sourceSummary?: string;
+  sourcePitfalls: string[];
+  sourceVerification: string[];
+} | null {
+  const sourceSummary = compactText(parts.map((part) => part.sourceSummary).filter(Boolean).join(' | '));
+  const sourcePitfalls = uniqueBoundedStrings(parts.flatMap((part) => part.sourcePitfalls));
+  const sourceVerification = uniqueBoundedStrings(parts.flatMap((part) => part.sourceVerification));
+  if (!sourceSummary && sourcePitfalls.length === 0 && sourceVerification.length === 0) return null;
+  return {
+    ...(sourceSummary ? { sourceSummary } : {}),
+    sourcePitfalls,
+    sourceVerification,
+  };
+}
+
+function storyArtifactRef(store: SourceLineageStorePort, storyId: string, file: string): string {
+  return store.storyFilePath ? store.storyFilePath(storyId, file) : `${storyId}:${file}`;
+}
+
+function collectDoneExperience(store: SourceLineageStorePort, records: SourceLineageAuditRecord[], diagnostics: SourceLineageDiagnostic[]): void {
+  if (!store.readStory || (!store.readSummary && !store.readDeliveryCheck)) return;
+  let storyIds: string[] = [];
+  try {
+    storyIds = store.listStoryIds();
+  } catch (err) {
+    diagnostic(diagnostics, 'story_scan_failed', `could not list stories for DONE experience: ${(err as Error).message}`);
+    return;
+  }
+  for (const storyId of storyIds) {
+    let story: { phase?: unknown; title?: unknown; description?: unknown; type?: unknown };
+    try {
+      story = store.readStory(storyId);
+    } catch (err) {
+      diagnostic(diagnostics, 'done_experience_story_read_failed', `could not read story ${storyId}: ${(err as Error).message}`, {
+        artifactKind: 'done_experience',
+        artifactId: storyId,
+      });
+      continue;
+    }
+    if (story.phase !== 'DONE') continue;
+    const summary = readOptionalStoryArtifact(store, storyId, 'summary', diagnostics);
+    const delivery = readOptionalStoryArtifact(store, storyId, 'delivery-check', diagnostics);
+    const material = combineDoneMaterial([
+      doneSummaryMaterial(summary),
+      doneDeliveryMaterial(delivery),
+    ]);
+    if (!material) continue;
+    const storySummary = compactText([story.title, story.description].filter(Boolean).join(' | '));
+    const sourceSummary = compactText([storySummary, material.sourceSummary].filter(Boolean).join(' | '));
+    const sourceRefs: string[] = [];
+    if (summary !== null) sourceRefs.push(storyArtifactRef(store, storyId, 'summary.json'));
+    if (delivery !== null) sourceRefs.push(storyArtifactRef(store, storyId, 'delivery-check.json'));
+    records.push(makeRecord({
+      artifactKind: 'done_experience',
+      artifactId: storyId,
+      sourceRef: sourceRefs.length > 0 ? sourceRefs.join(' + ') : storyArtifactRef(store, storyId, 'index.json'),
+      sourceStoryId: storyId,
+      sourceFindingId: doneExperienceSourceFindingId(storyId),
+      sourceSignature: DONE_EXPERIENCE_SIGNATURE,
+      support: 1,
+      sourceSummary,
+      sourcePitfalls: material.sourcePitfalls,
+      sourceVerification: material.sourceVerification,
+    }));
+  }
 }
 
 function collectRawFindings(store: SourceLineageStorePort, records: SourceLineageAuditRecord[], diagnostics: SourceLineageDiagnostic[]): void {
@@ -548,6 +731,7 @@ export function buildLearningSourceLineageAudit(opts: BuildSourceLineageAuditOpt
 
   collectDevMemory(opts.projectRoot, opts.store, records, diagnostics);
   collectFindingSignals(opts.projectRoot, records, diagnostics);
+  collectDoneExperience(opts.store, records, diagnostics);
   collectRawFindings(opts.store, records, diagnostics);
   collectProposals(opts.projectRoot, records, diagnostics);
   const playbooks = collectPlaybooks(opts.projectRoot, records, diagnostics);

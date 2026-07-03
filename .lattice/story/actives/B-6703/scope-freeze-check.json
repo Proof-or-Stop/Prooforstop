@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6703",
+  "checkedAt": "2026-07-03T02:52:08.269Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "8ffd5b89717f970f8b14cf8d75495747211fdd72cd25f8a450dfd0ad6966a5ef",
+  "executionBoundaryHash": "d9566d3a387f84db47b42fbeeb517beb5f1907127ea95ef4a7bbc7853905e833",
+  "freshnessHash": "851f806fe48c4c7cb94b1473e44dbcc60a750cd927eac06ca257236703ce542d",
+  "effectiveExcludedKeywords": [
+    "blocking policy generation",
+    "historical seed backfill",
+    "remote publish",
+    "timer/daemon promotion",
+    "trial serving"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "blocking policy generation",
+      "source": "checklist.excludes",
+      "text": "blocking policy generation",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "blocking policy generation",
+      "source": "scopeBoundary.excluded",
+      "text": "blocking policy generation",
+      "excluded": true
+    },
+    {
+      "keyword": "historical seed backfill",
+      "source": "checklist.excludes",
+      "text": "historical seed backfill",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "historical seed backfill",
+      "source": "scopeBoundary.excluded",
+      "text": "historical seed backfill",
+      "excluded": true
+    },
+    {
+      "keyword": "remote publish",
+      "source": "scopeBoundary.excluded",
+      "text": "remote publish",
+      "excluded": true
+    },
+    {
+      "keyword": "timer/daemon promotion",
+      "source": "scopeBoundary.excluded",
+      "text": "timer/daemon promotion",
+      "excluded": true
+    },
+    {
+      "keyword": "trial serving",
+      "source": "scopeBoundary.excluded",
+      "text": "trial serving",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "666f95f4b10133523cc3f17b1a88e2c8cab665c56d0fbbda9f200e69bbe5a6dc"
+}

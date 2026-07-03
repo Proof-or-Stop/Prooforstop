@@ -144,8 +144,9 @@ Recommended priority:
 
 1. `dev-memory` with explicit `sourceStoryId` and `evidenceRefs`.
 2. `finding-signal` with support above a configured threshold and valid anchors.
-3. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
-4. Manual operator source with explicit reason.
+3. `done-experience` from DONE summary, pitfalls, and delivery-check material.
+4. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
+5. Manual operator source with explicit reason.
 
 Rules:
 
@@ -154,6 +155,9 @@ Rules:
   per-finding playbooks for the same canonical source.
 - A dev-memory entry may propose a playbook only when it has enough lineage to
   trace back to source facts.
+- A DONE experience seed may propose only through the same observeDigest,
+  proposal, and candidate approval flow; it is not helped evidence and is never
+  active by default.
 - A source marked `non_promotable` must not generate another candidate unless an
   explicit override reason is recorded.
 - `non_promotable` means "this source must not generate a playbook candidate."
@@ -242,12 +246,15 @@ Proofbound learning-specific read-only view built on top of
 lattice playbook_seed_observe --json
 lattice playbook_seed_observe --source=dev-memory --json
 lattice playbook_seed_observe --source=finding-signals --json
+lattice playbook_seed_observe --source=done-experience --json
 ```
 
 Reports:
 
 - proposable dev-memory seeds;
 - proposable finding-signal seeds;
+- proposable DONE experience seeds from DONE summaries, pitfalls, and
+  delivery-check material;
 - raw findings without distilled experience;
 - duplicate seed groups;
 - seeds blocked by missing lineage;
@@ -255,6 +262,27 @@ Reports:
 - seeds blocked by `non_promotable`;
 - seeds already represented by a proposal / candidate / active playbook;
 - `observeDigest` over the reviewed seed set.
+
+DONE experience uses a hyphenated CLI source flag, but JSON/source-lineage rows
+use the exact artifact kind spelling `sourceArtifactKind: "done_experience"`:
+
+```json
+{
+  "proposableSeeds": [
+    {
+      "sourceArtifactKind": "done_experience",
+      "sourceArtifactId": "B-example",
+      "sourceSummary": "DONE experience summary captured durable behavior."
+    }
+  ],
+  "authority": "non_authoritative",
+  "gateEvidence": false
+}
+```
+
+This row is candidate-only seed material. It may enter proposal and candidate
+approval through the digest-guarded flow below, but it is not helped evidence and
+does not activate runtime guidance.
 
 ### 8.3 `playbook_seed_propose_batch`
 
@@ -264,6 +292,7 @@ dry-run (implemented by B-9958).
 ```bash
 lattice playbook_seed_propose_batch --dryRun --limit=20
 lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --observeDigest=<digest>
+lattice playbook_seed_propose_batch --apply --source=done-experience --limit=20 --observeDigest=<digest>
 ```
 
 Rules:
@@ -271,6 +300,8 @@ Rules:
 - uses the primary source selected by `playbook_seed_observe`;
 - treats finding-signal seeds as proposable only when the source-lineage audit
   carries enough support and valid anchors; absent quality data fails closed;
+- treats DONE experience seeds as non-authoritative candidate material only,
+  never as helped evidence or active guidance;
 - records the seed source and canonical source key;
 - `--apply` requires `--observeDigest` from `playbook_seed_observe`;
 - `--apply` fails if the current observe digest differs from the reviewed
@@ -300,6 +331,7 @@ Rules:
   source is already represented by another proposal, candidate, active, stale,
   or archived playbook;
 - writes candidate playbooks only, never active playbooks or gate evidence.
+- DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
 ### 8.5 Promotion And Auto-Promotion
 

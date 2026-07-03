@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-beeb",
+  "mode": "feature",
+  "allowed": [
+    "Generated pilot corpus + run directories under scratch/temp roots (not committed product source)",
+    "New committed pilot campaign runner experiments/experience-ablation/run-pilot.mjs (+ selfcheck if needed)",
+    "New mechanical leakage audit experiments/experience-ablation/leakage-audit.mjs writing leakage-audit.jsonl",
+    "Pilot execution artifacts under .lattice/experiments/experience-ablation/<experimentId>/ (protocol.json, fixture manifest, pair ledger, run-order seed, memory snapshot hash, score-records.jsonl, leakage-audit.jsonl, n-freeze.json)"
+  ],
+  "excluded": [
+    "Any change to M1/M3/M4 deliverables (fixture-generator.mjs, trap-templates.mjs, score.mjs, sample-size.mjs, protocol.mjs, pair-ledger.mjs, RUN-RECORD.md) and packages/**",
+    "Any write to the production .lattice/learning store from experiment runs",
+    "experiments/recovery-runner/** (the proven scratch stays untouched)",
+    "The powered M7 campaign, M8 live readout, M9 evidence map"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-02/03: execute the ablation plan milestones to DONE; M6 scope is the plan section 13 M6 row + section 17 step 2 (pilot with committed runner, leakage audit, baseline estimation, N freeze).",
+  "createdAt": "2026-07-03T01:36:47.495Z",
+  "updatedAt": "2026-07-03T01:36:47.495Z",
+  "_hash": "5d3925fbd02c0d7c7f0e19dcf66254b89606cfcc372bba8851f14679d957e584"
+}

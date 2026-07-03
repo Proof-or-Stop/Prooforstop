@@ -1,0 +1,110 @@
+{
+  "findings": [
+    {
+      "id": "B-c28f:F-001",
+      "desc": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:245 playbook_seed_observe still documents only the default, dev-memory, and finding-signals source paths, and lines 251-260 list reports for dev-memory/finding-signals/raw findings without naming DONE experience seeds. The implementation and CHK-003 require a documented DONE-experience seed path (`--source=done-experience` / `sourceArtifactKind: done_experience`), so the touched docs do not yet make the new seed path discoverable despite the candidate-only boundary sentence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T01:57:33.498Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-003",
+      "_hash": "39b474d0c9c979396dedbdead35ac5d55370d500695fba929ff0453709da8f15",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bbe7daf9: source-lineage execution plan now lists done-experience priority and examples for playbook_seed_observe --source=done-experience --json and playbook_seed_propose_batch --source=done-experience. Verified with rg showing done-experience docs examples and lattice validate --story=B-c28f --json PASS.",
+      "resolvedAt": "2026-07-03T02:14:37.294Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c28f:F-002",
+      "desc": "packages/main/src/cli/command-catalog.ts:1956 and packages/main/src/cli/command-catalog.ts:1961 MEDIUM: the new done-experience source filter is implemented in core/handler code but omitted from the CLI z.enum for playbook_seed_observe and playbook_seed_propose_batch, so the built CLI rejects source=done-experience before the handler runs; this leaves CHK-001/CHK-002 without the requested user-facing filtered observe/propose path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T01:58:24.454Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-001",
+      "_hash": "9694d43e44b9292079013b35983a1261ec9a3f38be82ef335c47e19529d5d27e",
+      "signatureTag": "missing|unknown|packages-main-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bbe7daf9: packages/main/src/cli/command-catalog.ts now includes done-experience in the source enum for playbook_seed_observe and playbook_seed_propose_batch. npm build and lattice validate --story=B-c28f --json passed; smoke includes direct dist CLI coverage.",
+      "resolvedAt": "2026-07-03T02:14:37.288Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c28f:F-003",
+      "desc": "B-c28f marks CHK-001:happy:0 and CHK-002:happy:0 as CLI verification, but the smoke test covers done-experience observe/propose only through createPlaybookHandlers direct handler calls at packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts:605 and :626. The real CLI command schema still restricts --source to dev-memory|finding-signals|raw-findings|all at packages/main/src/cli/command-catalog.ts:1955 and :1960, so node packages/main/dist/cli.js playbook_seed_observe --source=done-experience --json fails validation with “Invalid option”. Tests therefore do not cover the required CLI path for done_experience observe/propose and miss a user-visible rejection.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T01:58:51.562Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-004",
+      "_hash": "a9b8850a1baf55c98f7a121a12c8909106bafffcc8abc6bb2f45593b6c17ac3b",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "test-coverage-cli-schema-bypass",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in bbe7daf9: packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts now calls the built dist CLI with --source=done-experience --json and JSON source payload for propose, proving the real CLI schema accepts done-experience. Re-ran playbook seed smoke 16/16 and lattice validate PASS.",
+      "resolvedAt": "2026-07-03T02:14:37.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c28f:F-004",
+      "desc": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md now documents playbook_seed_observe --source=done-experience --json at line 249 and repeats the candidate-only/no-helped/no-activation boundary around lines 281-284 and 313, but it still does not document the JSON/source lineage field spelling sourceArtifactKind: done_experience; rg -n \"sourceArtifactKind|done_experience\" over the reviewed docs returns no matches. B-c28f:F-001 requested that exact artifact kind be discoverable, so the docs fix is incomplete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T02:16:39.284Z",
+      "reviewRound": "2026-07-03T02:10:51.088Z",
+      "reviewRunId": "B-c28f:RR-006",
+      "_hash": "b90985748b94e0a0da153a03a1f0c451d6bd203bfe37a29bc49c75ef73b674d7",
+      "files": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "signatureTag": "missing-docs-done-experience-source-artifact-kind",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 1405a017e: source-lineage plan now documents the exact JSON/source-lineage spelling sourceArtifactKind: done_experience with a sample done_experience seed, while preserving candidate-only/no-helped/no-activation wording. Verified by rg and validate PASS.",
+      "resolvedAt": "2026-07-03T02:29:36.608Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c28f:F-005",
+      "desc": "F-003 re-review: the smoke now runs the built dist CLI for playbook_seed_observe with --source=done-experience at packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts:605, but the corresponding built-CLI propose coverage is still JSON-body only at lines 609-612, not the documented/user-facing --source=done-experience flag path. More importantly, CHK-002:happy:0 is a must CLI intent for playbook_seed_propose_batch --apply followed by playbook_candidate_batch_approve --apply creating a candidate, but the candidate creation path in the smoke still uses direct handler calls at lines 639-674; the duplicate follow-up also uses handlers at lines 688-699. This leaves the checklist CLI apply/approve intent and the propose --source flag path unexercised by real built CLI despite the evidence note claiming dist CLI observe/propose coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T02:21:04.144Z",
+      "reviewRound": "2026-07-03T02:10:51.088Z",
+      "reviewRunId": "B-c28f:RR-008",
+      "_hash": "4a32f3a640a0de3cbf576dbfc74d186acca68e512996a8fecfbee0e073aa730b",
+      "files": [
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "test-coverage-cli-intent-bypass",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 1405a017e: playbook-seed-promotion-loop smoke now exercises the built dist CLI for playbook_seed_propose_batch --source=done-experience --apply --observeDigest and playbook_candidate_batch_approve --apply --manifestDigest, not just direct handlers. npm build, focused smoke 16/16, git diff --check, and full lattice validate PASS.",
+      "resolvedAt": "2026-07-03T02:29:41.806Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
