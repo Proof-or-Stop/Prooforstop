@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c992",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "head *",
+    "lattice *",
+    "ls *",
+    "node -e *",
+    "node experiments/experience-ablation/*",
+    "rg *",
+    "sed -n *",
+    "shasum *",
+    "wc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only story: the single new decision document is the only writable product path. Rev 2 plan and all experiment artifacts are read-only reference.",
+  "createdAt": "2026-07-03T14:48:12.019Z",
+  "updatedAt": "2026-07-03T14:48:12.019Z",
+  "_hash": "af80f64035ab6188a2ad6d1533a3e425000a8b9d735d936168593858f474d124"
+}

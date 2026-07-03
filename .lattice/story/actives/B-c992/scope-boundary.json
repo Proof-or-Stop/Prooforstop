@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c992",
+  "mode": "feature",
+  "allowed": [
+    "Adversarial design review findings and their in-document resolutions",
+    "New decision document docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md (rev 3 pre-registration)"
+  ],
+  "excluded": [
+    "Any byte of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md (rev 2 sha256 is digest-recorded in the M9 evidence map)",
+    "Any change to the pilot evidence root or committed experiment tools",
+    "Any implementation code (harvester, variant generator, calibration pilot, powered run are later stories gated on this document reaching DONE)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directive 2026-07-03: start a design story — rev 3 replacing the original M7 route, pass adversarial review before starting work.",
+  "createdAt": "2026-07-03T14:48:11.773Z",
+  "updatedAt": "2026-07-03T14:48:11.773Z",
+  "_hash": "7ea98fd7d0ff923d8d3b0a533f3e64ed98db075190bbaf037ea9b6eb7e3d4eec"
+}
