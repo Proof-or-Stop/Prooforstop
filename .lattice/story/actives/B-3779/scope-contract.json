@@ -1,0 +1,104 @@
+{
+  "storyId": "B-3779",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/handlers/quantum-claim-admissibility.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+    "packages/main/package.json",
+    ".lattice/story/actives/B-3779/original-intent-snapshot.json",
+    ".lattice/story/actives/B-3779/milestone-ledger.json",
+    ".lattice/story/actives/B-3779/intent-collision.json",
+    ".lattice/story/actives/B-3779/proofstory.json",
+    ".lattice/story/actives/B-3779/red-evidence.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+    ".lattice/story/actives/B-3779/original-intent-snapshot.json",
+    ".lattice/story/actives/B-3779/milestone-ledger.json",
+    ".lattice/story/actives/B-3779/intent-collision.json",
+    ".lattice/story/actives/B-3779/proofstory.json",
+    ".lattice/story/actives/B-3779/red-evidence.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/story-machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-binding.ts"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "packages/main/src/core/story-machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-binding.ts",
+    "packages/main/src/handlers/done-prepare.ts"
+  ],
+  "scopeChangeReason": "Reviewer finding B-3779:F-002 requires adding read-only process-fact lifecycle classifications for quantum_claim_benchmark and quantum_claim_report; keep lifecycle mutation, generic proof-admissibility rule changes, Authority/DONE production paths, external solvers, hardware, and lab validation excluded.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge generated delivery context pack as required TEST-to-DONE lifecycle evidence for B-3779 delivery review; it is not a business/code scope expansion.",
+      "timestamp": "2026-07-03T04:32:09.023Z",
+      "paths": [
+        ".lattice/story/actives/B-3779/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3779/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "190dfa53dffca689bd2e2494608a55d892973060",
+      "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be"
+    }
+  ],
+  "createdAt": "2026-07-03T03:36:00.566Z",
+  "updatedAt": "2026-07-03T04:32:09.023Z",
+  "fileRules": [
+    {
+      "path": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003:happy:0"
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003:edge:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/process-fact-levels.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:edge:0"
+      ]
+    }
+  ]
+}

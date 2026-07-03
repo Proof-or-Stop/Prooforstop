@@ -5,9 +5,13 @@ import {
   QUANTUM_CLAIM_CHECK_CASES,
   QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES,
   QUANTUM_REQUESTED_STRENGTHS,
+  buildQuantumClaimReport,
   buildQuantumClaimCheckCase,
   evaluateQuantumClaimGatePolicy,
+  renderQuantumBenchmarkText,
+  renderQuantumClaimReportText,
   renderQuantumClaimGatePolicyText,
+  runQuantumClaimBenchmark,
   type QuantumClaimCheckCase,
   type QuantumClaimCheckInput,
   type QuantumClaimId,
@@ -44,6 +48,29 @@ interface QuantumClaimCheckArgs extends FormatArgs {
   authorityClaim?: never;
   productionReadyClaim?: never;
 }
+
+interface QuantumBenchmarkArgs extends FormatArgs {
+  runCommands?: never;
+  writeEvidence?: never;
+  advancePhase?: never;
+  launchReviewers?: never;
+  write?: never;
+  apply?: never;
+  execute?: never;
+  run?: never;
+  launch?: never;
+  capture?: never;
+  refresh?: never;
+  quantumTheoryClaim?: never;
+  physicalValidationClaim?: never;
+  hardwareValidationClaim?: never;
+  solverImprovementClaim?: never;
+  productionClaim?: never;
+  authorityClaim?: never;
+  productionReadyClaim?: never;
+}
+
+interface QuantumReportArgs extends QuantumBenchmarkArgs {}
 
 const UNSUPPORTED_FLAGS = [
   'runCommands',
@@ -144,6 +171,16 @@ export function createQuantumClaimAdmissibilityHandlers(_ctx: HandlerContext): R
       const effectiveInput = args.requestedStrength !== undefined ? { ...input, requestedStrength: args.requestedStrength } : input;
       const result = evaluateQuantumClaimGatePolicy(effectiveInput);
       return wantsJson(args) ? result : renderQuantumClaimGatePolicyText(result);
+    },
+    quantum_claim_benchmark(args: QuantumBenchmarkArgs = {}) {
+      assertReadOnlyBoundary('quantum_claim_benchmark', args as Record<string, unknown>);
+      const result = runQuantumClaimBenchmark();
+      return wantsJson(args) ? result : renderQuantumBenchmarkText(result);
+    },
+    quantum_claim_report(args: QuantumReportArgs = {}) {
+      assertReadOnlyBoundary('quantum_claim_report', args as Record<string, unknown>);
+      const result = buildQuantumClaimReport();
+      return wantsJson(args) ? result : renderQuantumClaimReportText(result);
     },
   };
 }

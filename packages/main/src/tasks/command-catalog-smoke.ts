@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,10 +36,8 @@ function schemaAccepts(command: string, key: string, value: unknown): boolean {
 }
 
 function runCli(args: string[]): string {
-  const binCli = join(repoRoot, 'bin', 'lattice.js');
   const distCli = join(pkgRoot, 'dist', 'cli.js');
-  const cliPath = existsSync(binCli) ? binCli : distCli;
-  return execFileSync('node', [cliPath, ...args], {
+  return execFileSync('node', [distCli, ...args], {
     cwd: repoRoot,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -146,6 +144,12 @@ assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', 1), false, 'qu
 assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', '/tmp/complete-q5.json'), true, 'quantum evidencePath schema accepts file path strings');
 assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', quantumCompleteEvidence), false, 'quantum evidencePath schema rejects parser-produced JSON objects');
 assert.equal(schemaAccepts('quantum_claim_check', 'productionClaim', true), false, 'quantum command schema keeps productionClaim unsupported');
+assert.equal(schemaAccepts('quantum_claim_benchmark', 'json', true), true, 'quantum benchmark schema accepts --json');
+assert.equal(schemaAccepts('quantum_claim_benchmark', 'productionClaim', true), false, 'quantum benchmark schema keeps productionClaim unsupported');
+assert.equal(schemaAccepts('quantum_claim_benchmark', 'runCommands', true), false, 'quantum benchmark schema rejects runCommands side-effect flag');
+assert.equal(schemaAccepts('quantum_claim_report', 'format', 'text'), true, 'quantum report schema accepts text format');
+assert.equal(schemaAccepts('quantum_claim_report', 'authorityClaim', true), false, 'quantum report schema keeps authorityClaim unsupported');
+assert.equal(schemaAccepts('quantum_claim_report', 'writeEvidence', true), false, 'quantum report schema rejects writeEvidence side-effect flag');
 
 const currentHostText = [
   findTool('host_runtime_list').description,
@@ -227,6 +231,34 @@ assert.equal(
   true,
   'real CLI quantum evidenceJson requestedStrength=production reports the production overclaim reason',
 );
+
+const quantumBenchmarkCliOutput = runDistCli([
+  '--root',
+  repoRoot,
+  'quantum_claim_benchmark',
+  '--json',
+]);
+const quantumBenchmarkCliResult = JSON.parse(quantumBenchmarkCliOutput) as {
+  suiteStatus?: unknown;
+  supportedCaseTotal?: unknown;
+  failureInjectionTotal?: unknown;
+  metrics?: { unsupportedAdvanceRate?: { rate?: unknown }; gateEvidence?: unknown; mutatesLifecycle?: unknown };
+};
+assert.equal(quantumBenchmarkCliResult.suiteStatus, 'PASS', 'real CLI quantum benchmark passes');
+assert.equal(quantumBenchmarkCliResult.supportedCaseTotal, 4, 'real CLI quantum benchmark includes A1-A4');
+assert.equal(quantumBenchmarkCliResult.failureInjectionTotal, 15, 'real CLI quantum benchmark includes B1-B15');
+assert.equal(quantumBenchmarkCliResult.metrics?.unsupportedAdvanceRate?.rate, 0, 'real CLI quantum benchmark has zero unsupported advance rate');
+assert.equal(quantumBenchmarkCliResult.metrics?.gateEvidence, false, 'real CLI quantum benchmark is not gate evidence');
+assert.equal(quantumBenchmarkCliResult.metrics?.mutatesLifecycle, false, 'real CLI quantum benchmark mutates no lifecycle state');
+
+const quantumReportCliOutput = runDistCli([
+  '--root',
+  repoRoot,
+  'quantum_claim_report',
+]);
+assert.match(quantumReportCliOutput, /Quantum claim governance report/, 'real CLI quantum report renders text');
+assert.match(quantumReportCliOutput, /failureInjectionsBlocked: 15\/15/, 'real CLI quantum report summarizes B1-B15');
+assert.match(quantumReportCliOutput, /productionClaim: false/, 'real CLI quantum report keeps production claim false');
 
 const emptyEvidenceJsonProbe = runDistCliProbe([
   '--root',

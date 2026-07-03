@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3779",
+  "state": "confirmed",
+  "ledgerHash": "sha256:0102d632044942f734c2d87065c2abadde6de2d85c55e3069a8f25887df90511",
+  "milestones": [
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4-BENCHMARK",
+      "claim": "Quantum local diagnostic benchmark harness is runnable and covers A1-A4 supported cases plus B1-B15 failure injections.",
+      "doneMeans": "quantum_claim_benchmark JSON/text and quantum-claim-benchmark smoke prove expected decisions, reason coverage, diagnostic-only metrics, and unsupportedAdvanceRate=0.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5-REPORT",
+      "claim": "Quantum local diagnostic governance report renders benchmark results and boundaries without overclaim.",
+      "doneMeans": "quantum_claim_report text/JSON renders pass status, limitations, diagnosticOnly=true, gateEvidence=false, and all scientific/production/Authority boundary booleans false.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "DOC",
+      "sourceRequirementId": "REQ-DOC-BOUNDARY",
+      "claim": "Quantum docs and runtime status accurately state local diagnostic M0-M5 implemented while generic framework and scientific/production claims remain out of scope.",
+      "doneMeans": "Docs and smoke checks mention M0-M5 implemented, A1-A4, B1-B15, quantum_claim_benchmark, quantum_claim_report, diagnostic-only, and generic framework gate adapter future boundary.",
+      "requiredEvidence": [
+        "docs_check",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-03T03:33:53.250Z",
+  "updatedAt": "2026-07-03T03:35:42.302Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703033542",
+    "acceptedInterpretationHash": "sha256:4fce790aec8d117eeee6ad93154e0c9c73147a5025d61f45eb91dc83fbf78cf5",
+    "acceptedAt": "2026-07-03T03:35:42.302Z"
+  }
+}
