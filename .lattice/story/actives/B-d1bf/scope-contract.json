@@ -4,6 +4,7 @@
   "allowedModify": [
     "packages/main/src/core/claim-admissibility/quantum.ts",
     "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/config.ts",
@@ -21,7 +22,8 @@
     "packages/main/src/handlers/quantum-claim-admissibility.ts"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts"
   ],
   "protectedFiles": [
     "packages/main/src/core/machine.ts",
@@ -39,8 +41,8 @@
     "Production readiness",
     "Authority completion"
   ],
-  "scopeChangeReason": "Expand B-d1bf scope only for command-generated PLAN hardening artifacts required by ProofStory, intent collision, milestone ledger, original intent snapshot, and red evidence gates.",
+  "scopeChangeReason": "Expand B-d1bf scope for command-catalog-smoke only because REVIEW finding F-004 required a real CLI schema regression covering inline quantum evidenceJson plus requestedStrength fail-closed behavior.",
   "acknowledgements": [],
   "createdAt": "2026-07-03T00:14:17.248Z",
-  "updatedAt": "2026-07-03T00:25:16.739Z"
+  "updatedAt": "2026-07-03T00:53:53.734Z"
 }
