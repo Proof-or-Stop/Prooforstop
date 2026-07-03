@@ -93,10 +93,11 @@
       "relatedDocs": [
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
-      "userSees": "After this story reaches DONE, playbook_promotion_status shows a done-settlement health row for this story.",
+      "userSees": "\"kind\":\"done-settlement\",\"storyId\":\"B-5e28\",\"settlementStatus\":\"recorded\",\"authority\":\"non_authoritative\",\"gateEvidence\":false",
       "files": {
         "modify": [
-          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
         ],
         "create": [],
         "test": []
