@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c992:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change. No code files changed; dead code, type safety, and I/O isolation checks N/A. Full review of the execution plan document. (b) leakage/similarity: all six properties present - 5-gram containment metric 0.05 threshold, allowlist frozen at R2 with >=3 occurrences mechanical admission rule, answer-token denylist auto-extracted from reference-good/bad line-diff overlays including spelled-out numerals, acceptance.mjs format-only proof exits 0 on BOTH overlays, full-pack audited surface, tokenization defined once frozen in protocol hash. (d) model pinning: dated snapshot id required with regex, modelId parsed from provider JSON into REQUIRED run.json, scorer voids on mismatch, hostCliVersion per run, 45-day staleness cap, drift check pre-registered with statistic+threshold+consequence. Statistics fixes coherent: freeze_mde_exceeds_achievable_did L_in from >=104 runs correct; n=6 pinned with correct vacuousness argument; Bin(8,0.35)=0.572 spot-checked; K=40 floor derivation plausible; pessimistic row m=33 verified. All rev 2 scripts exist. CLI commands verified at 0.3.153. No doc-promise-undelivered issues.",
+      "createdAt": "2026-07-03T16:26:46.707Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-002",
+      "_hash": "e429a521e8e98e11ffa0ec8669dae573008715fd58ea863db7547915def04f61"
+    }
+  ]
+}
