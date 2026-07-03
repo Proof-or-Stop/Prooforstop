@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-a4f7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review verified playbook_candidate_ingest stays limited to digest-bound seed->proposal->candidate ingestion with scoped approval; DONE hook is best-effort/non-authoritative and runs after durable DONE; default done-experience/story-scoped behavior avoids broad backfill; evidence activation remains separate via playbook_auto_promotion_apply. No critical/high conceptual blocker found.",
+      "createdAt": "2026-07-03T10:48:04.825Z",
+      "reviewRound": "2026-07-03T10:44:20.132Z",
+      "reviewRunId": "B-a4f7:RR-002",
+      "_hash": "9722e64459b1aa54df37f1729df5ade84583dcf719d01e58a623699666454351"
+    },
+    {
+      "id": "B-a4f7:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed playbook promotion and source-lineage docs plus current-worktree command/status surfaces. Verified candidate ingest is inert and distinct from active activation, history backfill remains separate, DONE success is not helped evidence, gateEvidence=false is surfaced, and default-on opt-out flags are documented and rendered.",
+      "createdAt": "2026-07-03T10:48:18.720Z",
+      "reviewRound": "2026-07-03T10:44:20.132Z",
+      "reviewRunId": "B-a4f7:RR-001",
+      "_hash": "7238e2c94734a9405333dff57fadd0070d52cbea9b74277798615ae49fec776f"
+    },
+    {
+      "id": "B-a4f7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Reviewed checklist verificationEvidence and smoke additions. Coverage includes playbook_candidate_ingest dry-run immutability, apply creation of inert candidates, same-story rerun idempotency, unrelated staged proposal preservation, DONE hook default-on behavior and opt-out, zero helped outcome/auto-activation rows, runtime candidate inertness/no DONE-only activation, docs/status flag and gateEvidence=false surfaces. Re-ran npm --prefix packages/main run build; node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js; node packages/main/dist/cli.js playbook_candidate_ingest --json; node packages/main/dist/cli.js playbook_promotion_status --json; docs rg checks; evidence_inspect fresh.",
+      "createdAt": "2026-07-03T10:48:29.943Z",
+      "reviewRound": "2026-07-03T10:44:20.132Z",
+      "reviewRunId": "B-a4f7:RR-003",
+      "_hash": "4ecc5b5fe664977c5daf6680c56a9568345def1cfcf949fa37d3b3d2b75bea6c"
+    },
+    {
+      "id": "B-a4f7:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocking issue. Checked digest-bound candidate ingest, scoped approval, DONE non-blocking settlement hook, active/outcome boundaries, locks, policy/fact levels, and ran build plus playbook seed promotion smoke.",
+      "createdAt": "2026-07-03T10:50:08.868Z",
+      "reviewRound": "2026-07-03T10:44:20.132Z",
+      "reviewRunId": "B-a4f7:RR-004",
+      "_hash": "afba670fe5fc22fbaf10daf145de977624e4a28b46023c4c86f296e09299139a"
+    }
+  ]
+}

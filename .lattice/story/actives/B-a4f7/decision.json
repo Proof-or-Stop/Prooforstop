@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Only fix the real learning-consumption gap; do not add broad automation for its own sake.",
+    "Preserve the evidence boundary: candidates are pending learning, active playbooks require explicit outcome proof.",
+    "Keep the command host-neutral and digest-bound using existing observeDigest/manifestDigest contracts.",
+    "Make DONE ingestion non-blocking and auditable through health/status rows.",
+    "Prefer reusing existing seed/proposal/candidate primitives over inventing a parallel pipeline."
+  ],
+  "drivers": [
+    "Live store has settlement/proposable seeds but zero candidates or active playbooks.",
+    "Existing B-c28f/B-6703 primitives already enforce candidate inertness and evidence activation.",
+    "DONE gate safety requires learning failures not to block delivery or become gate evidence."
+  ],
+  "options": [
+    {
+      "name": "wrap-existing-primitives-and-hook-DONE",
+      "pros": [
+        "Smallest correctness fix because it reuses observe/propose/approve digest checks",
+        "Keeps candidate and active boundaries consistent with B-c28f and B-6703",
+        "Easy to test with the existing playbook-seed-promotion-loop smoke"
+      ],
+      "cons": [
+        "Does not solve historical bulk backfill in the same story",
+        "Requires careful idempotency and health reporting around the wrapper"
+      ]
+    },
+    {
+      "name": "direct-active-on-DONE",
+      "pros": [
+        "Would make active playbooks appear fastest"
+      ],
+      "cons": [
+        "Conflates story completion with verified learning usefulness",
+        "Violates evidence activation boundary and risks bad runtime guidance"
+      ]
+    },
+    {
+      "name": "timer-daemon-backfill",
+      "pros": [
+        "Could eventually process many old seeds without manual intervention"
+      ],
+      "cons": [
+        "Too broad for the immediate correctness gap",
+        "Adds scheduling and historical batching risk before per-story ingestion is proven"
+      ]
+    }
+  ],
+  "chosen": "wrap-existing-primitives-and-hook-DONE",
+  "rationale": "This option fixes the real missing link from DONE/story seeds to candidate playbooks while preserving Proofbound evidence boundaries and reusing existing digest-bound primitives. It gives users visible candidate creation now without pretending candidates are proven active guidance.",
+  "preMortem": [
+    {
+      "scenario": "Ingestion creates duplicate candidates for the same DONE story.",
+      "trigger": "Repeated DONE hook or repeated playbook_candidate_ingest runs over the same canonical source.",
+      "consequence": "Runtime memory would see multiple candidate records for one source and promotion evidence could be double-counted.",
+      "mitigation": "Use existing represented-source checks, add story/source scoped idempotency assertions, and verify repeated ingest produces zero new candidates."
+    },
+    {
+      "scenario": "DONE hook blocks story completion.",
+      "trigger": "Learning-store write, digest drift, or malformed seed error throws from post-DONE ingestion.",
+      "consequence": "A non-authoritative learning layer would break delivery, violating the gate boundary.",
+      "mitigation": "Run ingestion as best-effort non-blocking settlement follow-up and record failed/zero-created health diagnostics without failing DONE."
+    },
+    {
+      "scenario": "Candidate ingestion accidentally activates playbooks or writes helped outcomes.",
+      "trigger": "Wrapper reuses promotion apply logic or records outcome rows while approving candidates.",
+      "consequence": "Story completion would become runtime guidance without exposure proof.",
+      "mitigation": "Keep wrapper limited to proposal/candidate writes, assert no playbook-auto-activations/outcomes are written, and keep playbook_auto_promotion_apply as the only activation path."
+    }
+  ],
+  "timestamp": "2026-07-03T10:18:16.129Z"
+}

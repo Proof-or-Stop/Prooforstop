@@ -681,6 +681,10 @@ async function runStoryTransitionInner(
       const settlementLine =
         `playbook learning settlementStatus: ${settlement.settlementStatus}; ` +
         `alreadyApplied: ${settlement.alreadyApplied}; ${settlement.message}; ` +
+        `candidateIngestStatus: ${settlement.candidateIngestStatus}; ` +
+        `candidateIngestAlreadyApplied: ${settlement.candidateIngestAlreadyApplied}; ` +
+        `candidateCreatedCount: ${settlement.candidateIngestCandidateCreatedCount}; ` +
+        `${settlement.candidateIngestMessage}; ` +
         'authority: non_authoritative; gateEvidence: false';
       doneMergeReport += `${doneMergeReport ? '\n' : '\n\n'}${settlementLine}`;
     }

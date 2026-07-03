@@ -1,0 +1,35 @@
+{
+  "task": "Automatically convert eligible DONE story experience seeds into inert candidate playbooks so story data becomes consumable pending learning without direct activation.",
+  "outcome": "After a DONE story settles, running lattice playbook_promotion_status --json shows candidatePlaybooks greater than zero or a clear zero-created diagnostic; running lattice playbook_runtime_consumption_verify --json shows candidates remain inert until playbook_auto_promotion_apply evidence-activates them.",
+  "facts": [
+    "B-c28f and B-6703 already delivered DONE settlement, seed/proposal/candidate primitives, and evidence-based activation.",
+    "Current live status has PLAYBOOK_DONE_SETTLEMENT_ENABLED default-on and thousands of proposable seeds, but no playbooks.json and no active or candidate playbooks.",
+    "Existing seed proposal and candidate approval commands already have observeDigest and manifestDigest drift checks.",
+    "DONE settlement is non-authoritative and must remain separate from helped outcome evidence."
+  ],
+  "constraints": [
+    "Do not directly activate playbooks from DONE story completion.",
+    "Do not mark DONE settlement as helped evidence.",
+    "Keep ingestion non-blocking for DONE and gateEvidence=false.",
+    "Do not perform historical bulk backfill in this story.",
+    "Use existing Lattice host-neutral command surfaces and learning-store locks."
+  ],
+  "unknowns": [
+    "Whether done-experience seed filtering already supports storyId or needs a new filter parameter.",
+    "Whether post-DONE settlement hook has enough context to run candidate ingestion without introducing main-lock ordering hazards.",
+    "Whether playbook proposal cleanup after candidate approval already makes repeated ingestion idempotent for done-experience seeds."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "timestamp": "2026-07-03T10:18:00.503Z"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a4f7",
+  "sourceText": "User asked to start execution on automatic processing so story DONE data can enter playbook candidate consumption instead of remaining only as settlement/proposable seeds.",
+  "normalizedOutcome": "After this story, DONE story experience can be automatically ingested into inert candidate playbooks through a digest-bound command and non-blocking post-DONE hook, while active playbook activation remains evidence-gated.",
+  "acceptanceClaim": "A fresh DONE/done-experience seed can produce candidatePlaybooks > 0 without writing helped outcomes or auto-activation rows, and status/runtime verification shows candidates are inert until evidence activation.",
+  "keyRequirementIds": [
+    "REQ-DONE-CANDIDATE-INGEST",
+    "REQ-NO-DIRECT-ACTIVE",
+    "REQ-NONBLOCKING-DONE-HOOK"
+  ],
+  "requestHash": "sha256:306efdea2602a6e5d8494269cdca6a74f6d1ea043999e48aa6e41b8c5633a389",
+  "createdAt": "2026-07-03T10:19:03.064Z",
+  "updatedAt": "2026-07-03T10:19:03.064Z"
+}
