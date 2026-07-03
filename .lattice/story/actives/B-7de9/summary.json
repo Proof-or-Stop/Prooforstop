@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7de9",
+  "changes": "Added a control-arm memory ISOLATION layer on top of main B-ab8d: redactMemoryPackForControlArm (new core/runtime-memory-arm-gate.ts) empties the runtime-memory pack at every JSON/file serialization surface on the control arm (done_closure/final_response_check/host_dispatch/handoff/prefetch-manifest/playbook_runtime_health), final_response_check now routes through surfaceRuntimeMemoryPack (the 8th RuntimeConsumer), experienceRefs() returns [] on control, and memory_benchmark_real_data + source_lineage_audit joined the memoryRetrieval markers.",
+  "usage": "Set LATTICE_EXPERIMENT_ARM=control + LATTICE_EXPERIMENT_ID=<slug> for a control-arm experiment task: all runtime-memory JSON surfaces return empty packs and memory-retrieval commands are refused. Unset or LATTICE_EXPERIMENT_ARM=treatment for normal/populated behavior.",
+  "expectedOutcome": "On control, done_closure/final_response_check/host_dispatch/handoff --json return empty results/items + null sourceDigests + empty-set packDigest; final_response_check text omits the memory summary; parallel_dispatch experienceRefs=[]; the two corpus tools are refused. Treatment/no-experiment are byte-identical (populated).",
+  "actualTranscript": "control done_closure --json ids=[] digest=4f53cda18c srcDigests-null=True; treatment ids=[9890b83,7ffe281,a4d08a8]; control parallel_dispatch experienceRefs=0; control source_lineage_audit refused. experience-arm-gate-smoke + experience-arm-isolation-e2e (21) + main experiment-arm-smoke (11) + experience-pack-arm-switch-smoke (24) all pass. See evidence/transcript-diff.md.",
+  "outcomeDiff": "actual == expected: no discrepancy; every control surface empty/refused, treatment populated, measurement preserved via the experience_pack_surfaced event.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "STORED historical evidence exports (story_export/test_list canonicalStory.evidence output) are OUT of scope by design — for real control-developed experiment stories the recording points are gated so their stored evidence is memory-free. parallel_dispatch/health intents are probe-verified (they need a full story so are not in the hermetic temp e2e).",
+  "pitfalls": "Do not wholesale-replace command-policy.ts from an older branch (it silently reverted main quantum/candidate_ingest policies once); re-derive from current main + re-apply markers. redactMemoryPackForControlArm must fail CLOSED on control (never return the input on error).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 487328
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 267361
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 543526
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 159703
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 433240
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 106069
+    }
+  },
+  "totalDurationMs": 1997627,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T11:37:03.430Z",
+  "updatedAt": "2026-07-03T11:37:03.430Z"
+}
