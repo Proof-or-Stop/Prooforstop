@@ -444,13 +444,13 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     // the two flags mutually exclusive for codex: a review-only policy can never
     // also carry the implementation flag, so it can never reach that impl path.
     // gemini/antigravity always remain refused.
-    const reviewOnlyCodex = policyRecord.allowReviewOnlyRealHostSubprocess === true
-      && policyRecord.allowRealHostSubprocess !== true;
-    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter((host) => {
-      if (host === 'antigravity' || host === 'gemini') return true;
-      if (host === 'codex') return !reviewOnlyCodex;
-      return false;
-    });
+    // F-006: this block runs only when allowRealHostSubprocess === true, so codex
+    // is ALWAYS refused here (the review-only carve-out lives in the create/validate
+    // path, where allowRealHostSubprocess is false). Refusing codex directly avoids
+    // a dead `reviewOnlyCodex` variable that is unconditionally false in this block.
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(
+      (host) => host === 'antigravity' || host === 'gemini' || host === 'codex',
+    );
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,

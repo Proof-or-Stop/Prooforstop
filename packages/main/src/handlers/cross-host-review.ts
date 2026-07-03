@@ -25,18 +25,28 @@ import {
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
 
-/** Env-var names that must NEVER be forwarded to the review subprocess. */
-const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL/i;
+/**
+ * Env-var names that must NEVER be forwarded to the review subprocess. Kept
+ * deliberately broad (F-007): beyond the obvious secret words it also catches
+ * credential-bearing connection strings (DATABASE/DSN/CONNECTION), auth/session
+ * material (AUTH/SESSION/COOKIE/PRIVATE/ACCESS), and any *_URL/_URI (which routinely
+ * embed inline credentials, e.g. DATABASE_URL). A read-only code reviewer never
+ * needs these, so stripping them by default is safe.
+ */
+const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|(^|_)KEY|AUTH|SESSION|COOKIE|PRIVATE|ACCESS|DATABASE|(^|_)DSN|CONNECTION|_URL$|_URI$/i;
 
 /**
- * F-004: build the redacted env the review-only codex subprocess is allowed to
- * see, from the base process env and the authorized policy. Fail-closed layering:
+ * F-004/F-007: build the redacted env the review-only codex subprocess is allowed
+ * to see, from the base process env and the authorized policy. Fail-closed layering:
  *   1. If the policy declares an `envAllowlist`, ONLY those names may pass
- *      (everything else is dropped) — a strict allowlist.
+ *      (everything else is dropped) — a strict allowlist. NOTE: an EMPTY allowlist
+ *      (the default) does NOT strip everything — it means "no allowlist restriction",
+ *      so steps 2-3 are the only guard. Policies handling sensitive environments
+ *      SHOULD set an explicit envAllowlist; the broad UNSAFE_ENV_PATTERN below is the
+ *      backstop when they do not.
  *   2. Any name matching the policy `envDenylist` is removed.
- *   3. Any name matching the secret pattern (TOKEN/SECRET/PASSWORD/KEY/CREDENTIAL)
- *      is removed regardless of the lists — provider transcripts must never carry
- *      operator secrets.
+ *   3. Any name matching the broad secret/credential pattern is removed regardless
+ *      of the lists — provider transcripts must never carry operator secrets.
  * The result is a concrete env object (never `process.env` by reference).
  */
 function buildRedactedEnv(base: NodeJS.ProcessEnv, policy: DispatchPolicy): NodeJS.ProcessEnv {
