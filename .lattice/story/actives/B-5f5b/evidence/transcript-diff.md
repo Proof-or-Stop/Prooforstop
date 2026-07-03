@@ -183,6 +183,133 @@ Activation guard detail showed all current candidates blocked by evidence prereq
 - PASS: Timer activation remained blocked for all current candidates; candidate existence did not activate playbooks.
 - PASS: All dry-run outputs were `authority=non_authoritative` and `gateEvidence=false`.
 
-Observed live-store note:
+## Actual Historical Backfill Apply
 
-- The local learning store already contains 5 candidate playbooks and 4 already represented historical sources before the full historical apply. This is compatible with the expected state: B-5f5b adds the safe backfill/trial/timer machinery; the full historical apply should run after DONE from canonical main so the global CLI and dist are synchronized.
+Command:
+
+```bash
+node packages/main/dist/cli.js playbook_seed_backfill --json
+node packages/main/dist/cli.js playbook_seed_backfill --apply --observeDigest=9f5d4fe631cf42e0786afbdf3e1a3133fbf28bbedb14f220d07190f811148a45 --json
+```
+
+Observed dry-run before apply:
+
+```json
+{
+  "observeDigest": "9f5d4fe631cf42e0786afbdf3e1a3133fbf28bbedb14f220d07190f811148a45",
+  "selectedSeedCount": 864,
+  "plannedCount": 864,
+  "createdCount": 0,
+  "skippedCount": 0,
+  "blockedCount": 743,
+  "alreadyRepresentedCount": 5,
+  "authority": "non_authoritative",
+  "gateEvidence": false
+}
+```
+
+Observed apply:
+
+```json
+{
+  "selectedSeedCount": 864,
+  "plannedCount": 864,
+  "createdCount": 864,
+  "skippedCount": 0,
+  "blockedCount": 743,
+  "alreadyRepresentedCount": 5,
+  "createdPlaybookIdCount": 864,
+  "firstCreatedPlaybookIds": ["PBP-006", "PBP-007", "PBP-008", "PBP-009", "PBP-010", "PBP-011", "PBP-012", "PBP-013"],
+  "lastCreatedPlaybookIds": ["PBP-862", "PBP-863", "PBP-864", "PBP-865", "PBP-866", "PBP-867", "PBP-868", "PBP-869"],
+  "authority": "non_authoritative",
+  "gateEvidence": false
+}
+```
+
+Interpretation:
+
+- PASS: All currently eligible/proposable historical seeds were backfilled in one apply run.
+- PASS: 864 candidate playbooks were created, raising the local candidate pool from 5 to 869.
+- PASS: 743 raw seeds were not converted because the lineage/support guards blocked them; this is the intended safety behavior, not a missed backfill.
+- PASS: 5 seeds were already represented and were not duplicated.
+- PASS: Created playbooks stayed non-authoritative candidate material, not active runtime guidance or gate evidence.
+
+## Actual Trial / Matched-Control / Timer Apply
+
+Command:
+
+```bash
+node packages/main/dist/cli.js playbook_promotion_timer --apply --trial --activate --storyId=B-5f5b --trialLimit=10 --json
+```
+
+Observed timer apply:
+
+```json
+{
+  "dryRun": false,
+  "applied": true,
+  "bounded": true,
+  "limits": {
+    "backfill": 25,
+    "trial": 10,
+    "sweep": 25
+  },
+  "authority": "non_authoritative",
+  "gateEvidence": false,
+  "steps": [
+    {
+      "step": "backfill",
+      "requested": false,
+      "status": "disabled",
+      "applied": false,
+      "message": "backfill step not requested"
+    },
+    {
+      "step": "trial",
+      "requested": true,
+      "status": "applied",
+      "applied": true,
+      "message": "selected=10 outcomeCreated=10 controlCreated=10"
+    },
+    {
+      "step": "sweep",
+      "requested": false,
+      "status": "disabled",
+      "applied": false,
+      "message": "sweep step not requested"
+    },
+    {
+      "step": "activate",
+      "requested": true,
+      "status": "blocked",
+      "applied": false,
+      "message": "playbook_auto_promotion_apply: fail-closed; no_candidate_passed_activation_guards"
+    }
+  ]
+}
+```
+
+Observed promotion status summary after timer apply:
+
+```json
+{
+  "pendingCandidateCount": 869,
+  "activeCountFromPending": 0,
+  "trialControlSummary": {
+    "outcomeTrialExposureRows": 10,
+    "matchedControlRows": 10,
+    "malformedOutcomeRows": 0,
+    "malformedControlRows": 0,
+    "candidateTrialPlaybookCount": 10,
+    "matchedControlPlaybookCount": 10
+  }
+}
+```
+
+Interpretation:
+
+- PASS: The timer wrote bounded trial exposure rows for 10 candidates.
+- PASS: The timer wrote 10 matched-control rows.
+- PASS: Activation remained fail-closed because candidates still lacked helped/decisive outcome evidence.
+- PASS: No active playbooks were created by candidate existence, DONE success, or unknown trial exposure alone.
+- PASS: Status reports trial/control counts with no malformed rows.
