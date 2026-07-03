@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-03T01:02:59.755Z",
       "reviewRunId": "B-d1bf:RR-013",
       "_hash": "38cd44e759f132350d0a0f1a85aba923d823cb3a84403d349e37ebf8bf2cb50d"
+    },
+    {
+      "id": "B-d1bf:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-005 re-review passed: handler uses presence checks for evidenceJson/evidencePath, rejects empty or blank direct evidence inputs, malformed direct JSON/path content fails closed, and incomplete direct evidence stops instead of falling back to the complete fixture. Verified with build, focused smokes, and explicit dist CLI probes.",
+      "createdAt": "2026-07-03T01:06:55.414Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-012",
+      "_hash": "67db24e5d37ec1aff2db466e34082f7bdbe87ee90207bdc1bbcf4768848c68d3"
     }
   ]
 }
