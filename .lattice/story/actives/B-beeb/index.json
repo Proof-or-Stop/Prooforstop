@@ -4,7 +4,7 @@
   "title": "Experience-ablation M6: committed campaign runner, leakage audit, seeded pilot, and powered-N freeze",
   "description": "Milestone M6 of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Four deliverables. (1) Commit an experience-ablation campaign runner (experiments/experience-ablation/run-pilot.mjs or equivalent) adapting the identity-keyed campaign-resume pattern proven by the recovery powered campaign (currently gitignored scratch under experiments/recovery-runner/powered/: run-campaign.mjs, run-fleet.mjs, session-guard.sh, watchdog.sh): each arm-run executes a fixture workspace copy in an isolated non-git mkdtemp root with the M3 env context (LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM), captures the run-scoped activity slice, and emits a RUN-RECORD.md-conformant run directory that score.mjs consumes. (2) Mechanical fixture-leakage audit (leakage-audit.mjs): prove neither arm can reconstruct any trap answer from the emitted fixture tree (grep-based strip-list scan over every generated fixture, plan section 9 last row) writing leakage-audit.jsonl. (3) Protocol freeze + pilot execution: freeze protocol.json via the M0 protocol.mjs (fixture manifest, run-order seed, memory-snapshot hash), then run the pilot — at least 5 fixtures per trap group through BOTH arms plus at least 15 control-arm fault-task runs — with real hosts, no store-isolation breach (every score record asserts the isolated storeRoot), and scorer agreement on replay (re-scoring archived run dirs is byte-identical). (4) Baseline estimate + powered-N freeze: compute the control-arm fault baseline Wilson 95% CI and freeze the powered N at the N-maximizing baseline within that CI via sample-size.mjs pilotFreezeCheck; if the CI is wider than 0.30 extend the pilot before freezing. Exit criteria (plan section 13 M6 row): no store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; baseline estimated from >=15 control-arm fault runs and N frozen; campaign runner committed.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -51,11 +51,21 @@
       "user": "Harmonygo",
       "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T04:12:03.561Z",
+      "branch": "story/B-beeb",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-beeb",
     "branch": "story/B-beeb",
     "createdAt": "2026-07-03T01:36:48.434Z"
-  }
+  },
+  "currentReviewRound": "2026-07-03T04:12:03.561Z"
 }

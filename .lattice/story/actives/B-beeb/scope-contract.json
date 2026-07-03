@@ -29,7 +29,32 @@
     "packages/**"
   ],
   "scopeChangeReason": "CHK-005 added after the pilot smoke exposed the experience-delivery gap: snapshot-builder.mjs joins allowedCreate and the runner files become modifiable for the prelude extension.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated ProofStory lifecycle metadata (original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, red_evidence_create, milestone_ledger_set) required by the enforce-mode ProofStory gates; same lifecycle-registry gap acknowledged in B-6b39/B-ab8d/B-d217.",
+      "timestamp": "2026-07-03T04:12:02.792Z",
+      "paths": [
+        ".lattice/story/actives/B-beeb/intent-collision.json",
+        ".lattice/story/actives/B-beeb/milestone-ledger.json",
+        ".lattice/story/actives/B-beeb/original-intent-snapshot.json",
+        ".lattice/story/actives/B-beeb/proofstory.json",
+        ".lattice/story/actives/B-beeb/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-beeb/intent-collision.json",
+        ".lattice/story/actives/B-beeb/milestone-ledger.json",
+        ".lattice/story/actives/B-beeb/original-intent-snapshot.json",
+        ".lattice/story/actives/B-beeb/proofstory.json",
+        ".lattice/story/actives/B-beeb/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "5317c2be4d1287a92b165c67f7fbb613ace10116",
+      "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988"
+    }
+  ],
   "createdAt": "2026-07-03T01:38:47.883Z",
-  "updatedAt": "2026-07-03T02:10:46.779Z"
+  "updatedAt": "2026-07-03T04:12:02.792Z"
 }
