@@ -513,6 +513,25 @@ for (const strength of ['ground-state', 'convergence', 'quantum-advantage'] as c
   assert.equal(result.scopedClaim, true, `${strength} overclaim should expose weaker scoped claim`);
 }
 
+for (const [claimId, requestedStrength] of [
+  ['Q1', 'ground-state'],
+  ['Q1', 'convergence'],
+  ['Q12', 'quantum-advantage'],
+] as const) {
+  const stronger = buildCompleteQuantumEvidence(claimId);
+  stronger.requestedStrength = requestedStrength;
+  const result = checkGateDecision(
+    `quantum M3 ${claimId} ${requestedStrength} stronger-strength overclaim gate-policy case`,
+    stronger,
+    'degrade',
+  );
+  assert.ok(
+    hasReason(result, 'weak_evidence_overclaim'),
+    `${claimId} ${requestedStrength} overclaim has weak_evidence_overclaim reason`,
+  );
+  assert.equal(result.scopedClaim, true, `${claimId} ${requestedStrength} overclaim should expose weaker scoped claim`);
+}
+
 const productionOverclaim = buildCompleteQuantumEvidence('Q5');
 productionOverclaim.requestedStrength = 'production';
 checkBlock('production boundary overclaim', productionOverclaim, 'claim_boundary_violation');

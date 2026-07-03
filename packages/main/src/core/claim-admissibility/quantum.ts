@@ -741,12 +741,12 @@ function expectedReceiptKinds(claimId: QuantumClaimId): readonly QuantumEvidence
   return CLAIM_REQUIREMENTS[claimId].receiptKinds;
 }
 
+const QUANTUM_WEAK_EVIDENCE_REQUESTED_STRENGTHS = ['ground-state', 'convergence', 'quantum-advantage'] as const;
+
 function requestedStrengthOverclaims(input: QuantumClaimCheckInput): string | undefined {
-  if (input.claimId !== 'Q5') return undefined;
   if (
-    input.requestedStrength === 'ground-state'
-    || input.requestedStrength === 'convergence'
-    || input.requestedStrength === 'quantum-advantage'
+    input.requestedStrength !== undefined
+    && (QUANTUM_WEAK_EVIDENCE_REQUESTED_STRENGTHS as readonly string[]).includes(input.requestedStrength)
   ) {
     return input.requestedStrength;
   }
