@@ -112,6 +112,18 @@
           "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
           "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
           "timestamp": "2026-07-03T01:50:44.838Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/leakage-audit.mjs",
+          "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
+          "result": "pass",
+          "note": "Per-fixture checks hiddenArtifactsOutsideWorkspace (oracle.mjs + reference-good/ + reference-bad/ must exist at fixture root and never appear under workspace/**, verified by recursive walk of workspace path segments) and promptOmitsTrapClass (prompt.md must not contain the task.json trapClass, case-insensitive) are enforced on every audited fixture; both checks pass=true in every jsonl row of the 9-fixture selftest corpus and the 18-fixture demo corpus, and any hit fails the fixture with a LEAK line + nonzero exit.",
+          "headHash": "0cba50e3d2158d852f1a9ecc573a1e455422c2c7",
+          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
+          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
+          "timestamp": "2026-07-03T01:50:57.260Z"
         }
       ]
     },
