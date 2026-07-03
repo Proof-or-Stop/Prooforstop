@@ -4,7 +4,7 @@
   "title": "Enable default-on DONE learning settlement with live proof",
   "description": "Future DONE stories should automatically write non-authoritative learning settlement health rows without requiring PLAYBOOK_DONE_SETTLEMENT_ENABLED to be manually set. The fix must keep DONE success out of helped/promotion evidence, prove settlement is idempotent and opt-out-able, and use this story DONE as live proof before any historical backfill.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-2026-07-03",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-07-03T00:15:04.613Z",
   "startedAt": "2026-07-03T00:15:04.613Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T01:01:39.281Z",
   "events": [
     {
       "phase": "INIT",
@@ -98,12 +98,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-9887ebe52886f8a5",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:01:39.281Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5e28",
-    "branch": "story/B-5e28",
-    "createdAt": "2026-07-03T00:16:23.349Z"
-  },
   "currentReviewRound": "2026-07-03T00:57:25.298Z"
 }
