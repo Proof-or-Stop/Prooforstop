@@ -47,9 +47,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T03:00:00.354Z",
-      "endTime": null
+      "endTime": "2026-07-03T03:15:57.949Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke check M8 proves explicit helped candidate-inspection outcomes can activate through playbook_auto_promotion_apply --apply without PLAYBOOK_PROMOTION_SWEEP_ENABLED.",
+          "headHash": "7d4ce26bd61785fe4fdc2b80ce3cc716035a5c8b",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:15:58.106Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers stale candidate digest / stale recommendation fail-closed and duplicate lineage candidate/proposal rejection paths.",
+          "headHash": "7d4ce26bd61785fe4fdc2b80ce3cc716035a5c8b",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:15:58.253Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers DONE-settlement rows, no-exposure rows, pre-outcome apply, malformed activation log, harmful/wrong-claim guards, and fail-closed no mutation.",
+          "headHash": "7d4ce26bd61785fe4fdc2b80ce3cc716035a5c8b",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:15:58.404Z"
+        },
+        {
+          "intentRef": "CHK-001:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after implementation.",
+          "headHash": "7d4ce26bd61785fe4fdc2b80ce3cc716035a5c8b",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:15:58.556Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -144,6 +190,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T03:15:57.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented by commit edad40d1b and verified by build plus playbook seed promotion smoke.",
+      "agent": "lattice-implementer"
     }
   ]
 }
