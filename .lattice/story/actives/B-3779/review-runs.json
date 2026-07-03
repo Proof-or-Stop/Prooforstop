@@ -1211,6 +1211,74 @@
         "bindingHash": "52ce7901d144901dc30add4398e6cec61cc1d97a75cdf2fd07525cb221c19c4f"
       },
       "_hash": "81251e2d9d8597b387b5c7e38962d0efb7557dd9d188c33d173963a10fa5b404"
+    },
+    {
+      "reviewRunId": "B-3779:RR-019",
+      "storyId": "B-3779",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-03T04:32:24.062Z",
+      "startedAt": "2026-07-03T04:32:41.222Z",
+      "headHash": "e43544eae32ea0981a10fa1a5be37e46a1208ff0",
+      "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be",
+      "storyFilesHash": "243dd4e336187927ed3b9483dae78d9edca305b8dd8d5caf8c227daa7e0737e8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6bb8e6729e92321d0b7b269befe2c2f259a86987b30e130b336d0e5c40d82fec",
+        "diffPackHash": "dc9fba6168fff143dfe2c727f167c63349d1d00a5bca6360650930d6a5817829",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/claim-admissibility/quantum.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "059d35e363fe4865497bb3ce79f57895088ecc84195e0f142e6c06a2a5cf94e1",
+          "15ad290ac79b7442f118cf595a5c94e748ceef185b1fda3053c92db5ab8d319a",
+          "320b2bb496a45e5a3261ced7deb67356b2e46ca63360e7a8c41bb2981cffaedb",
+          "3f2c18cdc58f36a833726bad4c2b0dda7f33a08489703f79bc4be5991969718b",
+          "421c631ba5f308e9cdd3ad70b820638ab21e5720b89ae1a8b028e7257d289829",
+          "5306a75ea28424758611acc94357532464a8401a1851dcfc75df3342829840cc",
+          "5d54fec4510099ff7ddb5afe4f0118c00b3648b37c172fa86b2cf0ab794f2c28",
+          "9053adb5d8cc649adcbbd3efe77a86d649034ac72b7010d92d9f7e1722d83e2f",
+          "97419723c66c03da13b145c41efddd456a3e71f814ef306233773af37539fafd",
+          "a96255f65437276afa3691894743dc464193ddb9b040511b6a222c70e2184b0d",
+          "ad74c3c108f1104b337a03edf94297453ab2129f93d707fbb31cec50497976b5",
+          "bc26d1080a6eaa2704859a730515d2aeb209f95cce07d3c5fd93419d71193d49",
+          "c64dbdfe920d2b464753bbf5ed49025218cc78b711d1b194c13e50a57e5fc638",
+          "c73d33e36753d00d8347837eb2741c664cfcb6c8dee9dfaa0a4baed29005460d",
+          "cc9c9b5ed659ffa90522a0a581576ebe236ac2cb77ef6d428979e98345effbf1",
+          "cdbee003e92078492ed52554a141ce9de2cacfc1cff80125baa4db16f9752f5a",
+          "ce0ca8dcba9c0de95a2107ee2d98e86c1977658657e366630b893e5af601a49a",
+          "d796591c0e6bb46e66d9892a61364b7fd63632e29914899fc063d20b6d18a5b4",
+          "dde13404bdb51a093b720f9653fe125e935cd2a1291f2c7e3db6ccdd41cdf114",
+          "e876de9441fe771e98f233501886017b90dedabac98f264896d2cf8eb880bf8b",
+          "f9ebe248c5a7c83f59bc3644038df7b9d3af6ec7081369a56404821d9c082e5e"
+        ],
+        "bindingHash": "028e8fcef39361ed8eea863c22e61243e5e03a8955d4f697f29e66d7d4f96261"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3779",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3779",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3779",
+        "workspaceMode": "story-worktree",
+        "headHash": "e43544eae32ea0981a10fa1a5be37e46a1208ff0",
+        "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be",
+        "storyFilesHash": "243dd4e336187927ed3b9483dae78d9edca305b8dd8d5caf8c227daa7e0737e8",
+        "bindingHash": "0f20996436e17ffc35930336de84f10a97d4d8fd4e9e3b85212a1c347b7bf2a5"
+      },
+      "_hash": "85c68240d938e75b9602f704624f399f70e049edb0a12e834f25cd9b768dbd36"
     }
   ]
 }
