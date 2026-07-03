@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T10:25:12.220Z",
       "reviewRunId": "B-fca1:RR-004",
       "_hash": "894aa0564fe7e7dec94e4388440d52b12c36a4baf6120495b2259d82250c619a"
+    },
+    {
+      "id": "B-fca1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of delta commit a37257c (two changed files: evidence-map.mjs and evidence-map-selfcheck.mjs). Fix verified: insideProductionStore uses p === productionStore || p.startsWith(productionStore + sep), satisfying F-001. Selfcheck 39/39 cases pass including sibling learning-extra NOT-flagged and learning/x MUST-flag. No dead code, all imports used, empty catch blocks call fail() not swallow, no I/O isolation concern (plain .mjs scripts). No new issues found.",
+      "createdAt": "2026-07-03T10:27:05.812Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-005",
+      "_hash": "5e35eba5f0c494b05837c66cc3b0eea39dcf04b24f3ec023399c27f18e259bbe"
     }
   ]
 }
