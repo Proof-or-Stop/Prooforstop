@@ -192,7 +192,7 @@
       "desc": "Retired Authority/DONE vocabulary fields authorityDone, fullAuthorityDone, and productionDone are not rejected by the quantum_claim_check handler unsupported-flag guard or core boundary-field detection. Direct handler, core payload, and evidenceJson payloads with otherwise complete Q5 evidence plus any of those fields can return decision=advance, allowed=true, reasons=[]. This violates the Quantum M3 no Authority/DONE/production overclaim fail-closed boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T02:02:24.066Z",
@@ -204,7 +204,11 @@
         "packages/main/src/core/claim-admissibility/quantum.ts"
       ],
       "signatureTag": "retired-authority-done-payload-boundary-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 45dad855: quantum_claim_check now rejects retired boundary fields as unsupported top-level args and core Quantum evaluation recursively treats true-ish retired fields inside evidence payloads as claim_boundary_violation:retired_boundary_field. Added smoke coverage for authorityDone/fullAuthorityDone/productionDone through core payload, handler evidenceJson, and handler top-level args while retired-authority-vocabulary guard remains PASS. Verified by build, quantum smoke, retired vocabulary guard, command-catalog smoke, direct node probes, and full lattice validate PASS with 18/18 verification intents covered.",
+      "resolvedAt": "2026-07-03T02:13:38.147Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
