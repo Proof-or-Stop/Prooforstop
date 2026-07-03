@@ -140,6 +140,25 @@
       "resolvedAt": "2026-07-03T01:03:14.980Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d1bf:F-007",
+      "desc": "Handler runtime validation does not fail closed for invalid quantum_claim_check enum inputs. The handler validates unsupported side-effect flags and case, but passes args.claimId directly into buildQuantumClaimCheckCase and overlays args.requestedStrength without checking it against the allowed QuantumRequestedStrength set (packages/main/src/handlers/quantum-claim-admissibility.ts:95, packages/main/src/handlers/quantum-claim-admissibility.ts:107, packages/main/src/handlers/quantum-claim-admissibility.ts:115). Direct handler evidence: node --input-type=module -e import createQuantumClaimAdmissibilityHandlers from dist and call quantum_claim_check({case:\"complete\",requestedStrength:\"productionn\",format:\"json\"}) returned {\"decision\":\"advance\",\"allowed\":true,\"reasons\":[]}; direct call with {case:\"complete\",claimId:\"Q404\"} threw TypeError: Cannot read properties of undefined (reading receiptKinds). The CLI schema rejects the same invalid requestedStrength, so the CLI boundary is correct, but the handler/registry boundary violates the fail-closed two-layer process-fact contract for adversarial inputs.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T01:30:45.526Z",
+      "reviewRound": "2026-07-03T01:26:58.592Z",
+      "reviewRunId": "B-d1bf:RR-018",
+      "_hash": "391ea38326902af2dd00753f4fc422c758ccf6799fc69705c8873746a4f1bf72",
+      "files": [
+        "packages/main/src/handlers/quantum-claim-admissibility.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "handler-runtime-validation-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
