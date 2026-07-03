@@ -7,6 +7,7 @@ import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { FormatArgs } from './verdict.js';
 import { canonicalDigest } from '../core/authority-signing.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   currentGitHead,
   currentMaterialHash,
@@ -321,12 +322,12 @@ function assertReviewHeadStillCurrent(gitCwd: string, expectedHeadHash: string):
   }
 }
 
-function createCleanHeadReviewWorktree(projectRoot: string, headHash: string): { worktree: string; cleanup: () => void } {
+function createCleanHeadReviewWorktree(gitCwd: string, headHash: string): { worktree: string; cleanup: () => void } {
   const parent = mkdtempSync(join(tmpdir(), 'lattice-xhr-review-'));
   const worktree = join(parent, 'worktree');
   try {
     execFileSync('git', ['worktree', 'add', '--detach', worktree, headHash], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'pipe'],
       maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
@@ -342,7 +343,7 @@ function createCleanHeadReviewWorktree(projectRoot: string, headHash: string): {
   const cleanup = (): void => {
     try {
       execFileSync('git', ['worktree', 'remove', '--force', worktree], {
-        cwd: projectRoot,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['ignore', 'pipe', 'pipe'],
         maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
@@ -642,18 +643,25 @@ export function createCrossHostReviewHandlers(
       const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
       const projectRoot = workspace.signedWorkspaceRoot;
       const metadataRoot = workspace.metadataRoot || ctx.root;
+      const gitCwd = resolveGitCwd({
+        store: ctx.store,
+        storyId,
+        metadataRoot,
+        projectRoot,
+        cwd: projectRoot,
+      });
 
-      const headHash = currentGitHead(projectRoot);
+      const headHash = currentGitHead(gitCwd);
       if (!headHash) {
         throw new Error('cross_host_review: cannot resolve current HEAD; refusing to record verdicts without a committed-tree binding');
       }
       await options.afterHeadCaptured?.();
 
-      const materialDigest = currentMaterialHash(projectRoot, headHash, metadataRoot);
+      const materialDigest = currentMaterialHash(gitCwd, headHash, metadataRoot);
       if (!materialDigest) {
         throw new Error(`cross_host_review: cannot compute materialHash for captured HEAD ${headHash}; refusing to record verdicts with an empty materialDigest`);
       }
-      const storyFilesHash = currentStoryFilesHash(projectRoot, headHash, metadataRoot);
+      const storyFilesHash = currentStoryFilesHash(gitCwd, headHash, metadataRoot);
       if (!storyFilesHash) {
         throw new Error(`cross_host_review: cannot compute storyFilesHash for captured HEAD ${headHash}; refusing to record verdicts without the story-owned file hash`);
       }
@@ -727,8 +735,8 @@ export function createCrossHostReviewHandlers(
       // must still be source-clean before we record the verdict. `.lattice/`
       // metadata is excluded (Codex never reads story bookkeeping, and it churns
       // constantly).
-      assertMaterialCleanForReview(projectRoot);
-      assertReviewHeadStillCurrent(projectRoot, headHash);
+      assertMaterialCleanForReview(gitCwd);
+      assertReviewHeadStillCurrent(gitCwd, headHash);
 
       // F-010: Codex must not review the mutable story worktree after the clean
       // preflight. Give it an immutable detached snapshot of the captured HEAD
@@ -736,7 +744,7 @@ export function createCrossHostReviewHandlers(
       // re-check the original worktree before recording. A concurrent source edit
       // or clean HEAD move after the snapshot cannot influence what Codex reviewed,
       // and we refuse to bind/record the verdict if either drift is still present.
-      const snapshot = createCleanHeadReviewWorktree(projectRoot, headHash);
+      const snapshot = createCleanHeadReviewWorktree(gitCwd, headHash);
       let leaf: CodexReviewLeafResult;
       try {
         leaf = await runCodexReviewLeaf(
@@ -753,8 +761,8 @@ export function createCrossHostReviewHandlers(
       } finally {
         snapshot.cleanup();
       }
-      assertReviewHeadStillCurrent(projectRoot, headHash);
-      assertMaterialCleanForReview(projectRoot);
+      assertReviewHeadStillCurrent(gitCwd, headHash);
+      assertMaterialCleanForReview(gitCwd);
       const hostBVerdict: CodexReviewVerdict = leaf.hostBVerdict;
 
       const validationDigest = deriveValidationDigest(storyId, materialDigest, storyFilesHash, headHash);
@@ -797,8 +805,8 @@ export function createCrossHostReviewHandlers(
       };
 
       await options.beforeVerdictRecord?.();
-      assertReviewHeadStillCurrent(projectRoot, headHash);
-      assertMaterialCleanForReview(projectRoot);
+      assertReviewHeadStillCurrent(gitCwd, headHash);
+      assertMaterialCleanForReview(gitCwd);
 
       const issuedAt = new Date().toISOString();
       const hostAVerdictRecord = buildLocalHostVerdict(hostAVerdictDraft, issuedAt);
@@ -806,8 +814,8 @@ export function createCrossHostReviewHandlers(
       writeCrossHostVerdictPair(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
       try {
         await options.afterVerdictPairWritten?.();
-        assertReviewHeadStillCurrent(projectRoot, headHash);
-        assertMaterialCleanForReview(projectRoot);
+        assertReviewHeadStillCurrent(gitCwd, headHash);
+        assertMaterialCleanForReview(gitCwd);
       } catch (err) {
         deleteCrossHostVerdictPair(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
         throw err;
