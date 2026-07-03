@@ -144,8 +144,9 @@ Recommended priority:
 
 1. `dev-memory` with explicit `sourceStoryId` and `evidenceRefs`.
 2. `finding-signal` with support above a configured threshold and valid anchors.
-3. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
-4. Manual operator source with explicit reason.
+3. `done-experience` from DONE summary, pitfalls, and delivery-check material.
+4. Raw finding with stable `sourceStoryId` / `sourceFindingId`.
+5. Manual operator source with explicit reason.
 
 Rules:
 
@@ -154,6 +155,9 @@ Rules:
   per-finding playbooks for the same canonical source.
 - A dev-memory entry may propose a playbook only when it has enough lineage to
   trace back to source facts.
+- A DONE experience seed may propose only through the same observeDigest,
+  proposal, and candidate approval flow; it is not helped evidence and is never
+  active by default.
 - A source marked `non_promotable` must not generate another candidate unless an
   explicit override reason is recorded.
 - `non_promotable` means "this source must not generate a playbook candidate."
@@ -300,6 +304,7 @@ Rules:
   source is already represented by another proposal, candidate, active, stale,
   or archived playbook;
 - writes candidate playbooks only, never active playbooks or gate evidence.
+- DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
 ### 8.5 Promotion And Auto-Promotion
 

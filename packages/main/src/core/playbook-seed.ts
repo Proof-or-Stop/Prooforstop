@@ -6,6 +6,7 @@ import type {
   PlaybookLineage,
   PlaybookPromotionDecisionRow,
   PlaybookProposal,
+  PlaybookSeedMaterial,
   PlaybookSeedReference,
   PlaybookSeedSourceKind,
   PlaybookStatus,
@@ -45,11 +46,12 @@ export const PLAYBOOK_RUNTIME_CONSUMPTION_VERIFY_SCHEMA_VERSION = 'proofbound.pl
 export const PLAYBOOK_AUTO_PROMOTION_APPLY_SCHEMA_VERSION = 'proofbound.playbook-auto-promotion-apply.v1' as const;
 
 const ID_SUFFIX_RE = /^PBP?-(\d+)$/;
-const SEED_SOURCE_KINDS: readonly PlaybookSeedSourceKind[] = ['dev_memory', 'finding_signal', 'finding'] as const;
+const SEED_SOURCE_KINDS: readonly PlaybookSeedSourceKind[] = ['dev_memory', 'finding_signal', 'done_experience', 'finding'] as const;
 const SEED_KIND_PRIORITY: Record<PlaybookSeedSourceKind, number> = {
   dev_memory: 1,
   finding_signal: 2,
-  finding: 3,
+  done_experience: 3,
+  finding: 4,
 };
 const FINDING_SIGNAL_MIN_SUPPORT = 1;
 const REPRESENTED_KINDS = new Set<SourceLineageArtifactKind>(['playbook_proposal', 'playbook']);
@@ -81,15 +83,18 @@ const REVIEWED_EVIDENCE_ACTIVATION_POLICY: PlaybookEvidenceActivationPolicy = {
   policyDigest: digestCanonicalJson(REVIEWED_EVIDENCE_ACTIVATION_POLICY_DOMAIN),
 };
 
-export type PlaybookSeedSourceFilter = 'all' | 'dev-memory' | 'finding-signals' | 'raw-findings';
+export type PlaybookSeedSourceFilter = 'all' | 'dev-memory' | 'finding-signals' | 'done-experience' | 'raw-findings';
 
 export interface PlaybookSeedStorePort {
   listStoryIds(): string[];
+  readStory?(storyId: string): { phase?: unknown; title?: unknown; description?: unknown; type?: unknown };
   readFindings(storyId: string): { findings?: unknown[] };
+  readSummary?(storyId: string): unknown | null;
+  readDeliveryCheck?(storyId: string): unknown | null;
   storyFilePath?(storyId: string, file: string): string;
 }
 
-export interface PlaybookSeedCandidate {
+export interface PlaybookSeedCandidate extends PlaybookSeedMaterial {
   seedId: string;
   sourceArtifactKind: PlaybookSeedSourceKind;
   sourceArtifactId: string;
@@ -352,13 +357,15 @@ function normalizeSourceFilter(source: string | undefined): PlaybookSeedSourceFi
   if (!value || value === 'all') return 'all';
   if (value === 'dev-memory' || value === 'dev-memories') return 'dev-memory';
   if (value === 'finding-signals' || value === 'finding-signal') return 'finding-signals';
+  if (value === 'done-experience' || value === 'done-experiences' || value === 'done') return 'done-experience';
   if (value === 'raw-findings' || value === 'raw-finding' || value === 'findings' || value === 'finding') return 'raw-findings';
-  throw new Error(`playbook_seed_observe: unsupported source ${JSON.stringify(source)} (supported: dev-memory, finding-signals, raw-findings)`);
+  throw new Error(`playbook_seed_observe: unsupported source ${JSON.stringify(source)} (supported: dev-memory, finding-signals, done-experience, raw-findings)`);
 }
 
 function sourceFilterKinds(filter: PlaybookSeedSourceFilter): Set<PlaybookSeedSourceKind> {
   if (filter === 'dev-memory') return new Set(['dev_memory']);
   if (filter === 'finding-signals') return new Set(['finding_signal']);
+  if (filter === 'done-experience') return new Set(['done_experience']);
   if (filter === 'raw-findings') return new Set(['finding']);
   return new Set(SEED_SOURCE_KINDS);
 }
@@ -378,6 +385,11 @@ function uniqSorted(values: Iterable<string | undefined>): string[] {
 
 function seedKeywords(text: string): string[] {
   return uniqSorted(text.toLowerCase().match(/[a-z0-9]{4,}/g) ?? []).slice(0, 8);
+}
+
+function trimTo(value: string, limit: number): string {
+  const compact = value.replace(/\s+/g, ' ').trim();
+  return compact.length > limit ? compact.slice(0, limit - 1).trimEnd() : compact;
 }
 
 function fileKind(path: string): string {
@@ -420,6 +432,9 @@ function toSeedCandidate(record: SourceLineageAuditRecord): PlaybookSeedCandidat
     ...(record.sourceStoryId ? { sourceStoryId: record.sourceStoryId } : {}),
     ...(record.sourceFindingId ? { sourceFindingId: record.sourceFindingId } : {}),
     ...(record.sourceSignature ? { sourceSignature: record.sourceSignature } : {}),
+    ...(record.sourceSummary ? { sourceSummary: record.sourceSummary } : {}),
+    ...(record.sourcePitfalls && record.sourcePitfalls.length > 0 ? { sourcePitfalls: record.sourcePitfalls } : {}),
+    ...(record.sourceVerification && record.sourceVerification.length > 0 ? { sourceVerification: record.sourceVerification } : {}),
     priority: SEED_KIND_PRIORITY[kind],
     priorityReason: `${seedKindLabel(kind)} source priority ${SEED_KIND_PRIORITY[kind]}`,
   };
@@ -632,11 +647,14 @@ function triggerFromSeed(seed: PlaybookSeedCandidate, finding?: Finding): Playbo
     seed.sourceArtifactId,
     seed.sourceSignature,
     seed.canonicalSourceKey,
+    seed.sourceSummary,
+    ...(seed.sourcePitfalls ?? []),
+    ...(seed.sourceVerification ?? []),
   ].filter(Boolean).join(' ');
   return {
     keywords: seedKeywords(text),
     fileKinds: uniqSorted((finding?.files ?? []).map(fileKind)),
-    storyPhases: ['REVIEW'],
+    storyPhases: seed.sourceArtifactKind === 'done_experience' ? ['DONE', 'REVIEW'] : ['REVIEW'],
   };
 }
 
@@ -684,15 +702,30 @@ function proposalFromSeed(id: string, seed: PlaybookSeedCandidate, store: Playbo
   const desc = (finding?.desc ?? '').trim();
   const sourceLabel = seedKindLabel(seed.sourceArtifactKind);
   const lineage = lineageFromSeed(seed);
+  const sourceSummary = seed.sourceSummary ? trimTo(seed.sourceSummary, 220) : '';
+  const sourcePitfalls = uniqSorted(seed.sourcePitfalls ?? []).map((item) => trimTo(item, 220));
+  const sourceVerification = uniqSorted(seed.sourceVerification ?? []).map((item) => trimTo(item, 220));
   const proposal: PlaybookProposal = {
     id,
-    title: desc ? `Playbook: ${desc.slice(0, 80)}` : `Playbook seed: ${sourceLabel} ${seed.sourceArtifactId}`,
+    title: desc
+      ? `Playbook: ${desc.slice(0, 80)}`
+      : seed.sourceArtifactKind === 'done_experience' && sourceSummary
+        ? `Playbook: DONE experience ${seed.sourceArtifactId}`
+        : `Playbook seed: ${sourceLabel} ${seed.sourceArtifactId}`,
     trigger: triggerFromSeed(seed, finding),
     check: desc
       ? `Proactively check for: ${desc}`
-      : `Before similar work, apply the lesson captured by ${sourceLabel} ${seed.sourceArtifactId}.`,
-    pitfalls: desc ? [desc] : [`Do not treat ${sourceLabel} seed material as authoritative gate evidence.`],
-    verification: [`Confirm the source condition behind ${lineage.sourceFindingId} cannot recur`],
+      : sourceSummary
+        ? `Before similar work, apply this DONE experience: ${sourceSummary}`
+        : `Before similar work, apply the lesson captured by ${sourceLabel} ${seed.sourceArtifactId}.`,
+    pitfalls: desc
+      ? [desc]
+      : sourcePitfalls.length > 0
+        ? sourcePitfalls
+        : [`Do not treat ${sourceLabel} seed material as authoritative gate evidence.`],
+    verification: sourceVerification.length > 0
+      ? sourceVerification
+      : [`Confirm the source condition behind ${lineage.sourceFindingId} cannot recur`],
     lineage,
     seed: seedReference(seed),
     status: 'proposed',

@@ -53,6 +53,7 @@ import { createPlaybookHandlers } from '../handlers/playbook.js';
 const NOW = '2026-07-02T00:00:00.000Z';
 const STORY_ID = 'B-seed1';
 const FINDING_ID = `${STORY_ID}:F-001`;
+const DONE_STORY_ID = 'B-done1';
 const CLI_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 
 let total = 0;
@@ -95,19 +96,19 @@ function mkCtx(root: string): { ctx: HandlerContext; store: StoryStore } {
   return { store, ctx: { store, root, scanRoot: join(root, config.scanRoot), log: () => {} } };
 }
 
-function story(storyId: string): StoryInfo {
+function story(storyId: string, phase: StoryInfo['phase'] = 'REVIEW'): StoryInfo {
   return {
     storyId,
     name: storyId,
     title: `${storyId} playbook seed smoke`,
     description: 'Historical seed promotion loop smoke story.',
     type: 'chore',
-    phase: 'REVIEW',
+    phase,
     priority: 'medium',
     createdAt: NOW,
     startedAt: NOW,
-    endedAt: null,
-    events: [{ phase: 'REVIEW', action: 'advance', timestamp: NOW }],
+    endedAt: phase === 'DONE' ? NOW : null,
+    events: [{ phase, action: 'advance', timestamp: NOW }],
   };
 }
 
@@ -193,6 +194,59 @@ function seedLearning(root: string, store: StoryStore): void {
     }),
   ]);
   write(root, resolveFindingSignalsPath(root).slice(root.length + 1), JSON.stringify(findingSignals(), null, 2));
+}
+
+function doneSummary(storyId: string): any {
+  return {
+    storyId,
+    changes: 'DONE experience summary captured durable behavior without granting runtime authority.',
+    usage: 'Run playbook_seed_observe with done-experience to review the candidate seed.',
+    expectedOutcome: 'Operators see a done_experience seed, not active guidance.',
+    actualTranscript: 'playbook_seed_observe reports sourceArtifactKind done_experience.',
+    outcomeDiff: 'No difference: the seed is non-authoritative candidate material only.',
+    acceptanceVerdict: 'accepted',
+    realMachineCoverage: {
+      ran: [{ name: 'done-experience-smoke', where: 'packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts' }],
+      skipped: [],
+    },
+    limitations: 'DONE success alone never records helped or activates runtime guidance.',
+    pitfalls: 'Avoid assuming DONE settlement means helped; require explicit candidate exposure and structured outcome rows.',
+  };
+}
+
+function doneDeliveryCheck(storyId: string): any {
+  return {
+    storyId,
+    checkedAt: NOW,
+    reviewRound: 'RR-done-experience',
+    agentId: 'lattice-review-delivery',
+    docsPromises: [{
+      docPath: 'docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md',
+      promise: 'DONE experience seeds create candidate playbooks only.',
+      status: 'verified',
+      verifiedBy: 'smoke',
+      evidence: 'done_experience observe/propose/approve smoke',
+    }],
+    realMachineTests: [{
+      featureId: 'done-experience-seed',
+      transcript: 'observe -> propose -> approve leaves one candidate playbook and zero outcome rows',
+    }],
+    closingSelfCheck: {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'Delivery confirms DONE material can become an inert candidate seed only.',
+    },
+    _hash: 'smoke-delivery-hash',
+  };
+}
+
+function seedDoneExperienceStory(store: StoryStore, storyId = DONE_STORY_ID): void {
+  store.writeStory(storyId, story(storyId, 'DONE'));
+  store.writeChecklist(storyId, { items: [] });
+  store.writeFindings(storyId, { findings: [] });
+  store.writeSummary(storyId, doneSummary(storyId));
+  store.writeDeliveryCheck(storyId, doneDeliveryCheck(storyId));
 }
 
 function snapshotDir(root: string, rel: string): string {
@@ -539,6 +593,125 @@ function run(): void {
       }));
       assert.equal(presentReport.proposableSeeds.length, 1, 'present-anchor finding-signal is proposable');
       assert.equal(presentReport.proposableSeeds[0].sourceArtifactKind, 'finding_signal');
+    });
+
+    check('B-c28f DONE experience observes stable seeds and approves inert candidates idempotently', () => {
+      const root = mkProject('bc28f-done-experience-');
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedDoneExperienceStory(store);
+      const handlers = createPlaybookHandlers(ctx);
+
+      const observe1 = parseJson<any>(handlers.playbook_seed_observe({
+        source: 'done-experience',
+        json: true,
+      }));
+      assert.equal(observe1.proposableSeeds.length, 1);
+      const seed1 = observe1.proposableSeeds[0];
+      assert.equal(seed1.sourceArtifactKind, 'done_experience');
+      assert.equal(seed1.sourceArtifactId, DONE_STORY_ID);
+      assert.match(seed1.canonicalSourceKey, /^PBLS-[a-f0-9]{16}$/);
+      assert.equal(seed1.canonicalSourceKeyVersion, observe1.audit.canonicalSourceKeyVersion);
+      assert.match(seed1.sourceSummary, /DONE experience summary/);
+      assert.ok(seed1.sourcePitfalls.some((text: string) => /DONE settlement means helped/.test(text)));
+      assert.ok(seed1.sourceVerification.some((text: string) => /done-experience-seed/.test(text)));
+
+      const observe2 = parseJson<any>(handlers.playbook_seed_observe({
+        source: 'done-experience',
+        json: true,
+      }));
+      assert.equal(observe2.proposableSeeds[0].canonicalSourceKey, seed1.canonicalSourceKey);
+      assert.equal(observe2.proposableSeeds[0].canonicalSourceKeyVersion, seed1.canonicalSourceKeyVersion);
+
+      const proposed = parseJson<any>(handlers.playbook_seed_propose_batch({
+        source: 'done-experience',
+        apply: true,
+        observeDigest: observe1.observeDigest,
+        json: true,
+      }));
+      assert.equal(proposed.proposalCount, 1);
+      assert.equal(proposed.proposals[0].seed.sourceArtifactKind, 'done_experience');
+      assert.equal(listProposals(root).length, 1);
+
+      const observeAfterProposal = parseJson<any>(handlers.playbook_seed_observe({
+        source: 'done-experience',
+        json: true,
+      }));
+      assert.equal(observeAfterProposal.proposableSeeds.length, 0, 'staged proposal represents the DONE source');
+      assert.ok(observeAfterProposal.alreadyRepresentedSources.some((row: any) =>
+        row.sourceArtifactKind === 'done_experience'
+        && row.blockReasons.includes('already_represented')));
+
+      const repeatedPropose = parseJson<any>(handlers.playbook_seed_propose_batch({
+        source: 'done-experience',
+        apply: true,
+        observeDigest: observeAfterProposal.observeDigest,
+        json: true,
+      }));
+      assert.equal(repeatedPropose.proposalCount, 0);
+      assert.equal(listProposals(root).length, 1, 'repeated propose did not duplicate proposal rows');
+
+      const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      assert.equal(manifest.proposalCount, 1);
+      assert.equal(manifest.proposals[0].sourceArtifactKind, 'done_experience');
+      const approved = parseJson<any>(handlers.playbook_candidate_batch_approve({
+        apply: true,
+        manifestDigest: manifest.manifestDigest,
+        json: true,
+      }));
+      assert.equal(approved.applied, true);
+      assert.equal(readPlaybooks(root).length, 1);
+      const candidate = readPlaybooks(root)[0];
+      assert.equal(candidate.status, 'candidate', 'DONE experience approval never activates');
+      assert.equal(listProposals(root).length, 0);
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'DONE success alone wrote no helped/outcome rows');
+      assert.equal(aggregatePlaybookPromotion(candidate, readPlaybookOutcomeEvents(root), []).helpedCount, 0);
+
+      const observeAfterApprove = parseJson<any>(handlers.playbook_seed_observe({
+        source: 'done-experience',
+        json: true,
+      }));
+      assert.equal(observeAfterApprove.proposableSeeds.length, 0, 'candidate represents the DONE source');
+      const secondPropose = parseJson<any>(handlers.playbook_seed_propose_batch({
+        source: 'done-experience',
+        apply: true,
+        observeDigest: observeAfterApprove.observeDigest,
+        json: true,
+      }));
+      assert.equal(secondPropose.proposalCount, 0);
+      const emptyManifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
+      const secondApprove = parseJson<any>(handlers.playbook_candidate_batch_approve({
+        apply: true,
+        manifestDigest: emptyManifest.manifestDigest,
+        json: true,
+      }));
+      assert.equal(secondApprove.proposalCount, 0);
+      assert.equal(readPlaybooks(root).length, 1, 'repeated observe/propose/approve did not duplicate candidates');
+      assert.equal(readPlaybooks(root)[0].status, 'candidate');
+    });
+
+    check('B-c28f partial DONE artifacts do not crash done_experience observation', () => {
+      const root = mkProject('bc28f-done-partial-');
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      const partialStoryId = 'B-done-partial';
+      store.writeStory(partialStoryId, story(partialStoryId, 'DONE'));
+      store.writeChecklist(partialStoryId, { items: [] });
+      store.writeFindings(partialStoryId, { findings: [] });
+      write(root, `.lattice/story/actives/${partialStoryId}/summary.json`, JSON.stringify({
+        storyId: partialStoryId,
+        pitfalls: 'Partial DONE summary pitfall is enough to create a stable non-authoritative seed.',
+      }, null, 2));
+
+      const report = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({
+        source: 'done-experience',
+        json: true,
+      }));
+      assert.ok(report.proposableSeeds.some((seed: any) =>
+        seed.sourceArtifactKind === 'done_experience'
+        && seed.sourceArtifactId === partialStoryId
+        && seed.sourcePitfalls.some((text: string) => /Partial DONE summary/.test(text))));
+      assert.match(report.observeDigest, /^[a-f0-9]{64}$/);
     });
 
     check('M3/M4/M8 default dry-run writer surfaces do not mutate learning stores', () => {

@@ -306,6 +306,7 @@ they must not promote a playbook by themselves.
 A candidate cannot receive `helped` from DONE settlement unless the event
 records a concrete exposure mode other than `none` and a structured verdict
 source. DONE success alone cannot settle a candidate as `helped`.
+DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
 ### 9.2 Signals That Must Not Count As Positive
 
