@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-5e28",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [
+    "historical-seed-backfill",
+    "automatic-candidate-approval",
+    "automatic-active-playbook-activation"
+  ],
+  "reason": "User explicitly asked to first fix default-on DONE settlement and check whether data enters the learning log; historical data backfill would be considered only after live data appears. Automatic candidate approval and active activation are not part of this delivery.",
+  "approvedBy": "user request: live proof before historical backfill",
+  "createdAt": "2026-07-03T00:56:13.054Z",
+  "updatedAt": "2026-07-03T00:56:13.054Z"
+}
