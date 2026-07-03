@@ -212,6 +212,27 @@
       ],
       "signatureTag": "adversarial|ts|handlers-cross-host",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-011",
+      "desc": "cross_host_review accepts caller-supplied hostA/hostB identifiers but never fail-closed-validates that host A and host B remain independent. If a caller passes the same host id, the handler derives the same sessionId/keyId for both records and can still return jointDecision=pass when both decisions pass and findings agree. Downstream summarizeVerdicts collapses the shared identity, but the new cross_host_review proof surface itself can overstate an independent joint pass instead of stopping on non-independent reviewer identities. Mirror quorum_submit's hostId/sessionId/keyId independence guard before recording verdicts or computing jointDecision.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T09:41:19.464Z",
+      "reviewRound": "2026-07-03T09:38:02.271Z",
+      "reviewRunId": "B-f57a:RR-011",
+      "_hash": "860928a1554086739e3ed118cf5d3290c7bb47bb92a2d034ccbb12800677ea32",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/core/cross-host-review.ts",
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/core/verdicts.ts"
+      ],
+      "signatureTag": "adversarial|ts|cross-host-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
