@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-03T00:54:53.624Z",
       "reviewRunId": "B-ab8d:RR-009",
       "_hash": "87cbf89dec958f680f0bee1c867f916a2bc29dec770e29d5225533b4a501294b"
+    },
+    {
+      "id": "B-ab8d:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality pass. Reviewed single delta: merge-conflict resolution in packages/main/src/core/command-policy.ts. Verified: (1) 28 memoryRetrieval:true markers present on all 28 expected command entries; (2) marker is always the first key in each entry object — placement consistent; (3) playbook_auto_promotion_apply reason string preserved verbatim from main; (4) no duplicate keys in COMMAND_POLICIES; (5) tsc build passes cleanly. No dead code, no type-safety issues, no I/O shell violations introduced by this delta.",
+      "createdAt": "2026-07-03T00:57:14.311Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-010",
+      "_hash": "aea1215dbb7f83519ce42b2000bad8cc33d5e4b6b8d7bae2ae7dfee3a64ca25e"
     }
   ]
 }
