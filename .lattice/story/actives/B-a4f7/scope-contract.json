@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a4f7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/config.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "direct active playbook activation",
+    "historical bulk backfill",
+    "timer or daemon scheduling",
+    "DONE success as helped evidence",
+    "gate evidence or blocking DONE policy"
+  ],
+  "scopeChangeReason": "Initialize enforce contract from B-a4f7 PLAN checklist; scope is limited to automatic done-experience seed to inert candidate ingestion.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory intent artifacts were required by enforced DEV admission after PLAN review; they bind and narrow the accepted scope and do not expand product implementation beyond candidate ingestion.",
+      "timestamp": "2026-07-03T10:43:58.910Z",
+      "paths": [
+        ".lattice/story/actives/B-a4f7/intent-collision.json",
+        ".lattice/story/actives/B-a4f7/milestone-ledger.json",
+        ".lattice/story/actives/B-a4f7/original-intent-snapshot.json",
+        ".lattice/story/actives/B-a4f7/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-a4f7/intent-collision.json",
+        ".lattice/story/actives/B-a4f7/milestone-ledger.json",
+        ".lattice/story/actives/B-a4f7/original-intent-snapshot.json",
+        ".lattice/story/actives/B-a4f7/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "3451929ee33bdbef6168ab9bebaff9a61c21ec66",
+      "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab"
+    }
+  ],
+  "createdAt": "2026-07-03T10:24:00.583Z",
+  "updatedAt": "2026-07-03T10:43:58.910Z"
+}

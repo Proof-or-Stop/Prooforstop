@@ -5,8 +5,9 @@ implemented by B-6241. B-7ee1 added the guarded evidence-activated advisory
 candidate-to-active apply surface. B-6703 makes that apply path self-contained:
 `playbook_auto_promotion_apply --apply` may write deterministic
 `recommend_activate` evidence for already-qualified candidates before
-activation. Trial serving, matched-control serving, historical backfill, and
-timers remain future work.
+activation. B-a4f7 adds default-on, story-scoped DONE experience ingestion into
+inert candidate playbooks. Trial serving, matched-control serving, historical
+backfill, and timers remain future work.
 
 ## 1. Why This Document Exists
 
@@ -118,6 +119,7 @@ The target V1 loop is:
 Story DONE
   -> durable DONE proof is committed
   -> best-effort learning settlement runs after DONE proof
+  -> best-effort DONE experience seed ingestion may create inert candidates
   -> outcome ledger records explicit signals
   -> promotion sweep evaluates candidates and active playbooks
   -> dry-run/apply records recommendation or state transition
@@ -158,7 +160,8 @@ The lifecycle boundary is:
 
 ```text
 Story lifecycle = prove the current task is complete.
-Promotion worker = learn from completed work after the proof is recorded.
+Candidate ingest = convert completed-work experience into inert candidate material.
+Promotion worker = learn from explicit exposure/outcome evidence after candidates exist.
 ```
 
 ## 6. Non-Goals
@@ -271,6 +274,7 @@ DONE gate passes
   -> DONE lifecycle mutation / merge / summary is durably committed
   -> worktree cleanup is complete or recoverable
   -> best-effort learning settlement runs
+  -> story-scoped DONE candidate ingestion may run
   -> settlement failure is recorded as advisory health/audit information only
 ```
 
@@ -288,6 +292,40 @@ The settlement hook must:
 
 If settlement fails, DONE remains DONE. The failure is visible through
 `playbook_promotion_status` / health output and can be retried manually.
+
+### 8.1 Automatic DONE Candidate Ingest
+
+B-a4f7 extends post-DONE settlement with a second best-effort step:
+
+```text
+DONE durable
+  -> settlement health row
+  -> playbook_candidate_ingest --apply --source=done-experience --storyId=<story>
+  -> scoped proposals are approved as status=candidate only
+```
+
+The command is host-neutral and dry-run by default. The DONE hook is default-on
+unless `PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED` is explicitly set to `0`,
+`false`, `no`, or `off`. `PLAYBOOK_DONE_SETTLEMENT_ENABLED` keeps its existing
+meaning: when settlement is explicitly disabled, the post-DONE learning hook,
+including candidate ingest, is skipped.
+
+Candidate ingest is not evidence activation and not historical backfill. It
+defaults to `done-experience`, accepts the same source filters as seed observe /
+propose commands, and uses `--storyId` in the DONE hook so one completed story is
+processed. Apply mode composes observe -> proposal apply -> scoped candidate
+approval with `observeDigest`, `proposalManifestDigest`, and `manifestDigest`.
+The approval scope is limited to proposals staged by that ingestion run, so old
+unrelated proposals are not consumed.
+
+The boundary remains load-bearing:
+
+- writes only proposals and `status:"candidate"` playbooks;
+- never writes helped outcome rows;
+- never writes auto-activation rows;
+- never writes active playbooks;
+- never writes lifecycle evidence;
+- always reports `authority=non_authoritative` and `gateEvidence=false`.
 
 ## 9. Outcome Verdict Sources
 
@@ -699,6 +737,7 @@ Suggested V1 flags:
 |---|---|---|
 | `PLAYBOOK_PROMOTION_SWEEP_ENABLED` | off for apply, dry-run available | Allows sweep apply mode |
 | `PLAYBOOK_DONE_SETTLEMENT_ENABLED` | default-on, explicit opt-out with `false` / `0` / `no` / `off` | Allows post-DONE learning settlement health rows |
+| `PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED` | default-on, explicit opt-out with `false` / `0` / `no` / `off` | Allows post-DONE story-scoped `done-experience` seed ingestion into inert candidates |
 
 Future flags:
 
@@ -826,6 +865,8 @@ Goal: make Story DONE record learning settlement without blocking DONE.
 Deliverables:
 
 - post-DONE best-effort settlement hook;
+- default-on, opt-out post-DONE candidate ingest from the completed story's
+  `done-experience` seed;
 - hard timeout and try/catch;
 - idempotency key;
 - visible warning when settlement fails;
@@ -837,7 +878,9 @@ Tests:
 - settlement runs only after DONE proof is durable;
 - failed settlement is visible but non-blocking;
 - repeated `done_recover` does not duplicate events;
-- settlement cannot mutate story phase or gate evidence.
+- settlement cannot mutate story phase or gate evidence;
+- candidate ingest creates only inert `candidate` playbooks and no outcomes,
+  auto-activations, active playbooks, lifecycle evidence, or historical backfill.
 
 ### M4. V1 Aggregate And Evaluator
 

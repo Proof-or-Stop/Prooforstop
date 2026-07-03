@@ -43,6 +43,7 @@ import { buildLearningSourceLineageAudit } from './source-lineage-audit.js';
 export const PLAYBOOK_SEED_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-seed-observe.v1' as const;
 export const PLAYBOOK_SEED_PROPOSE_BATCH_SCHEMA_VERSION = 'proofbound.playbook-seed-propose-batch.v1' as const;
 export const PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-batch-manifest.v1' as const;
+export const PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-ingest.v1' as const;
 export const PLAYBOOK_RUNTIME_CONSUMPTION_VERIFY_SCHEMA_VERSION = 'proofbound.playbook-runtime-consumption-verify.v1' as const;
 export const PLAYBOOK_AUTO_PROMOTION_APPLY_SCHEMA_VERSION = 'proofbound.playbook-auto-promotion-apply.v1' as const;
 
@@ -195,10 +196,36 @@ export interface PlaybookCandidateBatchManifestReport {
   applied: boolean;
   manifestDigest: string;
   expectedManifestDigest?: string;
+  proposalIdFilter?: string[];
+  canonicalSourceKeyFilter?: string[];
+  sourceFilter?: PlaybookSeedSourceFilter;
+  storyId?: string;
   proposalCount: number;
   proposals: PlaybookCandidateBatchManifestRow[];
   invalidProposals: Array<{ proposalId: string; reason: string }>;
   candidatePlaybookIds: string[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export interface PlaybookCandidateIngestReport {
+  schemaVersion: typeof PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION;
+  dryRun: boolean;
+  applied: boolean;
+  sourceFilter: PlaybookSeedSourceFilter;
+  storyId?: string;
+  limit: number;
+  observeDigest: string;
+  proposalManifestDigest: string;
+  manifestDigest: string;
+  proposedCount: number;
+  candidateCreatedCount: number;
+  candidatePlaybookIds: string[];
+  skippedCount: number;
+  blockedCount: number;
+  skippedSeedCount: number;
+  blockedSeedCount: number;
+  invalidProposalCount: number;
   authority: 'non_authoritative';
   gateEvidence: false;
 }
@@ -307,6 +334,7 @@ export interface BuildPlaybookSeedObservationOptions {
   projectRoot: string;
   store: PlaybookSeedStorePort;
   source?: string;
+  storyId?: string;
   now?: string;
 }
 
@@ -322,6 +350,15 @@ export interface BuildPlaybookCandidateBatchOptions {
   apply?: boolean;
   limit?: number;
   manifestDigest?: string;
+  proposalIds?: string[];
+  canonicalSourceKeys?: string[];
+  source?: string;
+  storyId?: string;
+}
+
+export interface BuildPlaybookCandidateIngestOptions extends BuildPlaybookSeedObservationOptions {
+  apply?: boolean;
+  limit?: number;
 }
 
 export interface BuildPlaybookRuntimeConsumptionVerifyOptions {
@@ -361,6 +398,11 @@ function normalizeSourceFilter(source: string | undefined): PlaybookSeedSourceFi
   if (value === 'done-experience' || value === 'done-experiences' || value === 'done') return 'done-experience';
   if (value === 'raw-findings' || value === 'raw-finding' || value === 'findings' || value === 'finding') return 'raw-findings';
   throw new Error(`playbook_seed_observe: unsupported source ${JSON.stringify(source)} (supported: dev-memory, finding-signals, done-experience, raw-findings)`);
+}
+
+function normalizeStoryFilter(storyId: string | undefined): string | undefined {
+  const value = (storyId ?? '').trim();
+  return value || undefined;
 }
 
 function sourceFilterKinds(filter: PlaybookSeedSourceFilter): Set<PlaybookSeedSourceKind> {
@@ -510,6 +552,7 @@ function computeObserveDigest(report: Omit<PlaybookSeedObserveReport, 'observeDi
 export function buildPlaybookSeedObservation(opts: BuildPlaybookSeedObservationOptions): PlaybookSeedObserveReport {
   const sourceFilter = normalizeSourceFilter(opts.source);
   const allowedKinds = sourceFilterKinds(sourceFilter);
+  const storyFilter = normalizeStoryFilter(opts.storyId);
   const audit = buildLearningSourceLineageAudit({
     projectRoot: opts.projectRoot,
     store: opts.store,
@@ -526,7 +569,9 @@ export function buildPlaybookSeedObservation(opts: BuildPlaybookSeedObservationO
   const blockingSeeds: PlaybookSeedBlocked[] = [];
   const nonPromotableBlocks: PlaybookSeedBlocked[] = [];
   const alreadyRepresentedSources: PlaybookSeedBlocked[] = [];
-  const seedRecords = audit.records.filter((record) => isSeedKind(record.artifactKind));
+  const seedRecords = audit.records
+    .filter((record) => isSeedKind(record.artifactKind))
+    .filter((record) => !storyFilter || record.sourceStoryId === storyFilter);
   const byCanonical = new Map<string, SourceLineageAuditRecord[]>();
 
   for (const record of seedRecords) {
@@ -812,11 +857,70 @@ function seedProposalOnly(proposal: PlaybookProposal): boolean {
   return Boolean(proposal.seed?.canonicalSourceKey && proposal.seed.sourceArtifactKind && proposal.seed.sourceArtifactId);
 }
 
-function buildCandidateManifestRows(projectRoot: string, limit: number): {
+function sortedFilter(values: string[] | undefined): string[] | undefined {
+  if (values === undefined) return undefined;
+  return uniqSorted(values);
+}
+
+function candidateManifestScope(opts: BuildPlaybookCandidateBatchOptions): {
+  proposalIds?: string[];
+  canonicalSourceKeys?: string[];
+  sourceFilter?: PlaybookSeedSourceFilter;
+  storyId?: string;
+} {
+  const sourceFilter = opts.source === undefined ? undefined : normalizeSourceFilter(opts.source);
+  const proposalIds = sortedFilter(opts.proposalIds);
+  const canonicalSourceKeys = sortedFilter(opts.canonicalSourceKeys);
+  const storyId = normalizeStoryFilter(opts.storyId);
+  return {
+    ...(proposalIds !== undefined ? { proposalIds } : {}),
+    ...(canonicalSourceKeys !== undefined ? { canonicalSourceKeys } : {}),
+    ...(sourceFilter ? { sourceFilter } : {}),
+    ...(storyId ? { storyId } : {}),
+  };
+}
+
+function proposalInCandidateManifestScope(
+  proposal: PlaybookProposal,
+  scope: ReturnType<typeof candidateManifestScope>,
+): boolean {
+  if (!seedProposalOnly(proposal)) return false;
+  if (scope.proposalIds !== undefined && !scope.proposalIds.includes(proposal.id)) return false;
+  if (scope.canonicalSourceKeys !== undefined && !scope.canonicalSourceKeys.includes(proposal.seed!.canonicalSourceKey)) return false;
+  if (scope.sourceFilter !== undefined && !sourceFilterKinds(scope.sourceFilter).has(proposal.seed!.sourceArtifactKind)) return false;
+  if (scope.storyId !== undefined && proposal.lineage.sourceStoryId !== scope.storyId) return false;
+  return true;
+}
+
+function duplicateCanonicalInvalidRows(rows: PlaybookCandidateBatchManifestRow[]): Array<{ proposalId: string; reason: string }> {
+  const invalid: Array<{ proposalId: string; reason: string }> = [];
+  const rowsByCanonical = new Map<string, PlaybookCandidateBatchManifestRow[]>();
+  for (const row of rows) {
+    const canonicalSourceKey = row.canonicalSourceKey.trim();
+    if (!canonicalSourceKey) continue;
+    const list = rowsByCanonical.get(canonicalSourceKey) ?? [];
+    list.push(row);
+    rowsByCanonical.set(canonicalSourceKey, list);
+  }
+  for (const [canonicalSourceKey, duplicates] of rowsByCanonical) {
+    if (duplicates.length <= 1) continue;
+    for (const row of duplicates) {
+      invalid.push({
+        proposalId: row.proposalId,
+        reason: `duplicate canonicalSourceKey in manifest: ${canonicalSourceKey}`,
+      });
+    }
+  }
+  return invalid;
+}
+
+function buildCandidateManifestRows(projectRoot: string, limit: number, scope: ReturnType<typeof candidateManifestScope>): {
   rows: PlaybookCandidateBatchManifestRow[];
   invalid: Array<{ proposalId: string; reason: string }>;
 } {
-  const proposals = listProposals(projectRoot).filter(seedProposalOnly).slice(0, limit);
+  const proposals = listProposals(projectRoot)
+    .filter((proposal) => proposalInCandidateManifestScope(proposal, scope))
+    .slice(0, limit);
   const rows: PlaybookCandidateBatchManifestRow[] = [];
   const invalid: Array<{ proposalId: string; reason: string }> = [];
   for (const proposal of proposals) {
@@ -841,24 +945,7 @@ function buildCandidateManifestRows(projectRoot: string, limit: number): {
       title: proposal.title,
     });
   }
-  const rowsByCanonical = new Map<string, PlaybookCandidateBatchManifestRow[]>();
-  for (const row of rows) {
-    const canonicalSourceKey = row.canonicalSourceKey.trim();
-    if (!canonicalSourceKey) continue;
-    const list = rowsByCanonical.get(canonicalSourceKey) ?? [];
-    list.push(row);
-    rowsByCanonical.set(canonicalSourceKey, list);
-  }
-  for (const [canonicalSourceKey, duplicates] of rowsByCanonical) {
-    if (duplicates.length <= 1) continue;
-    for (const row of duplicates) {
-      invalid.push({
-        proposalId: row.proposalId,
-        reason: `duplicate canonicalSourceKey in manifest: ${canonicalSourceKey}`,
-      });
-    }
-  }
-  return { rows, invalid };
+  return { rows, invalid: [...invalid, ...duplicateCanonicalInvalidRows(rows)] };
 }
 
 function representedCanonicalSourceConflicts(
@@ -886,10 +973,15 @@ function representedCanonicalSourceConflicts(
   return conflicts;
 }
 
-function candidateManifestDigest(rows: PlaybookCandidateBatchManifestRow[], invalid: Array<{ proposalId: string; reason: string }>): string {
+function candidateManifestDigest(
+  rows: PlaybookCandidateBatchManifestRow[],
+  invalid: Array<{ proposalId: string; reason: string }>,
+  scope?: ReturnType<typeof candidateManifestScope>,
+): string {
   return digestCanonicalJson({
     invalidProposals: invalid,
     proposals: rows,
+    ...(scope && Object.keys(scope).length > 0 ? { scope } : {}),
     schemaVersion: PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION,
   });
 }
@@ -897,9 +989,10 @@ function candidateManifestDigest(rows: PlaybookCandidateBatchManifestRow[], inva
 export function buildPlaybookCandidateBatchManifest(opts: BuildPlaybookCandidateBatchOptions): PlaybookCandidateBatchManifestReport {
   const apply = opts.apply === true;
   const limit = clampLimit(opts.limit, 50);
-  const { rows, invalid } = buildCandidateManifestRows(opts.projectRoot, limit);
+  const scope = candidateManifestScope(opts);
+  const { rows, invalid } = buildCandidateManifestRows(opts.projectRoot, limit, scope);
   const allInvalid = [...invalid, ...representedCanonicalSourceConflicts(opts, rows)];
-  const manifestDigest = candidateManifestDigest(rows, allInvalid);
+  const manifestDigest = candidateManifestDigest(rows, allInvalid, scope);
   const expectedManifestDigest = (opts.manifestDigest ?? '').trim();
   if (apply && !expectedManifestDigest) {
     throw new Error('playbook_candidate_batch_approve requires --manifestDigest when --apply is set');
@@ -933,10 +1026,122 @@ export function buildPlaybookCandidateBatchManifest(opts: BuildPlaybookCandidate
     applied: apply,
     manifestDigest,
     ...(expectedManifestDigest ? { expectedManifestDigest } : {}),
+    ...(scope.proposalIds !== undefined ? { proposalIdFilter: scope.proposalIds } : {}),
+    ...(scope.canonicalSourceKeys !== undefined ? { canonicalSourceKeyFilter: scope.canonicalSourceKeys } : {}),
+    ...(scope.sourceFilter !== undefined ? { sourceFilter: scope.sourceFilter } : {}),
+    ...(scope.storyId !== undefined ? { storyId: scope.storyId } : {}),
     proposalCount: rows.length,
     proposals: rows,
     invalidProposals: allInvalid,
     candidatePlaybookIds: rows.map((row) => row.proposalId),
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function candidateManifestRowsFromProposalPreviews(previews: PlaybookSeedProposalPreview[]): PlaybookCandidateBatchManifestRow[] {
+  return previews.map((row) => ({
+    proposalId: row.proposalId,
+    proposalDigest: row.proposalDigest,
+    candidatePlaybookDigest: row.candidatePlaybookDigest,
+    canonicalSourceKey: row.seed.canonicalSourceKey,
+    sourceArtifactKind: row.seed.sourceArtifactKind,
+    sourceArtifactId: row.seed.sourceArtifactId,
+    title: row.title,
+  }));
+}
+
+function candidateManifestFromProposalPreview(
+  opts: BuildPlaybookCandidateBatchOptions,
+  previews: PlaybookSeedProposalPreview[],
+): PlaybookCandidateBatchManifestReport {
+  const scope = candidateManifestScope(opts);
+  const rows = candidateManifestRowsFromProposalPreviews(previews);
+  const allInvalid = [
+    ...duplicateCanonicalInvalidRows(rows),
+    ...representedCanonicalSourceConflicts(opts, rows),
+  ];
+  const manifestDigest = candidateManifestDigest(rows, allInvalid, scope);
+  return {
+    schemaVersion: PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION,
+    dryRun: true,
+    applied: false,
+    manifestDigest,
+    ...(scope.proposalIds !== undefined ? { proposalIdFilter: scope.proposalIds } : {}),
+    ...(scope.canonicalSourceKeys !== undefined ? { canonicalSourceKeyFilter: scope.canonicalSourceKeys } : {}),
+    ...(scope.sourceFilter !== undefined ? { sourceFilter: scope.sourceFilter } : {}),
+    ...(scope.storyId !== undefined ? { storyId: scope.storyId } : {}),
+    proposalCount: rows.length,
+    proposals: rows,
+    invalidProposals: allInvalid,
+    candidatePlaybookIds: rows.map((row) => row.proposalId),
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+export function buildPlaybookCandidateIngestReport(opts: BuildPlaybookCandidateIngestOptions): PlaybookCandidateIngestReport {
+  const apply = opts.apply === true;
+  const limit = clampLimit(opts.limit, 5, 25);
+  const source = opts.source ?? 'done-experience';
+  const storyId = normalizeStoryFilter(opts.storyId);
+  const observation = buildPlaybookSeedObservation({
+    projectRoot: opts.projectRoot,
+    store: opts.store,
+    source,
+    ...(storyId ? { storyId } : {}),
+    now: opts.now,
+  });
+  const proposalReport = buildPlaybookSeedProposalBatch({
+    projectRoot: opts.projectRoot,
+    store: opts.store,
+    source,
+    ...(storyId ? { storyId } : {}),
+    apply,
+    limit,
+    ...(apply ? { observeDigest: observation.observeDigest } : {}),
+    now: opts.now,
+  });
+  const proposalIds = proposalReport.proposals.map((row) => row.proposalId);
+  const canonicalSourceKeys = proposalReport.proposals.map((row) => row.seed.canonicalSourceKey);
+  const manifestScope = {
+    projectRoot: opts.projectRoot,
+    store: opts.store,
+    limit: proposalIds.length,
+    proposalIds,
+    canonicalSourceKeys,
+    source,
+    ...(storyId ? { storyId } : {}),
+  };
+  const manifestPreview = apply
+    ? buildPlaybookCandidateBatchManifest(manifestScope)
+    : candidateManifestFromProposalPreview(manifestScope, proposalReport.proposals);
+  const manifestReport = apply
+    ? buildPlaybookCandidateBatchManifest({
+      ...manifestScope,
+      apply: true,
+      manifestDigest: manifestPreview.manifestDigest,
+    })
+    : manifestPreview;
+  const candidateCreatedCount = apply ? manifestReport.proposalCount : 0;
+  return {
+    schemaVersion: PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION,
+    dryRun: !apply,
+    applied: apply,
+    sourceFilter: observation.sourceFilter,
+    ...(storyId ? { storyId } : {}),
+    limit,
+    observeDigest: observation.observeDigest,
+    proposalManifestDigest: proposalReport.proposalManifestDigest,
+    manifestDigest: manifestReport.manifestDigest,
+    proposedCount: proposalReport.proposalCount,
+    candidateCreatedCount,
+    candidatePlaybookIds: manifestReport.candidatePlaybookIds,
+    skippedCount: proposalReport.skippedSeedCount,
+    blockedCount: proposalReport.blockedSeedCount + manifestReport.invalidProposals.length,
+    skippedSeedCount: proposalReport.skippedSeedCount,
+    blockedSeedCount: proposalReport.blockedSeedCount,
+    invalidProposalCount: manifestReport.invalidProposals.length,
     authority: 'non_authoritative',
     gateEvidence: false,
   };
@@ -1525,6 +1730,31 @@ export function renderPlaybookCandidateBatchManifest(report: PlaybookCandidateBa
       `  - ${row.proposalId} ${row.sourceArtifactKind}:${row.sourceArtifactId} proposalDigest=${row.proposalDigest} candidateDigest=${row.candidatePlaybookDigest}`),
     `invalidProposals: ${report.invalidProposals.length}`,
     ...report.invalidProposals.map((row) => `  - ${row.proposalId} ${row.reason}`),
+  ].join('\n');
+}
+
+export function renderPlaybookCandidateIngest(report: PlaybookCandidateIngestReport, json?: boolean): string {
+  if (json) return JSON.stringify(report, null, 2);
+  return [
+    'Playbook candidate ingest',
+    `dryRun: ${report.dryRun}`,
+    `applied: ${report.applied}`,
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+    `sourceFilter: ${report.sourceFilter}`,
+    `storyId: ${report.storyId ?? 'all'}`,
+    `limit: ${report.limit}`,
+    `observeDigest: ${report.observeDigest}`,
+    `proposalManifestDigest: ${report.proposalManifestDigest}`,
+    `manifestDigest: ${report.manifestDigest}`,
+    `proposedCount: ${report.proposedCount}`,
+    `candidateCreatedCount: ${report.candidateCreatedCount}`,
+    `candidatePlaybookIds: ${report.candidatePlaybookIds.join(', ') || 'none'}`,
+    `skippedCount: ${report.skippedCount}`,
+    `blockedCount: ${report.blockedCount}`,
+    `skippedSeedCount: ${report.skippedSeedCount}`,
+    `blockedSeedCount: ${report.blockedSeedCount}`,
+    `invalidProposalCount: ${report.invalidProposalCount}`,
   ].join('\n');
 }
 

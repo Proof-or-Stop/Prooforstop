@@ -2016,6 +2016,14 @@ Behavior:
     manifestDigest: z.string().optional().describe('Digest from dry-run manifest required for --apply.'),
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
+  { name: 'playbook_candidate_ingest', description: 'Dry-run default DONE-experience seed ingestion into inert candidate playbooks; --apply composes digest-bound observe/propose/approve', schema: {
+    source: z.enum(['dev-memory', 'finding-signals', 'done-experience', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default done-experience.'),
+    storyId: z.string().optional().describe('Optional source story filter, useful for ingesting one DONE story.'),
+    dryRun: z.boolean().optional().describe('Preview observe -> propose -> candidate manifest without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Write only scoped proposals and inert candidate playbooks; never activates playbooks or records outcomes.'),
+    limit: z.coerce.number().int().optional().describe('Maximum DONE/source seeds to ingest (default 5, max 25).'),
+    json: z.boolean().optional().describe('Emit structured JSON with observe/proposal/candidate digests.'),
+  }},
   { name: 'playbook_runtime_consumption_verify', description: 'Read-only diagnostic proving active playbooks are consumed and candidates remain inert', schema: {
     json: z.boolean().optional().describe('Emit structured JSON.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,

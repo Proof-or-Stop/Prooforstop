@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-7de9",
+  "checkedAt": "2026-07-03T11:10:27.150Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "078840197c0ca215fea07f4d456fade3d55abc94e837ac76159816af5e4fadb7",
+  "executionBoundaryHash": "b085e73fe4c3b66df641135cac34fcd7fb8f580a9fb9966c76ebff82d493853f",
+  "freshnessHash": "8cbccf2227e381dd86ce1580d9c3ca3b5eb09d814c21a1fc7b9f19d654aa7a41",
+  "effectiveExcludedKeywords": [],
+  "keywordHits": [],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "a3b64e5deb91c9b37cbb5b43987d3d9ae46eed06cb9cfb2478f17d838333406a",
+      "overlapTerms": [
+        "## Conversational Texture The operator directed reconciling the earlier duplicate implementation onto main's infrastructure rather than shipping two incompatible experiment-arm systems, and to keep only the genuinely net-new value (the JSON-leak closure). This story is that net-new isolation layer; the render gate, arm resolver, and retrieval block themselves remain B-ab8d's.",
+        "## Solution Tradeoffs Option A (chosen): a thin isolation layer keyed on the SAME resolveExperimentArm — redactMemoryPackForControlArm empties the pack at each JSON surface, final_response_check joins surfaceRuntimeMemoryPack, experienceRefs() returns [] on control, and two corpus tools join the memoryRetrieval markers. Option B (rejected): rewrite B-ab8d to not keep the JSON pack — larger blast radius, breaks its measurement-shape contract. Option C (rejected): block every serialized command on control — over-broad, kills legitimate treatment/no-experiment output.",
+        "Add a control-arm isolation layer on top of main's B-ab8d experiment-arm render gate: redact the runtime memory pack at every JSON/file serialization surface the render gate leaves host-readable (done_closure/final_response_check/host_dispatch/handoff/manifest/health), gate final_response_check (the 8th RuntimeConsumer) through surfaceRuntimeMemoryPack, gate parallel_dispatch experience injection, and add two corpus-export commands to the memoryRetrieval block. Keyed on main's resolveExperimentArm (LATTICE_* env). Measurement stays lossless via the experience_pack_surfaced event; treatment and no-experiment output byte-identical.",
+        "Control-arm memory JSON-leak isolation on top of B-ab8d experiment-arm gate"
+      ],
+      "overlapRatio": 0.5714285714285714,
+      "previousStoryId": "B-148c",
+      "previousReason": "Created without a checklist (story_create checklist field omitted); INIT_CHECK requires items>=1 and checklist_add is PLAN/DEV-only, so B-148c is un-advanceable. Recreating fresh with the checklist baked in.",
+      "previousDiscardedAt": "2026-07-03T11:03:45.362Z",
+      "mitigation": "B-148c was discarded purely because story_create omitted the checklist field and INIT_CHECK requires items>=1 while checklist_add is PLAN/DEV-only, making B-148c structurally un-advanceable. B-7de9 is the SAME legitimate control-arm JSON-leak isolation deliverable recreated correctly with the checklist baked in; code committed, builds clean, both smokes pass."
+    }
+  ],
+  "issues": [],
+  "_hash": "9bdaeeac16cdf4353c09c2cd65c8ee7fa8545129f750fd4a57094f27dd1b28ae"
+}

@@ -39,6 +39,7 @@ import {
   readPlaybookOutcomeEvents,
   readPlaybooks,
   readPlaybookPromotionDecisionRows,
+  readPlaybookPromotionHealthEvents,
   readProposal,
   resolveFindingSignalsPath,
   resolvePlaybookAutoActivationsPath,
@@ -49,6 +50,7 @@ import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { Finding, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { runPostDoneLearningSettlement } from '../handlers/done-effects.js';
 import { createPlaybookHandlers } from '../handlers/playbook.js';
 
 const NOW = '2026-07-02T00:00:00.000Z';
@@ -250,6 +252,34 @@ function seedDoneExperienceStory(store: StoryStore, storyId = DONE_STORY_ID): vo
   store.writeDeliveryCheck(storyId, doneDeliveryCheck(storyId));
 }
 
+function unrelatedSeedProposal(): PlaybookProposal {
+  const proposal: PlaybookProposal = {
+    id: 'PBP-777',
+    title: 'Unrelated pre-existing proposal',
+    trigger: { keywords: ['unrelated', 'proposal'], fileKinds: ['ts'], storyPhases: ['REVIEW'] },
+    check: 'Keep unrelated staged proposals out of candidate ingest approval scope.',
+    pitfalls: ['This proposal must remain staged after DONE candidate ingestion.'],
+    verification: ['Confirm scoped candidate ingest does not approve unrelated proposals.'],
+    lineage: {
+      sourceStoryId: STORY_ID,
+      sourceFindingId: FINDING_ID,
+      sourceSignature: 'unrelated-preexisting',
+    },
+    seed: {
+      sourceArtifactKind: 'dev_memory',
+      sourceArtifactId: 'mem-unrelated-preexisting',
+      sourceRef: 'smoke:unrelated-preexisting',
+      canonicalSourceKey: 'PBLS-unrelatedpre001',
+      canonicalSourceKeyVersion: 'proofbound.learning-source-key.v1',
+      canonicalizationPolicyHash: 'smoke-unrelated-canonicalization',
+    },
+    status: 'proposed',
+    proposalDigest: '',
+  };
+  proposal.proposalDigest = computePlaybookProposalDigest(proposal);
+  return proposal;
+}
+
 function snapshotDir(root: string, rel: string): string {
   const dir = join(root, rel);
   if (!existsSync(dir)) return '<missing>';
@@ -298,6 +328,23 @@ function runCliFailure(root: string, args: string[]): string {
     return [child.stderr, child.stdout, child.message].filter(Boolean).join('\n');
   }
   assert.fail(`expected CLI failure for ${args.join(' ')}, got output:\n${output}`);
+}
+
+function withEnv<T>(patch: Record<string, string | undefined>, fn: () => T): T {
+  const prior = new Map<string, string | undefined>();
+  for (const [key, value] of Object.entries(patch)) {
+    prior.set(key, process.env[key]);
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+  try {
+    return fn();
+  } finally {
+    for (const [key, value] of prior) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 }
 
 function approveSeedCandidate(root: string, handlers: ReturnType<typeof createPlaybookHandlers>): Playbook {
@@ -786,6 +833,123 @@ function run(): void {
       assert.equal(secondApprove.proposalCount, 0);
       assert.equal(readPlaybooks(root).length, 1, 'repeated observe/propose/approve did not duplicate candidates');
       assert.equal(readPlaybooks(root)[0].status, 'candidate');
+    });
+
+    check('B-a4f7 candidate ingest dry-run/apply is scoped, inert, and idempotent', () => {
+      const root = mkProject('ba4f7-candidate-ingest-');
+      roots.push(root);
+      const { ctx, store } = mkCtx(root);
+      seedDoneExperienceStory(store, DONE_STORY_ID);
+      seedDoneExperienceStory(store, 'B-done2');
+      seedStory(store);
+      writeProposal(root, unrelatedSeedProposal());
+      const handlers = createPlaybookHandlers(ctx);
+
+      const beforeDryRun = snapshotDir(root, '.lattice');
+      const dryRun = parseJson<any>(handlers.playbook_candidate_ingest({
+        storyId: DONE_STORY_ID,
+        json: true,
+      }));
+      assert.equal(dryRun.dryRun, true);
+      assert.equal(dryRun.applied, false);
+      assert.equal(dryRun.sourceFilter, 'done-experience');
+      assert.equal(dryRun.storyId, DONE_STORY_ID);
+      assert.equal(dryRun.proposedCount, 1);
+      assert.equal(dryRun.candidateCreatedCount, 0);
+      assert.match(dryRun.observeDigest, /^[a-f0-9]{64}$/);
+      assert.match(dryRun.proposalManifestDigest, /^[a-f0-9]{64}$/);
+      assert.match(dryRun.manifestDigest, /^[a-f0-9]{64}$/);
+      assert.equal(snapshotDir(root, '.lattice'), beforeDryRun, 'candidate ingest dry-run must not write');
+
+      const cliDryRun = runCliJson<any>(root, [
+        'playbook_candidate_ingest',
+        '--storyId',
+        DONE_STORY_ID,
+        '--json',
+      ]);
+      assert.equal(cliDryRun.dryRun, true);
+      assert.equal(cliDryRun.sourceFilter, 'done-experience');
+      assert.equal(readPlaybooks(root).length, 0);
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0);
+      assert.equal(readPlaybookAutoActivationEvents(root).length, 0);
+
+      const applied = parseJson<any>(handlers.playbook_candidate_ingest({
+        storyId: DONE_STORY_ID,
+        apply: true,
+        json: true,
+      }));
+      assert.equal(applied.applied, true);
+      assert.equal(applied.proposedCount, 1);
+      assert.equal(applied.candidateCreatedCount, 1);
+      assert.equal(applied.candidatePlaybookIds.length, 1);
+      const playbooks = readPlaybooks(root);
+      assert.equal(playbooks.length, 1);
+      assert.equal(playbooks[0].status, 'candidate', 'candidate ingest never activates');
+      assert.notEqual(playbooks[0].id, 'PBP-777', 'unrelated pre-existing proposal was not approved');
+      assert.ok(readProposal(root, 'PBP-777'), 'unrelated pre-existing proposal remains staged');
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'candidate ingest writes no outcome rows');
+      assert.equal(readPlaybookAutoActivationEvents(root).length, 0, 'candidate ingest writes no auto-activation rows');
+
+      const repeated = parseJson<any>(handlers.playbook_candidate_ingest({
+        storyId: DONE_STORY_ID,
+        apply: true,
+        json: true,
+      }));
+      assert.equal(repeated.proposedCount, 0);
+      assert.equal(repeated.candidateCreatedCount, 0);
+      assert.equal(readPlaybooks(root).length, 1, 'second ingest does not duplicate candidates');
+      assert.ok(readProposal(root, 'PBP-777'), 'idempotent rerun still does not consume unrelated proposals');
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0);
+      assert.equal(readPlaybookAutoActivationEvents(root).length, 0);
+    });
+
+    check('B-a4f7 post-DONE settlement hook ingests candidates best-effort with opt-out', () => {
+      const root = mkProject('ba4f7-done-hook-');
+      roots.push(root);
+      const { store } = mkCtx(root);
+      seedDoneExperienceStory(store, DONE_STORY_ID);
+
+      const recorded = withEnv({
+        PLAYBOOK_DONE_SETTLEMENT_ENABLED: undefined,
+        PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: undefined,
+      }, () => runPostDoneLearningSettlement(root, DONE_STORY_ID));
+      assert.equal(recorded.settlementStatus, 'recorded');
+      assert.equal(recorded.candidateIngestStatus, 'applied');
+      assert.equal(recorded.candidateIngestCandidateCreatedCount, 1);
+      assert.match(recorded.candidateIngestObserveDigest ?? '', /^[a-f0-9]{64}$/);
+      assert.match(recorded.candidateIngestProposalManifestDigest ?? '', /^[a-f0-9]{64}$/);
+      assert.match(recorded.candidateIngestManifestDigest ?? '', /^[a-f0-9]{64}$/);
+      assert.equal(readPlaybooks(root).length, 1);
+      assert.equal(readPlaybooks(root)[0].status, 'candidate');
+      assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'DONE hook writes no outcome rows');
+      assert.equal(readPlaybookAutoActivationEvents(root).length, 0, 'DONE hook writes no auto-activation rows');
+      assert.ok(readPlaybookPromotionHealthEvents(root).events.some((row) =>
+        row.storyId === DONE_STORY_ID
+        && /DONE candidate ingest applied/.test(row.message)
+        && row.gateEvidence === false));
+
+      const repeated = withEnv({
+        PLAYBOOK_DONE_SETTLEMENT_ENABLED: '1',
+        PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: '1',
+      }, () => runPostDoneLearningSettlement(root, DONE_STORY_ID));
+      assert.equal(repeated.settlementStatus, 'recorded');
+      assert.equal(repeated.candidateIngestStatus, 'no_candidates');
+      assert.equal(repeated.candidateIngestCandidateCreatedCount, 0);
+      assert.equal(readPlaybooks(root).length, 1, 'DONE hook candidate ingest is idempotent');
+
+      const disabledRoot = mkProject('ba4f7-done-hook-disabled-');
+      roots.push(disabledRoot);
+      const { store: disabledStore } = mkCtx(disabledRoot);
+      seedDoneExperienceStory(disabledStore, DONE_STORY_ID);
+      const disabled = withEnv({
+        PLAYBOOK_DONE_SETTLEMENT_ENABLED: '1',
+        PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: 'off',
+      }, () => runPostDoneLearningSettlement(disabledRoot, DONE_STORY_ID));
+      assert.equal(disabled.settlementStatus, 'recorded');
+      assert.equal(disabled.candidateIngestStatus, 'disabled');
+      assert.equal(readPlaybooks(disabledRoot).length, 0, 'candidate opt-out prevents DONE candidate creation');
+      assert.equal(readPlaybookOutcomeEvents(disabledRoot).length, 0);
+      assert.equal(readPlaybookAutoActivationEvents(disabledRoot).length, 0);
     });
 
     check('B-c28f partial DONE artifacts do not crash done_experience observation', () => {
@@ -1285,6 +1449,7 @@ function run(): void {
         'playbook_seed_observe',
         'playbook_seed_propose_batch',
         'playbook_candidate_batch_approve',
+        'playbook_candidate_ingest',
         'playbook_runtime_consumption_verify',
         'playbook_auto_promotion_apply',
       ] as const;
@@ -1299,8 +1464,11 @@ function run(): void {
       assert.equal(READ_ONLY_COMMANDS.has('playbook_seed_observe'), true);
       assert.equal(READ_ONLY_COMMANDS.has('playbook_runtime_consumption_verify'), true);
       assert.equal(COMMAND_POLICIES.playbook_seed_propose_batch.ownershipClass, 'mainSharedMutating');
+      assert.equal(COMMAND_POLICIES.playbook_candidate_ingest.ownershipClass, 'mainSharedMutating');
+      assert.equal(READ_ONLY_COMMANDS.has('playbook_candidate_ingest'), false);
       assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_seed_observe')?.level, 'L0');
       assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_candidate_batch_approve')?.level, 'L2');
+      assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_candidate_ingest')?.level, 'L2');
     });
   } finally {
     if (priorGlobal === undefined) delete process.env.LATTICE_GLOBAL_MEMORY_DIR;

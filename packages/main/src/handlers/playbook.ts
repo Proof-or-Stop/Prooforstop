@@ -84,11 +84,13 @@ import {
 } from '../core/source-lineage-audit.js';
 import {
   buildPlaybookAutoPromotionApplyReport,
+  buildPlaybookCandidateIngestReport,
   buildPlaybookCandidateBatchManifest,
   buildPlaybookRuntimeConsumptionVerifyReport,
   buildPlaybookSeedObservation,
   buildPlaybookSeedProposalBatch,
   renderPlaybookAutoPromotionApply,
+  renderPlaybookCandidateIngest,
   renderPlaybookCandidateBatchManifest,
   renderPlaybookRuntimeConsumptionVerify,
   renderPlaybookSeedObservation,
@@ -425,6 +427,15 @@ type PlaybookCandidateBatchApproveArgs = {
   apply?: boolean;
   limit?: number;
   manifestDigest?: string;
+  json?: boolean;
+};
+
+type PlaybookCandidateIngestArgs = {
+  source?: string;
+  storyId?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
   json?: boolean;
 };
 
@@ -1063,6 +1074,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const latest = latestDecisions(decisionRows.decisions, limit);
       const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
       const settlementFlag = settlementEnvFlag('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+      const doneCandidateIngestFlag = settlementEnvFlag('PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED');
       const seedObservation = buildPlaybookSeedObservation({ projectRoot: ctx.root, store: ctx.store });
       const runtimeConsumption = buildPlaybookRuntimeConsumptionVerifyReport({ projectRoot: ctx.root });
       const autoPromotion = buildPlaybookAutoPromotionApplyReport({ projectRoot: ctx.root, store: ctx.store });
@@ -1103,6 +1115,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         featureFlags: {
           PLAYBOOK_PROMOTION_SWEEP_ENABLED: sweepFlag,
           PLAYBOOK_DONE_SETTLEMENT_ENABLED: settlementFlag,
+          PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: doneCandidateIngestFlag,
         },
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
@@ -1125,6 +1138,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         'gateEvidence: false',
         `featureFlags.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${sweepFlag.enabled} (${sweepFlag.raw || 'unset'})`,
         `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'}, ${settlementFlag.defaultPolicy}${settlementFlag.explicitOptOut ? ', explicit-opt-out' : ''})`,
+        `featureFlags.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: ${doneCandidateIngestFlag.enabled} (${doneCandidateIngestFlag.raw || 'unset'}, ${doneCandidateIngestFlag.defaultPolicy}${doneCandidateIngestFlag.explicitOptOut ? ', explicit-opt-out' : ''})`,
         `pendingLearning: ${pendingLearning.length}`,
         ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
         `activeNegativeSignals: ${activeNegativeSignals.length}`,
@@ -1203,6 +1217,28 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       }), args.json);
       if (!apply) return run();
       return withPlaybookWriteLock(ctx, 'playbook_candidate_batch_approve', run);
+    },
+
+    /**
+     * Default dry-run ingestion from DONE experience into inert candidates.
+     * Apply composes observe -> propose(apply) -> approve(apply), scoped to
+     * only the proposals staged by this run.
+     */
+    playbook_candidate_ingest(args: PlaybookCandidateIngestArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_candidate_ingest: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookCandidateIngest(buildPlaybookCandidateIngestReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        source: args.source,
+        storyId: args.storyId,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-candidate-ingest', () =>
+        withPlaybookWriteLock(ctx, 'playbook_candidate_ingest', run));
     },
 
     /**

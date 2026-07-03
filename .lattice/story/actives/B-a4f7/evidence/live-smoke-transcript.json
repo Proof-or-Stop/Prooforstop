@@ -1,0 +1,21 @@
+{
+  "storyId": "B-a4f7",
+  "expected": "A single command can convert eligible DONE/story seeds into candidate playbooks and report created/skipped/blocked counts.",
+  "actual": {
+    "command": "node packages/main/dist/cli.js playbook_candidate_ingest --json",
+    "exitCode": 0,
+    "stdout": "{\n  \"schemaVersion\": \"proofbound.playbook-candidate-ingest.v1\",\n  \"dryRun\": true,\n  \"applied\": false,\n  \"sourceFilter\": \"done-experience\",\n  \"limit\": 5,\n  \"observeDigest\": \"301042cbce6da729dfe00a943c78a12cf056c2e67bc29adc6776157bf6cd4069\",\n  \"proposalManifestDigest\": \"18ebe9faf09133d3c636c4a7cce28bd0bf6db9749cd6852219c23d5ec6a4a6f7\",\n  \"manifestDigest\": \"3097ebe29261457a7d2e259189444f0fffff6b33c7a19ed74f58d40d2568fc34\",\n  \"proposedCount\": 5,\n  \"candidateCreatedCount\": 0,\n  \"candidatePlaybookIds\": [\n    \"PBP-001\",\n    \"PBP-002\",\n    \"PBP-003\",\n    \"PBP-004\",\n    \"PBP-005\"\n  ],\n  \"skippedCount\": 120,\n  \"blockedCount\": 0,\n  \"skippedSeedCount\": 120,\n  \"blockedSeedCount\": 0,\n  \"invalidProposalCount\": 0,\n  \"authority\": \"non_authoritative\",\n  \"gateEvidence\": false\n}\n",
+    "stderr": "[0.0s] running playbook_candidate_ingest...\n[1.1s] playbook_candidate_ingest done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-03T10:53:56.415Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "cb8e8c2523b2162c9eca66fde32ddada5d3856af",
+  "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab"
+}
