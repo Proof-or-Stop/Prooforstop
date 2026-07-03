@@ -10,7 +10,40 @@
       "userSees": "node experiments/experience-ablation/evidence-map-selfcheck.mjs prints per-case PASS lines ending evidence-map-selfcheck: all cases passed with exit 0",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/evidence-map.mjs",
+          "experiments/experience-ablation/evidence-map-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/evidence-map-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selfcheck: map covers all section-18 rows with existence+digest-checked artifacts, circularity disclosure + disallowed claims + verdict line present",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic double-run byte-identity; a missing cited artifact fails with one actionable line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Paper-table figures all carry unpowered/exploratory labels; the tool writes only under --out and never mutates cited artifacts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
