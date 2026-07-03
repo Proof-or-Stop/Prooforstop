@@ -56,6 +56,18 @@
           "materialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-03T17:55:52.056Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "git diff -- packages/main/src/tasks/playbook-seed-backfill-smoke.ts packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+          "result": "pass",
+          "note": "Diff is limited to @changes metadata in the two scoped B-5f5b smoke files; task and checklist identities remain unchanged.",
+          "headHash": "97dfeaf9fa439148e561832dc287ea6adb643acb",
+          "materialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-03T17:55:52.969Z"
         }
       ]
     }
