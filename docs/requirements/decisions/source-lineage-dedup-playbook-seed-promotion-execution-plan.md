@@ -352,8 +352,9 @@ V1 behavior:
 - It may recommend activation, reject, archive, recommend demotion, or mark a
   source as `non_promotable`.
 
-V2 controlled advisory auto-promotion is implemented by B-7ee1 as an
-evidence-activated apply surface, not as a default-off placeholder guard:
+V2 controlled advisory auto-promotion is implemented as an evidence-activated
+apply surface, not as a default-off placeholder guard. B-6703 makes the single
+apply command self-contained for already-qualified candidates:
 
 ```bash
 lattice playbook_auto_promotion_apply --dryRun
@@ -363,8 +364,10 @@ lattice playbook_auto_promotion_apply --apply
 Allowed only when:
 
 - the reviewed evidence activation policy is present;
-- an applied `recommend_activate` decision matches the current aggregate and
-  candidate digest;
+- a deterministic `recommend_activate` decision matches the current aggregate
+  and candidate digest, either because promotion sweep already wrote it or
+  because `playbook_auto_promotion_apply --apply` appends it idempotently during
+  the same guarded apply path;
 - the candidate has explicit exposure records;
 - decisive samples meet the configured threshold;
 - helped / dismissed / harmful counts meet evaluator thresholds;
@@ -378,9 +381,11 @@ Execution phase boundary:
 
 - Promotion sweep still stops at recommendation rows and runtime-consumption
   verification. Evidence activation is a separate apply command that consumes
-  those rows after the candidate evidence passes.
+  or writes digest-bound recommendation evidence after the candidate evidence
+  passes.
 - Evidence activation must fail closed until V1 has real outcome records and a
-  reviewed threshold policy.
+  reviewed threshold policy. DONE success alone is not a helped outcome and
+  cannot create active guidance.
 - `candidate -> active` writes are allowed only through the guarded apply path
   with those inputs; blanket default-on activation remains disallowed.
 
@@ -508,8 +513,11 @@ Make the mechanism reusable outside this repository.
 
 Enable advisory activation only through `playbook_auto_promotion_apply` after
 V1 has real outcome records, a reviewed threshold policy, current candidate
-digest, applied `recommend_activate` decision, explicit exposure/outcome
-evidence, clean lineage, and rollback readiness.
+digest, deterministic `recommend_activate` evidence, explicit exposure/outcome
+evidence, clean lineage, and rollback readiness. The apply path may append the
+missing matching recommendation row itself, but it may not activate from
+historical seed presence, DONE success, neutral/unknown outcomes, or
+`done-settlement` verdict sources.
 
 ## 12. Acceptance Criteria
 
@@ -564,7 +572,9 @@ This plan adds that missing audit layer.
 - `playbook_auto_promotion_apply` is separate from promotion sweep; it is
   evidence-activated, non-authoritative, non-gate, and can only activate
   advisory playbooks that satisfy the reviewed policy and current digest-bound
-  evidence contract.
+  evidence contract. It may write the missing digest-bound recommendation row
+  for an otherwise eligible candidate, but dry-run remains read-only and stale
+  recommendation/candidate digests fail closed.
 - DONE settlement remains non-blocking and cannot infer helped from DONE
   success.
 
