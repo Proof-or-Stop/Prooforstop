@@ -16,7 +16,7 @@
     "packages/main/src/cli-engine.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/command-policy.ts",
-    ".lattice/validate.json"
+    "lattice.config.json"
   ],
   "allowedCreate": [
     "packages/main/src/core/experiment-arm.ts",
@@ -35,8 +35,8 @@
     "packages/main/src/core/learning-store.ts",
     "packages/main/src/core/hint-mode.ts"
   ],
-  "scopeChangeReason": "CHK-002 implementer discovered an eighth pack-summary surface: core/lattice-handoff.ts line ~1540 prints memoryPackDigest/topHitIds lines in handoff_worktree_create text output, bypassing the shared render gate. Hiding pack summary lines on the control arm is required by the M3 exit criterion (control hides pack), so the file joins allowedModify.",
+  "scopeChangeReason": "validate.commands lives in lattice.config.json in this repo, not .lattice/validate.json as plan.md assumed; swap the allowed path to match reality (CHK-005 smoke registration).",
   "acknowledgements": [],
   "createdAt": "2026-07-02T22:59:36.578Z",
-  "updatedAt": "2026-07-02T23:29:48.167Z"
+  "updatedAt": "2026-07-03T00:00:12.369Z"
 }
