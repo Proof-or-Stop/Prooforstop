@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T00:00:43.132Z",
       "reviewRunId": "B-ab8d:RR-002",
       "_hash": "628d74c5cc303497e25cd3ea11138576b10de0361ca77484c66417122d960e26"
+    },
+    {
+      "id": "B-ab8d:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 re-review of F-001 fix (commit 055fc5678). Root cause confirmed: renderOptionalMemoryLines fires when EITHER memoryFreshnessPack OR runtimeHostPolicy is present; the fix strips both from the render projection on control arm, while the JSON path retains both for lossless measurement. Smoke case (j) drives real handoff_create -> handoff_resume across no-env/treatment/control arms, asserting: (1) control text omits all five markers (header, packDigest, topHitIds, hostPolicy, memoryCompletionProof); (2) control text equals baseline minus exactly the advisory section; (3) treatment text byte-identical to no-env; (4) control JSON retains memoryFreshnessPack and runtimeHostPolicy. All 24/24 checks pass. No new userSees mismatches, no new boundary issues, no doc-promise-undelivered items. R1 finding F-001 is resolved.",
+      "createdAt": "2026-07-03T00:36:51.844Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-008",
+      "_hash": "42a13d49bad150a96fa0d708d36af6584944a07c3ea08416ebac043ce7093d4f"
     }
   ]
 }
