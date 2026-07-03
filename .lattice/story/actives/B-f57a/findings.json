@@ -75,6 +75,25 @@
       ],
       "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-005",
+      "desc": "handlers/cross-host-review.ts line 287: jointDecision is called without the optional JointMaterialBinding parameter, leaving the materialHash-divergence guard in core/cross-host-review.ts unused in production; the leaf already fails closed on mismatch so this is defense-in-depth only, but the handler never passes hostAMaterialHash+hostBMaterialHash even though both are available (materialDigest and hostBVerdict.materialHash), and the feature is smoke-tested only at the direct pure-function level (CHK-002:adversarial:0), not through the handler",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T02:23:39.484Z",
+      "reviewRound": "2026-07-03T02:19:40.977Z",
+      "reviewRunId": "B-f57a:RR-002",
+      "_hash": "ba4a6eb6a2ea5e758d59cbc418871c709324c1dd14185db7ae59a9412b6d1208",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/core/cross-host-review.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-cross-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
