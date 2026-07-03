@@ -1,0 +1,28 @@
+{
+  "task": "Deliver the M6 controlled seeded pilot: commit a campaign runner and a mechanical leakage audit, freeze the pilot protocol, execute both arms over the generated trap corpus with real hosts in isolated store roots (>=5 fixtures per trap group both arms, >=15 control-arm fault runs), prove scorer replay agreement and zero isolation breaches, and freeze the powered N from the control-arm baseline via pilotFreezeCheck.",
+  "outcome": "Terminal shows: leakage-audit: all fixtures clean (N fixtures); pilot summary with cells completed, control-arm fault runs >= 15, voided records 0, replay re-score digest match; and the freeze output printing baseline p, Wilson CI [lo,hi] with width <= 0.30, N-maximizing baseline p*, frozen powered N per arm — with n-freeze.json written under .lattice/experiments/experience-ablation/.",
+  "facts": [
+    "All consumed tools are committed and self-checked on main: fixture-generator.mjs (nine classes, reference payloads, manifest), trap-templates.mjs (LEAKAGE_STRIP_LIST export + classify oracle), protocol.mjs (freeze/validate/hash), pair-ledger.mjs, score.mjs + RUN-RECORD.md (binding run-dir contract incl. error catalog), sample-size.mjs pilotFreezeCheck (N-maximizing rule)",
+    "M3 env context (LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM) gates pack rendering and blocks 28 memory retrieval commands on control with retrieval_violation events (smoke 24/24 on main)",
+    "resolveLearningRoot canonicalizes git worktrees to the shared main-repo .lattice/learning store, so run isolation requires fresh non-git mkdtemp roots (plan section 12); score.mjs voids records whose storeRoot resolves to the production store",
+    "The proven campaign-resume pattern (identity-keyed cells, append-only jsonl, session-guard/watchdog) lives as gitignored scratch under experiments/recovery-runner/powered/ and must be adapted, not generalized",
+    "Plan section 7: pilot needs >=15 control-arm fault-task runs; freeze rule uses the Wilson 95% CI with the N-maximizing baseline (p* = 0.5 + mde/2 clamped); CI wider than 0.30 extends the pilot",
+    "Canonical hosts are Claude Code CLI and Codex CLI (agy fallback only)"
+  ],
+  "constraints": [
+    "Experiment runs must never write the production .lattice/learning store; zero voided records is an exit criterion",
+    "Fixture trees must stay byte-identical between arms; only the env context differs (plan section 4)",
+    "Committed tools from M1/M3/M4 are read-only for this story; recovery-runner scratch is read-only",
+    "Score records and analysis artifacts live under .lattice/experiments/experience-ablation/ (plan section 12 layout)",
+    "Pilot host runs draw the shared token budget: keep pilot scale bounded (roughly 45-90 fixture arm-runs plus extra control fault runs to reach 15+)",
+    "English-only artifacts"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/experience-ablation/run-pilot.mjs",
+    "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+    "experiments/experience-ablation/leakage-audit.mjs",
+    ".lattice/experiments/experience-ablation/"
+  ],
+  "timestamp": "2026-07-03T01:45:48.151Z"
+}

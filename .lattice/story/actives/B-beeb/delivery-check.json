@@ -1,0 +1,82 @@
+{
+  "storyId": "B-beeb",
+  "checkedAt": "2026-07-03T05:04:02.962Z",
+  "headHash": "ba634722eff9d2e79a5ae5bd58f4a8ba8522b23e",
+  "materialHash": "4abee7d8a14f01036333fae48f7e913cb1de32ff75cddcc4891b1f59fe5e141b",
+  "storyFilesHash": "cdd681abff67e254677db96178e530cad864b293ae6273f3d0806022a95b69c8",
+  "reviewRound": "2026-07-03T04:49:40.181Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M6-exit-criteria-campaign-runner-committed",
+      "promise": "M6 exit criterion: campaign runner committed (run-pilot.mjs and run-pilot-selfcheck.mjs added to experiments/experience-ablation/)",
+      "verifiedBy": "diff/file-existence",
+      "evidence": "git diff main...HEAD shows experiments/experience-ablation/run-pilot.mjs (+755 lines) and run-pilot-selfcheck.mjs (+455 lines) as new files; both confirmed present in worktree at experiments/experience-ablation/"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M6-exit-criteria-fixture-leakage-audit-passes",
+      "promise": "M6 exit criterion: fixture-leakage audit passes (leakage-audit.mjs committed; leakage-audit.jsonl 45 rows all pass:true)",
+      "verifiedBy": "diff/file-existence + evidence-file-read",
+      "evidence": "diff shows experiments/experience-ablation/leakage-audit.mjs (+261 lines) new file; .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/leakage-audit.jsonl: 45 rows, all pass=true verified; embedded --selftest: clean corpus 9-fixture pass, poison phase exit 1 naming fixture+marker"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M6-exit-criteria-no-store-isolation-breach",
+      "promise": "M6 exit criterion: no store-isolation breach (store isolation asserted per run; zero voided records)",
+      "verifiedBy": "evidence-file-read + code-inspection",
+      "evidence": "score-records.jsonl: 90 records, 0 voided; run-pilot.mjs contains observability_snapshot --json isolation probe and mkdtemp non-git root enforcement; run-pilot-selfcheck.mjs case (5) asserts git-nested scratchDir aborts before host execution"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M6-exit-criteria-scorer-agreement-on-replay",
+      "promise": "M6 exit criterion: scorer agreement on replay (re-scoring every archived run dir a second time is byte-identical)",
+      "verifiedBy": "evidence-in-checklist-and-n-freeze",
+      "evidence": "CHK-003 verificationEvidence edge item: replayByteIdentical=true; scoreDigest 8cea19029c633dbd identical across two full re-scoring passes of all 90 runs; also in n-freeze.json pilotInputs.replayByteIdentical=true and scoreRecordsDigestPrefix=8cea19029c633dbd"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M6-exit-criteria-control-arm-fault-baseline-estimated-from-gte15-runs",
+      "promise": "M6 exit criterion: control-arm fault baseline estimated from >=15 control-arm fault-task runs; pilotFreezeCheck executed; result recorded in n-freeze.json",
+      "verifiedBy": "evidence-file-read + independent-recomputation",
+      "evidence": "n-freeze.json: controlInStoreFaultRuns=30 (>=15), defects=1, phat=0.0333, Wilson CI [0.005909, 0.16670] width 0.1608 (<=0.30); freezeVerdict=refused (freeze_baseline_too_low). Plan section 7 out-of-band path per CHK-004 context. Wilson CI independently recomputed: lower=0.005908, upper=0.166708, width=0.160799 -- matches."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#7-pilot-freeze-rule-out-of-band-path",
+      "promise": "Per plan section 7: if pilot baseline falls outside planning band [0.5, 0.8], recompute and document instead of silently proceeding; powered N frozen or freeze refused honestly",
+      "verifiedBy": "evidence-file-read",
+      "evidence": "n-freeze.json freezeVerdict=refused; planningBand [0.5, 0.8] recorded; outOfBandFinding documents M7 consequence; freezeAttempts embed exact pilotFreezeCheck outputs (ok:false, freeze_baseline_too_low); no hand-derived numbers; attestedAt=2026-07-03T04:05:00Z"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#14-verification-matrix-snapshot-and-experience-delivery",
+      "promise": "M6 CHK-005: snapshot-builder.mjs committed; frozen memory snapshot materialized byte-identically on both arms; experience-delivery prelude prepends pack section to treatment prompt only; disjointness asserted",
+      "verifiedBy": "diff/file-existence + code-inspection",
+      "evidence": "diff shows experiments/experience-ablation/snapshot-builder.mjs (+338 lines) with assertSnapshotDisjoint() export; run-pilot.mjs diff shows frozen-snapshot materialization and post-run hash re-verification; run-pilot-selfcheck.mjs cases (6)-(10) all PASS: snapshot byte-identical both arms, treatment prompt has Memory Runtime Preflight section, control prompt byte-identical, experience_pack_surfaced on both arms, tampered-snapshot abort before execution, builder re-emit identical sha256"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "run-pilot-selfcheck.mjs: hermetic stub host, zero tokens. Cases: (1) --plan dry-run prints cell table exit 0; (2) leakage-audit precondition: missing audit refuses, pass:false row refuses naming fixture; (3) full cycle one cell --smoke: run.json all RUN-RECORD required fields, score.mjs accepts not voided; (4) resume: second invocation skips terminal cell, third skips all; (5) isolation: git-nested scratchDir aborts before host execution, no run.json. 24/24 PASS, rerun stable exit 0 twice. Manual transcript: --plan on demo corpus prints cell table exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "leakage-audit.mjs --selftest: hermetic. (1) Clean phase: 9 fixtures audited: exit 0, 9 PASS lines, leakage-audit: all fixtures clean (9 fixtures), jsonl all pass=true sorted. (2) Poison phase: strip-list marker injected into workspace/config.json: exit 1, LEAK line names fixture+marker+file, jsonl row pass=false. hiddenArtifactsOutsideWorkspace and promptOmitsTrapClass checks verified."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Full pilot expabl-m6-pilot-v1: 90 cells, 1 skipped (terminal smoke), 89 executed, 0 pending. score-records.jsonl: 90 records, 0 voided. leakage-audit.jsonl: 45 rows all pass=true. Replay: replayByteIdentical=true, scoreDigest 8cea19029c633dbd identical across two full re-scoring passes. memoryPackShown: 0/45 control, 45/45 treatment. protocol.mjs validate PASS."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "pilotFreezeCheck: N=30 control fault runs, K=1, phat=0.0333, Wilson CI [0.0059, 0.1667] width 0.1608 (<=0.30). freezeVerdict=refused (freeze_baseline_too_low) across MDE band [0.25, 0.35]. n-freeze.json written with full schema and outOfBandFinding per plan section 7. Independent Wilson CI recomputation matches exactly."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "run-pilot-selfcheck.mjs extended: 39-40 PASS cases, run twice for determinism. Cases (6)-(10): snapshot byte-identical both arms; treatment prompt has Memory Runtime Preflight section covering all 6 in-store classes; control prompt byte-identical to fixture prompt.md; experience_pack_surfaced in both arms; tampered snapshot refuses before host execution; host-mutated store aborts cell after run, no run.json; disjointness assertion rejects held-out class content; builder re-emit identical sha256."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises verified in code and runtime evidence. 5 CHK items each have 3-path real machine tests via hermetic selftests (CHK-001/002/005) and full 90-cell pilot execution (CHK-003). CHK-004 N-freeze refusal is mechanically correct out-of-band outcome per plan section 7: freeze rule executed honestly, refusal verdict and inputs recorded in n-freeze.json, no silent bypass. No TODO/FIXME/HACK in the 4 committed experiment .mjs files."
+  },
+  "_hash": "a0e12ba0cadbeb1386cbfdb3d14817cb736ad4708ff4db00938f77b8a4f954fc"
+}

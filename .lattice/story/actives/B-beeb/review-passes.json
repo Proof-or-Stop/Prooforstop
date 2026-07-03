@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-beeb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 4 changed files: run-pilot.mjs, run-pilot-selfcheck.mjs, leakage-audit.mjs, snapshot-builder.mjs. No TypeScript/as-any issues (plain .mjs). No I/O shell isolation violations. Empty catch blocks are all intentional and annotated (torn JSON lines, missing file stat). Fail-closed discipline is consistently implemented: isolation assertion, pre/post snapshot hash verification, leakage precondition, arm contract all abort with no run.json on violation. Error messages are actionable and specific. Determinism hazards: all content in buildSnapshotFiles() is static with fixed dates, no Date.now/randomness. No dead code except the two findings registered (unused mkdirSync import; hardcoded snapshotRelPaths list). No doc-promise-undelivered issues. Two low-severity findings registered: F-001 (dead mkdirSync import) and F-002 (hardcoded snapshot path list that could silently under-cover future snapshot additions).",
+      "createdAt": "2026-07-03T04:14:48.050Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-002",
+      "_hash": "4ff5558378dcbfb2c1b448fe0a3d2bc6ef24d90799105d6c0a0d5e22cb638210"
+    },
+    {
+      "id": "B-beeb:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Diff is purely additive: four new .mjs files (run-pilot.mjs, run-pilot-selfcheck.mjs, leakage-audit.mjs, snapshot-builder.mjs) plus story metadata changes (status fields only). No concept deletions or en-masse replacements found. Key checks: (1) All cross-file imports resolve to verified exports in fixture-generator.mjs, protocol.mjs, pair-ledger.mjs, trap-templates.mjs, score.mjs. (2) validateRunRecord mirrors RUN-RECORD.md required fields accurately (experimentId, arm, hostId, timeToDoneMs/startedAt+endedAt, commandCount, doneReached, validationPass, storeRoot). (3) MEMORY_PACK_SECTION_HEADER value consistent with pilot evidence. (4) execution plan reference to run-driver.mjs / live-engine.mjs is describing the precedent pattern, not a filename promise; decision.json confirms chosen approach is committed-runner-adapted-from-scratch-pattern with run-pilot.mjs. (5) No doc-promise-undelivered: all plan CHK-001/002/005 code files present; CHK-003/004 are operations producing gitignored artifacts. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T04:15:28.554Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-001",
+      "_hash": "23f3b2aa9c6d9c48d950d70719c085686fe9705ad91fb534ad3029f1fe49c997"
+    },
+    {
+      "id": "B-beeb:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 delta review. Fix commit 60f28346f correctly removes both dead imports (mkdirSync from node:fs and ANCHOR_STORY_ID from snapshot-builder.mjs); ANCHOR_STORY_ID has zero remaining uses in the module. snapshotRelPaths is now derived from Object.keys(buildSnapshotFiles()) with an explicit length>=3 non-empty guard check at line 327-328. run-pilot-selfcheck.mjs runs 40/40 PASS. No new quality issues in the single changed file.",
+      "createdAt": "2026-07-03T04:50:52.610Z",
+      "reviewRound": "2026-07-03T04:49:40.181Z",
+      "reviewRunId": "B-beeb:RR-005",
+      "_hash": "7300345569cb6895d462dcff6078bb45027caa39bf87e914b2b5002c60756316"
+    },
+    {
+      "id": "B-beeb:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review: delta is single file run-pilot-selfcheck.mjs. Fix commit 60f28346f removed (a) dead mkdirSync import from top-level import list (still legitimately used in generated stub-host string at lines 132/140), and (b) ANCHOR_STORY_ID import since case-6 snapshotRelPaths is now derived from buildSnapshotFiles() instead of hardcoded. ANCHOR_STORY_ID concept is NOT deleted: it remains defined and actively used in snapshot-builder.mjs lines 72/174/181/204. buildSnapshotFiles() returns 3 keys including story/actives/B-mem0/index.json (B-mem0 = ANCHOR_STORY_ID), confirming derived path list matches snapshot-builder export. Selfcheck 40/40 PASS confirmed by node run. No concept deletion or replacement; no residue; no doc-promise-undelivered findings.",
+      "createdAt": "2026-07-03T04:51:16.171Z",
+      "reviewRound": "2026-07-03T04:49:40.181Z",
+      "reviewRunId": "B-beeb:RR-004",
+      "_hash": "63f6562fbfa2acf4705427b4381d825d360d04b525a3667c9c4233e37f874bab"
+    },
+    {
+      "id": "B-beeb:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 15 verificationIntents covered by valid verificationEvidence. 12 must intents covered (CHK-001/002/003/004 each have 3 must lanes via manual_transcript and logic_test, all result=pass). CHK-005 3 should intents covered via verification_intent_repair with concrete descriptions. 0 must gaps. 0 waivers. Drift since evidence refresh is metadata-only; storyFilesHash consistent across all 15 evidence records. lattice validate: status=pass allPass=true covered=15 missingRequired=0.",
+      "createdAt": "2026-07-03T04:58:17.554Z",
+      "reviewRound": "2026-07-03T04:49:40.181Z",
+      "reviewRunId": "B-beeb:RR-008",
+      "_hash": "b354cd597553d84f166d195ca6524d4ddffbb9b585d5c2a8759e922de452f975"
+    }
+  ]
+}

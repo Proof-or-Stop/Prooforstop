@@ -1,0 +1,107 @@
+{
+  "findings": [
+    {
+      "id": "B-beeb:F-001",
+      "desc": "dead code: run-pilot-selfcheck.mjs:49 imports mkdirSync from node:fs but never calls it directly in the outer selfcheck module — it only appears inside a string literal (the generated stub host script at lines 132/140). The outer import is unused.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T04:14:18.459Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-002",
+      "_hash": "c62266055fcead3fa79449e52da9c0ff7367ae45e166de6d9cb646f46e231326",
+      "files": [
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|dead-code-pilot",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the dead mkdirSync import from run-pilot-selfcheck.mjs line 49 (commit 60f28346f); it only appeared inside the generated stub-host string literal, which keeps its own import. Also removed ANCHOR_STORY_ID from the snapshot-builder import since the F-002 fix made it dead too. Selfcheck reruns 40/40 PASS.",
+      "resolvedAt": "2026-07-03T04:48:51.323Z"
+    },
+    {
+      "id": "B-beeb:F-002",
+      "desc": "edge: run-pilot-selfcheck.mjs:324 hardcodes snapshotRelPaths as a 3-element list for the byte-identity check in case (6). This list is derived from buildSnapshotFiles() keys in snapshot-builder.mjs, but the selfcheck does not call buildSnapshotFiles() to get the authoritative file set. If snapshot-builder.mjs ever adds a new snapshot file, case (6) will silently under-check byte identity for the new file while the outer hash verification still works.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T04:14:25.143Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-002",
+      "_hash": "b4a33b6dc912da17fce8ccf01a1223172bc354d610ad44e05c697ec8f1d5555a",
+      "files": [
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+        "experiments/experience-ablation/snapshot-builder.mjs"
+      ],
+      "signatureTag": "edge|mjs|edge-pilot-selfcheck",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Case (6) snapshotRelPaths is now derived as Object.keys(buildSnapshotFiles()) instead of the hardcoded 3-path array (commit 60f28346f), so any future snapshot file added in snapshot-builder.mjs is automatically covered by the byte-identity check; added a guard check asserting the derived list is non-empty (>=3). Selfcheck now 40/40 PASS (39 prior + 1 new guard).",
+      "resolvedAt": "2026-07-03T04:48:51.737Z"
+    },
+    {
+      "id": "B-beeb:F-003",
+      "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 — all three must-priority intents are stale: verificationEvidence was recorded at materialHash dbde79... but run-pilot.mjs and run-pilot-selfcheck.mjs were materially modified by CHK-005 (commit 8c21903), advancing the materialHash to 5a9d21.... The current selfcheck runs 39/39 PASS (I ran it live), confirming the behavior is sound, but the framework gate requires fresh evidence bound to the current materialHash. Evidence must be refreshed via lattice verification_evidence_add or verification_evidence_refresh_stale.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:39:37.099Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-003",
+      "_hash": "a42cef1e73fa8c291617aa493abb259785f2487e8376971bc4aa254daf30c2cc",
+      "files": [
+        "experiments/experience-ablation/run-pilot.mjs",
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "After the F-001/F-002 fix commit 60f28346f, ran lattice verification_evidence_refresh_stale which refreshed 15/15 stale evidence items including all three CHK-001 lanes, re-binding them to the current head a513162 / materialHash 4abee7d8. lattice validate --story=B-beeb --json now reports verification coverage 15/15 covered, 0 required missing, with CHK-001:happy/edge/adversarial:0 all covered.",
+      "resolvedAt": "2026-07-03T04:49:04.628Z"
+    },
+    {
+      "id": "B-beeb:F-004",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0 — all three must-priority intents are stale: verificationEvidence was recorded at materialHash 9363f8... (before CHK-001 added run-pilot.mjs/run-pilot-selfcheck.mjs) but current materialHash is 5a9d21.... leakage-audit.mjs itself was NOT modified (git log confirms single commit aed48ef), so this is story-owned materialHash drift from new files added in CHK-001/005 rather than modification of the covered file. Behavior is substantively sound (I ran leakage-audit.mjs --selftest live: clean+poison phases both PASS, exit 0 and exit 1 as expected). Evidence must be refreshed to bind the current materialHash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:39:44.789Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-003",
+      "_hash": "19dd51e8ddb7c0840e7dfdbe2ee4c2a3aaf797e103d210d0c8bf778140fd15e5",
+      "files": [
+        "experiments/experience-ablation/leakage-audit.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same lattice verification_evidence_refresh_stale run refreshed all three CHK-002 lanes (leakage-audit.mjs --selftest manual transcripts, hash-only refresh since leakage-audit.mjs was not modified), re-binding them from the pre-CHK-001 materialHash 9363f8 to the current head a513162 / materialHash 4abee7d8. lattice validate --story=B-beeb --json reports 15/15 covered, 0 required missing, CHK-002:happy/edge/adversarial:0 all covered.",
+      "resolvedAt": "2026-07-03T04:49:05.061Z"
+    },
+    {
+      "id": "B-beeb:F-005",
+      "desc": "CHK-005 has no authored verificationIntent rows (happy/edge/adversarial) — the CLI reports these as legacy evidence without intent and explicitly states this is NOT a coverage pass. CHK-005 was added during DEV after intent freeze, so evidence was recorded with intentRefs CHK-005:happy:0/edge:0/adversarial:0 but no corresponding intent schema entries exist. The framework gate will not count these as coverage. lattice verification_intent_repair should be run to backfill the intent rows from the evidence, then the gate will recognize coverage. Substantively, the selfcheck covers all three behavioral dimensions: happy (snapshot materialized+hash verified, treatment/control prompt differentiation, case 6-8), edge (real CLI isolation probes, case CHK-005:edge evidence), adversarial (tamper abort before execution + post-run mutation abort + disjointness assertion, cases 9a/9b/10); 39/39 PASS verified live.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:39:55.645Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-003",
+      "_hash": "ec08f5c5c8e99a66ff601c4d155e9e99df3d22a16815e56e9306483eea919a78",
+      "files": [
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+        "experiments/experience-ablation/snapshot-builder.mjs"
+      ],
+      "signatureTag": "missing|mjs|authored-verificationintent-rows",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ran lattice verification_intent_repair mode=fromEvidence legacyRepair=true (dry-run inspected first) which reconstructed the 3 missing CHK-005 intent lanes from the passing evidence: CHK-005:happy:0 (logic), CHK-005:edge:0 (manual), CHK-005:adversarial:0 (logic), priority=should, metadata commit a513162. lattice validate --story=B-beeb --json now counts all three as covered: coverage 15/15, 0 required missing.",
+      "resolvedAt": "2026-07-03T04:49:05.478Z"
+    }
+  ]
+}

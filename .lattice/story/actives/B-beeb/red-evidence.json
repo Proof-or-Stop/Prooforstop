@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-beeb",
+  "records": [
+    {
+      "id": "RED-20260703013848",
+      "trigger": "M6 new capability: no committed pilot runner, no leakage audit, no pilot evidence, no frozen N exist today",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "9a63a7423ddd3345fdcbd9593245c7f9c65774fa",
+      "baselineMaterialHash": "6d60404a8cf9b9ce6c2d522ab99ee32e6e77f722946307e7573847981d0353bc",
+      "observedFailure": "ls experiments/experience-ablation/run-pilot.mjs experiments/experience-ablation/leakage-audit.mjs -> No such file or directory (both); ls .lattice/experiments/experience-ablation -> no experiment evidence roots with score-records.jsonl or n-freeze.json.",
+      "failingCommand": "node experiments/experience-ablation/run-pilot.mjs --plan # Cannot find module (ENOENT) before this story",
+      "expectedGreenCommand": "node experiments/experience-ablation/run-pilot.mjs --plan # prints the pilot cell table; and the freeze transcript writes n-freeze.json",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/run-pilot.mjs --plan # prints the pilot cell table; and the freeze transcript writes n-freeze.json"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-beeb before any M6 code exists.",
+      "createdAt": "2026-07-03T01:38:48.209Z"
+    }
+  ],
+  "createdAt": "2026-07-03T01:38:48.209Z",
+  "updatedAt": "2026-07-03T01:38:48.209Z"
+}

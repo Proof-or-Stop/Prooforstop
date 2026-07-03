@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-beeb",
+  "sourceText": "User (2026-07-02/03): execute the experience-layer ablation causal-validation plan milestone by milestone until all are DONE. This story is milestone M6 (plan section 13): Controlled seeded pilot — plumbing, isolation, and leakage validation + baseline-rate estimation. Exit criteria: No store-isolation breach; fixture-leakage audit passes; scorer agreement on replay; control-arm fault baseline estimated from >=15 control-arm fault-task runs and the powered N frozen at the N-maximizing baseline within its Wilson 95% CI (pilot extended if that CI is wider than 0.30 — the S7 freeze rule); campaign runner committed.",
+  "normalizedOutcome": "A committed campaign runner and leakage audit exist; the pilot ran both arms over the frozen protocol corpus with real hosts in isolated store roots; the terminal shows leakage-audit all fixtures clean, pilot summary with control-arm fault runs >= 15 / voided records 0 / replay digest match, and the freeze transcript with baseline p, Wilson CI within 0.30 width, N-maximizing p*, and the frozen powered N written to n-freeze.json.",
+  "acceptanceClaim": "The pilot evidence root under .lattice/experiments/experience-ablation/<experimentId>/ contains protocol.json (validated), score-records.jsonl (both arms, >=15 control fault runs, zero voided, replay byte-identical), leakage-audit.jsonl (all clean), and n-freeze.json whose frozen N equals sample-size.mjs pilotFreezeCheck output for the recorded baseline.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:9bbde3a560494e6d8a5fa32842bf7e908602e2f54f88675fb16e4255d5828f44",
+  "createdAt": "2026-07-03T01:38:46.549Z",
+  "updatedAt": "2026-07-03T01:38:46.549Z"
+}
