@@ -22,6 +22,7 @@ import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { isCommandAllowed } from '../core/config.js';
 import type { Playbook } from '../core/experience-layer-types.js';
 import type {
+  PlaybookPromotionTimerStepName,
   PlaybookPromotionTimerReport,
   PlaybookTrialRunReport,
 } from '../core/playbook-seed.js';
@@ -89,6 +90,28 @@ function runText(registry: Registry, name: string, args: Record<string, unknown>
   const handler = registry.get(name);
   assert.ok(handler, `registry includes ${name}`);
   return String(handler(args));
+}
+
+function requireTimerStep(
+  report: PlaybookPromotionTimerReport,
+  stepName: PlaybookPromotionTimerStepName,
+): PlaybookPromotionTimerReport['steps'][number] {
+  const step = report.steps.find((row) => row.step === stepName);
+  assert.ok(step, `timer report includes ${stepName} step`);
+  return step;
+}
+
+function assertUnrequestedStepDisabled(
+  report: PlaybookPromotionTimerReport,
+  stepName: Extract<PlaybookPromotionTimerStepName, 'backfill' | 'sweep'>,
+  expectedDryRun: boolean,
+): void {
+  const step = requireTimerStep(report, stepName);
+  assert.equal(step.requested, false, `${stepName} step is not requested`);
+  assert.equal(step.status, 'disabled', `${stepName} step reports disabled`);
+  assert.equal(step.applied, false, `${stepName} step does not apply`);
+  assert.equal(step.dryRun, expectedDryRun, `${stepName} step dry-run flag`);
+  assert.equal(step.message, `${stepName} step not requested`, `${stepName} disabled message`);
 }
 
 function story(): StoryInfo {
@@ -232,8 +255,10 @@ try {
     assert.equal(dryRun.dryRun, true);
     assert.equal(dryRun.bounded, true);
     assert.equal(dryRun.limits.trial, 2);
-    assert.equal(dryRun.steps.find((step) => step.step === 'trial')?.status, 'dry-run');
-    assert.equal(dryRun.steps.find((step) => step.step === 'activate')?.status, 'dry-run');
+    assertUnrequestedStepDisabled(dryRun, 'backfill', true);
+    assert.equal(requireTimerStep(dryRun, 'trial').status, 'dry-run');
+    assertUnrequestedStepDisabled(dryRun, 'sweep', true);
+    assert.equal(requireTimerStep(dryRun, 'activate').status, 'dry-run');
     assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'timer dry-run writes no outcomes');
 
     const applied = runJson<PlaybookPromotionTimerReport>(registry, 'playbook_promotion_timer', {
@@ -244,11 +269,13 @@ try {
       apply: true,
       json: true,
     });
-    const trialStep = applied.steps.find((step) => step.step === 'trial');
-    const activateStep = applied.steps.find((step) => step.step === 'activate');
-    assert.equal(trialStep?.status, 'applied');
-    assert.equal(activateStep?.status, 'blocked');
-    assert.match(activateStep?.message ?? '', /fail-closed|blocked=/);
+    assertUnrequestedStepDisabled(applied, 'backfill', false);
+    const trialStep = requireTimerStep(applied, 'trial');
+    assertUnrequestedStepDisabled(applied, 'sweep', false);
+    const activateStep = requireTimerStep(applied, 'activate');
+    assert.equal(trialStep.status, 'applied');
+    assert.equal(activateStep.status, 'blocked');
+    assert.match(activateStep.message, /fail-closed|blocked=/);
     assert.equal(readPlaybookOutcomeEvents(root).length, 2);
     assert.equal(readPlaybookTrialControlEvents(root).length, 2);
     assert.equal(readPlaybookOutcomeEvents(root).every((event) => event.outcome.verdict === 'unknown'), true);
