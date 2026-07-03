@@ -1,0 +1,154 @@
+{
+  "storyId": "B-f57a",
+  "checkedAt": "2026-07-03T01:47:51.629Z",
+  "features": [
+    {
+      "feature": "Auto-run Codex CLI as a read-only independent reviewer over the materialHash-bound change (stdin-pipe mechanism, bounded spawn, perl FORK+alarm)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Capture a structured, materialHash-bound verdict from Codex (parse JSON verdict block from stdout; record decision plus findings; do NOT promote raw stdout transcript into evidence)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Feed host-B verdict into the existing submitLocalVerdict path so it binds to the exact materialHash (reuse quorum-submit path)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Fail-closed: no parseable JSON, schema mismatch, or materialHash mismatch from Codex verdict yields blocked decision with structured reason",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Extend dispatch policy to permit a bounded Codex real-leaf for REVIEW only (new allowReviewOnlyRealHostSubprocess flag, not reusing allowRealHostSubprocess)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Combine host-A and host-B verdicts into a joint decision (pass iff both pass AND no disagreement; otherwise blocked)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Surface finding-level disagreements between host A and host B (finding raised by one host and not the other, diffFindings logic)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Register new cross_host_review command in CLI (MAIN_TOOLS schema plus registerBatch in registry.ts)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Update tier-c-crosshost-quorum-execution-plan.md M1 entry to reflect crypto-deferred reframe (signed-verdict/pinned-key crypto moved to future external-skeptic-only milestone)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Cryptographic signing of verdicts (Ed25519 signature bound into HostVerdict record; receipt-bundle.ts / authority-signing.ts)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred as external-skeptic-only; plan.md Out of scope section names receipt-bundle.ts and authority-signing.ts as untouched",
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Pinned hostId-to-publicKey manifest for key management (generation, pinning, rotation, revocation)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Crypto deferred; threat-model.md key management section is outside this story scope per plan.md Out of scope section",
+      "source": "decisions:tier-c-crosshost-quorum-threat-model.md"
+    },
+    {
+      "feature": "Upgrade summarizeVerdicts independence from label-distinct to signature-distinct (verify two different pinned keys)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Requires cryptographic signing which is deferred; this story delivers label-distinct independence only",
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Replay and stale-materialHash defense via materialHash freshness check in verdict binding",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:tier-c-crosshost-quorum-threat-model.md"
+    },
+    {
+      "feature": "Same-key masquerade defense (quorum requires two distinct pinned keys, not just two distinct hostId labels)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Requires cryptographic pinned-key infrastructure which is deferred; CHK-001 context note explicitly states No cryptographic signing",
+      "source": "decisions:tier-c-crosshost-quorum-threat-model.md"
+    },
+    {
+      "feature": "Paper wording boundary for M5 (allowed vs forbidden phrasings for cross-vendor independence claim)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M5 paper flip is a separate downstream story; this story does not touch main.tex",
+      "source": "decisions:tier-c-crosshost-quorum-threat-model.md"
+    },
+    {
+      "feature": "H4 pre-registration amendment for cross-host quorum hypothesis (quorum-formation rate plus CI)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M4 powered run is a separate story; explicitly out of scope in this crypto-deferred reframe",
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "M3 proof-of-mechanism live 2-host quorum run (full non-stub transcript, offline-verifiable bundle)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 is a separate downstream story; this story builds the mechanism only",
+      "source": "decisions:tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Signature-distinct independence predicate in the existing 3x2 quorum evaluator (keyId/sessionId checks per three-round-two-host plan)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:three-round-two-host-review-escalation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 9,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "850b50ab454d42629227eca4b2821cf2c30eabbcb2e3a1fe274af394a3a42149",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Milestone numbering conflict: tier-c-crosshost-quorum-execution-plan.md M1 is unambiguously titled 'Provenance: signed verdict + public-key pinning' with no reframe language. B-f57a plan.md describes itself as 'crypto-deferred M1' and CHK-002 includes updating the execution-plan M1 entry. Until CHK-002 lands, the existing execution-plan M1 spec still mandates cryptographic provenance. The question is: does the scope-reviewer treat the existing (pre-CHK-002) execution-plan text as the authoritative spec commitment, or does the story's plan.md override take precedence for scope purposes? If the former, the non-crypto collection work maps more precisely to M2 in the current spec, making M1 a label mismatch rather than a deferral. The INIT product-reviewer already flagged this as a low advisory.",
+      "evidence": "Execution-plan M1 text: 'make each verdict cryptographically bound to a distinct pinned host key ... bind the signature INTO the HostVerdict record ... Add the pinned hostId-to-publicKey manifest'. Story plan.md Overview: 'Cryptographic signing is explicitly OUT OF SCOPE (deferred as external-skeptic-only)'. INIT product-reviewer: 'Title says M1 but execution-plan M1 is signed-verdict+pinned-key provenance (which this story explicitly defers). The actual scope maps to M2 (cross-host collection) plus disagreement surfacing.'",
+      "sourcePointers": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md M1 section",
+        ".lattice/story/actives/B-f57a/plan.md Overview and Out of scope sections",
+        "story_get initCheck agentResults product-reviewer low advisory"
+      ]
+    }
+  ]
+}

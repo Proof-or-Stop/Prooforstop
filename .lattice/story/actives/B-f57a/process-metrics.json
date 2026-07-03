@@ -1,12 +1,12 @@
 {
   "storyId": "B-f57a",
-  "generatedAt": "2026-07-03T01:43:40.945Z",
+  "generatedAt": "2026-07-03T01:47:16.486Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 2,
-    "reviewRounds": 2,
+    "reviewRounds": 6,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -238,24 +238,25 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
-        "unit": "bool",
+        "value": "n/a",
+        "unit": "text",
         "confidence": "high",
         "sources": [
-          "findings.json"
-        ]
+          "checklist.json",
+          "index.json"
+        ],
+        "note": "express channel — main agent allowed to write code itself"
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
-          "unit": "bool",
-          "confidence": "low",
+          "value": "n/a",
+          "unit": "text",
+          "confidence": "high",
           "sources": [
-            "findings.json",
             "checklist.json",
             "index.json"
           ],
-          "note": "proxy: uses reviewer findings as signal, not git commit author data"
+          "note": "express channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
           "value": false,
@@ -266,15 +267,13 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
-          "confidence": "low",
+          "confidence": "high",
           "sources": [
-            "findings.json",
-            "checklist.json",
-            "index.json"
+            "checklist.json"
           ],
-          "note": "proxy: no reviewer findings may indicate missing review, not code violation"
+          "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
           "value": 1,
@@ -309,7 +308,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 2,
+          "value": 6,
           "unit": "count",
           "confidence": "medium",
           "sources": [
