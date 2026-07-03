@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f57a:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 17 verificationIntents (CHK-001:happy:0/1, CHK-001:edge:0/1/2/3, CHK-001:adversarial:0/1, CHK-002:happy:0/1, CHK-002:edge:0/1/2/3/4, CHK-002:adversarial:0/1) have valid logic_test verificationEvidence bound to the same headHash/materialHash. Each check exercises real code paths via an injected fake seam (CHK-001 leaf/handler cases) or direct pure-function calls (CHK-002 diff/joint cases); no hollow assertions detected. Fail-closed cases (edge:0-3) assert blocked+reason on unparseable/schema-invalid/wrong-materialHash/timeout. Adversarial cases assert raw-stdout exclusion and dispatch-policy refusal against real checkDispatchPolicy logic. All 17 checks verified passing against dist.",
+      "createdAt": "2026-07-03T02:23:43.295Z",
+      "reviewRound": "2026-07-03T02:19:40.977Z",
+      "reviewRunId": "B-f57a:RR-003",
+      "_hash": "3034a672b0abde4b2710487f1205e0040c6cf400a6335b658717ee7d416e20b4"
+    }
+  ]
+}
