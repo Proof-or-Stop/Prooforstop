@@ -4,11 +4,11 @@
   "title": "Experience-ablation M9: paper-ready claim-to-artifact evidence map with final inconclusive verdict",
   "description": "Milestone M9, the final milestone of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Build a committed evidence-map generator (experiments/experience-ablation/evidence-map.mjs + selfcheck) that emits the paper-ready artifact evidence-map.md + evidence-map.json under the experiment evidence root: (a) a claim-to-artifact table mapping every plan-section-18 definition-of-done row to its concrete artifact (protocol.json + protocolHash, memory-snapshot-hash.json, fixture manifest + pair ledger + sealed run-order seed, leakage-audit.jsonl, score-records.jsonl with replay digest, n-freeze.json refusal verdict, m7-decision.json, live-readout.{json,md}) with per-artifact existence and hash checks; (b) the no-overclaim summary including the circularity disclosure verbatim from plan sections 2/15; (c) the final study summary stating the causal verdict: INCONCLUSIVE — the design assumption (planning-band baseline 0.5-0.8) was invalidated by the pilot measurement (0.0333), the powered study was mechanically unsizable and skipped by explicit decision, and the in-store vs held-out contrast was never powered; (d) a paper-integration section per plan section 16 with the suggested table columns filled from pilot data marked exploratory/unpowered. Exit criteria (plan section 13 M9 row): the paper section can cite protocol, ledger, score records, leakage audit, and analysis report.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-07-03T09:49:43.423Z",
   "startedAt": "2026-07-03T09:49:43.423Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T10:36:36.739Z",
   "events": [
     {
       "phase": "INIT",
@@ -81,12 +81,16 @@
       "user": "Harmonygo",
       "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T10:36:36.739Z",
+      "branch": "story/B-fca1",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fca1",
-    "branch": "story/B-fca1",
-    "createdAt": "2026-07-03T09:52:06.152Z"
-  },
   "currentReviewRound": "2026-07-03T10:25:12.220Z"
 }
