@@ -50,7 +50,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "playbook_promotion_status explains settlement default posture and health rows clearly.",
+      "userSees": "\"settlementHealth\": { \"latest\": [{ \"storyId\": \"B-5e28\", \"settlementStatus\": \"recorded\", \"gateEvidence\": false }] }",
       "files": {
         "modify": [
           "packages/main/src/handlers/playbook.ts",
