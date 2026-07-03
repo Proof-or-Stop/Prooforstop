@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T01:13:13.004Z",
       "reviewRunId": "B-d217:RR-006",
       "_hash": "93decd35b32c4d48acc2d4d55a53b154729bd3c414343b604d5ada91d9ba5e69"
+    },
+    {
+      "id": "B-d217:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check of fix commit 2ee5f3e2 (F-001..F-004). Delta scope: score.mjs + score-selfcheck.mjs. No concept deletion or en-masse replacement found. F-001: deleted local variable runJsonPath (dead existsSync guard) is purely local; the identically-named function in lattice-autopilot.ts is unrelated. F-002: old simple temp-root bytes check replaced with realpath-robust tempRootForms scan; no named concept removed. F-003: two new error-catalog selfcheck cases added; assertions match RUN-RECORD.md catalog verbatim (exact string match confirmed); RUN-RECORD.md itself untouched. F-004: falseDoneAttempt structured precedence concepts (done-readiness, final-response-check, structured-none-fired, oracle-fallback, decidedBy) consistently used across score.mjs + score-selfcheck.mjs + RUN-RECORD.md with zero orphaned references. No stale references, no incomplete concept cleanup, no doc-promise-undelivered items found in the delta. Zero findings registered.",
+      "createdAt": "2026-07-03T01:15:45.701Z",
+      "reviewRound": "2026-07-03T01:13:13.004Z",
+      "reviewRunId": "B-d217:RR-004",
+      "_hash": "f900641e41aa2bf8b3ceb7be68ddfd25e3e2b731b1c03234ce7745f650952af7"
     }
   ]
 }
