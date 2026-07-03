@@ -709,8 +709,11 @@ readiness. It remains non-authoritative and never writes gate evidence.
 
 Fail-closed rules:
 
-- absent flag means disabled;
-- malformed flag means disabled;
+- promotion sweep apply remains disabled unless
+  `PLAYBOOK_PROMOTION_SWEEP_ENABLED` is explicitly true-like;
+- DONE settlement is default-on when
+  `PLAYBOOK_DONE_SETTLEMENT_ENABLED` is absent or malformed, and is disabled
+  only by explicit opt-out values (`false`, `0`, `no`, or `off`);
 - dry-run remains available when apply is disabled;
 - blocking policy promotion is never controlled by these flags because it is out
   of scope.

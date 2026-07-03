@@ -407,7 +407,9 @@ Rollout criteria before historical backfill or stronger automation:
    not the only learning output.
 5. Documentation states that settlement does not prove usefulness.
 
-Until then, the flag may be used in experimental local runs only.
+Until those criteria are satisfied, default-on settlement remains limited to a
+learning health row. It must not trigger historical backfill, candidate
+approval, active playbook activation, or stronger automation by itself.
 
 ## 11. Milestones
 
