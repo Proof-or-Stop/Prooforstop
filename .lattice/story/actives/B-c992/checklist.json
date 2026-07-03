@@ -53,6 +53,18 @@
           "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
           "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
           "timestamp": "2026-07-03T14:59:27.007Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "command": "shasum -a 256 docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "result": "pass",
+          "note": "Transcript after authoring+committing the rev 3 doc: shasum -a 256 output = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471, byte-identical to the digest recorded in the M9 evidence map (evidence-map.mjs PLAN_DOC_RELPATH) and quoted in rev 3 section 1. The rev 2 file is untouched; commit 9fa9d239d touches only the one new file (git show --stat: 1 file changed, 724 insertions, create mode).",
+          "headHash": "056d3e7f8588ee7a6260290342d2084b047bfce1",
+          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
+          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
+          "timestamp": "2026-07-03T14:59:43.409Z"
         }
       ]
     },
