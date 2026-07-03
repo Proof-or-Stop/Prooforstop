@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-fca1:F-001",
+      "desc": "edge: evidence-map.mjs:293 storeRoot isolation check uses startsWith(productionStore) without trailing path separator — a storeRoot of <root>/.lattice/learning-extra/... would be incorrectly flagged as a production-store violation because the string starts with <root>/.lattice/learning; should use startsWith(productionStore + path.sep) or startsWith(productionStore + \"/\")",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T10:16:45.703Z",
+      "reviewRound": "2026-07-03T10:13:57.436Z",
+      "reviewRunId": "B-fca1:RR-002",
+      "_hash": "095fbc637edc7c8e276eea0544a118a8e38f3ce25e261fd2be6b6d93b3ba7d02",
+      "files": [
+        "experiments/experience-ablation/evidence-map.mjs"
+      ],
+      "signatureTag": "edge|mjs|edge-evidence-storeroot",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

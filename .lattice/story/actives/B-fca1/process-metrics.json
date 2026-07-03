@@ -1,13 +1,13 @@
 {
   "storyId": "B-fca1",
-  "generatedAt": "2026-07-03T09:52:43.881Z",
+  "generatedAt": "2026-07-03T10:16:45.705Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
     "hasPlan": false,
     "checklistItems": 2,
     "reviewRounds": 1,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -260,7 +260,7 @@
           "note": "express channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
