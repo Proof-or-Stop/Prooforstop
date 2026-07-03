@@ -1,0 +1,38 @@
+{
+  "storyId": "B-6703",
+  "checkedAt": "2026-07-03T02:57:59.622Z",
+  "features": [
+    {
+      "feature": "self-contained evidence activation for explicit playbook outcomes",
+      "covered_by": "CHK-001 requires lattice playbook_auto_promotion_apply --apply --json to activate eligible candidates after explicit helped candidate-inspection outcomes without requiring PLAYBOOK_PROMOTION_SWEEP_ENABLED. Plan CHK-001 DoneWhen covers dry-run read-only behavior, fail-closed blockers for missing outcomes, exposureMode=none, verdictSource=done-settlement, stale digest, duplicate lineage, harmful outcomes, wrong-claim signals, and deterministic digest-bound idempotency. Linked docs require explicit exposure/outcome evidence, current digest, clean lineage, reviewed policy, safety thresholds, and activation audit rows that never become gate evidence.",
+      "status": "covered",
+      "excluded_by": "Timer-driven promotion, historical seed backfill, DONE success counted as helped, and blocking policy generation are explicitly excluded.",
+      "source": "background.md; checklist.json CHK-001; plan.md CHK-001; docs/requirements/decisions/playbook-promotion-worker-execution-plan.md; docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+    },
+    {
+      "feature": "real CLI seed/candidate/outcome/activation/runtime consumption loop",
+      "covered_by": "CHK-002 requires a real dist CLI smoke for playbook_seed_observe, playbook_seed_propose_batch, playbook_candidate_batch_approve, playbook_outcome_record, playbook_auto_promotion_apply --apply --json, and playbook_runtime_consumption_verify --json. Plan CHK-002 DoneWhen requires the transcript to prove seed to candidate, explicit outcome evidence activation, active runtime consumption, inert candidates before activation, and second-apply idempotency. Linked source-lineage doc defines the target chain from seed observe through explicit outcome, promotion recommendation, active advisory playbook, and runtime consumer verification.",
+      "status": "covered",
+      "excluded_by": "Manual playbook_activate path and browser/UI tests are explicitly excluded.",
+      "source": "checklist.json CHK-002; plan.md CHK-002; docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+    },
+    {
+      "feature": "documentation of advisory/non-authoritative activation boundary",
+      "covered_by": "CHK-003 requires docs to show playbook_auto_promotion_apply --apply plus runtime consumption verification and to explain evidence-based activation is advisory, non-authoritative, not human subjective promotion, and not DONE-success inference. Plan CHK-003 DoneWhen requires the docs to state activation is advisory, non-authoritative, not lifecycle gate evidence, distinct from timers, historical seed backfill, broad rollout mechanics, blocking policy, and DONE success alone. Linked docs already establish playbooks as non-authoritative gateEvidence:false advisory memory, no gate-evidence writes, and timers/trial serving/historical backfill as outside the bounded activation path.",
+      "status": "covered",
+      "excluded_by": "Claiming production/blocking policy readiness is explicitly excluded.",
+      "source": "checklist.json CHK-003; plan.md CHK-003; docs/requirements/decisions/playbook-promotion-worker-execution-plan.md; docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1f654031416ece6af6453a6033908aa9ed3c48edd138de170ef1cfa3c690c92c",
+  "openQuestions": []
+}

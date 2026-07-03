@@ -1,0 +1,60 @@
+{
+  "storyId": "B-6703",
+  "checkedAt": "2026-07-03T03:37:59.630Z",
+  "headHash": "c7591a1a1f029aace0861722acd286e04686fe86",
+  "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+  "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+  "reviewRound": "2026-07-03T03:28:19.709Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "playbook_auto_promotion_apply --apply may write deterministic digest-bound recommend_activate evidence for already-qualified candidates before advisory activation.",
+      "status": "verified",
+      "verifiedBy": "diff/manual review of docs and packages/main/src/core/playbook-seed.ts",
+      "evidence": "Docs state B-6703 makes --apply self-contained; implementation builds and appends PBD-AUTO recommend_activate rows only when all guards except the missing decision pass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Evidence activation remains advisory, non-authoritative, gateEvidence=false, and separate from trial serving, historical backfill, and timers.",
+      "status": "verified",
+      "verifiedBy": "doc grep/manual review plus smoke assertions",
+      "evidence": "Doc diff names trial serving, historical backfill, and timers as future work; code writes authority=non_authoritative and gateEvidence=false for recommendation and activation rows."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "DONE success alone and done-settlement outcomes cannot create helped evidence or active runtime guidance.",
+      "status": "verified",
+      "verifiedBy": "doc review and smoke coverage",
+      "evidence": "Docs explicitly say DONE success alone is not a helped outcome; smoke covers DONE-settlement rows and exposureMode=none rows failing closed with no mutation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "Runtime consumption verification is part of the activation boundary and candidates remain inert until activated.",
+      "status": "verified",
+      "verifiedBy": "transcript review and smoke assertions",
+      "evidence": "Checklist/transcript record playbook_runtime_consumption_verify activeChecks consumedByAll=true after activatedCount=1, with pre-outcome and no-exposure apply paths failing closed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-6703 --json recorded PASS/allPass=true with 32/32 configured validation commands; playbook-seed-promotion-loop smoke recorded pass 16/16 and covers explicit helped candidate-inspection activation without PLAYBOOK_PROMOTION_SWEEP_ENABLED, stale digest/duplicate lineage blocking, DONE-settlement and exposureMode=none blocking, and duplicate decision idempotency."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Real-machine transcript records built dist CLI smoke: seed observe/propose/approve, outcome_record, playbook_auto_promotion_apply --apply activatedCount=1, runtime activeChecks consumedByAll=true, second apply activatedCount=0 with one recommendation row and one activation audit row, and pre-outcome apply fail-closed without mutation."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Docs checks recorded pass for playbook_auto_promotion_apply --apply, runtime consumption, historical backfill/timer boundaries, DONE success alone, and gate evidence; transcript-diff reports no acceptance gap and no failed user-visible command."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed current branch diff, both touched docs, checklist evidence, test-evidence, findings resolution, and .lattice/story/actives/B-6703/evidence/transcript-diff.md. Promises are delivered: self-contained evidence-activated advisory apply, runtime consumption verification, no DONE-success-alone activation, no historical backfill/timers/trial serving, and non-authoritative gateEvidence=false. Real-machine evidence includes lattice validate 32/32 PASS and playbook-seed-promotion-loop smoke 16/16."
+  },
+  "_hash": "74700c1f2b30896bf74f379674318c0308a14725b72a3a3c7ef3229aad436087"
+}

@@ -1,0 +1,63 @@
+{
+  "storyId": "B-6703",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    ".omx/**",
+    "historical seed backfill",
+    "timer/daemon promotion",
+    "blocking policy generation"
+  ],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These are ProofStory gate artifacts required by enforced DEV admission for B-6703, written through lattice original_intent_snapshot_set, intent_collision_set, and proofstory_contract_set; they are lifecycle metadata, not product scope expansion.",
+      "timestamp": "2026-07-03T03:16:33.518Z",
+      "paths": [
+        ".lattice/story/actives/B-6703/intent-collision.json",
+        ".lattice/story/actives/B-6703/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6703/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6703/intent-collision.json",
+        ".lattice/story/actives/B-6703/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6703/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "986ac016c1cf3da7e1207b759f07416421b596ef",
+      "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91"
+    },
+    {
+      "actor": "codex",
+      "reason": "Required to resolve B-6703:F-001: promotion sweep and auto-apply share the promotion-decision ledger, so the fix must touch the learning-store append chokepoint and playbook handler lock selection to serialize/idempotently guard that shared ledger.",
+      "timestamp": "2026-07-03T03:27:12.487Z",
+      "paths": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/learning-store.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0536f343326c9303fef87b16dffd03f69b36e331",
+      "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa"
+    }
+  ],
+  "createdAt": "2026-07-03T02:59:14.881Z",
+  "updatedAt": "2026-07-03T03:27:12.487Z"
+}
