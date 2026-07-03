@@ -139,9 +139,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-03T03:46:49.116Z",
       "userSees": "User runs lattice quantum_claim_report and sees \"Quantum local diagnostic M0-M5: implemented\", \"Benchmark status: PASS\", \"diagnosticOnly: true\", \"gateEvidence: false\", \"productionClaim: false\", and \"authorityClaim: false\".",
       "verificationEvidence": [
         {
@@ -285,6 +285,15 @@
       "from": "pending",
       "to": "done",
       "reason": "M4 benchmark harness implemented and verified by quantum-claim-benchmark smoke plus CLI JSON output."
+    },
+    {
+      "timestamp": "2026-07-03T03:46:49.116Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M5 governance report implemented and verified in text/JSON modes with boundary booleans false."
     }
   ]
 }
