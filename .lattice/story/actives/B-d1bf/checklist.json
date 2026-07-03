@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "A local Quantum gate check returns deterministic transition guidance for admissible, weak, stale, missing, mismatched, and overclaiming evidence.",
+      "userSees": "Terminal JSON includes \"decision\":\"advance\" for complete bound evidence, \"decision\":\"degrade\" for weak scoped evidence, and never advances stale, missing, mismatched, production, Authority, hardware, or theory overclaims.",
       "excludes": [
         "No Story machine mutation",
         "No benchmark harness",
@@ -205,6 +205,52 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement Quantum M3: add local gate policy check for claim-admissibility t...",
+      "context": "Story description source: Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md.. ReadinessReport(REVIEW) highlighted: branch_behind_main_advisory, checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-d1bf/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Verify Quantum M3: add local gate policy check for claim-admissibility t...",
+      "context": "Plan happy, edge, and adversarial checks for: This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.. ReadinessReport(REVIEW) highli...",
+      "relatedDocs": [
+        ".lattice/story/actives/B-d1bf/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T00:15:24.080Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Implement Quantum M3: add local gate policy check for claim-admissibility t...",
+      "addedContext": "Story description source: Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md.. ReadinessReport(REVIEW) highlighted: branch_behind_main_advisory, checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-07-03T00:15:24.152Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Verify Quantum M3: add local gate policy check for claim-admissibility t...",
+      "addedContext": "Plan happy, edge, and adversarial checks for: This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.. ReadinessReport(REVIEW) highli..."
     }
   ]
 }
