@@ -1,0 +1,82 @@
+{
+  "storyId": "B-f57a",
+  "checkedAt": "2026-07-03T10:39:57.161Z",
+  "headHash": "8b333729bcf2c2d11c9d7e2c399e00bc54b9515f",
+  "materialHash": "b2f5aa9da712306fe03c46e2f482604e403ff367f210b7ee4486989d6ac41e6b",
+  "storyFilesHash": "ec79c7ca1fe1071e419a7a7ae30812624a0aaef3d104ae62778f37781247511f",
+  "reviewRound": "2026-07-03T10:27:22.324Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "M1 is crypto-deferred automatic cross-host review: add cross_host_review to run a read-only Codex reviewer over the materialHash-bound change, parse only structured verdict JSON, record stdoutDigest only, and not claim signed provenance.",
+      "status": "verified",
+      "verifiedBy": "manual source review plus smoke evidence",
+      "evidence": "Verified docs M1 section; command catalog registers cross_host_review; codex-review-leaf runs codex exec -s read-only -C snapshot and returns stdoutDigest only; transcript-diff reports focused smoke PASS 24 checks; M-crypto holds signed-verdict/pinned-key work."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "M1 fail-closed paths cover no parseable or schema-valid verdict, materialHash mismatch, abnormal exit, timeout, truncated stdout, missing/unauthorized/malformed policy, dirty source worktree, HEAD drift, same-host identity, and malformed host-A findings.",
+      "status": "verified",
+      "verifiedBy": "manual source review plus verification evidence",
+      "evidence": "codex-review-leaf synthesizes blocked verdicts for no-parse/material mismatch/abnormal/truncated; handler enforces policy, clean worktree, head-drift, identity, and strict host-A findings validation; evidence_plan reports 24 fresh intents including CHK-001 edge/adversarial lanes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "Host-A and host-B local verdicts are recorded with distinct hostId/session/key identities and material/story binding, and stale or partial pair writes are not retained on final drift.",
+      "status": "verified",
+      "verifiedBy": "manual source review plus F-016 smoke evidence",
+      "evidence": "handler derives distinct identities, builds lattice.host_verdict.v1 records with materialDigest/storyFilesHash/validationDigest/promptDigest, writes the pair before process events, deletes both on post-write drift, then appends both host_verdict events; CHK-001:adversarial:6 covers final-record cleanup."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "diffFindings and jointDecision surface finding-level disagreement and pass only when both hosts pass with no divergence over the same material state.",
+      "status": "verified",
+      "verifiedBy": "manual source review plus smoke coverage",
+      "evidence": "core/cross-host-review.ts implements findingKey, diffFindings, and material-bound jointDecision; CHK-002 happy/edge/adversarial coverage verifies host-only findings, symmetric disagreement, duplicate dedup, blocked propagation, and materialHash divergence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "Dispatch policy adds a narrow allowReviewOnlyRealHostSubprocess flag that permits only a read-only Codex reviewer; the general allowRealHostSubprocess implementation path for Codex and Gemini/Antigravity remains refused.",
+      "status": "verified",
+      "verifiedBy": "manual source review plus smoke coverage",
+      "evidence": "dispatch-policy.ts normalizes and checks allowReviewOnlyRealHostSubprocess; Codex with allowRealHostSubprocess remains refused, Gemini/Antigravity are refused under review-only; CHK-001:adversarial:1/2 cover bypass and mutual-exclusion behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "promise": "Threat model wording is consistent with B-f57a scope: pinned-key/signature enforcement is deferred to M-crypto/M2, and M1 independence remains cross-vendor label/local orchestrator bounded rather than a Byzantine multi-party trust claim.",
+      "status": "verified",
+      "verifiedBy": "manual doc/source review",
+      "evidence": "threat-model changed M1/M2 enforcement references to M-crypto/M2 and states M1 was reframed to crypto-deferred; cross-host-review.ts header states no cryptography and same-operator cross-vendor ceiling; receipt-bundle/authority-signing are not changed in this story diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": "Existing TEST evidence: npm --prefix packages/main run build passed as validate.commands[0] in test-evidence.json; transcript-diff focused run also records build PASS."
+    },
+    {
+      "featureId": "cross-host-smoke",
+      "transcript": "Existing TEST evidence: node packages/main/dist/tasks/cross-host-review-smoke.js passed 24/24 checks; verificationCoverage total=24 covered=24 missingRequired=0 and all 24 entries reference cross-host-review-smoke."
+    },
+    {
+      "featureId": "validate",
+      "transcript": "Existing TEST evidence: lattice validate --story=B-f57a --json result PASS at 2026-07-03T10:35:56.679Z; parsed output status=pass allPass=true with 32 configured validate.commands passed."
+    },
+    {
+      "featureId": "evidence-plan",
+      "transcript": "Reviewer read-only check: lattice evidence_plan --storyId=B-f57a --json reported fresh=24, missing=0, rerun=0, refreshOnly=0 against materialHash b2f5aa9d... and storyFilesHash ec79c7ca...."
+    },
+    {
+      "featureId": "reviewer-lanes",
+      "transcript": "review-passes.json contains final lane passes: concept B-f57a:RP-011 at 2026-07-03T10:30:15.855Z, test-coverage B-f57a:RP-012 at 2026-07-03T10:30:23.629Z, and quality B-f57a:RP-013 at 2026-07-03T10:31:32.453Z; findings.json has 16 total findings and 0 open."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery evidence is acceptable for M1 crypto-deferred local cross_host_review: build, 24-check smoke, validate 32/32, fresh evidence plan 24/24, and concept/test-coverage/quality reviewer lanes are present. External live two-host signed quorum remains explicitly out of scope for M1 and deferred to later milestones."
+  },
+  "_hash": "22c2edb0b134ef00119f8bade20872199df106dfaf5f4f03a77404401c787b0a"
+}
