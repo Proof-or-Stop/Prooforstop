@@ -18,6 +18,7 @@ import type {
 import type { Finding } from './types.js';
 import {
   aggregatePlaybookPromotion,
+  appendPlaybookPromotionDecision,
   appendPlaybookAutoActivationEvent,
   assertCanAppendPlaybookAutoActivationEvents,
   computePlaybookDigest,
@@ -1056,6 +1057,77 @@ function appliedRecommendActivateDecisions(
     .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt) || b.decisionId.localeCompare(a.decisionId));
 }
 
+function appliedRecommendActivateDecisionsForPlaybook(
+  playbookId: string,
+  decisions: PlaybookPromotionDecisionRow[],
+): PlaybookPromotionDecisionRow[] {
+  return decisions
+    .filter((row) =>
+      row.applied
+      && row.playbookId === playbookId
+      && row.action === 'recommend_activate')
+    .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt) || b.decisionId.localeCompare(a.decisionId));
+}
+
+function promotionDecisionIdempotencyKey(
+  aggregate: PlaybookPromotionDecisionRow['aggregate'],
+  action: PlaybookPromotionDecisionRow['action'],
+): string {
+  return [
+    'playbook-promotion-v1',
+    action,
+    aggregate.playbookId,
+    aggregate.aggregateDigest,
+    aggregate.source.sourceKey,
+  ].join(':');
+}
+
+function autoPromotionDecisionId(idempotencyKey: string, playbookDigest: string): string {
+  return `PBD-AUTO-${digestCanonicalJson({
+    idempotencyKey,
+    playbookDigest,
+    purpose: 'playbook-auto-promotion-apply-decision',
+  }).slice(0, 16)}`;
+}
+
+function buildAutoPromotionRecommendActivateDecision(
+  playbook: Playbook,
+  aggregate: PlaybookPromotionDecisionRow['aggregate'],
+  reasonCodes: string[],
+  decidedAt: string,
+): PlaybookPromotionDecisionRow {
+  const action: PlaybookPromotionDecisionRow['action'] = 'recommend_activate';
+  const playbookDigest = computePlaybookDigest(playbook);
+  const idempotencyKey = promotionDecisionIdempotencyKey(aggregate, action);
+  return {
+    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    decisionId: autoPromotionDecisionId(idempotencyKey, playbookDigest),
+    idempotencyKey,
+    decidedAt,
+    playbookId: playbook.id,
+    evaluatedStatus: playbook.status,
+    action,
+    reasonCodes,
+    aggregateDigest: aggregate.aggregateDigest,
+    aggregate,
+    before: {
+      playbookStatus: playbook.status,
+      playbookDigest,
+      sourceKey: aggregate.source.sourceKey,
+    },
+    after: {
+      playbookStatus: playbook.status,
+      recommendation: action,
+    },
+    workerVersion: 'playbook-promotion-worker-v1',
+    dryRun: false,
+    applied: true,
+    alreadyApplied: false,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
 function activationIdempotencyKey(
   playbookId: string,
   playbookDigest: string,
@@ -1082,7 +1154,7 @@ export function buildPlaybookAutoPromotionApplyReport(
     ? REVIEWED_EVIDENCE_ACTIVATION_POLICY
     : opts.activationPolicy;
   const outcomes = readPlaybookOutcomeEventsWithDiagnostics(opts.projectRoot).events;
-  const decisions = readPlaybookPromotionDecisionRows(opts.projectRoot).decisions;
+  let decisions = readPlaybookPromotionDecisionRows(opts.projectRoot).decisions;
   const priorActivations = readPlaybookAutoActivationEvents(opts.projectRoot);
   const priorActivationKeys = new Set(priorActivations.map((row) => row.idempotencyKey));
   const audit = buildLearningSourceLineageAudit({
@@ -1101,61 +1173,101 @@ export function buildPlaybookAutoPromotionApplyReport(
   if (!activationPolicy) globalBlockers.push('activation_policy_not_reviewed');
   if (candidates.length === 0) globalBlockers.push('no_candidate_playbooks');
 
-  const candidateGuards = candidates.map((playbook): PlaybookAutoPromotionCandidateGuard => {
-    const playbookDigest = computePlaybookDigest(playbook);
-    const aggregate = aggregatePlaybookPromotion(playbook, outcomes, decisions);
-    const evaluation = evaluatePlaybookPromotion(aggregate);
-    const aggregateDecisions = appliedRecommendActivateDecisions(playbook.id, aggregate.aggregateDigest, decisions);
-    const decision = aggregateDecisions.find((row) =>
-      row.before.playbookStatus === 'candidate'
-      && row.before.playbookDigest === playbookDigest);
-    const decisionDigest = decision ? digestCanonicalJson(decision) : '';
-    const realOutcomes = outcomes.filter((event) =>
-      event.playbookId === playbook.id
-      && isCandidateConsumedPlaybookOutcome(event)
-      && event.outcome.verdictSource !== 'done-settlement');
-    const canonicalSourceKey = canonicalForPlaybook(audit, playbook);
-    const duplicatePathCount = duplicatePlaybookPathBlockers(audit, canonicalSourceKey);
-    const key = activationPolicy && decisionDigest
-      ? activationIdempotencyKey(playbook.id, playbookDigest, aggregate.aggregateDigest, decisionDigest, activationPolicy.policyDigest)
-      : '';
-    const blockers: string[] = [];
-    if (realOutcomes.length === 0) blockers.push('no_real_candidate_consumption_outcomes');
-    if (realOutcomes.filter((event) => event.exposureMode !== 'none').length === 0) blockers.push('missing_concrete_exposure');
-    if (aggregate.harmfulCount > 0) blockers.push('harmful_outcome_present');
-    if (aggregate.wrongClaimCount > 0) blockers.push('wrong_claim_present');
-    if (!canonicalSourceKey) blockers.push('missing_lineage');
-    if (duplicatePathCount > 1) blockers.push('duplicate_candidate_or_proposal_path');
-    if (evaluation.action !== 'recommend_activate') blockers.push(`promotion_recommendation_${evaluation.action}`);
-    if (evaluation.action === 'recommend_activate' && !decision) {
-      blockers.push(aggregateDecisions.length > 0
-        ? 'applied_recommend_activate_decision_digest_mismatch'
-        : 'missing_applied_recommend_activate_decision');
+  const buildCandidateGuards = (guardDecisions: PlaybookPromotionDecisionRow[]): PlaybookAutoPromotionCandidateGuard[] =>
+    candidates.map((playbook): PlaybookAutoPromotionCandidateGuard => {
+      const playbookDigest = computePlaybookDigest(playbook);
+      const aggregate = aggregatePlaybookPromotion(playbook, outcomes, guardDecisions);
+      const evaluation = evaluatePlaybookPromotion(aggregate);
+      const playbookRecommendActivateDecisions = appliedRecommendActivateDecisionsForPlaybook(playbook.id, guardDecisions);
+      const aggregateDecisions = appliedRecommendActivateDecisions(playbook.id, aggregate.aggregateDigest, guardDecisions);
+      const decision = aggregateDecisions.find((row) =>
+        row.before.playbookStatus === 'candidate'
+        && row.before.playbookDigest === playbookDigest);
+      const staleCandidateDigestDecision = playbookRecommendActivateDecisions.find((row) =>
+        row.before.playbookStatus === 'candidate'
+        && row.before.playbookDigest !== playbookDigest);
+      const decisionDigest = decision ? digestCanonicalJson(decision) : '';
+      const realOutcomes = outcomes.filter((event) =>
+        event.playbookId === playbook.id
+        && isCandidateConsumedPlaybookOutcome(event)
+        && event.outcome.verdictSource !== 'done-settlement');
+      const canonicalSourceKey = canonicalForPlaybook(audit, playbook);
+      const duplicatePathCount = duplicatePlaybookPathBlockers(audit, canonicalSourceKey);
+      const key = activationPolicy && decisionDigest
+        ? activationIdempotencyKey(playbook.id, playbookDigest, aggregate.aggregateDigest, decisionDigest, activationPolicy.policyDigest)
+        : '';
+      const blockers: string[] = [];
+      if (realOutcomes.length === 0) blockers.push('no_real_candidate_consumption_outcomes');
+      if (realOutcomes.filter((event) => event.exposureMode !== 'none').length === 0) blockers.push('missing_concrete_exposure');
+      if (aggregate.harmfulCount > 0) blockers.push('harmful_outcome_present');
+      if (aggregate.wrongClaimCount > 0) blockers.push('wrong_claim_present');
+      if (!canonicalSourceKey) blockers.push('missing_lineage');
+      if (duplicatePathCount > 1) blockers.push('duplicate_candidate_or_proposal_path');
+      if (evaluation.action !== 'recommend_activate') blockers.push(`promotion_recommendation_${evaluation.action}`);
+      if (evaluation.action === 'recommend_activate' && !decision) {
+        blockers.push(staleCandidateDigestDecision || aggregateDecisions.length > 0
+          ? 'applied_recommend_activate_decision_digest_mismatch'
+          : 'missing_applied_recommend_activate_decision');
+      }
+      if (key && priorActivationKeys.has(key)) blockers.push('activation_audit_already_exists');
+      return {
+        playbookId: playbook.id,
+        playbookDigest,
+        aggregateDigest: aggregate.aggregateDigest,
+        ...(decision ? { promotionDecisionId: decision.decisionId } : {}),
+        ...(decision ? { promotionDecisionIdempotencyKey: decision.idempotencyKey } : {}),
+        ...(decisionDigest ? { promotionDecisionDigest: decisionDigest } : {}),
+        recommendation: evaluation.action,
+        reasonCodes: evaluation.reasonCodes,
+        eligible: blockers.length === 0,
+        blockers,
+        activationIdempotencyKey: key,
+        realOutcomeCount: realOutcomes.length,
+        exposureCount: realOutcomes.filter((event) => event.exposureMode !== 'none').length,
+        decisiveSamples: aggregate.decisiveSamples,
+        helpedCount: aggregate.helpedCount,
+        dismissedCount: aggregate.dismissedCount,
+        harmfulCount: aggregate.harmfulCount,
+        wrongClaimCount: aggregate.wrongClaimCount,
+        contextClassCount: aggregate.contextClassCount,
+        ...(canonicalSourceKey ? { lineageCanonicalSourceKey: canonicalSourceKey } : {}),
+      };
+    });
+
+  let candidateGuards = buildCandidateGuards(decisions);
+  const pendingRecommendationRows = new Map<string, PlaybookPromotionDecisionRow>();
+
+  if (apply && activationPolicy) {
+    const existingAppliedDecisionKeys = new Set(
+      decisions.filter((row) => row.applied).map((row) => row.idempotencyKey),
+    );
+    const writableRecommendationRows: PlaybookPromotionDecisionRow[] = [];
+
+    for (const guard of candidateGuards) {
+      if (
+        guard.recommendation !== 'recommend_activate'
+        || guard.blockers.length !== 1
+        || guard.blockers[0] !== 'missing_applied_recommend_activate_decision'
+      ) continue;
+      const playbook = candidates.find((row) => row.id === guard.playbookId);
+      if (!playbook) continue;
+      const aggregate = aggregatePlaybookPromotion(playbook, outcomes, decisions);
+      const row = buildAutoPromotionRecommendActivateDecision(playbook, aggregate, guard.reasonCodes, activatedAt);
+      if (existingAppliedDecisionKeys.has(row.idempotencyKey)) continue;
+      existingAppliedDecisionKeys.add(row.idempotencyKey);
+      writableRecommendationRows.push(row);
+      pendingRecommendationRows.set(playbook.id, row);
     }
-    if (key && priorActivationKeys.has(key)) blockers.push('activation_audit_already_exists');
-    return {
-      playbookId: playbook.id,
-      playbookDigest,
-      aggregateDigest: aggregate.aggregateDigest,
-      ...(decision ? { promotionDecisionId: decision.decisionId } : {}),
-      ...(decision ? { promotionDecisionIdempotencyKey: decision.idempotencyKey } : {}),
-      ...(decisionDigest ? { promotionDecisionDigest: decisionDigest } : {}),
-      recommendation: evaluation.action,
-      reasonCodes: evaluation.reasonCodes,
-      eligible: blockers.length === 0,
-      blockers,
-      activationIdempotencyKey: key,
-      realOutcomeCount: realOutcomes.length,
-      exposureCount: realOutcomes.filter((event) => event.exposureMode !== 'none').length,
-      decisiveSamples: aggregate.decisiveSamples,
-      helpedCount: aggregate.helpedCount,
-      dismissedCount: aggregate.dismissedCount,
-      harmfulCount: aggregate.harmfulCount,
-      wrongClaimCount: aggregate.wrongClaimCount,
-      contextClassCount: aggregate.contextClassCount,
-      ...(canonicalSourceKey ? { lineageCanonicalSourceKey: canonicalSourceKey } : {}),
-    };
-  });
+
+    if (writableRecommendationRows.length > 0) {
+      decisions = [...decisions, ...writableRecommendationRows];
+      candidateGuards = buildCandidateGuards(decisions);
+      for (const guard of candidateGuards) {
+        if (!guard.eligible) pendingRecommendationRows.delete(guard.playbookId);
+      }
+    }
+  }
+
   if (candidates.length > 0 && candidateGuards.every((guard) => guard.blockers.length > 0)) {
     globalBlockers.push('no_candidate_passed_activation_guards');
   }
@@ -1191,6 +1303,7 @@ export function buildPlaybookAutoPromotionApplyReport(
     const before = readPlaybooks(opts.projectRoot);
     const next = before.slice();
     const activationEvents: PlaybookAutoActivationEvent[] = [];
+    const recommendationRowsToAppend: PlaybookPromotionDecisionRow[] = [];
     for (const guard of eligibleGuards) {
       const idx = next.findIndex((row) => row.id === guard.playbookId);
       if (idx < 0) continue;
@@ -1205,6 +1318,8 @@ export function buildPlaybookAutoPromotionApplyReport(
         || !guard.promotionDecisionIdempotencyKey
         || !guard.promotionDecisionDigest
       ) continue;
+      const pendingRecommendation = pendingRecommendationRows.get(guard.playbookId);
+      if (pendingRecommendation) recommendationRowsToAppend.push(pendingRecommendation);
       const activated: Playbook = { ...current, status: 'active' };
       next[idx] = activated;
       const activeDigest = computePlaybookDigest(activated);
@@ -1264,6 +1379,28 @@ export function buildPlaybookAutoPromotionApplyReport(
     }
     if (activatedPlaybooks.length > 0) {
       assertCanAppendPlaybookAutoActivationEvents(opts.projectRoot, activationEvents);
+      if (recommendationRowsToAppend.length > 0) {
+        const existingDecisionKeys = new Set(
+          readPlaybookPromotionDecisionRows(opts.projectRoot).decisions
+            .filter((row) => row.applied)
+            .map((row) => row.idempotencyKey),
+        );
+        for (const row of recommendationRowsToAppend) {
+          if (existingDecisionKeys.has(row.idempotencyKey)) continue;
+          appendPlaybookPromotionDecision(opts.projectRoot, row);
+          existingDecisionKeys.add(row.idempotencyKey);
+        }
+        const persistedDecisionKeys = new Set(
+          readPlaybookPromotionDecisionRows(opts.projectRoot).decisions
+            .filter((row) => row.applied)
+            .map((row) => row.idempotencyKey),
+        );
+        for (const row of recommendationRowsToAppend) {
+          if (!persistedDecisionKeys.has(row.idempotencyKey)) {
+            throw new Error(`playbook_auto_promotion_apply: recommendation audit verification failed for ${row.playbookId}`);
+          }
+        }
+      }
       writePlaybooks(opts.projectRoot, next);
       let activeStatusPersisted = true;
       try {
@@ -1314,7 +1451,7 @@ export function buildPlaybookAutoPromotionApplyReport(
       'reviewed evidence activation policy is present',
       'candidate has real non-DONE-settlement outcome rows',
       'candidate has explicit exposure records',
-      'promotion decision row is applied recommend_activate for the current aggregate and candidate digest',
+      'promotion decision row is applied recommend_activate for the current aggregate and candidate digest, or --apply writes deterministic digest-bound recommendation evidence',
       'no harmful or wrong-claim signal exists',
       'source lineage has no missing-lineage or duplicate proposal/candidate path blocker',
       'candidate digest is current at apply time',
