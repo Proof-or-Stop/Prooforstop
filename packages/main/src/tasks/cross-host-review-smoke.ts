@@ -64,7 +64,7 @@ import {
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
-import { checkDispatchPolicy, createDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
+import { checkDispatchPolicy, createDispatchPolicy, getDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
 
 const STORY_ID = 'B-xhr-smoke';
 const REVIEW_ROUND = '2026-07-03T10:00:00.000Z';
@@ -559,6 +559,35 @@ async function run(): Promise<void> {
         }),
         'createDispatchPolicy permits a pure review-only codex policy',
       );
+
+      // Bug5: the CLI-parsed allowReviewOnlyRealHostSubprocess flag must reach
+      // validatePolicyArgs and be PRESERVED end-to-end by createDispatchPolicy — a
+      // review-only policy can actually be created (and persisted). Use a NON-'fake'
+      // name so createDispatchPolicy writes it to disk, then read it back to prove the
+      // flag survives the create → persist → load round-trip (not merely the in-memory
+      // return). This is the create/validate path the dispatch_policy_create handler
+      // exercises (dispatch_policy_create → createDispatchPolicy(ctx.root, args)).
+      const created = createDispatchPolicy(root, {
+        policy: 'xhr-review-only-created',
+        allowedHosts: ['codex'],
+        allowedPaths: ['packages/main/src/'],
+        maxParallel: 1,
+        maxRuntimeMinutes: 12,
+        maxBudgetUSD: 1.0,
+        network: 'none',
+        commandAllowlist: ['codex exec -s read-only'],
+        allowRealHostSubprocess: false,
+        allowReviewOnlyRealHostSubprocess: true,
+      });
+      assert.equal(created.allowReviewOnlyRealHostSubprocess, true, 'createDispatchPolicy preserves allowReviewOnlyRealHostSubprocess=true on the returned policy');
+      assert.deepEqual(created.allowedHosts, ['codex'], 'the created review-only policy grants codex');
+      assert.equal(created.allowRealHostSubprocess, false, 'the created review-only policy carries no implementation flag');
+      // The flag survives persistence (getDispatchPolicy loads it back from disk).
+      const loaded = getDispatchPolicy(root, 'xhr-review-only-created');
+      assert.equal(loaded.allowReviewOnlyRealHostSubprocess, true, 'the persisted+reloaded review-only policy still grants allowReviewOnlyRealHostSubprocess=true');
+      // And it authorizes an independent read-only codex reviewer end-to-end.
+      const createdCheck = checkDispatchPolicy(root, loaded);
+      assert.notEqual(createdCheck.status, 'refused', 'the created review-only codex policy is not refused (it authorizes a read-only reviewer)');
     });
 
     // CHK-001:adversarial:2 (F-003) — codex with BOTH allowRealHostSubprocess=true
@@ -647,9 +676,17 @@ async function run(): Promise<void> {
       const prevAllowed = process.env.XHR_SMOKE_ALLOWED;
       const prevDenied = process.env.XHR_SMOKE_DENIED;
       const prevSecret = process.env.XHR_SMOKE_TOKEN;
+      // Bug4 regression: mid-name connection-string vars. UNSAFE_ENV_PATTERN must
+      // strip URL/URI ANYWHERE in the name, not only as a trailing _URL$/_URI$.
+      // POSTGRES_URL_NON_POOLING carries the URL token in the MIDDLE of the name and
+      // must still be stripped; REDIS_URL is the trailing-suffix control.
+      const prevPgUrl = process.env.POSTGRES_URL_NON_POOLING;
+      const prevRedisUrl = process.env.REDIS_URL;
       process.env.XHR_SMOKE_ALLOWED = 'keep-me';
       process.env.XHR_SMOKE_DENIED = 'drop-me';
       process.env.XHR_SMOKE_TOKEN = 'super-secret';
+      process.env.POSTGRES_URL_NON_POOLING = 'postgres://user:pw@host:5432/db';
+      process.env.REDIS_URL = 'redis://user:pw@host:6379/0';
       try {
         const capture = capturingSeam(verdictJsonStdout(materialHash, 'pass', [], 'looks fine'));
         const handlers = createCrossHostReviewHandlers(ctx, { codexRunner: capture.runner });
@@ -680,10 +717,22 @@ async function run(): Promise<void> {
         assert.equal(env.XHR_SMOKE_ALLOWED, 'keep-me', 'allowlisted env var is threaded to the runner');
         assert.equal(env.XHR_SMOKE_DENIED, undefined, 'denylisted env var is stripped from the runner env');
         assert.equal(env.XHR_SMOKE_TOKEN, undefined, 'secret-pattern env var is stripped from the runner env');
+        // Bug4: mid-name URL/URI connection strings must be stripped by the broadened
+        // UNSAFE_ENV_PATTERN. POSTGRES_URL_NON_POOLING (URL in the MIDDLE) and
+        // REDIS_URL (trailing) both embed inline credentials and must never leak to
+        // the review subprocess env — proving the URL|URI match is name-position agnostic.
+        assert.equal(env.POSTGRES_URL_NON_POOLING, undefined, 'mid-name URL connection string (POSTGRES_URL_NON_POOLING) is stripped from the runner env');
+        assert.equal(env.REDIS_URL, undefined, 'trailing-suffix URL connection string (REDIS_URL) is stripped from the runner env');
+        // Belt-and-suspenders: the credential values never surface anywhere on the threaded env.
+        const envSerialized = JSON.stringify(env);
+        assert.ok(!envSerialized.includes('postgres://'), 'the postgres connection string value never reaches the runner env');
+        assert.ok(!envSerialized.includes('redis://'), 'the redis connection string value never reaches the runner env');
       } finally {
         if (prevAllowed === undefined) delete process.env.XHR_SMOKE_ALLOWED; else process.env.XHR_SMOKE_ALLOWED = prevAllowed;
         if (prevDenied === undefined) delete process.env.XHR_SMOKE_DENIED; else process.env.XHR_SMOKE_DENIED = prevDenied;
         if (prevSecret === undefined) delete process.env.XHR_SMOKE_TOKEN; else process.env.XHR_SMOKE_TOKEN = prevSecret;
+        if (prevPgUrl === undefined) delete process.env.POSTGRES_URL_NON_POOLING; else process.env.POSTGRES_URL_NON_POOLING = prevPgUrl;
+        if (prevRedisUrl === undefined) delete process.env.REDIS_URL; else process.env.REDIS_URL = prevRedisUrl;
       }
     });
 

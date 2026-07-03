@@ -1501,6 +1501,7 @@ Behavior:
     requireReceipt: z.boolean().optional().describe('Require a local receipt; must be true'),
     requireReview: z.boolean().optional().describe('Require manual review; must be true'),
     allowRealHostSubprocess: z.boolean().optional().describe('Explicit opt-in for real-host subprocess launch; defaults false and currently supports claude-code only'),
+    allowReviewOnlyRealHostSubprocess: z.boolean().optional().describe('Explicit opt-in for a read-only codex REVIEW subprocess (cross_host_review); permits codex only, mutually exclusive with allowRealHostSubprocess, refuses gemini/antigravity'),
     allowAutoMerge: z.boolean().optional().describe('Allow auto-merge; must be false'),
     allowProductionDone: z.boolean().optional().describe('@help-hidden legacy local-assurance refusal sentinel'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

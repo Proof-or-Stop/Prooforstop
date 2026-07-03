@@ -119,7 +119,7 @@ function assertMaterialCleanForReview(gitCwd: string): void {
  * embed inline credentials, e.g. DATABASE_URL). A read-only code reviewer never
  * needs these, so stripping them by default is safe.
  */
-const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|(^|_)KEY|AUTH|SESSION|COOKIE|PRIVATE|ACCESS|DATABASE|(^|_)DSN|CONNECTION|_URL$|_URI$/i;
+const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|(^|_)KEY|AUTH|SESSION|COOKIE|PRIVATE|ACCESS|DATABASE|(^|_)DSN|CONNECTION|URL|URI/i;
 
 /**
  * F-004/F-007: build the redacted env the review-only codex subprocess is allowed
