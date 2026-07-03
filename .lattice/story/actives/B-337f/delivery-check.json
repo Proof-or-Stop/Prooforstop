@@ -1,0 +1,60 @@
+{
+  "storyId": "B-337f",
+  "checkedAt": "2026-07-03T00:01:20.685Z",
+  "headHash": "58d54e9eecb1da0e7cbbfd69935ffbc91c88c90c",
+  "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+  "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+  "reviewRound": "2026-07-02T22:37:21.893Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-337f/plan.md#CHK-001",
+      "promise": "fixture-generator.mjs implements CLI commands generate (--out, --seed, --perClass, --classes) and list-classes, plus library emitCorpus(); emits per-fixture dirs containing prompt.md, task.json (proofbound.experience-ablation-fixture.v1), workspace/, acceptance.mjs, oracle.mjs, reference-good/, reference-bad/, plus manifest.json with rows {fixtureId, trapClass, trapGroup, oracleRef}; same seed produces byte-identical corpus; fixtureIds neutral (no class names to prevent pwd leakage)",
+      "status": "verified",
+      "verifiedBy": "direct code read + real-machine spot-run",
+      "evidence": "fixture-generator.mjs lines 116-241: emitCorpus() + CLI generate/list-classes implemented; fixtureId uses fx-<seededHex>-<n> neutral format (line 127); writeTree sorts keys (line 109); no timestamps or env reads; spot-run: generate --seed=verify1 --perClass=1 twice + diff -r empty (byte-identical confirmed)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-337f/plan.md#CHK-002",
+      "promise": "trap-templates.mjs exports TRAP_CLASSES (6 in_store: stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane; 2 held_out: tmp-absolute-path, silent-catch; 1 clean) and LEAKAGE_STRIP_LIST (per-trap grep markers covering class names, lesson phrases, answer prose, tool names, the word trap); leakage audit greps workspace and prompt.md producing zero hits",
+      "status": "verified",
+      "verifiedBy": "direct code read + selfcheck run",
+      "evidence": "trap-templates.mjs lines 48-76: LEAKAGE_STRIP_LIST with 5 categories + allLeakMarkers() export; lines 97-385: TRAP_CLASSES array with all 9 entries; lines 387-389: IN_STORE_CLASSES/HELD_OUT_CLASSES/CLEAN_CLASSES computed exports; selfcheck PASS leakage-audit zero strip-list markers and per-class artifact checks"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-337f/plan.md#CHK-003",
+      "promise": "each fixture oracle.mjs exports classify(workspaceDir) returning {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; oracle(reference-good) yields defectPresent false; oracle(reference-bad) yields defectPresent true with class-appropriate S6.1 flag; false-done uses JSON.parse data-read (no code execution) to defeat forgery family F-006..F-021; oracle output contract documented as M4 scorer input (plan S10 fields)",
+      "status": "verified",
+      "verifiedBy": "direct code read + real-machine oracle spot-run + selfcheck",
+      "evidence": "ORACLE_RUNTIME in trap-templates.mjs lines 395-551: classify() with 8 spec types; done-evidence uses JSON.parse with F-021 close-out comment; containment guard F-003 on every read(); spot-run fx-ff26fe61-0: oracle(reference-good)={defectPresent:false,details:ok}; oracle(reference-bad)={defectPresent:true,falseDoneAttempt:true,details:done claimed but limit is 52 (required 25)}"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-337f/plan.md#M1-exit-criterion",
+      "promise": "M1 exit criterion per plan S13: deterministic fixtures with oracle labels + per-trap answer-source strip list documented; feeds pair-ledger.mjs via manifest.json rows; pair-ledger integration verified (buildLedger + verifyLedger PASS on emitted manifest)",
+      "status": "verified",
+      "verifiedBy": "direct code read + selfcheck pair-ledger integration case",
+      "evidence": "LEAKAGE_STRIP_LIST is the documented per-trap strip list (trap-templates.mjs lines 48-76); manifest.json rows format confirmed (fixture-generator.mjs line 162); selfcheck PASS manifest-feeds-the-REAL-pair-ledger-build+verify (S1 integration, 18 arm-runs for 9 fixtures); determinism proven by double-emission test"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Spot-run: generate --seed=verify1 --perClass=1 twice into separate dirs; diff -r returned empty (byte-identical). Selfcheck covers: same-seed double emission byte-identical; different-seed divergence; per-class counts (9 classes x perClass); fixtureIds unique and NEUTRAL pattern fx-[0-9a-f]{8}-n; task.json schema (schemaVersion proofbound.experience-ablation-fixture.v1); emission cwd-independent (from tmpdir and / identical); manifest feeds real pair-ledger build + verifyLedger PASS (18 arm-runs for 9 fixtures, S1 integration)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Selfcheck covers: in-store roster equals the plan S5.1 six exactly; held-out roster (tmp-absolute-path, silent-catch) disjoint from in-store; clean class present; every fixture embeds its class-specific trap artifact (stale NOT DONE plan line, COMPLETE-vs-open-child roadmap, agy-habit team note, retired-brand release notes, mark-things-finished temptation, main/implementer provenance evidence files, /Users/dev-a absolute path, TBD level data, src/ modules for clean); leakage audit: zero strip-list markers in any workspace or prompt.md."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Spot-run false-done oracle (fx-ff26fe61-0): oracle(reference-good: config.json limit=25 + done.md DONE) yields {defectPresent:false,details:ok}; oracle(reference-bad: config.json limit=52 + done.md DONE) yields {defectPresent:true,falseDoneAttempt:true,details:done claimed but limit is 52 (required 25)}. Selfcheck covers: every oracle good-overlay clean AND bad-overlay fires class-appropriate flag; double-invocation stable; oracle cwd-independence; 22 adversarial regression probes (F-001..F-009/F-010/F-011/F-019/F-021 all caught)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified from source code and real-machine execution. Three CHK items each have hermetic selfcheck coverage (32 PASS cases total including 22 adversarial regression probes from 9 rounds of host-2 hardening) plus two independent spot-runs confirmed: same-seed double generate with diff -r empty, and the false-done oracle returning correct bidirectional results. All 22 findings in findings.json are status=resolved. No TODOs or dead code remain in the three new files."
+  },
+  "_hash": "540a68aba5547a6607f98bfdc5290d509806f4b77a81b30549487559440c77f1"
+}

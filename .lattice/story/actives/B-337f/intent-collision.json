@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-337f",
+  "id": "IC-20260702223245",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Build exactly the M1 fixture generator (generator core + trap templates with the S9 strip list + hidden S6.1 oracles + corpus selfcheck) as self-contained .mjs under experiments/experience-ablation/, consuming the S1 tools as-is. NOT building: the M4 scorer, M3 arm switch, M6 runs, or any change to protocol.mjs/pair-ledger.mjs; NOT using real repo content in fixtures; NOT measuring trap realism (the M6 pilot estimates baselines).",
+  "acceptedInterpretationHash": "sha256:692c97b45f7184dc0c42b636f0fbe48b1539e75da105d369cd9b03fe64f4748c",
+  "notes": "Rejected interpretations: (a) snapshot-real-repo-then-strip workspaces — re-imports the S9 leakage and breaks determinism (decision doc option 2); (b) LLM-generated fixture content — non-deterministic and un-audited (option 3); (c) treating the standing order as license to skip lifecycle gates — the order covers milestone SEQUENCING only, quality bar unchanged.",
+  "ledgerHashBeforeDecision": "sha256:1633cc08bf0031e4d039524659f367d33056d54705ca41471f141c0a13e65ab5",
+  "confirmedLedgerHash": "sha256:1633cc08bf0031e4d039524659f367d33056d54705ca41471f141c0a13e65ab5",
+  "createdAt": "2026-07-02T22:32:45.420Z",
+  "updatedAt": "2026-07-02T22:32:46.096Z"
+}

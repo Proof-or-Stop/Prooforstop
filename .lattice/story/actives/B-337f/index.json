@@ -4,7 +4,7 @@
   "title": "Experience-ablation M1: deterministic trap-fixture generator with hidden oracles and leakage-stripped workspaces",
   "description": "Second build story of the experience-ablation program (standing operator order: execute milestones in plan order to DONE). Implements milestone M1 of the rev-2 execution plan: a deterministic fixture generator under experiments/experience-ablation/ that emits seeded lifecycle-trap task fixtures for the six in-store trap classes (stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane), held-out negative-control trap classes (failure modes whose lessons are NOT in the runtime memory store), and clean tasks. Each fixture follows the proven recovery-runner corpus layout: prompt.md (the host task), task.json (metadata incl. trapClass/trapGroup/oracleRef), a semi-synthetic workspace with the trap embedded, a visible acceptance script, and a HIDDEN deterministic ground-truth oracle that classifies the section-6.1 outcomes (oracle mismatch, false-DONE attempt, lane-provenance violation) from workspace state. Fixture workspaces are leakage-stripped per plan S9: the trap answer must not be derivable from the fixture tree (no residue-oracle scripts, no runbook answer prose), with a documented per-trap strip list and a corpus selfcheck that mechanically greps for leakage markers, validates oracle firing on known-bad and known-good workspace states, and confirms same-seed determinism. Generator + corpus feed M2's pair ledger (fixtureIds/trapClass/trapGroup/oracleRef rows) and M4's scorer (oracle output schema). No product code (packages/*) is touched.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "experience-layer",
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-07-02T22:20:57.750Z",
   "startedAt": "2026-07-02T22:20:57.750Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T00:09:12.812Z",
   "events": [
     {
       "phase": "INIT",
@@ -36,11 +36,52 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:24:16.198Z",
+      "branch": "story/B-337f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:33:06.500Z",
+      "branch": "story/B-337f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T22:37:21.893Z",
+      "branch": "story/B-337f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:55:52.455Z",
+      "branch": "story/B-337f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:09:12.812Z",
+      "branch": "story/B-337f",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-337f",
-    "branch": "story/B-337f",
-    "createdAt": "2026-07-02T22:24:11.802Z"
-  }
+  "currentReviewRound": "2026-07-02T22:37:21.893Z"
 }
