@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-d217:F-001",
+      "desc": "quality-cleanup: score.mjs:223 explicit existsSync pre-check before readJsonFile call on line 224 is redundant dead code — readJsonFile at line 77 performs the identical existsSync check and produces the same error message (\"missing required run record file: <path>\"); the guard on line 223 can never be the only line that catches the missing-file case",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:20.465Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "64048e6a8f7975b6d8929da84ece162992dc42144edaff56bf7b063f27383c6e",
+      "files": [
+        "experiments/experience-ablation/score.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
