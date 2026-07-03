@@ -18,6 +18,7 @@ import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
 import type {
   Playbook,
+  PlaybookAutoActivationEvent,
   PlaybookOutcomeEvent,
   PlaybookPromotionDecisionRow,
   SourceLineageArtifactKind,
@@ -25,14 +26,17 @@ import type {
 } from '../core/experience-layer-types.js';
 import {
   aggregatePlaybookPromotion,
+  appendPlaybookAutoActivationEvent,
   appendPlaybookOutcomeEvent,
   appendPlaybookPromotionDecision,
   computePlaybookDigest,
+  resolvePlaybookAutoActivationsPath,
   resolveFindingSignalsPath,
   resolveProposalsDir,
   writePlaybooks,
   writeProposal,
 } from '../core/learning-store.js';
+import { digestCanonicalJson } from '../core/digest.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { Finding, StoryInfo } from '../core/types.js';
@@ -206,6 +210,55 @@ function decision(pb: Playbook): PlaybookPromotionDecisionRow {
   };
 }
 
+function activation(pb: Playbook, row: PlaybookPromotionDecisionRow): PlaybookAutoActivationEvent {
+  const activeDigest = computePlaybookDigest({ ...pb, status: 'active' });
+  const lineageCanonicalSourceKey = `PBLS-${digestCanonicalJson({
+    kind: 'finding-backed',
+    sourceFindingId: FINDING_ID,
+    sourceSignature: SIGNATURE,
+    sourceStoryId: STORY_ID,
+  }).slice(0, 16)}`;
+  return {
+    schemaVersion: 'proofbound.playbook-auto-activation.v1',
+    activationId: 'PBA-LINEAGE-001',
+    idempotencyKey: `source-lineage-audit-smoke:${pb.id}:activation`,
+    activatedAt: NOW,
+    playbookId: pb.id,
+    before: {
+      playbookStatus: 'candidate',
+      playbookDigest: computePlaybookDigest(pb),
+    },
+    after: {
+      playbookStatus: 'active',
+      playbookDigest: activeDigest,
+    },
+    policy: {
+      policyId: 'proofbound.evidence-activated-advisory-playbook.v1',
+      policyDigest: digestCanonicalJson({ smoke: 'source-lineage-audit', policy: 1 }),
+      reviewedBy: 'source-lineage-audit-smoke',
+    },
+    evidence: {
+      aggregateDigest: row.aggregateDigest,
+      decisionId: row.decisionId,
+      decisionIdempotencyKey: row.idempotencyKey,
+      decisionDigest: digestCanonicalJson(row),
+      recommendation: 'recommend_activate',
+      reasonCodes: row.reasonCodes,
+      decisiveSamples: row.aggregate.decisiveSamples,
+      helpedCount: row.aggregate.helpedCount,
+      dismissedCount: row.aggregate.dismissedCount,
+      harmfulCount: row.aggregate.harmfulCount,
+      wrongClaimCount: row.aggregate.wrongClaimCount,
+      contextClassCount: row.aggregate.contextClassCount,
+      realOutcomeCount: 1,
+      exposureCount: 1,
+      lineageCanonicalSourceKey,
+    },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
 function devMemoryEntry(id: string, extras: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     id,
@@ -298,9 +351,11 @@ function seedRichLearningStores(root: string, store: StoryStore): void {
   writeAbs(join(resolveProposalsDir(root), 'PBP-MISSING.json'), JSON.stringify({ id: 'PBP-MISSING' }, null, 2));
 
   const pb = playbook('PB-LINEAGE-001');
+  const promotionDecision = decision(pb);
   writePlaybooks(root, [pb]);
   appendPlaybookOutcomeEvent(root, outcome(pb));
-  appendPlaybookPromotionDecision(root, decision(pb));
+  appendPlaybookPromotionDecision(root, promotionDecision);
+  appendPlaybookAutoActivationEvent(root, activation(pb, promotionDecision));
 }
 
 function snapshot(root: string): string {
@@ -363,11 +418,12 @@ try {
       'playbook',
       'playbook_outcome',
       'playbook_promotion_decision',
+      'playbook_auto_activation',
     ] as const) {
       assert.equal(artifactKinds(report).has(kind), true, `${kind} collector emitted records`);
     }
 
-    assert.ok(report.records.length >= 8, 'records are emitted');
+    assert.ok(report.records.length >= 9, 'records are emitted');
     for (const record of report.records) {
       assert.equal(record.authority, 'non_authoritative');
       assert.equal(record.gateEvidence, false);
@@ -380,9 +436,10 @@ try {
       group.records.some((record) => record.artifactKind === 'finding')
       && group.records.some((record) => record.artifactKind === 'playbook')
       && group.records.some((record) => record.artifactKind === 'playbook_outcome')
-      && group.records.some((record) => record.artifactKind === 'playbook_promotion_decision'));
+      && group.records.some((record) => record.artifactKind === 'playbook_promotion_decision')
+      && group.records.some((record) => record.artifactKind === 'playbook_auto_activation'));
     assert.ok(duplicate, 'shared source finding produces a duplicate canonical source group');
-    assert.ok(duplicate!.recordCount >= 5, 'duplicate group includes multiple learning artifacts');
+    assert.ok(duplicate!.recordCount >= 6, 'duplicate group includes multiple learning artifacts');
   });
 
   check('missing lineage diagnostics stay non-authoritative', () => {
@@ -432,10 +489,13 @@ try {
     const root = mkProject(); roots.push(root);
     const { ctx } = mkCtx(root);
     writeAbs(resolveFindingSignalsPath(root), '{not json');
+    writeAbs(resolvePlaybookAutoActivationsPath(root), '{not json\n');
     const report = audit(ctx);
 
     assert.equal(report.diagnostics.some((diag) =>
       diag.code === 'store_malformed' && diag.message.includes('finding-signals')), true);
+    assert.equal(report.diagnostics.some((diag) =>
+      diag.code === 'store_malformed_row' && diag.message.includes('playbook auto activations')), true);
     assert.equal(report.authority, 'non_authoritative');
     assert.equal(report.gateEvidence, false);
   });

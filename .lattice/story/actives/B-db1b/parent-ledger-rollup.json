@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-db1b",
+  "ledgerHash": "sha256:86060f3879159b4603659f98f73396121eb54298fae8689816a64309a7aaf4a7",
+  "slicePlanHash": "sha256:5d4504c5590d6b7a8c9a9ea4ed5eb5c279fe84deb8d127c95a3f1305d51957b6",
+  "children": [
+    {
+      "storyId": "B-db1b",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "B-db1b:summary.json",
+        "B-db1b:test-evidence.json",
+        "B-db1b:done-required-evidence.json",
+        "B-db1b:delivery-check.json",
+        "B-db1b:review-quorum-full-3x2"
+      ]
+    },
+    {
+      "storyId": "B-db1b",
+      "milestoneIds": [
+        "M4",
+        "M5"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "B-db1b:summary.json",
+        "B-db1b:test-evidence.json",
+        "B-db1b:done-required-evidence.json",
+        "B-db1b:delivery-check.json",
+        "B-db1b:review-quorum-full-3x2",
+        "B-db1b:pinn-benchmark-a3-14-a4-15"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:4294097b5d135b252f646ec5aaa3f2dfa830d88c993eb36a303f75c16841db52",
+  "createdAt": "2026-07-02T23:20:57.391Z",
+  "updatedAt": "2026-07-02T23:20:57.391Z"
+}

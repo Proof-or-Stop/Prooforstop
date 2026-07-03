@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-db1b",
+  "state": "confirmed",
+  "ledgerHash": "sha256:86060f3879159b4603659f98f73396121eb54298fae8689816a64309a7aaf4a7",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-M0",
+      "claim": "Runtime scope and command boundary are explicit for local PINN claim admissibility.",
+      "doneMeans": "CLI help and policy expose local-only commands and reject production/authority/PDE-correctness overclaims.",
+      "requiredEvidence": [
+        "cli",
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1",
+      "claim": "Claim and evidence schema bind PINN claims to current subject identity.",
+      "doneMeans": "Complete evidence passes while missing, stale, or mismatched hashes block with stable reason codes.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-M2",
+      "claim": "Verifier adapter pack records deterministic pass/fail receipts.",
+      "doneMeans": "All adapter families are checked and malformed, failing, wrong-hash, or stale receipts fail closed.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-M3",
+      "claim": "Gate transition engine prevents unsupported claim advancement.",
+      "doneMeans": "Complete paths advance, repairable gaps return repair/degrade, unsafe mismatches stop, and weaker arms cannot upgrade claims.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4",
+      "claim": "Benchmark harness compares self-report, checklist, verifier-only, and full Proof-or-Stop arms.",
+      "doneMeans": "Benchmark reports A1-A4 metrics, Wilson intervals, and A4 rejects every B1-B15 unsupported/stale injection.",
+      "requiredEvidence": [
+        "cli",
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5",
+      "claim": "Reporting and governance integration render deterministic boundary-aware results.",
+      "doneMeans": "Report command emits artifact index and boundary paragraph without claiming PDE correctness, production readiness, or external authority completion.",
+      "requiredEvidence": [
+        "cli",
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-02T18:45:29.526Z",
+  "updatedAt": "2026-07-02T18:45:56.416Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702184147",
+    "acceptedInterpretationHash": "sha256:476700910df959ba3184f8dbe6620cc0b5587e78666b1810d9d5bdc46faf1787",
+    "acceptedAt": "2026-07-02T18:45:56.416Z"
+  }
+}

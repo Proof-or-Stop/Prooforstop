@@ -1,8 +1,9 @@
 # Playbook Promotion Worker Execution Plan
 
 Status: revised draft after Claude CLI + agy CLI audit; V1 M3-M6 plus M5.5
-implemented by B-6241. M7/M8 trial serving, matched-control serving, timers,
-and automatic candidate-to-active mutation remain future work.
+implemented by B-6241. B-7ee1 adds evidence-activated advisory
+candidate-to-active apply. Trial serving, matched-control serving, and timers
+remain future work.
 
 ## 1. Why This Document Exists
 
@@ -29,9 +30,10 @@ Short version:
 > Story DONE should trigger non-blocking learning settlement. A promotion worker
 > should then use explicit outcome evidence to recommend activation, reject,
 > archive, recommend demotion, or mark playbook sources as non-promotable. The
-> first version uses a simple absolute-threshold evaluator. Matched control
-> groups, trial traffic, timers, and auto-active promotion are future
-> extensions, not V1 requirements.
+> first version uses a simple absolute-threshold evaluator. A separate
+> `playbook_auto_promotion_apply` command may activate only evidence-qualified
+> advisory candidates; matched control groups, trial traffic, and timers are
+> future extensions.
 
 ## 2. Audit-Driven Scope Correction
 
@@ -132,13 +134,14 @@ V1 does not require:
 - low-traffic trial serving;
 - matched candidate-vs-control experiments;
 - timer registration;
-- automatic `candidate -> active` mutation.
+- blanket or timer-driven `candidate -> active` mutation.
 
-V1 closes the assessment loop, not the activation loop. It reduces the
-human-memory dependency by surfacing auditable activation recommendations, but
-it does not remove the human activation boundary. Fully automatic advisory
-activation is V2+ behind an explicit feature flag and a separate reviewable
-rollout decision.
+V1 closes the assessment loop. B-7ee1 then closes the guarded advisory
+activation loop through `playbook_auto_promotion_apply`: promotion sweep remains
+recommendation-only, while the separate apply command consumes reviewed policy,
+current candidate digest, applied `recommend_activate` decision, explicit
+exposure/outcome evidence, clean lineage, and rollback readiness. The apply
+command remains non-authoritative and never writes gate evidence.
 
 `playbook_promotion_observe` is an evidence-gathering surface for M7/M8
 readiness: it reports current candidates, explicit candidate-consumption
@@ -662,8 +665,8 @@ Rules:
 - V1 apply may write recommendations, rejected/archive metadata, demotion
   recommendations, and non-promotable source records stored under the legacy
   compatibility naming/path;
-- V1 apply does not automatically activate candidates unless a later feature
-  flag/story enables that behavior;
+- promotion sweep apply does not activate candidates; activation is handled only
+  by the separate evidence-gated `playbook_auto_promotion_apply` command;
 - apply cannot mutate story lifecycle state;
 - apply cannot write review, validation, delivery, or DONE evidence.
 
@@ -679,7 +682,7 @@ Output:
 - latest decisions;
 - rejected/non-promotable sources;
 - retention/compaction warnings;
-- disabled feature-flag state.
+- evidence-activation readiness and blocker state.
 
 ## 16. Feature Flags And Rollout
 
@@ -696,7 +699,13 @@ Future flags:
 |---|---|---|
 | `PLAYBOOK_TRIAL_SERVING_ENABLED` | off | Allows trial playbooks to surface at bounded traffic |
 | `PLAYBOOK_PROMOTION_TIMER_ENABLED` | off | Allows periodic timer registration |
-| `PLAYBOOK_AUTO_ACTIVE_ENABLED` | off | Allows automatic `candidate/trial -> active` advisory promotion |
+
+Evidence-activated advisory promotion is not controlled by a default-off
+ordinary-use flag. `playbook_auto_promotion_apply --apply` may activate only
+candidate playbooks that satisfy the reviewed activation policy, current
+candidate digest, applied `recommend_activate` decision, explicit exposure,
+structured outcome evidence, clean source lineage, and rollback/demotion
+readiness. It remains non-authoritative and never writes gate evidence.
 
 Fail-closed rules:
 
@@ -910,22 +919,32 @@ Tests:
 - control mechanism is explicit;
 - trial traffic cannot surface when flag is off.
 
-### M8. Future Auto Active And Timer
+### M8. Evidence-Activated Advisory Apply And Future Timer
 
-Goal: make the loop run without human memory only after V1 is proven.
+Goal: close the guarded advisory activation loop without changing promotion
+sweep semantics or lifecycle authority.
 
 Deliverables:
 
-- optional periodic timer registration;
-- optional automatic advisory activation;
-- automatic reversal/demotion path.
+- promotion sweep remains recommendation-only and records applied
+  `recommend_activate` decisions when explicitly applied;
+- `playbook_auto_promotion_apply` is the separate evidence-activated apply
+  writer for candidate-to-active advisory activation;
+- apply requires reviewed policy, current candidate digest, an applied
+  `recommend_activate` decision, explicit non-DONE exposure/outcome evidence,
+  clean source lineage, and rollback/demotion readiness;
+- apply writes non-authoritative, `gateEvidence:false` activation audit rows;
+- optional periodic timer registration remains future work.
 
 Tests:
 
-- disabled flag causes no-op;
-- timer registration is visible and bounded;
-- auto-active remains advisory;
-- auto-demotion reverses harmful active guidance.
+- DONE-settlement-labelled rows cannot satisfy activation recommendation or
+  eligibility thresholds;
+- stale candidate digests fail closed;
+- malformed activation audit rows fail closed without activating a candidate;
+- advisory activation remains non-authoritative and `gateEvidence:false`;
+- future timer registration, if added, is visible and bounded;
+- demotion recommendations surface harmful active guidance.
 
 ## 20. Acceptance Criteria
 
@@ -953,7 +972,8 @@ V1 is complete when:
     may remain `non_deducible`.
 
 Future completion for V2+ requires separate acceptance criteria for trial
-serving, matched control, timers, and auto-active advisory promotion.
+serving, matched control, timers, and any timer-driven or trial-serving
+promotion variants.
 
 ## 21. Suggested Implementation Order
 
@@ -967,7 +987,8 @@ Recommended sequence:
 6. M3 DONE settlement hook.
 7. M6 candidate inspection/status.
 8. M7 trial/matched-control spike.
-9. M8 auto-active/timer only if the spike says the simple loop is insufficient.
+9. M8 evidence-activated advisory apply; timer registration remains a separate
+   future extension only if the simple loop is insufficient.
 
 M3 can move earlier if the team wants settlement data sooner, but the safest
 order is to establish concurrency and outcome validation before wiring DONE.
@@ -984,8 +1005,9 @@ order is to establish concurrency and outcome validation before wiring DONE.
 4. What retention limit is acceptable for local raw outcome ledgers?
 5. Should candidate inspection appear in `session_brief`, or only in
    `playbook_promotion_status`?
-6. What review path is required before enabling automatic active advisory
-   promotion?
+6. What review path should future timer-driven, trial-serving, or materially
+   different promotion policies require before they can change active advisory
+   behavior?
 
 ## 23. Relationship To Existing Plans
 

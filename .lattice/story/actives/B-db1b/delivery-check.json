@@ -1,0 +1,86 @@
+{
+  "storyId": "B-db1b",
+  "checkedAt": "2026-07-02T23:13:00.804Z",
+  "headHash": "7f6c34f7a8e460d6914d5017ea5426b291ba055d",
+  "materialHash": "1a4a0688efec382dffe8203ba33c6f6bb46b47e3444ab73101a26bf7445af155",
+  "storyFilesHash": "707f920ed860f49ee21ffa59896f116925a04530e16b4cf094e2314f9f2953d7",
+  "reviewRound": "2026-07-02T22:41:51.810Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "M0-M5 are complete with all six milestones marked done and the scope remains local claim admissibility only.",
+      "status": "verified",
+      "verifiedBy": "sed/rg plus runtime smoke",
+      "evidence": "Doc Current implementation status names M0-M5, the three runtime commands, A3=14/A4=15, and local-only boundary; milestone table lists M0, M1, M2, M3, M4, M5 all with checkmarks."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Runtime commands pinn_claim_check, pinn_benchmark_run, and pinn_report_render exist and execute locally.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js command runs",
+      "evidence": "All three commands returned structured JSON on current HEAD; npm run test:pinn-claim-admissibility also passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Complete C9 evidence advances only local claim admissibility and does not claim PDE correctness, deployment, production readiness, external completion, or terminal completion.",
+      "status": "verified",
+      "verifiedBy": "pinn_claim_check JSON",
+      "evidence": "pinn_claim_check --fixture=complete --claimId=C9 returned allowed=true,nextAction=advance,checkedAdapterCount=9 and deploymentReadyClaim=false, productionReadyClaim=false, externalCompletionClaim=false, terminalCompletionClaim=false, pdeCorrectnessClaim=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "A3 verifier-only arm records acceptedCount=14 and unsupportedAcceptanceCount=14; A4 rejects all 15 B1-B15 injections.",
+      "status": "verified",
+      "verifiedBy": "pinn_benchmark_run JSON",
+      "evidence": "pinn_benchmark_run --format=json returned suiteStatus=PASS,totalInjections=15,A3 acceptedCount=14,unsupportedAcceptanceCount=14,A4 rejectedInjectionCount=15,total=15."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "Generated reports include an artifact index and fixed claim boundary while keeping claim booleans false.",
+      "status": "verified",
+      "verifiedBy": "pinn_report_render JSON/text",
+      "evidence": "pinn_report_render --format=json returned artifactIndexLength=3 and the boundary paragraph; claims object kept deploymentReadyClaim, productionReadyClaim, externalCompletionClaim, terminalCompletionClaim, and pdeCorrectnessClaim false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "promise": "CLI rejects overclaim flags such as productionReadyClaim and productionDone rather than accepting them as runtime truth.",
+      "status": "verified",
+      "verifiedBy": "negative CLI probes",
+      "evidence": "pinn_claim_check, pinn_benchmark_run, and pinn_report_render with --productionReadyClaim=true exited 1 with expected never validation; pinn_benchmark_run --productionDone=true exited 1 with expected never validation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice test_list showed result PASS with verification coverage 18/18 and materialHash 1a4a0688efec382dffe8203ba33c6f6bb46b47e3444ab73101a26bf7445af155; done_closure showed test evidence, done-required validation, summary, git tree, and main sync passing before delivery-check refresh."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node bin/lattice.js pinn_claim_check --fixture=complete --claimId=C9 --format=json returned allowed=true,nextAction=advance,checkedAdapterCount=9,boundary local-only, and all five claim flags false."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node bin/lattice.js pinn_benchmark_run --format=json returned suiteStatus=PASS,totalInjections=15,A3 acceptedCount=14,unsupportedAcceptanceCount=14,A4 rejectedInjectionCount=15,total=15, and claims false."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "node bin/lattice.js pinn_report_render --format=json returned suiteStatus=PASS,artifactIndexLength=3,boundary paragraph present, and deploymentReadyClaim/productionReadyClaim/externalCompletionClaim/terminalCompletionClaim/pdeCorrectnessClaim false; text mode contains the claim-admissibility boundary."
+    },
+    {
+      "featureId": "CHK-001-edge",
+      "transcript": "Negative probes rejected overclaims: all three pinn_* commands with --productionReadyClaim=true exited 1 with expected never validation; pinn_benchmark_run --productionDone=true exited 1 with expected never validation."
+    },
+    {
+      "featureId": "smoke",
+      "transcript": "npm run test:pinn-claim-admissibility completed successfully with pinn claim-admissibility smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises match current machine evidence: M0-M5 doc promises, C9 local advance, A3/A4 counts, report artifact/boundary output, false claim booleans, and overclaim flag rejection were independently checked. Remaining DONE blockers, if any, are review escalation/quorum rather than delivery mismatch."
+  },
+  "_hash": "7af050046ddfd0788e5a0fb219c0b2e5f468add777982a323fc2895b81ffd4a2"
+}
