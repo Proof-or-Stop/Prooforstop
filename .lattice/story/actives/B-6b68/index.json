@@ -5,14 +5,13 @@
   "description": "Resolve the project convergence annotation error by changing the claim-admissibility pack framework smoke @type from invalid test to an allowed task type without changing runtime behavior.",
   "type": "bug",
   "phase": "INIT",
-  "priority": "high",
+  "priority": "medium",
   "riskSignals": [
     {
       "category": "Compliance/Privacy",
       "matched": "compliance"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-03T11:39:51.750Z",
   "startedAt": "2026-07-03T11:39:51.750Z",
   "endedAt": null,
@@ -25,6 +24,13 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Compliance/Privacy",
+      "reason": "False positive: the story only fixes a task annotation enum used by convergence annotation compliance checks; it does not modify compliance, privacy, security, policy, or user-data behavior.",
+      "at": "2026-07-03T11:40:06.401Z"
     }
   ]
 }
