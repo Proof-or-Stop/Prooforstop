@@ -49,9 +49,26 @@
     "packages/main/src/handlers/done-prepare.ts"
   ],
   "scopeChangeReason": "Reviewer finding B-3779:F-002 requires adding read-only process-fact lifecycle classifications for quantum_claim_benchmark and quantum_claim_report; keep lifecycle mutation, generic proof-admissibility rule changes, Authority/DONE production paths, external solvers, hardware, and lab validation excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge generated delivery context pack as required TEST-to-DONE lifecycle evidence for B-3779 delivery review; it is not a business/code scope expansion.",
+      "timestamp": "2026-07-03T04:32:09.023Z",
+      "paths": [
+        ".lattice/story/actives/B-3779/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3779/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "190dfa53dffca689bd2e2494608a55d892973060",
+      "materialHash": "2f448029efcd7e43a23939c5f8a0424a93ad294321416267a9978fe0a00256be"
+    }
+  ],
   "createdAt": "2026-07-03T03:36:00.566Z",
-  "updatedAt": "2026-07-03T03:53:15.210Z",
+  "updatedAt": "2026-07-03T04:32:09.023Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
