@@ -5,7 +5,7 @@
       "desc": "CHK-002 userSees says arm=control prints no Memory Runtime Preflight section, but handoff_resume text output still renders a Runtime memory advisory: section header (with hostPolicy lines and memoryCompletionProof: false) even on the control arm. The renderHandoffResumeText function calls renderOptionalMemoryLines(projection.memoryFreshnessPack, projection.runtimeHostPolicy). The handler strips the pack into enrichedWithoutPack but leaves runtimeHostPolicy intact, so renderOptionalMemoryLines fires (it returns early only when BOTH args are falsy) and emits the section header with hostPolicy lines. No pack content leaks (memoryPackDigest/topHitIds are absent), but the Runtime memory advisory: section is visible on control arm, which is not byte-identical to the expected no-section behavior. Neither smoke test (CHK-005 experience-pack-arm-switch-smoke nor experience-layer-ab-shadow-gate-smoke) exercises handoff_resume text mode on the control arm. Fix: in the handoff_resume handler, also strip runtimeHostPolicy when control arm is active (or refactor renderHandoffResumeText to accept a flag); alternatively, gate renderOptionalMemoryLines on shouldRenderRuntimeMemoryPack(). File: packages/main/src/handlers/lattice-handoff.ts line 764, packages/main/src/core/lattice-handoff.ts lines 1372-1383.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-03T00:10:00.729Z",
@@ -18,7 +18,9 @@
         "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
       ],
       "signatureTag": "edge|ts|usersees-says-control",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 055fc5678aa5baca030e6659d3c0e550e02c044e. Seam: in the handoff_resume handler, extended the existing shouldRenderRuntimeMemoryPack()-gated strip (which already removed memoryFreshnessPack) to also strip runtimeHostPolicy from the render projection, so renderOptionalMemoryLines receives neither arg and the whole Runtime memory advisory: section (header, pack lines, hostPolicy lines, memoryCompletionProof) is suppressed on control. Chose whole-section suppression over a control-only non-memory hostPolicy header because that would create a render variant existing only on control; host policy is still enforced by assertRuntimeHostPolicyAllowed on every arm and the JSON projection keeps pack + hostPolicy (render-only gating). Treatment/no-env use the untouched enriched projection, byte-identical to before. New smoke case (j) in experience-pack-arm-switch-smoke.ts exercises the real handoff_create -> handoff_resume flow: control equals no-env baseline minus exactly the advisory section, treatment byte-identical to no-env, control JSON keeps pack + hostPolicy. Arm-switch smoke 24/24 ALL PASS, ab-shadow-gate smoke 14/14 PASS, full lattice validate exit 0.",
+      "resolvedAt": "2026-07-03T00:32:25.070Z"
     },
     {
       "id": "B-ab8d:F-002",
