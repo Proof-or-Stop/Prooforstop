@@ -116,6 +116,15 @@
       "reviewRound": "2026-07-03T02:13:31.766Z",
       "reviewRunId": "B-d1bf:RR-030",
       "_hash": "7972970a7673a84f5c7c412406ae4d6a07d508de22887ccfde0aee3accbd7927"
+    },
+    {
+      "id": "B-d1bf:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Quality reviewed at current head: invalid requestedStrength, invalid claimId, and retired Authority/DONE fields fail closed deterministically; gate ordering and result shape preserve no lifecycle mutation and no positive Authority, production, or DONE claims; quantum, command-catalog, and retired-vocabulary smokes pass.",
+      "createdAt": "2026-07-03T02:17:45.635Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "reviewRunId": "B-d1bf:RR-028",
+      "_hash": "95a1a71b1eef53d17ab6fd074625b862b060c866219561bc5e8be08b991cca85"
     }
   ]
 }
