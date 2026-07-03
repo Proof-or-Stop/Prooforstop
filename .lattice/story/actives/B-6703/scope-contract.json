@@ -18,7 +18,28 @@
     "blocking policy generation"
   ],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These are ProofStory gate artifacts required by enforced DEV admission for B-6703, written through lattice original_intent_snapshot_set, intent_collision_set, and proofstory_contract_set; they are lifecycle metadata, not product scope expansion.",
+      "timestamp": "2026-07-03T03:16:33.518Z",
+      "paths": [
+        ".lattice/story/actives/B-6703/intent-collision.json",
+        ".lattice/story/actives/B-6703/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6703/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6703/intent-collision.json",
+        ".lattice/story/actives/B-6703/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6703/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "986ac016c1cf3da7e1207b759f07416421b596ef",
+      "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91"
+    }
+  ],
   "createdAt": "2026-07-03T02:59:14.881Z",
-  "updatedAt": "2026-07-03T02:59:14.881Z"
+  "updatedAt": "2026-07-03T03:16:33.518Z"
 }
