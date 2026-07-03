@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { z } from 'zod';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { submitLocalVerdict, type FormatArgs } from './verdict.js';
@@ -274,14 +275,34 @@ function derivedKey(storyId: string, hostId: string): string {
   return `xhr:${storyId}:${hostId}:key`;
 }
 
-function isFindingSeverity(value: unknown): value is Finding['severity'] {
-  return typeof value === 'string' && (FINDING_SEVERITIES as readonly string[]).includes(value);
-}
+/**
+ * STRICT Finding schema (sweep hardening). `.strict()` REJECTS unknown keys — the
+ * host-A findings file is untrusted caller-supplied input, so an extra/contradictory
+ * key (or a missing required field, or a wrong-typed field) must FAIL CLOSED, not be
+ * silently dropped. Mirrors the frozen `Finding` shape (adversarial-review.ts).
+ */
+const hostAFindingSchema = z.object({
+  severity: z.enum(FINDING_SEVERITIES),
+  title: z.string(),
+  file: z.string(),
+  line: z.number(),
+  issue: z.string(),
+  fix: z.string(),
+}).strict();
+
+/** A JSON array of strict Finding objects. */
+const hostAFindingsSchema = z.array(hostAFindingSchema);
 
 /**
- * Parse + validate the host-A (Claude) findings from a JSON file. Must be a JSON
- * array of `Finding`. Any malformed entry fails closed with a descriptive error
- * (host A is the caller-authored input; we do not silently drop its findings).
+ * Parse + STRICTLY validate the host-A (Claude) findings from a JSON file. Must be a
+ * JSON array of `Finding` with EXACTLY the frozen fields — no missing, no extra, no
+ * wrong-typed keys. Any deviation fails closed with a descriptive error (host A is
+ * caller-authored, untrusted input; we neither silently drop its findings nor trust
+ * `JSON.parse` output that merely happens to carry the required fields).
+ *
+ * Sweep hardening: replaces the earlier hand-rolled per-field checks (which accepted
+ * and silently dropped EXTRA keys) with a strict Zod array — closing the same
+ * unknown-key trust-boundary gap fixed for the codex verdict schema.
  */
 function loadHostAFindings(path: string): Finding[] {
   let raw: string;
@@ -299,27 +320,17 @@ function loadHostAFindings(path: string): Finding[] {
   if (!Array.isArray(parsed)) {
     throw new Error(`cross_host_review: hostAFindingsFile "${path}" must contain a JSON array of Finding objects`);
   }
-  return parsed.map((entry, index) => {
-    if (typeof entry !== 'object' || entry === null) {
-      throw new Error(`cross_host_review: hostAFindingsFile "${path}" entry ${index} is not an object`);
-    }
-    const f = entry as Record<string, unknown>;
-    if (!isFindingSeverity(f.severity)) {
-      throw new Error(`cross_host_review: hostAFindingsFile "${path}" entry ${index} has invalid severity (expected ${FINDING_SEVERITIES.join('|')})`);
-    }
-    if (typeof f.title !== 'string' || typeof f.file !== 'string' || typeof f.line !== 'number'
-      || typeof f.issue !== 'string' || typeof f.fix !== 'string') {
-      throw new Error(`cross_host_review: hostAFindingsFile "${path}" entry ${index} is missing required Finding fields (title/file/line/issue/fix)`);
-    }
-    return {
-      severity: f.severity,
-      title: f.title,
-      file: f.file,
-      line: f.line,
-      issue: f.issue,
-      fix: f.fix,
-    };
-  });
+  const result = hostAFindingsSchema.safeParse(parsed);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    const where = issue && issue.path.length > 0 ? ` at ${issue.path.join('.')}` : '';
+    throw new Error(
+      `cross_host_review: hostAFindingsFile "${path}" is not a strict array of Finding objects`
+      + `${where}: ${issue ? issue.message : 'invalid'} `
+      + `(each entry must have EXACTLY severity/title/file/line/issue/fix — no missing, extra, or wrong-typed keys)`,
+    );
+  }
+  return result.data;
 }
 
 function deriveValidationDigest(storyId: string, materialDigest: string, storyFilesHash: string, headHash?: string): string {
@@ -407,6 +418,27 @@ function authorizeReviewPolicy(root: string, policy: string | DispatchPolicy | u
       + 'refusing to spawn the codex review subprocess (fail-closed).',
     );
   }
+  // Bug10 (defense-in-depth): the runtime ceiling MUST be a real, finite, positive
+  // number. checkDispatchPolicy now refuses a malformed record upstream (so a string
+  // maxRuntimeMinutes never reaches here), but we re-assert it directly rather than
+  // trusting the type: a non-number ceiling would otherwise be silently discarded by
+  // the timeout computation and codex would run with the caller timeout instead of
+  // the intended bound. Fail closed rather than spawn without an enforced ceiling.
+  // Bug10 (defense-in-depth): the runtime ceiling MUST be a real, finite, positive
+  // number. checkDispatchPolicy now refuses a malformed record upstream (so a string
+  // maxRuntimeMinutes never reaches here), but we re-assert it directly rather than
+  // trusting the type: a non-number ceiling would otherwise be silently discarded by
+  // the timeout computation and codex would run with the caller timeout instead of
+  // the intended bound. Fail closed rather than spawn without an enforced ceiling.
+  if (typeof authorized.maxRuntimeMinutes !== 'number'
+    || !Number.isFinite(authorized.maxRuntimeMinutes)
+    || authorized.maxRuntimeMinutes <= 0) {
+    throw new Error(
+      `cross_host_review: dispatch policy "${authorized.policy}" has a malformed maxRuntimeMinutes ceiling `
+      + `(${JSON.stringify(authorized.maxRuntimeMinutes)}); refusing to spawn the codex review subprocess without a `
+      + 'valid runtime bound (fail-closed).',
+    );
+  }
   return authorized;
 }
 
@@ -457,9 +489,25 @@ export function createCrossHostReviewHandlers(
       const requestedMinutes = typeof args.timeoutMinutes === 'number' && args.timeoutMinutes > 0
         ? args.timeoutMinutes
         : DEFAULT_TIMEOUT_MINUTES;
-      const policyMaxMinutes = typeof reviewPolicy.maxRuntimeMinutes === 'number' && reviewPolicy.maxRuntimeMinutes > 0
-        ? reviewPolicy.maxRuntimeMinutes
-        : requestedMinutes;
+      // Bug10: the ceiling is trusted to be a real positive number here ONLY because
+      // authorizeReviewPolicy already fail-closed-verified it (and checkDispatchPolicy
+      // refused a malformed record upstream). We therefore use it DIRECTLY — no silent
+      // `? ceiling : requestedMinutes` fallback that would let a non-number widen the
+      // bound to the caller timeout. Re-assert as a final invariant to fail closed
+      // rather than spawn without an enforced ceiling.
+      // Bug10: the ceiling is trusted to be a real positive number here ONLY because
+      // authorizeReviewPolicy already fail-closed-verified it (and checkDispatchPolicy
+      // refused a malformed record upstream). We therefore use it DIRECTLY — no silent
+      // `? ceiling : requestedMinutes` fallback that would let a non-number widen the
+      // bound to the caller timeout. Re-assert as a final invariant to fail closed
+      // rather than spawn without an enforced ceiling.
+      const policyMaxMinutes = reviewPolicy.maxRuntimeMinutes;
+      if (typeof policyMaxMinutes !== 'number' || !Number.isFinite(policyMaxMinutes) || policyMaxMinutes <= 0) {
+        throw new Error(
+          `cross_host_review: authorized policy "${reviewPolicy.policy}" yielded a non-numeric maxRuntimeMinutes ceiling `
+          + `(${JSON.stringify(policyMaxMinutes)}); refusing to spawn the codex review subprocess without a valid runtime bound (fail-closed).`,
+        );
+      }
       const timeoutMinutes = Math.min(requestedMinutes, policyMaxMinutes);
 
       // F-004: the codex subprocess only sees a redacted env honoring the policy's

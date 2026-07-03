@@ -52,6 +52,13 @@ export interface CodexReviewVerdict {
   reason?: string;
 }
 
+// STRICT schemas (Bug9 fix): `.strict()` REJECTS unknown keys instead of silently
+// stripping them. A non-strict `.object()` would accept a verdict that carries the
+// valid required fields PLUS extra contradictory keys (e.g. a second `decision`, an
+// injected `override`) and drop the extras — so a tampered/padded verdict would be
+// treated as clean. With `.strict()` any unknown key makes safeParse FAIL, so
+// extraction returns undefined and the leaf fails closed with no_parseable_verdict.
+// This is a defense-in-depth trust-boundary hardening of the untrusted codex stdout.
 const findingSchema = z.object({
   severity: z.enum(FINDING_SEVERITIES),
   title: z.string(),
@@ -59,7 +66,7 @@ const findingSchema = z.object({
   line: z.number(),
   issue: z.string(),
   fix: z.string(),
-});
+}).strict();
 
 const verdictSchema = z.object({
   schemaVersion: z.literal(CODEX_REVIEW_VERDICT_SCHEMA),
@@ -67,7 +74,7 @@ const verdictSchema = z.object({
   materialHash: z.string(),
   findings: z.array(findingSchema),
   summary: z.string(),
-});
+}).strict();
 
 export const CODEX_REVIEW_NO_PARSEABLE_VERDICT = 'codex_review_no_parseable_verdict' as const;
 export const CODEX_REVIEW_MATERIAL_MISMATCH = 'codex_review_material_mismatch' as const;
