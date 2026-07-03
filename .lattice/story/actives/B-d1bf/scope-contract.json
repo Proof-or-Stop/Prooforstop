@@ -10,7 +10,12 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/registry.ts",
     "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
-    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+    ".lattice/story/actives/B-d1bf/intent-collision.json",
+    ".lattice/story/actives/B-d1bf/milestone-ledger.json",
+    ".lattice/story/actives/B-d1bf/original-intent-snapshot.json",
+    ".lattice/story/actives/B-d1bf/proofstory.json",
+    ".lattice/story/actives/B-d1bf/red-evidence.json"
   ],
   "allowedCreate": [
     "packages/main/src/handlers/quantum-claim-admissibility.ts"
@@ -34,8 +39,8 @@
     "Production readiness",
     "Authority completion"
   ],
-  "scopeChangeReason": "Initial enforce scope contract for B-d1bf: Quantum M3 local read-only gate policy plus quantum_claim_check diagnostics only.",
+  "scopeChangeReason": "Expand B-d1bf scope only for command-generated PLAN hardening artifacts required by ProofStory, intent collision, milestone ledger, original intent snapshot, and red evidence gates.",
   "acknowledgements": [],
   "createdAt": "2026-07-03T00:14:17.248Z",
-  "updatedAt": "2026-07-03T00:14:17.248Z"
+  "updatedAt": "2026-07-03T00:25:16.739Z"
 }

@@ -222,6 +222,53 @@
         }
       ],
       "_hash": "8acafd7afa3fcac4521495b5ced44e1d2e4f8420649d3325762d309f3e482b69"
+    },
+    {
+      "timestamp": "2026-07-03T00:25:24.852Z",
+      "issueCount": 7,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Implement Quantum M3: add local gate policy check for claim-admissibility t...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Verify Quantum M3: add local gate policy check for claim-admissibility t...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Add Quantum gate policy model and transition decisions + Expose a read-only quantum_claim_check CLI command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d1bf\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Exact CLI argument shape for quantum_claim_check should align with existing command catalog conventions.; Which demo cases are enough for M3 without pre-consuming M4 benchmark scope.; Whether docs should mention M3 in the generic pack framework or only in Quantum-specific runtime status."
+        }
+      ],
+      "_hash": "2f6b54029d117d21161976e289367123a480e3b3169a3911f9b5b1ea9a4fa97b"
     }
   ]
 }
