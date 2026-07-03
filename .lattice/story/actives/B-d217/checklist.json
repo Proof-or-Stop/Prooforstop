@@ -126,7 +126,21 @@
         "test": [
           "experiments/experience-ablation/score-selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/experience-ablation/RUN-RECORD.md",
+          "command": "for f in experimentId arm hostId storeRoot timeToDoneMs startedAt endedAt commandCount doneReached validationPass experience_pack_surfaced retrieval_violation topHitIds done-readiness.json final-response-check.json rows records ready verdict activity.jsonl workspace productionLearningRoot; do grep -c $f score.mjs; done",
+          "result": "pass",
+          "note": "RUN-RECORD.md documents the full run-dir layout (run.json required fields incl. timings alternative, activity.jsonl slice with both M3 event mappings, workspace/, optional done-readiness.json + final-response-check.json, degradation semantics, voiding, error catalog) and states it is the BINDING producer contract for the M6 campaign runner. Grep cross-check: every documented field/artifact has >=2 hits in score.mjs reads; reverse check: all runtime-validated run.json fields (arm, commandCount, storeRoot, timeToDoneMs) are documented.",
+          "headHash": "6ad8fcb8a30a6db7a2ba959d5a15901a614f3a7a",
+          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
+          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
+          "timestamp": "2026-07-03T00:43:08.226Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
