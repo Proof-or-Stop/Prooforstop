@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-03T03:28:19.709Z",
       "reviewRunId": "B-6703:RR-006",
       "_hash": "0c82fbfc4a9366a0a70ebb3244ad23cf1071d8c4550c73f76bde2db7bc664e70"
+    },
+    {
+      "id": "B-6703:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: npm --prefix packages/main run build, playbook-seed-promotion-loop smoke 16/16, and git diff --check pass; smoke covers evidence activation happy path, candidate inertness, DONE-settlement exclusion, exposure requirement, duplicate applied decision idempotency, malformed activation rollback, idempotent second apply, and runtime consumption.",
+      "createdAt": "2026-07-03T03:31:55.033Z",
+      "reviewRound": "2026-07-03T03:28:19.709Z",
+      "reviewRunId": "B-6703:RR-007",
+      "_hash": "afb7c3dc3f3b55991bbcdd30e8e77cca3b1fed28571adbd9a869e479172ddf31"
     }
   ]
 }
