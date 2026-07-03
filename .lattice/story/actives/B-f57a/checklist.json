@@ -241,6 +241,19 @@
           "materialHash": "df171a4ee7df67dac3182b8b5de8f7860a034313389028fee40100622c38572d",
           "storyFilesHash": "87318fa2ee58c77ce4c8575b96cb4ff26edb88eb6fb76c724b4d6d706a311aec",
           "timestamp": "2026-07-03T03:15:45.593Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:6",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:6\": dirty SOURCE worktree -> handler throws cross_host_review_dirty_worktree, codex seam never invoked, 0 verdicts recorded; .lattice-only dirt proceeds normally. RED-verified un-gameable (neutralizing the preflight fails only this check).",
+          "headHash": "8a8d8515ead6ad177f5b67e7a1cfbb2a364ec1bc",
+          "materialHash": "df171a4ee7df67dac3182b8b5de8f7860a034313389028fee40100622c38572d",
+          "storyFilesHash": "87318fa2ee58c77ce4c8575b96cb4ff26edb88eb6fb76c724b4d6d706a311aec",
+          "timestamp": "2026-07-03T03:28:27.229Z"
         }
       ]
     },
