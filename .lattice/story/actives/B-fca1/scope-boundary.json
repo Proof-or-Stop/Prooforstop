@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fca1",
+  "mode": "feature",
+  "allowed": [
+    "Generated M9 artifacts evidence-map.json + evidence-map.md under .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/",
+    "New committed generator experiments/experience-ablation/evidence-map.mjs + evidence-map-selfcheck.mjs"
+  ],
+  "excluded": [
+    "Any change to packages/main or prior milestone tools",
+    "Any modification of existing pilot artifacts (the map only reads and digest-checks them)",
+    "The decision doc itself (no plan rewrite)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User decision 2026-07-03: inconclusive path; M9 is the final milestone per plan sections 13/16/18.",
+  "createdAt": "2026-07-03T09:52:05.194Z",
+  "updatedAt": "2026-07-03T09:52:05.194Z",
+  "_hash": "52dad64f5e964026ee7adb8bfede727e2e96b647b60477ab1fc2e0413afe2cc4"
+}
