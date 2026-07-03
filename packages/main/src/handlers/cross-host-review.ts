@@ -1,9 +1,16 @@
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { submitLocalVerdict, type FormatArgs } from './verdict.js';
 import { canonicalDigest } from '../core/authority-signing.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import {
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
+  GIT_TREE_OUTPUT_MAX_BUFFER,
+} from '../core/evidence-freshness.js';
+import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { Finding } from '../core/adversarial-review.js';
 import { FINDING_SEVERITIES } from '../core/adversarial-review.js';
@@ -24,6 +31,85 @@ import {
 } from '../core/dispatch-policy.js';
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
+
+/** Fail-closed reason: the worktree carries uncommitted MATERIAL (source) state, so the HEAD materialHash cannot honestly bind a review Codex runs against the LIVE tree. */
+export const CROSS_HOST_REVIEW_DIRTY_WORKTREE = 'cross_host_review_dirty_worktree' as const;
+
+/**
+ * Integrity preflight (host-B escalation-lane fix): FAIL CLOSED before any codex
+ * spawn when the worktree has uncommitted MATERIAL (source) drift versus HEAD.
+ *
+ * WHY: the recorded verdict is bound to `currentMaterialHash(root,'HEAD',...)`,
+ * which hashes the COMMITTED tree (`git ls-tree HEAD`). But the Codex review leaf
+ * runs `codex exec -C <worktree>` against the LIVE worktree. If the worktree has
+ * uncommitted modifications to tracked files OR untracked files that Codex would
+ * see, Codex reviews a DIFFERENT tree than the HEAD materialHash the verdict is
+ * bound to — so a `pass` bound to HEAD could reflect a review of uncommitted code
+ * that is later discarded. Throwing here guarantees HEAD === the tree Codex
+ * reviews (modulo `.lattice/` metadata Codex never reads), so the bound
+ * materialHash is HONEST. This matches the repo's "commit before review"
+ * discipline.
+ *
+ * `.lattice/` EXCLUSION: the story's own Lattice metadata dir churns constantly
+ * DURING a story (activity log, locks, the story's own test-evidence/checklist),
+ * and Codex reviews SOURCE, not story bookkeeping — so any path under `.lattice/`
+ * is dropped from the material set. Everything else that git reports (tracked
+ * modifications + untracked files via `--untracked-files=all`) counts as material
+ * drift.
+ *
+ * NOTE ON `currentMaterialHash`: it has no clean working-tree hash mode — it only
+ * hashes a git ref via `git ls-tree -r <ref>` (the committed tree), so it cannot
+ * be repointed at the live worktree. The fail-closed dirty preflight is therefore
+ * the correct fix: keep the honest committed-tree hash and refuse to bind it to a
+ * review of a dirty tree.
+ */
+function assertMaterialCleanForReview(gitCwd: string): void {
+  let raw: string;
+  try {
+    raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
+    }).trim();
+  } catch (err) {
+    // Fail closed: if we cannot even determine the worktree state, we cannot
+    // assert HEAD honestly binds the reviewed tree.
+    throw new Error(
+      `cross_host_review: ${CROSS_HOST_REVIEW_DIRTY_WORKTREE} — cannot inspect worktree state to confirm it matches HEAD `
+      + `(${err instanceof Error ? err.message : String(err)}); refusing to spawn the codex review subprocess.`,
+    );
+  }
+  if (!raw) return;
+  const latticePrefix = `${LATTICE_DIR}/`; // e.g. ".lattice/"
+  const material: string[] = [];
+  for (const line of raw.split('\n')) {
+    if (line.length < 4) continue;
+    // Porcelain v1: "XY <path>" or "XY <old> -> <new>" for renames.
+    const pathText = line.slice(3).trim();
+    const paths = pathText.includes(' -> ')
+      ? pathText.split(' -> ').map(p => p.trim().replace(/^"|"$/g, ''))
+      : [pathText.replace(/^"|"$/g, '')];
+    for (const path of paths) {
+      const normalized = path.replace(/\\/g, '/');
+      if (!normalized) continue;
+      // Drop the story's own Lattice metadata dir — Codex reviews source, not
+      // story bookkeeping, and `.lattice/` churns constantly during a story.
+      if (normalized === LATTICE_DIR || normalized.startsWith(latticePrefix)) continue;
+      material.push(normalized);
+    }
+  }
+  if (material.length > 0) {
+    const sample = [...new Set(material)].sort().slice(0, 5).join(', ');
+    throw new Error(
+      `cross_host_review: ${CROSS_HOST_REVIEW_DIRTY_WORKTREE} — the worktree has uncommitted MATERIAL (source) changes `
+      + `versus HEAD (${sample}${material.length > 5 ? ', …' : ''}). Codex reviews the LIVE worktree, but the recorded `
+      + `verdict binds to the HEAD materialHash (the committed tree), so a review of uncommitted code would be bound to a `
+      + `tree it did not review. Commit or stash the source changes before cross_host_review (commit-before-review), or `
+      + `exclude only .lattice/ metadata. Refusing to spawn the codex review subprocess (fail-closed).`,
+    );
+  }
+}
 
 /**
  * Env-var names that must NEVER be forwarded to the review subprocess. Kept
@@ -317,6 +403,15 @@ export function createCrossHostReviewHandlers(
       // F-004: the codex subprocess only sees a redacted env honoring the policy's
       // allowlist/denylist (and never operator secrets).
       const redactedEnv = buildRedactedEnv(process.env, reviewPolicy);
+
+      // Integrity preflight (host-B escalation-lane fix): FAIL CLOSED before any
+      // codex spawn if the worktree has uncommitted MATERIAL (source) drift versus
+      // HEAD. Codex reviews the LIVE worktree (codex exec -C <worktree>), but the
+      // recorded verdict binds to the HEAD materialHash (the committed tree). A
+      // dirty tree would make Codex review code the HEAD materialHash does not
+      // describe, so the bound hash would be dishonest. `.lattice/` metadata is
+      // excluded (Codex never reads story bookkeeping, and it churns constantly).
+      assertMaterialCleanForReview(projectRoot);
 
       // Host B (Codex): auto-run the read-only review leaf against the SAME
       // worktree so its embedded materialHash matches the computed digest.

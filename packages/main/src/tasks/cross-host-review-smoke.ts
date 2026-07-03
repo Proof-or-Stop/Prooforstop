@@ -8,10 +8,11 @@
  * returns undefined and this assertion fails — an un-gameable proof that the
  * orchestration surface is missing.
  *
- * GREEN phase (this file): deterministic coverage of ALL 17 verificationIntents,
- * driven by an INJECTED FAKE Codex seam (leaf/handler cases) or by DIRECT pure-
- * function calls (diff/joint cases) — no real CLI is EVER spawned. Every check
- * prints a `✓ <label>` line so evidence maps 1:1 to the intents:
+ * GREEN phase (this file): deterministic coverage of the cross_host_review
+ * verificationIntents, driven by an INJECTED FAKE Codex seam (leaf/handler cases)
+ * or by DIRECT pure-function calls (diff/joint cases) — no real CLI is EVER
+ * spawned. Every check prints a `✓ <label>` line so evidence maps 1:1 to the
+ * intents:
  *
  *   CHK-001:happy:0       fake FAIL verdict → recorded host-B decision fail, materialDigest bound.
  *   CHK-001:happy:1       registry.get('cross_host_review') defined.
@@ -25,6 +26,7 @@
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed.
  *   CHK-001:adversarial:5 (F-004) policy env-denylist + timeout ceiling threaded to the runner.
+ *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); .lattice-only dirty → proceeds.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
  *   CHK-002:edge:0        host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric).
@@ -58,6 +60,7 @@ import {
 } from '../core/codex-review-leaf.js';
 import {
   createCrossHostReviewHandlers,
+  CROSS_HOST_REVIEW_DIRTY_WORKTREE,
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
@@ -224,6 +227,12 @@ function check(name: string, fn: () => void | Promise<void>): Promise<void> {
 async function run(): Promise<void> {
   const previousCwd = process.cwd();
   const { root, store, ctx, registry } = makeFixture();
+  // The host-A findings file is a caller-supplied INPUT path, not part of the
+  // reviewed tree. Keep it OUTSIDE the git worktree so it does not itself dirty
+  // the worktree (the new dirty-worktree integrity preflight correctly treats an
+  // untracked file inside the worktree as material drift).
+  const hostAFindingsDir = mkdtempSync(join(tmpdir(), 'lattice-xhr-hostA-'));
+  const hostAFindingsFile = join(hostAFindingsDir, 'host-a-findings.json');
   try {
     process.chdir(root);
 
@@ -251,8 +260,6 @@ async function run(): Promise<void> {
       issue: 'loop never terminates',
       fix: 'bound the iteration',
     };
-    const hostAFindingsFile = join(root, 'host-a-findings.json');
-
     // ── CHK-001: leaf/handler cases (fake injected Codex seam) ──────────────────
 
     // CHK-001:happy:0 — fake FAIL verdict + host-B-only finding.
@@ -680,6 +687,56 @@ async function run(): Promise<void> {
       }
     });
 
+    // CHK-001:adversarial:6 — DIRTY-WORKTREE INTEGRITY (host-B escalation-lane fix):
+    // Codex reviews the LIVE worktree but the recorded verdict binds to the HEAD
+    // materialHash (the committed tree). If the worktree has uncommitted MATERIAL
+    // (source) drift, the handler must FAIL CLOSED before any codex spawn and record
+    // NO verdict. Control: a worktree dirty ONLY under .lattice/ metadata (which
+    // Codex never reads and which churns constantly during a story) proceeds normally.
+    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); .lattice-only dirty → proceeds', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      // (1) Make a TRACKED SOURCE file dirty (uncommitted) — this is exactly the
+      // tree divergence the HEAD materialHash cannot honestly bind.
+      write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\nexport const uncommitted = true;\n');
+      let seamInvoked = false;
+      const handlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: () => { seamInvoked = true; return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false }; },
+      });
+      const dirtyRunId = `${STORY_ID}-xhr-dirty`;
+      await assert.rejects(
+        () => Promise.resolve(handlers.cross_host_review({ storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: dirtyRunId, json: true })),
+        new RegExp(CROSS_HOST_REVIEW_DIRTY_WORKTREE),
+        'dirty SOURCE worktree throws the fail-closed dirty-worktree reason',
+      );
+      assert.equal(seamInvoked, false, 'codex seam is NEVER invoked when the worktree has uncommitted source drift');
+      const recordedDirty = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === dirtyRunId);
+      assert.equal(recordedDirty.length, 0, 'no verdict recorded on a fail-closed dirty worktree');
+
+      // Revert the source drift so the worktree matches HEAD again.
+      git(root, ['checkout', '--', 'packages/main/src/index.ts']);
+
+      // (2) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
+      // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
+      write(root, '.lattice/story/actives/some-churn.json', JSON.stringify({ churn: Date.now() }) + '\n');
+      write(root, '.lattice/activity.jsonl', 'ignored-metadata-churn\n');
+      const cleanRunId = `${STORY_ID}-xhr-lattice-only`;
+      const cleanResult = await handlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: cleanRunId,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(seamInvoked, true, 'codex seam IS invoked when only .lattice/ metadata is dirty');
+      assert.equal(cleanResult.hostB.decision, 'pass', '.lattice-only dirty worktree proceeds normally (host-B verdict recorded)');
+      assert.equal(cleanResult.materialDigest, materialHash, 'material-clean control still binds the HEAD materialDigest');
+      const recordedClean = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === cleanRunId && v.provider === 'codex');
+      assert.equal(recordedClean.length, 1, 'the .lattice-only control records the codex verdict');
+      // Clean up the (untracked) metadata churn so it does not leak into later checks.
+      rmSync(join(root, '.lattice/story/actives/some-churn.json'), { force: true });
+      rmSync(join(root, '.lattice/activity.jsonl'), { force: true });
+    });
+
     // ── CHK-002: diff / joint-decision cases (direct pure-function calls) ────────
 
     const majorA: Finding = {
@@ -810,6 +867,7 @@ async function run(): Promise<void> {
   } finally {
     process.chdir(previousCwd);
     rmSync(root, { recursive: true, force: true });
+    rmSync(hostAFindingsDir, { recursive: true, force: true });
     resetConfigCache();
   }
 }
