@@ -140,8 +140,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-03T10:42:30.283Z",
       "endTime": null
     },
     {
@@ -264,6 +264,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation and verification for digest-bound playbook_candidate_ingest completed in commit faf26687."
+    },
+    {
+      "timestamp": "2026-07-03T10:42:30.283Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Binding post-DONE settlement candidate ingestion evidence."
     }
   ]
 }
