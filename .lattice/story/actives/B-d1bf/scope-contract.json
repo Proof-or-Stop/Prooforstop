@@ -1,0 +1,41 @@
+{
+  "storyId": "B-d1bf",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/quantum-claim-admissibility.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/tasks/*benchmark*",
+    "packages/main/src/handlers/pinn-claim-admissibility.ts",
+    "packages/main/src/core/pinn-claim-admissibility.ts"
+  ],
+  "explicitExcludes": [
+    "Global Story machine transition mutation",
+    "M4 benchmark harness or failure-injection runner",
+    "M5 report/governance renderer",
+    "Quantum hardware/lab/physical validation",
+    "Solver improvement",
+    "Production readiness",
+    "Authority completion"
+  ],
+  "scopeChangeReason": "Initial enforce scope contract for B-d1bf: Quantum M3 local read-only gate policy plus quantum_claim_check diagnostics only.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T00:14:17.248Z",
+  "updatedAt": "2026-07-03T00:14:17.248Z"
+}
