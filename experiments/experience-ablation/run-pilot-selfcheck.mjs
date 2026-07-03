@@ -26,9 +26,27 @@
 //       resolved learning root escapes to the git toplevel, so the runner
 //       aborts the cell BEFORE host execution (nonzero exit naming the
 //       store-isolation assertion; no run.json; the stub host never ran).
+//   (6) CHK-005 frozen-snapshot materialization: the snapshot files are
+//       byte-identical inside BOTH arms' captured post-run workspaces;
+//       run.json carries memorySnapshotHash + memoryPackRendered (true only
+//       on treatment).
+//   (7) CHK-005 prompt composition: the treatment host prompt is the rendered
+//       "## Memory Runtime Preflight" section + the raw prompt (and its
+//       surfaced-lesson union covers all six in-store classes); the control
+//       host prompt is byte-identical to the fixture prompt.md.
+//   (8) CHK-005 experience-delivery events: BOTH arms' captured activity
+//       slices carry a real prelude experience_pack_surfaced event (correct
+//       arm, non-empty topHitIds from the frozen store).
+//   (9) CHK-005 tampered snapshot: a snapshot dir whose hash disagrees with
+//       protocol.json memorySnapshotHash refuses the campaign BEFORE any host
+//       execution; a host that mutates the materialized store aborts the cell
+//       AFTER the run with no run.json (fail closed both ways).
+//  (10) CHK-005 builder invariants: deterministic re-emit (same sha256) and
+//       the mechanical in-store/held-out disjointness assertion rejects
+//       poisoned content.
 
 import {
-  existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync,
+  appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync,
 } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -38,7 +56,8 @@ import { emitCorpus } from './fixture-generator.mjs';
 import { freezeProtocol } from './protocol.mjs';
 import { buildLedger } from './pair-ledger.mjs';
 import { experimentRoot } from './protocol.mjs';
-import { PROGRESS_FILENAME, runDirName } from './run-pilot.mjs';
+import { MEMORY_PACK_SECTION_HEADER, PROGRESS_FILENAME, runDirName } from './run-pilot.mjs';
+import { ANCHOR_STORY_ID, assertSnapshotDisjoint, buildSnapshotFiles, emitSnapshot, inStoreClasses } from './snapshot-builder.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const RUN_PILOT = join(HERE, 'run-pilot.mjs');
@@ -71,7 +90,7 @@ function runPilot(args, envExtra = {}) {
 }
 
 /** Minimal valid frozen-protocol config for the selfcheck corpus. */
-function protocolConfig(experimentId) {
+function protocolConfig(experimentId, memorySnapshotHash) {
   return {
     schemaVersion: 'proofbound.experience-ablation-protocol.v1',
     experimentId,
@@ -82,15 +101,15 @@ function protocolConfig(experimentId) {
     },
     pilotFreezeRule: { minControlFaultRuns: 15, freezeAt: 'wilson95Lower', maxCiWidth: 0.3 },
     noOverclaimBoundaryRef: 'plan-S15-no-overclaim-boundary',
-    memorySnapshotHash: 'a'.repeat(64),
+    memorySnapshotHash,
   };
 }
 
 /** Build corpus + frozen protocol + pair ledger under a fresh root. */
-function buildExperiment(root, experimentId) {
+function buildExperiment(root, experimentId, memorySnapshotHash) {
   const corpus = join(root, 'corpus');
   const { manifest } = emitCorpus({ outDir: corpus, seed: SEED, perClass: 1, classes: ['clean'] });
-  freezeProtocol({ root, config: protocolConfig(experimentId) });
+  freezeProtocol({ root, config: protocolConfig(experimentId, memorySnapshotHash) });
   buildLedger({ root, experimentId, manifestRows: manifest, seed: SEED });
   return { corpus, manifest, expRoot: experimentRoot(root, experimentId) };
 }
@@ -136,7 +155,12 @@ try {
 
   const root = tmp('ablation-pilot-root-');
   const scratch = tmp('ablation-pilot-scratch-');
-  const { corpus, manifest, expRoot } = buildExperiment(root, EXPERIMENT_ID);
+
+  // CHK-005: deterministic frozen snapshot; its hash is what the protocol freezes.
+  const snapshotDir = join(tmp('ablation-pilot-snapshot-'), 'snapshot');
+  const { hash: snapshotHash } = emitSnapshot(snapshotDir);
+
+  const { corpus, manifest, expRoot } = buildExperiment(root, EXPERIMENT_ID, snapshotHash);
   check('selfcheck corpus is one clean fixture (two cells)', manifest.length === 1, `got ${manifest.length}`);
   const fixtureId = manifest[0].fixtureId;
   const markerFile = join(tmp('ablation-pilot-marker-'), 'stub-ran.log');
@@ -147,6 +171,7 @@ try {
   const baseArgs = [
     `--root=${root}`, `--experimentId=${EXPERIMENT_ID}`, `--corpus=${corpus}`,
     `--scratchDir=${scratch}`, `--snapshotCli=${SNAPSHOT_CLI}`,
+    `--memorySnapshotDir=${snapshotDir}`,
     `--hostCmd=node ${stub}`, '--hostId=stub-host',
   ];
   const runOrder = JSON.parse(readFileSync(join(expRoot, 'run-order-seed.json'), 'utf8')).runOrder;
@@ -216,10 +241,11 @@ try {
       run.storeRoot.startsWith(scratch + '/'), run.storeRoot);
 
     const slice = readFileSync(join(firstRunDir, 'activity.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-    const pack = slice.find((e) => e.event === 'experience_pack_surfaced');
+    const stubPack = slice.find((e) => e.event === 'experience_pack_surfaced'
+      && Array.isArray(e.topHitIds) && e.topHitIds[0] === 'les-stub-a');
     check('(3) activity slice carries the stub M3 event with the experiment env plumbed through',
-      pack !== undefined && pack.experimentId === EXPERIMENT_ID && pack.arm === firstArm
-      && JSON.stringify(pack.topHitIds) === JSON.stringify(['les-stub-a', 'les-stub-b']),
+      stubPack !== undefined && stubPack.experimentId === EXPERIMENT_ID && stubPack.arm === firstArm
+      && JSON.stringify(stubPack.topHitIds) === JSON.stringify(['les-stub-a', 'les-stub-b']),
       JSON.stringify(slice));
 
     const progress = readProgress(expRoot);
@@ -266,7 +292,7 @@ try {
   {
     const isoRoot = tmp('ablation-pilot-iso-root-');
     const isoId = 'exp-pilot-iso';
-    const iso = buildExperiment(isoRoot, isoId);
+    const iso = buildExperiment(isoRoot, isoId, snapshotHash);
     writeLeakageAudit(iso.expRoot, [{ fixtureId: iso.manifest[0].fixtureId, checks: ['strip-list'], pass: true }]);
     const gitScratch = tmp('ablation-pilot-gitscratch-');
     execFileSync('git', ['init', '-q', gitScratch]);
@@ -274,6 +300,7 @@ try {
     const isoRun = runPilot([
       `--root=${isoRoot}`, `--experimentId=${isoId}`, `--corpus=${iso.corpus}`,
       `--scratchDir=${gitScratch}`, `--snapshotCli=${SNAPSHOT_CLI}`,
+      `--memorySnapshotDir=${snapshotDir}`,
       `--hostCmd=node ${stub}`, '--hostId=stub-host', '--maxCells=1',
     ]);
     const isoFixture = iso.manifest[0].fixtureId;
@@ -289,6 +316,131 @@ try {
     check('(5) the abort is on the progress ledger (cell_abort row, append-only)',
       readProgress(iso.expRoot).some((r) => r.event === 'cell_abort' && /store-isolation/.test(String(r.reason))),
       JSON.stringify(readProgress(iso.expRoot).map((r) => r.event)));
+  }
+
+  // --- (6)+(7)+(8) CHK-005 both-arms snapshot/prompt/event assertions --------------
+  // Both cells are terminal after case (4); inspect the captured run dirs.
+  {
+    const snapshotRelPaths = ['dev-memory/experience.jsonl', 'learning/playbooks.json', `story/actives/${ANCHOR_STORY_ID}/index.json`];
+    const rawPrompt = readFileSync(join(corpus, fixtureId, 'prompt.md'), 'utf8');
+    for (const arm of ['control', 'treatment']) {
+      const runDir = join(expRoot, 'runs', runDirName(fixtureId, arm));
+
+      // (6) snapshot materialized byte-identically (visible in the post-run
+      // workspace copy) + run.json binds the frozen hash.
+      const byteIdentical = snapshotRelPaths.every((rel) =>
+        existsSync(join(runDir, 'workspace', '.lattice', rel))
+        && readFileSync(join(runDir, 'workspace', '.lattice', rel), 'utf8') === readFileSync(join(snapshotDir, rel), 'utf8'));
+      check(`(6) ${arm}: snapshot files are byte-identical inside the captured post-run workspace`, byteIdentical);
+      const run = JSON.parse(readFileSync(join(runDir, 'run.json'), 'utf8'));
+      check(`(6) ${arm}: run.json carries memorySnapshotHash (frozen) + memoryPackRendered=${arm === 'treatment'}`,
+        run.memorySnapshotHash === snapshotHash && run.memoryPackRendered === (arm === 'treatment'),
+        JSON.stringify({ memorySnapshotHash: run.memorySnapshotHash, memoryPackRendered: run.memoryPackRendered }));
+
+      // (7) prompt composition per the arm contract.
+      const hostPrompt = readFileSync(join(runDir, 'host-prompt.md'), 'utf8');
+      if (arm === 'control') {
+        check('(7) control: host prompt is byte-identical to the fixture prompt.md', hostPrompt === rawPrompt);
+      } else {
+        check('(7) treatment: host prompt = rendered pack section + raw prompt',
+          hostPrompt.startsWith(MEMORY_PACK_SECTION_HEADER) && hostPrompt.endsWith(`\n\n${rawPrompt}`)
+          && hostPrompt !== rawPrompt);
+        const uncovered = inStoreClasses().filter(
+          (c) => !hostPrompt.includes(`les-${c}`) && !hostPrompt.includes(`pb-${c}`));
+        check('(7) treatment: surfaced-lesson union covers all six in-store classes',
+          uncovered.length === 0, `uncovered: ${uncovered.join(', ')}`);
+      }
+
+      // (8) the REAL prelude experience_pack_surfaced event is in the slice.
+      const slice = readFileSync(join(runDir, 'activity.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+      const prelude = slice.find((e) => e.event === 'experience_pack_surfaced'
+        && e.experimentId === EXPERIMENT_ID && e.arm === arm && e.consumer === 'session_brief');
+      check(`(8) ${arm}: captured slice carries the prelude experience_pack_surfaced event with frozen-store hits`,
+        prelude !== undefined && Array.isArray(prelude.topHitIds) && prelude.topHitIds.length > 0
+        && prelude.topHitIds.some((id) => id.startsWith('pb-') || id.startsWith('les-')),
+        JSON.stringify(slice.filter((e) => e.event === 'experience_pack_surfaced')));
+    }
+  }
+
+  // --- (9) CHK-005 tamper fail-closed: source mismatch + post-run mutation ----------
+  {
+    // (9a) tampered SOURCE snapshot: hash disagrees with protocol.json -> the
+    // campaign is refused before ANY cell (no runs, stub never ran).
+    const tamperedDir = join(tmp('ablation-pilot-tampered-'), 'snapshot');
+    emitSnapshot(tamperedDir);
+    appendFileSync(join(tamperedDir, 'dev-memory', 'experience.jsonl'), '\n');
+    const tamperRoot = tmp('ablation-pilot-tamper-root-');
+    const tamperId = 'exp-pilot-tamper';
+    const tamper = buildExperiment(tamperRoot, tamperId, snapshotHash);
+    writeLeakageAudit(tamper.expRoot, [{ fixtureId: tamper.manifest[0].fixtureId, checks: ['strip-list'], pass: true }]);
+    const markerBefore = existsSync(markerFile) ? readFileSync(markerFile, 'utf8') : '';
+    const refused = runPilot([
+      `--root=${tamperRoot}`, `--experimentId=${tamperId}`, `--corpus=${tamper.corpus}`,
+      `--scratchDir=${scratch}`, `--snapshotCli=${SNAPSHOT_CLI}`,
+      `--memorySnapshotDir=${tamperedDir}`,
+      `--hostCmd=node ${stub}`, '--hostId=stub-host', '--maxCells=1',
+    ]);
+    check('(9a) a tampered snapshot dir refuses the campaign BEFORE any host execution',
+      refused.code === 1 && /frozen memory snapshot mismatch/.test(refused.stderr)
+      && !existsSync(join(tamper.expRoot, 'runs'))
+      && (existsSync(markerFile) ? readFileSync(markerFile, 'utf8') : '') === markerBefore,
+      JSON.stringify(refused.stderr.trim().slice(0, 300)));
+
+    // (9b) a host that mutates the materialized frozen store: the post-run
+    // re-verification aborts the cell, fail closed, no run.json.
+    const evilStubDir = tmp('ablation-pilot-evil-stub-');
+    const evilStub = join(evilStubDir, 'evil-stub.mjs');
+    writeFileSync(evilStub, [
+      `import { appendFileSync } from 'node:fs';`,
+      `import { join } from 'node:path';`,
+      `appendFileSync(join(process.cwd(), '.lattice', 'dev-memory', 'experience.jsonl'), 'tampered-by-host\\n');`,
+      `console.log('evil-stub done');`,
+    ].join('\n'));
+    const evilRoot = tmp('ablation-pilot-evil-root-');
+    const evilId = 'exp-pilot-evil';
+    const evil = buildExperiment(evilRoot, evilId, snapshotHash);
+    writeLeakageAudit(evil.expRoot, [{ fixtureId: evil.manifest[0].fixtureId, checks: ['strip-list'], pass: true }]);
+    const evilRun = runPilot([
+      `--root=${evilRoot}`, `--experimentId=${evilId}`, `--corpus=${evil.corpus}`,
+      `--scratchDir=${scratch}`, `--snapshotCli=${SNAPSHOT_CLI}`,
+      `--memorySnapshotDir=${snapshotDir}`,
+      `--hostCmd=node ${evilStub}`, '--hostId=evil-stub', '--maxCells=1',
+    ]);
+    const evilOrder = JSON.parse(readFileSync(join(evil.expRoot, 'run-order-seed.json'), 'utf8')).runOrder;
+    const evilFirstDir = join(evil.expRoot, 'runs', runDirName(evil.manifest[0].fixtureId, evilOrder[0].split('::').pop()));
+    check('(9b) a host mutating the frozen store aborts the cell AFTER the run (no run.json, fail closed)',
+      evilRun.code === 1 && /memory snapshot verification failed AFTER the run/.test(evilRun.stderr)
+      && !existsSync(join(evilFirstDir, 'run.json')),
+      JSON.stringify(evilRun.stderr.trim().slice(0, 300)));
+    check('(9b) the post-run snapshot abort is on the progress ledger (cell_abort row)',
+      readProgress(evil.expRoot).some((r) => r.event === 'cell_abort' && /AFTER the run/.test(String(r.reason))),
+      JSON.stringify(readProgress(evil.expRoot).map((r) => r.event)));
+  }
+
+  // --- (10) CHK-005 builder invariants: determinism + disjointness ------------------
+  {
+    const again = join(tmp('ablation-pilot-snapshot2-'), 'snapshot');
+    const { hash: hashAgain } = emitSnapshot(again);
+    check('(10) snapshot builder is deterministic (re-emit reproduces the same sha256)',
+      hashAgain === snapshotHash, `${hashAgain} != ${snapshotHash}`);
+
+    let heldOutRejected = false;
+    try {
+      // Full valid file set + a plain-text held-out mention: only the
+      // held-out scan (check 3) can be the rejecting assertion.
+      const poisoned = { ...buildSnapshotFiles() };
+      poisoned['dev-memory/experience.jsonl'] += 'note: never hardcode tmp-absolute-path values\n';
+      assertSnapshotDisjoint(poisoned);
+    } catch { heldOutRejected = true; }
+    check('(10) disjointness assertion rejects content mentioning a held-out class', heldOutRejected);
+
+    let coverageRejected = false;
+    try {
+      const poisoned = { ...buildSnapshotFiles() };
+      poisoned['dev-memory/experience.jsonl'] = poisoned['dev-memory/experience.jsonl'].replace(/les-stale-doc/g, 'les-gone');
+      assertSnapshotDisjoint(poisoned);
+    } catch { coverageRejected = true; }
+    check('(10) disjointness assertion rejects a store missing an in-store class lesson', coverageRejected);
   }
 
   if (failures === 0) console.log('run-pilot-selfcheck: all cases passed');

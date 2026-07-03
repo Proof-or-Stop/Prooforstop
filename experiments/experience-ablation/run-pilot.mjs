@@ -24,6 +24,17 @@
 //      isolated root: workspace/ (the tree the host operates on), prompt.md
 //      and acceptance.mjs as siblings. Hidden surfaces (task.json, oracle.mjs,
 //      reference-good/, reference-bad/) are NEVER copied.
+//   1b. FROZEN-SNAPSHOT MATERIALIZATION (CHK-005, plan sections 4/12/14): the
+//      --memorySnapshotDir content (snapshot-builder.mjs output, a mirror of
+//      the `.lattice/` subtree) is copied byte-identically into
+//      <workspace>/.lattice/ on BOTH arms, then sha256-verified against the
+//      frozen protocol.json memorySnapshotHash BEFORE host execution and
+//      re-verified unchanged AFTER the run (either mismatch aborts the cell,
+//      fail closed, no run.json). Verification hashes exactly the snapshot's
+//      own file set (same relpath+bytes algorithm as protocol.mjs
+//      hashDirectorySnapshot), so expected runtime additions next to it
+//      (activity.jsonl, runtime-memory-pack-cache/) do not count as snapshot
+//      drift while any byte change or deletion of a frozen file does.
 //   2. STORE-ISOLATION ASSERTION (before any host execution): spawn the real
 //      CLI `node <snapshotCli> observability_snapshot --json` with cwd = the
 //      isolated workspace and assert its resolvedLearningRoot equals
@@ -34,18 +45,38 @@
 //      AND the campaign (fail closed) with no run.json written. The probe env
 //      strips LATTICE_PROJECT_ROOT (it would redirect resolution) and the
 //      experiment vars (the read-only probe is not part of the experiment).
+//   2b. EXPERIENCE-DELIVERY PRELUDE (CHK-005): spawn the real gated entrypoint
+//      `node <snapshotCli> session_brief` with cwd = the isolated workspace
+//      and the SAME experiment env the host receives, so the runtime memory
+//      pack is computed AND logged (experience_pack_surfaced) on BOTH arms via
+//      the production M3 mechanism (experience-pack-surface.ts render gate).
+//      The prelude's activity events land in <workspace>/.lattice/
+//      activity.jsonl and are therefore part of the captured run slice. The
+//      rendered "## Memory Runtime Preflight" section is prepended to the
+//      host prompt ONLY when the entrypoint rendered it (treatment); the
+//      control host prompt stays byte-identical to the raw prompt.md. Arm
+//      contract is fail-closed: control rendering a section, treatment not
+//      rendering one, a missing/empty surfaced event, or a prelude failure
+//      each abort the cell before host execution.
 //   3. Execute the host via the configurable --hostCmd template (placeholders
 //      {workspace} {promptFile} {isolatedRoot}; shell-expanded with cwd = the
-//      isolated workspace). The child env carries LATTICE_EXPERIMENT_ID +
-//      LATTICE_EXPERIMENT_ARM (the M3 arm-switch contract) and never carries
-//      LATTICE_PROJECT_ROOT. Default template is a Claude CLI non-interactive
-//      form; tests/selfchecks MUST pass a stub --hostCmd (never a real host).
+//      isolated workspace). {promptFile} resolves to the composed host prompt
+//      (host-prompt.md), NOT the raw prompt.md (they are byte-identical on
+//      control). The child env carries LATTICE_EXPERIMENT_ID +
+//      LATTICE_EXPERIMENT_ARM (the M3 arm-switch contract) plus
+//      LATTICE_GLOBAL_MEMORY_DIR pinned to an empty dir inside the isolated
+//      root (without it the operator's real ~/.lattice/dev-memory global
+//      store leaks into the pack — verified empirically — breaking the memory
+//      freeze), and never carries LATTICE_PROJECT_ROOT. Default template is a
+//      Claude CLI non-interactive form; tests/selfchecks MUST pass a stub
+//      --hostCmd (never a real host).
 //   4. Capture the run-scoped activity slice: everything the run appended
 //      under the isolated root's .lattice/activity.jsonl files (empirically
 //      the M3 events land at <workspace>/.lattice/activity.jsonl because the
 //      CLI resolves its project root to the host cwd in a non-git isolated
 //      root; the isolated root itself is also checked in case the host ran
-//      lattice from the parent dir). Copy the post-run workspace verbatim.
+//      lattice from the parent dir). Copy the post-run workspace verbatim,
+//      plus host-prompt.md and prelude-transcript.log as audit artifacts.
 //   5. Write run.json LAST (atomic tmp+rename; it is the terminal marker)
 //      with every RUN-RECORD.md required field:
 //        experimentId, arm, hostId, storeRoot (the ASSERTED resolved learning
@@ -60,7 +91,8 @@
 //        commandCount   = number of parsable activity-slice entries carrying a
 //                         string `tool` field (the CLI's per-command records).
 //      Extra audit-only fields (ignored by the scorer per RUN-RECORD.md):
-//        fixtureId, trapClass, hostExitCode, hostTimedOut.
+//        fixtureId, trapClass, hostExitCode, hostTimedOut,
+//        memorySnapshotHash, memoryPackRendered.
 //
 // PRECONDITIONS (hard, checked before any host run)
 //   - leakage-audit.jsonl must exist (--leakageAudit, else
@@ -68,6 +100,10 @@
 //     with at least one row, every row pass:true, and a row for every fixture
 //     in the run order. Any pass:false row or missing coverage refuses the
 //     campaign (M6 exit criterion: fixture-leakage audit passes).
+//   - --memorySnapshotDir is REQUIRED for execution (not for --plan): without
+//     a frozen store both arms see an empty pack and the experiment is null
+//     by construction (CHK-005). Its hashDirectorySnapshot sha256 must equal
+//     protocol.json memorySnapshotHash or the campaign is refused.
 //   - run-order-seed.json must exist (build the pair ledger first — M2).
 //   - The corpus manifest and the run-order fixture set must match exactly,
 //     and every fixture dir must carry task.json (fixtureId + trapClass
@@ -83,6 +119,7 @@
 //
 // USAGE
 //   node run-pilot.mjs --experimentId=<id> --corpus=<dir> [--root=<repoRoot>]
+//                      --memorySnapshotDir=<dir>
 //                      [--plan] [--smoke] [--maxCells=<n>]
 //                      [--hostCmd=<template>] [--hostId=<id>]
 //                      [--scratchDir=<dir>] [--timeoutMs=<n>]
@@ -91,15 +128,16 @@
 //   cell can be validated (scored) before the full enumeration (plan S17 /
 //   CHK-003 smoke-cell-first discipline). Resume then skips it.
 
+import { createHash } from 'node:crypto';
 import {
   appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync,
-  realpathSync, renameSync, rmSync, writeFileSync,
+  readdirSync, realpathSync, renameSync, rmSync, statSync, writeFileSync,
 } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { experimentRoot } from './protocol.mjs';
+import { experimentRoot, hashDirectorySnapshot, loadFrozenProtocol } from './protocol.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -287,6 +325,7 @@ function childEnvBase() {
   delete env.LATTICE_PROJECT_ROOT; // would redirect the child's root resolution outside the isolated root
   delete env.LATTICE_EXPERIMENT_ID;
   delete env.LATTICE_EXPERIMENT_ARM;
+  delete env.LATTICE_GLOBAL_MEMORY_DIR; // per-cell value is set explicitly; an inherited one would leak
   return env;
 }
 
@@ -315,6 +354,126 @@ export function assertIsolatedLearningRoot({ hostCwd, snapshotCli }) {
     fail(`store-isolation assertion failed: resolvedLearningRoot ${resolved} != expected isolated root ${expected} — the workspace is not an isolated non-git root (plan section 12); aborting before host execution`);
   }
   return expected;
+}
+
+// ---------------------------------------------------------------------------
+// CHK-005: frozen-snapshot materialization + verification helpers.
+
+/**
+ * Enumerate the snapshot's file set as relative paths in EXACTLY the traversal
+ * order protocol.mjs hashDirectorySnapshot uses (sorted entries per directory,
+ * depth-first), so hashing the same set elsewhere reproduces the same digest.
+ */
+export function listSnapshotFiles(snapshotDir) {
+  const rels = [];
+  const walk = (d) => {
+    for (const entry of readdirSync(d).sort()) {
+      const p = join(d, entry);
+      if (statSync(p).isDirectory()) walk(p);
+      else rels.push(p.slice(snapshotDir.length + 1));
+    }
+  };
+  walk(snapshotDir);
+  if (rels.length === 0) fail(`memory snapshot dir is empty: ${snapshotDir}`);
+  return rels;
+}
+
+/**
+ * sha256 over the snapshot FILE SET rooted at baseDir (relpath + NUL + bytes +
+ * NUL per file, in the given order) — byte-compatible with protocol.mjs
+ * hashDirectorySnapshot over the original snapshot dir. A missing/unreadable
+ * file yields a clearly-mismatching sentinel digest instead of throwing, so
+ * callers uniformly report "hash mismatch" (deleted frozen file == drift).
+ */
+export function hashSnapshotFileSet(baseDir, relPaths) {
+  const h = createHash('sha256');
+  for (const rel of relPaths) {
+    let bytes;
+    try { bytes = readFileSync(join(baseDir, rel)); }
+    catch { return `missing-or-unreadable:${rel}`; }
+    h.update(rel);
+    h.update('\0');
+    h.update(bytes);
+    h.update('\0');
+  }
+  return h.digest('hex');
+}
+
+/**
+ * Verify the materialized snapshot copy under <hostCwd>/.lattice still hashes
+ * to the frozen protocol memorySnapshotHash. `when` names the phase for the
+ * one-line abort message ('BEFORE host execution' / 'AFTER the run').
+ */
+export function verifyMaterializedSnapshot({ hostCwd, relPaths, expectedHash, when }) {
+  const actual = hashSnapshotFileSet(join(hostCwd, '.lattice'), relPaths);
+  if (actual !== expectedHash) {
+    fail(`memory snapshot verification failed ${when}: materialized store hash ${actual} != frozen protocol.json memorySnapshotHash ${expectedHash} — the frozen store was mutated; aborting cell (fail closed, no run.json)`);
+  }
+}
+
+/** Marker line opening the pack section session_brief renders on treatment. */
+export const MEMORY_PACK_SECTION_HEADER = '## Memory Runtime Preflight';
+
+/**
+ * Extract the rendered pack section from session_brief stdout: the header
+ * line plus every consecutive following line indented with two spaces.
+ * Returns null when the entrypoint did not render the section (control arm,
+ * or the early-return path of a store with no stories).
+ */
+export function extractMemoryPackSection(stdout) {
+  const lines = String(stdout).split('\n');
+  const start = lines.findIndex((l) => l.trimEnd() === MEMORY_PACK_SECTION_HEADER);
+  if (start === -1) return null;
+  const section = [lines[start].trimEnd()];
+  for (let i = start + 1; i < lines.length && lines[i].startsWith('  '); i++) {
+    section.push(lines[i]);
+  }
+  return section.join('\n');
+}
+
+/**
+ * Experience-delivery prelude (CHK-005): run the real gated entrypoint
+ * `node <snapshotCli> session_brief` with the experiment env, cwd = hostCwd,
+ * so the pack computes+logs through the production M3 mechanism on BOTH arms.
+ * Fail-closed arm contract (see the module header). Returns
+ * { packSection, transcript, surfacedEvent }.
+ */
+export function runExperiencePrelude({ hostCwd, snapshotCli, hostEnv, experimentId, arm }) {
+  const res = spawnSync('node', [snapshotCli, 'session_brief'], {
+    cwd: hostCwd, env: hostEnv, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 120_000,
+  });
+  const transcript = `# prelude: node ${snapshotCli} session_brief (arm=${arm})\n# exit: ${res.status ?? 'spawn-error'}\n--- stdout ---\n${res.stdout ?? ''}\n--- stderr ---\n${res.stderr ?? ''}\n`;
+  if (res.error || res.status !== 0) {
+    fail(`experience-delivery prelude failed (session_brief exit ${res.status ?? 'spawn-error'}): ${(res.error?.message ?? res.stderr ?? '').slice(0, 300)} — aborting cell (fail closed)`);
+  }
+  const packSection = extractMemoryPackSection(res.stdout ?? '');
+  if (arm === 'control' && packSection !== null) {
+    fail(`arm contract violation: control-arm session_brief RENDERED the memory pack section — the render gate did not suppress it; aborting cell (fail closed)`);
+  }
+  if (arm === 'treatment' && packSection === null) {
+    fail(`experience-delivery gap: treatment-arm session_brief rendered NO memory pack section — the experiment cell would be null by construction (check the frozen snapshot carries the anchor story and lessons); aborting cell (fail closed)`);
+  }
+  // Both arms MUST have logged the experience_pack_surfaced event with a
+  // non-empty topHitIds (the measurement backbone; scorer surfacedMemoryIds).
+  const activityPath = join(hostCwd, '.lattice', 'activity.jsonl');
+  let surfacedEvent = null;
+  if (existsSync(activityPath)) {
+    for (const line of readFileSync(activityPath, 'utf8').split('\n')) {
+      const s = line.trim();
+      if (!s) continue;
+      try {
+        const e = JSON.parse(s);
+        if (e.event === 'experience_pack_surfaced' && e.experimentId === experimentId && e.arm === arm) {
+          surfacedEvent = e;
+          break;
+        }
+      } catch { /* torn line */ }
+    }
+  }
+  if (!surfacedEvent || !Array.isArray(surfacedEvent.topHitIds) || surfacedEvent.topHitIds.length === 0) {
+    fail(`experience-delivery prelude logged no usable experience_pack_surfaced event for arm '${arm}' (event ${surfacedEvent ? 'present but topHitIds empty' : 'missing'}) — the pack surfaced nothing from the frozen store; aborting cell (fail closed)`);
+  }
+  return { packSection, transcript, surfacedEvent };
 }
 
 /** Substitute --hostCmd template placeholders. */
@@ -363,6 +522,16 @@ function runCell(cell, cfg) {
     const acceptancePath = join(isolatedRoot, 'acceptance.mjs');
     if (existsSync(join(cell.fixtureDir, 'acceptance.mjs'))) cpSync(join(cell.fixtureDir, 'acceptance.mjs'), acceptancePath);
 
+    // CHK-005 1b: materialize the frozen snapshot byte-identically into the
+    // isolated root's learning path (BOTH arms), then verify BEFORE the host.
+    cpSync(cfg.memorySnapshotDir, join(hostCwd, '.lattice'), { recursive: true });
+    verifyMaterializedSnapshot({
+      hostCwd, relPaths: cfg.snapshotRelPaths,
+      expectedHash: cfg.memorySnapshotHash, when: 'BEFORE host execution',
+    });
+    const globalMemoryDir = join(isolatedRoot, 'global-memory');
+    mkdirSync(globalMemoryDir, { recursive: true });
+
     // HARD GATE before the host: the resolved learning root IS the isolated root.
     const storeRoot = assertIsolatedLearningRoot({ hostCwd, snapshotCli: cfg.snapshotCli });
 
@@ -370,8 +539,20 @@ function runCell(cell, cfg) {
       ...childEnvBase(),
       LATTICE_EXPERIMENT_ID: experimentId,
       LATTICE_EXPERIMENT_ARM: cell.arm,
+      LATTICE_GLOBAL_MEMORY_DIR: globalMemoryDir,
     };
-    const cmd = renderHostCmd(cfg.hostCmd, { workspace: hostCwd, promptFile, isolatedRoot });
+
+    // CHK-005 2b: experience-delivery prelude through the production gated
+    // entrypoint; compose the host prompt (control stays byte-identical).
+    const { packSection, transcript: preludeTranscript } = runExperiencePrelude({
+      hostCwd, snapshotCli: cfg.snapshotCli, hostEnv, experimentId, arm: cell.arm,
+    });
+    const rawPrompt = readFileSync(promptFile, 'utf8');
+    const hostPrompt = packSection === null ? rawPrompt : `${packSection}\n\n${rawPrompt}`;
+    const hostPromptFile = join(isolatedRoot, 'host-prompt.md');
+    writeFileSync(hostPromptFile, hostPrompt);
+
+    const cmd = renderHostCmd(cfg.hostCmd, { workspace: hostCwd, promptFile: hostPromptFile, isolatedRoot });
     const startedAt = new Date().toISOString();
     const t0 = Date.now();
     const host = spawnSync(cmd, {
@@ -385,6 +566,13 @@ function runCell(cell, cfg) {
       fail(`host command failed to spawn for ${cell.fixtureId}::${cell.arm}: ${host.error.message} (cmd: ${cmd.slice(0, 200)})`);
     }
     const hostExitCode = hostTimedOut ? null : (host.status ?? null);
+
+    // CHK-005: re-verify the frozen snapshot AFTER the run (fail closed BEFORE
+    // any scoring input or run.json exists — a mutated store voids the cell).
+    verifyMaterializedSnapshot({
+      hostCwd, relPaths: cfg.snapshotRelPaths,
+      expectedHash: cfg.memorySnapshotHash, when: 'AFTER the run',
+    });
 
     // Mechanical outcomes (documented in the module header).
     let doneReached = false;
@@ -402,6 +590,10 @@ function runCell(cell, cfg) {
     cpSync(hostCwd, join(cell.runDir, 'workspace'), { recursive: true });
     writeFileSync(join(cell.runDir, 'host-transcript.log'),
       `# cmd: ${cmd}\n# exit: ${hostExitCode} timedOut: ${hostTimedOut}\n--- stdout ---\n${host.stdout ?? ''}\n--- stderr ---\n${host.stderr ?? ''}\n`);
+    // CHK-005 audit artifacts: the exact prompt the host received + the
+    // prelude transcript (extra files; RUN-RECORD.md consumers ignore them).
+    writeFileSync(join(cell.runDir, 'host-prompt.md'), hostPrompt);
+    writeFileSync(join(cell.runDir, 'prelude-transcript.log'), preludeTranscript);
     const runRecord = {
       experimentId,
       arm: cell.arm,
@@ -418,6 +610,8 @@ function runCell(cell, cfg) {
       trapClass: cell.trapClass,
       hostExitCode,
       hostTimedOut,
+      memorySnapshotHash: cfg.memorySnapshotHash,
+      memoryPackRendered: packSection !== null,
     };
     const problems = validateRunRecord(runRecord);
     if (problems.length > 0) fail(`refusing to write malformed run.json for ${cell.fixtureId}::${cell.arm}: ${problems.join('; ')}`);
@@ -498,7 +692,27 @@ async function main() {
       expRoot, corpusDir, fixtureIds: [...new Set(cells.map((c) => c.fixtureId))],
     });
 
+    // HARD PRECONDITION (CHK-005): the frozen memory snapshot is required for
+    // execution and must hash to the frozen protocol.json memorySnapshotHash.
+    if (typeof args.memorySnapshotDir !== 'string' || args.memorySnapshotDir.length === 0) {
+      fail('required: --memorySnapshotDir=<dir> (snapshot-builder.mjs output) — without the frozen store both arms see an empty pack and the experiment is null by construction');
+    }
+    const memorySnapshotDir = String(args.memorySnapshotDir);
+    if (!existsSync(memorySnapshotDir)) fail(`--memorySnapshotDir does not exist: ${memorySnapshotDir}`);
+    const protocolDoc = loadFrozenProtocol(root, String(args.experimentId));
+    const memorySnapshotHash = protocolDoc.memorySnapshotHash;
+    if (typeof memorySnapshotHash !== 'string' || !/^[0-9a-f]{64}$/.test(memorySnapshotHash)) {
+      fail(`frozen protocol.json memorySnapshotHash is not a 64-hex sha256 (got ${JSON.stringify(memorySnapshotHash)}) — re-freeze the protocol (protocol.mjs freeze --snapshotDir=...)`);
+    }
+    const sourceSnapshotHash = hashDirectorySnapshot(memorySnapshotDir);
+    if (sourceSnapshotHash !== memorySnapshotHash) {
+      fail(`frozen memory snapshot mismatch: --memorySnapshotDir hashes to ${sourceSnapshotHash} but protocol.json memorySnapshotHash is ${memorySnapshotHash} — the snapshot was tampered or the wrong dir was passed; refusing the campaign`);
+    }
+
     const cfg = {
+      memorySnapshotDir,
+      memorySnapshotHash,
+      snapshotRelPaths: listSnapshotFiles(memorySnapshotDir),
       experimentId: String(args.experimentId),
       expRoot,
       hostCmd: typeof args.hostCmd === 'string' ? args.hostCmd : DEFAULT_HOST_CMD,
