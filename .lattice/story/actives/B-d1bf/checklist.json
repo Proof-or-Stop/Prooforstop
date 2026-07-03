@@ -114,7 +114,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
-      "userSees": "The focused smoke transcript includes Quantum M3 gate policy pass/degrade/stop cases and the quantum_claim_check command surface.",
+      "userSees": "The focused smoke output includes \"quantum M3 gate policy passed\" and command-path checks for complete, weak, missing/stale, and overclaim cases.",
       "excludes": [
         "No A1-A4 benchmark metrics",
         "No B1-B15 failure-injection matrix",
