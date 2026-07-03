@@ -1,0 +1,40 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-03T15:18:21.700Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add historical all-seed backfill orchestration + Add bounded candidate trial exposure and matched-control observation are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact final command names and output schema may change during implementation if existing core helpers need a cleaner split.; Whether matched-control should be a separate ledger or integrated into trial exposure rows will be resolved by the minimal safe store shape."
+        }
+      ],
+      "_hash": "0d2de2878df1c9eff76dba74de0fefecbb2953c834314773811016ac521e842f"
+    }
+  ]
+}
