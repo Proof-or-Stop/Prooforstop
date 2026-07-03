@@ -225,9 +225,10 @@ export type PostDoneLearningSettlementResult = {
   message: string;
 };
 
-function enabledEnvFlag(name: string): { enabled: boolean; raw: string } {
+function settlementEnvFlag(name: string): { enabled: boolean; raw: string; defaultPolicy: 'default-on'; explicitOptOut: boolean } {
   const raw = (process.env[name] ?? '').trim();
-  return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
+  const explicitOptOut = /^(0|false|no|off)$/i.test(raw);
+  return { raw, enabled: !explicitOptOut, defaultPolicy: 'default-on', explicitOptOut };
 }
 
 /**
@@ -237,12 +238,12 @@ function enabledEnvFlag(name: string): { enabled: boolean; raw: string } {
  * write lock. DONE success never depends on this helper.
  */
 export function runPostDoneLearningSettlement(projectRoot: string, storyId: string): PostDoneLearningSettlementResult {
-  const flag = enabledEnvFlag('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+  const flag = settlementEnvFlag('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
   if (!flag.enabled) {
     return {
       settlementStatus: 'disabled',
       alreadyApplied: false,
-      message: 'PLAYBOOK_DONE_SETTLEMENT_ENABLED is disabled; no learning settlement row written',
+      message: 'PLAYBOOK_DONE_SETTLEMENT_ENABLED explicitly disables learning settlement; no learning settlement row written',
     };
   }
 

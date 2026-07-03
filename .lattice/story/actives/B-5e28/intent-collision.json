@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-5e28",
+  "id": "IC-20260703001716",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the future-DONE learning settlement path so unset configuration records a non-authoritative done-settlement health row by default. Do not import historical seeds, do not approve candidates automatically, and do not count DONE success as helped evidence.",
+  "acceptedInterpretationHash": "sha256:2d1e5606a964f8f1ec12a665fe6707a0d13e7222e49bcf2fb7f18886e4d672a4",
+  "notes": "Accepted interpretation separates default-on settlement health from historical backfill and from evidence-activated playbook promotion.",
+  "createdAt": "2026-07-03T00:17:16.353Z",
+  "updatedAt": "2026-07-03T00:17:16.353Z"
+}
