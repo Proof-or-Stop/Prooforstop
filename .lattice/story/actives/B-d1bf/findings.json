@@ -58,6 +58,26 @@
       ],
       "signatureTag": "spec-boundary|ts|quantum-claim-check",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-d1bf:F-004",
+      "desc": "Test coverage misses the direct evidence input path for quantum_claim_check. The focused smoke covers built-in complete/degraded/stale/missing/mismatched/unbound/overclaim cases and direct handler productionDone rejection, but it never exercises evidenceJson/evidencePath combined with requestedStrength. The actual CLI path rejects JSON object evidence before the handler because command-catalog declares evidenceJson as string while the flag parser supplies an object; when the handler is called directly with evidenceJson as a string plus requestedStrength=production, it returns decision=advance with no reasons. Add coverage for evidenceJson/evidencePath direct-input parsing and requestedStrength overclaim precedence so the advertised direct evidence CLI path fails closed instead of remaining untested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T00:42:36.789Z",
+      "reviewRound": "2026-07-03T00:39:01.624Z",
+      "reviewRunId": "B-d1bf:RR-004",
+      "_hash": "135796fd437ac607ee73bf229caedfd87fb3cea232d34ffde063052f049629e9",
+      "files": [
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+        "packages/main/src/handlers/quantum-claim-admissibility.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "coverage-gap|quantum-claim-check|direct-evidence-overclaim",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
