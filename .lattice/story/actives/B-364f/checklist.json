@@ -68,6 +68,18 @@
           "materialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-03T17:55:52.969Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice convergence_check --json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d);process.stdin.on(\"end\",()=>{const j=JSON.parse(s); const check=j.checks.find(c=>c.name===\"Code annotations compliant\"); console.log(JSON.stringify(check)); process.exit(check && check.passed ? 0 : 1);})'",
+          "result": "pass",
+          "note": "convergence_check reports Code annotations compliant PASS after the metadata fix.",
+          "headHash": "f517af41f443917223bf928022050668866303b2",
+          "materialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-03T17:55:53.849Z"
         }
       ]
     }
