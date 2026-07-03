@@ -43,7 +43,21 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-03T17:55:51.067Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"import('/Users/jek/Documents/Work/proofbound/packages/main/dist/tasks/validate.js').then(m=>{const r=m.validate('./packages/main/src'); console.log(JSON.stringify({errors:r.errors,tasksFound:r.tasksFound,passed:r.passed},null,2)); process.exit(r.errors.length===0 ? 0 : 1);})\"",
+          "result": "pass",
+          "note": "Direct annotation validator reports 0 errors and 83 task annotations after adding @changes metadata.",
+          "headHash": "c9c4c29aac51108f56130c9ca4659f7ccec9c775",
+          "materialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-03T17:55:52.056Z"
+        }
+      ]
     }
   ]
 }
