@@ -42,10 +42,10 @@
           "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
           "result": "pass",
           "note": "Both env vars valid (control and treatment) resolve to {experimentId, arm} with whitespace trimmed and no warning; neither set resolves to silent null (production mode). 11/11 checks pass.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.788Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -54,10 +54,10 @@
           "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
           "result": "pass",
           "note": "Partial context (id only / arm only / whitespace-only counterpart) returns null with exactly one console.warn naming the ignored var; empty or whitespace-only experimentId is treated as unset (silent null when arm also unset).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.788Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,10 +66,10 @@
           "command": "node packages/main/dist/tasks/experiment-arm-smoke.js",
           "result": "pass",
           "note": "Invalid arm value (e.g. uppercase CONTROL) returns null with one warning naming accepted values control|treatment; module-level once-latch proves repeated misconfigured resolutions warn exactly once per process (resetExperimentArmWarnLatch test hook).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.788Z"
         }
       ]
     },
@@ -130,10 +130,10 @@
           "command": "LATTICE_EXPERIMENT_ID=exp-chk002-t LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js session_brief / dev_memory_start / done_closure",
           "result": "pass",
           "note": "Treatment renders identical to no-experiment: session_brief Memory Runtime Preflight section diff empty vs no-env capture; dev_memory_start and done_closure outputs byte-identical to no-env baselines (diff exit 0). Activity log gained experience_pack_surfaced {experimentId:exp-chk002-t, arm:treatment, consumer:session_brief|dev_memory_start, packDigest, topHitIds}.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -142,10 +142,10 @@
           "command": "node packages/main/dist/cli.js handoff_create + host_dispatch under no-env / control / treatment env, diffed against pre-change baseline",
           "result": "pass",
           "note": "Eighth-surface fix (commit f5efb5fc1): renderHostDispatchProjectionText (core/lattice-handoff.ts ~1546, the host_dispatch text renderer originally flagged as handoff_worktree_create) now gates the memoryPackDigest/memoryTopHitIds/memoryAuthority/memoryGateEvidence lines via shouldRenderRuntimeMemoryPack. Transcript: no-env output byte-identical to pre-change baseline (diff exit 0, deterministic across repeated runs); control output has 0 memory lines and differs from baseline ONLY by those four lines; treatment byte-identical to no-env. experience_pack_surfaced fires once via the shared leaf at pack compute time (consumer host_handoff, packDigest 271ff003... matching the baseline memoryPackDigest line); no second event added at the renderer, no new RuntimeConsumer value. ab-shadow-gate smoke re-run green (14/14).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,10 +154,10 @@
           "command": "node packages/main/dist/cli.js session_brief / dev_memory_start (no experiment env), diffed against pre-change baseline captures",
           "result": "pass",
           "note": "Baselines captured from pre-change dist (commit 213cc5631 build). After change with no env: dev_memory_start byte-identical (diff exit 0); session_brief Memory Runtime Preflight section byte-identical (awk-extracted section diff empty; remaining diff lines are live-state only: heartbeat age, recent activity tail, dirty-file list from parallel CHK-003 commits). No experience_pack_surfaced event appended on no-env runs. Full seven-entrypoint fixture regression is covered by the CHK-005 smoke per plan.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -166,10 +166,10 @@
           "command": "LATTICE_EXPERIMENT_ID=exp-chk002 LATTICE_EXPERIMENT_ARM=control node packages/main/dist/cli.js done_closure vs no-env run",
           "result": "pass",
           "note": "The renderMemoryFreshnessPackSummary-over-runbook.pack shape is gated by the same surfaceRuntimeMemoryPack shouldRender decision at both done-closure (renderDoneClosure showMemoryPack param) and done-prepare (renderPass showMemoryPack + block() conditional memoryFreshnessPack spread, done-prepare.ts). Transcript: control done_closure output has 0 \"Advisory memory considered\" sections vs 1 on no-env; all other lines (blocker rows, canAttemptDone, assurance) identical. done_prepare PASS-path render uses the identical packSurface.shouldRender value; end-to-end TEST-phase exercise is covered by the CHK-005 smoke per plan.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -178,10 +178,10 @@
           "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js; grep -rln experiment packages/main/src/core/review-run.ts; diff of done_closure blocker output across arms",
           "result": "pass",
           "note": "ab-shadow-gate smoke green (TOTAL 14 PASS 14 FAIL 0) including \"resolveReviewPromptHash byte-identical regardless of hints (and arm)\". Isolation grep: core/review-run.ts (resolveReviewPromptHash), core/machine.ts, core/guard-utils.ts contain zero references/imports of experiment-arm or experience-pack-surface. done_closure blocker/gate rows byte-identical between no-env, control, and treatment runs (only the advisory memory section differs on control).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -190,10 +190,10 @@
           "command": "grep -c experience_pack_surfaced .lattice/activity.jsonl before/after repeated control session_brief",
           "result": "pass",
           "note": "Dedup key (experimentId, consumer, storyId-or-global, roundKey) via readActivityLogTail(root,1000): first control session_brief appended one event (count 0->1); second identical control run appended none (before=1 after=1). Treatment run with the SAME experimentId+key also deduped (no second event); a fresh experimentId (exp-chk002-t) correctly fired its own event.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         }
       ]
     },
@@ -239,10 +239,10 @@
           "command": "LATTICE_EXPERIMENT_ID=exp-m3-manual LATTICE_EXPERIMENT_ARM=control node packages/main/dist/cli.js recall '{\"query\":\"x\"}'",
           "result": "pass",
           "note": "Control arm: recall exits 1 printing blocked: memory retrieval is disabled on the control arm of experiment exp-m3-manual; .lattice/activity.jsonl gains {event:retrieval_violation, experimentId:exp-m3-manual, command:recall, timestamp} appended BEFORE the refusal. Write-side dev_memory_capture equally blocked with its own event (store writes forbidden during runs).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -251,10 +251,10 @@
           "command": "LATTICE_EXPERIMENT_ID=exp-m3-manual LATTICE_EXPERIMENT_ARM=treatment node packages/main/dist/cli.js recall '{\"query\":\"experiment arm\"}'",
           "result": "pass",
           "note": "Treatment arm: recall exits 0 with normal ranked output; no-experiment mode: recall exits 0; control arm + non-memory command (story_list) exits 0. Activity log retrieval_violation event count unchanged across all three runs (no false violations).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -263,10 +263,10 @@
           "command": "node packages/main/tests/control-arm-retrieval-gate.test.mjs",
           "result": "pass",
           "note": "Catalog cross-check ALL PASS: every MAIN_TOOLS/COMMAND_POLICIES command matching the declared MEMORY_RETRIEVAL_COMMAND_FAMILIES (recall, dev_memory_*, playbook_*, learning_scan/validate/effectiveness, memory_playbook_baseline_*) carries memoryRetrieval:true (28 commands, both directions, strict boolean check); non-family sentinels (story_list, memory_benchmark_run) unmarked; gate unit checks cover control block+event, treatment/no-env pass, invalid arm treated as no experiment.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         }
       ]
     },
@@ -311,10 +311,10 @@
           "command": "node packages/main/dist/cli.js observability_snapshot (cwd=.worktrees/B-ab8d)",
           "result": "pass",
           "note": "Text output includes: resolvedLearningRoot: /Users/jek/Documents/Work/proofbound/.lattice/learning — ends in /.lattice/learning under the MAIN repo root while cwd is the linked worktree (canonicalization visible).",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -322,10 +322,10 @@
           "command": "cd $(mktemp -d .../obs-root-XXXXXX) && node /Users/jek/Documents/Work/proofbound/.worktrees/B-ab8d/packages/main/dist/cli.js observability_snapshot (text and --json)",
           "result": "pass",
           "note": "Fresh mkdtemp non-git dir obs-root-7uYg7s: both text and JSON print resolvedLearningRoot = <tempRoot>/.lattice/learning, i.e. under the temp root itself, not the shared main-repo store.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -334,10 +334,10 @@
           "command": "node packages/main/tests/observability-snapshot-learning-root.test.mjs",
           "result": "pass",
           "note": "Test asserts handler field is byte-equal to existing resolveLearningDir(root) (delegation, no re-implementation). Resolution call sites unchanged: git diff main...HEAD -- packages/main/src/core/learning-store.ts is empty (0 lines); existing observability-snapshot-smoke still passes.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         }
       ]
     },
@@ -383,10 +383,10 @@
           "command": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js",
           "result": "pass",
           "note": "23 check PASS lines covering cases (a)-(i), final line experience-pack-arm-switch-smoke: ALL PASS, exit 0 (verified twice for byte-stability)",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -394,10 +394,10 @@
           "command": "lattice validate --story=B-ab8d --json",
           "result": "pass",
           "note": "Re-run after F-002 fix commit cebf74b83 (retired token removed from arm-switch smoke fixture): lattice validate exits 0, allPass true, 32/32 commands ok including retired-authority-vocabulary-guard-smoke, arm-switch smoke 23/23 ALL PASS, verification coverage 18/18.",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -406,10 +406,10 @@
           "command": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js",
           "result": "pass",
           "note": "Poisoned paths green: partial env ignored with warning naming the ignored var (d); resolveReviewPromptHash byte-identical across control/treatment/no-env (g); control-arm block recorded as retrieval_violation before refusal for recall/dev_memory_search/dev_memory_start via real CLI (e/b); deliberately unmarked dev_memory_unmarked_fake FAILS the catalog cross-check (f)",
-          "headHash": "055fc5678aa5baca030e6659d3c0e550e02c044e",
-          "materialHash": "d3580382043889cb1e1dc881bfe6eba278d0f160e088d23c40601dc938f747f6",
-          "storyFilesHash": "f7482ba97c7814f73015e3f26562702e18e967cc4286107076f92e87d844eadd",
-          "timestamp": "2026-07-03T00:32:12.425Z"
+          "headHash": "493dfae12292d56c8db6b6e31787c20308b595b1",
+          "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+          "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+          "timestamp": "2026-07-03T00:48:34.789Z"
         }
       ]
     }
