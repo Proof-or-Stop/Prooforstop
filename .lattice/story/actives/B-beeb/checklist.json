@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Committed pilot campaign runner emitting RUN-RECORD-conformant arm-run directories",
+      "context": "Create experiments/experience-ablation/run-pilot.mjs (+ optional thin session-guard reuse) adapting the identity-keyed campaign-resume pattern from the recovery powered scratch: enumerate (fixture x arm) cells from the generated corpus manifest + committed run-order seed, skip cells whose run dir already has a terminal run.json (resume), and per cell: copy fixture workspace into a fresh mkdtemp non-git root, execute the host task under LATTICE_EXPERIMENT_ID/<arm> env, capture the run-scoped activity.jsonl slice and post-run workspace, and write run.json with every RUN-RECORD.md required field (experimentId, arm, hostId, storeRoot, timings, commandCount, doneReached, validationPass). Dry-run mode (--plan) prints the cell plan without executing. The runner never writes to the production .lattice/learning store.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/run-pilot.mjs --plan prints a cell table (fixtureId x arm, pending/done counts) and exits 0; after a real cell runs, the run dir contains run.json + activity.jsonl + workspace/ and node experiments/experience-ablation/score.mjs --fixture=<f> --run=<r> emits a valid score record with voided absent",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Mechanical fixture-leakage audit over the generated corpus",
+      "context": "Create experiments/experience-ablation/leakage-audit.mjs: for every fixture in a generated corpus, scan workspace/ + prompt.md against the LEAKAGE_STRIP_LIST markers from trap-templates.mjs (trap-class names, lesson signature phrases, answer-stating sentences, executable residue oracles) and assert reference-bad/reference-good/oracle.mjs are outside workspace/; write leakage-audit.jsonl rows {fixtureId, checks, pass} and exit nonzero on any leak. This is the plan section 9 last-row audit and an M6 pilot exit criterion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/leakage-audit.mjs --corpus=<dir> prints per-fixture PASS lines ending leakage-audit: all fixtures clean (N fixtures) with exit 0 and writes leakage-audit.jsonl",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Protocol freeze and pilot execution: both arms, isolation asserted, scorer replay agreement",
+      "context": "Generate the pilot corpus (>=5 fixtures per trap group: 6 in-store classes + 2 held-out + clean), freeze protocol.json via node experiments/experience-ablation/protocol.mjs freeze (fixture manifest + run-order seed + memory snapshot hash), build the pair ledger, then execute the pilot with run-pilot.mjs: every fixture through BOTH arms, plus enough additional control-arm fault-task runs to reach >=15 (plan section 7 freeze rule precondition). Score every run dir with score.mjs into score-records.jsonl under .lattice/experiments/experience-ablation/<experimentId>/. Assertions: zero voided records (store isolation held), re-scoring every archived run dir a second time is byte-identical (scorer agreement on replay), control-arm records have memoryPackShown=false and treatment true.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "The pilot summary prints: cells completed (fixtures x 2 arms + extra control runs), control-arm fault runs >= 15, voided records 0, replay re-score byte-identical (digest match), score-records.jsonl row count",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Control-arm baseline estimate and powered-N freeze via pilotFreezeCheck",
+      "context": "From the control-arm fault-task score records compute defects/runs and run sample-size.mjs pilotFreezeCheck (Wilson 95% CI; freeze the powered N at the N-maximizing baseline within the CI, p* = 0.5 + mde/2 clamped — the corrected S7 rule; extend the pilot if CI width > 0.30). Record the frozen per-population N + the freeze inputs into the experiment evidence root (e.g. n-freeze.json) referenced by the protocol experimentId, ready for M7. If the observed baseline falls outside the planning band (0.5-0.8), record the recompute per the plan instead of silently proceeding.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "The freeze output prints: control fault runs N, defects K, baseline p, Wilson CI [lo, hi], CI width (<= 0.30), N-maximizing baseline p*, frozen powered N per arm, and writes n-freeze.json",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
