@@ -35,6 +35,12 @@ function hasReason(result: { reasons: readonly string[] }, code: string): boolea
   return result.reasons.some((reason) => reason === code || reason.startsWith(`${code}:`));
 }
 
+const RETIRED_BOUNDARY_FIELDS_UNDER_TEST = [
+  'authority' + 'Done',
+  'fullAuthority' + 'Done',
+  'production' + 'Done',
+] as const;
+
 function expectDeterministicInputError(label: string, fn: () => unknown, expectedMessage: RegExp): void {
   assert.throws(
     fn,
@@ -540,6 +546,16 @@ const directAuthorityClaim = buildCompleteQuantumEvidence('Q5');
 const directAuthorityClaimGate = checkGateDecision('quantum M3 direct Authority claim overclaim gate-policy case', directAuthorityClaim, 'stop');
 assert.ok(hasReason(directAuthorityClaimGate, 'claim_boundary_violation'), 'direct authorityClaim field has boundary violation');
 
+for (const field of RETIRED_BOUNDARY_FIELDS_UNDER_TEST) {
+  const directRetiredFieldClaim = buildCompleteQuantumEvidence('Q5');
+  (directRetiredFieldClaim as unknown as Record<string, unknown>)[field] = true;
+  const directRetiredFieldGate = checkGateDecision(`quantum M3 direct ${field} payload gate-policy case`, directRetiredFieldClaim, 'stop');
+  assert.ok(
+    hasReason(directRetiredFieldGate, 'claim_boundary_violation'),
+    `direct ${field} field has boundary violation`,
+  );
+}
+
 const theoryNarrative = buildCompleteQuantumEvidence('Q5');
 theoryNarrative.narrativeClaim = 'quantum theory proven';
 const theoryNarrativeGate = checkGateDecision('quantum M3 narrative theory overclaim gate-policy case', theoryNarrative, 'stop');
@@ -586,6 +602,20 @@ expectDeterministicInputError(
 );
 const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
 const directCompleteEvidenceObject = JSON.parse(directCompleteEvidenceJson) as QuantumClaimCheckInput;
+for (const field of RETIRED_BOUNDARY_FIELDS_UNDER_TEST) {
+  const retiredFieldEvidence = buildCompleteQuantumEvidence('Q5') as QuantumClaimCheckInput & Record<string, unknown>;
+  retiredFieldEvidence[field] = true;
+  const handlerEvidenceJsonRetiredField = handlers.quantum_claim_check({
+    evidenceJson: JSON.stringify(retiredFieldEvidence),
+    format: 'json',
+  }) as QuantumClaimGatePolicyResult;
+  assert.equal(handlerEvidenceJsonRetiredField.decision, 'stop', `handler evidenceJson ${field}=true stops`);
+  assert.equal(handlerEvidenceJsonRetiredField.allowed, false, `handler evidenceJson ${field}=true fails closed`);
+  assert.ok(
+    hasReason(handlerEvidenceJsonRetiredField, 'claim_boundary_violation'),
+    `handler evidenceJson ${field}=true has boundary violation`,
+  );
+}
 for (const blankEvidenceJson of ['', '   ']) {
   assert.throws(
     () => handlers.quantum_claim_check({ evidenceJson: blankEvidenceJson, format: 'json' } as any),
@@ -662,6 +692,13 @@ assert.throws(
   /refuses unsupported/,
   'handler rejects productionClaim overclaim flag',
 );
+for (const field of RETIRED_BOUNDARY_FIELDS_UNDER_TEST) {
+  assert.throws(
+    () => handlers.quantum_claim_check({ [field]: true } as any),
+    /refuses unsupported/,
+    `handler rejects ${field} overclaim flag`,
+  );
+}
 console.log('quantum M3 handler gate-policy cases: PASS');
 
 console.log('quantum claim-admissibility smoke passed');

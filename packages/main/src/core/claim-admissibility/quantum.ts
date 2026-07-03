@@ -432,8 +432,19 @@ const QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS = [
   'productionReadyClaim',
 ] as const;
 
+export const QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES = [
+  'authority' + 'Done',
+  'fullAuthority' + 'Done',
+  'production' + 'Done',
+] as const;
+
+const QUANTUM_BOUNDARY_FIELD_NAMES = [
+  ...QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS,
+  ...QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES,
+] as const;
+
 const QUANTUM_BOUNDARY_FIELD_OVERCLAIM_PATTERN = new RegExp(
-  String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`,
+  String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${QUANTUM_BOUNDARY_FIELD_NAMES.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`,
   'i',
 );
 
@@ -445,6 +456,28 @@ function isUnsafeBoundaryOverclaimValue(value: unknown): boolean {
   if (value === 1) return true;
   if (typeof value !== 'string') return false;
   return TRUEISH_OVERCLAIM_VALUES.has(value.trim().toLowerCase());
+}
+
+function hasRetiredBoundaryFieldOverclaim(value: unknown, visited = new WeakSet<object>()): boolean {
+  if (!value || typeof value !== 'object') return false;
+  if (visited.has(value)) return false;
+  visited.add(value);
+
+  if (Array.isArray(value)) {
+    return value.some((item) => hasRetiredBoundaryFieldOverclaim(item, visited));
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const [key, fieldValue] of Object.entries(record)) {
+    if (
+      QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES.includes(key)
+      && isUnsafeBoundaryOverclaimValue(fieldValue)
+    ) {
+      return true;
+    }
+    if (hasRetiredBoundaryFieldOverclaim(fieldValue, visited)) return true;
+  }
+  return false;
 }
 
 function boundaryViolationReasons(input: QuantumClaimCheckInput): string[] {
@@ -463,6 +496,9 @@ function boundaryViolationReasons(input: QuantumClaimCheckInput): string[] {
   const record = input as unknown as Record<string, unknown>;
   for (const field of QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS) {
     if (isUnsafeBoundaryOverclaimValue(record[field])) violations.push(field);
+  }
+  if (hasRetiredBoundaryFieldOverclaim(input)) {
+    violations.push('retired_boundary_field');
   }
 
   const text = input.narrativeClaim ?? '';

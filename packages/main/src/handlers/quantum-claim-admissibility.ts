@@ -3,6 +3,7 @@ import type { HandlerContext } from './context.js';
 import {
   QUANTUM_CLAIM_IDS,
   QUANTUM_CLAIM_CHECK_CASES,
+  QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES,
   QUANTUM_REQUESTED_STRENGTHS,
   buildQuantumClaimCheckCase,
   evaluateQuantumClaimGatePolicy,
@@ -63,6 +64,7 @@ const UNSUPPORTED_FLAGS = [
   'productionClaim',
   'authorityClaim',
   'productionReadyClaim',
+  ...QUANTUM_RETIRED_BOUNDARY_FIELD_NAMES,
 ] as const;
 
 function wantsJson(args: FormatArgs = {}): boolean {
