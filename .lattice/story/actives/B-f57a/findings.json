@@ -270,7 +270,7 @@
       "desc": "Quality review confirms the same committed-HEAD drift window as B-f57a:F-012: F-010 is not fully closed because cross_host_review captures materialDigest/storyFilesHash/headHash from HEAD at packages/main/src/handlers/cross-host-review.ts:536-544, but createCleanHeadReviewWorktree later runs git worktree add --detach <tmp> HEAD at packages/main/src/handlers/cross-host-review.ts:314-323. HEAD is not pinned to the captured headHash, so a clean concurrent commit/reset/rebase between those points can make the detached snapshot review a different tree than the recorded materialDigest. The post-run check at packages/main/src/handlers/cross-host-review.ts:639 only checks dirty status relative to the then-current HEAD, so it passes after a clean HEAD advance, and verdicts are recorded at packages/main/src/handlers/cross-host-review.ts:651-679 with stale bindings. The smoke coverage at packages/main/src/tasks/cross-host-review-smoke.ts:1139-1191 covers uncommitted source drift but not clean HEAD advancement. Pin the snapshot to the captured headHash and fail closed before submitLocalVerdict unless currentGitHead/currentMaterialHash/currentStoryFilesHash still match the captured values; add a smoke case for clean committed drift.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T09:57:27.570Z",
@@ -282,7 +282,11 @@
         "packages/main/src/tasks/cross-host-review-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|quality-review-confirms",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 0c27d45e6: createCleanHeadReviewWorktree now checks out the captured headHash, not the moving HEAD ref, and cross_host_review revalidates currentGitHead(projectRoot) still equals that captured hash before recording. Smoke CHK-001:adversarial:6 proves clean post-spawn HEAD advancement is rejected with cross_host_review_head_drift and records no verdict. Full lattice validate PASS recorded in 08a1e3178.",
+      "resolvedAt": "2026-07-03T10:05:04.739Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
