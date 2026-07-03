@@ -199,7 +199,7 @@
       "desc": "handlers/cross-host-review.ts lines 476-548 computes the HEAD materialDigest and performs assertMaterialCleanForReview only before spawning Codex, then records verdicts after runCodexReviewLeaf without isolating the tree or rechecking/locking material state. Because codex exec reviews the live mutable worktree and the leaf verdict merely echoes the requested materialHash, another local writer can modify source after the clean preflight but before or during the review; the recorded pass/fail is then bound to HEAD even though Codex reviewed transient uncommitted content. CHK-001:adversarial:6 only covers dirt present before spawn, not this TOCTOU window. Run Codex against an immutable clean snapshot/temp worktree at HEAD, or hold a source write lease and revalidate material state before recording.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T09:40:18.847Z",
@@ -211,7 +211,11 @@
         "packages/main/src/tasks/cross-host-review-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|handlers-cross-host",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 99f6d050e: cross_host_review now creates a detached clean HEAD snapshot for Codex, runs the review against that snapshot, then re-checks the original story worktree before recording. Smoke CHK-001:adversarial:6 proves dirty preflight fails before spawn, post-spawn source drift fails before record, no verdict is recorded, and .lattice-only metadata drift still proceeds. Full lattice validate PASS recorded in cade28cf8.",
+      "resolvedAt": "2026-07-03T09:52:17.552Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f57a:F-011",
