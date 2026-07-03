@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5118",
+  "records": [
+    {
+      "id": "RED-20260702231412",
+      "trigger": "Quantum M2 verifier adapter pack output line is missing from the focused smoke before implementation.",
+      "acceptanceTargetRef": "CHK-004:happy:0",
+      "baselineHeadHash": "88f33d3a4a6ceb403fa63f695c37d79fe7942e65",
+      "baselineMaterialHash": "85bd78a68b5441fce4c7dc6b0f7e94f35476e400fbaa08afc712e9abbf4f2241",
+      "observedFailure": "After build, npm --prefix packages/main run test:quantum-claim-admissibility passes M0-M1 cases but does not print quantum M2 verifier adapter pack passed; the red probe exits 1 with missing quantum M2 verifier adapter pack passed.",
+      "failingCommand": "node -e \"const {execFileSync}=require('child_process'); const out=execFileSync('npm',['--prefix','packages/main','run','test:quantum-claim-admissibility'],{encoding:'utf8'}); process.stdout.write(out); if(!out.includes('quantum M2 verifier adapter pack passed')) { console.error('missing quantum M2 verifier adapter pack passed'); process.exit(1); }\"",
+      "expectedGreenCommand": "npm --prefix packages/main run test:quantum-claim-admissibility",
+      "greenRelation": {
+        "targetRef": "CHK-004:happy:0",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:quantum-claim-admissibility"
+      },
+      "note": "Red baseline intentionally checks the new M2 verifier adapter success transcript line; current M0-M1 smoke passes but lacks that line.",
+      "createdAt": "2026-07-02T23:14:12.682Z"
+    }
+  ],
+  "createdAt": "2026-07-02T23:14:12.682Z",
+  "updatedAt": "2026-07-02T23:14:12.682Z"
+}

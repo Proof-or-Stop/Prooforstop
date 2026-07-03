@@ -22,15 +22,27 @@ import {
   type ClaimKind,
   type ProofSurfaceDefinition,
 } from '../proof-admissibility.js';
+import {
+  QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
+  QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+  QUANTUM_CLAIM_IDS,
+  QUANTUM_CLAIM_SPECIFIC_FIELDS,
+  QUANTUM_CONDITIONAL_IDENTITY_FIELDS,
+  QUANTUM_CORE_IDENTITY_FIELDS,
+  QUANTUM_EVIDENCE_KINDS,
+  QUANTUM_RUNTIME_STATUS,
+  listQuantumVerifierAdapterDescriptors,
+} from './quantum.js';
 
 export const CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION = 'lattice.claim_admissibility_pack.v1' as const;
 export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID = 'code-runtime' as const;
+export const QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID = 'quantum' as const;
 
 export type ClaimAdmissibilityPackRuntimeBoundary = 'local' | 'external-adapter';
 export type ClaimAdmissibilityPackMutationBoundary = 'read-only';
 export type ClaimAdmissibilityPackDeclarationBoundary = 'declarative-only';
 export type ClaimAdmissibilityPackClaimScope = 'claim-admissibility-only';
-export type ClaimAdmissibilityPackEvidenceRuntime = 'existing-proof-admissibility';
+export type ClaimAdmissibilityPackEvidenceRuntime = 'existing-proof-admissibility' | 'domain-local-receipts';
 export type ClaimAdmissibilityAdapterExecutionBoundary =
   | 'declarative-only'
   | 'read-receipt-only'
@@ -93,8 +105,10 @@ export interface VerifierAdapterDefinition {
   readonly description?: string;
   readonly executionBoundary: ClaimAdmissibilityAdapterExecutionBoundary;
   readonly supportedVerifierVersions: readonly string[];
+  readonly supportedOutputVersions?: readonly string[];
   readonly inputClaimSchemaIds?: readonly string[];
   readonly outputEvidenceSchemaIds: readonly string[];
+  readonly outputEvidenceKinds?: readonly string[];
   readonly commandSpec?: VerifierCommandSpecDefinition;
 }
 
@@ -157,6 +171,7 @@ export type ClaimAdmissibilityValidationIssueCode =
   | 'duplicate_pack_id'
   | 'duplicate_claim_schema_id'
   | 'duplicate_evidence_schema_id'
+  | 'duplicate_verifier_adapter_id'
   | 'duplicate_proof_surface_artifact_kind'
   | 'duplicate_proof_surface_alias'
   | 'duplicate_claim_id';
@@ -200,8 +215,16 @@ interface SeenLocation {
   readonly path: string;
 }
 
+function freezeDescriptorItem<T extends object>(item: T): T {
+  const descriptor = { ...item } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(descriptor)) {
+    if (Array.isArray(value)) descriptor[key] = Object.freeze([...value]);
+  }
+  return Object.freeze(descriptor) as T;
+}
+
 function freezeItems<T extends object>(items: readonly T[]): readonly T[] {
-  return Object.freeze(items.map((item) => Object.freeze(item)));
+  return Object.freeze(items.map((item) => freezeDescriptorItem(item)));
 }
 
 function uniqueSorted<T extends string>(values: readonly T[]): readonly T[] {
@@ -409,8 +432,93 @@ export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK: ClaimAdmissibilityPack = def
   CODE_RUNTIME_PROOF_SURFACES,
 );
 
+const QUANTUM_BOUNDARY: ClaimAdmissibilityPackBoundary = Object.freeze({
+  runtime: 'external-adapter',
+  mutation: 'read-only',
+  declaration: 'declarative-only',
+  claimScope: 'claim-admissibility-only',
+  evidenceRuntime: 'domain-local-receipts',
+  createsStorage: false,
+  createsLedger: false,
+  createsLifecycleGate: false,
+  callerWritableMetadataAdmissible: false,
+  completionEligible: false,
+});
+
+const QUANTUM_CLAIM_SCHEMA_ID = 'quantum.claims' as const;
+const QUANTUM_EVIDENCE_SCHEMA_ID = 'quantum.verifier-receipts' as const;
+const QUANTUM_IDENTITY_FIELDS = Object.freeze([
+  ...QUANTUM_CORE_IDENTITY_FIELDS,
+  ...QUANTUM_CONDITIONAL_IDENTITY_FIELDS,
+  ...QUANTUM_CLAIM_SPECIFIC_FIELDS,
+]);
+
+const QUANTUM_CLAIM_SCHEMAS = freezeItems<DomainClaimSchema>([
+  {
+    id: QUANTUM_CLAIM_SCHEMA_ID,
+    version: QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
+    displayName: 'Computational quantum claim IDs',
+    description: `${QUANTUM_RUNTIME_STATUS} Local scoped claims only; no theory, hardware, solver-improvement, production, or Authority claim is implied.`,
+    claimIds: QUANTUM_CLAIM_IDS,
+    identityFields: QUANTUM_IDENTITY_FIELDS,
+    boundary: Object.freeze({
+      claimScope: 'claim-admissibility-only',
+      completionEligible: false,
+      externalGateControl: false,
+    }),
+  },
+]);
+
+const QUANTUM_EVIDENCE_SCHEMAS = freezeItems<DomainEvidenceSchema>([
+  {
+    id: QUANTUM_EVIDENCE_SCHEMA_ID,
+    version: QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
+    displayName: 'Computational quantum verifier receipts',
+    description: 'Receipt schema for normalized adapter output consumed by the local quantum claim-admissibility evaluator.',
+    artifactKinds: QUANTUM_EVIDENCE_KINDS,
+    schemaVersions: Object.freeze([
+      QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION,
+      QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
+    ]),
+    identityFields: QUANTUM_IDENTITY_FIELDS,
+  },
+]);
+
+const QUANTUM_VERIFIER_ADAPTERS = freezeItems<VerifierAdapterDefinition>(
+  listQuantumVerifierAdapterDescriptors().map((adapter) => ({
+    id: adapter.id,
+    version: adapter.version,
+    displayName: adapter.displayName,
+    description: adapter.description,
+    executionBoundary: adapter.executionBoundary,
+    supportedVerifierVersions: Object.freeze([adapter.version]),
+    supportedOutputVersions: adapter.supportedOutputVersions,
+    inputClaimSchemaIds: Object.freeze([QUANTUM_CLAIM_SCHEMA_ID]),
+    outputEvidenceSchemaIds: Object.freeze([QUANTUM_EVIDENCE_SCHEMA_ID]),
+    outputEvidenceKinds: Object.freeze([...new Set(adapter.evidenceProfiles.map((profile) => profile.evidenceKind))]),
+  })),
+);
+
+export const QUANTUM_CLAIM_ADMISSIBILITY_PACK: ClaimAdmissibilityPack = defineReadOnlyPack(
+  {
+    id: QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID,
+    version: '1.0.0',
+    contractVersion: CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION,
+    domain: 'computational-quantum-mechanics',
+    displayName: 'Computational quantum claim-admissibility pack',
+    description: 'Read-only descriptor for Quantum M2 verifier adapters. It normalizes supplied receipts only and does not run commands or create lifecycle gates.',
+    boundary: QUANTUM_BOUNDARY,
+    claimSchemas: QUANTUM_CLAIM_SCHEMAS,
+    evidenceSchemas: QUANTUM_EVIDENCE_SCHEMAS,
+    verifierAdapters: QUANTUM_VERIFIER_ADAPTERS,
+    gatePolicies: Object.freeze([]),
+  },
+  Object.freeze([]),
+);
+
 const DEFAULT_CLAIM_ADMISSIBILITY_PACKS = Object.freeze([
   CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK,
+  QUANTUM_CLAIM_ADMISSIBILITY_PACK,
 ]);
 
 export function validateClaimAdmissibilityPacks(
@@ -420,6 +528,7 @@ export function validateClaimAdmissibilityPacks(
   const packIds = new Map<string, SeenLocation>();
   const claimSchemaIds = new Map<string, SeenLocation>();
   const evidenceSchemaIds = new Map<string, SeenLocation>();
+  const verifierAdapterIds = new Map<string, SeenLocation>();
   const proofSurfaceArtifactKinds = new Map<string, SeenLocation>();
   const proofSurfaceAliases = new Map<string, SeenLocation>();
   const claimIds = new Map<string, SeenLocation>();
@@ -451,6 +560,14 @@ export function validateClaimAdmissibilityPacks(
       trackRequiredId(evidenceSchemaIds, issues, 'duplicate_evidence_schema_id', 'evidence schema', schema.id, {
         packId,
         path: `${schemaPath}.id`,
+      });
+    });
+
+    pack.verifierAdapters.forEach((adapter, adapterIndex) => {
+      const adapterPath = `${packPath}.verifierAdapters[${adapterIndex}]`;
+      trackRequiredId(verifierAdapterIds, issues, 'duplicate_verifier_adapter_id', 'verifier adapter', adapter.id, {
+        packId,
+        path: `${adapterPath}.id`,
       });
     });
 

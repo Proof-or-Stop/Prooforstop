@@ -12,3 +12,4 @@ export * from '../../proof-admissibility-handoff.js';
 export * from '../../proof-admissibility-legacy.js';
 export * from '../../proof-admissibility-metadata.js';
 export * from '../../claim-admissibility/pack-framework.js';
+export * from '../../claim-admissibility/quantum.js';

@@ -4,7 +4,7 @@
   "title": "Quantum M2: add verifier adapter pack for claim-admissibility receipts",
   "description": "Implement the pending Quantum Milestone 2 from proof-or-stop-quantum-claim-admissibility-execution-plan.md. The story adds deterministic verifier adapter definitions and receipt-normalization helpers for computational quantum claim-admissibility, building on the existing M0-M1 quantum schema/evaluator and the generic ClaimAdmissibilityPack registry. It must not add lifecycle gate policy, benchmark harnesses, reporting/governance integration, hardware validation, solver improvement claims, production claims, or Authority claims.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "quantum",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-07-02T23:05:09.191Z",
   "startedAt": "2026-07-02T23:05:09.191Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T00:07:04.213Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,97 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:07:36.324Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:14:55.755Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:29:37.794Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:34:25.214Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:42:11.661Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:46:25.205Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:58:33.987Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-02T23:59:01.496Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:01:26.802Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:07:04.213Z",
+      "branch": "story/B-5118",
+      "user": "Harmonygo",
+      "sessionId": "sess-02376b4cca7a3701",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5118",
-    "branch": "story/B-5118",
-    "createdAt": "2026-07-02T23:07:03.244Z"
-  }
+  "currentReviewRound": "2026-07-02T23:59:01.496Z"
 }
