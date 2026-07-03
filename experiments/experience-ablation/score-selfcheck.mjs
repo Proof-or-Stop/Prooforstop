@@ -35,12 +35,16 @@
 //       to retrievalViolationCount=N and memoryPackShown=false; a treatment
 //       run maps to memoryPackShown=true with surfacedMemoryIds taken from the
 //       experience_pack_surfaced event; foreign-experiment events are ignored.
-//   (+) CHK-002 error-path pins (one-line actionable errors, nonzero exit),
+//   (+) CHK-002 error-path pins (one-line actionable errors, nonzero exit;
+//       includes the RUN-RECORD.md catalog's missing activity.jsonl and
+//       missing workspace/ lines), structured false-DONE precedence
+//       (done-readiness / final-response-check firing, merged decidedBy, and
+//       structured-present-but-clean never falling back to the oracle),
 //       scorer non-mutation (fixture and run trees byte-identical after
 //       scoring), and the S6.2 repeatDefectPresent path via an
 //       expectedMemoryIds-augmented fixture copy.
 
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
@@ -192,8 +196,15 @@ try {
   }
   check('(c) full-corpus double scoring is byte-identical', replayMismatch === null, replayMismatch ?? '');
   const corpusDigest = createHash('sha256').update(digestParts.join('')).digest('hex');
-  check('(c) corpus digest contains no temp-root bytes (replay-stable across invocations)',
-    !digestParts.join('').includes(tmpdir()) && !digestParts.join('').includes(corpus));
+  // Temp roots can leak in EITHER their raw form (e.g. macOS /var/folders/...)
+  // or their symlink-resolved form (/private/var/folders/...); scan for both.
+  {
+    const corpusText = digestParts.join('');
+    const tempRootForms = [...new Set([tmpdir(), realpathSync(tmpdir()), corpus, realpathSync(corpus)])];
+    const leaked = tempRootForms.filter((p) => corpusText.includes(p));
+    check('(c) corpus digest contains no temp-root bytes, raw or realpath-resolved (replay-stable across invocations)',
+      leaked.length === 0, leaked.join(' | '));
+  }
 
   // --- (e) dedicated N-mapping + foreign-experiment filtering -------------------
   {
@@ -261,6 +272,82 @@ try {
     check('error-path: malformed arm -> one-line error naming control|treatment',
       malformed.code === 1 && malformed.stderr.trim().split('\n').length === 1
       && malformed.stderr.includes('"arm" must be "control" or "treatment"'), JSON.stringify(malformed.stderr));
+    // workspace/ missing: valid run.json alone (workspace is checked before activity.jsonl)
+    const noWorkspaceDir = join(base, 'no-workspace');
+    mkdirSync(noWorkspaceDir, { recursive: true });
+    writeFileSync(join(noWorkspaceDir, 'run.json'), JSON.stringify({
+      experimentId: EXPERIMENT_ID, arm: 'treatment', hostId: 'selfcheck-host',
+      storeRoot: '/synthetic/isolated/no-workspace/.lattice/learning',
+      timeToDoneMs: 120000, commandCount: 7, doneReached: true, validationPass: true,
+    }, null, 2) + '\n');
+    const noWorkspace = cli([`--fixture=${fixtureDir}`, `--run=${noWorkspaceDir}`]);
+    check('error-path: missing workspace/ -> exit nonzero, exactly one line naming <path>/workspace',
+      noWorkspace.code === 1 && noWorkspace.stderr.trim().split('\n').length === 1
+      && noWorkspace.stderr.trim() === `score: missing required run workspace directory: ${join(noWorkspaceDir, 'workspace')}`,
+      JSON.stringify(noWorkspace));
+    // activity.jsonl missing: full synthesized run dir with the slice removed
+    const noActivityDir = synthRunDir({ base, fixtureDir, fixtureId: `${row.fixtureId}-noact`, arm: 'treatment', payload: 'reference-good' });
+    rmSync(join(noActivityDir, 'activity.jsonl'));
+    const noActivity = cli([`--fixture=${fixtureDir}`, `--run=${noActivityDir}`]);
+    check('error-path: missing activity.jsonl -> exit nonzero, exactly one line naming <path>/activity.jsonl',
+      noActivity.code === 1 && noActivity.stderr.trim().split('\n').length === 1
+      && noActivity.stderr.trim() === `score: missing required run record file: ${join(noActivityDir, 'activity.jsonl')}`,
+      JSON.stringify(noActivity));
+  }
+
+  // --- structured false-DONE precedence (done-readiness / final-response-check) ---
+  {
+    const cleanRow = manifest.find((r) => r.trapClass === 'clean');
+    const cleanFixture = join(corpus, cleanRow.fixtureId);
+    const fdRow = manifest.find((r) => r.trapClass === 'false-done');
+    const fdFixture = join(corpus, fdRow.fixtureId);
+    const base = tmp('ablation-score-structured-');
+    // structured rows FIRE on an otherwise-clean run (oracle sees no false-DONE)
+    const drFired = synthRunDir({ base, fixtureDir: cleanFixture, fixtureId: `${cleanRow.fixtureId}-drfire`, arm: 'treatment', payload: 'reference-good' });
+    writeFileSync(join(drFired, 'done-readiness.json'), JSON.stringify({ rows: [{ check: 'validate', ready: false }] }, null, 2) + '\n');
+    const rDrFired = await scoreArmRun({ fixtureDir: cleanFixture, runDir: drFired });
+    check('structured precedence: done-readiness not-ready row fires falseDoneAttempt over a clean oracle; details.sources + evidenceRefs name done-readiness',
+      rDrFired.falseDoneAttempt === true && rDrFired.defectPresent === true
+      && rDrFired.details.sources.falseDoneAttempt === 'done-readiness'
+      && rDrFired.details.sources.doneReadiness === 'present'
+      && rDrFired.details.sources.finalResponseCheck === 'absent'
+      && rDrFired.evidenceRefs.includes('run:done-readiness.json'),
+      JSON.stringify(rDrFired.details.sources));
+    const frcFired = synthRunDir({ base, fixtureDir: cleanFixture, fixtureId: `${cleanRow.fixtureId}-frcfire`, arm: 'treatment', payload: 'reference-good' });
+    writeFileSync(join(frcFired, 'final-response-check.json'), JSON.stringify({ records: [{ check: 'final-response', verdict: 'fail' }] }, null, 2) + '\n');
+    const rFrcFired = await scoreArmRun({ fixtureDir: cleanFixture, runDir: frcFired });
+    check('structured precedence: final-response-check fail record fires falseDoneAttempt; details.sources + evidenceRefs name final-response-check',
+      rFrcFired.falseDoneAttempt === true
+      && rFrcFired.details.sources.falseDoneAttempt === 'final-response-check'
+      && rFrcFired.details.sources.doneReadiness === 'absent'
+      && rFrcFired.details.sources.finalResponseCheck === 'present'
+      && rFrcFired.evidenceRefs.includes('run:final-response-check.json'),
+      JSON.stringify(rFrcFired.details.sources));
+    // merge path: BOTH structured sources fire -> combined decidedBy label
+    const bothFired = synthRunDir({ base, fixtureDir: cleanFixture, fixtureId: `${cleanRow.fixtureId}-bothfire`, arm: 'treatment', payload: 'reference-good' });
+    writeFileSync(join(bothFired, 'done-readiness.json'), JSON.stringify({ rows: [{ check: 'validate', ready: false }] }, null, 2) + '\n');
+    writeFileSync(join(bothFired, 'final-response-check.json'), JSON.stringify({ records: [{ check: 'final-response', verdict: 'fail' }] }, null, 2) + '\n');
+    const rBothFired = await scoreArmRun({ fixtureDir: cleanFixture, runDir: bothFired });
+    check('structured precedence: done-readiness + final-response-check both firing merge into decidedBy done-readiness+final-response-check',
+      rBothFired.falseDoneAttempt === true
+      && rBothFired.details.sources.falseDoneAttempt === 'done-readiness+final-response-check',
+      JSON.stringify(rBothFired.details.sources));
+    // structured-present-but-clean must NOT fall back to the oracle: the
+    // false-done fixture's reference-bad payload makes the oracle fire, so an
+    // oracle fallback here would flip falseDoneAttempt to true.
+    const structClean = synthRunDir({ base, fixtureDir: fdFixture, fixtureId: `${fdRow.fixtureId}-structclean`, arm: 'control', payload: 'reference-bad' });
+    writeFileSync(join(structClean, 'done-readiness.json'), JSON.stringify({ rows: [{ check: 'validate', ready: true }] }, null, 2) + '\n');
+    writeFileSync(join(structClean, 'final-response-check.json'), JSON.stringify({ records: [{ check: 'final-response', verdict: 'pass' }] }, null, 2) + '\n');
+    const rStructClean = await scoreArmRun({ fixtureDir: fdFixture, runDir: structClean });
+    // control leg proving the oracle DOES fire on this payload when both files are absent:
+    const oracleLeg = synthRunDir({ base, fixtureDir: fdFixture, fixtureId: `${fdRow.fixtureId}-oracleleg`, arm: 'control', payload: 'reference-bad' });
+    const rOracleLeg = await scoreArmRun({ fixtureDir: fdFixture, runDir: oracleLeg });
+    check('structured precedence: structured-present-but-clean does NOT fall back to the oracle (which fires on the same payload when structured files are absent); decidedBy structured-none-fired',
+      rStructClean.falseDoneAttempt === false
+      && rStructClean.details.sources.falseDoneAttempt === 'structured-none-fired'
+      && rOracleLeg.falseDoneAttempt === true
+      && rOracleLeg.details.sources.falseDoneAttempt === 'oracle-fallback',
+      JSON.stringify({ structured: rStructClean.details.sources, oracle: rOracleLeg.details.sources }));
   }
 
   // --- S6.2 repeatDefectPresent (expectedMemoryIds-augmented fixture copy) --------

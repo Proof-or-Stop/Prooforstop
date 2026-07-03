@@ -219,9 +219,7 @@ export async function scoreArmRun({ fixtureDir, runDir, productionLearningRoot }
   }
 
   // --- run record ------------------------------------------------------------
-  const runJsonPath = join(runDir, 'run.json');
-  if (!existsSync(runJsonPath)) fail(`missing required run record file: ${runJsonPath}`);
-  const run = readJsonFile(runJsonPath, 'run record');
+  const run = readJsonFile(join(runDir, 'run.json'), 'run record');
   const experimentId = requireString(run, 'experimentId', 'run.json');
   const arm = run.arm;
   if (arm !== 'control' && arm !== 'treatment') {
