@@ -1,11 +1,11 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
-import { submitLocalVerdict, type FormatArgs } from './verdict.js';
+import type { FormatArgs } from './verdict.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import {
   currentGitHead,
@@ -33,6 +33,7 @@ import {
   checkDispatchPolicy,
   type DispatchPolicy,
 } from '../core/dispatch-policy.js';
+import type { HostVerdict, VerdictDecision } from '../core/verdicts.js';
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
 
@@ -526,6 +527,104 @@ export interface CreateCrossHostReviewHandlersOptions {
   codexRunner?: CodexReviewRunner;
   /** Internal smoke seam for adversarial git-race coverage; never exposed through the CLI. */
   afterHeadCaptured?: () => void | Promise<void>;
+  /** Internal smoke seam for final write-window race coverage; never exposed through the CLI. */
+  beforeVerdictRecord?: () => void | Promise<void>;
+  /** Internal smoke seam for post-write cleanup coverage; never exposed through the CLI. */
+  afterVerdictPairWritten?: () => void | Promise<void>;
+}
+
+interface CrossHostVerdictDraft {
+  storyId: string;
+  runId: string;
+  hostId: string;
+  provider: 'claude' | 'codex';
+  sessionId: string;
+  keyId: string;
+  decision: VerdictDecision;
+  materialDigest: string;
+  storyFilesHash: string;
+  validationDigest: string;
+  promptDigest: string;
+  note: string;
+}
+
+function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): HostVerdict {
+  const base = {
+    schemaVersion: 'lattice.host_verdict.v1' as const,
+    mode: 'local' as const,
+    storyId: draft.storyId,
+    runId: draft.runId,
+    hostId: draft.hostId,
+    provider: draft.provider,
+    sessionId: draft.sessionId,
+    keyId: draft.keyId,
+    decision: draft.decision,
+    materialDigest: draft.materialDigest,
+    storyFilesHash: draft.storyFilesHash,
+    validationDigest: draft.validationDigest,
+    promptDigest: draft.promptDigest,
+    issuedAt,
+    note: draft.note,
+  };
+  return {
+    ...base,
+    verdictId: `verdict-${canonicalDigest(base).slice(0, 16)}`,
+  };
+}
+
+function writeCrossHostVerdictPair(
+  ctx: HandlerContext,
+  storyId: string,
+  hostAVerdict: HostVerdict,
+  hostBVerdict: HostVerdict,
+): void {
+  const dir = join(ctx.root, LATTICE_DIR, 'autopilot-verdicts', storyId);
+  mkdirSync(dir, { recursive: true });
+  const paths = [
+    join(dir, `${hostAVerdict.verdictId}.json`),
+    join(dir, `${hostBVerdict.verdictId}.json`),
+  ];
+  try {
+    writeFileSync(paths[0], JSON.stringify(hostAVerdict, null, 2) + '\n', 'utf8');
+    writeFileSync(paths[1], JSON.stringify(hostBVerdict, null, 2) + '\n', 'utf8');
+  } catch (err) {
+    for (const path of paths) rmSync(path, { force: true });
+    throw err;
+  }
+}
+
+function deleteCrossHostVerdictPair(ctx: HandlerContext, storyId: string, ...verdicts: HostVerdict[]): void {
+  const dir = join(ctx.root, LATTICE_DIR, 'autopilot-verdicts', storyId);
+  for (const verdict of verdicts) {
+    rmSync(join(dir, `${verdict.verdictId}.json`), { force: true });
+  }
+}
+
+function hostVerdictProcessEvent(verdict: HostVerdict): Record<string, unknown> {
+  return {
+    type: 'host_verdict',
+    mode: verdict.mode,
+    verdictId: verdict.verdictId,
+    runId: verdict.runId,
+    hostId: verdict.hostId,
+    provider: verdict.provider,
+    sessionId: verdict.sessionId,
+    keyId: verdict.keyId,
+    decision: verdict.decision,
+    materialDigest: verdict.materialDigest,
+    ...(verdict.storyFilesHash ? { storyFilesHash: verdict.storyFilesHash } : {}),
+    validationDigest: verdict.validationDigest,
+    promptDigest: verdict.promptDigest,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function appendHostVerdictEvents(ctx: HandlerContext, storyId: string, ...verdicts: HostVerdict[]): void {
+  const events = verdicts.filter(verdict => verdict.storyId).map(hostVerdictProcessEvent);
+  if (events.length === 0) return;
+  const filePath = ctx.store.storyFilePath(storyId, 'process-events.jsonl');
+  mkdirSync(dirname(filePath), { recursive: true });
+  appendFileSync(filePath, events.map(event => JSON.stringify(event)).join('\n') + '\n', 'utf8');
 }
 
 export function createCrossHostReviewHandlers(
@@ -667,7 +766,7 @@ export function createCrossHostReviewHandlers(
         f => f.severity === 'BLOCKER' || f.severity === 'MAJOR',
       ) ? 'fail' : 'pass';
 
-      const hostAVerdictRecord = submitLocalVerdict(ctx, 'local', {
+      const hostAVerdictDraft: CrossHostVerdictDraft = {
         storyId,
         runId,
         hostId: hostAIdentity.hostId,
@@ -680,9 +779,9 @@ export function createCrossHostReviewHandlers(
         validationDigest,
         promptDigest: derivePromptDigest(storyId, hostAIdentity, materialDigest, storyFilesHash),
         note: 'cross_host_review host A (Claude) verdict from caller-authored findings',
-      });
+      };
 
-      const hostBVerdictRecord = submitLocalVerdict(ctx, 'local', {
+      const hostBVerdictDraft: CrossHostVerdictDraft = {
         storyId,
         runId,
         hostId: hostBIdentity.hostId,
@@ -695,7 +794,25 @@ export function createCrossHostReviewHandlers(
         validationDigest,
         promptDigest: derivePromptDigest(storyId, hostBIdentity, materialDigest, storyFilesHash),
         note: `cross_host_review host B (Codex) verdict, stdoutDigest=${leaf.stdoutDigest}`,
-      });
+      };
+
+      await options.beforeVerdictRecord?.();
+      assertReviewHeadStillCurrent(projectRoot, headHash);
+      assertMaterialCleanForReview(projectRoot);
+
+      const issuedAt = new Date().toISOString();
+      const hostAVerdictRecord = buildLocalHostVerdict(hostAVerdictDraft, issuedAt);
+      const hostBVerdictRecord = buildLocalHostVerdict(hostBVerdictDraft, issuedAt);
+      writeCrossHostVerdictPair(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
+      try {
+        await options.afterVerdictPairWritten?.();
+        assertReviewHeadStillCurrent(projectRoot, headHash);
+        assertMaterialCleanForReview(projectRoot);
+      } catch (err) {
+        deleteCrossHostVerdictPair(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
+        throw err;
+      }
+      appendHostVerdictEvents(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
 
       const disagreement = diffFindings(hostAFindings, hostBVerdict.findings);
       // F-005: bind the joint decision to both hosts' material state so the

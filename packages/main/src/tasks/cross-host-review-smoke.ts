@@ -26,7 +26,7 @@
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed; Bug10: a MALFORMED policy (maxRuntimeMinutes:"bogus") → authorizeReviewPolicy refuses (no spawn, no verdict, no unbounded ceiling).
  *   CHK-001:adversarial:5 (F-004) closed-allowlist env redaction by construction (base var forwarded; credential/arbitrary names dropped EVEN IF in the policy envAllowlist; envDenylist can drop a base var) + timeout ceiling threaded to the runner.
- *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; pre-hash clean HEAD drift, post-spawn source drift, and post-spawn clean HEAD drift fail closed before verdict record; .lattice-only dirty → proceeds.
+ *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; pre-hash clean HEAD drift, post-spawn source drift, post-spawn clean HEAD drift, and post-write clean HEAD drift fail closed before any stale verdict is retained; .lattice-only dirty → proceeds.
  *   CHK-001:adversarial:7 (NEW INTENT) malformed host-A findings file (missing field / EXTRA key / wrong type / not-an-array) → fail-closed (no spawn, no verdict); well-formed control passes. Requires a NEW verificationIntent registration.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
@@ -1137,7 +1137,7 @@ async function run(): Promise<void> {
     // must re-check both live worktree cleanliness and HEAD identity before
     // recording. Control: a worktree dirty ONLY under .lattice/ metadata (which
     // Codex never reads and which churns constantly during a story) proceeds normally.
-    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash and post-spawn clean HEAD drift blocked; .lattice-only dirty → proceeds', async () => {
+    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // (1) Make a TRACKED SOURCE file dirty (uncommitted) — this is exactly the
       // tree divergence the HEAD materialHash cannot honestly bind.
@@ -1271,7 +1271,50 @@ async function run(): Promise<void> {
       assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === headDriftRunId).length, 0, 'no verdict recorded when a clean concurrent commit moves HEAD');
       assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the clean HEAD drift case');
 
-      // (5) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
+      // (5) FINAL-RECORD clean-commit control: a concurrent commit can still move
+      // HEAD after the verdict pair has been written but before the handler returns.
+      // The post-write guard must fail closed and delete the pair, leaving no stale
+      // or partial host_verdict files for this runId.
+      let finalRecordHeadDriftCommitted = false;
+      let finalRecordSeamInvoked = false;
+      let finalRecordPostWriteHookInvoked = false;
+      const finalRecordHeadBeforeDrift = git(root, ['rev-parse', 'HEAD']);
+      const finalRecordRunId = `${STORY_ID}-xhr-final-record-head-drift`;
+      const finalRecordHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: (opts) => {
+          finalRecordSeamInvoked = true;
+          assert.equal(git(opts.storyWorktree, ['rev-parse', 'HEAD']), finalRecordHeadBeforeDrift, 'final-record snapshot is pinned to the pre-drift captured HEAD');
+          return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false };
+        },
+        afterVerdictPairWritten: () => {
+          finalRecordPostWriteHookInvoked = true;
+          write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\nexport const cleanHeadDriftBeforeRecordReturn = true;\n');
+          git(root, ['add', 'packages/main/src/index.ts']);
+          git(root, [...COMMIT_ENV, 'commit', '-m', 'clean head drift after verdict pair write']);
+          finalRecordHeadDriftCommitted = true;
+          assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'final-record concurrent commit leaves live source path clean');
+          assert.notEqual(git(root, ['rev-parse', 'HEAD']), finalRecordHeadBeforeDrift, 'final-record concurrent commit moved HEAD');
+        },
+      });
+      try {
+        await assert.rejects(
+          () => Promise.resolve(finalRecordHandlers.cross_host_review({ storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: finalRecordRunId, json: true })),
+          new RegExp(CROSS_HOST_REVIEW_HEAD_DRIFT),
+          'post-write clean HEAD drift throws and deletes the just-written verdict pair',
+        );
+      } finally {
+        if (finalRecordHeadDriftCommitted) {
+          write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\n');
+          git(root, ['add', 'packages/main/src/index.ts']);
+          git(root, [...COMMIT_ENV, 'commit', '-m', 'restore final record head drift fixture']);
+        }
+      }
+      assert.equal(finalRecordSeamInvoked, true, 'codex seam is invoked before final-record drift');
+      assert.equal(finalRecordPostWriteHookInvoked, true, 'post-write hook proves the verdict pair was written before the drift check');
+      assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === finalRecordRunId).length, 0, 'post-write drift cleanup leaves no stale or partial verdict pair');
+      assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the final-record HEAD drift case');
+
+      // (6) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
       // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
       write(root, '.lattice/story/actives/some-churn.json', JSON.stringify({ churn: Date.now() }) + '\n');
       write(root, '.lattice/activity.jsonl', 'ignored-metadata-churn\n');
