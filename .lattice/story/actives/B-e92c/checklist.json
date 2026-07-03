@@ -10,7 +10,40 @@
       "userSees": "node experiments/experience-ablation/live-readout-selfcheck.mjs prints per-case PASS lines ending live-readout-selfcheck: all cases passed with exit 0",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/live-readout.mjs",
+          "experiments/experience-ablation/live-readout-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/live-readout-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selfcheck: report generated from stub inputs has the two strictly separated sections, exploratory-only labels on every live figure, and the no-overclaim block",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic double-run byte-identity given fixed inputs; missing pilot artifacts fail with one-line actionable errors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No second live assignment system: the tool only reads the existing learning_effectiveness output and on-disk artifacts (no writes outside --out, no packages/main imports beyond the CLI spawn)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
