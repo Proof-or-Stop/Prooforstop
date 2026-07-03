@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Auto-run Codex as an independent reviewer over the bound change and capture a structured materialHash-bound verdict",
       "context": "Reuse dispatch_prepare and the bounded Codex spawn primitive (runBoundedCodexProvider / runCodexRealLeafDispatch); extend checkDispatchPolicy to sanction a bounded Codex real-leaf for REVIEW only. Capture ONLY structured verdict fields (decision plus findings); do NOT promote raw stdout transcript into evidence (respect the credential-safety boundary in codex-cli.ts). Feed the verdict into the existing submitLocalVerdict / autopilot_review_submit path so it binds to the exact materialHash. No cryptographic signing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-03T02:12:48.096Z",
       "verificationIntent": {
         "happy": [
           {
