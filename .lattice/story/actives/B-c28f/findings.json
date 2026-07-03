@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-c28f:F-001",
+      "desc": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md:245 playbook_seed_observe still documents only the default, dev-memory, and finding-signals source paths, and lines 251-260 list reports for dev-memory/finding-signals/raw findings without naming DONE experience seeds. The implementation and CHK-003 require a documented DONE-experience seed path (`--source=done-experience` / `sourceArtifactKind: done_experience`), so the touched docs do not yet make the new seed path discoverable despite the candidate-only boundary sentence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T01:57:33.498Z",
+      "reviewRound": "2026-07-03T01:55:18.656Z",
+      "reviewRunId": "B-c28f:RR-003",
+      "_hash": "39b474d0c9c979396dedbdead35ac5d55370d500695fba929ff0453709da8f15",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
