@@ -5,7 +5,7 @@
       "desc": "quantum_claim_check only applies the requestedStrength CLI argument to built-in cases. In packages/main/src/handlers/quantum-claim-admissibility.ts:108-110 the handler skips args.requestedStrength whenever evidenceJson or evidencePath is present, even though the command schema exposes requestedStrength as a normal argument and describes unsupported strengths as fail-closed overclaims. As a result, caller-supplied complete evidence plus --requestedStrength=production/theory can be evaluated as advance unless the JSON itself redundantly includes requestedStrength, creating CLI/direct-input policy drift and a fail-closed overclaim bypass. Apply requestedStrength consistently after parsing all evidence sources, or reject combining it with evidenceJson/evidencePath so the command cannot silently ignore the overclaim signal.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T00:41:28.363Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/claim-admissibility/quantum.ts"
       ],
       "signatureTag": "spec-boundary|ts|quantum-claim-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commits 4803d15f5 and e896ad5d9: requestedStrength now applies after all evidence parsing, including evidenceJson/evidencePath, and real CLI inline JSON no longer fails schema validation. Verified by build, quantum smoke, command-catalog smoke, command-ownership contract, and exact CLI repro returning decision=stop for evidenceJson + requestedStrength=production.",
+      "resolvedAt": "2026-07-03T00:54:28.544Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d1bf:F-002",
