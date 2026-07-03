@@ -259,7 +259,21 @@
       "userSees": "run-pilot-selfcheck prints the new PASS cases (snapshot materialized + hash verified, treatment prompt carries the pack section, control prompt byte-identical to prompt.md, surfaced events on both arms) ending ALL PASS; a smoke cell run record shows surfacedMemoryIds non-empty on treatment",
       "status": "in_progress",
       "startTime": "2026-07-03T02:25:30.390Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "result": "pass",
+          "note": "Extended selfcheck ALL PASS (39 checks) twice for determinism. Happy path: snapshot materialized byte-identically on BOTH arms (case 6), treatment host prompt = rendered Memory Runtime Preflight section + raw prompt with surfaced-lesson union covering all six in-store classes (case 7: pb-host-policy/pb-reviewer-lane/pb-stale-doc/pb-deprecated-brand/pb-false-done + les-parent-roadmap), control host prompt byte-identical to fixture prompt.md, experience_pack_surfaced prelude event present in both arms captured slices with frozen-store topHitIds (case 8), run.json binds memorySnapshotHash and memoryPackRendered=true only on treatment.",
+          "headHash": "8c2190342469182eb2fa90d218d399c711bcb6ce",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T02:39:20.448Z"
+        }
+      ]
     }
   ]
 }
