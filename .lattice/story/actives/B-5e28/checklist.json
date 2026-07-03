@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke proves unset PLAYBOOK_DONE_SETTLEMENT_ENABLED records a post-DONE settlement health row by default.",
-          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:28.003Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke proves explicit false/0/no/off opt out disables settlement and writes no health file.",
-          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:28.185Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke verifies DONE success alone creates no candidate helped outcome and settlement remains gateEvidence=false.",
-          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:28.367Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
           "result": "pass",
           "note": "CLI status reports raw empty, enabled true, defaultPolicy default-on, explicitOptOut false.",
-          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:42.283Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,10 +143,10 @@
           "command": "PLAYBOOK_DONE_SETTLEMENT_ENABLED=false node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
           "result": "pass",
           "note": "CLI status reports raw false, enabled false, defaultPolicy default-on, explicitOptOut true.",
-          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:42.628Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "node packages/main/dist/cli.js playbook_promotion_status --json",
           "result": "pass",
           "note": "Status output preserves authority=non_authoritative and gateEvidence=false for learning settlement posture.",
-          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:42.842Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         }
       ]
     },
@@ -212,10 +212,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke proves default-on settlement records a done-settlement health row before historical backfill.",
-          "headHash": "e75a19c95cb0853284f5a91215b64d9a1c919a37",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:53.909Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -224,10 +224,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke proves repeated settlement is idempotent through alreadyApplied=true.",
-          "headHash": "e75a19c95cb0853284f5a91215b64d9a1c919a37",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:54.102Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,10 +236,10 @@
           "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
           "result": "pass",
           "note": "Smoke preserves non-blocking learning-only behavior; final live B-5e28 DONE row will be inspected after story_advance DONE.",
-          "headHash": "e75a19c95cb0853284f5a91215b64d9a1c919a37",
-          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
-          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
-          "timestamp": "2026-07-03T00:25:54.301Z"
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
         }
       ]
     }
