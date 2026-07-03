@@ -139,6 +139,18 @@
           "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
           "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
           "timestamp": "2026-07-03T00:43:08.226Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node score.mjs --fixture=<fx> --run=run-empty; node score.mjs --fixture=<fx> --run=run-fd (optional files absent)",
+          "result": "pass",
+          "note": "Empty run dir: exit=1, stderr exactly one line: score: missing required run record file: <path>/run.json. Missing activity.jsonl similarly one-line + exit 1. Missing OPTIONAL done-readiness.json/final-response-check.json does NOT error: record emitted with details.sources oracle-fallback (CHK-001 edge transcript).",
+          "headHash": "aae88574c328582afe237cf6916593b633a7aa83",
+          "materialHash": "ddd0121ab2c6efdb54725562d1d2a3ae0d0b4c9c0a4e9014dcd5e96b6cf0f8a0",
+          "storyFilesHash": "738cb6acd511e1d020f467091acc6d81aa984931dbdf3c1b0d301b27bcd669b6",
+          "timestamp": "2026-07-03T00:43:10.313Z"
         }
       ]
     },
