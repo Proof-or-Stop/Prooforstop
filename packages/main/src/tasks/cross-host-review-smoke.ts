@@ -929,21 +929,20 @@ async function run(): Promise<void> {
       assert.equal(malformedRecorded.length, 0, 'no verdict recorded on a fail-closed malformed policy');
     });
 
-    // CHK-001:adversarial:5 (F-004) — CLOSED-ALLOWLIST env redaction (CLASS 1
-    // root fix). The review subprocess sees ONLY the hardcoded minimal safe base
-    // set a CLI needs (PATH/HOME/locale/…). The policy envAllowlist authorizes
-    // nothing for this spawn; it is deliberately ignored so operator config cannot
-    // inject a credential-bearing env var. Assert via the seam capturing options:
-    //   - arbitrary / credential names (HTTPS_PROXY, GITHUB_PAT, CI_JOB_JWT,
-    //     POSTGRES_URL_NON_POOLING, and a PLAIN FOO_BAR that matches no secret
-    //     pattern) are ALL dropped BY DEFAULT — because they are not on the base
-    //     set, not because a denylist named them. This closes the whole env-leak
-    //     class (an unknown credential var cannot leak).
+    // CHK-001:adversarial:5 (F-004) — CLOSED-ALLOWLIST env redaction BY CONSTRUCTION
+    // (root fix for the whole env-leak class). The review subprocess sees ONLY the
+    // hardcoded minimal safe base set a CLI needs (PATH/HOME/locale/…), OPTIONALLY
+    // further RESTRICTED by the policy's envDenylist. The policy `envAllowlist` is
+    // intentionally NOT applied to the review spawn — an operator entry can no longer
+    // inject ANY var into the review subprocess, so no incomplete denylist can leak a
+    // credential. Assert via the seam capturing the runner options:
     //   - a base var (PATH) IS forwarded.
-    //   - a policy envAllowlist entry is NOT forwarded; envAllowlist can no longer
-    //     inject ANY var into the review subprocess.
+    //   - credential names (GITHUB_PAT / CI_JOB_JWT / HTTPS_PROXY / …) AND a plain
+    //     FOO_BAR are ALL dropped — EVEN WHEN listed in the policy envAllowlist
+    //     (the allowlist no longer injects). This closes the class by construction.
+    //   - the policy envDenylist can DROP a base var (deny PATH → absent).
     //   - the maxRuntimeMinutes ceiling is threaded (min of requested vs ceiling).
-    await check('CHK-001:adversarial:5 closed-allowlist env redaction + timeout ceiling threaded to the runner', async () => {
+    await check('CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // A plain, non-secret-looking var that the OLD denylist would have FORWARDED
       // (it matches no secret pattern). Under the closed allowlist it is dropped
@@ -973,14 +972,16 @@ async function run(): Promise<void> {
       try {
         const capture = capturingSeam(verdictJsonStdout(materialHash, 'pass', [], 'looks fine'));
         const handlers = createCrossHostReviewHandlers(ctx, { codexRunner: capture.runner });
-        // Policy: envAllowlist no longer injects into the review spawn. We still
-        // pass an explicit non-secret entry (XHR_SMOKE_ALLOWED) to prove it is
-        // ignored by the closed allowlist. A SECRET name cannot be allowlisted
-        // through the handler (checkDispatchPolicy refuses it), so the direct
-        // buildRedactedEnv check below proves even direct callers cannot inject it.
+        // Policy: the review spawn is the closed safe base set ONLY. We DELIBERATELY
+        // list credential names (GITHUB_PAT / CI_JOB_JWT / HTTPS_PROXY / …) AND plain
+        // names (XHR_SMOKE_ALLOWED / FOO_BAR) in envAllowlist to PROVE the allowlist no
+        // longer injects any var into the review subprocess — the core of the root fix.
+        // (checkDispatchPolicy still forbids TOKEN/SECRET/PASSWORD/KEY/CREDENTIAL names
+        // in envAllowlist, so these non-secret-shaped credential names survive policy
+        // validation yet must STILL be dropped by the closed allowlist.)
         // maxRuntimeMinutes=3 is the ceiling below the requested 12.
         const policy = reviewOnlyPolicy({
-          envAllowlist: ['XHR_SMOKE_ALLOWED'],
+          envAllowlist: ['XHR_SMOKE_ALLOWED', 'FOO_BAR', 'GITHUB_PAT', 'CI_JOB_JWT', 'HTTPS_PROXY', 'HTTP_PROXY', 'ALL_PROXY', 'POSTGRES_URL_NON_POOLING'],
           envDenylist: [],
           maxRuntimeMinutes: 3,
         });
@@ -995,38 +996,47 @@ async function run(): Promise<void> {
         assert.equal(result.hostB.decision, 'pass', 'authorized policy → codex spawned and verdict recorded');
         const opts = capture.last();
         assert.ok(opts, 'the runner received options');
-        // Timeout: min(requested 12, policy ceiling 3) = 3 minutes.
+        // (d) Timeout: min(requested 12, policy ceiling 3) = 3 minutes.
         assert.equal(opts!.timeoutMs, 3 * 60 * 1000, 'timeoutMs is the policy ceiling (3 min), not the requested 12');
         const env = opts!.env ?? {};
         // (a) A base var is forwarded.
         assert.equal(env.PATH, process.env.PATH, 'a minimal-safe-base var (PATH) is forwarded to the runner');
-        // (b) An explicit policy allowlist entry is NOT forwarded.
-        assert.equal(env.XHR_SMOKE_ALLOWED, undefined, 'a policy envAllowlist entry cannot inject a runner env var');
-        // (c) Direct buildRedactedEnv callers also cannot use envAllowlist to inject
-        // either a non-secret arbitrary name or a secret name.
-        const beltEnv = buildRedactedEnv(
-          { PATH: '/usr/bin:/bin', XHR_SMOKE_ALLOWED: 'keep-me', XHR_SMOKE_TOKEN: 'super-secret', FOO_BAR: 'plain' },
-          reviewOnlyPolicy({ envAllowlist: ['XHR_SMOKE_ALLOWED', 'XHR_SMOKE_TOKEN'], envDenylist: [] }),
-        );
-        assert.equal(beltEnv.PATH, '/usr/bin:/bin', 'buildRedactedEnv forwards the safe base var PATH');
-        assert.equal(beltEnv.XHR_SMOKE_ALLOWED, undefined, 'buildRedactedEnv ignores non-secret envAllowlist entries');
-        assert.equal(beltEnv.XHR_SMOKE_TOKEN, undefined, 'buildRedactedEnv ignores secret envAllowlist entries');
-        assert.equal(beltEnv.FOO_BAR, undefined, 'buildRedactedEnv drops a non-base var by default');
-        // (d) THE CLASS FIX: arbitrary / credential names are ALL dropped BY DEFAULT
-        // because they are not on the base set nor the policy allowlist — no denylist
-        // needed. Includes a PLAIN non-secret name (FOO_BAR) the old denylist forwarded.
-        assert.equal(env.FOO_BAR, undefined, 'a plain non-base var (FOO_BAR) is dropped by default (closed allowlist, not denylist)');
-        assert.equal(env.HTTPS_PROXY, undefined, 'HTTPS_PROXY is dropped by default (not on the safe base set)');
-        assert.equal(env.HTTP_PROXY, undefined, 'HTTP_PROXY is dropped by default (not on the safe base set)');
-        assert.equal(env.ALL_PROXY, undefined, 'ALL_PROXY is dropped by default (not on the safe base set)');
-        assert.equal(env.GITHUB_PAT, undefined, 'GITHUB_PAT is dropped by default (not on the safe base set)');
-        assert.equal(env.CI_JOB_JWT, undefined, 'CI_JOB_JWT is dropped by default (not on the safe base set)');
-        assert.equal(env.POSTGRES_URL_NON_POOLING, undefined, 'POSTGRES_URL_NON_POOLING is dropped by default (not on the safe base set)');
+        // (b) THE CLASS FIX — allowlist no longer injects: credential names AND plain
+        // names are dropped EVEN THOUGH they are listed in the policy envAllowlist,
+        // because envAllowlist is not applied to the review spawn (closed by construction).
+        assert.equal(env.GITHUB_PAT, undefined, 'GITHUB_PAT is dropped even though it is on the policy envAllowlist (allowlist no longer injects)');
+        assert.equal(env.CI_JOB_JWT, undefined, 'CI_JOB_JWT is dropped even though it is on the policy envAllowlist (allowlist no longer injects)');
+        assert.equal(env.HTTPS_PROXY, undefined, 'HTTPS_PROXY is dropped even though it is on the policy envAllowlist (allowlist no longer injects)');
+        assert.equal(env.HTTP_PROXY, undefined, 'HTTP_PROXY is dropped even though it is on the policy envAllowlist');
+        assert.equal(env.ALL_PROXY, undefined, 'ALL_PROXY is dropped even though it is on the policy envAllowlist');
+        assert.equal(env.POSTGRES_URL_NON_POOLING, undefined, 'POSTGRES_URL_NON_POOLING is dropped even though it is on the policy envAllowlist');
+        assert.equal(env.XHR_SMOKE_ALLOWED, undefined, 'a non-base var is dropped EVEN WHEN allowlisted (allowlist no longer injects into the review spawn)');
+        assert.equal(env.FOO_BAR, undefined, 'a plain non-base var (FOO_BAR) is dropped even when allowlisted (closed allowlist by construction)');
         // Belt-and-suspenders: none of the credential VALUES surface anywhere on the env.
         const envSerialized = JSON.stringify(env);
         assert.ok(!envSerialized.includes('postgres://'), 'the postgres connection string value never reaches the runner env');
         assert.ok(!envSerialized.includes('ghp_deadbeef'), 'the github PAT value never reaches the runner env');
         assert.ok(!envSerialized.includes('proxy:8080'), 'the proxy credential value never reaches the runner env');
+        // (b, direct + RED-verifiable) Assert the same closed-allowlist semantics
+        // directly against buildRedactedEnv: an allowlisted credential name is STILL
+        // dropped. Re-adding allowlist-injection to buildRedactedEnv makes GITHUB_PAT
+        // leak here and this assertion fails — the un-gameable proof of the root fix.
+        const directEnv = buildRedactedEnv(
+          { PATH: '/usr/bin:/bin', XHR_SMOKE_ALLOWED: 'keep-me', GITHUB_PAT: 'ghp_direct', FOO_BAR: 'plain' },
+          reviewOnlyPolicy({ envAllowlist: ['XHR_SMOKE_ALLOWED', 'GITHUB_PAT', 'FOO_BAR'], envDenylist: [] }),
+        );
+        assert.equal(directEnv.PATH, '/usr/bin:/bin', 'buildRedactedEnv forwards the safe base var PATH');
+        assert.equal(directEnv.GITHUB_PAT, undefined, 'buildRedactedEnv DROPS an allowlisted credential name GITHUB_PAT (allowlist no longer injects — RED-verifiable)');
+        assert.equal(directEnv.XHR_SMOKE_ALLOWED, undefined, 'buildRedactedEnv drops a non-base allowlisted var (closed allowlist)');
+        assert.equal(directEnv.FOO_BAR, undefined, 'buildRedactedEnv drops a plain non-base allowlisted var');
+        // (c) envDenylist can RESTRICT the base set: denying PATH drops it (restrict-only).
+        const denyPathEnv = buildRedactedEnv(
+          { PATH: '/usr/bin:/bin', HOME: '/home/x', TERM: 'xterm' },
+          reviewOnlyPolicy({ envAllowlist: [], envDenylist: ['PATH'] }),
+        );
+        assert.equal(denyPathEnv.PATH, undefined, 'buildRedactedEnv DROPS a base var (PATH) when the policy envDenylist lists it (restrict-only)');
+        assert.equal(denyPathEnv.HOME, '/home/x', 'a non-denied base var (HOME) is still forwarded');
+        assert.equal(denyPathEnv.TERM, 'xterm', 'a non-denied base var (TERM) is still forwarded');
       } finally {
         if (prevPlain === undefined) delete process.env.FOO_BAR; else process.env.FOO_BAR = prevPlain;
         if (prevAllowed === undefined) delete process.env.XHR_SMOKE_ALLOWED; else process.env.XHR_SMOKE_ALLOWED = prevAllowed;
