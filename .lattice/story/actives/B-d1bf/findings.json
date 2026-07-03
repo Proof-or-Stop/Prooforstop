@@ -163,6 +163,25 @@
       "resolvedAt": "2026-07-03T01:38:38.600Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d1bf:F-008",
+      "desc": "Invalid requestedStrength fails closed only when passed as the handler argument. If an invalid requestedStrength is embedded inside evidenceJson or core evidence input, it is not validated; unknown values are ignored by boundaryViolationReasons/requestedStrengthOverclaims, so complete Q5 evidence with requestedStrength=productionn can return decision=advance, allowed=true, reasons=[]. This violates Quantum M3 proof-or-stop semantics requiring invalid requestedStrength to fail closed deterministically.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T01:49:20.916Z",
+      "reviewRound": "2026-07-03T01:38:27.260Z",
+      "reviewRunId": "B-d1bf:RR-019",
+      "_hash": "073e1dc5a9e732db5b8ed3af0c5236c8caa2a9ebd082368657083490e57a7e5a",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/handlers/quantum-claim-admissibility.ts"
+      ],
+      "signatureTag": "quantum-requested-strength-payload-validation-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
