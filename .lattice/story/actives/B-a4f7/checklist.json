@@ -225,9 +225,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T10:42:48.916Z",
-      "endTime": null
+      "endTime": "2026-07-03T10:43:00.592Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Runtime verification smoke proves active playbooks surface while candidate playbooks remain inert pending learning, including automatically ingested candidates.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:00.981Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves DONE-settlement-only / no-real-outcome candidates cannot drive evidence activation; playbook_auto_promotion_apply fails closed until explicit exposure/outcome and recommendation evidence exist.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:01.257Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Candidate ingest and DONE hook smoke assert zero playbook outcome rows and zero auto-activation rows; candidate status remains candidate, never active.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:01.535Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -326,6 +361,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Binding candidate safety boundary verification evidence."
+    },
+    {
+      "timestamp": "2026-07-03T10:43:00.592Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Candidate safety boundary implemented and smoke verified."
     }
   ]
 }
