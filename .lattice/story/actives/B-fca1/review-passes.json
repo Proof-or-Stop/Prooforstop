@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fca1:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: two new .mjs files (evidence-map.mjs + evidence-map-selfcheck.mjs) plus story metadata mutations. No concept words were deleted or replaced en masse. Key findings: (1) No source deletions outside story metadata phase/status fields. (2) SECTION18_ROWS in evidence-map.mjs lists all 10 plan-section-18 rows verbatim and in order, exactly matching docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md section 18 — no row is missing or paraphrased. (3) Duplicate constant names NO_OVERCLAIM_HEADING and renderMarkdown appear in both live-readout.mjs and evidence-map.mjs — these are independent module-scoped definitions with identical string values, no import relationship between them; not residue. (4) All 12 REQUIRED_ARTIFACTS are present in the real evidence root expabl-m6-pilot-v1/. (5) No doc-promise-undelivered: CLAUDE.md was not modified, no new CLI command, ENV var, or behavior paragraph was added. (6) DISALLOWED_CLAIMS (4 items) imported from live-readout.mjs correctly; selfcheck asserts count === 4. (7) Interface between tool and generated artifacts is consistent: evidence-map.json schema version proofbound.experience-ablation-evidence-map.v1 matches EVIDENCE_MAP_SCHEMA_VERSION constant. Zero concept deletion findings.",
+      "createdAt": "2026-07-03T10:17:16.748Z",
+      "reviewRound": "2026-07-03T10:13:57.436Z",
+      "reviewRunId": "B-fca1:RR-001",
+      "_hash": "b03f159e95355ea572cdb317c475b31540fca79954d10c300a335be27e25d20f"
+    }
+  ]
+}
