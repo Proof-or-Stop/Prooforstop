@@ -1,0 +1,29 @@
+{
+  "storyId": "B-364f",
+  "name": "fix-b5f5b-smoke-annotation-changes",
+  "title": "Add missing @changes fields to B-5f5b smoke annotations",
+  "description": "B-5f5b completed the historical seed backfill and trial automation work, but convergence_check now reports two annotation errors because the two new smoke task file-level annotations omitted the required @changes field. This story fixes only those annotation metadata fields so project convergence reflects the already-validated implementation.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "annotation",
+    "convergence",
+    "B-5f5b",
+    "smoke"
+  ],
+  "createdAt": "2026-07-03T17:47:24.428Z",
+  "startedAt": "2026-07-03T17:47:24.428Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T17:47:25.061Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}

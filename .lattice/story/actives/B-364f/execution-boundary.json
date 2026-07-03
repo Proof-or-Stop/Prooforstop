@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-364f",
+  "allowedCommands": [
+    "lattice convergence_check*",
+    "lattice story_advance*",
+    "lattice validate*",
+    "node -e*",
+    "npm --prefix packages/main run build*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "lattice playbook_activate*",
+    "lattice playbook_seed_backfill --apply*",
+    "lattice playbook_trial_run --apply*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Metadata-only annotation compliance fix; no playbook store mutation.",
+  "createdAt": "2026-07-03T17:47:24.428Z",
+  "updatedAt": "2026-07-03T17:47:24.428Z",
+  "_hash": "31448c3513b970cb8b86eab730f7ef6c974f1483e3fdaf52c0fe68a3f00a3f7e"
+}

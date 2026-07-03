@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-364f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add required @changes metadata to the two B-5f5b smoke task annotations",
+    "Run annotation/convergence validation"
+  ],
+  "excluded": [
+    "Activating playbooks",
+    "Changing playbook behavior",
+    "Changing validator semantics",
+    "Re-running historical backfill"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to complete the historical backfill/trial work; convergence_check revealed two metadata errors introduced by B-5f5b, so this correction is limited to annotation compliance.",
+  "createdAt": "2026-07-03T17:47:24.428Z",
+  "updatedAt": "2026-07-03T17:47:24.428Z",
+  "_hash": "56bac40ce1372f1a6ecb964d6920aa96c5b63697e67b18cc1949d5abb7435a6d"
+}

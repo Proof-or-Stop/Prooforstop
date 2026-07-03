@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add @changes to the two B-5f5b smoke annotations",
+      "context": "Patch only packages/main/src/tasks/playbook-seed-backfill-smoke.ts and packages/main/src/tasks/playbook-trial-automation-smoke.ts; no behavior changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+          "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Annotation validator returns zero errors for packages/main/src.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The two smoke files retain B-5f5b task/checklist identity and only gain required metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check no longer fails Code annotations compliant while playbook data remains untouched.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
