@@ -6,7 +6,9 @@ Current implementation: B-01df implements M1, the read-only
 `source_lineage_audit --domain=learning` audit. B-9958 implements the M2-M7 V1
 seed/proposal/candidate/runtime diagnostics. B-7ee1 implements M8 as a guarded
 evidence-activated apply path for advisory candidates with reviewed policy,
-decision, digest, lineage, outcome, and rollback checks.
+decision, digest, lineage, outcome, and rollback checks. B-a4f7 implements
+story-scoped `playbook_candidate_ingest` for automatic DONE experience seed ->
+proposal -> inert candidate ingestion.
 
 Naming note: public project naming is Proof-or-Stop. Current internal documents
 may still use Proofbound, and the current CLI binary and storage paths may still
@@ -333,7 +335,51 @@ Rules:
 - writes candidate playbooks only, never active playbooks or gate evidence.
 - DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
-### 8.5 Promotion And Auto-Promotion
+### 8.5 `playbook_candidate_ingest`
+
+Host-neutral wrapper that composes seed observe, proposal staging, and candidate
+approval. Default is dry-run/read preview (implemented by B-a4f7).
+
+```bash
+lattice playbook_candidate_ingest --json
+lattice playbook_candidate_ingest --storyId=B-example --json
+lattice playbook_candidate_ingest --apply --storyId=B-example --limit=5 --json
+```
+
+Defaults and filters:
+
+- default `--source` is `done-experience` to avoid broad historical backfill;
+- `--source` accepts the same values as seed observe/propose:
+  `dev-memory`, `finding-signals`, `done-experience`, `raw-findings`, or `all`;
+- `--storyId` limits ingestion to one source story, which the DONE hook uses for
+  the story that just completed;
+- `--limit` is conservative and bounded.
+
+Apply mode:
+
+```text
+observe
+  -> proposal apply with observeDigest
+  -> candidate approval preview with manifestDigest
+  -> candidate approval apply scoped to this run's proposal ids/canonical keys
+```
+
+The scoped approval is load-bearing. It must approve only proposals staged by
+that ingestion run, not unrelated existing proposals. Re-running for the same
+source/story is idempotent: once a candidate exists for that canonical source,
+the source-lineage audit reports it as represented and the command creates zero
+new proposals/candidates.
+
+Output includes `observeDigest`, `proposalManifestDigest`, `manifestDigest`,
+`proposedCount`, `candidateCreatedCount`, `candidatePlaybookIds`,
+skipped/blocked counts, source/story filters, `authority=non_authoritative`, and
+`gateEvidence=false`.
+
+This command never writes active playbooks, helped outcome rows,
+auto-activation rows, lifecycle evidence, gate evidence, or historical bulk
+backfill.
+
+### 8.6 Promotion And Auto-Promotion
 
 Existing promotion commands remain part of the loop:
 
@@ -431,7 +477,9 @@ Current safe but limited behavior:
 ```text
 DONE durable
   -> default-on non-blocking health row
+  -> default-on story-scoped done-experience candidate ingest
   -> no helped outcome inferred from DONE success
+  -> no active playbook activation
 ```
 
 Rollout criteria before historical backfill or stronger automation:
@@ -444,9 +492,13 @@ Rollout criteria before historical backfill or stronger automation:
    not the only learning output.
 5. Documentation states that settlement does not prove usefulness.
 
-Until those criteria are satisfied, default-on settlement remains limited to a
-learning health row. It must not trigger historical backfill, candidate
-approval, active playbook activation, or stronger automation by itself.
+Default-on settlement may now trigger only story-scoped `done-experience`
+candidate ingestion. It must not trigger historical bulk backfill, helped
+outcome inference, active playbook activation, evidence activation, or stronger
+automation by itself. Operators can explicitly opt out of the candidate ingest
+step with `PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED=0|false|no|off`; disabling
+`PLAYBOOK_DONE_SETTLEMENT_ENABLED` still disables the whole post-DONE learning
+settlement hook.
 
 ## 11. Milestones
 
@@ -568,6 +620,9 @@ This plan adds that missing audit layer.
 - Seed observe is read-only.
 - Batch proposal defaults to dry-run.
 - Batch candidate approval requires manifest digest.
+- Candidate ingest defaults to dry-run and may apply only scoped proposals into
+  inert candidates; it never writes outcomes, auto-activations, active
+  playbooks, lifecycle evidence, gate evidence, or historical backfill.
 - Promotion sweep writes recommendation rows only.
 - `playbook_auto_promotion_apply` is separate from promotion sweep; it is
   evidence-activated, non-authoritative, non-gate, and can only activate

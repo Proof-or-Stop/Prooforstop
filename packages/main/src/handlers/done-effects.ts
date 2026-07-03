@@ -51,7 +51,7 @@ import { repairGlobalLatticeLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
-import { acquireMainWriteLockRegistered, mainWriteLockPath } from '../core/main-write-lock.js';
+import { acquireMainWriteLockRegistered, mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
 import {
   cleanupAuxiliaryWorktreeResidues,
@@ -59,7 +59,8 @@ import {
 } from '../core/auxiliary-worktree-cleanup.js';
 import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
 import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
-import { appendPlaybookPromotionHealthEvent, withLearningStoreLock } from '../core/learning-store.js';
+import { appendPlaybookPromotionHealthEvent, resolveLearningOwnerRoot, withLearningStoreLock } from '../core/learning-store.js';
+import { buildPlaybookCandidateIngestReport } from '../core/playbook-seed.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -223,12 +224,128 @@ export type PostDoneLearningSettlementResult = {
   settlementStatus: 'disabled' | 'recorded' | 'failed';
   alreadyApplied: boolean;
   message: string;
+  candidateIngestStatus: 'disabled' | 'applied' | 'no_candidates' | 'failed';
+  candidateIngestAlreadyApplied: boolean;
+  candidateIngestMessage: string;
+  candidateIngestCandidateCreatedCount: number;
+  candidateIngestObserveDigest?: string;
+  candidateIngestProposalManifestDigest?: string;
+  candidateIngestManifestDigest?: string;
 };
 
 function settlementEnvFlag(name: string): { enabled: boolean; raw: string; defaultPolicy: 'default-on'; explicitOptOut: boolean } {
   const raw = (process.env[name] ?? '').trim();
   const explicitOptOut = /^(0|false|no|off)$/i.test(raw);
   return { raw, enabled: !explicitOptOut, defaultPolicy: 'default-on', explicitOptOut };
+}
+
+function candidateHealthKeyPart(value: string): string {
+  return value.replace(/\s+/g, '-').replace(/[^A-Za-z0-9._:-]+/g, '').slice(0, 96) || 'none';
+}
+
+function appendDoneCandidateIngestHealth(
+  projectRoot: string,
+  storyId: string,
+  status: 'recorded' | 'failed',
+  message: string,
+  keyPart: string,
+): boolean {
+  return withLearningStoreLock(projectRoot, 'playbook-done-candidate-ingest-health', () => {
+    const observedAt = new Date().toISOString();
+    const result = appendPlaybookPromotionHealthEvent(projectRoot, {
+      schemaVersion: 'proofbound.playbook-promotion-health.v1',
+      eventId: `PBH-${randomUUID()}`,
+      idempotencyKey: `post-done-candidate-ingest:${storyId}:${status}:${candidateHealthKeyPart(keyPart)}`,
+      observedAt,
+      kind: 'done-settlement',
+      settlementStatus: status,
+      storyId,
+      message,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    });
+    return result.alreadyApplied;
+  }, { timeoutMs: 2000 });
+}
+
+function runPostDoneCandidateIngest(projectRoot: string, storyId: string): Pick<
+  PostDoneLearningSettlementResult,
+  | 'candidateIngestStatus'
+  | 'candidateIngestAlreadyApplied'
+  | 'candidateIngestMessage'
+  | 'candidateIngestCandidateCreatedCount'
+  | 'candidateIngestObserveDigest'
+  | 'candidateIngestProposalManifestDigest'
+  | 'candidateIngestManifestDigest'
+> {
+  const flag = settlementEnvFlag('PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED');
+  if (!flag.enabled) {
+    return {
+      candidateIngestStatus: 'disabled',
+      candidateIngestAlreadyApplied: false,
+      candidateIngestMessage: 'PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED explicitly disables DONE candidate ingestion',
+      candidateIngestCandidateCreatedCount: 0,
+    };
+  }
+
+  try {
+    const store = new StoryStore(projectRoot);
+    const report = withLearningStoreLock(projectRoot, 'playbook-candidate-ingest', () =>
+      withReentrantMainWriteLock(resolveLearningOwnerRoot(projectRoot), () => buildPlaybookCandidateIngestReport({
+        projectRoot,
+        store,
+        source: 'done-experience',
+        storyId,
+        limit: 5,
+        apply: true,
+      }), {
+        label: 'playbook_candidate_ingest',
+        onContention: 'wait',
+      }), { timeoutMs: 2000 });
+    const status = report.candidateCreatedCount > 0 ? 'applied' : 'no_candidates';
+    const message =
+      `DONE candidate ingest ${status}; proposedCount=${report.proposedCount}; ` +
+      `candidateCreatedCount=${report.candidateCreatedCount}; observeDigest=${report.observeDigest}; ` +
+      `proposalManifestDigest=${report.proposalManifestDigest}; manifestDigest=${report.manifestDigest}; ` +
+      'authority=non_authoritative; gateEvidence=false';
+    let alreadyApplied = false;
+    try {
+      alreadyApplied = appendDoneCandidateIngestHealth(projectRoot, storyId, 'recorded', message, report.manifestDigest);
+    } catch (healthErr: any) {
+      return {
+        candidateIngestStatus: status,
+        candidateIngestAlreadyApplied: false,
+        candidateIngestMessage: `${message}; health diagnostic write failed non-blocking: ${healthErr?.message || healthErr}`,
+        candidateIngestCandidateCreatedCount: report.candidateCreatedCount,
+        candidateIngestObserveDigest: report.observeDigest,
+        candidateIngestProposalManifestDigest: report.proposalManifestDigest,
+        candidateIngestManifestDigest: report.manifestDigest,
+      };
+    }
+    return {
+      candidateIngestStatus: status,
+      candidateIngestAlreadyApplied: alreadyApplied,
+      candidateIngestMessage: message,
+      candidateIngestCandidateCreatedCount: report.candidateCreatedCount,
+      candidateIngestObserveDigest: report.observeDigest,
+      candidateIngestProposalManifestDigest: report.proposalManifestDigest,
+      candidateIngestManifestDigest: report.manifestDigest,
+    };
+  } catch (e: any) {
+    const message = `DONE candidate ingest failed non-blocking: ${e?.message || e}; authority=non_authoritative; gateEvidence=false`;
+    let alreadyApplied = false;
+    try {
+      alreadyApplied = appendDoneCandidateIngestHealth(projectRoot, storyId, 'failed', message, String(e?.message || e));
+    } catch {
+      // Health diagnostics are also best-effort and must not block DONE.
+    }
+    return {
+      candidateIngestStatus: 'failed',
+      candidateIngestAlreadyApplied: alreadyApplied,
+      candidateIngestMessage: message,
+      candidateIngestCandidateCreatedCount: 0,
+    };
+  }
 }
 
 /**
@@ -244,11 +361,15 @@ export function runPostDoneLearningSettlement(projectRoot: string, storyId: stri
       settlementStatus: 'disabled',
       alreadyApplied: false,
       message: 'PLAYBOOK_DONE_SETTLEMENT_ENABLED explicitly disables learning settlement; no learning settlement row written',
+      candidateIngestStatus: 'disabled',
+      candidateIngestAlreadyApplied: false,
+      candidateIngestMessage: 'DONE candidate ingestion skipped because PLAYBOOK_DONE_SETTLEMENT_ENABLED disabled post-DONE learning settlement',
+      candidateIngestCandidateCreatedCount: 0,
     };
   }
 
   try {
-    return withLearningStoreLock(projectRoot, 'playbook-done-settlement', () => {
+    const settlement = withLearningStoreLock(projectRoot, 'playbook-done-settlement', () => {
       const observedAt = new Date().toISOString();
       const result = appendPlaybookPromotionHealthEvent(projectRoot, {
         schemaVersion: 'proofbound.playbook-promotion-health.v1',
@@ -263,18 +384,24 @@ export function runPostDoneLearningSettlement(projectRoot: string, storyId: stri
         gateEvidence: false,
       });
       return {
-        settlementStatus: 'recorded',
+        settlementStatus: 'recorded' as const,
         alreadyApplied: result.alreadyApplied,
         message: result.alreadyApplied
           ? 'learning settlement already recorded for this story'
           : 'learning settlement health row recorded; no candidate helped outcome inferred',
       };
     }, { timeoutMs: 2000 });
+    const candidateIngest = runPostDoneCandidateIngest(projectRoot, storyId);
+    return { ...settlement, ...candidateIngest };
   } catch (e: any) {
     return {
       settlementStatus: 'failed',
       alreadyApplied: false,
       message: `learning settlement failed non-blocking: ${e?.message || e}`,
+      candidateIngestStatus: 'disabled',
+      candidateIngestAlreadyApplied: false,
+      candidateIngestMessage: 'DONE candidate ingestion skipped because learning settlement health row failed',
+      candidateIngestCandidateCreatedCount: 0,
     };
   }
 }
