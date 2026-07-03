@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-6703:F-001",
+      "desc": "playbook_auto_promotion_apply and playbook_promotion_sweep can append duplicate or lost recommend_activate rows because they write the same .lattice/learning/playbook-promotion-decisions.jsonl ledger under different locks. The new self-contained apply path stages a recommendation after checking existing idempotency keys in packages/main/src/core/playbook-seed.ts:1241 and appends it in packages/main/src/core/playbook-seed.ts:1388, while sweep does the same idempotency check/append in packages/main/src/handlers/playbook.ts:966 but only holds withLearningStoreLock at packages/main/src/handlers/playbook.ts:1008. Auto-apply instead holds the main/playbook lock via packages/main/src/handlers/playbook.ts:1232, and appendPlaybookPromotionDecision itself only validates then atomic-appends without enforcing idempotency in packages/main/src/core/learning-store.ts:1417. If sweep --apply and auto_promotion_apply --apply overlap on an eligible candidate, each can observe no applied key and append the same deterministic recommendation, or one read-modify-write append can overwrite the other; this violates the story idempotency/duplicate-recommendation safety for the self-contained apply path. Serialize all writers of playbook-promotion-decisions.jsonl on the same lock or make appendPlaybookPromotionDecision enforce idempotency inside the shared lock/write primitive.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T03:21:25.915Z",
+      "reviewRound": "2026-07-03T03:16:46.323Z",
+      "reviewRunId": "B-6703:RR-001",
+      "_hash": "e423ad3fcc57caa0f6ffa3d740d2fc4db7076150ca1b11a32e29242e164ca15a",
+      "files": [
+        "packages/main/src/core/playbook-seed.ts",
+        "packages/main/src/handlers/playbook.ts",
+        "packages/main/src/core/learning-store.ts"
+      ],
+      "signatureTag": "playbook-promotion-decision-lock-mismatch",
+      "signatureTagSource": "confirmed"
+    }
+  ]
+}
