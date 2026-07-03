@@ -333,6 +333,11 @@
             "id": "CHK-002:adversarial:1",
             "desc": "Duplicate finding injection: host-B returns the same finding twice (duplicate key). Assert: diffFindings deduplicates correctly and does not double-count as multiple disagreements or inflate the agreed set.",
             "type": "logic"
+          },
+          {
+            "desc": "Reconstructed from logic_test evidence: Smoke check CHK-002:adversarial:2: identical hostA/hostB identity is rejected before Codex spawn, and no verdict is recorded, preserving ...",
+            "type": "logic",
+            "priority": "should"
           }
         ]
       },
