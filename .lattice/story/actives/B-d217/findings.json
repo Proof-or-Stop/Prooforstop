@@ -53,6 +53,24 @@
       ],
       "signatureTag": "missing|mjs|quality-cleanup-score",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d217:F-004",
+      "desc": "quality-cleanup: score-selfcheck.mjs: the structured false-DONE precedence path (resolveFalseDoneAttempt when done-readiness.json or final-response-check.json are present, score.mjs lines 606-645) is never exercised by the selfcheck — all synthRunDir calls omit these optional files, so the selfcheck corpus always exercises the oracle-fallback path only. The precedence logic (structured beats oracle, done-readiness+final-response-check merge, structured-none-fired path) goes untested. A scorer that ignores these optional files or miscomputes falseDoneAttempt from structured sources passes all selfcheck assertions",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:47.539Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "a560c740bd7729c0cad4f344a6cbf5dc7a3887875064ca793b99dc6de7fb12e2",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto"
     }
   ]
 }
