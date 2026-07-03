@@ -4,12 +4,14 @@ import type {
   Playbook,
   PlaybookAutoActivationEvent,
   PlaybookLineage,
+  PlaybookOutcomeEvent,
   PlaybookPromotionDecisionRow,
   PlaybookProposal,
   PlaybookSeedMaterial,
   PlaybookSeedReference,
   PlaybookSeedSourceKind,
   PlaybookStatus,
+  PlaybookTrialControlEvent,
   PlaybookTrigger,
   SourceLineageArtifactKind,
   SourceLineageAuditRecord,
@@ -18,8 +20,10 @@ import type {
 import type { Finding } from './types.js';
 import {
   aggregatePlaybookPromotion,
+  appendPlaybookOutcomeEvent,
   appendPlaybookPromotionDecision,
   appendPlaybookAutoActivationEvent,
+  appendPlaybookTrialControlEvent,
   assertCanAppendPlaybookAutoActivationEvents,
   computePlaybookDigest,
   computePlaybookProposalDigest,
@@ -28,11 +32,13 @@ import {
   evaluatePlaybookPromotion,
   isCandidateConsumedPlaybookOutcome,
   listProposals,
+  markNonDeducibleSource,
   readNonDeducibleSourcesRegistry,
   readPlaybookAutoActivationEvents,
   readPlaybookOutcomeEventsWithDiagnostics,
   readPlaybookPromotionDecisionRows,
   readPlaybooks,
+  readPlaybookTrialControlEventsWithDiagnostics,
   validatePlaybook,
   writePlaybooks,
   writeProposal,
@@ -42,9 +48,12 @@ import { buildLearningSourceLineageAudit } from './source-lineage-audit.js';
 
 export const PLAYBOOK_SEED_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-seed-observe.v1' as const;
 export const PLAYBOOK_SEED_PROPOSE_BATCH_SCHEMA_VERSION = 'proofbound.playbook-seed-propose-batch.v1' as const;
+export const PLAYBOOK_SEED_BACKFILL_SCHEMA_VERSION = 'proofbound.playbook-seed-backfill.v1' as const;
 export const PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-batch-manifest.v1' as const;
 export const PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-ingest.v1' as const;
 export const PLAYBOOK_RUNTIME_CONSUMPTION_VERIFY_SCHEMA_VERSION = 'proofbound.playbook-runtime-consumption-verify.v1' as const;
+export const PLAYBOOK_TRIAL_RUN_SCHEMA_VERSION = 'proofbound.playbook-trial-run.v1' as const;
+export const PLAYBOOK_PROMOTION_TIMER_SCHEMA_VERSION = 'proofbound.playbook-promotion-timer.v1' as const;
 export const PLAYBOOK_AUTO_PROMOTION_APPLY_SCHEMA_VERSION = 'proofbound.playbook-auto-promotion-apply.v1' as const;
 
 const ID_SUFFIX_RE = /^PBP?-(\d+)$/;
@@ -180,6 +189,48 @@ export interface PlaybookSeedProposalBatchReport {
   gateEvidence: false;
 }
 
+export interface PlaybookSeedBackfillCandidateRow {
+  playbookId: string;
+  seedId: string;
+  sourceArtifactKind: PlaybookSeedSourceKind;
+  sourceArtifactId: string;
+  canonicalSourceKey: string;
+  candidatePlaybookDigest: string;
+  fromStagedProposal: boolean;
+  title: string;
+}
+
+export interface PlaybookSeedBackfillBlockedRow {
+  seedId: string;
+  canonicalSourceKey: string;
+  sourceArtifactKind: PlaybookSeedSourceKind;
+  sourceArtifactId: string;
+  reasons: string[];
+}
+
+export interface PlaybookSeedBackfillReport {
+  schemaVersion: typeof PLAYBOOK_SEED_BACKFILL_SCHEMA_VERSION;
+  dryRun: boolean;
+  applied: boolean;
+  sourceFilter: PlaybookSeedSourceFilter;
+  limit: number | null;
+  observeDigest: string;
+  expectedObserveDigest?: string;
+  selectedSeedCount: number;
+  plannedCount: number;
+  createdCount: number;
+  skippedCount: number;
+  blockedCount: number;
+  alreadyRepresentedCount: number;
+  stagedProposalCount: number;
+  deletedProposalCount: number;
+  createdPlaybookIds: string[];
+  candidates: PlaybookSeedBackfillCandidateRow[];
+  blocked: PlaybookSeedBackfillBlockedRow[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 export interface PlaybookCandidateBatchManifestRow {
   proposalId: string;
   proposalDigest: string;
@@ -253,6 +304,67 @@ export interface PlaybookRuntimeConsumptionVerifyReport {
     label: 'pending learning only';
   }>;
   diagnostics: string[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export interface PlaybookTrialObservationRow {
+  playbookId: string;
+  playbookDigest: string;
+  outcomeIdempotencyKey: string;
+  controlIdempotencyKey: string;
+  outcomeAlreadyExists: boolean;
+  controlAlreadyExists: boolean;
+}
+
+export interface PlaybookTrialRunReport {
+  schemaVersion: typeof PLAYBOOK_TRIAL_RUN_SCHEMA_VERSION;
+  dryRun: boolean;
+  applied: boolean;
+  storyId: string;
+  consumer: string;
+  playbookId?: string;
+  limit: number | null;
+  candidateCount: number;
+  selectedCount: number;
+  skippedByLimitCount: number;
+  skippedNonCandidateCount: number;
+  outcomeCreatedCount: number;
+  outcomeAlreadyExistsCount: number;
+  controlCreatedCount: number;
+  controlAlreadyExistsCount: number;
+  observations: PlaybookTrialObservationRow[];
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
+export type PlaybookPromotionTimerStepName = 'backfill' | 'trial' | 'sweep' | 'activate';
+export type PlaybookPromotionTimerStepStatus = 'disabled' | 'skipped' | 'blocked' | 'applied' | 'dry-run';
+
+export interface PlaybookPromotionTimerStep {
+  step: PlaybookPromotionTimerStepName;
+  requested: boolean;
+  status: PlaybookPromotionTimerStepStatus;
+  applied: boolean;
+  dryRun: boolean;
+  limit: number | null;
+  message: string;
+  detail?: unknown;
+}
+
+export interface PlaybookPromotionTimerReport {
+  schemaVersion: typeof PLAYBOOK_PROMOTION_TIMER_SCHEMA_VERSION;
+  dryRun: boolean;
+  applied: boolean;
+  sourceFilter: PlaybookSeedSourceFilter;
+  storyId?: string;
+  bounded: true;
+  limits: {
+    backfill: number;
+    trial: number;
+    sweep: number;
+  };
+  steps: PlaybookPromotionTimerStep[];
   authority: 'non_authoritative';
   gateEvidence: false;
 }
@@ -344,6 +456,12 @@ export interface BuildPlaybookSeedProposalBatchOptions extends BuildPlaybookSeed
   observeDigest?: string;
 }
 
+export interface BuildPlaybookSeedBackfillOptions extends BuildPlaybookSeedObservationOptions {
+  apply?: boolean;
+  limit?: number;
+  observeDigest?: string;
+}
+
 export interface BuildPlaybookCandidateBatchOptions {
   projectRoot: string;
   store: PlaybookSeedStorePort;
@@ -364,6 +482,34 @@ export interface BuildPlaybookCandidateIngestOptions extends BuildPlaybookSeedOb
 export interface BuildPlaybookRuntimeConsumptionVerifyOptions {
   projectRoot: string;
   now?: string;
+}
+
+export interface BuildPlaybookTrialRunOptions {
+  projectRoot: string;
+  store: PlaybookSeedStorePort;
+  storyId: string;
+  playbookId?: string;
+  consumer?: string;
+  apply?: boolean;
+  limit?: number;
+  now?: string;
+}
+
+export interface BuildPlaybookPromotionTimerOptions {
+  projectRoot: string;
+  store: PlaybookSeedStorePort;
+  apply?: boolean;
+  backfill?: boolean;
+  trial?: boolean;
+  sweep?: boolean;
+  activate?: boolean;
+  backfillLimit?: number;
+  trialLimit?: number;
+  sweepLimit?: number;
+  source?: string;
+  storyId?: string;
+  now?: string;
+  sweepApplyEnabled?: boolean;
 }
 
 export interface BuildPlaybookAutoPromotionApplyOptions {
@@ -853,6 +999,181 @@ export function buildPlaybookSeedProposalBatch(opts: BuildPlaybookSeedProposalBa
   };
 }
 
+function unboundedLimit(limit: number | undefined): number | null {
+  if (limit === undefined || !Number.isFinite(limit)) return null;
+  return Math.max(0, Math.floor(limit));
+}
+
+function applyLimit<T>(rows: T[], limit: number | null): { selected: T[]; skippedByLimit: number } {
+  if (limit === null) return { selected: rows, skippedByLimit: 0 };
+  return {
+    selected: rows.slice(0, limit),
+    skippedByLimit: Math.max(0, rows.length - limit),
+  };
+}
+
+function stagedProposalOnlySeed(seed: PlaybookSeedBlocked): boolean {
+  const reps = seed.representingArtifacts ?? [];
+  return seed.blockReasons.length === 1
+    && seed.blockReasons[0] === 'already_represented'
+    && reps.length > 0
+    && reps.every((row) => row.artifactKind === 'playbook_proposal');
+}
+
+function proposalsForCanonical(projectRoot: string, canonicalSourceKey: string): PlaybookProposal[] {
+  return listProposals(projectRoot)
+    .filter((proposal) => proposal.seed?.canonicalSourceKey === canonicalSourceKey)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function backfillBlockedRow(seed: PlaybookSeedCandidate, reasons: string[]): PlaybookSeedBackfillBlockedRow {
+  return {
+    seedId: seed.seedId,
+    canonicalSourceKey: seed.canonicalSourceKey,
+    sourceArtifactKind: seed.sourceArtifactKind,
+    sourceArtifactId: seed.sourceArtifactId,
+    reasons,
+  };
+}
+
+function backfillCandidateRow(
+  seed: PlaybookSeedCandidate,
+  candidate: Playbook,
+  fromStagedProposal: boolean,
+): PlaybookSeedBackfillCandidateRow {
+  return {
+    playbookId: candidate.id,
+    seedId: seed.seedId,
+    sourceArtifactKind: seed.sourceArtifactKind,
+    sourceArtifactId: seed.sourceArtifactId,
+    canonicalSourceKey: seed.canonicalSourceKey,
+    candidatePlaybookDigest: computePlaybookDigest(candidate),
+    fromStagedProposal,
+    title: candidate.title,
+  };
+}
+
+export function buildPlaybookSeedBackfillReport(opts: BuildPlaybookSeedBackfillOptions): PlaybookSeedBackfillReport {
+  const apply = opts.apply === true;
+  const limit = unboundedLimit(opts.limit);
+  const observation = buildPlaybookSeedObservation(opts);
+  const expectedObserveDigest = (opts.observeDigest ?? '').trim();
+  if (apply && !expectedObserveDigest) {
+    throw new Error('playbook_seed_backfill requires --observeDigest when --apply is set');
+  }
+  if (apply && expectedObserveDigest !== observation.observeDigest) {
+    throw new Error(`playbook_seed_backfill: observeDigest drift; expected ${expectedObserveDigest}, current ${observation.observeDigest}`);
+  }
+
+  const stagedSeeds = observation.alreadyRepresentedSources.filter(stagedProposalOnlySeed);
+  const playbookRepresented = observation.alreadyRepresentedSources.filter((seed) =>
+    !stagedProposalOnlySeed(seed)
+    && (seed.representingArtifacts ?? []).some((row) => row.artifactKind === 'playbook'));
+  const backfillable = sortSeeds([...observation.proposableSeeds, ...stagedSeeds]);
+  const { selected, skippedByLimit } = applyLimit(backfillable, limit);
+  const selectedSeedIds = new Set(selected.map((seed) => seed.seedId));
+  const blocked: PlaybookSeedBackfillBlockedRow[] = [
+    ...observation.blockingSeeds
+      .filter((seed) => !selectedSeedIds.has(seed.seedId))
+      .filter((seed) => !stagedProposalOnlySeed(seed))
+      .map((seed) => backfillBlockedRow(seed, seed.blockReasons)),
+  ];
+
+  const existingPlaybooks = readPlaybooks(opts.projectRoot);
+  const existingIds = new Set(existingPlaybooks.map((playbook) => playbook.id));
+  const directSeeds = selected.filter((seed) => !stagedSeeds.some((staged) => staged.seedId === seed.seedId));
+  const directIds = nextProposalIds(listProposals(opts.projectRoot), existingPlaybooks, directSeeds.length);
+  const directIdBySeedId = new Map(directSeeds.map((seed, index) => [seed.seedId, directIds[index]]));
+  const candidateRows: PlaybookSeedBackfillCandidateRow[] = [];
+  const candidates: Array<{ playbook: Playbook; proposalIdsToDelete: string[] }> = [];
+  const candidateIds = new Set<string>();
+
+  for (const seed of selected) {
+    const staged = stagedSeeds.some((row) => row.seedId === seed.seedId);
+    let proposal: PlaybookProposal;
+    let proposalIdsToDelete: string[] = [];
+    if (staged) {
+      const proposals = proposalsForCanonical(opts.projectRoot, seed.canonicalSourceKey);
+      if (proposals.length !== 1) {
+        blocked.push(backfillBlockedRow(seed, [`staged_proposal_count_${proposals.length}`]));
+        continue;
+      }
+      proposal = proposals[0];
+      proposalIdsToDelete = [proposal.id];
+      const computed = computePlaybookProposalDigest(proposal);
+      if (proposal.proposalDigest !== computed) {
+        blocked.push(backfillBlockedRow(seed, ['staged_proposal_digest_stale']));
+        continue;
+      }
+    } else {
+      const id = directIdBySeedId.get(seed.seedId);
+      if (!id) {
+        blocked.push(backfillBlockedRow(seed, ['missing_backfill_id']));
+        continue;
+      }
+      proposal = proposalFromSeed(id, seed, opts.store);
+      proposalIdsToDelete = proposalsForCanonical(opts.projectRoot, seed.canonicalSourceKey).map((row) => row.id);
+    }
+    const candidate = candidatePlaybookFromProposal(proposal);
+    const validation = validatePlaybook(candidate);
+    if (!validation.ok) {
+      blocked.push(backfillBlockedRow(seed, [validation.error]));
+      continue;
+    }
+    if (existingIds.has(candidate.id) || candidateIds.has(candidate.id)) {
+      blocked.push(backfillBlockedRow(seed, [`candidate_id_already_exists:${candidate.id}`]));
+      continue;
+    }
+    candidateIds.add(candidate.id);
+    candidates.push({ playbook: candidate, proposalIdsToDelete });
+    candidateRows.push(backfillCandidateRow(seed, candidate, staged));
+  }
+
+  let deletedProposalCount = 0;
+  if (apply && candidates.length > 0) {
+    writePlaybooks(opts.projectRoot, [...existingPlaybooks, ...candidates.map((row) => row.playbook)]);
+    const after = readPlaybooks(opts.projectRoot);
+    for (const row of candidates) {
+      const persisted = after.find((playbook) => playbook.id === row.playbook.id);
+      if (!persisted || persisted.status !== 'candidate' || computePlaybookDigest(persisted) !== computePlaybookDigest(row.playbook)) {
+        throw new Error(`playbook_seed_backfill: write verification failed for ${row.playbook.id}`);
+      }
+    }
+    for (const prior of existingPlaybooks) {
+      if (!after.some((playbook) => playbook.id === prior.id)) {
+        throw new Error(`playbook_seed_backfill: write verification failed; existing playbook ${prior.id} disappeared`);
+      }
+    }
+    const deleteIds = uniqSorted(candidates.flatMap((row) => row.proposalIdsToDelete));
+    for (const id of deleteIds) {
+      if (deleteProposal(opts.projectRoot, id)) deletedProposalCount += 1;
+    }
+  }
+
+  return {
+    schemaVersion: PLAYBOOK_SEED_BACKFILL_SCHEMA_VERSION,
+    dryRun: !apply,
+    applied: apply,
+    sourceFilter: observation.sourceFilter,
+    limit,
+    observeDigest: observation.observeDigest,
+    ...(expectedObserveDigest ? { expectedObserveDigest } : {}),
+    selectedSeedCount: selected.length,
+    plannedCount: candidateRows.length,
+    createdCount: apply ? candidateRows.length : 0,
+    skippedCount: skippedByLimit,
+    blockedCount: blocked.length,
+    alreadyRepresentedCount: playbookRepresented.length,
+    stagedProposalCount: stagedSeeds.length,
+    deletedProposalCount,
+    createdPlaybookIds: apply ? candidateRows.map((row) => row.playbookId) : [],
+    candidates: candidateRows,
+    blocked,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
 function seedProposalOnly(proposal: PlaybookProposal): boolean {
   return Boolean(proposal.seed?.canonicalSourceKey && proposal.seed.sourceArtifactKind && proposal.seed.sourceArtifactId);
 }
@@ -1233,6 +1554,197 @@ export function buildPlaybookRuntimeConsumptionVerifyReport(
     activeChecks,
     candidateInertness,
     diagnostics,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function normalizedConsumer(value: string | undefined): string {
+  const consumer = (value ?? '').trim();
+  return consumer || 'playbook_trial';
+}
+
+function trialStoryContext(store: PlaybookSeedStorePort, storyId: string): { storyPhase?: string; storyType?: string } {
+  const story = store.readStory?.(storyId);
+  return {
+    ...(typeof story?.phase === 'string' && story.phase.trim() ? { storyPhase: story.phase.trim() } : {}),
+    ...(typeof story?.type === 'string' && story.type.trim() ? { storyType: story.type.trim() } : {}),
+  };
+}
+
+function trialTriggerClasses(playbook: Playbook): string[] {
+  return uniqSorted([
+    ...playbook.trigger.keywords,
+    playbook.lineage.sourceSignature,
+    'candidate-trial',
+  ]).slice(0, 12);
+}
+
+function trialId(prefix: 'PBO-TRIAL' | 'PBC-TRIAL', idempotencyKey: string): string {
+  return `${prefix}-${digestCanonicalJson({ idempotencyKey }).slice(0, 16)}`;
+}
+
+function trialOutcomeKey(storyId: string, playbookId: string, consumer: string, playbookDigest: string): string {
+  return ['playbook-trial-v1', 'candidate-exposure', storyId, playbookId, consumer, playbookDigest].join(':');
+}
+
+function trialControlKey(storyId: string, playbookId: string, consumer: string, playbookDigest: string): string {
+  return ['playbook-trial-v1', 'matched-control', storyId, playbookId, consumer, playbookDigest].join(':');
+}
+
+function buildTrialOutcomeEvent(
+  opts: BuildPlaybookTrialRunOptions,
+  playbook: Playbook,
+  consumer: string,
+  playbookDigest: string,
+  observedAt: string,
+): PlaybookOutcomeEvent {
+  const idempotencyKey = trialOutcomeKey(opts.storyId, playbook.id, consumer, playbookDigest);
+  return {
+    schemaVersion: 'proofbound.playbook-outcome.v1',
+    eventId: trialId('PBO-TRIAL', idempotencyKey),
+    idempotencyKey,
+    observedAt,
+    storyId: opts.storyId,
+    playbookId: playbook.id,
+    playbookStatusAtObservation: 'candidate',
+    exposureMode: 'candidate-inspection',
+    consumer,
+    context: {
+      ...trialStoryContext(opts.store, opts.storyId),
+      fileKinds: uniqSorted(playbook.trigger.fileKinds),
+      triggerClasses: trialTriggerClasses(playbook),
+    },
+    outcome: {
+      verdict: 'unknown',
+      verdictSource: 'candidate-trial',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: false,
+    },
+    bindings: {},
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function buildTrialControlEvent(
+  opts: BuildPlaybookTrialRunOptions,
+  playbook: Playbook,
+  consumer: string,
+  playbookDigest: string,
+  observedAt: string,
+): PlaybookTrialControlEvent {
+  const idempotencyKey = trialControlKey(opts.storyId, playbook.id, consumer, playbookDigest);
+  const context = {
+    ...trialStoryContext(opts.store, opts.storyId),
+    fileKinds: uniqSorted(playbook.trigger.fileKinds),
+    triggerClasses: trialTriggerClasses(playbook),
+  };
+  return {
+    schemaVersion: 'proofbound.playbook-trial-control.v1',
+    controlId: trialId('PBC-TRIAL', idempotencyKey),
+    idempotencyKey,
+    observedAt,
+    storyId: opts.storyId,
+    playbookId: playbook.id,
+    candidatePlaybookDigest: playbookDigest,
+    consumer,
+    context,
+    control: {
+      exposureMode: 'none',
+      matchedOn: uniqSorted([
+        context.storyPhase ? `storyPhase:${context.storyPhase}` : undefined,
+        context.storyType ? `storyType:${context.storyType}` : undefined,
+        ...context.fileKinds.map((kind) => `fileKind:${kind}`),
+        ...context.triggerClasses.map((trigger) => `trigger:${trigger}`),
+      ]),
+      verdict: 'unknown',
+      verdictSource: 'matched-control',
+      causedNoise: false,
+      causedWrongClaim: false,
+      preventedRepeatFinding: false,
+    },
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+export function buildPlaybookTrialRunReport(opts: BuildPlaybookTrialRunOptions): PlaybookTrialRunReport {
+  const storyId = (opts.storyId ?? '').trim();
+  if (!storyId) throw new Error('playbook_trial_run requires --storyId');
+  const apply = opts.apply === true;
+  const consumer = normalizedConsumer(opts.consumer);
+  const limit = clampLimit(opts.limit, 10, 1000);
+  const observedAt = opts.now ?? new Date().toISOString();
+  const requestedPlaybookId = (opts.playbookId ?? '').trim();
+  const validPlaybooks = readPlaybooks(opts.projectRoot)
+    .map((raw) => validatePlaybook(raw))
+    .filter((result): result is { ok: true; playbook: Playbook } => result.ok)
+    .map((result) => result.playbook);
+  if (requestedPlaybookId && !validPlaybooks.some((playbook) => playbook.id === requestedPlaybookId)) {
+    throw new Error(`playbook_trial_run: playbook not found: ${requestedPlaybookId}`);
+  }
+  const inScope = requestedPlaybookId
+    ? validPlaybooks.filter((playbook) => playbook.id === requestedPlaybookId)
+    : validPlaybooks;
+  const candidates = inScope.filter((playbook) => playbook.status === 'candidate');
+  const { selected, skippedByLimit } = applyLimit(candidates, limit);
+  const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(opts.projectRoot);
+  const controlRows = readPlaybookTrialControlEventsWithDiagnostics(opts.projectRoot);
+  const existingOutcomeKeys = new Set(outcomeRows.events.map((event) => event.idempotencyKey));
+  const existingControlKeys = new Set(controlRows.events.map((event) => event.idempotencyKey));
+  let outcomeCreatedCount = 0;
+  let outcomeAlreadyExistsCount = 0;
+  let controlCreatedCount = 0;
+  let controlAlreadyExistsCount = 0;
+  const observations: PlaybookTrialObservationRow[] = [];
+
+  for (const playbook of selected) {
+    const playbookDigest = computePlaybookDigest(playbook);
+    const outcome = buildTrialOutcomeEvent(opts, playbook, consumer, playbookDigest, observedAt);
+    const control = buildTrialControlEvent(opts, playbook, consumer, playbookDigest, observedAt);
+    const outcomeAlreadyExists = existingOutcomeKeys.has(outcome.idempotencyKey);
+    const controlAlreadyExists = existingControlKeys.has(control.idempotencyKey);
+    if (outcomeAlreadyExists) outcomeAlreadyExistsCount += 1;
+    if (controlAlreadyExists) controlAlreadyExistsCount += 1;
+    if (apply && !outcomeAlreadyExists) {
+      appendPlaybookOutcomeEvent(opts.projectRoot, outcome);
+      existingOutcomeKeys.add(outcome.idempotencyKey);
+      outcomeCreatedCount += 1;
+    }
+    if (apply && !controlAlreadyExists) {
+      appendPlaybookTrialControlEvent(opts.projectRoot, control);
+      existingControlKeys.add(control.idempotencyKey);
+      controlCreatedCount += 1;
+    }
+    observations.push({
+      playbookId: playbook.id,
+      playbookDigest,
+      outcomeIdempotencyKey: outcome.idempotencyKey,
+      controlIdempotencyKey: control.idempotencyKey,
+      outcomeAlreadyExists,
+      controlAlreadyExists,
+    });
+  }
+
+  return {
+    schemaVersion: PLAYBOOK_TRIAL_RUN_SCHEMA_VERSION,
+    dryRun: !apply,
+    applied: apply,
+    storyId,
+    consumer,
+    ...(requestedPlaybookId ? { playbookId: requestedPlaybookId } : {}),
+    limit,
+    candidateCount: candidates.length,
+    selectedCount: selected.length,
+    skippedByLimitCount: skippedByLimit,
+    skippedNonCandidateCount: inScope.length - candidates.length,
+    outcomeCreatedCount,
+    outcomeAlreadyExistsCount,
+    controlCreatedCount,
+    controlAlreadyExistsCount,
+    observations,
     authority: 'non_authoritative',
     gateEvidence: false,
   };
@@ -1676,6 +2188,309 @@ export function buildPlaybookAutoPromotionApplyReport(
   return report;
 }
 
+function timerLimit(value: number | undefined, fallback: number): number {
+  return clampLimit(value, fallback, 1000);
+}
+
+function timerStep(
+  step: PlaybookPromotionTimerStepName,
+  requested: boolean,
+  status: PlaybookPromotionTimerStepStatus,
+  applied: boolean,
+  dryRun: boolean,
+  limit: number | null,
+  message: string,
+  detail?: unknown,
+): PlaybookPromotionTimerStep {
+  return {
+    step,
+    requested,
+    status,
+    applied,
+    dryRun,
+    limit,
+    message,
+    ...(detail !== undefined ? { detail } : {}),
+  };
+}
+
+function timerPromotionDecisionId(idempotencyKey: string, playbookDigest: string): string {
+  return `PBD-TIMER-${digestCanonicalJson({
+    idempotencyKey,
+    playbookDigest,
+    purpose: 'playbook-promotion-timer-sweep',
+  }).slice(0, 16)}`;
+}
+
+function buildTimerPromotionDecisionRow(
+  playbook: Playbook,
+  aggregate: PlaybookPromotionDecisionRow['aggregate'],
+  action: PlaybookPromotionDecisionRow['action'],
+  reasonCodes: string[],
+  decidedAt: string,
+  opts: { dryRun: boolean; applied: boolean; alreadyApplied?: boolean },
+): PlaybookPromotionDecisionRow {
+  const playbookDigest = computePlaybookDigest(playbook);
+  const idempotencyKey = promotionDecisionIdempotencyKey(aggregate, action);
+  return {
+    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    decisionId: timerPromotionDecisionId(idempotencyKey, playbookDigest),
+    idempotencyKey,
+    decidedAt,
+    playbookId: playbook.id,
+    evaluatedStatus: playbook.status,
+    action,
+    reasonCodes,
+    aggregateDigest: aggregate.aggregateDigest,
+    aggregate,
+    before: {
+      playbookStatus: playbook.status,
+      playbookDigest,
+      sourceKey: aggregate.source.sourceKey,
+    },
+    after: {
+      playbookStatus: playbook.status,
+      recommendation: action,
+      ...(action === 'mark_non_deducible' ? { nonDeducibleSourceKey: aggregate.source.sourceKey } : {}),
+    },
+    workerVersion: 'playbook-promotion-worker-v1',
+    dryRun: opts.dryRun,
+    applied: opts.applied,
+    alreadyApplied: opts.alreadyApplied ?? false,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
+function runTimerSweep(opts: BuildPlaybookPromotionTimerOptions, limit: number, now: string): {
+  evaluatedCount: number;
+  decisionCreatedCount: number;
+  alreadyAppliedCount: number;
+  decisions: PlaybookPromotionDecisionRow[];
+} {
+  const apply = opts.apply === true;
+  const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(opts.projectRoot);
+  const decisionRows = readPlaybookPromotionDecisionRows(opts.projectRoot);
+  const playbooks = readPlaybooks(opts.projectRoot)
+    .map((raw) => validatePlaybook(raw))
+    .filter((result): result is { ok: true; playbook: Playbook } => result.ok)
+    .map((result) => result.playbook)
+    .filter((playbook) => playbook.status === 'candidate' || playbook.status === 'active' || playbook.status === 'stale')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .slice(0, limit);
+  const decisions = playbooks.map((playbook) => {
+    const aggregate = aggregatePlaybookPromotion(playbook, outcomeRows.events, decisionRows.decisions);
+    const evaluation = evaluatePlaybookPromotion(aggregate);
+    return buildTimerPromotionDecisionRow(playbook, aggregate, evaluation.action, evaluation.reasonCodes, now, {
+      dryRun: !apply,
+      applied: apply,
+    });
+  });
+  let decisionCreatedCount = 0;
+  let alreadyAppliedCount = 0;
+  if (apply) {
+    const existingKeys = new Set(
+      readPlaybookPromotionDecisionRows(opts.projectRoot).decisions
+        .filter((row) => row.applied)
+        .map((row) => row.idempotencyKey),
+    );
+    for (const row of decisions) {
+      if (existingKeys.has(row.idempotencyKey)) {
+        row.alreadyApplied = true;
+        row.applied = true;
+        alreadyAppliedCount += 1;
+        continue;
+      }
+      appendPlaybookPromotionDecision(opts.projectRoot, row);
+      existingKeys.add(row.idempotencyKey);
+      decisionCreatedCount += 1;
+      if (row.action === 'mark_non_deducible') {
+        markNonDeducibleSource(opts.projectRoot, {
+          source: row.aggregate.source,
+          reasonCodes: row.reasonCodes,
+          reason: 'promotion timer sweep marked source non_deducible after repeated rejected siblings',
+          sourceRejectedSiblingCount: row.aggregate.sourceRejectedSiblingCount,
+          aggregateDigest: row.aggregateDigest,
+          latestDecisionId: row.decisionId,
+          markedAt: row.decidedAt,
+        });
+      }
+    }
+  }
+  return {
+    evaluatedCount: decisions.length,
+    decisionCreatedCount,
+    alreadyAppliedCount,
+    decisions,
+  };
+}
+
+export function buildPlaybookPromotionTimerReport(opts: BuildPlaybookPromotionTimerOptions): PlaybookPromotionTimerReport {
+  const apply = opts.apply === true;
+  const now = opts.now ?? new Date().toISOString();
+  const sourceFilter = normalizeSourceFilter(opts.source);
+  const backfillLimit = timerLimit(opts.backfillLimit, 25);
+  const trialLimit = timerLimit(opts.trialLimit, 10);
+  const sweepLimit = timerLimit(opts.sweepLimit, 25);
+  const storyId = normalizeStoryFilter(opts.storyId);
+  const steps: PlaybookPromotionTimerStep[] = [];
+
+  if (!opts.backfill) {
+    steps.push(timerStep('backfill', false, 'disabled', false, !apply, backfillLimit, 'backfill step not requested'));
+  } else {
+    try {
+      const observe = buildPlaybookSeedObservation({
+        projectRoot: opts.projectRoot,
+        store: opts.store,
+        source: sourceFilter,
+        now,
+      });
+      const report = buildPlaybookSeedBackfillReport({
+        projectRoot: opts.projectRoot,
+        store: opts.store,
+        source: sourceFilter,
+        apply,
+        limit: backfillLimit,
+        ...(apply ? { observeDigest: observe.observeDigest } : {}),
+        now,
+      });
+      const status: PlaybookPromotionTimerStepStatus = !apply
+        ? 'dry-run'
+        : report.createdCount > 0 || report.deletedProposalCount > 0
+          ? 'applied'
+          : report.blockedCount > 0
+            ? 'blocked'
+            : 'skipped';
+      steps.push(timerStep(
+        'backfill',
+        true,
+        status,
+        apply && status === 'applied',
+        !apply,
+        backfillLimit,
+        `planned=${report.plannedCount} created=${report.createdCount} blocked=${report.blockedCount} alreadyRepresented=${report.alreadyRepresentedCount}`,
+        report,
+      ));
+    } catch (err) {
+      steps.push(timerStep('backfill', true, 'blocked', false, !apply, backfillLimit, (err as Error).message));
+    }
+  }
+
+  if (!opts.trial) {
+    steps.push(timerStep('trial', false, 'disabled', false, !apply, trialLimit, 'trial step not requested'));
+  } else if (!storyId) {
+    steps.push(timerStep('trial', true, 'blocked', false, !apply, trialLimit, 'trial step requires storyId'));
+  } else {
+    try {
+      const report = buildPlaybookTrialRunReport({
+        projectRoot: opts.projectRoot,
+        store: opts.store,
+        storyId,
+        consumer: 'playbook_timer_trial',
+        apply,
+        limit: trialLimit,
+        now,
+      });
+      const wrote = report.outcomeCreatedCount + report.controlCreatedCount;
+      const status: PlaybookPromotionTimerStepStatus = !apply
+        ? 'dry-run'
+        : wrote > 0
+          ? 'applied'
+          : report.selectedCount > 0
+            ? 'skipped'
+            : 'skipped';
+      steps.push(timerStep(
+        'trial',
+        true,
+        status,
+        apply && wrote > 0,
+        !apply,
+        trialLimit,
+        `selected=${report.selectedCount} outcomeCreated=${report.outcomeCreatedCount} controlCreated=${report.controlCreatedCount}`,
+        report,
+      ));
+    } catch (err) {
+      steps.push(timerStep('trial', true, 'blocked', false, !apply, trialLimit, (err as Error).message));
+    }
+  }
+
+  if (!opts.sweep) {
+    steps.push(timerStep('sweep', false, 'disabled', false, !apply, sweepLimit, 'sweep step not requested'));
+  } else if (apply && opts.sweepApplyEnabled !== true) {
+    steps.push(timerStep('sweep', true, 'disabled', false, false, sweepLimit, 'PLAYBOOK_PROMOTION_SWEEP_ENABLED is disabled'));
+  } else {
+    try {
+      const report = runTimerSweep(opts, sweepLimit, now);
+      const status: PlaybookPromotionTimerStepStatus = !apply
+        ? 'dry-run'
+        : report.decisionCreatedCount > 0
+          ? 'applied'
+          : 'skipped';
+      steps.push(timerStep(
+        'sweep',
+        true,
+        status,
+        apply && report.decisionCreatedCount > 0,
+        !apply,
+        sweepLimit,
+        `evaluated=${report.evaluatedCount} decisionsCreated=${report.decisionCreatedCount} alreadyApplied=${report.alreadyAppliedCount}`,
+        report,
+      ));
+    } catch (err) {
+      steps.push(timerStep('sweep', true, 'blocked', false, !apply, sweepLimit, (err as Error).message));
+    }
+  }
+
+  if (!opts.activate) {
+    steps.push(timerStep('activate', false, 'disabled', false, !apply, null, 'activate step not requested'));
+  } else {
+    try {
+      const report = buildPlaybookAutoPromotionApplyReport({
+        projectRoot: opts.projectRoot,
+        store: opts.store,
+        apply,
+        now,
+      });
+      const status: PlaybookPromotionTimerStepStatus = !apply
+        ? 'dry-run'
+        : report.activatedCount > 0
+          ? 'applied'
+          : report.blockedCount > 0 || report.globalBlockers.length > 0
+            ? 'blocked'
+            : 'skipped';
+      steps.push(timerStep(
+        'activate',
+        true,
+        status,
+        apply && report.activatedCount > 0,
+        !apply,
+        null,
+        `activated=${report.activatedCount} blocked=${report.blockedCount} globalBlockers=${report.globalBlockers.join(',') || 'none'}`,
+        report,
+      ));
+    } catch (err) {
+      steps.push(timerStep('activate', true, 'blocked', false, !apply, null, (err as Error).message));
+    }
+  }
+
+  return {
+    schemaVersion: PLAYBOOK_PROMOTION_TIMER_SCHEMA_VERSION,
+    dryRun: !apply,
+    applied: apply,
+    sourceFilter,
+    ...(storyId ? { storyId } : {}),
+    bounded: true,
+    limits: {
+      backfill: backfillLimit,
+      trial: trialLimit,
+      sweep: sweepLimit,
+    },
+    steps,
+    authority: 'non_authoritative',
+    gateEvidence: false,
+  };
+}
+
 export function renderPlaybookSeedObservation(report: PlaybookSeedObserveReport, json?: boolean): string {
   if (json) return JSON.stringify(report, null, 2);
   return [
@@ -1713,6 +2528,33 @@ export function renderPlaybookSeedProposalBatch(report: PlaybookSeedProposalBatc
       `  - ${row.proposalId} ${row.seed.sourceArtifactKind}:${row.seed.sourceArtifactId} proposalDigest=${row.proposalDigest} candidateDigest=${row.candidatePlaybookDigest}`),
     `blockedSeedCount: ${report.blockedSeedCount}`,
     `skippedSeedCount: ${report.skippedSeedCount}`,
+  ].join('\n');
+}
+
+export function renderPlaybookSeedBackfill(report: PlaybookSeedBackfillReport, json?: boolean): string {
+  if (json) return JSON.stringify(report, null, 2);
+  return [
+    'Playbook seed backfill',
+    `dryRun: ${report.dryRun}`,
+    `applied: ${report.applied}`,
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+    `sourceFilter: ${report.sourceFilter}`,
+    `limit: ${report.limit ?? 'all'}`,
+    `observeDigest: ${report.observeDigest}`,
+    `selectedSeedCount: ${report.selectedSeedCount}`,
+    `plannedCount: ${report.plannedCount}`,
+    `createdCount: ${report.createdCount}`,
+    `skippedCount: ${report.skippedCount}`,
+    `blockedCount: ${report.blockedCount}`,
+    `alreadyRepresentedCount: ${report.alreadyRepresentedCount}`,
+    `stagedProposalCount: ${report.stagedProposalCount}`,
+    `deletedProposalCount: ${report.deletedProposalCount}`,
+    `createdPlaybookIds: ${report.createdPlaybookIds.join(', ') || 'none'}`,
+    ...report.candidates.map((row) =>
+      `  - ${row.playbookId} ${row.sourceArtifactKind}:${row.sourceArtifactId} candidateDigest=${row.candidatePlaybookDigest} fromStagedProposal=${row.fromStagedProposal}`),
+    ...report.blocked.map((row) =>
+      `  blocked ${row.seedId} canonical=${row.canonicalSourceKey || 'missing'} reasons=${row.reasons.join(',')}`),
   ].join('\n');
 }
 
@@ -1773,6 +2615,50 @@ export function renderPlaybookRuntimeConsumptionVerify(report: PlaybookRuntimeCo
       `  - ${row.playbookId} inert=${row.inert} label=${row.label}`),
     `diagnostics: ${report.diagnostics.length}`,
     ...report.diagnostics.map((diagnostic) => `  - ${diagnostic}`),
+  ].join('\n');
+}
+
+export function renderPlaybookTrialRun(report: PlaybookTrialRunReport, json?: boolean): string {
+  if (json) return JSON.stringify(report, null, 2);
+  return [
+    'Playbook trial run',
+    `dryRun: ${report.dryRun}`,
+    `applied: ${report.applied}`,
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+    `storyId: ${report.storyId}`,
+    `consumer: ${report.consumer}`,
+    `playbookId: ${report.playbookId ?? 'all-candidates'}`,
+    `limit: ${report.limit ?? 'all'}`,
+    `candidateCount: ${report.candidateCount}`,
+    `selectedCount: ${report.selectedCount}`,
+    `skippedByLimitCount: ${report.skippedByLimitCount}`,
+    `skippedNonCandidateCount: ${report.skippedNonCandidateCount}`,
+    `outcomeCreatedCount: ${report.outcomeCreatedCount}`,
+    `outcomeAlreadyExistsCount: ${report.outcomeAlreadyExistsCount}`,
+    `controlCreatedCount: ${report.controlCreatedCount}`,
+    `controlAlreadyExistsCount: ${report.controlAlreadyExistsCount}`,
+    ...report.observations.map((row) =>
+      `  - ${row.playbookId} outcomeAlreadyExists=${row.outcomeAlreadyExists} controlAlreadyExists=${row.controlAlreadyExists}`),
+  ].join('\n');
+}
+
+export function renderPlaybookPromotionTimer(report: PlaybookPromotionTimerReport, json?: boolean): string {
+  if (json) return JSON.stringify(report, null, 2);
+  return [
+    'Playbook promotion timer',
+    `dryRun: ${report.dryRun}`,
+    `applied: ${report.applied}`,
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+    `bounded: ${report.bounded}`,
+    `sourceFilter: ${report.sourceFilter}`,
+    `storyId: ${report.storyId ?? 'n/a'}`,
+    `limits.backfill: ${report.limits.backfill}`,
+    `limits.trial: ${report.limits.trial}`,
+    `limits.sweep: ${report.limits.sweep}`,
+    ...report.steps.map((step) =>
+      `  - ${step.step} requested=${step.requested} status=${step.status} applied=${step.applied} dryRun=${step.dryRun} limit=${step.limit ?? 'n/a'} ${step.message}`),
   ].join('\n');
 }
 

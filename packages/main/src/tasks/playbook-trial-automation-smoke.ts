@@ -1,0 +1,239 @@
+#!/usr/bin/env node
+/**
+ * @task B-5f5b
+ * @checklist CHK-002
+ * @title playbook trial and timer automation smoke
+ * @type feature
+ * @priority high
+ * @description
+ *   Proves candidate trial automation writes only unknown candidate exposures
+ *   plus matched controls, is idempotent, skips active playbooks, and the
+ *   bounded timer cannot activate candidates that lack helped evidence.
+ */
+
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+
+import type { Playbook } from '../core/experience-layer-types.js';
+import {
+  buildPlaybookPromotionTimerReport,
+  buildPlaybookTrialRunReport,
+} from '../core/playbook-seed.js';
+import {
+  readPlaybookAutoActivationEvents,
+  readPlaybookOutcomeEvents,
+  readPlaybookTrialControlEvents,
+  readPlaybooks,
+  writePlaybooks,
+} from '../core/learning-store.js';
+import { StoryStore } from '../core/store.js';
+import type { StoryInfo } from '../core/types.js';
+
+const NOW = '2026-07-03T01:00:00.000Z';
+const STORY_ID = 'B-trial';
+
+let total = 0;
+let passed = 0;
+
+function check(label: string, fn: () => void): void {
+  total += 1;
+  try {
+    fn();
+    passed += 1;
+    console.log(`check: ${label} - PASS`);
+  } catch (err) {
+    console.error(`check: ${label} - FAIL`);
+    console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
+    process.exitCode = 1;
+  }
+}
+
+function write(root: string, rel: string, content: string): void {
+  const file = join(root, rel);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, content, 'utf8');
+}
+
+function mkProject(): { root: string; store: StoryStore } {
+  const root = mkdtempSync(join(tmpdir(), 'b5f5b-trial-automation-'));
+  write(root, 'lattice.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+  }, null, 2));
+  return { root, store: new StoryStore(root) };
+}
+
+function story(): StoryInfo {
+  return {
+    storyId: STORY_ID,
+    name: STORY_ID,
+    title: 'Trial candidate playbooks',
+    description: 'Synthetic trial/timer smoke story.',
+    type: 'feature',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: NOW,
+    startedAt: NOW,
+    endedAt: null,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: NOW }],
+  };
+}
+
+function playbook(id: string, status: Playbook['status'], keyword: string): Playbook {
+  return {
+    id,
+    title: `${keyword} playbook`,
+    trigger: {
+      keywords: [keyword, 'trial', 'automation'],
+      fileKinds: ['ts'],
+      storyPhases: ['REVIEW'],
+    },
+    check: `Check ${keyword} before final claims.`,
+    pitfalls: [`${keyword} must remain non-authoritative.`],
+    verification: [`Verify ${keyword} is advisory only.`],
+    lineage: {
+      sourceStoryId: STORY_ID,
+      sourceFindingId: `${STORY_ID}:F-${id}`,
+      sourceSignature: keyword,
+    },
+    status,
+    usage: { surfacedCount: 0, resolvedHits: 0, dismissedHits: 0 },
+  };
+}
+
+function seed(root: string, store: StoryStore): void {
+  store.writeStory(STORY_ID, story());
+  store.writeChecklist(STORY_ID, { items: [] });
+  store.writeFindings(STORY_ID, { findings: [] });
+  writePlaybooks(root, [
+    playbook('PBP-101', 'candidate', 'candidate-one'),
+    playbook('PBP-102', 'candidate', 'candidate-two'),
+    playbook('PBP-999', 'active', 'active-skip'),
+  ]);
+}
+
+const roots: string[] = [];
+
+try {
+  check('trial writes unknown candidate exposure and matched control idempotently', () => {
+    const { root, store } = mkProject();
+    roots.push(root);
+    seed(root, store);
+
+    const dryRun = buildPlaybookTrialRunReport({
+      projectRoot: root,
+      store,
+      storyId: STORY_ID,
+      apply: false,
+      limit: 1,
+      now: NOW,
+    });
+    assert.equal(dryRun.dryRun, true);
+    assert.equal(dryRun.selectedCount, 1);
+    assert.equal(readPlaybookOutcomeEvents(root).length, 0);
+    assert.equal(readPlaybookTrialControlEvents(root).length, 0);
+
+    const applied = buildPlaybookTrialRunReport({
+      projectRoot: root,
+      store,
+      storyId: STORY_ID,
+      apply: true,
+      limit: 1,
+      now: NOW,
+    });
+    assert.equal(applied.outcomeCreatedCount, 1);
+    assert.equal(applied.controlCreatedCount, 1);
+    assert.equal(applied.skippedNonCandidateCount, 1);
+    const outcomes = readPlaybookOutcomeEvents(root);
+    assert.equal(outcomes.length, 1);
+    assert.equal(outcomes[0].playbookStatusAtObservation, 'candidate');
+    assert.equal(outcomes[0].exposureMode, 'candidate-inspection');
+    assert.equal(outcomes[0].outcome.verdict, 'unknown');
+    assert.equal(outcomes[0].outcome.verdictSource, 'candidate-trial');
+    assert.equal(outcomes[0].outcome.causedNoise, false);
+    assert.equal(outcomes[0].outcome.causedWrongClaim, false);
+    assert.equal(outcomes[0].outcome.preventedRepeatFinding, false);
+    assert.equal(outcomes.some((event) => event.playbookId === 'PBP-999'), false, 'active playbook is not trialed');
+
+    const controls = readPlaybookTrialControlEvents(root);
+    assert.equal(controls.length, 1);
+    assert.equal(controls[0].control.exposureMode, 'none');
+    assert.equal(controls[0].control.verdict, 'unknown');
+    assert.equal(controls[0].control.verdictSource, 'matched-control');
+
+    const repeat = buildPlaybookTrialRunReport({
+      projectRoot: root,
+      store,
+      storyId: STORY_ID,
+      apply: true,
+      limit: 1,
+      now: '2026-07-03T01:05:00.000Z',
+    });
+    assert.equal(repeat.outcomeCreatedCount, 0);
+    assert.equal(repeat.controlCreatedCount, 0);
+    assert.equal(repeat.outcomeAlreadyExistsCount, 1);
+    assert.equal(repeat.controlAlreadyExistsCount, 1);
+    assert.equal(readPlaybookOutcomeEvents(root).length, 1);
+    assert.equal(readPlaybookTrialControlEvents(root).length, 1);
+  });
+
+  check('timer dry-run/apply is bounded and cannot activate unqualified candidates', () => {
+    const { root, store } = mkProject();
+    roots.push(root);
+    seed(root, store);
+
+    const dryRun = buildPlaybookPromotionTimerReport({
+      projectRoot: root,
+      store,
+      storyId: STORY_ID,
+      trial: true,
+      activate: true,
+      trialLimit: 2,
+      apply: false,
+      now: NOW,
+    });
+    assert.equal(dryRun.dryRun, true);
+    assert.equal(dryRun.bounded, true);
+    assert.equal(dryRun.limits.trial, 2);
+    assert.equal(dryRun.steps.find((step) => step.step === 'trial')?.status, 'dry-run');
+    assert.equal(dryRun.steps.find((step) => step.step === 'activate')?.status, 'dry-run');
+    assert.equal(readPlaybookOutcomeEvents(root).length, 0, 'timer dry-run writes no outcomes');
+
+    const applied = buildPlaybookPromotionTimerReport({
+      projectRoot: root,
+      store,
+      storyId: STORY_ID,
+      trial: true,
+      activate: true,
+      trialLimit: 2,
+      apply: true,
+      now: NOW,
+    });
+    const trialStep = applied.steps.find((step) => step.step === 'trial');
+    const activateStep = applied.steps.find((step) => step.step === 'activate');
+    assert.equal(trialStep?.status, 'applied');
+    assert.equal(activateStep?.status, 'blocked');
+    assert.match(activateStep?.message ?? '', /fail-closed|blocked=/);
+    assert.equal(readPlaybookOutcomeEvents(root).length, 2);
+    assert.equal(readPlaybookTrialControlEvents(root).length, 2);
+    assert.equal(readPlaybookOutcomeEvents(root).every((event) => event.outcome.verdict === 'unknown'), true);
+    assert.equal(readPlaybookAutoActivationEvents(root).length, 0);
+    const statuses = new Map(readPlaybooks(root).map((row) => [row.id, row.status]));
+    assert.equal(statuses.get('PBP-101'), 'candidate');
+    assert.equal(statuses.get('PBP-102'), 'candidate');
+    assert.equal(statuses.get('PBP-999'), 'active');
+  });
+} finally {
+  for (const root of roots) rmSync(root, { recursive: true, force: true });
+}
+
+if (process.exitCode) {
+  console.error(`playbook trial automation smoke failed: ${passed}/${total} checks passed`);
+  process.exit(process.exitCode);
+}
+
+console.log(`playbook trial automation smoke passed: ${passed}/${total} checks`);

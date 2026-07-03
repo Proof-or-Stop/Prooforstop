@@ -86,15 +86,21 @@ import {
   buildPlaybookAutoPromotionApplyReport,
   buildPlaybookCandidateIngestReport,
   buildPlaybookCandidateBatchManifest,
+  buildPlaybookPromotionTimerReport,
   buildPlaybookRuntimeConsumptionVerifyReport,
   buildPlaybookSeedObservation,
+  buildPlaybookSeedBackfillReport,
   buildPlaybookSeedProposalBatch,
+  buildPlaybookTrialRunReport,
   renderPlaybookAutoPromotionApply,
   renderPlaybookCandidateIngest,
   renderPlaybookCandidateBatchManifest,
+  renderPlaybookPromotionTimer,
   renderPlaybookRuntimeConsumptionVerify,
+  renderPlaybookSeedBackfill,
   renderPlaybookSeedObservation,
   renderPlaybookSeedProposalBatch,
+  renderPlaybookTrialRun,
 } from '../core/playbook-seed.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
@@ -422,6 +428,15 @@ type PlaybookSeedProposeBatchArgs = {
   json?: boolean;
 };
 
+type PlaybookSeedBackfillArgs = {
+  source?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  observeDigest?: string;
+  json?: boolean;
+};
+
 type PlaybookCandidateBatchApproveArgs = {
   dryRun?: boolean;
   apply?: boolean;
@@ -445,6 +460,31 @@ type PlaybookRuntimeConsumptionVerifyArgs = {
   write?: boolean;
   execute?: boolean;
   run?: boolean;
+};
+
+type PlaybookTrialRunArgs = {
+  storyId?: string;
+  playbookId?: string;
+  consumer?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  json?: boolean;
+};
+
+type PlaybookPromotionTimerArgs = {
+  dryRun?: boolean;
+  apply?: boolean;
+  backfill?: boolean;
+  trial?: boolean;
+  sweep?: boolean;
+  activate?: boolean;
+  backfillLimit?: number;
+  trialLimit?: number;
+  sweepLimit?: number;
+  source?: string;
+  storyId?: string;
+  json?: boolean;
 };
 
 type PlaybookAutoPromotionApplyArgs = {
@@ -1201,6 +1241,27 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * Historical all-seed backfill. Default dry-run; apply requires the current
+     * observeDigest and writes only inert candidate playbooks.
+     */
+    playbook_seed_backfill(args: PlaybookSeedBackfillArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_seed_backfill: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookSeedBackfill(buildPlaybookSeedBackfillReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        source: args.source,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+        observeDigest: args.observeDigest,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-seed-backfill', () =>
+        withPlaybookWriteLock(ctx, 'playbook_seed_backfill', run));
+    },
+
+    /**
      * M4: default dry-run approval manifest for seed proposals. Apply requires
      * manifest digest and converts proposals to candidate playbooks only.
      */
@@ -1252,6 +1313,28 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * Trial candidate playbooks by recording concrete unknown candidate
+     * inspection exposures plus separate matched-control observations.
+     */
+    playbook_trial_run(args: PlaybookTrialRunArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_trial_run: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookTrialRun(buildPlaybookTrialRunReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        storyId: args.storyId ?? '',
+        playbookId: args.playbookId,
+        consumer: args.consumer,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-trial-run', () =>
+        withPlaybookWriteLock(ctx, 'playbook_trial_run', run));
+    },
+
+    /**
      * Evidence-activated advisory promotion. Dry-run explains eligibility;
      * apply activates only candidates whose digest-bound evidence passes.
      */
@@ -1267,6 +1350,36 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       if (!apply) return run();
       return withLearningStoreLock(ctx.root, 'playbook-promotion-decisions', () =>
         withPlaybookWriteLock(ctx, 'playbook_auto_promotion_apply', run));
+    },
+
+    /**
+     * Explicit bounded timer-style orchestration. No daemon is registered; each
+     * requested step runs at most once and activation still uses the evidence
+     * guard path above.
+     */
+    playbook_promotion_timer(args: PlaybookPromotionTimerArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_promotion_timer: pass either apply or dryRun, not both');
+      const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
+      const run = (): string => renderPlaybookPromotionTimer(buildPlaybookPromotionTimerReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        apply,
+        backfill: normalizeOptionalBoolean(args.backfill),
+        trial: normalizeOptionalBoolean(args.trial),
+        sweep: normalizeOptionalBoolean(args.sweep),
+        activate: normalizeOptionalBoolean(args.activate),
+        backfillLimit: Number.isFinite(args.backfillLimit) ? Number(args.backfillLimit) : undefined,
+        trialLimit: Number.isFinite(args.trialLimit) ? Number(args.trialLimit) : undefined,
+        sweepLimit: Number.isFinite(args.sweepLimit) ? Number(args.sweepLimit) : undefined,
+        source: args.source,
+        storyId: args.storyId,
+        sweepApplyEnabled: sweepFlag.enabled,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-promotion-timer', () =>
+        withPlaybookWriteLock(ctx, 'playbook_promotion_timer', run));
     },
 
     /**

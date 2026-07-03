@@ -284,6 +284,31 @@ export interface PlaybookOutcomeEvent {
   gateEvidence: false;
 }
 
+export type PlaybookTrialControlSchemaVersion = 'proofbound.playbook-trial-control.v1';
+
+export interface PlaybookTrialControlEvent {
+  schemaVersion: PlaybookTrialControlSchemaVersion;
+  controlId: string;
+  idempotencyKey: string;
+  observedAt: string;
+  storyId: string;
+  playbookId: string;
+  candidatePlaybookDigest: string;
+  consumer: string;
+  context: PlaybookOutcomeContext;
+  control: {
+    exposureMode: 'none';
+    matchedOn: string[];
+    verdict: 'unknown';
+    verdictSource: 'matched-control';
+    causedNoise: false;
+    causedWrongClaim: false;
+    preventedRepeatFinding: false;
+  };
+  authority: 'non_authoritative';
+  gateEvidence: false;
+}
+
 // ── B-6241: playbook promotion worker V1 metadata ───────────────────────────
 //
 // These rows are local learning metadata under `.lattice/learning/`. They are
