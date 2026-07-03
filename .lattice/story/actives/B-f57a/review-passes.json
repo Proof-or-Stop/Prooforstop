@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-03T10:14:56.276Z",
       "reviewRunId": "B-f57a:RR-023",
       "_hash": "7b0cde606b39b93563c5afd8e377c5384ea2ecb412c096b7d613f972a2f26f56"
+    },
+    {
+      "id": "B-f57a:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: after 0170731fb, cross_host_review still binds host A and host B verdicts to the captured head/material/story hashes, runs Codex on a detached captured-HEAD snapshot, fail-closes on source or HEAD drift before spawn/before write/after pair write, deletes the pair before process-events append on post-write drift, and preserves disagreement/jointDecision semantics. No blocking concept issue found.",
+      "createdAt": "2026-07-03T10:30:15.855Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-024",
+      "_hash": "04dabb9956e6295ff81dbd8dd74ab8b3db8721b008dbb82e402f0a02bd629138"
     }
   ]
 }
