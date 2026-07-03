@@ -116,6 +116,15 @@
       "reviewRound": "2026-07-03T10:27:22.324Z",
       "reviewRunId": "B-f57a:RR-025",
       "_hash": "a969d20c02fb8c249025ba315c8d2f789073ff53b583fd28a8fed595bcffebf3"
+    },
+    {
+      "id": "B-f57a:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS after c8674ebae/fd1299b69/e265fa0: cross_host_review still captures a concrete HEAD and computes materialDigest/storyFilesHash from that captured ref; all dirty/head/final post-write drift guards now use the resolved gitCwd consistently; host A/B verdict pair semantics and disagreement/jointDecision fail-closed behavior are unchanged. The gitCwd fix is cwd-only and only improves wrapper-root git safety.",
+      "createdAt": "2026-07-03T10:54:53.065Z",
+      "reviewRound": "2026-07-03T10:52:51.266Z",
+      "reviewRunId": "B-f57a:RR-027",
+      "_hash": "c1585a15345bcf0d54823a7d0a6834134eae362785a98d880105a976f50b3e6f"
     }
   ]
 }
