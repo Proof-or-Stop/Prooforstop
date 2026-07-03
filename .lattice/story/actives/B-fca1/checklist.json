@@ -55,7 +55,37 @@
       "userSees": "ls .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ shows evidence-map.json and evidence-map.md; head of evidence-map.md shows the claim-to-artifact table and the final verdict line Causal impact: INCONCLUSIVE",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          ".lattice/experiments/experience-ablation/"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Real evidence-map.md lists every section-18 row with existing digest-checked artifacts (protocol 22705b73, snapshot f5c7d4be, replay digest 8cea1902, refusal, m7-decision, live-readout)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "evidence-map.json parses and mirrors the md (spot-check keys/figures)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final verdict line reads Causal impact: INCONCLUSIVE with the invalidated-assumption basis; every paper-table figure labeled unpowered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
