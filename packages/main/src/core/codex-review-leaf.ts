@@ -137,6 +137,10 @@ export function buildCodexReviewPrompt(opts: BuildCodexReviewPromptOptions): str
     'Output ONLY a single JSON object as your FINAL message — no prose before or after, no',
     'markdown code fences. It MUST match this schema exactly:',
     example,
+    '',
+    'The JSON verdict MUST be the VERY LAST content you emit. Do NOT write anything after it —',
+    'no prose, no disclaimer, no correction, no second JSON object, no trailing sentence. Any',
+    'text emitted after the JSON verdict causes the review to fail closed and be discarded.',
   ].filter(line => line !== undefined).join('\n');
 }
 
@@ -223,33 +227,111 @@ function digest(value: string): string {
 }
 
 /**
- * Extract the LAST JSON object in `stdout` that validates against the verdict
- * schema. Codex emits a transcript; the verdict is its final structured message.
- * We scan every balanced top-level `{...}` region, Zod-validate each, and return
- * the last one that matches — everything else (prose, tool logs, fences) is
- * discarded. Returns undefined when no region validates.
+ * Extract the trailing schema-valid verdict from `stdout`. Codex emits a
+ * transcript; the verdict MUST be its final structured message. This is
+ * deliberately fail-closed and NON-fragile:
+ *
+ *   1. The schema-valid verdict must be the LAST balanced top-level `{...}`
+ *      object in stdout. If the last balanced object is NOT schema-valid (e.g.
+ *      a different/trailing JSON object was emitted after the verdict), we do
+ *      NOT scan backwards past it — we return undefined (fail closed). "The
+ *      verdict is the final structured message" would otherwise be violated: a
+ *      clean pass followed by more content must never be trusted as pass.
+ *   2. If TWO OR MORE schema-valid verdict objects carry DIFFERENT `decision`
+ *      values, the output is ambiguous/conflicting → return undefined. We never
+ *      silently pick one.
+ *   3. Real codex exec output may append a small amount of trailing HARNESS
+ *      metadata after the model's final message (whitespace, bare token-count
+ *      noise like `tokens used` / a lone number). That is tolerated. But any
+ *      trailing JSON OBJECT after the verdict, or trailing sentence-like prose
+ *      (a disclaimer/correction), must fail closed.
+ *
+ * Returns undefined when there is no admissible trailing verdict.
  */
 export function extractCodexReviewVerdict(stdout: string): CodexReviewVerdict | undefined {
-  const candidates = scanBalancedObjects(stdout);
-  let match: CodexReviewVerdict | undefined;
-  for (const candidate of candidates) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(candidate);
-    } catch {
-      continue;
-    }
-    const result = verdictSchema.safeParse(parsed);
-    if (result.success) {
-      match = { ...result.data };
-    }
+  // (3a) Strip trailing whitespace before locating the final structured object.
+  const trimmed = stdout.replace(/\s+$/u, '');
+  const objects = scanBalancedObjects(trimmed);
+  if (objects.length === 0) return undefined;
+
+  const last = objects[objects.length - 1];
+
+  // (3b) Anything AFTER the last balanced object must be tolerable harness noise.
+  // By construction no OTHER balanced object can follow the last one, so the only
+  // thing to reject here is trailing sentence-like prose (a disclaimer/correction).
+  const tail = trimmed.slice(last.end);
+  if (!isTolerableTrailingHarness(tail)) return undefined;
+
+  // (1) The LAST balanced object must itself be the schema-valid verdict. If it is
+  // not, fail closed — do NOT reach backwards past a trailing invalid object.
+  const lastVerdict = parseVerdict(last.text);
+  if (!lastVerdict) return undefined;
+
+  // (2) Ambiguity guard: if any OTHER balanced object is also a schema-valid verdict
+  // with a DIFFERENT decision, the transcript is conflicting → fail closed.
+  for (let i = 0; i < objects.length - 1; i += 1) {
+    const other = parseVerdict(objects[i].text);
+    if (other && other.decision !== lastVerdict.decision) return undefined;
   }
-  return match;
+
+  return lastVerdict;
 }
 
-/** Return every balanced `{...}` substring at the top brace-nesting level. */
-function scanBalancedObjects(text: string): string[] {
-  const objects: string[] = [];
+/** Zod-validate one candidate substring as a verdict; undefined if it does not match. */
+function parseVerdict(candidate: string): CodexReviewVerdict | undefined {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(candidate);
+  } catch {
+    return undefined;
+  }
+  const result = verdictSchema.safeParse(parsed);
+  return result.success ? { ...result.data } : undefined;
+}
+
+/**
+ * Trailing text after the final balanced JSON object is admissible only if it is
+ * pure harness noise: whitespace and short bookkeeping lines (a bare number, or a
+ * token-count line like `tokens used` / `tokens used: 1234`). A line that reads
+ * like a natural-language SENTENCE (a disclaimer/correction/injection) makes the
+ * verdict no longer the final content → not tolerable. This is intentionally NOT
+ * pinned to a specific codex version: it accepts short structured bookkeeping and
+ * rejects sentence-like prose.
+ */
+function isTolerableTrailingHarness(tail: string): boolean {
+  const lines = tail.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  for (const line of lines) {
+    // Bare number (e.g. a lone token count).
+    if (/^\d[\d,]*$/u.test(line)) continue;
+    // A `key: value` / `key value` bookkeeping line with a short non-sentence key
+    // (e.g. `tokens used`, `tokens used: 1234`). "Short non-sentence" = few words,
+    // no sentence-ending punctuation.
+    if (!looksLikeSentence(line)) continue;
+    return false;
+  }
+  return true;
+}
+
+/**
+ * A conservative sentence heuristic. A trailing line is treated as prose (and thus
+ * rejected) when it either ends with sentence punctuation, or carries enough
+ * alphabetic words to read like natural language. Short bookkeeping such as
+ * `tokens used` or `tokens used: 1234` stays under the threshold and is tolerated.
+ */
+function looksLikeSentence(line: string): boolean {
+  if (/[.!?]$/u.test(line)) return true;
+  const words = line.match(/[A-Za-z]+/gu) ?? [];
+  return words.length >= 4;
+}
+
+interface BalancedObject { text: string; start: number; end: number; }
+
+/**
+ * Return every balanced `{...}` substring at the top brace-nesting level, with the
+ * character offsets `[start, end)` at which it occurs in `text` (end is exclusive).
+ */
+function scanBalancedObjects(text: string): BalancedObject[] {
+  const objects: BalancedObject[] = [];
   let depth = 0;
   let start = -1;
   let inString = false;
@@ -273,7 +355,7 @@ function scanBalancedObjects(text: string): string[] {
       if (depth > 0) {
         depth -= 1;
         if (depth === 0 && start >= 0) {
-          objects.push(text.slice(start, i + 1));
+          objects.push({ text: text.slice(start, i + 1), start, end: i + 1 });
           start = -1;
         }
       }
