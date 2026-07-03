@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6b68",
+  "records": [
+    {
+      "id": "RED-20260703114652",
+      "trigger": "Task annotation validator rejects invalid @type test in claim-admissibility pack framework smoke.",
+      "acceptanceTargetRef": "sha256:e08ec2f199d04909a2d8b870d93f998476e60b541e5af34c71a9d0dd4de9384e",
+      "baselineHeadHash": "8c1130f660e265d80fd28e1b5748d756f8bc90f6",
+      "baselineMaterialHash": "f8d1502707fa6756eb7d9e384454f3e955bf16d947732c407ac904501dd1da21",
+      "observedFailure": "Before the fix, node scripts/validate-tasks.js exits nonzero and reports packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts:2 invalid @type: test.",
+      "failingCommand": "node scripts/validate-tasks.js",
+      "expectedGreenCommand": "node scripts/validate-tasks.js",
+      "greenRelation": {
+        "targetRef": "sha256:e08ec2f199d04909a2d8b870d93f998476e60b541e5af34c71a9d0dd4de9384e",
+        "relation": "same_acceptance",
+        "command": "node scripts/validate-tasks.js"
+      },
+      "note": "Red state was reproduced in this worktree before editing the smoke annotation; the command output names the invalid @type test error.",
+      "createdAt": "2026-07-03T11:46:52.787Z"
+    }
+  ],
+  "createdAt": "2026-07-03T11:46:52.787Z",
+  "updatedAt": "2026-07-03T11:46:52.787Z"
+}

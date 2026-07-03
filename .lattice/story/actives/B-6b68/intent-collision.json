@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6b68",
+  "id": "IC-20260703114658",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-6b68 is accepted as a narrow annotation-validator maintenance fix: replace the invalid @type test metadata value in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts with an allowed task annotation type, while leaving smoke assertions, claim-admissibility registry behavior, handlers, and framework/domain contracts unchanged.",
+  "acceptedInterpretationHash": "sha256:c9eeb8aea2d09c5bde45e8d96dd1bd2a151ae1e8bd46ab2e82de6b1786c307d0",
+  "notes": "No competing user intent remains after scope-plan review: convergence annotation validation is the target, not runtime claim-admissibility behavior or compliance/privacy policy work.",
+  "createdAt": "2026-07-03T11:46:58.581Z",
+  "updatedAt": "2026-07-03T11:46:58.581Z"
+}

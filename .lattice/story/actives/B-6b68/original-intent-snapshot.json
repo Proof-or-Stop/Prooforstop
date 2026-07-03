@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6b68",
+  "sourceText": "Fix the project annotation validator error in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts by replacing the invalid @type test value with an allowed task annotation type. Do not change the smoke runtime assertions or claim-admissibility registry behavior.",
+  "normalizedOutcome": "The task annotation validator accepts the claim-admissibility pack framework smoke file without reporting invalid @type test.",
+  "acceptanceClaim": "node scripts/validate-tasks.js passes and the diff changes only the @type metadata line in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts.",
+  "keyRequirementIds": [
+    "REQ-ANNOTATION-TYPE"
+  ],
+  "requestHash": "sha256:e08ec2f199d04909a2d8b870d93f998476e60b541e5af34c71a9d0dd4de9384e",
+  "createdAt": "2026-07-03T11:46:40.212Z",
+  "updatedAt": "2026-07-03T11:46:40.212Z"
+}
