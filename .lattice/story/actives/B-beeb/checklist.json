@@ -284,6 +284,18 @@
           "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
           "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
           "timestamp": "2026-07-03T02:39:33.931Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "result": "pass",
+          "note": "Fail-closed adversarial cases all PASS: (9a) a tampered --memorySnapshotDir (hash disagrees with frozen protocol.json memorySnapshotHash) refuses the campaign BEFORE any host execution — no runs dir, stub host never ran, exit 1 naming frozen memory snapshot mismatch; (9b) a host that mutates the materialized store (appends to .lattice/dev-memory/experience.jsonl) aborts the cell AFTER the run — no run.json written, cell_abort progress row naming the post-run verification; (10) mechanical disjointness assertion rejects snapshot content mentioning a held-out class (tmp-absolute-path) and a store missing an in-store class lesson; builder re-emit reproduces the identical sha256. Arm contract in run-pilot additionally aborts on control-rendered or treatment-missing pack sections and on missing/empty surfaced events.",
+          "headHash": "a8bdedc27cb9b9aa01e14ccf263e68834eb2f549",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T02:39:45.743Z"
         }
       ]
     }
