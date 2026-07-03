@@ -10,7 +10,40 @@
       "userSees": "node experiments/experience-ablation/run-pilot.mjs --plan prints a cell table (fixtureId x arm, pending/done counts) and exits 0; after a real cell runs, the run dir contains run.json + activity.jsonl + workspace/ and node experiments/experience-ablation/score.mjs --fixture=<f> --run=<r> emits a valid score record with voided absent",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/run-pilot.mjs",
+          "experiments/experience-ablation/run-pilot-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/run-pilot-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "--plan prints the cell table (fixtureId x arm, pending/done) and a completed smoke cell yields a run dir score.mjs accepts with voided absent",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Resume: re-invoking after interruption skips terminal cells only (identity-keyed), no double execution; selfcheck proves it hermetically with a stub host",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Isolation precondition: runner asserts resolvedLearningRoot is the mkdtemp root before host execution and aborts if leakage-audit has not passed for the corpus",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Mechanical isolation over instructions: mkdtemp non-git roots + voiding assertions, never discipline alone",
+    "Resume-safe execution: identity-keyed cells, append-only records, re-runnable without double-counting",
+    "Replay before trust: every archived run dir re-scores byte-identically before any statistic is computed",
+    "Bounded pilot spend: smallest corpus satisfying plan section 7 preconditions"
+  ],
+  "drivers": [
+    "M7 cannot start without the frozen N and the committed runner",
+    "Leakage audit is a stopping-rule item (plan 11.3) — must be mechanical and repeatable",
+    "Shared token budget: pilot must not balloon into a powered run"
+  ],
+  "options": [
+    {
+      "name": "committed-runner-adapted-from-scratch-pattern",
+      "pros": [
+        "Proven resume/identity-key mechanics",
+        "RUN-RECORD contract already fixes the output shape",
+        "One command with --plan dry-run and resume"
+      ],
+      "cons": [
+        "Adaptation work for the experience-ablation cell shape"
+      ]
+    },
+    {
+      "name": "ad-hoc-shell-pilot",
+      "pros": [
+        "Fastest start"
+      ],
+      "cons": [
+        "Unreproducible, no resume, nothing committed — fails the M6 exit criterion outright"
+      ]
+    },
+    {
+      "name": "generalize-recovery-runner-into-shared-framework",
+      "pros": [
+        "One engine for both experiments"
+      ],
+      "cons": [
+        "Scope creep; touches proven scratch; plan asks only for a committed runner for this experiment"
+      ]
+    }
+  ],
+  "chosen": "committed-runner-adapted-from-scratch-pattern",
+  "rationale": "Only the committed adapted runner satisfies the M6 exit criterion (campaign runner committed) while reusing the resume/identity-key mechanics proven by the 49h recovery campaign; the RUN-RECORD.md contract from M4 already pins its output anatomy so score.mjs works unchanged, and --plan/resume keep real-host spend bounded and interruptible.",
+  "preMortem": [
+    {
+      "scenario": "A pilot arm-run executes with the repo (or a git worktree) as cwd so resolveLearningRoot lands on the production store; lessons from experiment tasks contaminate production analytics",
+      "trigger": "Runner forgets mkdtemp isolation or copies the fixture into a git-tracked path",
+      "consequence": "Store-isolation breach — stopping-rule violation, pilot voided",
+      "mitigation": "Runner asserts the resolved root per run (observability_snapshot resolvedLearningRoot) BEFORE host execution; score.mjs voids on production storeRoot; exit criterion counts voided records = 0"
+    },
+    {
+      "scenario": "Control-arm host reconstructs a trap answer from residue in the fixture tree, biasing the pilot toward null and freezing a wrong N",
+      "trigger": "Generator leaks strip-list content into workspace/ or prompt.md",
+      "consequence": "Baseline estimate invalid; M7 sized wrongly; leakage discovered late voids the powered run",
+      "mitigation": "leakage-audit.mjs runs BEFORE any host run as a hard precondition in run-pilot.mjs; audit failure aborts the pilot"
+    },
+    {
+      "scenario": "Pilot interrupted mid-run (session death, token exhaustion) and a naive rerun double-counts cells or reorders execution",
+      "trigger": "No identity-keyed resume or order not committed",
+      "consequence": "Pair ledger inconsistent; run order tunable after outcomes — pre-registration broken",
+      "mitigation": "Cells keyed by (experimentId, fixtureId, arm); terminal run.json marks completion; run order derives from the committed seed; resume skips terminal cells only"
+    },
+    {
+      "scenario": "The control-arm defect baseline lands outside the planning band (0.5-0.8) or the Wilson CI is wider than 0.30 at 15 runs",
+      "trigger": "Traps easier/harder than authored expectation",
+      "consequence": "Freezing N anyway would misSize M7",
+      "mitigation": "pilotFreezeCheck enforces the CI-width gate; the runner supports adding control-arm fault runs incrementally; out-of-band baseline triggers the documented recompute path instead of a silent freeze"
+    },
+    {
+      "scenario": "Host CLI invocation shape wrong (flags/permissions), burning tokens on runs that produce unscoreable dirs",
+      "trigger": "Unvalidated per-cell invocation",
+      "consequence": "Wasted spend, no usable records",
+      "mitigation": "Single smoke cell (one fixture, one arm) validated end-to-end (run dir -> score.mjs emits non-voided record) before enumerating the full pilot; --plan dry-run reviewed first"
+    }
+  ],
+  "timestamp": "2026-07-03T01:37:54.953Z"
+}
