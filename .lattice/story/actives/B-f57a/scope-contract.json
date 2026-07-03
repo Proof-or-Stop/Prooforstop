@@ -5,13 +5,16 @@
     "packages/main/src/core/dispatch-policy.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/registry.ts",
+    "packages/main/src/core/cross-host-review.ts",
     "packages/main/package.json",
-    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    ".lattice/story/actives/B-f57a/**"
   ],
   "allowedCreate": [
     "packages/main/src/core/codex-review-leaf.ts",
     "packages/main/src/core/cross-host-review.ts",
-    "packages/main/src/handlers/cross-host-review.ts"
+    "packages/main/src/handlers/cross-host-review.ts",
+    ".lattice/story/actives/B-f57a/**"
   ],
   "allowedTest": [
     "packages/main/src/tasks/cross-host-review-smoke.ts"
@@ -26,8 +29,8 @@
     "packages/main/src/core/claim-admissibility/",
     "experiments/experience-ablation/"
   ],
-  "scopeChangeReason": "M1 crypto-deferred cross-host review: 3 new modules + policy/registration extends + smoke + plan-doc reconcile; crypto files protected; other-host domain-pack files excluded.",
+  "scopeChangeReason": "Add story-metadata dir (.lattice/story/actives/B-f57a) to allowed paths — Lattice bookkeeping files (index/checklist/plan/proofstory/evidence) are written by the CLI itself, not material code. Also allow modifying cross-host-review.ts (jointDecision materialHash guard).",
   "acknowledgements": [],
   "createdAt": "2026-07-03T01:51:30.384Z",
-  "updatedAt": "2026-07-03T01:57:04.402Z"
+  "updatedAt": "2026-07-03T02:19:40.138Z"
 }
