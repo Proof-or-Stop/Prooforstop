@@ -55,7 +55,37 @@
       "userSees": "ls .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ shows live-readout.json and live-readout.md, and head of live-readout.md shows the two separated sections with the exploratory-only labeling",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          ".lattice/experiments/experience-ablation/"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Real report generated: live-readout.md opens with the controlled-vs-exploratory separation carrying real pilot figures (90 records, 0 voided, baseline 0.0333, freeze refused) and real learning_effectiveness figures",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "live-readout.json parses and mirrors the md content (machine/human consistency spot-check)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The live section carries exploratory-only/non-inferential labels and the m7-decision (skip_powered_study) context appears in the controlled section",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
