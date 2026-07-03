@@ -447,6 +447,17 @@ function envFlagEnabled(name: string): { enabled: boolean; raw: string } {
   return { raw, enabled: /^(1|true|yes)$/i.test(raw) };
 }
 
+function settlementEnvFlag(name: string): {
+  enabled: boolean;
+  raw: string;
+  defaultPolicy: 'default-on';
+  explicitOptOut: boolean;
+} {
+  const raw = (process.env[name] ?? '').trim();
+  const explicitOptOut = /^(0|false|no|off)$/i.test(raw);
+  return { raw, enabled: !explicitOptOut, defaultPolicy: 'default-on', explicitOptOut };
+}
+
 function normalizeOptionalBoolean(value: unknown): boolean {
   return value === true;
 }
@@ -1051,7 +1062,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         }));
       const latest = latestDecisions(decisionRows.decisions, limit);
       const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
-      const settlementFlag = envFlagEnabled('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
+      const settlementFlag = settlementEnvFlag('PLAYBOOK_DONE_SETTLEMENT_ENABLED');
       const seedObservation = buildPlaybookSeedObservation({ projectRoot: ctx.root, store: ctx.store });
       const runtimeConsumption = buildPlaybookRuntimeConsumptionVerifyReport({ projectRoot: ctx.root });
       const autoPromotion = buildPlaybookAutoPromotionApplyReport({ projectRoot: ctx.root, store: ctx.store });
@@ -1113,7 +1124,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         'authority: non_authoritative',
         'gateEvidence: false',
         `featureFlags.PLAYBOOK_PROMOTION_SWEEP_ENABLED: ${sweepFlag.enabled} (${sweepFlag.raw || 'unset'})`,
-        `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'})`,
+        `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'}, ${settlementFlag.defaultPolicy}${settlementFlag.explicitOptOut ? ', explicit-opt-out' : ''})`,
         `pendingLearning: ${pendingLearning.length}`,
         ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
         `activeNegativeSignals: ${activeNegativeSignals.length}`,

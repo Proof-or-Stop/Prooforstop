@@ -1,0 +1,27 @@
+{
+  "task": "Enable future DONE stories to write learning settlement health rows by default without making DONE success promotion evidence.",
+  "outcome": "After completion, running lattice playbook_promotion_status --json shows PLAYBOOK_DONE_SETTLEMENT_ENABLED enabled by default, and after B-5e28 reaches DONE the latest settlement health rows include storyId B-5e28 with settlementStatus recorded and gateEvidence false.",
+  "facts": [
+    "Current live status shows PLAYBOOK_DONE_SETTLEMENT_ENABLED raw empty and enabled false.",
+    "runPostDoneLearningSettlement already writes non-authoritative done-settlement health rows when enabled.",
+    "B-7ee1 already prevents DONE settlement rows from counting as helped activation evidence.",
+    "Historical seed backfill is explicitly out of scope for this story.",
+    "Status should expose corrected default-on flag semantics rather than hide the behavior behind an empty raw env value.",
+    "Live proof can be observed after this story reaches DONE by reading settlement health rows/status for B-5e28."
+  ],
+  "constraints": [
+    "Do not make DONE success count as helped evidence.",
+    "Do not import historical seeds or approve candidates automatically.",
+    "Settlement failure must remain non-blocking for DONE.",
+    "Learning artifacts remain non-authoritative and gateEvidence=false."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "timestamp": "2026-07-03T00:17:53.602Z"
+}

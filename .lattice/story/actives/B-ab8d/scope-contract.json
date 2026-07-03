@@ -1,0 +1,65 @@
+{
+  "storyId": "B-ab8d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experiment-arm.ts",
+    "packages/main/src/core/experience-pack-surface.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts",
+    "packages/main/src/tasks/experiment-arm-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/experiment-arm-smoke.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/**",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/hint-mode.ts"
+  ],
+  "scopeChangeReason": "validate.commands lives in lattice.config.json in this repo, not .lattice/validate.json as plan.md assumed; swap the allowed path to match reality (CHK-005 smoke registration).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory lifecycle metadata artifacts written by the lattice CLI itself (original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, red_evidence_create) as required by the enforce-mode ProofStory gates; CLI-generated metadata absent from the lifecycle registry, not hand-edited product files (same registry gap acknowledged in B-6b39).",
+      "timestamp": "2026-07-03T00:00:42.115Z",
+      "paths": [
+        ".lattice/story/actives/B-ab8d/intent-collision.json",
+        ".lattice/story/actives/B-ab8d/original-intent-snapshot.json",
+        ".lattice/story/actives/B-ab8d/proofstory.json",
+        ".lattice/story/actives/B-ab8d/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-ab8d/intent-collision.json",
+        ".lattice/story/actives/B-ab8d/original-intent-snapshot.json",
+        ".lattice/story/actives/B-ab8d/proofstory.json",
+        ".lattice/story/actives/B-ab8d/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "c5b8fe7ba3f7f33e5106baab9d678926c19dad4c",
+      "materialHash": "4a11084b8889fac1faac704b1791650a546a2947a8625c09fd19b3fdd2f09eeb"
+    }
+  ],
+  "createdAt": "2026-07-02T22:59:36.578Z",
+  "updatedAt": "2026-07-03T00:00:42.115Z"
+}

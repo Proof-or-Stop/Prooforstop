@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-ab8d",
+  "id": "IC-20260702225936",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement M3 exactly as the plan section 13 row defines: one new core experiment-arm resolver (env-var context LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM), one shared pack-surface leaf gating renderMemoryFreshnessPack/renderMemoryFreshnessPackSummary output at the seven existing lifecycle render sites (compute+log both arms, render only treatment or no-experiment), mechanical retrieval blocking at the cli-engine choke point with recorded retrieval_violation events, a read-only resolvedLearningRoot inspection surface for M4 assertions, and a registered smoke test proving the exit criteria. No change to pack content/ranking, gate semantics, or prompt hashes; no experiments/ writes.",
+  "acceptedInterpretationHash": "sha256:4abe4736c345c7d68c07d5af3f1ed2b1d692e3770621ca19e0c635e354b2dee4",
+  "notes": "The only interpretive choices — context mechanism (env vars vs file vs flags) and inspection surface placement (observability_snapshot) — are resolved in decision_set with rationale; scope boundary excludes M1/M4/M6 territory.",
+  "createdAt": "2026-07-02T22:59:36.303Z",
+  "updatedAt": "2026-07-02T22:59:36.303Z"
+}

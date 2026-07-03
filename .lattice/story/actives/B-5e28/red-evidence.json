@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5e28",
+  "records": [
+    {
+      "id": "RED-20260703001741",
+      "trigger": "PLAYBOOK_DONE_SETTLEMENT_ENABLED is off when unset, so future DONE stories do not automatically write learning settlement rows.",
+      "acceptanceTargetRef": "REQ-default-on-settlement",
+      "baselineHeadHash": "2cda83e5092f19c632848870ef8341a132b08fa4",
+      "baselineMaterialHash": "84eb591c5d37a85cf8b6d6ec21a8daecaa12ae749733cd50d3fd958481dd96fb",
+      "observedFailure": "playbook_promotion_status reports PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled=false with an empty raw value; unset configuration disables settlement instead of recording learning health by default.",
+      "failingCommand": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == false'",
+      "expectedGreenCommand": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == true'",
+      "greenRelation": {
+        "targetRef": "REQ-default-on-settlement",
+        "relation": "same_acceptance",
+        "command": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == true'"
+      },
+      "note": "Current live CLI status is the red behavior; after the fix, unset env should be enabled while explicit opt-out remains disabled.",
+      "createdAt": "2026-07-03T00:17:41.581Z"
+    },
+    {
+      "id": "RED-20260703001911",
+      "trigger": "PLAYBOOK_DONE_SETTLEMENT_ENABLED is off when unset, so future DONE stories do not automatically write learning settlement rows.",
+      "acceptanceTargetRef": "ACCEPT-B-5e28-default-settlement",
+      "baselineHeadHash": "9c4eb5453abe9c6034df6f9f09f7fa2a92edc368",
+      "baselineMaterialHash": "84eb591c5d37a85cf8b6d6ec21a8daecaa12ae749733cd50d3fd958481dd96fb",
+      "observedFailure": "playbook_promotion_status reports PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled=false with an empty raw value; unset configuration disables settlement instead of recording learning health by default.",
+      "failingCommand": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == false'",
+      "expectedGreenCommand": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == true'",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B-5e28-default-settlement",
+        "relation": "same_acceptance",
+        "command": "lattice playbook_promotion_status --json | jq -e '.featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED.enabled == true'"
+      },
+      "note": "Current live CLI status is the red behavior; after the fix, unset env should be enabled while explicit opt-out remains disabled.",
+      "createdAt": "2026-07-03T00:19:11.574Z"
+    }
+  ],
+  "createdAt": "2026-07-03T00:17:41.581Z",
+  "updatedAt": "2026-07-03T00:19:11.574Z"
+}

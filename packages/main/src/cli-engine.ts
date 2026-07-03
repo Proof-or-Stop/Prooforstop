@@ -17,7 +17,8 @@ import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
-import { formatCommandLifecycleHint } from './core/command-policy.js';
+import { formatCommandLifecycleHint, isMemoryRetrievalCommand } from './core/command-policy.js';
+import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
@@ -106,6 +107,54 @@ export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-s
 
 export { MAIN_TOOLS };
 export type { ToolDef };
+
+/**
+ * B-ab8d CHK-003: experiment control-arm memory retrieval gate.
+ *
+ * Runs at the same single CLI choke point as `enforceStoryOwnerLeaseGate`
+ * (inside `run()` — enforcement is decided here, never scattered across
+ * handlers). When the explicit opt-in experiment context resolves to
+ * `arm=control` and the command carries the `memoryRetrieval` policy marker
+ * (COMMAND_POLICIES — a declared per-command classification, NOT a name-prefix
+ * string list in the engine), the attempt is refused. EVERY blocked attempt
+ * appends a structured `retrieval_violation` activity event
+ * `{experimentId, command, timestamp}` BEFORE throwing, so the M4 scorer can
+ * count retrievalViolationCount even on refusal. The treatment arm and the
+ * no-experiment (production) mode pass through untouched. Store writes
+ * (dev_memory_capture / dev_memory_finish) are marked and therefore blocked
+ * too — store writes are forbidden during control-arm experiment runs.
+ *
+ * Runtime re-validation per the handler coding convention: the resolved
+ * context is re-checked here (non-empty trimmed experimentId string, arm
+ * strictly equal to 'control') instead of trusting the resolver's return type
+ * alone; `isMemoryRetrievalCommand` likewise accepts only a strict boolean
+ * `true` marker on a registered policy entry.
+ */
+export function enforceExperimentArmRetrievalGate(cmd: string, root: string): void {
+  const context = resolveExperimentArm();
+  if (context === null) return; // no experiment context: production mode, byte-identical behavior
+  const experimentId = typeof context.experimentId === 'string' ? context.experimentId.trim() : '';
+  if (experimentId.length === 0) return; // malformed context (resolver contract violated): treat as no experiment
+  if (context.arm !== 'control') return; // treatment arm (only other accepted value) is unaffected
+  if (!isMemoryRetrievalCommand(cmd)) return; // non-memory commands run normally on control
+  // Record the violation FIRST so the attempt is countable even though the
+  // command is refused. Best-effort: a logging failure must not mask the block.
+  try {
+    appendActivityLog(root, {
+      timestamp: new Date().toISOString(),
+      event: 'retrieval_violation',
+      experimentId,
+      command: cmd,
+    });
+  } catch (e) {
+    console.warn(`[experiment-arm] failed to record retrieval_violation for ${cmd}: ${(e as Error).message}`);
+  }
+  throw new Error(
+    `blocked: memory retrieval is disabled on the control arm of experiment ${experimentId} ` +
+      `(command "${cmd}" is classified memoryRetrieval; a retrieval_violation event was recorded). ` +
+      `The treatment arm and no-experiment mode are unaffected.`,
+  );
+}
 
 // ── Command Catalog ──
 
@@ -947,6 +996,14 @@ export async function runCli(opts?: {
       // rejected fail-closed with owner guidance; an unclassified command is
       // also rejected fail-closed. The gate runs inside this `try` so a
       // rejection surfaces through the `catch` below as the command failure.
+      // B-ab8d CHK-003: experiment control-arm memory retrieval gate — same
+      // single choke point as the owner lease gate. On arm=control a command
+      // carrying the memoryRetrieval policy marker is refused AFTER a
+      // retrieval_violation activity event is appended (attempts stay
+      // countable). Treatment arm / no-experiment mode are unaffected. It runs
+      // before the lease gate so a control-arm violation is recorded and
+      // refused regardless of lease ownership.
+      enforceExperimentArmRetrievalGate(cmd, root);
       enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
