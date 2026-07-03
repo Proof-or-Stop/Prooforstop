@@ -100,7 +100,7 @@
       "desc": "quantum_claim_check treats a supplied empty --evidenceJson string as absent because evidenceFromArgs checks args.evidenceJson truthiness before parsing. The real CLI accepts --evidenceJson \"\" and returns decision=advance/allowed=true using the built-in complete case, so malformed supplied evidence can fail open instead of being rejected.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T00:56:54.132Z",
@@ -112,7 +112,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "edge|ts|quantum-claim-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit c8ca775e6: direct evidence flags now use presence checks instead of truthiness. Empty --evidenceJson is parsed as supplied direct input and fails closed with nonzero error \"evidenceJson must be a non-empty JSON object\" rather than falling back to built-in complete evidence. Verified by build, quantum smoke, command-catalog smoke, and exact real CLI probe.",
+      "resolvedAt": "2026-07-03T01:03:13.720Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d1bf:F-006",
