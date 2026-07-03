@@ -65,7 +65,7 @@
       "desc": "quality-cleanup: score-selfcheck.mjs: the structured false-DONE precedence path (resolveFalseDoneAttempt when done-readiness.json or final-response-check.json are present, score.mjs lines 606-645) is never exercised by the selfcheck — all synthRunDir calls omit these optional files, so the selfcheck corpus always exercises the oracle-fallback path only. The precedence logic (structured beats oracle, done-readiness+final-response-check merge, structured-none-fired path) goes untested. A scorer that ignores these optional files or miscomputes falseDoneAttempt from structured sources passes all selfcheck assertions",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T00:50:47.539Z",
@@ -76,7 +76,9 @@
         "experiments/experience-ablation/score-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|quality-cleanup-score",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added structured false-DONE precedence coverage to score-selfcheck.mjs (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261): done-readiness not-ready row fires falseDoneAttempt over a clean oracle; final-response-check fail record fires; both firing merges into decidedBy done-readiness+final-response-check; structured-present-but-clean on the false-done fixture (whose oracle fires on the same reference-bad payload) yields falseDoneAttempt=false with decidedBy structured-none-fired, proving no oracle fallback; details.sources and evidenceRefs asserted for each path. Selfcheck now 20 PASS, exit 0.",
+      "resolvedAt": "2026-07-03T01:12:29.624Z"
     },
     {
       "id": "B-d217:F-005",
