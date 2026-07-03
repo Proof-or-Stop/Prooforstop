@@ -77,6 +77,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "experiments/experience-ablation/score.mjs"
+        ],
+        "create": [
+          "experiments/experience-ablation/RUN-RECORD.md"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
       }
     },
     {
