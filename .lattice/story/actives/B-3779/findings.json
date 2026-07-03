@@ -41,6 +41,27 @@
       ],
       "signatureTag": "missing|ts|quantum-claim-benchmark",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3779:F-003",
+      "desc": "B-3779 M4 claims the implemented benchmark covers the planned/source-of-truth B1-B15 adversarial injections, but the runtime corpus is different. plan.md lines 24-39 and the Quantum source doc lines 258-277 define B1-B15 as domain scenarios such as Hamiltonian/potential/boundary/timestep changes, normalization/residual/invariant failures, units mismatch, random seed missing, and manually edited table/plot. packages/main/src/core/claim-admissibility/quantum.ts lines 1445-1460 instead implements B1-B15 as stale/missing Q5 receipt, core field/output/verifier/duplicate/schema/unknown-claim failures, and packages/main/src/tasks/quantum-claim-benchmark-smoke.ts lines 47-63 asserts that different corpus. As a result the benchmark can report PASS without exercising the documented/planned B1-B15 cases. Align the runtime/tests to the documented B1-B15 corpus or explicitly revise the docs/plan/checklist promise so the local diagnostic M4 claim is bounded to the evaluator-failure corpus actually implemented; keep diagnosticOnly/gateEvidence=false and no generic framework/lifecycle/Authority/production/scientific claims.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T04:00:47.662Z",
+      "reviewRound": "2026-07-03T03:58:23.240Z",
+      "reviewRunId": "B-3779:RR-005",
+      "_hash": "594b6440510d4c24ce9bd6761ceb666654bfe6052bd00758a81eb5a96d0294a5",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        ".lattice/story/actives/B-3779/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|3779-claims-implemented",
+      "signatureTagSource": "auto"
     }
   ]
 }
