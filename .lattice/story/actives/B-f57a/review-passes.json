@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-03T02:53:26.313Z",
       "reviewRunId": "B-f57a:RR-007",
       "_hash": "372de1c8a401e41def153f0321d44835ab6a2dd7a41a0d9d9255fb3d4ef6dccf"
+    },
+    {
+      "id": "B-f57a:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-006 verified: checkDispatchPolicy (~L436) now refuses codex directly inside the allowRealHostSubprocess===true block — no dead reviewOnlyCodex variable (it is unconditionally false in that block so removing it was correct). Codex+both-flags scenario traced: validatePolicyArgs sets reviewOnlyCodex=false when allowRealHostSubprocess=true, so codex is in unsupportedRealHosts and the error fires. Pure review-only codex (allowRealHostSubprocess=false, allowReviewOnlyRealHostSubprocess=true) is permitted: reviewOnlyCodex=true, codex excluded from unsupportedRealHosts, and the guard if(allowRealHostSubprocess&&...) never fires. gemini/antigravity refused in both paths. F-007 verified: UNSAFE_ENV_PATTERN=/TOKEN|SECRET|...|_URL$|_URI$/i — no catastrophic backtracking (all fixed-string alternations), correctly catches DATABASE_URL/SECRET_KEY/AWS_SECRET_ACCESS_KEY etc., $-anchoring for _URL$/_URI$ verified correct in JS alternation context. Essential env vars PATH/HOME/SHELL/TMPDIR preserved. Empty-allowlist semantics documented (means no-restriction, not strip-all). buildRedactedEnv returns a concrete env object (never process.env by reference). Broader scan: tsc clean, no unused imports, no as-any, documented empty-catch blocks are all justified (SIGKILL-already-gone, pipe-broken, JSON.parse-scan). I/O isolation clean — handler imports only core modules. Doc promises cross-checked against implementation — all features described in execution-plan.md are present in code.",
+      "createdAt": "2026-07-03T02:57:25.335Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-008",
+      "_hash": "50fde829b032fe901b8ff0feb71e43fbe0d15e9f90bfab313c3da1ae29828bcc"
     }
   ]
 }
