@@ -62,7 +62,60 @@
       "context": "New logic that diffs the two hosts findings and reports where they diverge (a finding raised by one host and not the other), instead of only a pass/fail union. This is the adversarial-value output. Bind to the same materialHash.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Injected fake Codex seam returns a fail verdict carrying one finding NOT in host-A findings. Assert: result.jointDecision.jointDecision===blocked, result.disagreement.onlyHostB.length===1, result.disagreement.hasDisagreement===true. Proves single-host findings cause fail-closed blocking.",
+            "type": "cli"
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "Agreeing case: both hosts pass with identical findings (or both empty). Assert: jointDecision===pass, hasDisagreement===false, divergentCount===0. Proves the pass-through path works when hosts agree.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Host-A has a finding that host-B does not. Assert: onlyHostA.length>=1, hasDisagreement===true, jointDecision===blocked. Proves disagreement detection is symmetric (not just host-B-only).",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:1",
+            "desc": "One host passes and the other fails (no overlapping findings). Assert: jointDecision===blocked, blockedReason present, both hostADecision and hostBDecision accurately reflect their individual decisions.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:2",
+            "desc": "Finding key normalization: two findings with same file:line but differently-cased titles (e.g. Foo Bar vs foo bar) are treated as the SAME finding (not a disagreement). Assert: they appear in agreed, not onlyHostA/onlyHostB.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:3",
+            "desc": "Both hosts fail with identical findings. Assert: jointDecision===blocked (both non-pass), hasDisagreement===false (no finding-level divergence), agreed array contains the shared findings.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:4",
+            "desc": "Host-B verdict is blocked (e.g. from CHK-001 fail-closed). Assert: jointDecision===blocked, blockedReason indicates host-B was blocked. Proves blocked propagates through the joint decision.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Cross-host materialHash mismatch: host-A and host-B verdicts reference different materialHash values. Assert: jointDecision===blocked. The joint decision must never pass when the two hosts reviewed different code states.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:adversarial:1",
+            "desc": "Duplicate finding injection: host-B returns the same finding twice (duplicate key). Assert: diffFindings deduplicates correctly and does not double-count as multiple disagreements or inflate the agreed set.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
