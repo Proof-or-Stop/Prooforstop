@@ -56,6 +56,18 @@
           "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
           "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
           "timestamp": "2026-07-03T09:33:23.868Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "result": "pass",
+          "note": "Determinism cases PASS: double run into two out dirs byte-identical for live-readout.json + live-readout.md; without --generatedAt payload records generatedAt:null and stays byte-identical across two runs (no wall clock in payload). Missing-artifact cases PASS: score-records.jsonl / n-freeze.json / m7-decision.json each missing -> exit 1 with exactly ONE stderr line prefixed live-readout: naming the artifact and the remediation; truncated score-records.jsonl and missing --effectivenessJson file also one-line actionable; missing flags exit 2 with usage.",
+          "headHash": "c19bdbb066316c669efbb6287614c1b418616035",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:42.767Z"
         }
       ]
     },
