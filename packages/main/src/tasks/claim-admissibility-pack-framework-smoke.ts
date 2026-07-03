@@ -3,7 +3,7 @@
  * @task B-6e41
  * @checklist CHK-004
  * @title Smoke claim-admissibility pack framework registry contract
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   In-memory smoke coverage for the M1 ClaimAdmissibilityPack contract and
