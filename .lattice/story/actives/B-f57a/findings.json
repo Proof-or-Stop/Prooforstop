@@ -247,7 +247,7 @@
       "desc": "F-010 still has a committed-HEAD drift window: cross_host_review computes materialDigest/storyFilesHash/headHash from HEAD at handlers/cross-host-review.ts:536-544, then creates the review snapshot with the moving ref HEAD at :622 and, after Codex returns, only checks git status cleanliness at :639. A concurrent local writer can make a clean commit after the hash capture: if it lands before snapshot creation Codex reviews the new HEAD while the verdict binds the old materialDigest; if it lands after snapshot creation the handler records an old-HEAD verdict while the story worktree current HEAD has moved. In both cases git status is clean, so the post-spawn dirty-worktree check passes. The fix covers uncommitted material drift but not committed HEAD/material drift. Pin the snapshot to the captured headHash and fail closed before submitLocalVerdict unless currentGitHead/currentMaterialHash/currentStoryFilesHash still match the captured values; add smoke coverage for clean committed drift.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T09:54:57.988Z",
@@ -259,7 +259,11 @@
         "packages/main/src/tasks/cross-host-review-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|still-committed-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 0c27d45e6: cross_host_review now captures current HEAD, creates the Codex review snapshot at that exact captured SHA instead of moving HEAD, checks HEAD has not changed before spawn, and re-checks HEAD identity before recording. Smoke CHK-001:adversarial:6 now proves a clean concurrent commit moves HEAD while source is clean, Codex still reviews the captured-HEAD snapshot, and the handler fails closed with cross_host_review_head_drift without recording a verdict. Full lattice validate PASS recorded in 08a1e3178.",
+      "resolvedAt": "2026-07-03T10:04:58.173Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f57a:F-013",
