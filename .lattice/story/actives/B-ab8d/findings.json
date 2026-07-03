@@ -37,6 +37,28 @@
       ],
       "signatureTag": "adversarial|ts|edge-evidence-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ab8d:F-003",
+      "desc": "CHK-001 through CHK-004: all 15 must-priority intent evidence records are marked stale by lattice validate (3/18 covered). materialHash changed after each evidence was recorded as subsequent CHK-002/CHK-003/CHK-004/CHK-005 material code landed (cli-engine.ts, experience-pack-surface.ts, observability-snapshot.ts, lattice-handoff.ts etc.). The underlying smoke tests reproduce green at HEAD but evidence bindings must be refreshed so the gate can accept them. Stale evidence cannot satisfy the coverage gate regardless of whether the code is correct.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T00:10:18.795Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-003",
+      "_hash": "8abfa146c25fc17a0454a1ad024a6f48550b3fd32fe8cb8a41169b2b17661910",
+      "files": [
+        "packages/main/src/tasks/experiment-arm-smoke.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/tests/control-arm-retrieval-gate.test.mjs",
+        "packages/main/tests/observability-snapshot-learning-root.test.mjs",
+        "packages/main/src/handlers/observability-snapshot.ts"
+      ],
+      "signatureTag": "missing|ts|through-priority-intent",
+      "signatureTagSource": "auto"
     }
   ]
 }
