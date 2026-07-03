@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ab8d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement with residue. The PR replaces old direct pack render pattern (buildMemoryFreshnessPack + renderMemoryFreshnessPack at seven handler sites) with the surfaceRuntimeMemoryPack wrapper. All seven handler wirings confirmed updated: story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory. core/lattice-handoff.ts host_dispatch projection gated via shouldRenderRuntimeMemoryPack(). No handler renders the pack directly without the shared leaf outside the diagnostic final_response_check (intentionally out of scope). memoryRetrieval marker added to COMMAND_POLICIES for all memory-family commands (confirmed 28 commands). experiment-arm module only imported by cli-engine.ts, experience-pack-surface.ts, and smoke tests — not by gate or hash modules. No stale docs or comments describing old direct render paths as current behavior. Doc promises (plan.md CHK-001 through CHK-005) all delivered: resolveExperimentArm exported and pure; surfaceRuntimeMemoryPack shared leaf used at all seven sites; retrieval_violation appended before throw; resolvedLearningRoot exposed in observability_snapshot; experience-pack-arm-switch-smoke registered in lattice.config.json. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T00:07:18.866Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-001",
+      "_hash": "9ab01a5ada2885a897e8aa4f8c2e25b4d788059daa398c83559bd4e04d4f8c36"
+    }
+  ]
+}
