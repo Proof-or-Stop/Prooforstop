@@ -139,7 +139,35 @@
       "userSees": "The freeze output prints: control fault runs N, defects K, baseline p, Wilson CI [lo, hi], CI width (<= 0.30), N-maximizing baseline p*, frozen powered N per arm, and writes n-freeze.json",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Freeze transcript prints control fault runs N, defects K, baseline p, Wilson CI [lo,hi], width <= 0.30, p*, frozen powered N per arm; n-freeze.json written under the experiment evidence root",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CI width > 0.30 at intermediate count -> freeze refused and pilot extended (transcript shows the refusal then the post-extension freeze)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Frozen N equals sample-size.mjs pilotFreezeCheck output exactly (independent recomputation cross-check), not a hand-derived value",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
