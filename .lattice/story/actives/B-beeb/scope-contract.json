@@ -1,0 +1,31 @@
+{
+  "storyId": "B-beeb",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedCreate": [
+    "experiments/experience-ablation/run-pilot.mjs",
+    "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+    "experiments/experience-ablation/leakage-audit.mjs",
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+    "experiments/experience-ablation/leakage-audit.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/experience-ablation/fixture-generator.mjs",
+    "experiments/experience-ablation/trap-templates.mjs",
+    "experiments/experience-ablation/score.mjs",
+    "experiments/experience-ablation/sample-size.mjs",
+    "experiments/experience-ablation/protocol.mjs",
+    "experiments/experience-ablation/pair-ledger.mjs",
+    "experiments/recovery-runner/**",
+    "packages/**"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T01:38:47.883Z",
+  "updatedAt": "2026-07-03T01:38:47.883Z"
+}
