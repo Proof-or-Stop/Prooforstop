@@ -336,13 +336,13 @@
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
-          "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|productionDone=false|authorityDone=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
           "result": "pass",
           "note": "Docs distinguish Quantum-specific local read-only M3 gate-policy diagnostics from generic framework M4 gate-policy adapter completion and global Story machine mutation.",
-          "headHash": "3bc2a2fba64806be86715fa146a489bdabb8473c",
-          "materialHash": "c0c434b5583ddf5eb21bd42e4668fd20fdc03230e8ece29f91eccb5102dd2426",
-          "storyFilesHash": "a9511e2e0357559a70a554f0851e1662e744f3d782ddc96445ed5ee506e2b0a1",
-          "timestamp": "2026-07-03T01:03:26.433Z"
+          "headHash": "188b635190dbe95dadd9115c76babb50e066ffb8",
+          "materialHash": "c09566ece777a1a39dfd2238238bc6c73bfa98d770e6c422bb797b59d20d4e78",
+          "storyFilesHash": "b79c847dfbae45f626f09ed17732f250dea27f7e94715adec1ff9945b7fc9cd6",
+          "timestamp": "2026-07-03T01:23:24.578Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
