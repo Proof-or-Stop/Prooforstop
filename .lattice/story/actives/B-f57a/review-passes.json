@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-03T02:38:16.913Z",
       "reviewRunId": "B-f57a:RR-004",
       "_hash": "e396cd5c61d57b7498af49ee829e1a1680c7c0c96d96e7abfbd2a0f1e2ca4450"
+    },
+    {
+      "id": "B-f57a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-consistency re-review. Scope: Round-2 fix commit ecbce6853 only (F-006/F-007/F-008). (1) F-006: dead reviewOnlyCodex variable correctly removed from checkDispatchPolicy; remaining usage at dispatch-policy.ts:280/283 is in validatePolicyArgs where allowRealHostSubprocess is an input (not always-true), so it is live and correct — not residue. (2) F-007: UNSAFE_ENV_PATTERN broadened to cover DATABASE/DSN/CONNECTION/AUTH/SESSION/COOKIE/PRIVATE/ACCESS/*_URL/*_URI; old narrower pattern gone; documented empty-allowlist semantics correct. (3) F-008: four new adversarial verificationIntents CHK-001:adversarial:2-5 confirmed present and implemented in cross-host-review-smoke.ts. (4) Crypto-deferred framing: unchanged — execution-plan M1 heading stays \"crypto-deferred cross-host review\"; threat-model references M-crypto not M1 for pinned-key enforcement; codex-review-leaf.ts and cross-host-review.ts file headers consistent. (5) Independence ceiling: intact at cross-host-review.ts:12-13 \"cross-vendor (Claude host A / Codex host B), same-operator orchestrated — the honest ceiling stated in the threat model\"; no Byzantine/mutually-distrusting language anywhere. (6) No new concept deletion/replacement introduced by Round-2 fixes. No concept residue found. Zero findings.",
+      "createdAt": "2026-07-03T02:55:39.091Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-007",
+      "_hash": "372de1c8a401e41def153f0321d44835ab6a2dd7a41a0d9d9255fb3d4ef6dccf"
     }
   ]
 }
