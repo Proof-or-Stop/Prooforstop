@@ -55,6 +55,24 @@
       ],
       "signatureTag": "missing|mjs|happy-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-beeb:F-004",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0 — all three must-priority intents are stale: verificationEvidence was recorded at materialHash 9363f8... (before CHK-001 added run-pilot.mjs/run-pilot-selfcheck.mjs) but current materialHash is 5a9d21.... leakage-audit.mjs itself was NOT modified (git log confirms single commit aed48ef), so this is story-owned materialHash drift from new files added in CHK-001/005 rather than modification of the covered file. Behavior is substantively sound (I ran leakage-audit.mjs --selftest live: clean+poison phases both PASS, exit 0 and exit 1 as expected). Evidence must be refreshed to bind the current materialHash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:39:44.789Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-003",
+      "_hash": "19dd51e8ddb7c0840e7dfdbe2ee4c2a3aaf797e103d210d0c8bf778140fd15e5",
+      "files": [
+        "experiments/experience-ablation/leakage-audit.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
