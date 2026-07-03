@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6703",
+  "changes": "Implemented evidence-based advisory activation for candidate playbooks. playbook_auto_promotion_apply --apply now writes deterministic digest-bound recommend_activate evidence for otherwise eligible candidates, activates only candidates with explicit non-DONE-settlement helped exposure outcomes, verifies activation audit/runtime consumption, and serializes promotion-decision ledger writes with shared idempotency.",
+  "usage": "Use lattice playbook_seed_observe / playbook_seed_propose_batch --apply / playbook_candidate_batch_approve --apply to create a candidate, record structured candidate exposure with lattice playbook_outcome_record, then run lattice playbook_auto_promotion_apply --apply --json and lattice playbook_runtime_consumption_verify --json.",
+  "expectedOutcome": "A candidate with explicit candidate-inspection helped outcomes becomes an active advisory playbook and is runtime-consumed; candidates without explicit exposure, DONE-settlement-only rows, harmful/wrong-claim rows, stale digests, or duplicate lineage remain blocked.",
+  "actualTranscript": "Real-machine evidence: lattice validate --story=B-6703 --json passed 32/32 configured commands; done_required_validate passed build and root npm test; playbook-seed-promotion-loop smoke passed 16/16; quorum_submit produced 3 valid local rounds over claude-cli and codex-cli.",
+  "outcomeDiff": "No difference: expected evidence activation behavior matched the actual machine transcript.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No historical backfill, timer/daemon promotion, trial serving, blocking policy, or gate evidence is included. Activation remains advisory and non-authoritative, and still requires explicit candidate exposure plus structured outcome evidence.",
+  "pitfalls": "Review found F-001: promotion sweep and auto apply initially wrote the same promotion-decision ledger through different locks. Fixed with a shared learning-store lock and append-level applied idempotency. done_prepare merged main and changed materialHash, so final local quorum had to be resubmitted over the post-merge material.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 240595
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13536
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 392209
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1394245
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 676553
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 517259
+    }
+  },
+  "totalDurationMs": 3234741,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T03:42:52.204Z",
+  "updatedAt": "2026-07-03T03:42:52.204Z"
+}
