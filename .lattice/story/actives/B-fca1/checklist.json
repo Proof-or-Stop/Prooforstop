@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Committed evidence-map generator with hermetic selfcheck",
+      "context": "Create experiments/experience-ablation/evidence-map.mjs: CLI (node evidence-map.mjs --root=<repoRoot> --experimentId=<id> [--out=<dir>] [--generatedAt=<iso>]) that reads the experiment evidence root and emits evidence-map.json + evidence-map.md containing: (1) the claim-to-artifact table covering every plan-section-18 row, each row carrying the artifact path, an existence check, and a sha256 digest (or the recorded hash where the artifact self-declares one, cross-checked); (2) the no-overclaim summary with the circularity disclosure (in-store traps authored from the same lesson store the treatment surfaces) and the four disallowed claims from plan section 15; (3) the final study summary: causal verdict INCONCLUSIVE with the invalidated-assumption basis and the skip_powered_study decision reference; (4) the plan-section-16 paper table filled from score-records.jsonl (control/treatment defect rates per trap group, paired risk difference marked unpowered/exploratory, time/cost deltas where computable) with an explicit unpowered label on every inferential-looking figure. Deterministic (generatedAt input-only, stable ordering). Create evidence-map-selfcheck.mjs (hermetic, mkdtemp stubs): table covers all section-18 rows, every cited artifact existence+digest-checked (a missing artifact fails with one actionable line), circularity disclosure + disallowed claims present, verdict line present, unpowered labels on all paper-table figures, deterministic double-run byte-identity.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/evidence-map-selfcheck.mjs prints per-case PASS lines ending evidence-map-selfcheck: all cases passed with exit 0",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Generate and persist the final M9 evidence map for expabl-m6-pilot-v1",
+      "context": "Run the committed tool against the real evidence root: node experiments/experience-ablation/evidence-map.mjs --root=<mainRepo> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot>. Verify evidence-map.md: the claim-to-artifact table lists every section-18 row with existing digest-checked artifacts (protocol.json hash 22705b73, snapshot hash f5c7d4be, sealed run order, 45-fixture leakage audit, 90 score records with replay digest 8cea1902, n-freeze refusal, m7-decision, live-readout), the no-overclaim + circularity text is present, the final verdict reads INCONCLUSIVE with the basis, and the paper table carries unpowered labels. Persist both files under the evidence root.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "ls .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ shows evidence-map.json and evidence-map.md; head of evidence-map.md shows the claim-to-artifact table and the final verdict line Causal impact: INCONCLUSIVE",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
