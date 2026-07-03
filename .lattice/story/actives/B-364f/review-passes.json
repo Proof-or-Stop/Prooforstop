@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-364f:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of main...HEAD found only two @changes comment metadata additions in the B-5f5b smoke task headers; no behavior, store, handler, validator, or script changes and annotation extraction/validation plus TypeScript noEmit passed.",
+      "createdAt": "2026-07-03T18:21:00.108Z",
+      "reviewRound": "2026-07-03T17:56:55.252Z",
+      "reviewRunId": "B-364f:RR-001",
+      "_hash": "b6170884577514099b7a631a4034070b6aab7fa1313c16ad7bfa2422d0cec055"
+    },
+    {
+      "id": "B-364f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001: checked implementation against story background, plan, annotation docs, playbook lineage scope, scoped source diff, and live annotation/convergence checks; found no concept blocker.",
+      "createdAt": "2026-07-03T20:26:03.289Z",
+      "reviewRound": "2026-07-03T17:56:55.252Z",
+      "reviewRunId": "B-364f:RR-002",
+      "_hash": "5dd88d3077a5df573a3066a9248fe82542bbe794232801b818017326a66cc626"
+    },
+    {
+      "id": "B-364f:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: direct annotation validator passes with 83 compliant annotations and zero errors; convergence_check reports Code annotations compliant PASS; scoped package diff is limited to @changes metadata in the two B-5f5b smoke annotations with no validator or runtime behavior changes.",
+      "createdAt": "2026-07-03T20:57:35.743Z",
+      "reviewRound": "2026-07-03T17:56:55.252Z",
+      "reviewRunId": "B-364f:RR-003",
+      "_hash": "36fcf4afc2af506a31870cbaa8653924a8983d0f60e0ee9f725d3c68eaa9362e"
+    },
+    {
+      "id": "B-364f:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: scoped change only adds required @changes metadata to the two B-5f5b smoke task annotations; validator/convergence annotation row passes and no playbook runtime behavior changed.",
+      "createdAt": "2026-07-03T21:00:08.901Z",
+      "reviewRound": "2026-07-03T17:56:55.252Z",
+      "reviewRunId": "B-364f:RR-004",
+      "_hash": "022d5cfa87191dcd666b4a8a29ac53f8a9079387fc7a90b7b911ca1c645f5986"
+    },
+    {
+      "id": "B-364f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: product diff only adds two @changes metadata entries mapped to CHK-001 and CHK-002; direct annotation validator reports 0 errors and 0 warnings; convergence_check reports Code annotations compliant passed.",
+      "createdAt": "2026-07-03T21:00:29.214Z",
+      "reviewRound": "2026-07-03T17:56:55.252Z",
+      "reviewRunId": "B-364f:RR-005",
+      "_hash": "600f6f0f805cdad86f01be327a6fee6c3b36efe01413ab36d04ff0ef3f49ad9f"
+    }
+  ]
+}

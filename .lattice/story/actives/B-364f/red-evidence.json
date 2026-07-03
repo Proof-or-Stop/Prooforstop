@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-364f",
+  "records": [
+    {
+      "id": "RED-20260703175412",
+      "trigger": "convergence_check reports two annotation errors after B-5f5b smoke files landed without @changes metadata",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "4bf04ae41c1ed219c3b59a8b494173979af7154d",
+      "baselineMaterialHash": "375f2e76511bb9f4c6f60b00b09ae1cdf8d6ca14d3cf68646490128fd7172603",
+      "observedFailure": "Before the fix, lattice convergence_check reports Code annotations compliant=false with detail \"2 annotation errors\" for the two B-5f5b smoke files.",
+      "failingCommand": "lattice convergence_check --json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d);process.stdin.on(\"end\",()=>{const j=JSON.parse(s); const check=j.checks.find(c=>c.name===\"Code annotations compliant\"); console.log(JSON.stringify(check)); process.exit(check && check.passed===false && /2 annotation errors/.test(check.detail) ? 1 : 2);})'",
+      "expectedGreenCommand": "lattice convergence_check --json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d);process.stdin.on(\"end\",()=>{const j=JSON.parse(s); const check=j.checks.find(c=>c.name===\"Code annotations compliant\"); console.log(JSON.stringify(check)); process.exit(check && check.passed===true ? 0 : 1);})'",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "lattice convergence_check --json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d);process.stdin.on(\"end\",()=>{const j=JSON.parse(s); const check=j.checks.find(c=>c.name===\"Code annotations compliant\"); console.log(JSON.stringify(check)); process.exit(check && check.passed===true ? 0 : 1);})'"
+      },
+      "note": "Red state is metadata compliance only; playbook stores and runtime behavior are out of scope.",
+      "createdAt": "2026-07-03T17:54:12.417Z"
+    }
+  ],
+  "createdAt": "2026-07-03T17:54:12.417Z",
+  "updatedAt": "2026-07-03T17:54:12.417Z"
+}

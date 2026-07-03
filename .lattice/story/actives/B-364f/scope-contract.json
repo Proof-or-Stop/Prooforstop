@@ -1,0 +1,55 @@
+{
+  "storyId": "B-364f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "protectedFiles": [
+    ".lattice/learning/playbooks.json",
+    ".lattice/learning/playbook-outcomes.jsonl",
+    ".lattice/learning/playbook-trial-controls.jsonl"
+  ],
+  "explicitExcludes": [
+    ".lattice/learning/**",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "scopeChangeReason": "B-364f is limited to two smoke annotation @changes metadata fields.",
+  "acknowledgements": [
+    {
+      "actor": "codex-cli",
+      "reason": "ProofStory DEV enforcement required these four story-scoped gate artifacts before code changes could enter DEV; they document intent, collision resolution, acceptance binding, and red evidence for the same metadata-only fix.",
+      "timestamp": "2026-07-03T17:56:54.188Z",
+      "paths": [
+        ".lattice/story/actives/B-364f/intent-collision.json",
+        ".lattice/story/actives/B-364f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-364f/proofstory.json",
+        ".lattice/story/actives/B-364f/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-364f/intent-collision.json",
+        ".lattice/story/actives/B-364f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-364f/proofstory.json",
+        ".lattice/story/actives/B-364f/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "1ce925d15c1c345351880fdf4f39d069122b8eba",
+      "materialHash": "d74a3881349af4523985f522a76ed0b82ae578c900ac05ae1c84fdcf16365fbf",
+      "anchors": [
+        "proofstory_dev_gate",
+        "chk001",
+        "metadata_annotation_compliance"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-03T17:55:50.547Z",
+  "updatedAt": "2026-07-03T17:56:54.188Z"
+}

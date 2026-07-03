@@ -1,0 +1,22 @@
+{
+  "task": "Fix two B-5f5b smoke annotation metadata errors by adding the required @changes field.",
+  "outcome": "After this story, the user can run lattice convergence_check and see Code annotations compliant pass instead of the previous 2 annotation errors, while the playbook backfill/trial data remains unchanged.",
+  "facts": [
+    "convergence_check reports exactly two annotation errors after B-5f5b DONE.",
+    "The bottom validator reports missing required field @changes in packages/main/src/tasks/playbook-seed-backfill-smoke.ts and packages/main/src/tasks/playbook-trial-automation-smoke.ts.",
+    "The validator policy requires @task blocks to include task, checklist, title, type, priority, description, and changes."
+  ],
+  "constraints": [
+    "Do not change playbook behavior or stores.",
+    "Do not change validator semantics.",
+    "Do not activate playbooks or rerun historical backfill.",
+    "Only edit the two scoped smoke files if code changes are needed."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "timestamp": "2026-07-03T17:50:35.622Z"
+}

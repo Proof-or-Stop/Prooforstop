@@ -1,0 +1,56 @@
+{
+  "storyId": "B-364f",
+  "changes": "Added the required @changes metadata to the two B-5f5b smoke task annotations so the structured annotation validator can treat the completed backfill/trial smoke files as compliant.",
+  "usage": "Run lattice convergence_check to verify Code annotations compliant reports PASS, or run the direct validate.js annotation validator against packages/main/src.",
+  "expectedOutcome": "The user sees Code annotations compliant PASS instead of the previous 2 annotation errors, with no playbook store or runtime behavior changes.",
+  "actualTranscript": "Direct annotation validation reports {errors: [], tasksFound: 83, passed: true}; convergence_check reports Code annotations compliant PASS with detail All 83 annotations compliant; lattice validate for B-364f passed all 32 configured commands.",
+  "outcomeDiff": "No functional difference from expected: only annotation metadata changed, and playbook stores remained untouched.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No behavior change was intended; this story only fixes annotation compliance left by B-5f5b. Overall convergence remains blocked until this correction story itself reaches DONE.",
+  "pitfalls": "ProofStory DEV enforcement required original intent, intent collision, contract, and red evidence even for this tiny metadata fix; TEST validate took about four minutes per run. Two initial reviewer agents stalled and were restarted.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 144061
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11150
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 293355
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 121625
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 11286956
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 301912
+    }
+  },
+  "totalDurationMs": 12159692,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T21:10:04.121Z",
+  "updatedAt": "2026-07-03T21:10:04.121Z"
+}

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Only fix real correctness/compliance issues.",
+    "Keep the change metadata-only and scoped.",
+    "Preserve B-5f5b playbook data and behavior.",
+    "Use existing annotation policy instead of weakening gates."
+  ],
+  "drivers": [
+    "convergence_check is red solely because two required @changes fields are missing.",
+    "The user needs a reliable final status for the completed backfill/trial work.",
+    "The story must not mutate .lattice/learning playbook stores."
+  ],
+  "options": [
+    {
+      "name": "Add missing @changes metadata",
+      "pros": [
+        "Directly satisfies the existing annotation policy",
+        "Minimal two-file change",
+        "No behavior or data mutation"
+      ],
+      "cons": [
+        "Requires a small follow-up story after B-5f5b DONE"
+      ]
+    },
+    {
+      "name": "Relax validator required fields",
+      "pros": [
+        "Would make convergence pass without touching smoke files"
+      ],
+      "cons": [
+        "Weakens the annotation system",
+        "Hides the real metadata omission",
+        "Wider blast radius"
+      ]
+    },
+    {
+      "name": "Ignore convergence annotation errors",
+      "pros": [
+        "No code change"
+      ],
+      "cons": [
+        "Leaves project convergence false",
+        "Confuses the status of the completed playbook work"
+      ]
+    }
+  ],
+  "chosen": "Add missing @changes metadata",
+  "rationale": "The missing @changes fields are the real compliance defect, so the narrow metadata patch fixes convergence without weakening gates or touching playbook behavior.",
+  "preMortem": [
+    {
+      "scenario": "Patch accidentally changes smoke behavior",
+      "trigger": "Editing beyond the header annotations",
+      "consequence": "B-5f5b behavior evidence becomes harder to trust",
+      "mitigation": "Limit diff to @changes lines and verify git diff before validation"
+    },
+    {
+      "scenario": "Validator still reports errors",
+      "trigger": "@changes format does not parse as expected",
+      "consequence": "convergence_check remains red",
+      "mitigation": "Run the bottom validate() import directly before convergence_check"
+    },
+    {
+      "scenario": "Playbook data changes during this correction",
+      "trigger": "Accidentally running backfill/trial apply commands",
+      "consequence": "Final data counts become ambiguous",
+      "mitigation": "Execution boundary excludes playbook apply/activation commands; run only annotation/convergence checks"
+    }
+  ],
+  "timestamp": "2026-07-03T17:50:46.262Z"
+}
