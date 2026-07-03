@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-03T00:34:07.393Z",
       "reviewRunId": "B-ab8d:RR-005",
       "_hash": "5f444ea55575f29fbfcfe9566827d16ca83cf28b9ed9a579973b2edef7b199f4"
+    },
+    {
+      "id": "B-ab8d:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. Verified: (1) F-002 resolution confirmed — retired-authority-vocabulary-guard-smoke PASS, arm-switch smoke no longer uses retired vocab token. (2) F-003 resolution confirmed — all 18/18 verificationEvidence records refreshed to headHash 055fc5678 (F-001 fix commit); storyFilesHash f7482ba stable across all evidence; headHash-only drift from evidence to current HEAD (9bd9b54) is metadata-only (review_pass_set, finding_resolve commits, no source changes). (3) CHK-005:edge:0 re-recorded with integration_test kind covering lattice validate exit 0. (4) New case j (handoff_resume control suppresses memory advisory) verified via arm-switch smoke case j PASS. (5) lattice validate --story=B-ab8d exit 0, allPass:true, verificationCoverage 18/18 covered 0 missing, 32/32 commands ok. All 5 checklist items have 3/3 intent columns with must-priority evidence: no must-gaps found. No new findings required.",
+      "createdAt": "2026-07-03T00:39:42.255Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-007",
+      "_hash": "d0625e83d57210580460292654fca723a2347cb7ce90e87d53e1033a69d7fa70"
     }
   ]
 }
