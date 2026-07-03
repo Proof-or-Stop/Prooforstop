@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-03T00:34:07.393Z",
       "reviewRunId": "B-ab8d:RR-006",
       "_hash": "5e2a895cb3fa59428aed0748fe7dcc9ed40cf5d7f13c56006e449671b21db922"
+    },
+    {
+      "id": "B-ab8d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. Two files changed since prior pass (lattice-handoff.ts, experience-pack-arm-switch-smoke.ts). No en-masse concept deletion or replacement found. (1) productionDone removed from arm-switch smoke fixture (one instance, new file; retired-vocabulary token per guard smoke). The productionDone field still legitimately exists in pre-existing source files not touched by this story; no cross-repo mass deletion occurred. (2) enrichedWithoutPack local variable replaced with enrichedWithoutAdvisory in lattice-handoff.ts; it was never a cross-repo concept. All render call sites (renderHandoffMemoryText, renderHandoffResumeText) are properly gated via shouldRenderRuntimeMemoryPack(). No ungated direct-render patterns remain. No residue requiring a finding.",
+      "createdAt": "2026-07-03T00:37:25.285Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-005",
+      "_hash": "5f444ea55575f29fbfcfe9566827d16ca83cf28b9ed9a579973b2edef7b199f4"
     }
   ]
 }
