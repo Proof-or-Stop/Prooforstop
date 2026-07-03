@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6b68",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "scripts/validate-tasks.js"
+  ],
+  "excluded": [
+    "docs/requirements/decisions/** runtime contract rewrites",
+    "packages/main/src/core/claim-admissibility/**",
+    "packages/main/src/handlers/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User authorized continuing to complete the remaining work; convergence_check produced a single annotation compliance blocker to fix.",
+  "createdAt": "2026-07-03T11:39:51.750Z",
+  "updatedAt": "2026-07-03T11:39:51.750Z",
+  "_hash": "3675597eff0973ad18883c6758276c4a5c3e5ff34be735f7ea4b7d4adf4b1432"
+}
