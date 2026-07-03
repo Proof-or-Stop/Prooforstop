@@ -42,7 +42,21 @@
         "test": [
           "experiments/experience-ablation/score-selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node experiments/experience-ablation/score.mjs --fixture=corpus/fx-bd7417c9-0 --run=run-a (x2) + diff",
+          "result": "pass",
+          "note": "Generated corpus (seed chk001-verify), synthesized control-arm run dir (stale-doc reference-bad payload, 2 retrieval_violation + 1 experience_pack_surfaced events). Output: one JSON record, schemaVersion proofbound.experience-ablation-score.v1, all section-10 fields in SCORE_KEY_ORDER (experimentId..evidenceRefs); diff of two invocations empty (byte-identical); oracleMismatch=true, defectPresent=true, retrievalViolationCount=2, memoryPackShown=false, surfacedMemoryIds=[mem-001,mem-002], timeToDoneMs=270000 from startedAt/endedAt inputs.",
+          "headHash": "8525d21a683d40f6bdc883f6d6677b2c22399f63",
+          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
+          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
+          "timestamp": "2026-07-03T00:41:08.785Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
