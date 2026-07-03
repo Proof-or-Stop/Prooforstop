@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Committed live-readout report tool with hermetic selfcheck",
+      "context": "Create experiments/experience-ablation/live-readout.mjs: CLI (node live-readout.mjs --root=<repoRoot> --experimentId=<id> [--out=<dir>]) that (1) spawns the existing read-only lattice learning_effectiveness (prefer a --json mode if the command supports it, else parse the stable text output defensively) for the live exploratory side; (2) reads score-records.jsonl, n-freeze.json, m7-decision.json from the experiment evidence root for the controlled side; (3) emits live-readout.json (machine) + live-readout.md (human) with two STRICTLY separated top-level sections — Controlled causal (pilot; includes the freeze refusal and the inconclusive verdict context) and Live exploratory (non-inferential; every figure labeled exploratory-only per plan sections 5.2/15) — plus the no-overclaim block. Deterministic given fixed inputs (no wall-clock in the payload; generatedAt accepted as input). Create live-readout-selfcheck.mjs (hermetic, temp roots, stub inputs): section separation asserted, exploratory labels present on every live figure, no-overclaim text present, deterministic double-run byte-identity, defensive failure on missing pilot artifacts with one-line actionable errors.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/live-readout-selfcheck.mjs prints per-case PASS lines ending live-readout-selfcheck: all cases passed with exit 0",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Generate and persist the M8 report for expabl-m6-pilot-v1",
+      "context": "Run the committed tool against the real evidence root: node experiments/experience-ablation/live-readout.mjs --root=<mainRepo> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot>. Verify the emitted live-readout.md opens with the controlled-vs-exploratory separation, the live section carries the exploratory-only labels and the real learning_effectiveness figures, the controlled section carries the pilot summary (90 records, 0 voided, baseline 0.0333, freeze refused) and the m7-decision context, and live-readout.json parses with the same content. Persist both under the experiment evidence root (gitignored runtime evidence per plan section 12).",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "ls .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ shows live-readout.json and live-readout.md, and head of live-readout.md shows the two separated sections with the exploratory-only labeling",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
