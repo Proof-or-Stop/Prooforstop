@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-beeb",
+  "allowedCommands": [
+    "claude *",
+    "codex *",
+    "diff *",
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "lattice *",
+    "mktemp *",
+    "node -e *",
+    "node experiments/experience-ablation/*",
+    "rg *",
+    "shasum *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/experiments/experience-ablation",
+    "experiments/experience-ablation/leakage-audit.mjs",
+    "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+    "experiments/experience-ablation/run-pilot.mjs"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M6 pilot story: two new committed tools + experiment evidence artifacts under .lattice/experiments/. Real host runs (claude/codex CLIs) execute in isolated mkdtemp roots; no production learning-store writes; recovery-runner scratch read-only.",
+  "createdAt": "2026-07-03T01:36:47.732Z",
+  "updatedAt": "2026-07-03T01:36:47.732Z",
+  "_hash": "0696bf9b65482056941063697af9adeed8513d17bc7d1b725fbc5bfa69c01b59"
+}
