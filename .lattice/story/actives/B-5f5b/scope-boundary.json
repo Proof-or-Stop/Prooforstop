@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5f5b",
+  "mode": "feature",
+  "allowed": [
+    "bounded timer automation entrypoint",
+    "candidate trial exposure/matched-control audit rows",
+    "historical seed backfill command for inert candidates",
+    "smoke tests and command catalog registration"
+  ],
+  "excluded": [
+    "activating candidates from historical backfill alone",
+    "making playbooks authoritative gate evidence",
+    "remote publish",
+    "unbounded background daemon"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly requested historical 1400+ seeds backfill and trial/matched-control/timer automatic experiments now.",
+  "createdAt": "2026-07-03T15:11:40.248Z",
+  "updatedAt": "2026-07-03T15:11:40.248Z",
+  "_hash": "4d17bdc8b2541b852de9a98cb1a3912ce2aa61ab52cd9f988c94aa27a7c46330"
+}
