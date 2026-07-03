@@ -106,6 +106,24 @@
         }
       ],
       "_hash": "96279efd032c3f8545462a9e15dc26558d954d00d76440a2e5c1e01dabfaf995"
+    },
+    {
+      "timestamp": "2026-07-03T00:19:20.520Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Make DONE settlement default-on with explicit opt-out + Surface settlement posture in status and docs are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5e28 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "c569265369397376baba6c489c265b5764e095721ff5b721a26821944fd7f4cb"
     }
   ]
 }
