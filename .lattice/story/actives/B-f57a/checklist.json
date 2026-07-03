@@ -52,6 +52,30 @@
             "id": "CHK-001:adversarial:1",
             "desc": "Dispatch-policy bypass: attempt to run a codex implementation subprocess (not review-only) through the new allowReviewOnlyRealHostSubprocess flag. Assert: checkDispatchPolicy still refuses non-review codex/gemini/antigravity implementation calls even when the review-only flag is set.",
             "type": "logic"
+          },
+          {
+            "id": "CHK-001:adversarial:2",
+            "desc": "Mutually-exclusive dispatch flags: a dispatch policy carrying BOTH allowReviewOnlyRealHostSubprocess=true AND allowRealHostSubprocess=true with allowedHosts=['codex'] is REFUSED by checkDispatchPolicy (the two flags are mutually exclusive for codex, so it can never reach the implementation dispatch path); a PURE review-only codex policy is still permitted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:3",
+            "desc": "Missing policy fails closed: calling cross_host_review with NO policy fails closed — authorizeReviewPolicy throws, the codex seam is never invoked, and zero verdicts are recorded.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:4",
+            "desc": "Unauthorized policy fails closed: a policy that does not grant a read-only codex reviewer (unauthorized) fails closed the same way (throw, seam never invoked).",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:5",
+            "desc": "Policy constraints threaded to runner: the authorized policy's env denylist + secret-pattern strip + max-runtime timeout ceiling are actually threaded to the codex spawn (asserted via a capturing seam that records the RunCodexReviewLeafOptions: timeoutMs === policy ceiling, denied/secret env names absent).",
+            "type": "cli",
+            "priority": "must"
           }
         ]
       },
