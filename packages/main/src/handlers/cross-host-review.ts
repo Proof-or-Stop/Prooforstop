@@ -113,31 +113,15 @@ function assertMaterialCleanForReview(gitCwd: string): void {
 }
 
 /**
- * Env-var names that must NEVER be forwarded to the review subprocess. Kept
- * deliberately broad (F-007): beyond the obvious secret words it also catches
- * credential-bearing connection strings (DATABASE/DSN/CONNECTION), auth/session
- * material (AUTH/SESSION/COOKIE/PRIVATE/ACCESS), and any *_URL/_URI (which routinely
- * embed inline credentials, e.g. DATABASE_URL). A read-only code reviewer never
- * needs these, so stripping them by default is safe.
- *
- * ROLE (post allowlist-by-default): this is now a SECONDARY belt-and-suspenders
- * filter applied even to names an operator explicitly allowlisted — so an operator
- * cannot accidentally allowlist a secret. The PRIMARY defense against unknown
- * credential env vars is the minimal safe base set below: an unknown credential
- * (POSTGRES_URL_NON_POOLING, GITHUB_PAT, CI_JOB_JWT, HTTPS_PROXY, …) is dropped
- * because it is NOT in the base set, not because it matched a pattern. That closes
- * the entire env-leak class a denylist could never fully enumerate.
- */
-const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|(^|_)KEY|AUTH|SESSION|COOKIE|PRIVATE|ACCESS|DATABASE|(^|_)DSN|CONNECTION|URL|URI/i;
-
-/**
  * The MINIMAL SAFE BASE set a CLI subprocess needs to run correctly (locale,
- * paths, tty geometry, temp dirs, identity). This is an ALLOWLIST-BY-DEFAULT: only
- * these names (plus the LC_* locale prefix, plus the policy's explicit
- * `envAllowlist`) are ever forwarded. Everything else — including any unknown
- * credential-bearing env var — is dropped BY DEFAULT because it is not in this set,
- * closing the env-leak class at the root (no denylist to keep chasing). None of
- * these carry secrets; PWD/TMPDIR/etc. are paths, not credentials.
+ * paths, tty geometry, temp dirs, identity). This is a CLOSED ALLOWLIST: ONLY these
+ * names (plus the LC_* locale prefix) are ever forwarded to the review subprocess.
+ * Everything else — including any unknown credential-bearing env var (GITHUB_PAT,
+ * CI_JOB_JWT, HTTP(S)_PROXY, ALL_PROXY, DATABASE_URL, …) — is dropped BY DEFAULT
+ * because it is not in this set, closing the env-leak class at the root by
+ * construction (no denylist to keep chasing, and the policy's `envAllowlist` cannot
+ * inject any additional var into the review spawn). None of these carry secrets;
+ * PWD/TMPDIR/etc. are paths, not credentials.
  */
 const SAFE_BASE_ENV_NAMES = new Set<string>([
   'PATH',
@@ -168,45 +152,44 @@ function isSafeBaseEnvName(name: string): boolean {
 }
 
 /**
- * F-004/F-007: build the redacted env the review-only codex subprocess is allowed
- * to see, from the base process env and the authorized policy. ALLOWLIST-BY-DEFAULT
- * (root fix — replaces the earlier denylist-only F-007 semantics):
- *   1. A name is forwardable ONLY if it is in the UNION of (a) the hardcoded minimal
- *      SAFE_BASE_ENV set a CLI needs (PATH/HOME/locale/tmp/tty/identity, plus LC_*)
- *      and (b) the policy's explicit `envAllowlist`. Every other name is DROPPED by
- *      default — an unknown credential env var never leaks, because it is not on the
- *      allowlist (not because a denylist happened to name it).
- *   2. The policy `envDenylist` still removes any listed name (an operator can prune
- *      a base var they do not want forwarded).
- *   3. The broad UNSAFE_ENV_PATTERN is applied as a SECONDARY belt-and-suspenders
- *      filter EVEN to allowlisted names — so an operator cannot accidentally
- *      allowlist a secret (checkDispatchPolicy also forbids secret names in
- *      envAllowlist; this is defense in depth).
+ * F-004: build the redacted env the review-only codex subprocess is allowed to see,
+ * from the base process env and the authorized policy. CLOSED-ALLOWLIST BY
+ * CONSTRUCTION (root fix — closes the credential-leak class the earlier
+ * denylist/allowlist-injection semantics kept re-opening):
+ *   1. A name is forwarded ONLY if `isSafeBaseEnvName(name)` is true — i.e. it is in
+ *      the hardcoded minimal SAFE_BASE_ENV set a CLI needs (PATH/HOME/locale/tmp/tty/
+ *      identity, plus the LC_* prefix). Every other name is DROPPED. An unknown
+ *      credential env var (GITHUB_PAT / CI_JOB_JWT / HTTP(S)_PROXY / ALL_PROXY /
+ *      DATABASE_URL / …) never leaks — not because a denylist happened to name it,
+ *      but because it is not a base var and nothing else is ever forwarded.
+ *   2. The policy `envDenylist` can then further RESTRICT the base set — an operator
+ *      may DROP a base var they do not want forwarded (e.g. deny PATH). It can only
+ *      remove, never add.
  *
- * NOTE ON EMPTY POLICY ALLOWLIST: an empty `envAllowlist` (the default) now means
- * "minimal safe base set only" — NOT "forward everything minus a denylist". A policy
- * that needs an extra var (e.g. a proxy or a build cache dir) MUST list it in
- * envAllowlist; it will still be dropped if it hits the secret pattern.
+ * The policy's `envAllowlist` is intentionally NOT applied to the review spawn: a
+ * read-only code reviewer needs no operator-specific/credential env, so an explicit
+ * allowlist can no longer inject ANY var into the review subprocess. This closes the
+ * credential-leak class BY CONSTRUCTION — there is no denylist left to be incomplete,
+ * because no non-base var is ever forwarded regardless of what an operator lists.
+ *
+ * NOTE ON THE POLICY: `envAllowlist` is unused HERE by design, but the rest of the
+ * policy (authorization + the finite-timeout ceiling) is still loaded, authorized,
+ * and enforced by authorizeReviewPolicy — only env-allowlist injection into the
+ * review spawn is dropped.
  *
  * The result is a concrete env object (never `process.env` by reference).
- *
- * Exported for the smoke's direct belt-and-suspenders assertion: the handler's
- * upstream checkDispatchPolicy REFUSES a policy that allowlists a secret name, so
- * the "operator accidentally allowlisted a secret" defense-in-depth layer can only
- * be exercised by calling this directly with such a (never-authorized) policy.
  */
 export function buildRedactedEnv(base: NodeJS.ProcessEnv, policy: DispatchPolicy): NodeJS.ProcessEnv {
-  const allowlist = new Set((policy.envAllowlist ?? []).map(name => name.trim()).filter(Boolean));
   const denylist = new Set((policy.envDenylist ?? []).map(name => name.trim()).filter(Boolean));
   const redacted: NodeJS.ProcessEnv = {};
   for (const [name, value] of Object.entries(base)) {
     if (value === undefined) continue;
-    // (1) Allowlist-by-default: forward ONLY the safe base set ∪ the policy allowlist.
-    if (!isSafeBaseEnvName(name) && !allowlist.has(name)) continue;
-    // (2) An explicit denylist can prune even a base/allowlisted var.
+    // (1) Closed allowlist by construction: forward ONLY the hardcoded safe base set.
+    // The policy envAllowlist is intentionally NOT consulted — no operator entry can
+    // inject a credential/arbitrary var into the review spawn.
+    if (!isSafeBaseEnvName(name)) continue;
+    // (2) An explicit denylist can restrict (drop) a base var.
     if (denylist.has(name)) continue;
-    // (3) Belt-and-suspenders: never forward a secret-looking name, even if allowlisted.
-    if (UNSAFE_ENV_PATTERN.test(name)) continue;
     redacted[name] = value;
   }
   return redacted;

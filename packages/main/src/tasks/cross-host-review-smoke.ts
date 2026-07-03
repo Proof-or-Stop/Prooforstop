@@ -25,7 +25,7 @@
  *   CHK-001:adversarial:2 (F-003) codex with BOTH real-host + review-only flags → REFUSED (impl intent wins).
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed; Bug10: a MALFORMED policy (maxRuntimeMinutes:"bogus") → authorizeReviewPolicy refuses (no spawn, no verdict, no unbounded ceiling).
- *   CHK-001:adversarial:5 (F-004) allowlist-by-default env redaction (arbitrary/credential names dropped by default; base var forwarded; allowlist entry forwarded unless secret) + timeout ceiling threaded to the runner.
+ *   CHK-001:adversarial:5 (F-004) closed-allowlist env redaction by construction (base var forwarded; credential/arbitrary names dropped EVEN IF in the policy envAllowlist; envDenylist can drop a base var) + timeout ceiling threaded to the runner.
  *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); .lattice-only dirty → proceeds.
  *   CHK-001:adversarial:7 (NEW INTENT) malformed host-A findings file (missing field / EXTRA key / wrong type / not-an-array) → fail-closed (no spawn, no verdict); well-formed control passes. Requires a NEW verificationIntent registration.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
@@ -929,26 +929,27 @@ async function run(): Promise<void> {
       assert.equal(malformedRecorded.length, 0, 'no verdict recorded on a fail-closed malformed policy');
     });
 
-    // CHK-001:adversarial:5 (F-004) — ALLOWLIST-BY-DEFAULT env redaction (CLASS 1
-    // root fix). The review subprocess sees ONLY the union of (a) the hardcoded
-    // minimal safe base set a CLI needs (PATH/HOME/locale/…) and (b) the policy's
-    // explicit envAllowlist. Assert via the seam capturing the runner options:
+    // CHK-001:adversarial:5 (F-004) — CLOSED-ALLOWLIST env redaction (CLASS 1
+    // root fix). The review subprocess sees ONLY the hardcoded minimal safe base
+    // set a CLI needs (PATH/HOME/locale/…). The policy envAllowlist authorizes
+    // nothing for this spawn; it is deliberately ignored so operator config cannot
+    // inject a credential-bearing env var. Assert via the seam capturing options:
     //   - arbitrary / credential names (HTTPS_PROXY, GITHUB_PAT, CI_JOB_JWT,
     //     POSTGRES_URL_NON_POOLING, and a PLAIN FOO_BAR that matches no secret
     //     pattern) are ALL dropped BY DEFAULT — because they are not on the base
     //     set, not because a denylist named them. This closes the whole env-leak
     //     class (an unknown credential var cannot leak).
     //   - a base var (PATH) IS forwarded.
-    //   - a policy envAllowlist entry IS forwarded, UNLESS it hits the secret
-    //     pattern (belt-and-suspenders: an operator cannot allowlist a secret).
+    //   - a policy envAllowlist entry is NOT forwarded; envAllowlist can no longer
+    //     inject ANY var into the review subprocess.
     //   - the maxRuntimeMinutes ceiling is threaded (min of requested vs ceiling).
-    await check('CHK-001:adversarial:5 allowlist-by-default env redaction + timeout ceiling threaded to the runner', async () => {
+    await check('CHK-001:adversarial:5 closed-allowlist env redaction + timeout ceiling threaded to the runner', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // A plain, non-secret-looking var that the OLD denylist would have FORWARDED
-      // (it matches no secret pattern). Under allowlist-by-default it is dropped
-      // because it is not on the base set nor the policy allowlist — the CLASS fix.
+      // (it matches no secret pattern). Under the closed allowlist it is dropped
+      // because it is not on the safe base set — the CLASS fix.
       const prevPlain = process.env.FOO_BAR;
-      // A var the policy explicitly allowlists → must be forwarded.
+      // A var the policy explicitly allowlists → must still NOT be forwarded.
       const prevAllowed = process.env.XHR_SMOKE_ALLOWED;
       // Arbitrary credential-bearing names that no denylist could exhaustively
       // enumerate — all must drop BY DEFAULT (not on the base set).
@@ -972,12 +973,11 @@ async function run(): Promise<void> {
       try {
         const capture = capturingSeam(verdictJsonStdout(materialHash, 'pass', [], 'looks fine'));
         const handlers = createCrossHostReviewHandlers(ctx, { codexRunner: capture.runner });
-        // Policy: an EMPTY allowlist now means "minimal safe base set ONLY" (the new
-        // allowlist-by-default semantics); we ALSO exercise an explicit allowlist
-        // entry (XHR_SMOKE_ALLOWED, a non-secret name) that must be forwarded. A
-        // SECRET name cannot be allowlisted through the handler (checkDispatchPolicy
-        // refuses it), so the belt-and-suspenders secret strip is asserted directly
-        // against buildRedactedEnv below.
+        // Policy: envAllowlist no longer injects into the review spawn. We still
+        // pass an explicit non-secret entry (XHR_SMOKE_ALLOWED) to prove it is
+        // ignored by the closed allowlist. A SECRET name cannot be allowlisted
+        // through the handler (checkDispatchPolicy refuses it), so the direct
+        // buildRedactedEnv check below proves even direct callers cannot inject it.
         // maxRuntimeMinutes=3 is the ceiling below the requested 12.
         const policy = reviewOnlyPolicy({
           envAllowlist: ['XHR_SMOKE_ALLOWED'],
@@ -1000,25 +1000,22 @@ async function run(): Promise<void> {
         const env = opts!.env ?? {};
         // (a) A base var is forwarded.
         assert.equal(env.PATH, process.env.PATH, 'a minimal-safe-base var (PATH) is forwarded to the runner');
-        // (b) An explicit policy allowlist entry is forwarded.
-        assert.equal(env.XHR_SMOKE_ALLOWED, 'keep-me', 'a policy envAllowlist entry is forwarded to the runner');
-        // (c) BELT-AND-SUSPENDERS: a secret name is dropped even when it is on the
-        // policy allowlist. The handler cannot reach this path (checkDispatchPolicy
-        // refuses a secret in envAllowlist), so assert it DIRECTLY against
-        // buildRedactedEnv with a policy that allowlists a secret — the exact
-        // "operator accidentally allowlisted a secret" scenario this layer guards.
+        // (b) An explicit policy allowlist entry is NOT forwarded.
+        assert.equal(env.XHR_SMOKE_ALLOWED, undefined, 'a policy envAllowlist entry cannot inject a runner env var');
+        // (c) Direct buildRedactedEnv callers also cannot use envAllowlist to inject
+        // either a non-secret arbitrary name or a secret name.
         const beltEnv = buildRedactedEnv(
           { PATH: '/usr/bin:/bin', XHR_SMOKE_ALLOWED: 'keep-me', XHR_SMOKE_TOKEN: 'super-secret', FOO_BAR: 'plain' },
           reviewOnlyPolicy({ envAllowlist: ['XHR_SMOKE_ALLOWED', 'XHR_SMOKE_TOKEN'], envDenylist: [] }),
         );
         assert.equal(beltEnv.PATH, '/usr/bin:/bin', 'buildRedactedEnv forwards the safe base var PATH');
-        assert.equal(beltEnv.XHR_SMOKE_ALLOWED, 'keep-me', 'buildRedactedEnv forwards a non-secret allowlist entry');
-        assert.equal(beltEnv.XHR_SMOKE_TOKEN, undefined, 'buildRedactedEnv DROPS an allowlisted SECRET name (belt-and-suspenders secret strip)');
-        assert.equal(beltEnv.FOO_BAR, undefined, 'buildRedactedEnv drops a non-allowlisted non-base var by default');
+        assert.equal(beltEnv.XHR_SMOKE_ALLOWED, undefined, 'buildRedactedEnv ignores non-secret envAllowlist entries');
+        assert.equal(beltEnv.XHR_SMOKE_TOKEN, undefined, 'buildRedactedEnv ignores secret envAllowlist entries');
+        assert.equal(beltEnv.FOO_BAR, undefined, 'buildRedactedEnv drops a non-base var by default');
         // (d) THE CLASS FIX: arbitrary / credential names are ALL dropped BY DEFAULT
         // because they are not on the base set nor the policy allowlist — no denylist
         // needed. Includes a PLAIN non-secret name (FOO_BAR) the old denylist forwarded.
-        assert.equal(env.FOO_BAR, undefined, 'a plain non-allowlisted var (FOO_BAR) is dropped by default (allowlist-by-default, not denylist)');
+        assert.equal(env.FOO_BAR, undefined, 'a plain non-base var (FOO_BAR) is dropped by default (closed allowlist, not denylist)');
         assert.equal(env.HTTPS_PROXY, undefined, 'HTTPS_PROXY is dropped by default (not on the safe base set)');
         assert.equal(env.HTTP_PROXY, undefined, 'HTTP_PROXY is dropped by default (not on the safe base set)');
         assert.equal(env.ALL_PROXY, undefined, 'ALL_PROXY is dropped by default (not on the safe base set)');
