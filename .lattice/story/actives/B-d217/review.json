@@ -78,6 +78,24 @@
         }
       ],
       "_hash": "5ec417c347f973b5fd78e4334f68be9c6e036e6146cff5a2e72de6ca786f1bad"
+    },
+    {
+      "timestamp": "2026-07-03T00:34:22.389Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Pure score-record builder assembling ExperienceAblationScore v1 from on-disk arm-run artifacts + Run-record input contract documented and validated with actionable errors are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d217\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "8dd3abd2cd6db49b3350c703ad3b7399026faaf85ab010d242ef8f9e7d277885"
     }
   ]
 }

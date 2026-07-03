@@ -8,8 +8,8 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> prints one JSON object whose first line contains \"schemaVersion\": \"proofbound.experience-ablation-score.v1\" and includes arm, pairId, trapGroup, defectPresent, retrievalViolationCount, storeRoot; running it twice produces byte-identical output (diff empty)",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-03T00:38:05.281Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
