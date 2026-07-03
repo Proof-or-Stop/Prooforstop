@@ -1,0 +1,27 @@
+{
+  "storyId": "B-364f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "protectedFiles": [
+    ".lattice/learning/playbooks.json",
+    ".lattice/learning/playbook-outcomes.jsonl",
+    ".lattice/learning/playbook-trial-controls.jsonl"
+  ],
+  "explicitExcludes": [
+    ".lattice/learning/**",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "scopeChangeReason": "B-364f is limited to two smoke annotation @changes metadata fields.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T17:55:50.547Z",
+  "updatedAt": "2026-07-03T17:55:50.547Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-364f",
+  "sourceText": "User asked to complete historical seed backfill and trial/matched-control/timer automation, then convergence_check revealed two annotation errors from the new B-5f5b smoke files that must be corrected so the completed work is actually clean.",
+  "normalizedOutcome": "The two B-5f5b smoke files have compliant @task annotations, convergence_check no longer reports the two annotation errors, and no playbook behavior or stored candidate/trial data is changed.",
+  "acceptanceClaim": "Direct annotation validation reports zero errors and convergence_check reports Code annotations compliant=true after adding only @changes metadata to the two scoped smoke files.",
+  "keyRequirementIds": [
+    "REQ-annotation-compliance",
+    "REQ-no-playbook-store-mutation"
+  ],
+  "requestHash": "sha256:888b3cf3780489b02a32e2795e4bda82cdb72a59e26e1f324106321d4d946f43",
+  "createdAt": "2026-07-03T17:53:51.283Z",
+  "updatedAt": "2026-07-03T17:53:51.283Z"
+}
