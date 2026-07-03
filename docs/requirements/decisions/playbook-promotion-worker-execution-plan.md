@@ -691,7 +691,7 @@ Suggested V1 flags:
 | Flag | Default | Meaning |
 |---|---|---|
 | `PLAYBOOK_PROMOTION_SWEEP_ENABLED` | off for apply, dry-run available | Allows sweep apply mode |
-| `PLAYBOOK_DONE_SETTLEMENT_ENABLED` | off until M2 | Allows post-DONE learning settlement |
+| `PLAYBOOK_DONE_SETTLEMENT_ENABLED` | default-on, explicit opt-out with `false` / `0` / `no` / `off` | Allows post-DONE learning settlement health rows |
 
 Future flags:
 

@@ -403,17 +403,22 @@ try {
     const h = createPlaybookHandlers(ctx);
     approve(root, h, f);
     const beforeOutcomes = readPlaybookOutcomeEvents(root).length;
-    const disabled = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: undefined }, () => runPostDoneLearningSettlement(root, storyId));
-    assert.equal(disabled.settlementStatus, 'disabled');
-    assert.equal(existsSync(join(root, '.lattice', 'learning', 'playbook-promotion-health.jsonl')), false);
-    const recorded = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: 'true' }, () => runPostDoneLearningSettlement(root, storyId));
+    const recorded = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: undefined }, () => runPostDoneLearningSettlement(root, storyId));
     assert.equal(recorded.settlementStatus, 'recorded');
     const repeated = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: '1' }, () => runPostDoneLearningSettlement(root, storyId));
     assert.equal(repeated.alreadyApplied, true);
     assert.equal(readPlaybookOutcomeEvents(root).length, beforeOutcomes, 'DONE success alone creates no candidate helped outcome');
     const status = h.playbook_promotion_status({});
+    assert.match(status, /featureFlags\.PLAYBOOK_DONE_SETTLEMENT_ENABLED: true \(unset, default-on\)/);
     assert.match(status, /settlementStatus: recorded/);
     assert.match(status, /gateEvidence: false/);
+
+    for (const raw of ['false', '0', 'no', 'off']) {
+      const disabledRoot = mkProject(); roots.push(disabledRoot);
+      const disabled = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: raw }, () => runPostDoneLearningSettlement(disabledRoot, `${storyId}-${raw}`));
+      assert.equal(disabled.settlementStatus, 'disabled', `${raw} explicitly opts out of DONE settlement`);
+      assert.equal(existsSync(join(disabledRoot, '.lattice', 'learning', 'playbook-promotion-health.jsonl')), false);
+    }
   });
 
   check('CHK-005: status shows pending learning, latest decisions, non-deducible sources, health, flags, not runtime guidance', () => {
