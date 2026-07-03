@@ -183,6 +183,58 @@
           "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
           "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
           "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:2\": a policy with BOTH allowReviewOnlyRealHostSubprocess AND allowRealHostSubprocess + allowedHosts=[codex] is REFUSED by checkDispatchPolicy; a pure review-only codex policy is permitted (F-003 mutual-exclusion).",
+          "headHash": "5a49eebe610dd467d670fcc5be7024421c947941",
+          "materialHash": "9fd4fd342570b7087d83e4b60c7bc4a1ddb5a40f0da6e7c809d60d1a2ad4d132",
+          "storyFilesHash": "4bb3ec084669b96c860536e448b9916aaa710b70d94f04c56237fead1581af76",
+          "timestamp": "2026-07-03T02:52:43.661Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:3\": cross_host_review with NO policy fails closed — authorizeReviewPolicy throws, codex seam never invoked, 0 verdicts recorded (F-004).",
+          "headHash": "5a49eebe610dd467d670fcc5be7024421c947941",
+          "materialHash": "9fd4fd342570b7087d83e4b60c7bc4a1ddb5a40f0da6e7c809d60d1a2ad4d132",
+          "storyFilesHash": "4bb3ec084669b96c860536e448b9916aaa710b70d94f04c56237fead1581af76",
+          "timestamp": "2026-07-03T02:52:43.661Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:4\": an unauthorized policy (no read-only codex grant) fails closed the same way — throw, seam never invoked (F-004).",
+          "headHash": "5a49eebe610dd467d670fcc5be7024421c947941",
+          "materialHash": "9fd4fd342570b7087d83e4b60c7bc4a1ddb5a40f0da6e7c809d60d1a2ad4d132",
+          "storyFilesHash": "4bb3ec084669b96c860536e448b9916aaa710b70d94f04c56237fead1581af76",
+          "timestamp": "2026-07-03T02:52:43.661Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:5\": authorized policy env denylist + secret-strip + max-runtime timeout ceiling threaded to the codex spawn, asserted via a capturing seam recording RunCodexReviewLeafOptions (F-004/F-007).",
+          "headHash": "5a49eebe610dd467d670fcc5be7024421c947941",
+          "materialHash": "9fd4fd342570b7087d83e4b60c7bc4a1ddb5a40f0da6e7c809d60d1a2ad4d132",
+          "storyFilesHash": "4bb3ec084669b96c860536e448b9916aaa710b70d94f04c56237fead1581af76",
+          "timestamp": "2026-07-03T02:52:43.661Z"
         }
       ]
     },
