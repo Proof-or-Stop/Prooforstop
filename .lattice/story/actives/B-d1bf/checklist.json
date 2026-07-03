@@ -151,11 +151,11 @@
           "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
           "result": "pass",
-          "note": "CLI complete JSON output includes decision=advance, authorityDone=false, productionDone=false, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
-          "headHash": "3bc2a2fba64806be86715fa146a489bdabb8473c",
-          "materialHash": "c0c434b5583ddf5eb21bd42e4668fd20fdc03230e8ece29f91eccb5102dd2426",
-          "storyFilesHash": "a9511e2e0357559a70a554f0851e1662e744f3d782ddc96445ed5ee506e2b0a1",
-          "timestamp": "2026-07-03T01:03:26.433Z"
+          "note": "CLI complete JSON output includes decision=advance, boundary.productionClaim=false, boundary.authorityClaim=false, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
+          "headHash": "6f2736ecae1c052a4fe7f67c1bc43c11267400f6",
+          "materialHash": "c09566ece777a1a39dfd2238238bc6c73bfa98d770e6c422bb797b59d20d4e78",
+          "storyFilesHash": "b79c847dfbae45f626f09ed17732f250dea27f7e94715adec1ff9945b7fc9cd6",
+          "timestamp": "2026-07-03T01:23:17.720Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
