@@ -1,0 +1,141 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add DONE experience source lineage",
+      "context": "Expose DONE summary, pitfalls, and delivery-check material as a structured done_experience source in source lineage and seed observation, with canonical key versioning and no helped settlement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "A DONE story can appear as a first-class playbook seed source instead of only a settlement health row.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/source-lineage-audit.ts",
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_seed_observe reports a done_experience seed for a DONE story with summary and delivery material.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE stories with partial or missing optional fields do not crash observation and either produce a bounded seed or a clear diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE success alone does not write a helped playbook outcome or active runtime guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Convert DONE experience seed into proposal and candidate",
+      "context": "Reuse existing observe digest, batch proposal, and candidate approval flows so a reviewed DONE experience seed can become an inert candidate playbook.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "The seed-to-candidate path is mechanically provable with CLI commands and digest guards.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_seed_propose_batch --apply followed by playbook_candidate_batch_approve --apply creates a candidate from DONE experience.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "observe/apply drift still fails when the observe digest changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The resulting playbook remains candidate/inert and is not returned as active runtime guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document DONE-experience candidate boundary",
+      "context": "Update the execution documentation so DONE experience seeding is described as candidate material only, while activation remains outcome-gated.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "The docs explain why Story 1 creates candidate material but does not automatically activate playbooks.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs name the DONE experience seed path and its safety boundary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish new DONE experience from historical backfill.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly forbid counting DONE success alone as helped.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
