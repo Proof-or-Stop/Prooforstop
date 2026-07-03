@@ -107,6 +107,15 @@
       "reviewRound": "2026-07-03T10:27:22.324Z",
       "reviewRunId": "B-f57a:RR-026",
       "_hash": "89559a6cd5e49c9cae4703c60a55d98325d0b39a2680d144d39600e1d41a2069"
+    },
+    {
+      "id": "B-f57a:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS after F-016 fix: reviewed commit 0170731fb plus metadata through 7189890/current metadata-only passes. cross_host_review now builds both local host verdict records from captured head/material/story hashes, checks source cleanliness and HEAD before write, writes the host pair before process events, rechecks after pair write, deletes both files on post-write drift before any host_verdict events are appended, and appends both process events together only after the final guard. No stale/partial verdict persistence blocker found; process-event fields remain equivalent to submitLocalVerdict. Targeted verification rerun passed: npm --prefix packages/main run build && npm --prefix packages/main run test:cross-host-review (24 checks).",
+      "createdAt": "2026-07-03T10:31:32.453Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-025",
+      "_hash": "a969d20c02fb8c249025ba315c8d2f789073ff53b583fd28a8fed595bcffebf3"
     }
   ]
 }
