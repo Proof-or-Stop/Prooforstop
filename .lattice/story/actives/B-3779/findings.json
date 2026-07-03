@@ -27,7 +27,7 @@
       "desc": "The new quantum_claim_benchmark and quantum_claim_report commands are added to COMMAND_POLICIES but are not classified in PROCESS_FACT_LEVELS. This breaks the lifecycle registry/process-fact consistency contract: npm run test:lifecycle-registry-contract fails with process-fact-lifecycle divergences for both commands. Add L0 process-fact lifecycle entries matching their read-only diagnostic policy before merge.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T03:51:05.845Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/lifecycle-registry-contract.ts"
       ],
       "signatureTag": "missing|ts|quantum-claim-benchmark",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fixed in current material: quantum_claim_benchmark and quantum_claim_report are registered in PROCESS_FACT_LEVELS as L0 quantum-claim-admissibility-read read-only diagnostic commands matching COMMAND_POLICIES readOnly/all/none. npm --prefix packages/main run test:lifecycle-registry-contract PASS with 0 divergences; npm --prefix packages/main run test:command-catalog-smoke PASS with 307 commands.",
+      "resolvedAt": "2026-07-03T04:12:02.686Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3779:F-003",
