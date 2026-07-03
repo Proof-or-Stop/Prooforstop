@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5e28",
+  "changes": "Changed post-DONE playbook learning settlement from default-off env behavior to default-on with explicit false/0/no/off opt-out. Updated promotion status output and smoke tests, and aligned the execution docs with the default-on learning-only boundary.",
+  "usage": "Run lattice playbook_promotion_status --json to inspect PLAYBOOK_DONE_SETTLEMENT_ENABLED. Leave the env unset for default-on settlement, or set PLAYBOOK_DONE_SETTLEMENT_ENABLED=false to opt out.",
+  "expectedOutcome": "Unset PLAYBOOK_DONE_SETTLEMENT_ENABLED reports enabled=true defaultPolicy=default-on explicitOptOut=false, while explicit false reports enabled=false explicitOptOut=true. Settlement remains non_authoritative and gateEvidence=false.",
+  "actualTranscript": "playbook-promotion-worker-smoke passed 6/6. playbook_promotion_status showed raw empty enabled true defaultPolicy default-on explicitOptOut false authority non_authoritative gateEvidence false. Explicit false showed enabled false explicitOptOut true. lattice validate passed with 31 configured commands and 9/9 verification intents covered.",
+  "outcomeDiff": "No user-visible mismatch: actual output matched expected default-on, explicit opt-out, and learning-only posture.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Historical seed backfill, automatic candidate approval, and automatic active playbook activation remain out of scope for this story.",
+  "pitfalls": "The first REVIEW to TEST attempt failed only because evidence was stale after metadata and reviewer commits. Refreshing stale verification evidence and rerunning validate fixed it. DONE settlement is default-on, but helped outcomes still require explicit exposure and structured verdict evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 79576
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10992
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 174051
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 435471
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1030653
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 549170
+    }
+  },
+  "totalDurationMs": 2280286,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T00:53:04.900Z",
+  "updatedAt": "2026-07-03T00:53:04.900Z"
+}
