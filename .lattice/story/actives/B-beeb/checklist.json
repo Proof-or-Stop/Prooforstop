@@ -367,7 +367,30 @@
           "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
           "timestamp": "2026-07-03T02:39:45.743Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from logic_test evidence: Extended selfcheck ALL PASS (39 checks) twice for determinism. Happy path: snapshot materialized byte-identically on BOTH arms (case 6), ...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Empirical edge probes against the real built CLI: (1) a story-less isolated root EARLY-RETURNS from session_brief (No active story) with ...",
+            "type": "manual",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reconstructed from logic_test evidence: Fail-closed adversarial cases all PASS: (9a) a tampered --memorySnapshotDir (hash disagrees with frozen protocol.json memorySnapshotHash)...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
