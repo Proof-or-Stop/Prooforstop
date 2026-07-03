@@ -255,9 +255,10 @@ Gate result:
 Stop. Regenerate the figure from the current source run and plotting script.
 ```
 
-## Future Failure Injection Set
+## Implemented Diagnostic Failure Injection Set
 
-M4 may later implement a benchmark using these deterministic injections:
+M4 implements a deterministic local benchmark using these diagnostic
+injections:
 
 1. Hamiltonian changed while old eigenvalue reused.
 2. Potential changed while old wavefunction reused.
@@ -283,7 +284,8 @@ Deliverables:
 
 - domain model freeze for quantum claim/admissibility scope;
 - schema and boundary definitions for non-goals and failure semantics;
-- test plan for future A1-A4 and B1-B15 injections.
+- implemented diagnostic test plan for A1-A4 supported cases and B1-B15
+  failure injections.
 
 Acceptance:
 
