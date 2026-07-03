@@ -1,9 +1,9 @@
 {
   "storyId": "B-7de9",
-  "checkedAt": "2026-07-03T11:52:07.365Z",
-  "headHash": "3d6495cb243a0b10bb206e7462156b289f061a61",
-  "materialHash": "d596af65300be46c742f667454edb34a37fc51bb7bf7ff7f82a5fab8975467dc",
-  "storyFilesHash": "42b8d50bf90c85d1db5ecf8686a321562508e951d2a142a21d14322e10ef7fb3",
+  "checkedAt": "2026-07-03T11:57:15.941Z",
+  "headHash": "d12aaba8d220ade03cf24531aef08e6ec7dd2006",
+  "materialHash": "efdca3010de2cc042105cba79f73c9c7e3052c92aa1c73d7d28adbebfde268b1",
+  "storyFilesHash": "a78dd9288e2a4616152a3d6288ed6a0ebfc2b09d428c4e4741965c6e2dbb68ee",
   "reviewRound": "2026-07-03T11:28:04.120Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
@@ -12,56 +12,56 @@
       "promise": "redactMemoryPackForControlArm at done_closure/final_response_check/host_dispatch/handoff_create/handoff_resume JSON surfaces",
       "status": "verified",
       "verifiedBy": "grep+diff",
-      "evidence": "git diff main...HEAD shows redactMemoryPackForControlArm imported and applied in done-closure.ts (--json branch), lattice-handoff.ts (handoff_create, handoff_resume, host_dispatch preflight+manifest all 4 verdict branches), and playbook-runtime-memory.ts (final_response_check)"
+      "evidence": "git diff main...HEAD shows redactMemoryPackForControlArm imported and applied in done-closure.ts, lattice-handoff.ts (all 4 verdict branches + handoff_create + handoff_resume), and playbook-runtime-memory.ts"
     },
     {
       "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "final_response_check routes through surfaceRuntimeMemoryPack (wiring oracle updated to require the surfaceRuntimeMemoryPack call site)",
+      "promise": "final_response_check routes through surfaceRuntimeMemoryPack; wiring oracle updated",
       "status": "verified",
       "verifiedBy": "diff+test",
-      "evidence": "playbook-runtime-memory.ts diff shows final_response_check now calls surfaceRuntimeMemoryPack; consumer-wiring oracle regex updated to require surfaceRuntimeMemoryPack at that site; playbook_runtime_health consumer-wiring check passes (verified in e2e transcript and experience-arm-gate-smoke CHK-D)"
+      "evidence": "playbook-runtime-memory.ts diff shows surfaceRuntimeMemoryPack call added; oracle regex updated to require it; playbook_runtime_health consumer-wiring check passes"
     },
     {
       "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "experienceRefs() returns [] on control arm (single chokepoint for dispatch/report/plan experience injection)",
+      "promise": "experienceRefs() returns [] on control arm (single chokepoint)",
       "status": "verified",
       "verifiedBy": "diff+test",
-      "evidence": "lattice-parallel-wave.ts diff adds isControlArm guard at top of experienceRefs(); e2e smoke asserts control parallel_dispatch returns experienceRefs=[]; transcript-diff.md confirms experienceRefs: 0 on control"
+      "evidence": "lattice-parallel-wave.ts adds isControlArm guard at top of experienceRefs(); e2e smoke asserts control parallel_dispatch returns experienceRefs=[]; transcript confirms experienceRefs: 0 on control"
     },
     {
       "docPath": ".lattice/story/actives/B-7de9/plan.md",
       "promise": "memory_benchmark_real_data and source_lineage_audit added to memoryRetrieval block in command-policy.ts",
       "status": "verified",
       "verifiedBy": "diff+test",
-      "evidence": "command-policy.ts diff adds memoryRetrieval:true to both entries; e2e smoke asserts both are REFUSED on control with the retrieval-block message and permitted on no-experiment"
+      "evidence": "command-policy.ts diff adds memoryRetrieval:true to both; e2e smoke asserts both REFUSED on control and NOT refused on no-experiment"
     },
     {
       "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "STORED historical evidence exports (story_export/test_list canonicalStory.evidence) are intentionally OUT of scope",
+      "promise": "STORED historical evidence exports (story_export/test_list) are intentionally OUT of scope",
       "status": "verified",
-      "verifiedBy": "scope-boundary doc in runtime-memory-arm-gate.ts header",
-      "evidence": "runtime-memory-arm-gate.ts file-level comment explicitly documents the OUT boundary (F-022 decision); no promise in plan.md or checklist covers this path"
+      "verifiedBy": "scope-boundary comment in runtime-memory-arm-gate.ts",
+      "evidence": "File-level comment documents OUT boundary (F-022 decision); no checklist item covers this path — correctly scoped out"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/experience-arm-gate-smoke.js — all 18 assertions PASS (CHK-A isControlArm, CHK-B redactMemoryPackForControlArm incl. fail-CLOSED, CHK-D host_dispatch text omission). node packages/main/dist/tasks/experience-arm-isolation-e2e-smoke.js — 21 checks PASS: final_response_check --json control pack empty + empty-set digest 4f53cda1; treatment/normal populated; memory_benchmark_real_data + source_lineage_audit REFUSED on control. transcript-diff.md at .lattice/story/actives/B-7de9/evidence/transcript-diff.md records live control done_closure ids=[] digest=4f53cda18c srcDigests-null=True; treatment ids=[9890b83,...] digest=259151dc3d."
+      "transcript": "experience-arm-gate-smoke.js: 18 assertions PASS (isControlArm, redactMemoryPackForControlArm incl. fail-CLOSED, host_dispatch text omission). experience-arm-isolation-e2e-smoke.js: 21 checks PASS. transcript-diff.md: live control done_closure ids=[] digest=4f53cda18c srcDigests-null=True; treatment ids=[9890b83,...] digest=259151dc3d."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "experience-arm-isolation-e2e-smoke 21 checks: CONTROL final_response_check --json pack arrays empty + content-free digest; TREATMENT/NORMAL populated. CONTROL text suppresses memoryTopHitIds line; TREATMENT shows it. playbook_runtime_health consumer-wiring:src/handlers/playbook-runtime-memory.ts = pass (surfaceRuntimeMemoryPack wiring oracle)."
+      "transcript": "e2e smoke: CONTROL final_response_check --json pack empty + content-free digest; TREATMENT/NORMAL populated. Text render suppressed on control. playbook_runtime_health consumer-wiring passes."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "experience-arm-isolation-e2e-smoke: CONTROL recall/dev_memory_start/dev_memory_list/dev_memory_search/memory_benchmark_real_data/source_lineage_audit all REFUSED; NORMAL all NOT refused. validate 9/9 intent coverage confirmed."
+      "transcript": "e2e smoke: all 6 retrieval commands REFUSED on control, NOT refused on no-experiment. validate 9/9 intent coverage. quantum_claim_benchmark and playbook_candidate_ingest confirmed present in command-policy.ts."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 3 CHK items fully delivered and verified by two passing smoke tests (18+21 checks) plus real-machine transcript. redactMemoryPackForControlArm applied at all 5 JSON surfaces (done_closure, final_response_check, handoff_create, handoff_resume, host_dispatch preflight+manifest). final_response_check wired through surfaceRuntimeMemoryPack; oracle updated. experienceRefs single-chokepoint guard in place. Two new memoryRetrieval markers confirmed in command-policy.ts. quantum_claim_benchmark and playbook_candidate_ingest still present (no regression). Scope boundary for stored historical evidence correctly documented and not over-claimed. validate 9/9 pass. No undelivered doc promise, no unresolved TODOs."
+    "summary": "All 3 CHK items fully delivered and verified. redactMemoryPackForControlArm applied at all 5 JSON surfaces. final_response_check wired through surfaceRuntimeMemoryPack. experienceRefs single-chokepoint guard in place. Two new memoryRetrieval markers in command-policy.ts. quantum_claim_benchmark and playbook_candidate_ingest still present (no regression). Scope boundary for stored historical evidence documented and correctly scoped out. validate 9/9 pass. No undelivered promise, no unresolved TODOs."
   },
-  "_hash": "ee8de2f567f06f46c2b3f091e51c545ea80b101539ac96280501ffe68de23b94"
+  "_hash": "46fa500199572938054a96ba6224262e66c84e9563a8ec037e1cf176bd98cabd"
 }
