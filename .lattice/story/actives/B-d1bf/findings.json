@@ -19,6 +19,25 @@
       ],
       "signatureTag": "spec-boundary|ts|quantum-claim-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d1bf:F-002",
+      "desc": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md says the M2/default registry includes the Quantum local gate-policy projection (lines 292-313), but the actual default Quantum pack remains descriptor/normalization-only with gatePolicies: Object.freeze([]) in packages/main/src/core/claim-admissibility/pack-framework.ts. The M3 projection is registered separately as the quantum_claim_check CLI handler, so the doc can falsely imply the generic adapter framework M4 Gate Policy Adapter is complete. Reword to keep the pack registry at descriptor/normalization only, describe quantum_claim_check as a separate local M3 projection, and update the stale Open Design Question reference to beyond M3 or equivalent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T00:41:46.526Z",
+      "reviewRound": "2026-07-03T00:39:01.624Z",
+      "reviewRunId": "B-d1bf:RR-001",
+      "_hash": "8814cea67b47df827c320f789f8c1885f97af3da3e49c1b4694999b3a39686dc",
+      "files": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "packages/main/src/core/claim-admissibility/pack-framework.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
