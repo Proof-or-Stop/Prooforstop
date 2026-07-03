@@ -225,8 +225,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-03T10:42:48.916Z",
       "endTime": null
     },
     {
@@ -317,6 +317,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Post-DONE candidate ingestion hook implemented and smoke verified."
+    },
+    {
+      "timestamp": "2026-07-03T10:42:48.916Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Binding candidate safety boundary verification evidence."
     }
   ]
 }
