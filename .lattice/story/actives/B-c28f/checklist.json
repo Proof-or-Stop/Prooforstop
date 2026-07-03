@@ -137,7 +137,8 @@
       "files": {
         "modify": [
           "packages/main/src/core/playbook-seed.ts",
-          "packages/main/src/handlers/playbook.ts"
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": [
@@ -167,7 +168,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-03T01:54:19.758Z",
       "endTime": "2026-07-03T01:54:51.731Z",
       "verificationEvidence": [
@@ -296,6 +297,18 @@
           "timestamp": "2026-07-03T01:55:05.403Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T02:03:17.985Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Review findings F-002/F-003 show real CLI schema rejects done-experience; add command-catalog.ts to CHK-002 scope and reopen for fix.",
+      "agent": "main-owner"
     }
   ]
 }
