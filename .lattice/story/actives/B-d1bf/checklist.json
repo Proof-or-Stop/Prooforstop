@@ -58,7 +58,7 @@
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
-      "userSees": "Hosts can run quantum_claim_check to inspect local quantum claim admissibility and gate-policy guidance without changing story lifecycle state.",
+      "userSees": "Running lattice quantum_claim_check --case=complete --json prints a read-only local result with \"decision\":\"advance\", \"authorityDone\":false, and \"productionDone\":false.",
       "excludes": [
         "No lifecycle phase advance",
         "No evidence writing",
