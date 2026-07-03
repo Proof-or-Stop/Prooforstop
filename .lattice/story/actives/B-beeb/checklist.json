@@ -100,6 +100,18 @@
           "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
           "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
           "timestamp": "2026-07-03T01:50:36.853Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/leakage-audit.mjs",
+          "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
+          "result": "pass",
+          "note": "Selftest poison phase: copied the clean corpus, injected strip-list marker memory pack into fx-0d5b8958-0 workspace/config.json, spawned CLI on the copy -> exit 1, stderr LEAK line names fixture fx-0d5b8958-0, the marker (quoted memory pack) and the poisoned file; jsonl row has pass=false with workspaceMarkers check failed while unpoisoned fixtures still pass.",
+          "headHash": "90b0d34478224056831e819a3694522dc2dda7f6",
+          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
+          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
+          "timestamp": "2026-07-03T01:50:44.838Z"
         }
       ]
     },
