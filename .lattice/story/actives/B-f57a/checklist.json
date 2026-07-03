@@ -82,6 +82,12 @@
             "desc": "Dirty-worktree integrity fail-closed: cross_host_review binds the verdict to currentMaterialHash(HEAD) (committed tree) but Codex reviews the LIVE worktree. When the worktree has uncommitted MATERIAL (source) drift vs HEAD (excluding .lattice/ metadata), the handler MUST fail closed (throw cross_host_review_dirty_worktree, no codex spawn, no verdict recorded) so a HEAD-bound verdict can never reflect a review of a dirty tree. Control: a worktree dirty only in .lattice/ proceeds normally.",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:7",
+            "desc": "Malformed host-A findings input fails closed: the hostAFindingsFile (caller-supplied JSON) is strictly validated as Finding[] (strict Zod — no missing/extra/wrong-typed keys, must be an array). A malformed host-A findings file (missing a required Finding field, extra keys, or non-array) causes cross_host_review to fail closed (reject) rather than trusting unvalidated JSON.parse output — hardening the host-A trust boundary alongside the strict codex-verdict schema and runtime policy-shape validation.",
+            "type": "logic",
+            "priority": "must"
           }
         ]
       },
