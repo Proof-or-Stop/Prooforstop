@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e92c",
+  "sourceText": "User (2026-07-03, after choosing skip_powered_study): proceed to M8 per docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md section 13 M8 row — Extend the EXISTING production assignment (resolveHintMode) + learning_effectiveness observational readout; exploratory only. Exit criteria: Report separates live exploratory results from controlled causal results; no second live assignment system exists.",
+  "normalizedOutcome": "A committed live-readout report tool exists with a hermetic selfcheck, and the generated live-readout.md / live-readout.json under the expabl-m6-pilot-v1 evidence root show two strictly separated sections (controlled causal pilot results incl. the freeze refusal and inconclusive context; live exploratory learning_effectiveness figures labeled exploratory-only) plus the no-overclaim block.",
+  "acceptanceClaim": "node experiments/experience-ablation/live-readout-selfcheck.mjs exits 0 printing live-readout-selfcheck: all cases passed, and ls of the expabl-m6-pilot-v1 evidence root shows live-readout.json + live-readout.md whose content separates controlled-causal from live-exploratory with exploratory-only labels and no-overclaim text.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:00caf68d006b5d2f32421a54b2a921a39909c17046ef2970d39e737a8a0ef7f6",
+  "createdAt": "2026-07-03T09:21:17.222Z",
+  "updatedAt": "2026-07-03T09:21:17.222Z"
+}

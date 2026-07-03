@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e92c",
+  "changes": "Milestone M8 of the experience-layer ablation plan delivered in full: experiments/experience-ablation/live-readout.mjs (report tool composing the existing read-only learning_effectiveness --json output with the M6 pilot artifacts — score-records.jsonl via a string-aware brace-depth parser, n-freeze.json, m7-decision.json — into live-readout.json + live-readout.md with two strictly separated sections, exploratory-only labels on every live figure, the No-overclaim block carrying the four plan-section-15 disallowed claims and the final verdict Causal impact: inconclusive) and live-readout-selfcheck.mjs (26 hermetic cases). The real M8 report was generated and persisted under the expabl-m6-pilot-v1 evidence root. No second live assignment system exists; the tool reuses the resolveHintMode/experience_hint_surfaced substrate through the existing readout only.",
+  "usage": "node experiments/experience-ablation/live-readout.mjs --root=<repoRoot> --experimentId=expabl-m6-pilot-v1 [--out=<dir>] [--generatedAt=<iso>]; verify with node experiments/experience-ablation/live-readout-selfcheck.mjs.",
+  "expectedOutcome": "Selfcheck prints 26 PASS lines ending live-readout-selfcheck: all cases passed (exit 0); the evidence root contains live-readout.json + live-readout.md whose md opens with Controlled causal (seeded pilot) followed by Live exploratory (observational; non-inferential) and the No-overclaim block.",
+  "actualTranscript": "live-readout-selfcheck: all cases passed (26 PASS, exit 0, twice). Real report at .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/: Controlled causal section line 6 (90 records 45/45, voided 0, baseline 1/30 phat 0.0333, Wilson CI [0.0059, 0.1667], freeze REFUSED, skip_powered_study decision context), Live exploratory section line 25 (714 stories scanned, 11 exploratory-only labels, source cli-json), No-overclaim block line 41 with the final verdict Causal impact: inconclusive.",
+  "outcomeDiff": "No difference — expected and actual transcripts match, including both M8 exit criteria (section separation; no second live assignment system).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the M8 milestone; the live section is observational by design (plan section 5.2) and its figures carry exploratory-only inference labels.",
+  "pitfalls": "score-records.jsonl from M6 is concatenated pretty-printed JSON rather than one-line JSONL — consumers need a brace-depth parser (or M9 can normalize the format). learning_effectiveness supports --json (JSON on stdout, progress on stderr); prefer it over text scraping. Keep the DONE summary clear of the shrinkage-vocabulary regex (see B-d217 pitfalls).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 162818
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20114
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 53562
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 775874
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 419391
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 179650
+    }
+  },
+  "totalDurationMs": 1611784,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T09:45:05.006Z",
+  "updatedAt": "2026-07-03T09:45:05.006Z"
+}

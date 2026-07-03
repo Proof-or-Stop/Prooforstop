@@ -1,0 +1,58 @@
+{
+  "storyId": "B-e92c",
+  "checkedAt": "2026-07-03T09:44:29.870Z",
+  "headHash": "84ea529680da88fba98878c51b4e3dee545e7d21",
+  "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+  "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+  "reviewRound": "2026-07-03T09:35:05.965Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#M8",
+      "promise": "Report separates live exploratory results from controlled causal results (two strictly separated top-level sections)",
+      "verifiedBy": "diff/grep + manual read",
+      "evidence": "live-readout.md has strictly ordered sections: Controlled causal (seeded pilot) at line 6, Live exploratory at line 25, No-overclaim at line 41; controlled heading index < live heading index < no-overclaim heading index verified in selfcheck PASS case; confirmed in the real generated report at .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/live-readout.md"
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#M8",
+      "promise": "No second live assignment system exists (the tool only reads learning_effectiveness output; no new per-story assignment logic is introduced)",
+      "verifiedBy": "diff/grep of live-readout.mjs imports + selfcheck write-boundary case",
+      "evidence": "live-readout.mjs imports only node:fs, node:path, node:child_process (zero packages/main imports). The only contact is a spawn of the read-only existing learning_effectiveness CLI. Selfcheck write-boundary PASS confirms nothing is written outside --out. resolveHintMode is reused as-is."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#section-5.2-and-15",
+      "promise": "Every live figure in the report is labeled exploratory-only/non-inferential per plan sections 5.2 and 15",
+      "verifiedBy": "manual read of live-readout.md + selfcheck PASS + live figure count",
+      "evidence": "Real live-readout.md has 11 lines prefixed [exploratory-only] (grep count = 11); selfcheck PASS: md:every-live-figure-line-carries-the-exploratory-only-label and md:controlled-section-carries-no-exploratory-only-label. JSON figure array: figureCount=11, allExploratory=true. Live section header states cannot answer H1 / plan sections 5.2/15."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#section-15",
+      "promise": "Report carries no-overclaim block with plan-15 disallowed claims and the final inconclusive verdict",
+      "verifiedBy": "manual read of live-readout.md + selfcheck PASS cases",
+      "evidence": "No-overclaim section in real live-readout.md at line 41 contains all four disallowed claims and Final study verdict: Causal impact: inconclusive — design assumption invalidated by pilot baseline, N-freeze REFUSED, M7 decision skip_powered_study. Selfcheck PASS: md:no-overclaim-block-carries-plan-15-disallowed-claims and md:no-overclaim-block-carries-the-final-inconclusive-verdict."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#section-13-M8",
+      "promise": "M8 report includes m7-decision context (skip_powered_study) in the controlled section",
+      "verifiedBy": "manual read of live-readout.md + selfcheck PASS",
+      "evidence": "Controlled section in real live-readout.md lines 21-23 carries M7 decision: skip_powered_study, basis, consequence. Selfcheck PASS: md:controlled-section-carries-freeze-REFUSED-reason-m7-skip-context."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/experience-ablation/live-readout-selfcheck.mjs: 26 PASS lines, exit 0. Covers: section order, strict separation (controlled before live before no-overclaim), every live figure carries [exploratory-only], controlled section carries none, expected figures on labeled lines, pilot summary, freeze REFUSED with per-MDE reasons, m7 skip context, no-overclaim block with disallowed claims and inconclusive verdict, JSON key order, deterministic double-run byte-identity, without --generatedAt null payload byte-identical, write boundary, text fallback, 5 missing/malformed input error cases producing one actionable stderr line each, usage exit 2, and unit tests for brace-depth parser, recount, mismatch rejection, and text scraper."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Real report generated via node live-readout.mjs --root=<main> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot> --generatedAt=2026-07-03T07:00:00Z. live-readout.md and live-readout.json verified present under .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/. Controlled section: 90 records (45/45 arms), 0 voided, baseline 1/30 phat 0.0333, Wilson CI [0.0059, 0.1667], replay digest replayByteIdentical true, freeze REFUSED, M7 skip_powered_study with basis and consequence. Live section: 11 [exploratory-only] bullets from real learning_effectiveness cli-json (714 stories scanned). JSON parses with correct key order and all 11 figures inference=exploratory-only. No-overclaim block and final inconclusive verdict confirmed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both deliverable scripts (live-readout.mjs and live-readout-selfcheck.mjs) committed and independently verified. The selfcheck runs 26 cases covering happy path, strict section separation, exploratory-only labeling, no-overclaim content, determinism, write boundary, text fallback, and 7 error/edge cases — all PASS with exit 0. The real M8 report for expabl-m6-pilot-v1 is persisted as gitignored runtime evidence with both separated sections confirmed, 11 [exploratory-only] labels, no-overclaim block, inconclusive verdict, and m7-decision context. No second live assignment system introduced."
+  },
+  "_hash": "129933aa37265b4e9ba66155d2fd2d05d26477ede0b206946f7989a9cdf0644a"
+}

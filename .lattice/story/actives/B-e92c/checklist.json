@@ -8,9 +8,80 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "node experiments/experience-ablation/live-readout-selfcheck.mjs prints per-case PASS lines ending live-readout-selfcheck: all cases passed with exit 0",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T09:22:58.438Z",
+      "endTime": "2026-07-03T09:33:50.949Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/live-readout.mjs",
+          "experiments/experience-ablation/live-readout-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/live-readout-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selfcheck: report generated from stub inputs has the two strictly separated sections, exploratory-only labels on every live figure, and the no-overclaim block",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic double-run byte-identity given fixed inputs; missing pilot artifacts fail with one-line actionable errors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No second live assignment system: the tool only reads the existing learning_effectiveness output and on-disk artifacts (no writes outside --out, no packages/main imports beyond the CLI spawn)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "result": "pass",
+          "note": "26 PASS lines ending live-readout-selfcheck: all cases passed, exit 0, run twice. Section-separation case asserts controlled heading index < live heading index < no-overclaim; label case asserts all 11 live figure bullets carry [exploratory-only] and controlled section carries none; no-overclaim cases assert plan-15 disallowed claims (agents smarter / memory proves DONE / eliminates defects / generalizes) plus final verdict Causal impact: inconclusive - design assumption invalidated by the pilot baseline.",
+          "headHash": "a9e336b8c692aea6abedd54d035f919413c6d9ef",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:23.868Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "result": "pass",
+          "note": "Determinism cases PASS: double run into two out dirs byte-identical for live-readout.json + live-readout.md; without --generatedAt payload records generatedAt:null and stays byte-identical across two runs (no wall clock in payload). Missing-artifact cases PASS: score-records.jsonl / n-freeze.json / m7-decision.json each missing -> exit 1 with exactly ONE stderr line prefixed live-readout: naming the artifact and the remediation; truncated score-records.jsonl and missing --effectivenessJson file also one-line actionable; missing flags exit 2 with usage.",
+          "headHash": "c19bdbb066316c669efbb6287614c1b418616035",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:42.767Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/live-readout-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs && grep -n \"packages/main\" experiments/experience-ablation/live-readout.mjs",
+          "result": "pass",
+          "note": "No second live assignment system: live-readout.mjs imports only node:fs/node:path/node:child_process (zero packages/main imports; grep shows packages/main only inside the spawn path join(root,packages,main,dist,cli.js) and error hints). Write-boundary selfcheck case PASS: recursive sha256 tree digest of the stub root before/after a run (out dirs excluded) is identical, proving the tool writes only under --out. Selfcheck never spawns the real CLI (--effectivenessJson stub injection on every run).",
+          "headHash": "a0070f23408a7f5c08f552cd705ee79d34dcb999",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:33:43.763Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +91,74 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "ls .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ shows live-readout.json and live-readout.md, and head of live-readout.md shows the two separated sections with the exploratory-only labeling",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T09:34:18.595Z",
+      "endTime": "2026-07-03T09:34:37.862Z",
+      "files": {
+        "modify": [],
+        "create": [
+          ".lattice/experiments/experience-ablation/"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Real report generated: live-readout.md opens with the controlled-vs-exploratory separation carrying real pilot figures (90 records, 0 voided, baseline 0.0333, freeze refused) and real learning_effectiveness figures",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "live-readout.json parses and mirrors the md content (machine/human consistency spot-check)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The live section carries exploratory-only/non-inferential labels and the m7-decision (skip_powered_study) context appears in the controlled section",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/live-readout.mjs --root=<main> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot> --generatedAt=2026-07-03T07:00:00Z",
+          "result": "pass",
+          "note": "live-readout.md opens with Controlled causal (seeded pilot) carrying real figures: 90 records (45/45 arms), voided 0, baseline 1/30 phat 0.0333 with Wilson CI [0.0059,0.1667], replay digest match, freeze REFUSED both mde attempts; followed by Live exploratory section with real learning_effectiveness figures (714 stories scanned, source cli-json).",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e require(live-readout.json) + section keys",
+          "result": "pass",
+          "note": "live-readout.json parses and mirrors the md content (machine/human consistency verified on section keys and figures).",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -c exploratory-only live-readout.md; grep No-overclaim",
+          "result": "pass",
+          "note": "Every live figure line carries [exploratory-only]; the live section header states non-inferential/cannot answer H1 per plan 5.2/15; the controlled section embeds the m7-decision skip_powered_study context; the No-overclaim block is present.",
+          "headHash": "8201ebf422e58bda421112a6ad3c876778fafafc",
+          "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+          "storyFilesHash": "2c406c5111b5cbad88944ba115e40b48d0b43c853c759fea31c75295d300d925",
+          "timestamp": "2026-07-03T09:34:37.287Z"
+        }
+      ]
     }
   ]
 }
