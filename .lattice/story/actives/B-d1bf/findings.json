@@ -209,6 +209,24 @@
       "resolvedAt": "2026-07-03T02:13:38.147Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d1bf:F-010",
+      "desc": "Non-Q5 quantum claims carrying stronger requestedStrength values such as ground-state, convergence, or quantum-advantage could advance instead of degrading or stopping, allowing over-strong claim semantics outside the M3 scoped local policy.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-03T02:30:55.060Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "_hash": "0f9b25d6005326364667764c6d97ad4e145a9b86c2fb1f9764b40d213acdd76e",
+      "files": [
+        "packages/main/src/core/claim-admissibility/quantum.ts",
+        "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|quantum-claims-carrying",
+      "signatureTagSource": "auto"
     }
   ]
 }
