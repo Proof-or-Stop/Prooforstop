@@ -789,9 +789,12 @@ async function run(): Promise<void> {
         packId: 'pack-arm-smoke',
         packHash: 'hash-arm-smoke',
         overflowReady: true,
+        // Partial fixture (B-ab8d F-002): only fields renderHostDispatchProjectionText
+        // reads. The retired-vocabulary boolean flag on the production type is
+        // intentionally omitted so this new file stays clean under the
+        // retired-authority-vocabulary-guard-smoke source scan.
         authorityChanged: false,
         receiptVerified: false,
-        productionDone: false,
         nextAction: 'review the pack before dispatch',
         warnings: [],
         admissibilitySummary: {
