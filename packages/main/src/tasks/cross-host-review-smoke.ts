@@ -50,6 +50,7 @@ import type { HandlerContext } from '../handlers/context.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { Finding } from '../core/adversarial-review.js';
 import {
+  CODEX_REVIEW_ABNORMAL_EXIT,
   CODEX_REVIEW_VERDICT_SCHEMA,
   type CodexReviewRunner,
   type CodexReviewRunnerOptions,
@@ -60,7 +61,7 @@ import {
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
-import { checkDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
+import { checkDispatchPolicy, createDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
 
 const STORY_ID = 'B-xhr-smoke';
 const REVIEW_ROUND = '2026-07-03T10:00:00.000Z';
@@ -368,7 +369,10 @@ async function run(): Promise<void> {
         json: true,
       }) as CrossHostReviewResult;
       assert.equal(result.hostB.decision, 'blocked', 'no verdict on timeout → blocked');
-      assert.match(String(result.hostB.reason), /codex_review_no_parseable_verdict/, 'reason names codex_review_no_parseable_verdict');
+      // Abnormal exit (137 + timedOut) fails closed BEFORE the verdict parse, so the
+      // reason is codex_review_abnormal_exit — the abnormal-exit guard wins over the
+      // no-parseable-verdict path even though this stdout also has no verdict.
+      assert.equal(String(result.hostB.reason), CODEX_REVIEW_ABNORMAL_EXIT, 'reason names codex_review_abnormal_exit');
       assert.equal(result.codexExitCode, 137, 'non-zero exit code is surfaced');
       assert.equal(result.codexTimedOut, true, 'timedOut is surfaced');
       assert.ok(typeof result.stdoutDigest === 'string' && /^[0-9a-f]{64}$/.test(result.stdoutDigest), 'stdoutDigest present as sha256');
@@ -377,6 +381,35 @@ async function run(): Promise<void> {
       const asRecord = result as unknown as Record<string, unknown>;
       assert.equal(asRecord.stdout, undefined, 'no raw stdout field');
       assert.equal(asRecord.rawStdout, undefined, 'no rawStdout field');
+
+      // (has-valid-verdict-but-crashed) A killed/timed-out process whose partial
+      // stdout HAPPENS to carry a schema-valid `pass` verdict bound to the CORRECT
+      // materialHash MUST still be rejected. runCodexReviewLeaf fails closed on
+      // abnormal exit BEFORE trusting any parsed verdict, so a crashed process's
+      // "pass" is never honored. (Codex host-B lane fix.)
+      const crashedPassHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: fakeSeamWithOutcome(
+          verdictJsonStdout(materialHash, 'pass', [], 'everything looks fine to me'),
+          137,
+          true,
+        ),
+      });
+      const crashedPass = await crashedPassHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-e3-abnormal`,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(crashedPass.hostB.decision, 'blocked', 'a valid pass verdict from a crashed/timed-out process is STILL blocked');
+      assert.equal(String(crashedPass.hostB.reason), CODEX_REVIEW_ABNORMAL_EXIT, 'reason is codex_review_abnormal_exit (not the parsed pass)');
+      assert.equal(crashedPass.codexExitCode, 137, 'non-zero exit code surfaced on the abnormal-exit case');
+      assert.equal(crashedPass.codexTimedOut, true, 'timedOut surfaced on the abnormal-exit case');
+      assert.equal(crashedPass.jointDecision.jointDecision, 'blocked', 'joint decision blocked (host B abnormal-exit)');
+      // The abnormal-exit verdict is recorded as a BLOCKED codex verdict, never a pass.
+      const abnormalVerdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === `${STORY_ID}-xhr-e3-abnormal` && v.provider === 'codex');
+      assert.ok(abnormalVerdict, 'codex verdict recorded on abnormal exit');
+      assert.equal(abnormalVerdict!.decision, 'blocked', 'recorded codex verdict is blocked, never the parsed pass');
     });
 
     // CHK-001:adversarial:0 — verdict JSON block PLUS malicious out-of-band text.
@@ -449,6 +482,76 @@ async function run(): Promise<void> {
       const agyReviewOnly = checkDispatchPolicy(root, { ...base, allowedHosts: ['antigravity'], allowReviewOnlyRealHostSubprocess: true } as DispatchPolicy);
       assert.equal(agyReviewOnly.status, 'refused', 'antigravity remains refused under the review-only flag');
       assert.ok(agyReviewOnly.reasons.some(r => /antigravity/.test(r)), 'refusal names antigravity');
+
+      // ── PURE review-only policy (allowRealHostSubprocess:false) ────────────────
+      // The cases above all carry allowRealHostSubprocess:true (implementation intent),
+      // which is caught by the impl-path guard. But a PURE review-only policy
+      // (allowRealHostSubprocess:false, allowReviewOnlyRealHostSubprocess:true) NEVER
+      // enters that block — so without a dedicated guard it could sanction gemini/
+      // antigravity. The review-only flag sanctions ONLY a read-only codex reviewer,
+      // so a pure review-only policy naming gemini/antigravity must be REFUSED.
+      // (Codex host-B lane fix.)
+      const pureBase: Omit<DispatchPolicy, 'allowedHosts'> = {
+        schemaVersion: 'lattice.dispatch_policy.v1',
+        policy: 'fake',
+        allowedPaths: ['packages/main/src/'],
+        deniedPaths: [],
+        maxParallel: 1,
+        maxRuntimeMinutes: 12,
+        maxBudgetUSD: 1.0,
+        network: 'none',
+        envAllowlist: [],
+        envDenylist: [],
+        commandAllowlist: ['codex exec -s read-only'],
+        retryLimit: 0,
+        requireReceipt: true,
+        requireReview: true,
+        allowRealHostSubprocess: false,
+        allowReviewOnlyRealHostSubprocess: true,
+        allowAutoMerge: false,
+        allowProductionDone: false,
+        createdAt: '2026-07-03T00:00:00.000Z',
+      };
+      // (4) PURE review-only + gemini → REFUSED by checkDispatchPolicy.
+      const pureGemini = checkDispatchPolicy(root, { ...pureBase, allowedHosts: ['gemini'] } as DispatchPolicy);
+      assert.equal(pureGemini.status, 'refused', 'a PURE review-only gemini policy is refused (review-only sanctions codex only)');
+      assert.ok(pureGemini.reasons.some(r => /gemini/.test(r) && /review-only/.test(r)), 'refusal names gemini as a non-permitted review-only real-host target');
+      // (5) PURE review-only + antigravity → REFUSED by checkDispatchPolicy.
+      const pureAgy = checkDispatchPolicy(root, { ...pureBase, allowedHosts: ['antigravity'] } as DispatchPolicy);
+      assert.equal(pureAgy.status, 'refused', 'a PURE review-only antigravity policy is refused (review-only sanctions codex only)');
+      assert.ok(pureAgy.reasons.some(r => /antigravity/.test(r) && /review-only/.test(r)), 'refusal names antigravity as a non-permitted review-only real-host target');
+      // (6) Control: PURE review-only + codex → PERMITTED (the sanctioned read-only reviewer).
+      const pureCodex = checkDispatchPolicy(root, { ...pureBase, allowedHosts: ['codex'] } as DispatchPolicy);
+      assert.notEqual(pureCodex.status, 'refused', 'a PURE review-only codex policy is permitted (the sanctioned read-only reviewer)');
+
+      // (7) create/validate path: createDispatchPolicy must also REFUSE a pure
+      // review-only gemini/antigravity policy (throws), and permit codex.
+      assert.throws(
+        () => createDispatchPolicy(root, {
+          policy: 'fake', allowedHosts: ['gemini'], allowedPaths: ['packages/main/src/'],
+          maxParallel: 1, maxRuntimeMinutes: 12, allowRealHostSubprocess: false,
+          allowReviewOnlyRealHostSubprocess: true,
+        }),
+        /review-only|gemini/,
+        'createDispatchPolicy refuses a pure review-only gemini policy',
+      );
+      assert.throws(
+        () => createDispatchPolicy(root, {
+          policy: 'fake', allowedHosts: ['antigravity'], allowedPaths: ['packages/main/src/'],
+          maxParallel: 1, maxRuntimeMinutes: 12, allowRealHostSubprocess: false,
+          allowReviewOnlyRealHostSubprocess: true,
+        }),
+        /review-only|antigravity/,
+        'createDispatchPolicy refuses a pure review-only antigravity policy',
+      );
+      assert.doesNotThrow(
+        () => createDispatchPolicy(root, {
+          policy: 'fake', allowedHosts: ['codex'], allowedPaths: ['packages/main/src/'],
+          maxParallel: 1, maxRuntimeMinutes: 12, allowRealHostSubprocess: false,
+          allowReviewOnlyRealHostSubprocess: true,
+        }),
+        'createDispatchPolicy permits a pure review-only codex policy',
+      );
     });
 
     // CHK-001:adversarial:2 (F-003) — codex with BOTH allowRealHostSubprocess=true

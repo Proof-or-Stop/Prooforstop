@@ -71,6 +71,7 @@ const verdictSchema = z.object({
 
 export const CODEX_REVIEW_NO_PARSEABLE_VERDICT = 'codex_review_no_parseable_verdict' as const;
 export const CODEX_REVIEW_MATERIAL_MISMATCH = 'codex_review_material_mismatch' as const;
+export const CODEX_REVIEW_ABNORMAL_EXIT = 'codex_review_abnormal_exit' as const;
 
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -335,6 +336,23 @@ export async function runCodexReviewLeaf(
     ...(opts.env ? { env: opts.env } : {}),
   });
   const stdoutDigest = digest(outcome.stdout);
+
+  // Codex output can only be trusted from a CLEAN completion. A timed-out or
+  // non-zero / null (spawn-failure) exit means the review did not finish; even if a
+  // schema-valid verdict happens to sit in the partial stdout, fail closed — a killed
+  // process's "pass" is not a real reviewer verdict. (Caught by the Codex host-B lane.)
+  if (outcome.timedOut || outcome.exitCode !== 0) {
+    return {
+      hostBVerdict: synthesizedBlocked(
+        opts.materialHash,
+        CODEX_REVIEW_ABNORMAL_EXIT,
+        `Codex review leaf exited abnormally (exitCode=${String(outcome.exitCode)}, timedOut=${outcome.timedOut}); failing closed regardless of stdout content.`,
+      ),
+      stdoutDigest,
+      exitCode: outcome.exitCode,
+      timedOut: outcome.timedOut,
+    };
+  }
 
   const parsed = extractCodexReviewVerdict(outcome.stdout);
   if (!parsed) {

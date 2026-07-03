@@ -288,6 +288,20 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
       );
     }
+    // Codex host-B lane: the guard above only fires when allowRealHostSubprocess is
+    // true, so a PURE review-only policy could still carry allowedHosts=['gemini'|
+    // 'antigravity']. The review-only flag sanctions ONLY a read-only codex reviewer —
+    // refuse any non-codex real host in that case.
+    if (reviewOnlyCodex) {
+      const unsupportedReviewHosts = allowedHosts.filter(
+        (host) => host === 'antigravity' || host === 'gemini',
+      );
+      if (unsupportedReviewHosts.length > 0) {
+        errors.push(
+          `allowReviewOnlyRealHostSubprocess sanctions a read-only codex reviewer only; ${unsupportedReviewHosts.join(', ')} are not permitted review-only real-host targets`,
+        );
+      }
+    }
     normalized.allowRealHostSubprocess = allowRealHostSubprocess;
   }
 
@@ -454,6 +468,22 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+      );
+    }
+  }
+
+  // Codex host-B lane: the review-only flag sanctions ONLY a read-only codex reviewer.
+  // A PURE review-only policy (allowRealHostSubprocess=false) never enters the block
+  // above, so without this guard a policy could set allowReviewOnlyRealHostSubprocess
+  // + allowedHosts=['gemini'|'antigravity'] and pass — violating the codex-only invariant.
+  // Refuse any non-codex real host whenever the review-only flag is set.
+  if (policyRecord.allowReviewOnlyRealHostSubprocess === true) {
+    const unsupportedReviewHosts = (policyRecord.allowedHosts ?? []).filter(
+      (host) => host === 'antigravity' || host === 'gemini',
+    );
+    if (unsupportedReviewHosts.length > 0) {
+      reasons.push(
+        `allowReviewOnlyRealHostSubprocess sanctions a read-only codex reviewer only; ${unsupportedReviewHosts.join(', ')} are not permitted review-only real-host targets`,
       );
     }
   }
