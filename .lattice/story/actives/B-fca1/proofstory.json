@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-fca1",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:a206e48db56fbfc999e9ca859cded2140463486be66ef057b76c6cf51d3887d3",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "node experiments/experience-ablation/evidence-map-selfcheck.mjs exits 0 printing evidence-map-selfcheck: all cases passed, and the persisted evidence-map.md shows the claim-to-artifact table (all artifacts existence+digest checked) plus the final verdict line Causal impact: INCONCLUSIVE.",
+      "note": "M9 exit criteria bound to both items."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Final milestone; generator pattern mirrors live-readout.mjs.",
+  "createdAt": "2026-07-03T09:52:42.090Z",
+  "updatedAt": "2026-07-03T09:52:42.090Z"
+}

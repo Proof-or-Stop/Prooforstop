@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fca1",
+  "changes": "Milestone M9, the final milestone of the experience-layer ablation plan, delivered in full: experiments/experience-ablation/evidence-map.mjs (paper-ready evidence-map generator: plan-section-18 claim-to-artifact table with per-artifact existence + sha256 digest checks and recorded-vs-recomputed hash cross-checks; no-overclaim summary with the circularity disclosure and the four plan-section-15 disallowed claims; final study summary with the verdict line Causal impact: INCONCLUSIVE and its three-part basis; plan-section-16 paper table computed from score-records.jsonl with unpowered/exploratory labels on every figure; separator-safe production-store isolation check) and evidence-map-selfcheck.mjs (39 hermetic cases incl. tamper detection and write-boundary). The real evidence-map.{json,md} was generated and persisted under the expabl-m6-pilot-v1 evidence root with all 10 definition-of-done rows status ok.",
+  "usage": "node experiments/experience-ablation/evidence-map.mjs --root=<repoRoot> --experimentId=expabl-m6-pilot-v1 [--out=<dir>] [--generatedAt=<iso>]; verify with node experiments/experience-ablation/evidence-map-selfcheck.mjs.",
+  "expectedOutcome": "Selfcheck prints 39 PASS lines ending evidence-map-selfcheck: all cases passed (exit 0); the evidence root contains evidence-map.json + evidence-map.md whose table lists all 10 section-18 rows with digests and whose final summary reads Causal impact: INCONCLUSIVE.",
+  "actualTranscript": "evidence-map-selfcheck: all cases passed (39 PASS, exit 0, twice). Real evidence-map.md: claim-to-artifact table rows 1-10 all status ok with sha256 digests (protocol.json 4c0c9695, plan doc 2ef4122e, score-records f1030844, etc.); line 83 Causal impact: INCONCLUSIVE with the invalidated-baseline basis; circularity disclosure + four disallowed claims present; paper table rows all labeled unpowered/exploratory; regeneration byte-identical to the persisted files.",
+  "outcomeDiff": "No difference — expected and actual transcripts match, including both M9 exit criteria (paper section can cite protocol/ledger/score records/leakage audit/analysis report; final summary states the verdict).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the M9 milestone; the verdict INCONCLUSIVE is itself the honest, plan-section-18-compliant final statement of the study.",
+  "pitfalls": "The paper table is computed from pilot data and must always carry unpowered labels — any future consumer citing those figures inferentially would violate the no-overclaim rule. The generator digest-checks every cited artifact, so regenerating after any evidence-root change requires rerunning the tool (by design, to catch drift). Keep DONE summaries clear of the shrinkage-vocabulary regex (B-d217 lesson).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 143563
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 32829
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 3671
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1274665
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 929089
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 191251
+    }
+  },
+  "totalDurationMs": 2575438,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T10:32:38.861Z",
+  "updatedAt": "2026-07-03T10:32:38.861Z"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fca1",
+  "sourceText": "User (2026-07-03, after choosing skip_powered_study): proceed to M9 per docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md sections 13 M9 row, 15, 16 and 18 — paper-ready evidence map: claim-to-artifact table + no-overclaim summary incl. the circularity disclosure; final summary states whether causal impact was supported, unsupported, or inconclusive.",
+  "normalizedOutcome": "A committed evidence-map generator with hermetic selfcheck exists, and the generated evidence-map.md/.json under the expabl-m6-pilot-v1 evidence root carry the full section-18 claim-to-artifact table with existence+digest checks, the no-overclaim summary with the circularity disclosure, the plan-16 paper table with unpowered labels, and the final verdict line Causal impact: INCONCLUSIVE.",
+  "acceptanceClaim": "node experiments/experience-ablation/evidence-map-selfcheck.mjs exits 0 printing evidence-map-selfcheck: all cases passed, and the persisted evidence-map.md shows the claim-to-artifact table (all artifacts existence+digest checked) plus the final verdict line Causal impact: INCONCLUSIVE.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:a206e48db56fbfc999e9ca859cded2140463486be66ef057b76c6cf51d3887d3",
+  "createdAt": "2026-07-03T09:52:40.813Z",
+  "updatedAt": "2026-07-03T09:52:40.813Z"
+}
