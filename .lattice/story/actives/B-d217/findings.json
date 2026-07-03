@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|mjs|quality-cleanup-score",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d217:F-002",
+      "desc": "quality-cleanup: score-selfcheck.mjs:196 tmpdir()-based digest-stability check may produce a false-pass on macOS — os.tmpdir() can return /var/folders/... while mkdtempSync resolves to a /private/var/folders/... path (symlink target); the string-inclusion check for tmpdir() would miss a leaked resolved path. The corpus variable check on the same line is more reliable. Fix: also check the resolved (realpath) form of tmpdir(), or use only the corpus variable check which is already the actual temp root used",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:29.105Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "c4a3b2cedd719bc3236ab57de62b68bdeaa743e4d315300107413cb56e8eaaff",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "edge|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto"
     }
   ]
 }
