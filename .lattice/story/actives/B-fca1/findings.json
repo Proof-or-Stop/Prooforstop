@@ -5,7 +5,7 @@
       "desc": "edge: evidence-map.mjs:293 storeRoot isolation check uses startsWith(productionStore) without trailing path separator — a storeRoot of <root>/.lattice/learning-extra/... would be incorrectly flagged as a production-store violation because the string starts with <root>/.lattice/learning; should use startsWith(productionStore + path.sep) or startsWith(productionStore + \"/\")",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T10:16:45.703Z",
@@ -16,7 +16,9 @@
         "experiments/experience-ablation/evidence-map.mjs"
       ],
       "signatureTag": "edge|mjs|edge-evidence-storeroot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit a37257c0de87839acfb25be74ae996cdac076152: evidence-map.mjs row-4 isolation check now uses separator-safe insideProductionStore(p) = (p === productionStore || p.startsWith(productionStore + sep)), mirroring the selfcheck digestTree skip pattern, so sibling paths like <root>/.lattice/learning-extra/... no longer false-flag. Added two selfcheck cases: sibling storeRoot <root>/.lattice/learning-extra/x does NOT trigger the violation (exit 0) and <root>/.lattice/learning/x MUST trigger it (one actionable per-run store isolation line). Selfcheck 39/39 PASS twice; real regeneration for expabl-m6-pilot-v1 byte-identical to persisted evidence-map.md and .json.",
+      "resolvedAt": "2026-07-03T10:24:46.607Z"
     }
   ]
 }
