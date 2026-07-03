@@ -74,13 +74,17 @@ Boundary rules:
 
 - The Proofbound code runtime pack is the existing, mature path.
 - PINN remains a design contract for a future domain pack.
-- Quantum M2 is implemented and registered by default as a read-only
-  descriptor/normalization pack. It exposes scoped claim/evidence schema
-  descriptors and read-receipt-only verifier adapter descriptors for normalized
-  local receipts.
+- Quantum M0-M3 is implemented and registered by default as a read-only
+  descriptor/normalization plus local gate-policy projection. It exposes scoped
+  claim/evidence schema descriptors, read-receipt-only verifier adapter
+  descriptors for normalized local receipts, and a `quantum_claim_check`
+  diagnostic that maps existing evaluator output to local
+  `advance`/`repair`/`degrade`/`escalate`/`stop` decisions without mutating
+  lifecycle state.
 - Full future domain-pack capabilities such as command-backed verifier
-  execution, gate policies, benchmark harnesses, and benchmark reporting remain
-  pending. Theory, hardware, production, and Authority claims remain non-goals.
+  execution, global lifecycle gate integration, benchmark harnesses, and
+  benchmark reporting remain pending. Theory, hardware, production, and
+  Authority claims remain non-goals.
 - Future packs may claim only claim admissibility. They must not claim
   scientific truth, mathematical proof, physical reality, solver quality, or
   experimental validation.
@@ -270,8 +274,8 @@ Acceptance:
 - current base and future framework are separated;
 - PINN and full Quantum domain-pack capabilities are described as future
   domain-pack contracts;
-- Quantum M2 is distinguished as the current read-only descriptor/normalization
-  pack implementation;
+- Quantum M0-M3 is distinguished as the current read-only
+  descriptor/normalization plus local gate-policy projection implementation;
 - non-goals prevent second proof systems and scientific truth claims.
 
 ### M1: Pack Interface And Registry
@@ -288,15 +292,17 @@ Acceptance:
 ### M2: Domain Schema Loader And Quantum Read-Only Pack
 
 Add a schema loader for pack-owned claim and evidence schemas. The current
-Quantum M2 slice also delivers the default-registered read-only quantum
-descriptor/normalization pack: scoped claim/evidence descriptors,
-read-receipt-only verifier adapter descriptors, and normalization of supplied
-local receipts.
+Quantum M0-M3 slice also delivers the default-registered read-only quantum
+descriptor/normalization pack and local gate-policy projection: scoped
+claim/evidence descriptors, read-receipt-only verifier adapter descriptors,
+normalization of supplied local receipts, and `quantum_claim_check` output for
+local claim-admissibility decisions.
 
-Quantum M2 does not execute external commands, create storage, create ledgers,
-create lifecycle gates, define gate policies, add benchmark harnesses or
-reporting, claim production completion, act as Authority, validate hardware, or
-prove quantum mechanics.
+Quantum M3 does not execute external commands, create storage, create ledgers,
+create global lifecycle gates, add benchmark harnesses or reporting, claim
+production completion, act as Authority, validate hardware, or prove quantum
+mechanics. Its local gate-policy projection is read-only and keeps
+`productionDone=false` and `authorityDone=false`.
 
 Acceptance:
 
@@ -304,7 +310,7 @@ Acceptance:
 - required identity fields are validated deterministically;
 - strict-shape failures map to existing admissibility reason codes.
 - the default registry includes the read-only quantum descriptor/normalization
-  pack without adding lifecycle gate authority.
+  and local gate-policy projection without adding lifecycle gate authority.
 
 ### M3: Verifier Adapter Contract
 

@@ -1,7 +1,7 @@
 # Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan
 
 Status: formal story source of truth for B-7b4e
-Runtime status: Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending.
+Runtime status: Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending.
 Created: 2026-07-02
 Scope: local computational quantum-mechanics claim-admissibility controls
 
@@ -18,7 +18,7 @@ evidence to advance across lifecycle stages.
 
 ## Current Implementation Slice
 
-B-7b4e and B-5118 implement Milestones 0 through 2:
+B-7b4e, B-5118, and B-d1bf implement Milestones 0 through 3:
 
 - M0: scope, policy, non-goals, claim IDs, boundary semantics, and fail-closed
   reason vocabulary.
@@ -26,10 +26,14 @@ B-7b4e and B-5118 implement Milestones 0 through 2:
   stale, missing, mismatched, weak, or unbound evidence.
 - M2: read-only verifier adapter descriptors plus deterministic normalization
   from supplied adapter output into local quantum verifier receipts.
+- M3: local read-only gate-policy projection that maps existing evaluator output
+  to `advance`, `repair`, `degrade`, `escalate`, or `stop`, exposed through
+  `quantum_claim_check` without writing lifecycle evidence or mutating the Story
+  machine.
 
-M3 through M5 remain pending:
+M4 through M5 remain pending:
 
-- no lifecycle transition engine integration;
+- no global lifecycle transition engine integration or Story phase mutation;
 - no benchmark harness or failure-injection runner;
 - no reporting/governance integration beyond the local smoke task.
 
@@ -302,9 +306,22 @@ lifecycle gates, or claim full quantum validation.
 
 ### Milestone 3 - Gate policy and transition engine updates
 
-Pending. Future work may bind lifecycle transitions to the claim/evidence
-registry and expose controlled `repair`, `degrade`, `escalate`, or `stop`
-behavior.
+Implemented as a local read-only M3 gate-policy check. The implementation maps
+the existing Quantum evaluator reason codes into `advance`, `repair`, `degrade`,
+`escalate`, or `stop` decisions for claim-admissibility transitions only. It
+does not mutate the global Story lifecycle, write lifecycle evidence, claim
+production/Authority completion, or validate quantum theory, hardware, lab
+results, physical systems, or solver improvements.
+
+The read-only CLI surface is:
+
+```bash
+lattice quantum_claim_check --case=complete --json
+```
+
+The `complete` case advances only the local Q5 claim-admissibility projection
+and keeps `authorityDone=false` and `productionDone=false`. The weak/degraded
+case returns `degrade`, and hard overclaim cases return `stop`.
 
 ### Milestone 4 - Benchmark harness
 

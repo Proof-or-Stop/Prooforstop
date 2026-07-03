@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import {
   buildCompleteQuantumEvidence,
+  buildQuantumClaimCheckCase,
   evaluateQuantumClaim,
+  evaluateQuantumClaimGatePolicy,
   listQuantumVerifierAdapterDescriptors,
   normalizeQuantumVerifierAdapterOutput,
+  renderQuantumClaimGatePolicyText,
   renderQuantumClaimCheckText,
   QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION,
   type QuantumEvidenceIdentity,
@@ -14,6 +17,7 @@ import {
   type QuantumVerifierReceipt,
   type QuantumClaimCheckInput,
   type QuantumClaimCheckResult,
+  type QuantumClaimGatePolicyResult,
 } from '../core/claim-admissibility/quantum.js';
 import {
   CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID,
@@ -22,8 +26,9 @@ import {
   listClaimAdmissibilityPacks,
   validateClaimAdmissibilityPacks,
 } from '../core/claim-admissibility/pack-framework.js';
+import { createQuantumClaimAdmissibilityHandlers } from '../handlers/quantum-claim-admissibility.js';
 
-function hasReason(result: QuantumClaimCheckResult, code: string): boolean {
+function hasReason(result: { reasons: readonly string[] }, code: string): boolean {
   return result.reasons.some((reason) => reason === code || reason.startsWith(`${code}:`));
 }
 
@@ -125,6 +130,27 @@ function checkBlock(label: string, input: QuantumClaimCheckInput, reasonCode: st
   assert.equal(result.allowed, false, `${label} should be blocked`);
   assert.ok(hasReason(result, reasonCode), `${label} should include ${reasonCode}; got ${result.reasons.join(', ')}`);
   console.log(`${label}: BLOCK`);
+  return result;
+}
+
+function checkGateDecision(
+  label: string,
+  input: QuantumClaimCheckInput,
+  decision: QuantumClaimGatePolicyResult['decision'],
+): QuantumClaimGatePolicyResult {
+  const result = evaluateQuantumClaimGatePolicy(input);
+  assert.equal(result.decision, decision, `${label} should decide ${decision}; got ${result.decision} with ${result.reasons.join(', ')}`);
+  assert.equal(result.localClaimAdmissibilityOnly, true, `${label} remains local claim-admissibility only`);
+  assert.equal(result.writesLifecycleEvidence, false, `${label} writes no lifecycle evidence`);
+  assert.equal(result.mutatesLifecycle, false, `${label} mutates no lifecycle state`);
+  assert.equal(result.authorityDone, false, `${label} never claims authorityDone`);
+  assert.equal(result.productionDone, false, `${label} never claims productionDone`);
+  if (decision === 'advance') {
+    assert.equal(result.allowed, true, `${label} advance is the only allowed gate-policy pass`);
+  } else {
+    assert.equal(result.allowed, false, `${label} must not hard-pass non-advance decisions`);
+  }
+  console.log(`${label}: PASS`);
   return result;
 }
 
@@ -271,7 +297,19 @@ function checkBlock(label: string, input: QuantumClaimCheckInput, reasonCode: st
 
 const validEnergy = buildCompleteQuantumEvidence('Q5');
 const validEnergyResult = checkPass('valid Q5 energy evidence', validEnergy);
-assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M2 implemented; M3-M5 pending\./);
+assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending\./);
+
+const completeGate = checkGateDecision('quantum M3 complete gate-policy case', buildQuantumClaimCheckCase('complete'), 'advance');
+assert.equal(completeGate.transition, 'claim-admissibility', 'complete gate policy is claim-admissibility scoped');
+assert.equal(completeGate.claimId, 'Q5', 'complete case defaults to Q5');
+const completeGateText = renderQuantumClaimGatePolicyText(completeGate);
+assert.match(completeGateText, /decision: advance/);
+assert.match(completeGateText, /authorityDone: false/);
+assert.match(completeGateText, /productionDone: false/);
+
+const degradedGate = checkGateDecision('quantum M3 weak/degraded gate-policy case', buildQuantumClaimCheckCase('degraded'), 'degrade');
+assert.ok(hasReason(degradedGate, 'weak_evidence_overclaim'), 'degraded gate has weak_evidence_overclaim reason');
+assert.equal(degradedGate.degradedClaimAvailable, true, 'weak Q5 evidence degrades to a scoped claim instead of hard-passing');
 
 const validBasisOnlyEnergy = buildCompleteQuantumEvidence('Q5');
 delete validBasisOnlyEnergy.activeIdentity?.gridHash;
@@ -379,6 +417,15 @@ if (unboundSolverOutput.receipts?.[0]) {
 }
 checkBlock('unbound solver output', unboundSolverOutput, 'unbound_solver_output');
 
+const staleGate = checkGateDecision('quantum M3 stale gate-policy case', buildQuantumClaimCheckCase('stale'), 'stop');
+assert.ok(hasReason(staleGate, 'stale_evidence'), 'stale gate stops on stale_evidence');
+const missingGate = checkGateDecision('quantum M3 missing gate-policy case', buildQuantumClaimCheckCase('missing'), 'repair');
+assert.ok(hasReason(missingGate, 'missing_required_receipt'), 'missing gate repairs missing required receipt');
+const mismatchedGate = checkGateDecision('quantum M3 mismatched gate-policy case', buildQuantumClaimCheckCase('mismatched'), 'stop');
+assert.ok(hasReason(mismatchedGate, 'identity_mismatch'), 'mismatched gate stops on identity_mismatch');
+const unboundGate = checkGateDecision('quantum M3 unbound gate-policy case', buildQuantumClaimCheckCase('unbound'), 'stop');
+assert.ok(hasReason(unboundGate, 'unbound_solver_output'), 'unbound gate stops on unbound solver output');
+
 const mismatchedSolverOutputDigest = buildCompleteQuantumEvidence('Q4');
 if (mismatchedSolverOutputDigest.receipts?.[0]) {
   mismatchedSolverOutputDigest.receipts[0].outputDigest = 'sha256:mismatched-solver-output';
@@ -444,4 +491,49 @@ const productionOverclaim = buildCompleteQuantumEvidence('Q5');
 productionOverclaim.requestedStrength = 'production';
 checkBlock('production boundary overclaim', productionOverclaim, 'claim_boundary_violation');
 
-console.log('quantum M2 verifier adapter pack passed');
+const overclaimGate = checkGateDecision('quantum M3 overclaim gate-policy case', buildQuantumClaimCheckCase('overclaim'), 'stop');
+assert.ok(hasReason(overclaimGate, 'claim_boundary_violation'), 'overclaim gate stops on boundary violation');
+assert.equal(overclaimGate.boundary.hardwareValidationClaim, false, 'overclaim output still refuses hardware validation');
+assert.equal(overclaimGate.boundary.quantumTheoryClaim, false, 'overclaim output still refuses theory validation');
+
+for (const requestedStrength of ['theory', 'hardware', 'physical-validation', 'solver-improvement', 'production', 'authority'] as const) {
+  const input = buildCompleteQuantumEvidence('Q5');
+  input.requestedStrength = requestedStrength;
+  const result = checkGateDecision(`quantum M3 hard ${requestedStrength} overclaim gate-policy case`, input, 'stop');
+  assert.ok(hasReason(result, 'claim_boundary_violation'), `${requestedStrength} overclaim has boundary violation`);
+}
+
+const directAuthorityDone = buildCompleteQuantumEvidence('Q5');
+(directAuthorityDone as unknown as Record<string, unknown>).authorityDone = true;
+const directAuthorityDoneGate = checkGateDecision('quantum M3 direct authorityDone overclaim gate-policy case', directAuthorityDone, 'stop');
+assert.ok(hasReason(directAuthorityDoneGate, 'claim_boundary_violation'), 'direct authorityDone field has boundary violation');
+
+const theoryNarrative = buildCompleteQuantumEvidence('Q5');
+theoryNarrative.narrativeClaim = 'quantum theory proven';
+const theoryNarrativeGate = checkGateDecision('quantum M3 narrative theory overclaim gate-policy case', theoryNarrative, 'stop');
+assert.ok(hasReason(theoryNarrativeGate, 'claim_boundary_violation'), 'theory narrative has boundary violation');
+
+const hardwareNarrative = buildCompleteQuantumEvidence('Q5');
+hardwareNarrative.narrativeClaim = 'hardware validation complete';
+const hardwareNarrativeGate = checkGateDecision('quantum M3 narrative hardware overclaim gate-policy case', hardwareNarrative, 'stop');
+assert.ok(hasReason(hardwareNarrativeGate, 'claim_boundary_violation'), 'hardware narrative has boundary violation');
+
+const handlers = createQuantumClaimAdmissibilityHandlers({} as any);
+const handlerComplete = handlers.quantum_claim_check({ case: 'complete', format: 'json' }) as QuantumClaimGatePolicyResult;
+assert.equal(handlerComplete.decision, 'advance', 'handler complete JSON advances');
+assert.equal(handlerComplete.authorityDone, false, 'handler complete JSON authorityDone false');
+assert.equal(handlerComplete.productionDone, false, 'handler complete JSON productionDone false');
+const handlerDegraded = handlers.quantum_claim_check({ case: 'degraded', format: 'json' }) as QuantumClaimGatePolicyResult;
+assert.equal(handlerDegraded.decision, 'degrade', 'handler degraded JSON degrades');
+const handlerOverclaimText = handlers.quantum_claim_check({ case: 'overclaim' }) as string;
+assert.match(handlerOverclaimText, /decision: stop/, 'handler overclaim text stops');
+assert.match(handlerOverclaimText, /authorityDone: false/, 'handler overclaim text authorityDone false');
+assert.match(handlerOverclaimText, /productionDone: false/, 'handler overclaim text productionDone false');
+assert.throws(
+  () => handlers.quantum_claim_check({ productionDone: true } as any),
+  /refuses unsupported/,
+  'handler rejects productionDone overclaim flag',
+);
+console.log('quantum M3 handler gate-policy cases: PASS');
+
+console.log('quantum claim-admissibility smoke passed');
