@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-f57a:F-001",
+      "desc": "concept-cleanup: tier-c-crosshost-quorum-threat-model.md still attributes pinned-key enforcement to M1 (4 residual references at lines 6, 39, 44, 71) after this story redefined M1 to crypto-deferred cross-host review and moved pinned-key work to M-crypto; the phrase \"this is the core M1 fix\" at line 44 now points at the wrong milestone",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T02:22:19.248Z",
+      "reviewRound": "2026-07-03T02:19:40.977Z",
+      "reviewRunId": "B-f57a:RR-001",
+      "_hash": "491abf1c54cd1150bc2e8badcc6e0a4420a0faae5980b213800217a5db205282",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-tier",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
