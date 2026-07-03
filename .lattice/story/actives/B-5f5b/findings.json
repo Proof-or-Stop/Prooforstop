@@ -72,6 +72,25 @@
       "resolvedAt": "2026-07-03T16:45:26.613Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5f5b:F-004",
+      "desc": "CHK-003:edge:0 disabled action reporting is not actually covered in the current smoke. packages/main/src/tasks/playbook-trial-automation-smoke.ts:224 runs playbook_promotion_timer with backfill/sweep unrequested, but the assertions around lines 232-236 and 248-251 only check trial/activate statuses. The smoke never asserts that unrequested backfill/sweep steps are present with status=disabled and messages such as the implementation branches at packages/main/src/core/playbook-seed.ts:2339 and packages/main/src/core/playbook-seed.ts:2418. This would pass if the timer silently omitted disabled actions, so the evidence note overclaims CHK-003 disabled action reporting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T17:01:55.003Z",
+      "reviewRound": "2026-07-03T16:45:06.845Z",
+      "reviewRunId": "B-5f5b:RR-006",
+      "_hash": "eaaee192d0676f6520a1b648fea50669d58a20f613a6db4e0fd0e5ce36a5bbd2",
+      "files": [
+        "packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+        "packages/main/src/core/playbook-seed.ts"
+      ],
+      "signatureTag": "missing|ts|edge-disabled-action",
+      "signatureTagSource": "auto"
     }
   ]
 }
