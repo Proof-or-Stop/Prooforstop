@@ -66,7 +66,7 @@
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
       ],
-      "userSees": "The seed-to-candidate path is mechanically provable with CLI commands and digest guards.",
+      "userSees": "CLI output from playbook_seed_propose_batch shows \"applied\":true and playbook_candidate_batch_approve shows \"candidatePlaybookIds\":[\"PBP-...\"] while every new row has \"status\":\"candidate\".",
       "files": {
         "modify": [
           "packages/main/src/core/playbook-seed.ts",
