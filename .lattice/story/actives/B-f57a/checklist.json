@@ -54,7 +54,113 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:happy:0\": fake FAIL verdict -> recorded host-B decision===fail and materialDigest===currentMaterialHash (capture path binds to exact code).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:happy:1\": registry.get(cross_host_review) is defined (command registered).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:0\": garbage stdout -> blocked, reason codex_review_no_parseable_verdict, no raw-stdout field.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:1\": valid JSON missing decision field -> blocked, no_parseable_verdict.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:2\": wrong materialHash -> blocked (material mismatch / rebinding guard).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:3\": non-zero exit + timeout, no verdict -> blocked, stdoutDigest present, no raw stdout.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:adversarial:0\": verdict JSON + malicious out-of-band text -> only structured fields parsed; malicious raw text absent from recorded verdict.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:adversarial:1\": checkDispatchPolicy still refuses non-review codex impl subprocess, and gemini/antigravity under the review-only flag.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -115,7 +221,126 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:happy:0\": host-B-only finding -> jointDecision blocked, onlyHostB.length===1, hasDisagreement true.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:happy:1\": identical findings both pass -> jointDecision pass, hasDisagreement false, divergentCount 0.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:0\": host-A-only finding -> onlyHostA>=1, hasDisagreement true, blocked (symmetric detection).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:1\": one pass / one fail no overlap -> blocked, blockedReason present, decisions accurate.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:2\": same file:line differently-cased titles -> treated as SAME (agreed, not only*).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:3\": both fail identical findings -> blocked, hasDisagreement false, agreed contains shared findings.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:4\": host-B verdict blocked -> jointDecision blocked (blocked propagation).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:adversarial:0\": divergent host-A/host-B materialHash -> jointDecision blocked (never pass on divergent code states).",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:adversarial:1\": host-B returns same finding twice -> diffFindings dedups, counts correct.",
+          "headHash": "e89b0aa54916b1cb8b26c84b84a0c27deb8dd304",
+          "materialHash": "13922757e6cb26b5c6299474321b328070f390740e11a0f672e533ca8f9b6c9b",
+          "storyFilesHash": "2029cb8794eefe2c91671970bf6ae6115221dcf38416dab219ad0863215868fc",
+          "timestamp": "2026-07-03T02:18:55.483Z"
+        }
+      ]
     }
   ]
 }
