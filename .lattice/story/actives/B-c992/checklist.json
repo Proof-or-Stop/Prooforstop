@@ -65,6 +65,18 @@
           "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
           "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
           "timestamp": "2026-07-03T14:59:43.409Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -cP \"[\\x{4e00}-\\x{9fff}]\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; grep -n \"supersedes ONLY the M7\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "English-only: CJK grep count = 0 over the whole document. Supersession scope mechanically limited: section 1 states the doc supersedes ONLY the M7 powered-run route of rev 2; rev 2 M0-M6/M8/M9 evidence and completed milestones remain authoritative; rev 2 file stays byte-untouched (digest re-verified); the rev 2 INCONCLUSIVE verdict is explicitly preserved, and section 4/11 forbid claims about the archival store, model improvement, gate evidence, generalization beyond harvested modes, and permanence beyond the pinned-model window.",
+          "headHash": "12e7c113de1bd9a492a2579f50128a0df7374593",
+          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
+          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
+          "timestamp": "2026-07-03T14:59:44.066Z"
         }
       ]
     },
