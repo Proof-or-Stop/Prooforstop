@@ -242,9 +242,13 @@ function digest(value: string): string {
  *      silently pick one.
  *   3. Real codex exec output may append a small amount of trailing HARNESS
  *      metadata after the model's final message (whitespace, bare token-count
- *      noise like `tokens used` / a lone number). That is tolerated. But any
- *      trailing JSON OBJECT after the verdict, or trailing sentence-like prose
- *      (a disclaimer/correction), must fail closed.
+ *      noise like `tokens used` / a lone number). That STRICT allowlist is
+ *      tolerated. ANY other trailing content — a trailing JSON OBJECT, a stray
+ *      word, a terse lowercase trailer (`actually fail` / `disregard`), or a
+ *      sentence — makes the verdict no longer the final content and MUST fail
+ *      closed. (Flipped from "reject if it looks like a sentence" to "reject
+ *      unless it is known-harmless harness noise" — the root fix for terse
+ *      trailers the old heuristic let through.)
  *
  * Returns undefined when there is no admissible trailing verdict.
  */
@@ -256,9 +260,11 @@ export function extractCodexReviewVerdict(stdout: string): CodexReviewVerdict | 
 
   const last = objects[objects.length - 1];
 
-  // (3b) Anything AFTER the last balanced object must be tolerable harness noise.
-  // By construction no OTHER balanced object can follow the last one, so the only
-  // thing to reject here is trailing sentence-like prose (a disclaimer/correction).
+  // (3b) Anything AFTER the last balanced object must be KNOWN-HARMLESS harness
+  // noise (strict allowlist: whitespace + bare token count / `tokens used`). By
+  // construction no OTHER balanced object can follow the last one, so the tail is
+  // free-text; reject any tail that is not on the harness allowlist — including
+  // terse trailers like `actually fail` / `disregard verdict` — fail closed.
   const tail = trimmed.slice(last.end);
   if (!isTolerableTrailingHarness(tail)) return undefined;
 
@@ -290,38 +296,37 @@ function parseVerdict(candidate: string): CodexReviewVerdict | undefined {
 }
 
 /**
- * Trailing text after the final balanced JSON object is admissible only if it is
- * pure harness noise: whitespace and short bookkeeping lines (a bare number, or a
- * token-count line like `tokens used` / `tokens used: 1234`). A line that reads
- * like a natural-language SENTENCE (a disclaimer/correction/injection) makes the
- * verdict no longer the final content → not tolerable. This is intentionally NOT
- * pinned to a specific codex version: it accepts short structured bookkeeping and
- * rejects sentence-like prose.
+ * STRICT trailing-content contract (root fix — replaces the lax `looksLikeSentence`
+ * heuristic). After the last balanced verdict object, trailing content is admissible
+ * ONLY when every non-empty line is KNOWN-HARMLESS harness noise matching a strict
+ * allowlist:
+ *   - a bare number / comma-grouped number (a lone token count, e.g. `1,234`);
+ *   - the literal token-count line `tokens used` (optionally `tokens used: 1234`).
+ * ANY other trailing content — a stray word, a terse lowercase trailer like
+ * `actually fail` or `disregard`, a sentence, or another JSON object — makes this
+ * return false so extraction fails closed. The logic is flipped from "reject if it
+ * LOOKS LIKE a sentence" to "reject UNLESS it is on the known-harmless allowlist":
+ * a heuristic can be evaded by short terse trailers (`actually fail` is only two
+ * words, no terminal punctuation), but an allowlist cannot — anything unrecognized
+ * is rejected. This stays codex-version-agnostic by matching the shape of genuine
+ * harness bookkeeping, not a specific version string.
  */
+const HARNESS_NOISE_LINE_PATTERNS: readonly RegExp[] = [
+  // A bare (optionally comma-grouped) number: a lone token count like `1234` / `1,234`.
+  /^\d{1,3}(,\d{3})*$/u,
+  /^\d+$/u,
+  // The token-count bookkeeping line, with or without a trailing count.
+  /^tokens used$/iu,
+  /^tokens used:\s*\d{1,3}(,\d{3})*$/iu,
+  /^tokens used:\s*\d+$/iu,
+];
+
 function isTolerableTrailingHarness(tail: string): boolean {
   const lines = tail.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   for (const line of lines) {
-    // Bare number (e.g. a lone token count).
-    if (/^\d[\d,]*$/u.test(line)) continue;
-    // A `key: value` / `key value` bookkeeping line with a short non-sentence key
-    // (e.g. `tokens used`, `tokens used: 1234`). "Short non-sentence" = few words,
-    // no sentence-ending punctuation.
-    if (!looksLikeSentence(line)) continue;
-    return false;
+    if (!HARNESS_NOISE_LINE_PATTERNS.some(pattern => pattern.test(line))) return false;
   }
   return true;
-}
-
-/**
- * A conservative sentence heuristic. A trailing line is treated as prose (and thus
- * rejected) when it either ends with sentence punctuation, or carries enough
- * alphabetic words to read like natural language. Short bookkeeping such as
- * `tokens used` or `tokens used: 1234` stays under the threshold and is tolerated.
- */
-function looksLikeSentence(line: string): boolean {
-  if (/[.!?]$/u.test(line)) return true;
-  const words = line.match(/[A-Za-z]+/gu) ?? [];
-  return words.length >= 4;
 }
 
 interface BalancedObject { text: string; start: number; end: number; }
