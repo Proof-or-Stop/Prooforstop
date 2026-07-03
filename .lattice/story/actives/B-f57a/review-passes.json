@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-03T09:52:09.312Z",
       "reviewRunId": "B-f57a:RR-014",
       "_hash": "55cf17e206da2967fab28bd2fac87db83c80145e2e0f434a8ccce4f1e8edc728"
+    },
+    {
+      "id": "B-f57a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review round 7 PASS. Verified CHK-001:adversarial:6 smoke assertions cover dirty source before spawn, detached captured-HEAD snapshot, post-spawn source drift before record, post-spawn clean HEAD drift rejected with cross_host_review_head_drift before record, no verdict recorded on drift, and .lattice-only metadata control. Verified CHK-002:adversarial:2 covers same-host identity rejection before Codex spawn with no verdict recorded. Existing evidence records bind these intents to node packages/main/dist/tasks/cross-host-review-smoke.js and current validation summary reports 24/24 coverage.",
+      "createdAt": "2026-07-03T10:07:04.264Z",
+      "reviewRound": "2026-07-03T10:04:46.771Z",
+      "reviewRunId": "B-f57a:RR-018",
+      "_hash": "acd449fe1e64102513c6f216a76e0f6dbe2dac401c626c1a3f9a70ebb64f9f49"
     }
   ]
 }
