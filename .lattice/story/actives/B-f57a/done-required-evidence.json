@@ -1,0 +1,85 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-f57a",
+  "status": "FAIL",
+  "startedAt": "2026-07-03T10:44:01.009Z",
+  "endedAt": "2026-07-03T10:44:11.991Z",
+  "durationMs": 10982,
+  "headHash": "9d33ffc91df0455c3e10a14493647e622805b2f8",
+  "materialHash": "e7025c1f8236bbe6811a05ddcdb1b11411b0293edc78edb261c082f7f9a50aad",
+  "storyFilesHash": "395b218b25b5d25ab408e82c1a9693d2cc5134a0f879d4fe4b0809a620cededd",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "d7ec29792b84acf0d9bc2ce6c4dc0f7d808d907b5f4e1e948fc09a19f0527b70",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 7972,
+      "outputDigest": "a702066fff46483c21a01059009c6554da9ac5e4ec96740cdbcc9ea5d8be6575",
+      "outputTail": "\n> @lattice/core@0.3.149 build\n> tsc\n\n",
+      "startedAt": "2026-07-03T10:44:01.009Z",
+      "endedAt": "2026-07-03T10:44:08.981Z",
+      "headHash": "9d33ffc91df0455c3e10a14493647e622805b2f8",
+      "materialHash": "e7025c1f8236bbe6811a05ddcdb1b11411b0293edc78edb261c082f7f9a50aad",
+      "storyFilesHash": "395b218b25b5d25ab408e82c1a9693d2cc5134a0f879d4fe4b0809a620cededd"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "43b23a77a0e9df3f9230f53942ed23f25f4acd54e6d4b3e3c992c3603d64a9da",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 1200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 2634,
+      "outputDigest": "d2e8537c47fdbbbe17a7f51563bb1a95eed70fb63b540f8aa7bbfe6b57ff308b",
+      "outputTail": "ound 1) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\n\n> lattice@0.3.149 test:review-assurance-floor-storyfileshash-smoke\n> node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js\n\n  ✓ (a) unrelated whole-tree drift keeps rounds valid with advisory\n  ✓ (a2) full three-part re-attestation advisory pattern\n  ✓ (b) truly-stale prior verdict does not duplicate-poison the round\n  ✓ (b2) cross-runId re-bind => only new round valid, old ignored\n  ✓ (c) real story-file change stales the rounds (anti-gaming)\n  ✓ (d) degraded fallback: storyFilesHash match => valid with advisory\n  ✓ (d) degraded fallback: real story-file change => materialHash is stale\n  ✓ baseline: no drift => valid, no re-attestation advisory\n  ✓ (1) two different-runId drifted rounds both downgraded valid\n  ✓ (2) legacy verdict (no storyFilesHash) is never downgraded\n  ✓ (3) null current storyFilesHash => no downgrade, stale, no crash\n  ✓ (4) three eras same identity diff runIds => 2 valid, no dup-identity\n  ✓ (5) two truly-stale dup-identity verdicts => ignored, no dup-identity\n  ✓ (6) one advisory per downgraded verdict (not deduplicated)\n\nreview-assurance-floor storyFilesHash smoke passed (14 checks)\n\n> lattice@0.3.149 test:docs-drift-smoke\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.149 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.149 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.149 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n\n✗ gitroot-cwd-contract smoke FAILED\nFound 2 bare-cwd git call site(s):\n  /Users/jek/Documents/Work/proofbound/.worktrees/B-f57a/packages/main/src/handlers/cross-host-review.ts:329: bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd (packages/main/src/core/story-signed-workspace-resolution.ts)\n  /Users/jek/Documents/Work/proofbound/.worktrees/B-f57a/packages/main/src/handlers/cross-host-review.ts:345: bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd (packages/main/src/core/story-signed-workspace-resolution.ts)\n\nFix: at each site, replace the bare projectRoot/root/metadataRoot cwd\nwith the value of resolveGitCwd(...) (story-keyed) or with an already-\nresolved gitCwd local variable. Allowlist policy is at the top of\npackages/main/src/tasks/gitroot-cwd-contract-smoke.ts.\n",
+      "startedAt": "2026-07-03T10:44:09.174Z",
+      "endedAt": "2026-07-03T10:44:11.808Z",
+      "headHash": "9d33ffc91df0455c3e10a14493647e622805b2f8",
+      "materialHash": "e7025c1f8236bbe6811a05ddcdb1b11411b0293edc78edb261c082f7f9a50aad",
+      "storyFilesHash": "395b218b25b5d25ab408e82c1a9693d2cc5134a0f879d4fe4b0809a620cededd"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}

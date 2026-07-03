@@ -252,14 +252,14 @@
           "intentRef": "CHK-001:adversarial:6",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "file": "packages/main/src/handlers/cross-host-review.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js && node packages/main/dist/tasks/cross-host-review-smoke.js",
           "result": "pass",
-          "note": "Post-main-merge rerun after merge commit 3cf1e2d5d: npm --prefix packages/main run build passed and cross_host_review smoke passed 24/24. CHK-001:adversarial:6 still proves dirty source drift, pre-hash/post-spawn/post-write clean HEAD drift blocking, and final-record stale/partial verdict pair cleanup.",
-          "headHash": "3cf1e2d5d063a84b3ab2ac91548f38f5db67868d",
-          "materialHash": "e7025c1f8236bbe6811a05ddcdb1b11411b0293edc78edb261c082f7f9a50aad",
-          "storyFilesHash": "395b218b25b5d25ab408e82c1a9693d2cc5134a0f879d4fe4b0809a620cededd",
-          "timestamp": "2026-07-03T10:42:04.697Z"
+          "note": "Post-main DONE-required blocker fixed by c8674ebae: cross_host_review now resolves a story-keyed gitCwd via resolveGitCwd and uses it consistently for HEAD/material/storyFiles hashes, dirty/head drift checks, and git worktree add/remove. Fresh HEAD verification passed: build, gitroot-cwd-contract smoke (0 bare-cwd violations), and cross_host_review smoke 24/24 including F-016 final-record cleanup.",
+          "headHash": "c8674ebae412b1a72cd40a5db52366346b7f4842",
+          "materialHash": "57f4260e4370677a2bbd456b1fce1c3c23d3e3f1d2c352e8067faa4d188724a6",
+          "storyFilesHash": "86ec8f9b2a3bf5941194c46035c34c7797729d9a20615f298d83b2e0471a7a3c",
+          "timestamp": "2026-07-03T10:49:52.355Z"
         },
         {
           "intentRef": "CHK-001:adversarial:7",
