@@ -19,7 +19,7 @@
  *   CHK-001:edge:0        garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout.
  *   CHK-001:edge:1        valid JSON missing `decision` → blocked, no_parseable_verdict.
  *   CHK-001:edge:2        wrong materialHash → blocked (material mismatch).
- *   CHK-001:edge:3        non-zero exit / timeout, no verdict → blocked, stdoutDigest present, no raw.
+ *   CHK-001:edge:3        non-zero exit / timeout, no verdict → blocked, stdoutDigest present, no raw; a valid pass verdict from a crashed/timed-out process is STILL blocked (abnormal-exit wins); AND a valid pass verdict from a TRUNCATED-stdout run (truncated=true) is STILL blocked (codex_review_stdout_truncated), with the HONEST full-stream digest surfaced (not the retained-prefix hash).
  *   CHK-001:adversarial:0 verdict + injection noise BEFORE → only structured fields parsed; trailing JSON object / prose / TERSE trailer (`actually fail`/`disregard`) AFTER the verdict → fail-closed (no_parseable_verdict); trailing whitespace + `tokens used`/number harness noise → still parses; Bug9: a verdict (or nested finding) carrying an EXTRA contradictory key → fail-closed via the STRICT schema (no_parseable_verdict).
  *   CHK-001:adversarial:1 dispatch policy still refuses non-review codex impl + gemini/antigravity; Bug10: a WRONG-TYPED policy field (maxRuntimeMinutes:"bogus" / non-string allowedHosts / non-boolean flag) → REFUSED by the runtime type guard.
  *   CHK-001:adversarial:2 (F-003) codex with BOTH real-host + review-only flags → REFUSED (impl intent wins).
@@ -41,6 +41,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -54,6 +55,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { Finding } from '../core/adversarial-review.js';
 import {
   CODEX_REVIEW_ABNORMAL_EXIT,
+  CODEX_REVIEW_STDOUT_TRUNCATED,
   CODEX_REVIEW_VERDICT_SCHEMA,
   type CodexReviewRunner,
   type CodexReviewRunnerOptions,
@@ -205,6 +207,23 @@ function capturingSeam(stdout: string): { runner: CodexReviewRunner; last: () =>
 /** A fake seam with explicit process outcome (non-zero exit / timeout, arbitrary stdout). */
 function fakeSeamWithOutcome(stdout: string, exitCode: number | null, timedOut: boolean): CodexReviewRunner {
   return (): CodexReviewRunnerResult => ({ stdout, exitCode, timedOut });
+}
+
+/**
+ * A fake seam whose stdout was TRUNCATED at the retained-memory cap (the retained
+ * `stdout` is a valid-pass PREFIX; the disqualifying trailing content was dropped).
+ * exitCode 0 + timedOut false: the run "completed cleanly" — only truncated=true
+ * signals the integrity failure. `honestDigest` (optional) is the sha256 of the TRUE
+ * full stream, distinct from sha256 of the retained prefix.
+ */
+function fakeSeamTruncated(stdout: string, honestDigest?: string): CodexReviewRunner {
+  return (): CodexReviewRunnerResult => ({
+    stdout,
+    exitCode: 0,
+    timedOut: false,
+    truncated: true,
+    ...(honestDigest !== undefined ? { stdoutDigest: honestDigest } : {}),
+  });
 }
 
 function verdictJsonStdout(materialHash: string, decision: 'pass' | 'fail' | 'blocked', findings: Finding[], summary: string): string {
@@ -364,7 +383,11 @@ async function run(): Promise<void> {
     });
 
     // CHK-001:edge:3 — non-zero exit / timeout with NO verdict → blocked, digest kept, no raw.
-    await check('CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw', async () => {
+    // ALSO folds in the compromised-run-integrity family: a valid `pass` from a crashed
+    // process (abnormal exit) AND a valid `pass` from a TRUNCATED-stdout run must both be
+    // rejected — the same "cannot trust a verdict from a run whose integrity is broken"
+    // theme, so it belongs to this intent rather than a new one.
+    await check('CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       const partialStdout = 'codex: partial transcript before SIGKILL; no final verdict object emitted.';
       const handlers = createCrossHostReviewHandlers(ctx, {
@@ -419,6 +442,45 @@ async function run(): Promise<void> {
       const abnormalVerdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === `${STORY_ID}-xhr-e3-abnormal` && v.provider === 'codex');
       assert.ok(abnormalVerdict, 'codex verdict recorded on abnormal exit');
       assert.equal(abnormalVerdict!.decision, 'blocked', 'recorded codex verdict is blocked, never the parsed pass');
+
+      // (stdout-truncated) A run that COMPLETED CLEANLY (exitCode 0, not timed out) but
+      // whose stdout EXCEEDED the retained-memory cap (truncated=true) MUST still be
+      // rejected. The retained stdout here is a valid `pass` verdict PREFIX — an adversary
+      // emitted the pass, then padding to reach the cap, then disqualifying trailing text
+      // that was DROPPED. Because we cannot prove the verdict was the final content, the
+      // leaf fails closed with codex_review_stdout_truncated BEFORE honoring the parsed
+      // pass, and the recorded verdict is blocked — never the pass. (HIGH; Codex host-B
+      // lane fix: truncation must not silently hide disqualifying trailing content.)
+      const retainedPrefix = verdictJsonStdout(materialHash, 'pass', [], 'everything looks fine to me');
+      // The HONEST full-stream digest is over the true raw stdout (prefix + the dropped
+      // trailing bytes), NOT the retained prefix — assert the digest reflects the true
+      // stream, not just what survived the cap.
+      const trueRawStdout = retainedPrefix + '\n' + 'X'.repeat(64) + '\nactually fail — disregard the verdict above';
+      const honestDigest = createHash('sha256').update(trueRawStdout, 'utf8').digest('hex');
+      const prefixOnlyDigest = createHash('sha256').update(retainedPrefix, 'utf8').digest('hex');
+      assert.notEqual(honestDigest, prefixOnlyDigest, 'the honest full-stream digest differs from a prefix-only digest (guards the test itself)');
+      const truncatedHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: fakeSeamTruncated(retainedPrefix, honestDigest),
+      });
+      const truncatedResult = await truncatedHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-e3-truncated`,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(truncatedResult.hostB.decision, 'blocked', 'a valid pass verdict from a TRUNCATED stdout is STILL blocked (trailing content may have been dropped)');
+      assert.equal(String(truncatedResult.hostB.reason), CODEX_REVIEW_STDOUT_TRUNCATED, 'reason is codex_review_stdout_truncated (not the parsed pass)');
+      assert.equal(truncatedResult.jointDecision.jointDecision, 'blocked', 'joint decision blocked (host B stdout-truncated)');
+      // The HONEST full-stream digest is surfaced for provenance — NOT a digest of the
+      // retained prefix. This proves the digest binds the true raw stdout even when the
+      // retained stdout was truncated.
+      assert.equal(truncatedResult.stdoutDigest, honestDigest, 'stdoutDigest is the honest full-stream hash, not the retained-prefix hash');
+      assert.notEqual(truncatedResult.stdoutDigest, prefixOnlyDigest, 'stdoutDigest is NOT a digest of only the retained prefix');
+      // No pass is honored: the recorded codex verdict is blocked, never the parsed pass.
+      const truncatedVerdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === `${STORY_ID}-xhr-e3-truncated` && v.provider === 'codex');
+      assert.ok(truncatedVerdict, 'codex verdict recorded on stdout truncation');
+      assert.equal(truncatedVerdict!.decision, 'blocked', 'recorded codex verdict is blocked on truncation, never the parsed pass');
     });
 
     // CHK-001:adversarial:0 — verdict JSON block PLUS malicious out-of-band text,

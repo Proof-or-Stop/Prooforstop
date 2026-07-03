@@ -79,6 +79,7 @@ const verdictSchema = z.object({
 export const CODEX_REVIEW_NO_PARSEABLE_VERDICT = 'codex_review_no_parseable_verdict' as const;
 export const CODEX_REVIEW_MATERIAL_MISMATCH = 'codex_review_material_mismatch' as const;
 export const CODEX_REVIEW_ABNORMAL_EXIT = 'codex_review_abnormal_exit' as const;
+export const CODEX_REVIEW_STDOUT_TRUNCATED = 'codex_review_stdout_truncated' as const;
 
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -164,6 +165,21 @@ export interface CodexReviewRunnerResult {
   stdout: string;
   exitCode: number | null;
   timedOut: boolean;
+  /**
+   * True when the TOTAL stdout exceeded the runner's retained-memory cap
+   * (MAX_BYTES) and later chunks were dropped from `stdout`. When true, the
+   * retained `stdout` is a PREFIX only and cannot be trusted as the final
+   * content — the leaf must fail closed. OPTIONAL (defaults to false) so
+   * existing injectable fakes that omit it keep compiling.
+   */
+  truncated?: boolean;
+  /**
+   * OPTIONAL honest sha256 hex of the TRUE raw stdout stream (every byte,
+   * even beyond MAX_BYTES). When present the leaf uses this for provenance
+   * instead of hashing the possibly-truncated retained `stdout`. Fakes that
+   * omit it fall back to hashing the provided `stdout`.
+   */
+  stdoutDigest?: string;
 }
 
 /**
@@ -195,7 +211,13 @@ export const defaultCodexReviewRunner: CodexReviewRunner = (opts): Promise<Codex
     let stdout = '';
     let settled = false;
     let timedOut = false;
+    let truncated = false;
     const MAX_BYTES = 8 * 1024 * 1024;
+    // Hash EVERY byte received (even beyond the retained-memory cap) so the
+    // stdoutDigest is honest — a digest of the true raw stream, not just the
+    // retained prefix. Otherwise an adversary could pad past the cap and the
+    // digest would silently only cover the (accepted) prefix.
+    const fullStreamHash = createHash('sha256');
 
     const timer = setTimeout(() => {
       timedOut = true;
@@ -206,11 +228,14 @@ export const defaultCodexReviewRunner: CodexReviewRunner = (opts): Promise<Codex
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      resolvePromise({ stdout, exitCode, timedOut });
+      resolvePromise({ stdout, exitCode, timedOut, truncated, stdoutDigest: fullStreamHash.digest('hex') });
     };
 
     child.stdout?.on('data', (chunk: Buffer) => {
+      // Feed the honest full-stream hash first (every byte, even past the cap).
+      fullStreamHash.update(chunk);
       if (stdout.length < MAX_BYTES) stdout += chunk.toString('utf8');
+      else truncated = true;
     });
     // stderr is intentionally drained and discarded — a provider transcript must
     // never be promoted into evidence.
@@ -429,7 +454,11 @@ export async function runCodexReviewLeaf(
     timeoutMs: opts.timeoutMs,
     ...(opts.env ? { env: opts.env } : {}),
   });
-  const stdoutDigest = digest(outcome.stdout);
+  // Honest provenance digest: prefer the runner's full-stream hash (every byte,
+  // even beyond the retained-memory cap) when present; otherwise hash the provided
+  // stdout. This keeps the digest true even when the retained stdout is a truncated
+  // prefix — the digest must never silently cover only the accepted prefix.
+  const stdoutDigest = outcome.stdoutDigest ?? digest(outcome.stdout);
 
   // Codex output can only be trusted from a CLEAN completion. A timed-out or
   // non-zero / null (spawn-failure) exit means the review did not finish; even if a
@@ -441,6 +470,27 @@ export async function runCodexReviewLeaf(
         opts.materialHash,
         CODEX_REVIEW_ABNORMAL_EXIT,
         `Codex review leaf exited abnormally (exitCode=${String(outcome.exitCode)}, timedOut=${outcome.timedOut}); failing closed regardless of stdout content.`,
+      ),
+      stdoutDigest,
+      exitCode: outcome.exitCode,
+      timedOut: outcome.timedOut,
+    };
+  }
+
+  // STDOUT TRUNCATION integrity guard (HIGH — Codex host-B lane fix): if the total
+  // stdout exceeded the runner's retained-memory cap, later chunks were dropped, so
+  // the retained stdout is only a PREFIX. An adversarial run could emit a valid `pass`
+  // verdict, then enough allowed padding to reach the cap, then DISQUALIFYING trailing
+  // text that would normally force fail-closed — but that trailing text is gone. We
+  // therefore CANNOT prove the parsed verdict was the final content, so we fail closed
+  // BEFORE trusting any parsed verdict. (The stdoutDigest above is already the honest
+  // full-stream hash, so provenance still binds the true raw stdout.)
+  if (outcome.truncated === true) {
+    return {
+      hostBVerdict: synthesizedBlocked(
+        opts.materialHash,
+        CODEX_REVIEW_STDOUT_TRUNCATED,
+        'Codex review leaf stdout exceeded the retained-memory cap and was truncated; the verdict cannot be proven to be the final content, so failing closed regardless of any parsed verdict.',
       ),
       stdoutDigest,
       exitCode: outcome.exitCode,
