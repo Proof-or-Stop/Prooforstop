@@ -7,6 +7,7 @@ import {
 import type { StoryInfo } from '../core/types.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary, type MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
 import type { HandlerContext } from './context.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
@@ -286,7 +287,10 @@ export function createDoneClosureHandlers(ctx: HandlerContext): Record<string, (
         roundKey: runbook.phase,
         buildPack: () => runbook.memoryFreshnessPack,
       });
-      if (wantsJson(args)) return runbook;
+      // Control-arm isolation: redact the pack from the JSON runbook so a
+      // control-arm host cannot read memory via --json (measurement is preserved
+      // losslessly by the experience_pack_surfaced event, not the JSON pack).
+      if (wantsJson(args)) return { ...runbook, memoryFreshnessPack: redactMemoryPackForControlArm(runbook.memoryFreshnessPack) };
       return renderDoneClosure(runbook, packSurface.shouldRender);
     },
   };
