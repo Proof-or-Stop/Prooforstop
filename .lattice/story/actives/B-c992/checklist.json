@@ -49,10 +49,10 @@
           "command": "grep -n \"^#\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
           "result": "pass",
           "note": "All required sections present by heading grep: 1 Status And Provenance (rev 3 + supersession clause), 2 Trigger (pilot 0.0333 baseline, Wilson CI [0.0059,0.1667], freeze refused, skip_powered_study, lesson-aging), 3 Terminology, 4 Claim Boundary, 5 Revised Hypothesis (H1-prime/H0-prime, capture loop not archival store), 6 Design (6.1 Harvest w/ 30-day window + >=2 occurrences, 6.2 Repro-First Filter citing repro_probe/repro_probe_get/repro_review_set/spike_record + K_min=32 minimum-yield stop, 6.3 Sealed Random Split w/ mechanical disjointness, 6.4 Variant Generation, 6.5 Similarity-Extended Leakage Audit w/ 5-gram Jaccard <0.05 + char 12-gram + identifier overlap + inherited strip-list, 6.6 Experiment Arms identical to rev 2, 6.7 Model Pinning), 7 Metrics And Statistics (7.2 DiD estimator + two-condition decision, 7.3 seeded cluster bootstrap cluster=class B=10000, 7.4 alpha 0.05/power 0.80/MDE band 0.25-0.35, 7.5 explicit derived sizing formula + statement that pilotFreezeCheck does not directly size a DiD + worked table 312-624 arm-runs + 2000 cap), 8 Calibration Mini-Pilot And N Freeze (band [0.3,0.9] justified), 9 Milestones R1-R6 with reuses + exit criteria, 10 Stopping Rules (scorer bug, leakage/isolation, model change, yield, band never met), 11 Circularity And No-Overclaim (shared provenance + permitted/disallowed claims), 12 Evidence Artifacts, 13 Verification Matrix, 14 Recommended Execution Order, 15 Definition Of Done (mechanically checkable, evidence-map-compatible).",
-          "headHash": "9fa9d239d0d9a7702fe91f426148ec0dea908f8f",
-          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
-          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
-          "timestamp": "2026-07-03T14:59:27.007Z"
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "shasum -a 256 docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
           "result": "pass",
           "note": "Transcript after authoring+committing the rev 3 doc: shasum -a 256 output = 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471, byte-identical to the digest recorded in the M9 evidence map (evidence-map.mjs PLAN_DOC_RELPATH) and quoted in rev 3 section 1. The rev 2 file is untouched; commit 9fa9d239d touches only the one new file (git show --stat: 1 file changed, 724 insertions, create mode).",
-          "headHash": "056d3e7f8588ee7a6260290342d2084b047bfce1",
-          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
-          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
-          "timestamp": "2026-07-03T14:59:43.409Z"
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "grep -cP \"[\\x{4e00}-\\x{9fff}]\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; grep -n \"supersedes ONLY the M7\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
           "result": "pass",
           "note": "English-only: CJK grep count = 0 over the whole document. Supersession scope mechanically limited: section 1 states the doc supersedes ONLY the M7 powered-run route of rev 2; rev 2 M0-M6/M8/M9 evidence and completed milestones remain authoritative; rev 2 file stays byte-untouched (digest re-verified); the rev 2 INCONCLUSIVE verdict is explicitly preserved, and section 4/11 forbid claims about the archival store, model improvement, gate evidence, generalization beyond harvested modes, and permanence beyond the pinned-model window.",
-          "headHash": "12e7c113de1bd9a492a2579f50128a0df7374593",
-          "materialHash": "5d0224539990d713271916916e8915d5537d47c1aaaf261d2947724eb36da1c4",
-          "storyFilesHash": "849ea9823050182e147aa0bba2b8058ef510d22ea21e66598b6a2d2578f785cf",
-          "timestamp": "2026-07-03T14:59:44.066Z"
+          "headHash": "4b772a44ccffe466bcc48df8fb5ad1747865d046",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:32:05.479Z"
         }
       ]
     },
