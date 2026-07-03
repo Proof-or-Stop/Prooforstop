@@ -133,6 +133,18 @@
           "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
           "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
           "timestamp": "2026-07-03T16:20:29.824Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "grep -cE \"freeze_mde_exceeds_achievable_did|K_min = 40|n_cal = 8|answer-denylist|hostCmdHash|45-day|p-hat_c\" <doc>",
+          "result": "pass",
+          "note": "Counts: 30/30 findings addressed (stats+repro 10/10 incl 1 critical + 3 high; leakage+window 11/11 incl 2 critical + 4 high; claims+hygiene 9/9 incl 2 high). Stale-term scan zero hits (K_min=32, d-hat, Jaccard-similarity check, indices 0-3, n_max, grid search, 256 arm-runs, Lessons-first-split-second, reused-unchanged, MODEL-VERSION CHANGE all gone); new-term counts: freeze_mde_exceeds_achievable_did x6, K_min=40 x11, n_cal=8 x5, answer-denylist x7, hostCmdHash x5, 45-day x4, p-hat_c x3. Re-derived sizing after findings 1-3: n pinned 6 keeps floor table m=13/18/26 per split (312/432/624 powered arm-runs); attrition model Bin(8,p) acceptance with retry 0.817/0.900/0.978/0.997 at p=0.35/0.40/0.50/0.625, planning a=0.8 -> K_min=40 gives P(both splits>=13)=0.937 vs 0.358 at old 32; calibration 640 base/~800 retries at floor, 960/~1200 at target 60; pooled control runs >=320 at floor; total budget worst planning case 1944 < 2000 cap. CJK count 0; rev 2 file sha256 verified unchanged 2ef4122e...835471; only the rev 3 doc changed (533 insertions, 181 deletions); lattice validate all green; commit 172b55142.",
+          "headHash": "88401bf7ac1884ad35ec0cd0e06a33d0a2dc62cb",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:58.510Z"
         }
       ]
     }
