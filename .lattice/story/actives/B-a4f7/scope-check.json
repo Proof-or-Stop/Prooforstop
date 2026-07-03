@@ -1,0 +1,52 @@
+{
+  "storyId": "B-a4f7",
+  "checkedAt": "2026-07-03T10:22:17.358Z",
+  "features": [
+    {
+      "feature": "Digest-bound playbook_candidate_ingest command wrapping seed observe, proposal apply, and candidate approve",
+      "covered_by": "plan.md Milestone 1; CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist"
+    },
+    {
+      "feature": "Post-DONE non-blocking candidate ingestion with per-story limit and health diagnostics",
+      "covered_by": "plan.md Milestone 2; CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist"
+    },
+    {
+      "feature": "Candidate safety boundary: no helped outcomes, no auto-activation, active runtime still evidence-gated",
+      "covered_by": "plan.md Milestone 3; CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist"
+    },
+    {
+      "feature": "Docs and status surfaces for seed-to-candidate automation and authority boundaries",
+      "covered_by": "plan.md Milestone 4; CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist"
+    },
+    {
+      "feature": "Excluded scope: direct active activation, historical bulk backfill, timers/daemons, gate evidence or blocking DONE policy",
+      "covered_by": "plan.md Exclusions; checklist excludes",
+      "status": "excluded",
+      "excluded_by": "plan.md Exclusions; CHK-001 excludes; CHK-002 excludes; CHK-004 excludes",
+      "source": "plan/checklist"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "df5dfecf981a5eb5936fd7b1b4a32dd64d12f3d4353c2495ec32b72565f00082",
+  "openQuestions": []
+}
