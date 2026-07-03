@@ -4,11 +4,11 @@
   "title": "Control-arm memory JSON-leak isolation on top of B-ab8d experiment-arm gate",
   "description": "Add a control-arm isolation layer on top of main's B-ab8d experiment-arm render gate: redact the runtime memory pack at every JSON/file serialization surface the render gate leaves host-readable (done_closure/final_response_check/host_dispatch/handoff/manifest/health), gate final_response_check (the 8th RuntimeConsumer) through surfaceRuntimeMemoryPack, gate parallel_dispatch experience injection, and add two corpus-export commands to the memoryRetrieval block. Keyed on main's resolveExperimentArm (LATTICE_* env). Measurement stays lossless via the experience_pack_surfaced event; treatment and no-experiment output byte-identical.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "P2",
   "createdAt": "2026-07-03T11:03:45.803Z",
   "startedAt": "2026-07-03T11:03:45.803Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T12:25:07.075Z",
   "events": [
     {
       "phase": "INIT",
@@ -90,12 +90,16 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T12:25:07.075Z",
+      "branch": "story/B-7de9",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7de9",
-    "branch": "story/B-7de9",
-    "createdAt": "2026-07-03T11:11:52.097Z"
-  },
   "currentReviewRound": "2026-07-03T12:10:15.773Z"
 }
