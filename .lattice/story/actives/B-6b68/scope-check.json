@@ -1,0 +1,59 @@
+{
+  "storyId": "B-6b68",
+  "checkedAt": "2026-07-03T11:45:21.845Z",
+  "features": [
+    {
+      "feature": "Change invalid @type test in packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts to an allowed task annotation type without changing runtime behavior",
+      "covered_by": "CHK-001 files.modify restricts modification to packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts; scripts/validate-tasks.js defines allowed @type values as feature, bugfix, refactor, chore",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify task annotation validation with scripts/validate-tasks.js",
+      "covered_by": "CHK-001 verificationIntent.happy requires node scripts/validate-tasks.js to pass after the annotation enum fix",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify convergence annotation compliance for the claim-admissibility pack smoke task",
+      "covered_by": "CHK-001 verificationIntent.edge requires convergence_check to stop reporting Code annotations compliant=false for this annotation error",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Runtime claim-admissibility core logic, registry behavior, and smoke assertions",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope and CHK-001 adversarial verification require only metadata annotation change and no runtime assertion or registry behavior change",
+      "source": "relatedDocs:docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Handlers, framework docs, or runtime contract rewrites",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope limits source modification to the smoke task annotation; framework contract/documentation rewrites are outside B-6b68",
+      "source": "relatedDocs:docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+    },
+    {
+      "feature": "Quantum or PINN adapter behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope excludes domain adapter behavior and the related doc treats PINN/Quantum capabilities as separate domain-pack concerns",
+      "source": "relatedDocs:docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "75a3d8c568724abf47dbfeb61016c9795fa44db6dc4d57450641725d002b1e30",
+  "openQuestions": []
+}
