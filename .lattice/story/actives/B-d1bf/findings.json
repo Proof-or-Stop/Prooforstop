@@ -215,7 +215,7 @@
       "desc": "Non-Q5 quantum claims carrying stronger requestedStrength values such as ground-state, convergence, or quantum-advantage could advance instead of degrading or stopping, allowing over-strong claim semantics outside the M3 scoped local policy.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-03T02:30:55.060Z",
@@ -226,7 +226,11 @@
         "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|quantum-claims-carrying",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by dfb39d1f9: requestedStrengthOverclaims now applies ground-state, convergence, and quantum-advantage weak-evidence overclaim handling across all quantum claim IDs, with focused smoke coverage for Q1 ground-state, Q1 convergence, and Q12 quantum-advantage. Verified npm --prefix packages/main run test:quantum-claim-admissibility, npm --prefix packages/main run build, targeted CLI probes returning decision=degrade allowed=false, and full lattice validate PASS with 18/18 coverage.",
+      "resolvedAt": "2026-07-03T02:39:41.073Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
