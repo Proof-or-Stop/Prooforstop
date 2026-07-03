@@ -49,18 +49,51 @@
       },
       "status": "done",
       "startTime": "2026-07-03T03:00:00.354Z",
-      "endTime": "2026-07-03T03:27:26.170Z",
+      "endTime": "2026-07-03T03:27:53.884Z",
       "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke check M8 proves explicit helped candidate-inspection outcomes activate through playbook_auto_promotion_apply --apply without PLAYBOOK_PROMOTION_SWEEP_ENABLED.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.055Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers stale candidate digest / stale recommendation fail-closed, duplicate idempotency key no-op at append time, and duplicate lineage candidate/proposal rejection paths.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.214Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers DONE-settlement rows, exposureMode=none rows, pre-outcome apply, malformed activation log, harmful/wrong-claim guards, and fail-closed no mutation.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:27:54.372Z"
+        },
         {
           "intentRef": "CHK-001:F-001-regression",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
-          "note": "Smoke now asserts duplicate applied promotion decision idempotency keys no-op at the append chokepoint.",
-          "headHash": "77b9e35ecf3501450f45c79f2a569816f50ddce2",
+          "note": "Smoke asserts duplicate applied promotion decision idempotency keys no-op at the append chokepoint, covering the shared promotion-decision ledger issue.",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
           "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
           "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
-          "timestamp": "2026-07-03T03:27:26.393Z"
+          "timestamp": "2026-07-03T03:27:54.529Z"
         },
         {
           "intentRef": "CHK-001:build-after-F-001",
@@ -68,10 +101,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after F-001 locking/idempotency fix.",
-          "headHash": "77b9e35ecf3501450f45c79f2a569816f50ddce2",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
           "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
           "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
-          "timestamp": "2026-07-03T03:27:26.653Z"
+          "timestamp": "2026-07-03T03:27:54.685Z"
         },
         {
           "intentRef": "CHK-001:diff-check-after-F-001",
@@ -79,10 +112,10 @@
           "command": "git diff --check",
           "result": "pass",
           "note": "Whitespace check passed after F-001 fix.",
-          "headHash": "77b9e35ecf3501450f45c79f2a569816f50ddce2",
+          "headHash": "97499bb1930ae89d4004636448be0b1770ff153c",
           "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
           "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
-          "timestamp": "2026-07-03T03:27:26.858Z"
+          "timestamp": "2026-07-03T03:27:54.844Z"
         }
       ]
     },
