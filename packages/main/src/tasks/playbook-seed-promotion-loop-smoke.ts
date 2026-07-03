@@ -1100,6 +1100,18 @@ function run(): void {
       recordHelpedOutcomeViaCli(staleRoot, staleCandidate.id, 2, { host: 'claude-b', trigger: 'stale-authority-wording' });
       recordHelpedOutcomeViaCli(staleRoot, staleCandidate.id, 3, { host: 'codex-c', trigger: 'claim-boundary' });
       const staleDecision = appendAppliedRecommendActivateDecision(staleRoot, staleCandidate);
+      const staleDecisionCountBeforeDuplicate = readPlaybookPromotionDecisionRows(staleRoot).decisions.length;
+      appendPlaybookPromotionDecision(staleRoot, {
+        ...staleDecision,
+        decisionId: 'PBD-SMOKE-STALE-DUPLICATE',
+        decidedAt: '2026-07-02T01:21:00.000Z',
+        alreadyApplied: true,
+      });
+      assert.equal(
+        readPlaybookPromotionDecisionRows(staleRoot).decisions.length,
+        staleDecisionCountBeforeDuplicate,
+        'duplicate applied promotion decision idempotency keys no-op at append time',
+      );
       writePlaybooks(staleRoot, readPlaybooks(staleRoot).map((row) =>
         row.id === staleCandidate.id ? { ...row, check: `${row.check} Edited after stale recommendation.` } : row));
       const staleDry = runCliJson<any>(staleRoot, ['playbook_auto_promotion_apply', '--json']);

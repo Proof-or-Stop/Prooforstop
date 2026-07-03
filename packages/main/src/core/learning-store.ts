@@ -326,6 +326,8 @@ function safeLockName(label: string): string {
   return safe || 'learning-store';
 }
 
+const heldLearningStoreLocks = new Map<string, number>();
+
 /**
  * Dedicated learning-store serialization. It deliberately lives under
  * `.lattice/learning/` and does not acquire the lifecycle/main write lock.
@@ -340,6 +342,17 @@ export function withLearningStoreLock<T>(
   const locksDir = join(resolveLearningDir(projectRoot), '.locks');
   const lockDir = join(locksDir, `${safeLockName(label)}.lock`);
   const started = Date.now();
+  const heldDepth = heldLearningStoreLocks.get(lockDir) ?? 0;
+  if (heldDepth > 0) {
+    heldLearningStoreLocks.set(lockDir, heldDepth + 1);
+    try {
+      return fn();
+    } finally {
+      const nextDepth = (heldLearningStoreLocks.get(lockDir) ?? 1) - 1;
+      if (nextDepth > 0) heldLearningStoreLocks.set(lockDir, nextDepth);
+      else heldLearningStoreLocks.delete(lockDir);
+    }
+  }
   mkdirSync(locksDir, { recursive: true });
   for (;;) {
     try {
@@ -352,9 +365,11 @@ export function withLearningStoreLock<T>(
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
     }
   }
+  heldLearningStoreLocks.set(lockDir, 1);
   try {
     return fn();
   } finally {
+    heldLearningStoreLocks.delete(lockDir);
     rmSync(lockDir, { recursive: true, force: true });
   }
 }
@@ -1417,7 +1432,17 @@ export function readPlaybookPromotionDecisions(projectRoot: string): PlaybookPro
 export function appendPlaybookPromotionDecision(projectRoot: string, decision: PlaybookPromotionDecisionRow): string {
   const validated = validatePlaybookPromotionDecisionRow(decision);
   if (!validated.ok) throw new Error(`appendPlaybookPromotionDecision: ${validated.error}`);
-  return atomicAppendCanonicalJsonLine(resolvePlaybookPromotionDecisionsPath(projectRoot), validated.decision);
+  return withLearningStoreLock(projectRoot, 'playbook-promotion-decisions', () => {
+    const filePath = resolvePlaybookPromotionDecisionsPath(projectRoot);
+    if (
+      validated.decision.applied
+      && readPlaybookPromotionDecisions(projectRoot).some((row) =>
+        row.applied && row.idempotencyKey === validated.decision.idempotencyKey)
+    ) {
+      return filePath;
+    }
+    return atomicAppendCanonicalJsonLine(filePath, validated.decision);
+  });
 }
 
 export function hasAppliedPlaybookPromotionDecision(projectRoot: string, idempotencyKey: string): boolean {
