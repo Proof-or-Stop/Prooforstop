@@ -8,7 +8,7 @@
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
         "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
       ],
-      "userSees": "A future DONE story records a learning settlement row without needing a manual env var.",
+      "userSees": "\"PLAYBOOK_DONE_SETTLEMENT_ENABLED\": { \"raw\": \"\", \"enabled\": true, \"defaultPolicy\": \"default-on\" }",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-effects.ts"
