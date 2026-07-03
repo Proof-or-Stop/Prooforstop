@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-c992",
+  "records": [
+    {
+      "id": "RED-20260703144909",
+      "trigger": "Rev 3 pre-registration does not exist yet",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "6121c40c6f9f980b5b68ff7d1b7f6c92a3638519",
+      "baselineMaterialHash": "a526b6b819411ff76a0b1d0e2f8699b0c4204ef78c521c63abf6a6937eebc263",
+      "observedFailure": "ls docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md -> No such file or directory; no rev 3 design document exists anywhere in decisions/.",
+      "failingCommand": "test -f docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md # exit 1 before this story",
+      "expectedGreenCommand": "test -f docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md && grep -q \"H1\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md # exit 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "test -f docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md && grep -q \"H1\" docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md # exit 0"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-c992 before authoring.",
+      "createdAt": "2026-07-03T14:49:09.011Z"
+    }
+  ],
+  "createdAt": "2026-07-03T14:49:09.011Z",
+  "updatedAt": "2026-07-03T14:49:09.011Z"
+}

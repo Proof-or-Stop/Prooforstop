@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c992",
+  "changes": "Authored the rev 3 pre-registration docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md (1076 lines): the fresh-failure recurrence causal design superseding only the M7 powered-run route of the rev 2 plan (rev 2 file byte-untouched, sha256 preserved). The document pre-registers: harvest of failures the current host actually produces (findings-corpus mining + campaign) with a repro-first deterministic-reproduction filter and K_min=40 justified by a published Bin(8,p) attrition model; sealed ordering lessons->variants->split->snapshot with a stratified 50/50 lessonize-vs-holdout split; same-mode variant generation with a similarity-extended leakage audit (containment metric, R2-frozen allowlist with mechanical admission rule, answer-token denylist from reference overlays, acceptance-both-overlays format-only proof, full-rendered-pack audited surface); mechanical model pinning (dated snapshot id required, modelId + hostCliVersion as required run fields with scorer voids, hostCmd hashed into the protocol, 45-day staleness cap, pre-registered drift test); difference-in-differences primary metric with seeded cluster bootstrap, pinned n=6, n_cal=8, and the freeze_mde_exceeds_achievable_did refusal guard restoring the rev 2 safety; milestones R1-R6; stopping rules; circularity disclosure and a no-overclaim list extended with the lesson-aging and pipeline-viability bullets; artifact-bound definition of done. Hardened by adversarial design review: three independent attackers produced 30 findings (3 critical, 8 high) — all resolved in commit 172b55142.",
+  "usage": "Read the plan before implementing: the R1-R6 milestone table names every instrument to build or adapt; implementation stories must cite this document. Verify integrity: shasum -a 256 of the rev 2 plan stays 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471.",
+  "expectedOutcome": "The rev 3 document exists with all sections grep-verifiable; rev 2 untouched; every adversarial finding resolved; delivery check reports 13/13 promises verified.",
+  "actualTranscript": "grep-verified sections incl. freeze_mde_exceeds_achievable_did (6 hits), containment (4), modelId (16), allowlist (13), lesson-aging bullet (2), stratification (6), n_cal (8); shasum rev 2 = 2ef4122ef1030c97... unchanged; CJK 0; adversarial trail 30/30 findings mapped to fixes in CHK-002 evidence; REVIEW round registered F-001 (administrative evidence staleness) — refreshed 3/3 and resolved; delivery_check_set saved with 13/13 promises verified, 0 TODOs.",
+  "outcomeDiff": "No difference — the document delivers the full pre-registration and survived the adversarial review it was commissioned to pass.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the design story; the R1-R6 instrument deltas (modelId run field, containment audit, snapshot-builder adaptation, freeze guard implementation) are pre-registered build work for the implementation stories, explicitly labeled as such in the document.",
+  "pitfalls": "The three-attacker adversarial pass earned its cost: it caught a dropped safety guard (the MDE-achievability refusal that saved rev 2), an allowlist that would have been post-hoc tunable, and a model pin that was operator self-attestation — all before any implementation. The K_min arithmetic changed under honest attrition modeling (32 -> 40). One worker stall mid-edit was recovered by resuming the same agent with its context intact; the heavy multi-section edit is better batched than serialized.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 191214
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21645
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 60162
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 5543749
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 651948
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 450089
+    }
+  },
+  "totalDurationMs": 6919236,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T16:40:22.036Z",
+  "updatedAt": "2026-07-03T16:40:22.036Z"
+}

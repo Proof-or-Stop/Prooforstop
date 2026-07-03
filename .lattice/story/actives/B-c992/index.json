@@ -4,11 +4,11 @@
   "title": "Docs: rev 3 pre-registration — fresh-failure recurrence design superseding the original M7 route",
   "description": "Author the rev 3 pre-registration decision document docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md and take it through adversarial design review BEFORE any implementation begins. Context: the rev 2 plan completed all milestones; its M6 pilot (expabl-m6-pilot-v1) measured the control-arm in-store fault baseline at 1/30 = 0.0333 against the planning band [0.5, 0.8], pilotFreezeCheck refused the powered-N freeze, and M7 was skipped by explicit decision (m7-decision.json). Interpretation: lesson aging — the archival lesson store targets failure modes the current host no longer makes. The rev 3 design tests the memory layer where it can still plausibly matter: the window between a NEW failure mode first occurrence and its absorption into model behavior. Core design: (1) harvest fresh failures the current host actually produces (recent findings corpus mining + a harvest campaign), keeping only deterministically reproducible failure classes (repro-first filter); (2) randomly split harvested classes — half captured as lessons into the frozen snapshot (in-store), half deliberately NOT captured (held-out negative controls); (3) generate perturbed same-mode task variants as the recurrence test set, with the leakage audit extended to a variant-vs-lesson surface-similarity check; (4) run the existing two-arm instrument unchanged (arm switch, isolation, retrieval blocking, deterministic scorer, replay); (5) primary metric: difference-in-differences — (in-store recurrence delta) minus (held-out recurrence delta) — with pre-registered alpha/power/MDE sizing via the existing calculator and a per-class variant-baseline calibration mini-pilot before any N freeze; (6) pin the host model version for the whole study (the window argument is void across model upgrades). The rev 2 document is left byte-untouched (its sha256 is recorded in the M9 evidence map); rev 3 declares the supersession explicitly. The document must pass adversarial review (statistics sizing for the DiD contrast, leakage/similarity rules, repro filter semantics, model-version pinning, no-overclaim boundary, stopping rules, definition of done) with all findings resolved before any implementation story may cite it.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-07-03T14:45:02.800Z",
   "startedAt": "2026-07-03T14:45:02.800Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T16:51:45.655Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,52 @@
       "user": "Harmonygo",
       "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-03T14:48:36.088Z",
+      "branch": "story/B-c992",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T14:49:36.250Z",
+      "branch": "story/B-c992",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T16:21:59.999Z",
+      "branch": "story/B-c992",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T16:32:51.947Z",
+      "branch": "story/B-c992",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T16:51:45.655Z",
+      "branch": "story/B-c992",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c992",
-    "branch": "story/B-c992",
-    "createdAt": "2026-07-03T14:48:12.750Z"
-  }
+  "currentReviewRound": "2026-07-03T16:21:59.999Z"
 }
