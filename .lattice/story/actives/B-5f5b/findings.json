@@ -55,7 +55,7 @@
       "desc": "packages/main/src/handlers/playbook.ts:1077 MEDIUM: playbook_promotion_status builds its payload from outcome/decision/seed/runtime data but never reads the new matched-control ledger or renders trial/control counts, so CHK-002 happy path claim that promotion status reports concrete trial exposure and matched-control rows is not satisfied; only playbook_trial_run reports those counts.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T16:36:33.001Z",
@@ -67,7 +67,11 @@
         "packages/main/src/core/playbook-seed.ts"
       ],
       "signatureTag": "happy|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "playbook_promotion_status now reads the matched-control ledger with diagnostics and renders trialControlSummary counts: outcomeTrialExposureRows, matchedControlRows, malformedOutcomeRows, malformedControlRows, candidate/control playbook counts, and per-playbook rows in text and JSON. Evidence: npm run build; node packages/main/dist/tasks/playbook-trial-automation-smoke.js; command catalog/ownership/process fact checks all passed.",
+      "resolvedAt": "2026-07-03T16:45:26.613Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
