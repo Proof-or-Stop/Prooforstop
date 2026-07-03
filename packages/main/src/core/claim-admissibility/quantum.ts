@@ -1443,21 +1443,21 @@ export const QUANTUM_SUPPORTED_BENCHMARK_CASES: readonly QuantumSupportedBenchma
 ] as const);
 
 export const QUANTUM_FAILURE_INJECTIONS: readonly QuantumFailureInjectionSpec[] = Object.freeze([
-  { id: 'B1', title: 'stale Q5 energy receipt', class: 'stale', expectedDecision: 'stop', expectedReasonPrefix: 'stale_evidence' },
-  { id: 'B2', title: 'missing Q5 energy receipt', class: 'missing', expectedDecision: 'repair', expectedReasonPrefix: 'missing_required_receipt' },
-  { id: 'B3', title: 'Hamiltonian hash mismatch on Q5 energy receipt', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
-  { id: 'B4', title: 'failing Q5 energy receipt status', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'receipt_status_not_pass' },
-  { id: 'B5', title: 'nonzero Q5 energy receipt exit code', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'receipt_exit_nonzero' },
-  { id: 'B6', title: 'missing core code hash', class: 'missing', expectedDecision: 'repair', expectedReasonPrefix: 'missing_core_identity_field' },
-  { id: 'B7', title: 'missing basis and grid identity for basis-bound Q5 claim', class: 'missing', expectedDecision: 'repair', expectedReasonPrefix: 'missing_basis_or_grid_identity' },
-  { id: 'B8', title: 'missing Q5 output digest', class: 'missing', expectedDecision: 'repair', expectedReasonPrefix: 'output_digest_missing' },
-  { id: 'B9', title: 'mismatched Q5 output digest', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'output_digest_mismatch' },
-  { id: 'B10', title: 'verifier script hash mismatch', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'verifier_script_mismatch' },
-  { id: 'B11', title: 'duplicate Q5 energy receipt', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'duplicate_receipt' },
-  { id: 'B12', title: 'production/theory boundary overclaim', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'claim_boundary_violation' },
-  { id: 'B13', title: 'unsupported quantum claim schema version', class: 'fail-closed', expectedDecision: 'escalate', expectedReasonPrefix: 'unsupported_schema_version' },
-  { id: 'B14', title: 'unbound Q12 figure/table provenance', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'unbound_plot_table' },
-  { id: 'B15', title: 'unknown quantum claim id', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'unknown_claim' },
+  { id: 'B1', title: 'Hamiltonian changed while old Q5 eigenvalue is reused', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B2', title: 'potential changed while old Q5 wavefunction/evidence is reused', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B3', title: 'boundary condition changed while old Q5 report is reused', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B4', title: 'basis/grid changed while old Q9 convergence report is reused', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B5', title: 'timestep changed while old Q7 unitarity report is reused', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B6', title: 'normalization failure for unnormalized Q6 wavefunction', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'receipt_status_not_pass' },
+  { id: 'B7', title: 'energy residual above threshold in Q5 receipt', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'receipt_status_not_pass' },
+  { id: 'B8', title: 'symmetry/invariant violated in Q8 receipt', class: 'fail-closed', expectedDecision: 'stop', expectedReasonPrefix: 'receipt_status_not_pass' },
+  { id: 'B9', title: 'reference comparison metric/reference units mismatch in Q10 receipt', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B10', title: 'baseline grid/basis resolution mismatch in Q10 receipt', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B11', title: 'solver config changed after checkpoint in Q4 solver run', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'identity_mismatch' },
+  { id: 'B12', title: 'verifier threshold silently changed in Q5 energy receipt', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'verifier_script_mismatch' },
+  { id: 'B13', title: 'stale figure generated from old Q12 run', class: 'stale', expectedDecision: 'stop', expectedReasonPrefix: 'stale_evidence' },
+  { id: 'B14', title: 'random seed missing for stochastic Q5 method', class: 'missing', expectedDecision: 'repair', expectedReasonPrefix: 'missing_conditional_identity_field' },
+  { id: 'B15', title: 'manually edited table/plot changes Q12 output digest', class: 'mismatch', expectedDecision: 'stop', expectedReasonPrefix: 'output_digest_mismatch' },
 ] as const);
 
 const QUANTUM_BENCHMARK_GENERATED_AT = '2026-07-03T00:00:00.000Z' as const;
@@ -1481,10 +1481,6 @@ function receiptFor(input: QuantumClaimCheckInput, evidenceKind: QuantumEvidence
   return input.receipts?.find((receipt) => receipt.evidenceKind === evidenceKind);
 }
 
-function removeReceipt(input: QuantumClaimCheckInput, evidenceKind: QuantumEvidenceKind): void {
-  input.receipts = (input.receipts ?? []).filter((receipt) => receipt.evidenceKind !== evidenceKind);
-}
-
 function buildSupportedQuantumBenchmarkInput(spec: QuantumSupportedBenchmarkCase): QuantumClaimCheckInput {
   const input = buildCompleteQuantumEvidence(spec.claimId);
   input.requestedStrength = spec.requestedStrength;
@@ -1502,81 +1498,116 @@ export function buildInjectedQuantumEvidence(injectionId: QuantumBenchmarkInject
   const energyReceipt = (): QuantumVerifierReceipt | undefined => receiptFor(input, 'energy-eigenvalue');
 
   switch (injectionId) {
-    case 'B1': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.stale = true;
+    case 'B1':
+      activeIdentity.hamiltonianHash = demoHash('hamiltonian:changed-after-eigenvalue');
+      input.narrativeClaim = 'Hamiltonian changed while reusing the old Q5 energy eigenvalue receipt.';
       break;
-    }
     case 'B2':
-      removeReceipt(input, 'energy-eigenvalue');
+      activeIdentity.potentialHash = demoHash('potential:changed-after-wavefunction');
+      input.narrativeClaim = 'Potential changed while reusing old Q5 wavefunction and energy evidence.';
       break;
-    case 'B3': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.identity.hamiltonianHash = demoHash('hamiltonian:stale-reused');
+    case 'B3':
+      activeIdentity.boundaryConditionHash = demoHash('boundary-condition:changed-after-report');
+      input.narrativeClaim = 'Boundary condition changed while reusing the old Q5 report.';
       break;
-    }
     case 'B4': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.status = 'fail';
-      break;
+      const q9 = buildCompleteQuantumEvidence('Q9');
+      const q9Identity = q9.activeIdentity as Partial<QuantumEvidenceIdentity>;
+      q9Identity.gridHash = demoHash('grid:changed-after-convergence-report');
+      q9.narrativeClaim = 'Basis/grid changed while reusing the old Q9 convergence report.';
+      return q9;
     }
     case 'B5': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.exitCode = 1;
-      break;
+      const q7 = buildCompleteQuantumEvidence('Q7');
+      const q7Identity = q7.activeIdentity as Partial<QuantumEvidenceIdentity>;
+      q7Identity.timeStepHash = demoHash('timestep:changed-after-unitarity-report');
+      q7.narrativeClaim = 'Timestep changed while reusing the old Q7 unitarity report.';
+      return q7;
     }
-    case 'B6':
-      delete activeIdentity.codeHash;
-      break;
-    case 'B7':
-      delete activeIdentity.basisSetHash;
-      delete activeIdentity.gridHash;
-      break;
-    case 'B8': {
+    case 'B6': {
+      const q6 = buildCompleteQuantumEvidence('Q6');
+      const receipt = receiptFor(q6, 'normalization');
+      if (receipt) {
+        receipt.status = 'fail';
+        receipt.note = 'Wavefunction normalization check failed.';
+      }
+      return q6;
+    }
+    case 'B7': {
       const receipt = energyReceipt();
       if (receipt) {
-        delete receipt.outputDigest;
+        receipt.status = 'fail';
+        receipt.note = 'Energy residual is above the admissibility threshold.';
       }
       break;
     }
+    case 'B8': {
+      const q8 = buildCompleteQuantumEvidence('Q8');
+      const receipt = receiptFor(q8, 'invariant');
+      if (receipt) {
+        receipt.status = 'fail';
+        receipt.note = 'Symmetry or invariant check failed.';
+      }
+      return q8;
+    }
     case 'B9': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.outputDigest = demoHash('output:mismatched');
-      break;
+      const q10 = buildCompleteQuantumEvidence('Q10');
+      const q10Identity = q10.activeIdentity as Partial<QuantumEvidenceIdentity>;
+      q10Identity.metricDefinitionHash = demoHash('metric-definition:reference-units-changed');
+      q10Identity.referenceDataHash = demoHash('reference-data:units-changed');
+      const receipt = receiptFor(q10, 'reference-comparison');
+      if (receipt) receipt.note = 'Metric/reference units mismatch: receipt uses stale metric and reference-data units.';
+      q10.narrativeClaim = 'Reference comparison uses different metric/reference units.';
+      return q10;
     }
     case 'B10': {
-      const receipt = energyReceipt();
-      if (receipt) receipt.verifierScriptHash = demoHash('verifier-script:old');
-      break;
+      const q10 = buildCompleteQuantumEvidence('Q10');
+      const q10Identity = q10.activeIdentity as Partial<QuantumEvidenceIdentity>;
+      q10Identity.gridHash = demoHash('grid:baseline-resolution-changed');
+      q10Identity.basisSetHash = demoHash('basis-set:baseline-resolution-changed');
+      q10.narrativeClaim = 'Baseline comparison uses a different grid/basis resolution.';
+      return q10;
     }
     case 'B11': {
-      const receipt = energyReceipt();
-      if (receipt) input.receipts = [...(input.receipts ?? []), { ...receipt, identity: { ...receipt.identity } }];
-      break;
+      const q4 = buildCompleteQuantumEvidence('Q4');
+      const q4Identity = q4.activeIdentity as Partial<QuantumEvidenceIdentity>;
+      q4.checkpointed = true;
+      q4Identity.solverConfigHash = demoHash('solver-config:changed-after-checkpoint');
+      q4.narrativeClaim = 'Solver config changed after checkpoint while reusing the old Q4 solver-run receipt.';
+      return q4;
     }
     case 'B12': {
-      input.requestedStrength = 'production';
-      input.narrativeClaim = 'productionClaim: true; quantum theory proven; authorityClaim: true.';
-      const unsafeRecord = input as unknown as Record<string, unknown>;
-      unsafeRecord.productionClaim = true;
-      unsafeRecord.quantumTheoryClaim = true;
+      const receipt = energyReceipt();
+      if (receipt) {
+        receipt.verifierScriptHash = demoHash('verifier-script:threshold-changed');
+        receipt.note = 'Verifier threshold silently changed after receipt generation.';
+      }
       break;
     }
-    case 'B13':
-      input.schemaVersion = 'lattice.quantum_claim_admissibility.v0';
-      break;
-    case 'B14': {
+    case 'B13': {
       const q12 = buildCompleteQuantumEvidence('Q12');
       const receipt = receiptFor(q12, 'figure-table-provenance');
       if (receipt) {
-        delete receipt.identity.sourceRunId;
-        delete receipt.identity.plotConfigHash;
+        receipt.stale = true;
+        receipt.note = 'Figure generated from a stale source run.';
       }
       return q12;
     }
-    case 'B15':
-      input.claimId = 'Q404';
+    case 'B14':
+      input.stochastic = true;
+      input.seedSensitive = true;
+      delete activeIdentity.randomSeed;
+      input.narrativeClaim = 'Stochastic method omitted the active random seed/config identity.';
       break;
+    case 'B15': {
+      const q12 = buildCompleteQuantumEvidence('Q12');
+      const receipt = receiptFor(q12, 'figure-table-provenance');
+      if (receipt) {
+        receipt.outputDigest = demoHash('output:manually-edited-table-plot');
+        receipt.note = 'Manually edited table/plot no longer matches the recorded output digest.';
+      }
+      return q12;
+    }
     default:
       throw new Error(`Unknown quantum failure injection: ${String(injectionId)}`);
   }

@@ -45,25 +45,43 @@ assert.equal(benchmark.supportedCases.every((item) => item.passed), true, 'all s
 
 const failureById = byId(benchmark.failureInjections) as Map<string, QuantumFailureInjectionResult>;
 const expectedFailures: Record<string, { decision: string; reason: string }> = {
-  B1: { decision: 'stop', reason: 'stale_evidence' },
-  B2: { decision: 'repair', reason: 'missing_required_receipt' },
+  B1: { decision: 'stop', reason: 'identity_mismatch' },
+  B2: { decision: 'stop', reason: 'identity_mismatch' },
   B3: { decision: 'stop', reason: 'identity_mismatch' },
-  B4: { decision: 'stop', reason: 'receipt_status_not_pass' },
-  B5: { decision: 'stop', reason: 'receipt_exit_nonzero' },
-  B6: { decision: 'repair', reason: 'missing_core_identity_field' },
-  B7: { decision: 'repair', reason: 'missing_basis_or_grid_identity' },
-  B8: { decision: 'repair', reason: 'output_digest_missing' },
-  B9: { decision: 'stop', reason: 'output_digest_mismatch' },
-  B10: { decision: 'stop', reason: 'verifier_script_mismatch' },
-  B11: { decision: 'stop', reason: 'duplicate_receipt' },
-  B12: { decision: 'stop', reason: 'claim_boundary_violation' },
-  B13: { decision: 'escalate', reason: 'unsupported_schema_version' },
-  B14: { decision: 'stop', reason: 'unbound_plot_table' },
-  B15: { decision: 'stop', reason: 'unknown_claim' },
+  B4: { decision: 'stop', reason: 'identity_mismatch' },
+  B5: { decision: 'stop', reason: 'identity_mismatch' },
+  B6: { decision: 'stop', reason: 'receipt_status_not_pass' },
+  B7: { decision: 'stop', reason: 'receipt_status_not_pass' },
+  B8: { decision: 'stop', reason: 'receipt_status_not_pass' },
+  B9: { decision: 'stop', reason: 'identity_mismatch' },
+  B10: { decision: 'stop', reason: 'identity_mismatch' },
+  B11: { decision: 'stop', reason: 'identity_mismatch' },
+  B12: { decision: 'stop', reason: 'verifier_script_mismatch' },
+  B13: { decision: 'stop', reason: 'stale_evidence' },
+  B14: { decision: 'repair', reason: 'missing_conditional_identity_field' },
+  B15: { decision: 'stop', reason: 'output_digest_mismatch' },
+};
+const expectedTitleConcepts: Record<string, RegExp> = {
+  B1: /Hamiltonian/i,
+  B2: /potential/i,
+  B3: /boundary condition/i,
+  B4: /basis\/grid/i,
+  B5: /timestep/i,
+  B6: /normalization/i,
+  B7: /residual/i,
+  B8: /invariant/i,
+  B9: /units/i,
+  B10: /baseline grid\/basis/i,
+  B11: /checkpoint/i,
+  B12: /verifier threshold/i,
+  B13: /stale figure/i,
+  B14: /random seed/i,
+  B15: /manually edited table\/plot/i,
 };
 for (const [id, expected] of Object.entries(expectedFailures)) {
   const result = failureById.get(id);
   assert.ok(result, `${id} result is present`);
+  assert.match(result?.title ?? '', expectedTitleConcepts[id], `${id} title mentions promised domain concept`);
   assert.equal(result?.actualDecision, expected.decision, `${id} has exact expected decision`);
   assert.equal(result?.advanced, false, `${id} must not advance`);
   assert.equal(result?.reasonCategories.includes(expected.reason as any), true, `${id} includes expected reason category ${expected.reason}`);
@@ -96,7 +114,7 @@ const benchmarkText = renderQuantumBenchmarkText(benchmark);
 assert.match(benchmarkText, /local diagnostic M0-M5 implemented/, 'benchmark text reports M0-M5 status');
 assert.match(benchmarkText, /unsupportedAdvanceRate: 0\.000/, 'benchmark text reports unsupported advance rate');
 assert.match(benchmarkText, /gateEvidence: false/, 'benchmark text reports non-evidence boundary');
-assert.match(benchmarkText, /B15: class=fail-closed/, 'benchmark text lists B15');
+assert.match(benchmarkText, /B15: class=mismatch/, 'benchmark text lists B15');
 
 const report = buildQuantumClaimReport(benchmark);
 assert.equal(report.schemaVersion, 'lattice.quantum_claim_report.v1', 'report schema version is stable');
