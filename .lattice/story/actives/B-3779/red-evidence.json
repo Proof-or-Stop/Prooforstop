@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3779",
+  "records": [
+    {
+      "id": "RED-20260703033551",
+      "trigger": "REQ-M4-BENCHMARK baseline",
+      "acceptanceTargetRef": "B-3779:REQ-M4-BENCHMARK",
+      "baselineHeadHash": "9f0644420fdefd58594fd713a63940a6f5e262eb",
+      "baselineMaterialHash": "5be7344685cafa3ab3736d77413eeafa5bf8956391a6396c09f446ab27da7fe3",
+      "observedFailure": "Before this story, the Quantum M4/M5 benchmark harness is absent: npm --prefix packages/main run test:quantum-claim-benchmark exits with Missing script test:quantum-claim-benchmark.",
+      "failingCommand": "npm --prefix packages/main run test:quantum-claim-benchmark",
+      "expectedGreenCommand": "npm --prefix packages/main run test:quantum-claim-benchmark",
+      "greenRelation": {
+        "targetRef": "B-3779:REQ-M4-BENCHMARK",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:quantum-claim-benchmark"
+      },
+      "note": "Red evidence binds the missing benchmark harness to the M4 acceptance target; implementation must turn this exact script green without lifecycle mutation or gate evidence claims.",
+      "createdAt": "2026-07-03T03:35:51.197Z"
+    },
+    {
+      "id": "RED-20260703033628",
+      "trigger": "ACCEPT-B3779-M4M5 baseline",
+      "acceptanceTargetRef": "ACCEPT-B3779-M4M5",
+      "baselineHeadHash": "9f0644420fdefd58594fd713a63940a6f5e262eb",
+      "baselineMaterialHash": "5be7344685cafa3ab3736d77413eeafa5bf8956391a6396c09f446ab27da7fe3",
+      "observedFailure": "Before this story, the Quantum local diagnostic M4/M5 acceptance target is red: npm --prefix packages/main run test:quantum-claim-benchmark exits with Missing script test:quantum-claim-benchmark, so no A1-A4/B1-B15 benchmark or governance report is runnable.",
+      "failingCommand": "npm --prefix packages/main run test:quantum-claim-benchmark",
+      "expectedGreenCommand": "npm --prefix packages/main run test:quantum-claim-benchmark",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B3779-M4M5",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:quantum-claim-benchmark"
+      },
+      "note": "Gate-consumable red evidence target uses the ProofStory acceptance binding id; the earlier REQ-* record remains advisory context only.",
+      "createdAt": "2026-07-03T03:36:28.818Z"
+    }
+  ],
+  "createdAt": "2026-07-03T03:35:51.197Z",
+  "updatedAt": "2026-07-03T03:36:28.818Z"
+}
