@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-03T00:57:25.298Z",
       "reviewRunId": "B-5e28:RR-010",
       "_hash": "7f774592d8b777ace28dac0c6beae82414370ce81210992108a4b1c571db9d7d"
+    },
+    {
+      "id": "B-5e28:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality re-review after user-confirmed scope_shrinkage_decision_set: no product/runtime/doc source changes since prior quality pass outside Lattice lifecycle metadata; scope decision only removes historical backfill, automatic candidate approval, and automatic active playbook activation. Fresh smoke/status confirm default-on settlement remains explicit-opt-out only (false/0/no/off), malformed/unset values enable settlement, and status remains non_authoritative with gateEvidence=false.",
+      "createdAt": "2026-07-03T01:00:27.927Z",
+      "reviewRound": "2026-07-03T00:57:25.298Z",
+      "reviewRunId": "B-5e28:RR-008",
+      "_hash": "c48f161374f92539c64be3e0d0172287c0c890b63121019ab172ff866f036b2d"
     }
   ]
 }
