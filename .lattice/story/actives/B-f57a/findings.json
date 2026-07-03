@@ -163,6 +163,24 @@
       ],
       "signatureTag": "missing|ts|adversarial-through-implemented",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-009",
+      "desc": "All 17 verificationEvidence records are stale: their materialHash binds to headHash e89b0aa54916b1cb8b26c84b84a0c27deb8dd304 (pre-fix baseline), but commit ca7615450 advanced the material hash. The validate gate reports 0/17 covered. The evidence records are non-hollow (they name specific smoke check labels, exact command, and specific assertions) but they must be re-stamped against the current materialHash after the fix commit for the REVIEW gate to consider them fresh.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T02:44:36.767Z",
+      "reviewRound": "2026-07-03T02:38:16.913Z",
+      "reviewRunId": "B-f57a:RR-006",
+      "_hash": "4cb37114bcf216b7a908e12c5c96f1d3406e34ccd6d41e1686b331e68f766bb8",
+      "files": [
+        "packages/main/src/tasks/cross-host-review-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-records-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
