@@ -145,6 +145,24 @@
       ],
       "signatureTag": "edge|ts|quality-cleanup-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-008",
+      "desc": "CHK-001:adversarial:2 through :5 are implemented as runtime smoke checks but are NOT registered as verificationIntents in the checklist and have no verificationEvidence. The smoke grew 17->21 but the checklist verificationIntent list still only declares 17 intents. The four new checks exercise real F-003/F-004 fix behaviors (codex BOTH-flags refused; missing policy fail-closed; unauthorized policy fail-closed; env-denylist+timeout threaded to runner) — each is non-hollow and non-tautological. They must be registered as verificationIntents (priority=must, category=adversarial) so the gate can verify the new fix behaviors are evidenced.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T02:44:30.776Z",
+      "reviewRound": "2026-07-03T02:38:16.913Z",
+      "reviewRunId": "B-f57a:RR-006",
+      "_hash": "bcaf80760e6228a8102d533f19da6f6023bcd44c9398e19e28266c310bc17df7",
+      "files": [
+        "packages/main/src/tasks/cross-host-review-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-through-implemented",
+      "signatureTagSource": "auto"
     }
   ]
 }
