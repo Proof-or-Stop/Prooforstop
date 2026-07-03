@@ -26,7 +26,7 @@
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed; Bug10: a MALFORMED policy (maxRuntimeMinutes:"bogus") → authorizeReviewPolicy refuses (no spawn, no verdict, no unbounded ceiling).
  *   CHK-001:adversarial:5 (F-004) closed-allowlist env redaction by construction (base var forwarded; credential/arbitrary names dropped EVEN IF in the policy envAllowlist; envDenylist can drop a base var) + timeout ceiling threaded to the runner.
- *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); .lattice-only dirty → proceeds.
+ *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean HEAD snapshot and post-spawn source drift fails closed before verdict record; .lattice-only dirty → proceeds.
  *   CHK-001:adversarial:7 (NEW INTENT) malformed host-A findings file (missing field / EXTRA key / wrong type / not-an-array) → fail-closed (no spawn, no verdict); well-formed control passes. Requires a NEW verificationIntent registration.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
@@ -37,6 +37,7 @@
  *   CHK-002:edge:4        host-B verdict blocked → jointDecision blocked (propagation).
  *   CHK-002:adversarial:0 host-A/host-B verdicts on different materialHash → blocked (never pass).
  *   CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct.
+ *   CHK-002:adversarial:2 hostA/hostB same identity → fail-closed before spawn/record.
  */
 
 import assert from 'node:assert/strict';
@@ -1127,12 +1128,15 @@ async function run(): Promise<void> {
     });
 
     // CHK-001:adversarial:6 — DIRTY-WORKTREE INTEGRITY (host-B escalation-lane fix):
-    // Codex reviews the LIVE worktree but the recorded verdict binds to the HEAD
-    // materialHash (the committed tree). If the worktree has uncommitted MATERIAL
-    // (source) drift, the handler must FAIL CLOSED before any codex spawn and record
-    // NO verdict. Control: a worktree dirty ONLY under .lattice/ metadata (which
-    // Codex never reads and which churns constantly during a story) proceeds normally.
-    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); .lattice-only dirty → proceeds', async () => {
+    // Codex reviews a detached HEAD snapshot and the recorded verdict binds to the
+    // HEAD materialHash (the committed tree). If the live worktree has uncommitted
+    // MATERIAL (source) drift, the handler must FAIL CLOSED before any codex spawn
+    // and record NO verdict. If source drift appears after the preflight, Codex must still be
+    // reviewing a clean HEAD snapshot, and the handler must re-check the live
+    // worktree before recording. Control: a worktree dirty ONLY under .lattice/
+    // metadata (which Codex never reads and which churns constantly during a story)
+    // proceeds normally.
+    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean HEAD snapshot; .lattice-only dirty → proceeds', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // (1) Make a TRACKED SOURCE file dirty (uncommitted) — this is exactly the
       // tree divergence the HEAD materialHash cannot honestly bind.
@@ -1154,7 +1158,39 @@ async function run(): Promise<void> {
       // Revert the source drift so the worktree matches HEAD again.
       git(root, ['checkout', '--', 'packages/main/src/index.ts']);
 
-      // (2) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
+      // (2) TOCTOU control: after preflight, the Codex seam must receive a clean
+      // detached HEAD snapshot, not the mutable story worktree. If the original
+      // story worktree becomes source-dirty while Codex is running, the post-spawn
+      // clean check fails closed BEFORE any verdict is recorded.
+      let toctouSeamInvoked = false;
+      let toctouReviewWorktree = '';
+      const toctouRunId = `${STORY_ID}-xhr-dirty-after-spawn`;
+      const toctouHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: (opts) => {
+          toctouSeamInvoked = true;
+          toctouReviewWorktree = opts.storyWorktree;
+          assert.notEqual(opts.storyWorktree, root, 'codex reviews a detached clean snapshot, not the mutable story worktree');
+          assert.equal(git(opts.storyWorktree, ['rev-parse', 'HEAD']), git(root, ['rev-parse', 'HEAD']), 'snapshot is checked out at the same HEAD');
+          assert.equal(git(opts.storyWorktree, ['status', '--short']), '', 'snapshot starts clean');
+          write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 1;\nexport const postSpawnDirty = true;\n');
+          return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false };
+        },
+      });
+      try {
+        await assert.rejects(
+          () => Promise.resolve(toctouHandlers.cross_host_review({ storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: toctouRunId, json: true })),
+          new RegExp(CROSS_HOST_REVIEW_DIRTY_WORKTREE),
+          'post-spawn SOURCE drift throws the fail-closed dirty-worktree reason before verdict record',
+        );
+      } finally {
+        git(root, ['checkout', '--', 'packages/main/src/index.ts']);
+      }
+      assert.equal(toctouSeamInvoked, true, 'codex seam is invoked for the TOCTOU case');
+      assert.notEqual(toctouReviewWorktree, root, 'the TOCTOU seam saw the snapshot path, not the live root');
+      const recordedToctou = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === toctouRunId);
+      assert.equal(recordedToctou.length, 0, 'no verdict recorded when source drift appears after the Codex run starts');
+
+      // (3) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
       // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
       write(root, '.lattice/story/actives/some-churn.json', JSON.stringify({ churn: Date.now() }) + '\n');
       write(root, '.lattice/activity.jsonl', 'ignored-metadata-churn\n');
@@ -1374,6 +1410,37 @@ async function run(): Promise<void> {
       const agreedDisagreement = diffFindings([majorB], [majorB, majorB]);
       assert.equal(agreedDisagreement.agreed.length, 1, 'shared finding agreed once despite host-B duplication');
       assert.equal(agreedDisagreement.divergentCount, 0, 'no divergence from host-B duplicate of an agreed finding');
+    });
+
+    // CHK-002:adversarial:2 — host identity collapse must fail closed before any
+    // Codex spawn or verdict record. Cross-host proof requires independent host
+    // identifiers/session keys; the same caller cannot manufacture a joint pass by
+    // supplying identical hostA and hostB identities.
+    await check('CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      let seamInvoked = false;
+      const runId = `${STORY_ID}-xhr-same-host`;
+      const handlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: () => {
+          seamInvoked = true;
+          return { stdout: verdictJsonStdout(materialHash, 'pass', [], 'ok'), exitCode: 0, timedOut: false };
+        },
+      });
+      await assert.rejects(
+        () => Promise.resolve(handlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          hostA: 'same-host',
+          hostB: 'same-host',
+          runId,
+          json: true,
+        })),
+        /hostA and hostB must be independent/,
+        'same hostA/hostB identity is rejected before any Codex run',
+      );
+      assert.equal(seamInvoked, false, 'codex seam is never invoked when host identities collapse');
+      assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === runId).length, 0, 'no verdict recorded for a collapsed host identity');
     });
 
     console.log(`\n✓ cross_host_review smoke passed (${passed} checks)`);

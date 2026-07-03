@@ -1,5 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { z } from 'zod';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -17,6 +19,7 @@ import type { Finding } from '../core/adversarial-review.js';
 import { FINDING_SEVERITIES } from '../core/adversarial-review.js';
 import {
   runCodexReviewLeaf,
+  type CodexReviewLeafResult,
   type CodexReviewRunner,
   type CodexReviewVerdict,
 } from '../core/codex-review-leaf.js';
@@ -239,6 +242,13 @@ export type CrossHostReviewArgs = {
   timeoutMinutes?: number;
 } & FormatArgs;
 
+interface CrossHostIdentity {
+  hostId: string;
+  provider: 'claude' | 'codex';
+  sessionId: string;
+  keyId: string;
+}
+
 export interface CrossHostReviewResult {
   schemaVersion: 'lattice.cross_host_review.v1';
   storyId: string;
@@ -277,12 +287,62 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizeIdentity(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 function derivedSession(storyId: string, hostId: string): string {
   return `xhr:${storyId}:${hostId}:session`;
 }
 
 function derivedKey(storyId: string, hostId: string): string {
   return `xhr:${storyId}:${hostId}:key`;
+}
+
+function assertHostIndependence(hostA: CrossHostIdentity, hostB: CrossHostIdentity): void {
+  const shared: string[] = [];
+  if (normalizeIdentity(hostA.hostId) === normalizeIdentity(hostB.hostId)) shared.push('hostId');
+  if (normalizeIdentity(hostA.sessionId) === normalizeIdentity(hostB.sessionId)) shared.push('sessionId');
+  if (normalizeIdentity(hostA.keyId) === normalizeIdentity(hostB.keyId)) shared.push('keyId');
+  if (shared.length > 0) {
+    throw new Error(
+      `cross_host_review: hostA and hostB must be independent; shared ${shared.join(', ')} would collapse the cross-host proof surface`,
+    );
+  }
+}
+
+function createCleanHeadReviewWorktree(projectRoot: string): { worktree: string; cleanup: () => void } {
+  const parent = mkdtempSync(join(tmpdir(), 'lattice-xhr-review-'));
+  const worktree = join(parent, 'worktree');
+  try {
+    execFileSync('git', ['worktree', 'add', '--detach', worktree, 'HEAD'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
+    });
+  } catch (err) {
+    rmSync(parent, { recursive: true, force: true });
+    throw new Error(
+      `cross_host_review: cannot create a clean HEAD review snapshot for codex (${err instanceof Error ? err.message : String(err)}); `
+      + 'refusing to review the mutable live worktree (fail-closed).',
+    );
+  }
+
+  const cleanup = (): void => {
+    try {
+      execFileSync('git', ['worktree', 'remove', '--force', worktree], {
+        cwd: projectRoot,
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
+      });
+    } catch {
+      // Fall back to filesystem cleanup; git worktree prune can clean any leftover metadata.
+    }
+    rmSync(parent, { recursive: true, force: true });
+  };
+  return { worktree, cleanup };
 }
 
 /**
@@ -524,49 +584,62 @@ export function createCrossHostReviewHandlers(
       // allowlist/denylist (and never operator secrets).
       const redactedEnv = buildRedactedEnv(process.env, reviewPolicy);
 
-      // Integrity preflight (host-B escalation-lane fix): FAIL CLOSED before any
-      // codex spawn if the worktree has uncommitted MATERIAL (source) drift versus
-      // HEAD. Codex reviews the LIVE worktree (codex exec -C <worktree>), but the
-      // recorded verdict binds to the HEAD materialHash (the committed tree). A
-      // dirty tree would make Codex review code the HEAD materialHash does not
-      // describe, so the bound hash would be dishonest. `.lattice/` metadata is
-      // excluded (Codex never reads story bookkeeping, and it churns constantly).
-      assertMaterialCleanForReview(projectRoot);
-
-      // Host B (Codex): auto-run the read-only review leaf against the SAME
-      // worktree so its embedded materialHash matches the computed digest.
-      const leaf = await runCodexReviewLeaf(
-        {
-          storyId,
-          storyWorktree: projectRoot,
-          materialHash: materialDigest,
-          hostAFindings,
-          timeoutMs: timeoutMinutes * 60 * 1000,
-          env: redactedEnv,
-        },
-        options.codexRunner,
-      );
-      const hostBVerdict: CodexReviewVerdict = leaf.hostBVerdict;
-
       const runId = normalizeString(args.runId) || `${storyId}-xhr-r1`;
-      const validationDigest = deriveValidationDigest(storyId, materialDigest, storyFilesHash, headHash);
-
       // Independent host identities (distinct hostId/sessionId/keyId) so the two
-      // verdicts never collapse in groupByIndependentHost (verdicts.ts).
+      // verdicts never collapse in groupByIndependentHost (verdicts.ts). F-011:
+      // validate this BEFORE any Codex spawn or verdict record, so a caller cannot
+      // manufacture an "independent" joint pass from the same host identity.
       const hostAId = normalizeString(args.hostA) || 'claude-host-a';
       const hostBId = normalizeString(args.hostB) || 'codex-host-b';
-      const hostAIdentity = {
+      const hostAIdentity: CrossHostIdentity = {
         hostId: hostAId,
         provider: 'claude',
         sessionId: derivedSession(storyId, hostAId),
         keyId: derivedKey(storyId, hostAId),
       };
-      const hostBIdentity = {
+      const hostBIdentity: CrossHostIdentity = {
         hostId: hostBId,
         provider: 'codex',
         sessionId: derivedSession(storyId, hostBId),
         keyId: derivedKey(storyId, hostBId),
       };
+      assertHostIndependence(hostAIdentity, hostBIdentity);
+
+      // Integrity preflight (host-B escalation-lane fix): FAIL CLOSED before any
+      // codex spawn if the worktree has uncommitted MATERIAL (source) drift versus
+      // HEAD. The recorded verdict binds to the HEAD materialHash (the committed
+      // tree), so Codex must review a clean HEAD snapshot and the live worktree
+      // must still be source-clean before we record the verdict. `.lattice/`
+      // metadata is excluded (Codex never reads story bookkeeping, and it churns
+      // constantly).
+      assertMaterialCleanForReview(projectRoot);
+
+      // F-010: Codex must not review the mutable story worktree after the clean
+      // preflight. Give it an immutable detached HEAD snapshot instead, then
+      // re-check the original worktree before recording. A concurrent source edit
+      // after the snapshot cannot influence what Codex reviewed, and if it remains
+      // dirty we refuse to bind/record the verdict.
+      const snapshot = createCleanHeadReviewWorktree(projectRoot);
+      let leaf: CodexReviewLeafResult;
+      try {
+        leaf = await runCodexReviewLeaf(
+          {
+            storyId,
+            storyWorktree: snapshot.worktree,
+            materialHash: materialDigest,
+            hostAFindings,
+            timeoutMs: timeoutMinutes * 60 * 1000,
+            env: redactedEnv,
+          },
+          options.codexRunner,
+        );
+      } finally {
+        snapshot.cleanup();
+      }
+      assertMaterialCleanForReview(projectRoot);
+      const hostBVerdict: CodexReviewVerdict = leaf.hostBVerdict;
+
+      const validationDigest = deriveValidationDigest(storyId, materialDigest, storyFilesHash, headHash);
 
       // Host A decision: derived from the caller-authored findings. Any
       // BLOCKER/MAJOR finding is a fail; otherwise pass. Host A is a review
