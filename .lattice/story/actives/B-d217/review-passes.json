@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d217:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. All three new files (score.mjs, RUN-RECORD.md, score-selfcheck.mjs) are pure additions — no concept deleted or replaced. Verified: (1) SCORE_KEY_ORDER fields align with plan section 10 schema plus declared voiding/provenance extensions (voided, voidReason, details); (2) M3 event vocabulary (experience_pack_surfaced, retrieval_violation) referenced only within experiments/experience-ablation/ plus the plan doc; (3) all referenced artifacts (fixture-generator.mjs, pair-ledger.mjs, oracle/classify interface via trap-templates.mjs) exist; (4) B-ab8d story exists; (5) M6 campaign runner references are intentional future-milestone forward declarations, not dangling; (6) error catalog in RUN-RECORD.md matches actual fail() messages in score.mjs; (7) 14 check() calls in score-selfcheck.mjs; (8) no doc-promise-undelivered items (no CLAUDE.md/README changes); (9) no TODO/FIXME markers. No blocker.",
+      "createdAt": "2026-07-03T00:53:00.395Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-001",
+      "_hash": "9db53c3e175a5a164178dd66dc2d96d84996d461bcb7f6d412e4e31f7e51a6c8"
+    }
+  ]
+}
