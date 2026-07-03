@@ -22,6 +22,7 @@ import type {
   NonDeducibleSourceRecord,
   NonDeducibleSourcesRegistry,
   Playbook,
+  PlaybookAutoActivationEvent,
   PlaybookLineage,
   PlaybookOutcomeEvent,
   PlaybookPromotionActionableRecommendation,
@@ -63,6 +64,8 @@ export const PLAYBOOKS_FILENAME = 'playbooks.json';
 export const PLAYBOOK_OUTCOMES_FILENAME = 'playbook-outcomes.jsonl';
 /** B-6241: append-only promotion sweep recommendation/decision rows. */
 export const PLAYBOOK_PROMOTION_DECISIONS_FILENAME = 'playbook-promotion-decisions.jsonl';
+/** B-7ee1: append-only evidence-activation rows for advisory playbooks. */
+export const PLAYBOOK_AUTO_ACTIVATIONS_FILENAME = 'playbook-auto-activations.jsonl';
 /** B-6241: source experiences judged unsuitable for repeated playbook distillation. */
 export const NON_DEDUCIBLE_SOURCES_FILENAME = 'non-deducible-sources.json';
 /** B-6241: advisory learning settlement/retention/validation health log. */
@@ -188,6 +191,11 @@ export function resolvePlaybookOutcomesPath(projectRoot: string): string {
 /** Absolute promotion decision log path under the shared learning root. */
 export function resolvePlaybookPromotionDecisionsPath(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PLAYBOOK_PROMOTION_DECISIONS_FILENAME);
+}
+
+/** Absolute evidence-activation audit log path under the shared learning root. */
+export function resolvePlaybookAutoActivationsPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOK_AUTO_ACTIVATIONS_FILENAME);
 }
 
 /** Absolute non-deducible source registry path under the shared learning root. */
@@ -811,6 +819,7 @@ function validateIsoTimestamp(value: string, label: string): string | null {
 export function isPositiveHelpedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
   return event.outcome.verdict === 'helped'
     && event.exposureMode !== 'none'
+    && event.outcome.verdictSource !== 'done-settlement'
     && STRUCTURED_VERDICT_SOURCE_RE.test(event.outcome.verdictSource);
 }
 
@@ -821,6 +830,7 @@ export function isStructuredPlaybookOutcomeVerdictSource(value: string): boolean
 export function isCandidateConsumedPlaybookOutcome(event: PlaybookOutcomeEvent): boolean {
   return event.playbookStatusAtObservation === 'candidate'
     && event.exposureMode !== 'none'
+    && event.outcome.verdictSource !== 'done-settlement'
     && isStructuredPlaybookOutcomeVerdictSource(event.outcome.verdictSource);
 }
 
@@ -956,12 +966,16 @@ export function readPlaybookOutcomeEvents(projectRoot: string): PlaybookOutcomeE
 export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookOutcomeEvent): string {
   const validated = validatePlaybookOutcomeEvent(event);
   if (!validated.ok) throw new Error(`appendPlaybookOutcomeEvent: ${validated.error}`);
+  if (readPlaybookOutcomeEvents(projectRoot).some((row) => row.idempotencyKey === validated.event.idempotencyKey)) {
+    return resolvePlaybookOutcomesPath(projectRoot);
+  }
   return atomicAppendCanonicalJsonLine(resolvePlaybookOutcomesPath(projectRoot), validated.event);
 }
 
 // ── B-6241 M3-M6: promotion worker learning metadata ────────────────────────
 
 const PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION = 'proofbound.playbook-promotion-decision.v1';
+const PLAYBOOK_AUTO_ACTIVATION_SCHEMA_VERSION = 'proofbound.playbook-auto-activation.v1';
 const NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION = 'proofbound.non-deducible-sources.v1';
 const PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION = 'proofbound.playbook-promotion-health.v1';
 const NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION = 'proofbound.non-deducible-source.v1';
@@ -1055,7 +1069,13 @@ export function aggregatePlaybookPromotion(
   priorDecisions: PlaybookPromotionDecisionRow[] = [],
 ): PlaybookPromotionAggregate {
   const source = buildPlaybookSourceReference(playbook.lineage);
-  const relevant = events.filter((event) => event.playbookId === playbook.id);
+  const seenOutcomeKeys = new Set<string>();
+  const relevant = events.filter((event) => {
+    if (event.playbookId !== playbook.id) return false;
+    if (seenOutcomeKeys.has(event.idempotencyKey)) return false;
+    seenOutcomeKeys.add(event.idempotencyKey);
+    return true;
+  });
   let helpedCount = 0;
   let dismissedCount = 0;
   let harmfulCount = 0;
@@ -1065,14 +1085,15 @@ export function aggregatePlaybookPromotion(
   const decisiveContextClasses = new Set<string>();
 
   for (const event of relevant) {
-    if (event.outcome.causedWrongClaim) wrongClaimCount += 1;
-    if (event.outcome.verdict === 'helped' && isPositiveHelpedPlaybookOutcome(event)) {
+    const doneSettlement = event.outcome.verdictSource === 'done-settlement';
+    if (!doneSettlement && event.outcome.causedWrongClaim) wrongClaimCount += 1;
+    if (!doneSettlement && event.outcome.verdict === 'helped' && isPositiveHelpedPlaybookOutcome(event)) {
       helpedCount += 1;
       decisiveContextClasses.add(contextClass(event));
-    } else if (event.outcome.verdict === 'dismissed') {
+    } else if (!doneSettlement && event.outcome.verdict === 'dismissed') {
       dismissedCount += 1;
       decisiveContextClasses.add(contextClass(event));
-    } else if (event.outcome.verdict === 'harmful') {
+    } else if (!doneSettlement && event.outcome.verdict === 'harmful') {
       harmfulCount += 1;
       decisiveContextClasses.add(contextClass(event));
     } else if (event.outcome.verdict === 'neutral') {
@@ -1401,6 +1422,123 @@ export function appendPlaybookPromotionDecision(projectRoot: string, decision: P
 
 export function hasAppliedPlaybookPromotionDecision(projectRoot: string, idempotencyKey: string): boolean {
   return readPlaybookPromotionDecisions(projectRoot).some((row) => row.applied && row.idempotencyKey === idempotencyKey);
+}
+
+function validatePlaybookAutoActivationEvent(raw: unknown): {
+  ok: true;
+  event: PlaybookAutoActivationEvent;
+} | {
+  ok: false;
+  error: string;
+} {
+  if (!isRecord(raw)) return { ok: false, error: 'event must be an object' };
+  if (ownString(raw, 'schemaVersion') !== PLAYBOOK_AUTO_ACTIVATION_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${PLAYBOOK_AUTO_ACTIVATION_SCHEMA_VERSION}` };
+  }
+  const activationId = ownString(raw, 'activationId');
+  const idempotencyKey = ownString(raw, 'idempotencyKey');
+  const activatedAt = ownString(raw, 'activatedAt');
+  const playbookId = ownString(raw, 'playbookId');
+  if (!activationId) return { ok: false, error: 'activationId must be a non-empty string' };
+  if (!idempotencyKey) return { ok: false, error: 'idempotencyKey must be a non-empty string' };
+  if (!playbookId) return { ok: false, error: 'playbookId must be a non-empty string' };
+  const tsError = validateIsoTimestamp(activatedAt, 'activatedAt');
+  if (tsError) return { ok: false, error: tsError };
+  if (raw.authority !== 'non_authoritative') return { ok: false, error: 'authority must be non_authoritative' };
+  if (raw.gateEvidence !== false) return { ok: false, error: 'gateEvidence must be false' };
+  const before = own(raw, 'before');
+  const after = own(raw, 'after');
+  const policy = own(raw, 'policy');
+  const evidence = own(raw, 'evidence');
+  if (!isRecord(before) || ownString(before, 'playbookStatus') !== 'candidate' || !ownString(before, 'playbookDigest')) {
+    return { ok: false, error: 'before must bind candidate status and digest' };
+  }
+  if (!isRecord(after) || ownString(after, 'playbookStatus') !== 'active' || !ownString(after, 'playbookDigest')) {
+    return { ok: false, error: 'after must bind active status and digest' };
+  }
+  if (!isRecord(policy) || !ownString(policy, 'policyId') || !ownString(policy, 'policyDigest') || !ownString(policy, 'reviewedBy')) {
+    return { ok: false, error: 'policy must bind id, digest, and reviewer' };
+  }
+  if (!isRecord(evidence) || ownString(evidence, 'recommendation') !== 'recommend_activate') {
+    return { ok: false, error: 'evidence must bind recommend_activate' };
+  }
+  for (const key of ['aggregateDigest', 'decisionId', 'decisionIdempotencyKey', 'decisionDigest', 'lineageCanonicalSourceKey']) {
+    if (!ownString(evidence, key)) return { ok: false, error: `evidence.${key} must be a non-empty string` };
+  }
+  for (const key of ['decisiveSamples', 'helpedCount', 'dismissedCount', 'harmfulCount', 'wrongClaimCount', 'contextClassCount', 'realOutcomeCount', 'exposureCount']) {
+    if (!isNonNegativeNumber(own(evidence, key))) return { ok: false, error: `evidence.${key} must be a non-negative number` };
+  }
+  const reasonCodes = own(evidence, 'reasonCodes');
+  if (!isStringArray(reasonCodes)) return { ok: false, error: 'evidence.reasonCodes must be a string array' };
+  return { ok: true, event: raw as unknown as PlaybookAutoActivationEvent };
+}
+
+export function readPlaybookAutoActivationEventsWithDiagnostics(projectRoot: string): {
+  events: PlaybookAutoActivationEvent[];
+  malformedCount: number;
+} {
+  const filePath = resolvePlaybookAutoActivationsPath(projectRoot);
+  if (!existsSync(filePath)) return { events: [], malformedCount: 0 };
+  const events: PlaybookAutoActivationEvent[] = [];
+  let malformedCount = 0;
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookAutoActivationEvent(JSON.parse(line));
+      if (validated.ok) events.push(validated.event);
+      else malformedCount += 1;
+    } catch {
+      malformedCount += 1;
+    }
+  }
+  return { events, malformedCount };
+}
+
+export function readPlaybookAutoActivationEvents(projectRoot: string): PlaybookAutoActivationEvent[] {
+  return readPlaybookAutoActivationEventsWithDiagnostics(projectRoot).events;
+}
+
+export function assertCanAppendPlaybookAutoActivationEvents(projectRoot: string, events: PlaybookAutoActivationEvent[]): void {
+  const filePath = resolvePlaybookAutoActivationsPath(projectRoot);
+  const existingKeys = new Set<string>();
+  if (existsSync(filePath)) {
+    readFileSync(filePath, 'utf8').split('\n').forEach((line, index) => {
+      if (!line.trim()) return;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(line);
+      } catch (err) {
+        throw new Error(`playbook-auto-activations row ${index + 1} is invalid JSON: ${(err as Error).message}`);
+      }
+      const validated = validatePlaybookAutoActivationEvent(parsed);
+      if (!validated.ok) {
+        throw new Error(`playbook-auto-activations row ${index + 1} is malformed: ${validated.error}`);
+      }
+      existingKeys.add(validated.event.idempotencyKey);
+    });
+  }
+
+  const nextKeys = new Set<string>();
+  for (const event of events) {
+    const validated = validatePlaybookAutoActivationEvent(event);
+    if (!validated.ok) throw new Error(`appendPlaybookAutoActivationEvent: ${validated.error}`);
+    if (existingKeys.has(validated.event.idempotencyKey)) {
+      throw new Error(`playbook-auto-activations already has idempotencyKey ${validated.event.idempotencyKey}`);
+    }
+    if (nextKeys.has(validated.event.idempotencyKey)) {
+      throw new Error(`playbook-auto-activations batch repeats idempotencyKey ${validated.event.idempotencyKey}`);
+    }
+    nextKeys.add(validated.event.idempotencyKey);
+  }
+}
+
+export function appendPlaybookAutoActivationEvent(projectRoot: string, event: PlaybookAutoActivationEvent): string {
+  const validated = validatePlaybookAutoActivationEvent(event);
+  if (!validated.ok) throw new Error(`appendPlaybookAutoActivationEvent: ${validated.error}`);
+  if (readPlaybookAutoActivationEvents(projectRoot).some((row) => row.idempotencyKey === validated.event.idempotencyKey)) {
+    return resolvePlaybookAutoActivationsPath(projectRoot);
+  }
+  return atomicAppendCanonicalJsonLine(resolvePlaybookAutoActivationsPath(projectRoot), validated.event);
 }
 
 const PLAYBOOK_PROMOTION_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-promotion-observe.v1';

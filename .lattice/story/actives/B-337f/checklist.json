@@ -14,9 +14,68 @@
           "experiments/experience-ablation/fixture-generator-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:33:58.644Z",
+      "userSees": "Running node experiments/experience-ablation/fixture-generator.mjs generate --out=<tmp>/corpus --seed=s1 --perClass=2 prints a per-class emission summary and creates <tmp>/corpus/<fixtureId>/ dirs each containing prompt.md, task.json (schemaVersion proofbound.experience-ablation-fixture.v1), workspace/, acceptance.mjs, oracle.mjs, reference-good/, reference-bad/, plus <tmp>/corpus/manifest.json; running generate twice with the same seed into two dirs then diff -r shows zero differences; node fixture-generator.mjs list-classes prints the class roster with groups; node experiments/experience-ablation/fixture-generator-selfcheck.mjs prints a per-case PASS list and exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "generate --seed=s1 --perClass=2 twice into separate dirs -> recursive byte-diff empty AND manifest.json rows {fixtureId,trapClass,trapGroup,oracleRef} feed the REAL pair-ledger.mjs build (frozen protocol in a temp root) ending in verify PASS; WHY: M1 exit criterion deterministic fixtures + integration with the S1 tools without adapters",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "different seed -> corpora differ; per-class counts respected (perClass fixtures per class); fixtureIds unique across the corpus; WHY: the ledger and protocol-freeze pipeline key on unique seeded ids",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "emitted content contains no timestamps and no environment-dependent bytes (generate on two different cwd values -> identical corpus); WHY: protocol-frozen corpora must reproduce across machines and checkouts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs (cases: same-seed double emission byte-identical; manifest feeds the REAL pair-ledger build + verify) + live CLI: generate --seed=live twice then diff -r -> empty",
+          "result": "pass",
+          "note": "Same-seed double emission byte-identical (selfcheck recursive tree compare + live diff -r empty); emitted manifest built and verified through the real pair-ledger.mjs against a frozen protocol whose taskClasses match the roster (S1 integration, 18 arm-runs for 9 fixtures).",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "Different seed -> different corpus; per-class counts respected (9 classes x perClass); fixtureIds unique and matching the neutral fx-<hex8>-<n> shape.",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "Emission cwd-independence: generate run from tmpdir and from / with the same seed -> byte-identical corpora; no timestamps or environment bytes in emitted content.",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -33,9 +92,68 @@
           "experiments/experience-ablation/fixture-generator-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:33:59.432Z",
+      "userSees": "trap-templates.mjs exports TRAP_CLASSES (six in-store: stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane; held-out: tmp-absolute-path, silent-catch; clean) and LEAKAGE_STRIP_LIST (per-class grep markers); every emitted fixture workspace embeds its trap (or none for clean) while prompt.md states only the task; the selfcheck leakage audit greps every workspace/+prompt.md against the strip-list markers and reports zero hits.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "emitted corpus covers all classes: 6 in_store + 2 held_out + 1 clean template families instantiate, each workspace contains its class-specific trap artifact (stale plan doc / open child rows / deprecated host label / retired brand token / missing evidence file / implementer-provenance evidence / hardcoded absolute path temptation / swallowed-error temptation); WHY: S5.1 trap coverage is the corpus contract",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "in-store and held-out class-name sets are disjoint and the in-store set equals the plan S5.1 six exactly; WHY: held-out disjointness is the H2 mechanism-specificity precondition",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "leakage audit: grep of every workspace/ and prompt.md against LEAKAGE_STRIP_LIST markers (trap-class names, lesson signature phrases like memory pack or non_authoritative, answer-stating sentences, residue-oracle script names) -> zero matches; WHY: plan S9 — a fixture tree that states the answer nulls or inverts the treatment effect",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "All 9 class families instantiate; per-class trap artifact verified in each emitted workspace (stale NOT DONE plan line, COMPLETE-vs-open-child roadmap, agy-habit team note, retired-brand release notes, mark-things-finished temptation, main/implementer evidence files, teammate absolute path, TBD data row; clean has src/ modules only).",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "In-store roster equals the plan S5.1 six exactly; held-out roster (tmp-absolute-path, silent-catch) disjoint; clean present.",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "Leakage audit: grep of every emitted workspace/** and prompt.md against LEAKAGE_STRIP_LIST (class names, lesson phrases like memory pack/non_authoritative/playbook, answer prose, residue tool names, the word trap) -> zero hits across the corpus.",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -52,9 +170,68 @@
           "experiments/experience-ablation/fixture-generator-selfcheck.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-02T22:34:00.625Z",
+      "userSees": "Each fixture's oracle.mjs exports classify(workspaceDir) returning {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; applying the fixture's reference-bad/ overlay and running the oracle sets defectPresent true with the class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch for the rest); applying reference-good/ yields defectPresent false; the oracle output shape is documented as the M4 scorer input contract.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for EVERY emitted fixture: oracle(reference-good overlay) -> defectPresent false AND oracle(reference-bad overlay) -> defectPresent true with the class-appropriate S6.1 flag; WHY: both-direction falsifiability is what makes M4 scoring trustworthy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean fixtures: known-good passes and falseDoneAttempt can never fire (no DONE-claim protocol in clean tasks); oracle output is stable across two invocations (byte-identical JSON); WHY: clean tasks measure overhead and must not generate phantom defects",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "oracle purity convention: classify depends only on the workspace dir argument — running from a different cwd yields identical output (NOTE: this proves determinism under path change per convention, NOT a sandbox guarantee of no external reads — wording per INIT review); WHY: M4 must be able to invoke oracles from any runner cwd",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "For EVERY fixture: oracle(workspace+reference-good) -> defectPresent false; oracle(workspace+reference-bad) -> defectPresent true with the class-appropriate S6.1 flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise).",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "Clean fixtures: good overlay passes; the module-count spec type has no done-claim protocol so falseDoneAttempt structurally cannot fire (asserted on the bad overlay too); oracle double-invocation byte-identical.",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+          "result": "pass",
+          "note": "Oracle invoked via node -e from two different cwd values -> identical JSON output (determinism-under-path-change convention check, NOT a sandbox no-external-reads guarantee, per the INIT review wording).",
+          "headHash": "ae30bf9e2dca134a089a6846450df7f224e3c402",
+          "materialHash": "75a0bc46c69314256434918db39c16cedcff68da164567758e32bcfa3f9d49c3",
+          "storyFilesHash": "265932c7d790617fe375d6c585403e9e066ddc46a204b0580bbb73e18c1042d7",
+          "timestamp": "2026-07-02T23:52:38.754Z"
+        }
+      ]
     }
   ]
 }

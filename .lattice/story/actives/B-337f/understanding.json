@@ -1,0 +1,30 @@
+{
+  "task": "Implement M1 of the ablation plan: a deterministic, leakage-stripped, oracle-labeled trap-fixture generator under experiments/experience-ablation/ (generator core + trap templates + hidden oracles + corpus selfcheck), integrating with the S1 tools.",
+  "outcome": "node experiments/experience-ablation/fixture-generator.mjs generate --out=<dir> --seed=<s> --perClass=<n> emits a byte-identical-on-same-seed corpus: per fixture prompt.md, task.json (proofbound.experience-ablation-fixture.v1), leakage-stripped workspace/, visible acceptance.mjs, hidden oracle.mjs, plus reference-good/ and reference-bad/ used only by the selfcheck; <out>/manifest.json feeds pair-ledger.mjs build end-to-end; fixture-generator-selfcheck.mjs proves determinism, leakage absence, class disjointness, and per-fixture oracle firing (known-bad -> class-appropriate S6.1 flags; known-good -> clean).",
+  "facts": [
+    "Plan S5.1 fixes the six in-store trap classes (stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane) and mandates Group 2 held-out negative-control traps whose lessons are NOT in the runtime memory store; .lattice/learning/runtime-memory-pack-cache exists with lessons matching the six (INIT reviewer verified).",
+    "Plan S9 names the strip targets verbatim: runbook/convergence prose (CLAUDE.md/AGENTS.md sections), decision docs, and executable oracles like scripts/verify-lattice-residue.mjs — all verified to exist as leakage sources during the B-36fd review and re-verified at INIT.",
+    "Plan S6.1 defines the deterministic outcomes the oracles must classify: oracle mismatch, false-DONE attempt (structured claim without required evidence), lane-provenance violation; S10 score-record fields defectPresent/oracleMismatch/falseDoneAttempt/laneProvenanceViolation.",
+    "pair-ledger.mjs (B-047f, on main 52b5ca02c) consumes manifest rows {fixtureId, trapClass, trapGroup in_store|held_out|clean, oracleRef} and enforces trapClass membership against the frozen protocol taskClasses (F-002), so generated trapClass names must match protocol group membership.",
+    "The recovery-runner corpus layout (per-task prompt.md/task.json/acceptance/ground-truth + corpus-selfcheck) is the proven precedent; DIVERGENCE noted deliberately: this story uses reference-good/ + reference-bad/ DIRECTORIES (whole workspace overlays) instead of recovery-runner's flat reference-solution.mjs files, because lifecycle traps are judged on multi-file workspace state, not a single function output (INIT reviewer low-2 absorbed).",
+    "Determinism primitives (xmur3/mulberry32) already exist in pair-ledger.mjs to re-use as the local pattern; no timestamps may enter emitted content.",
+    "INIT reviewer low-1 absorbed: the selfcheck's chdir-independence case proves determinism under path change only — it is a convention check, NOT a sandbox proof of no-external-reads; the oracle purity claim must be worded accordingly."
+  ],
+  "constraints": [
+    "Scope: only experiments/experience-ablation/**; no packages/*, no docs/*.",
+    "Workspaces are SYNTHETIC (string templates parameterized by seed), never copies of real repo files — copying real docs would re-import the leakage S9 forbids.",
+    "No trap-class name, lesson text, or answer-stating prose inside workspace/ or prompt.md (the strip list is mechanical, grep-audited by the selfcheck).",
+    "Held-out class names must be disjoint from the six in-store names; their absence from the frozen memory snapshot is an M6 protocol-freeze responsibility (documented, not checkable against a live store here).",
+    "Oracles are pure Node functions over the workspace dir; no transcript reads; no repo reads.",
+    "English-only artifacts; hermetic selfchecks (mkdtemp roots)."
+  ],
+  "unknowns": [
+    "Exact per-class known-bad realism (how tempting each trap is to a real host) is not measurable in this story — the M6 pilot estimates the actual baseline defect rate; here known-bad only needs to be a VALID instance of the failure mode that the oracle detects."
+  ],
+  "touchpoints": [
+    "experiments/experience-ablation/fixture-generator.mjs (create)",
+    "experiments/experience-ablation/trap-templates.mjs (create)",
+    "experiments/experience-ablation/fixture-generator-selfcheck.mjs (create)"
+  ],
+  "timestamp": "2026-07-02T22:24:47.061Z"
+}

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-5118",
+  "state": "confirmed",
+  "ledgerHash": "sha256:6900932d6e0c072afd85c5007f2950848457d9d79baeed9037642eb3334e3aba",
+  "milestones": [
+    {
+      "id": "M2-1",
+      "sourceRequirementId": "REQ-M2-VERIFIER-ADAPTERS",
+      "claim": "Quantum verifier adapter descriptors exist for the M2 evidence families.",
+      "doneMeans": "quantum.ts exports stable descriptor rows with adapter id, evidence kind, required identity fields, and local-only boundary metadata.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "assignedStory": "B-5118",
+      "status": "planned"
+    },
+    {
+      "id": "M2-2",
+      "sourceRequirementId": "REQ-M2-RECEIPT-NORMALIZATION",
+      "claim": "Verifier adapter outputs normalize into bound quantum receipts or deterministic fail-closed results.",
+      "doneMeans": "Focused smoke proves valid output becomes an admissible receipt and unknown/unsupported/mismatched output is rejected.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "assignedStory": "B-5118",
+      "status": "planned"
+    },
+    {
+      "id": "M2-3",
+      "sourceRequirementId": "REQ-M2-REGISTRY-EXPOSURE",
+      "claim": "The read-only pack registry exposes a quantum pack with verifierAdapters.",
+      "doneMeans": "Registry lists code-runtime and quantum packs without duplicate ids, storage roots, lifecycle gates, or completion claims.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "assignedStory": "B-5118",
+      "status": "planned"
+    },
+    {
+      "id": "M2-4",
+      "sourceRequirementId": "REQ-M2-NO-OVERCLAIM",
+      "claim": "M2 status is precise and does not claim M3-M5 or scientific/production/Authority validation.",
+      "doneMeans": "Focused smoke and plan text say M0-M2 implemented and M3-M5 pending, with boundary booleans false.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test",
+        "docs"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "assignedStory": "B-5118",
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-02T23:13:56.426Z",
+  "updatedAt": "2026-07-02T23:14:02.185Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260702231402",
+    "acceptedInterpretationHash": "sha256:09f4ba261765b584bc4992f3d5e78a9c548af33f4de88fbbe830b11415717017",
+    "acceptedAt": "2026-07-02T23:14:02.185Z"
+  }
+}

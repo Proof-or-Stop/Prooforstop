@@ -1,0 +1,55 @@
+{
+  "storyId": "B-ac71",
+  "changes": "Added two Tier-C M0 decision docs under docs/requirements/decisions/: threat-model (trust anchor = pinned-key manifest with verify-against-pinned-not-self, cross-vendor/same-operator independence ceiling, 6-row fail-closed threat table, key gen/pin/rotate/revoke) + execution-plan (6-milestone M0-M5, cheap proof-of-mechanism block M0-M3 split from the expensive M4 powered run).",
+  "usage": "Read docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md and tier-c-crosshost-quorum-execution-plan.md; they fix the soundness rules that M1/M2 RED tests must enforce and the paper wording M5 may use.",
+  "expectedOutcome": "Both docs finalized with every promised section present; no over-claimed independence wording as an assertion; no autopilot milestone-label collision with Tier-C M0-M5; all threat-model §6 acceptance topics covered.",
+  "actualTranscript": "grep: 4/5 forbidden phrases 0 matches, 'mutually-distrusting parties' exactly 1 (meta-use inside threat-model §3 forbidden-list, not a system assertion); 0 bare autopilot M-numbers; 6 milestone headings M0-M5 present; validate PASS (build + 10+ smokes). Codex CLI host-B independent read-only review returned VERDICT: PASS with cross-vendor agreement on the source-gap claims.",
+  "outcomeDiff": "No diff — expected == actual. All PLAN promises delivered; all three prior REVIEW-round findings (F-001 over-claim, F-002 label-collision, F-003 evidence-note specificity) confirmed resolved by real-machine re-run and by both hosts.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M0 is docs-only: it fixes the contract (threat model + plan), not code. It defines what M1 (signed-verdict provenance) and M2 (cross-host collection) must implement. Independence claimed is cross-vendor/same-operator, NOT a Byzantine multi-party trust model.",
+  "pitfalls": "Do NOT cite this M0 as the closed Tier-C proof. The escalation quorum's independence here is label + genuine-review based, not yet cryptographic — HostVerdict still has no required signature (gap #1), which is exactly what milestone M1 builds. Tier-C's tab:tier flip stays gated until M3/M4.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 520567
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 29771
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1079618
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 653675
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1077927
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1073016
+    }
+  },
+  "totalDurationMs": 4435253,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T22:54:38.274Z",
+  "updatedAt": "2026-07-02T22:54:38.274Z"
+}

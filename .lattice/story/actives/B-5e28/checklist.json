@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make DONE settlement default-on with explicit opt-out",
+      "context": "Change PLAYBOOK_DONE_SETTLEMENT_ENABLED handling so unset means enabled, while false/0/no disables. Preserve learning-only, non-gate behavior and do not block lifecycle DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "A future DONE story records a learning settlement row without needing a manual env var.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "unset PLAYBOOK_DONE_SETTLEMENT_ENABLED records settlement by default",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "explicit false/0/no disables settlement without writing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE settlement still cannot create helped outcome or gate evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Surface settlement posture in status and docs",
+      "context": "Update status/docs wording so operators can see that DONE settlement is default-on learning health, not promotion evidence and not historical backfill.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "playbook_promotion_status explains settlement default posture and health rows clearly.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "status reports settlement enabled by default when env is unset",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "status reports disabled when explicit opt-out is set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "status labels settlement as non-authoritative and gateEvidence=false",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove live data enters learning after DONE",
+      "context": "Add/adjust smoke coverage, then use this story DONE as the first live proof that settlement health data is written automatically before any historical backfill.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "After this story reaches DONE, playbook_promotion_status shows a done-settlement health row for this story.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke proves default-on settlement records health row",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "repeated settlement is idempotent",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "settlement failure remains non-blocking and does not mutate story evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

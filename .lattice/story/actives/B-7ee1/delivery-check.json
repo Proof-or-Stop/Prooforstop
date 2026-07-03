@@ -1,0 +1,57 @@
+{
+  "storyId": "B-7ee1",
+  "checkedAt": "2026-07-02T23:49:20.643Z",
+  "headHash": "700857d98359887dfbd34ea0c7a679b297175108",
+  "materialHash": "e4745eff95f3471e35fa51d6f555289c5a59c0b17e6a9a7fcc7a3c37b11ec588",
+  "storyFilesHash": "6cd85cf248b2cb327decfb3c9b46748e8d4dc9d0f25af649f15e734df587f5c4",
+  "reviewRound": "2026-07-02T23:38:55.659Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "B-7ee1 provides playbook_auto_promotion_apply as a separate evidence-activated advisory apply writer; promotion remains non-authoritative, gateEvidence=false, and cannot create review, validation, delivery, DONE, receipt, release, or production evidence.",
+      "status": "verified",
+      "verifiedBy": "manual reverse diff scan plus focused smokes",
+      "evidence": "Verified doc lines 139-144, 160-165, 218-234, 922-947, and 949-964 against changed code. Command policy and process-fact levels keep playbook_auto_promotion_apply as L2 experience-layer metadata, not L4 gate evidence. playbook-evidence-activation smoke passed 14/14."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "Source lineage audit, dedup, runtime consumption closure, and M8 evidence activation require clean lineage, explicit outcomes, current digest, applied recommend_activate decision, and non-gate advisory activation only.",
+      "status": "verified",
+      "verifiedBy": "manual reverse diff scan plus source-lineage and activation smokes",
+      "evidence": "Verified doc lines 323-353, 355-384, 472-493, and 522-534 against source-lineage-audit and playbook-seed changes. source-lineage-audit smoke passed 6/6; playbook evidence activation smoke passed runtime consumption and candidate inertness checks."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7ee1/evidence/transcript-diff.md",
+      "promise": "Transcript evidence shows user-visible activationImplemented=true, evidence-activated posture, non_authoritative authority, gateEvidence=false, and help text for the apply-capable command.",
+      "status": "verified",
+      "verifiedBy": "transcript inspection plus dist CLI replay",
+      "evidence": "Replayed node packages/main/dist/cli.js playbook_promotion_status --json and confirmed activationImplemented=true, posture=evidence-activated/apply-eligible-candidates, policy digest present, authority=non_authoritative, gateEvidence=false. Replayed playbook_auto_promotion_apply --help and confirmed --apply activates only evidence-qualified advisory candidates and writes active status plus append-only activation audit rows."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "node packages/main/dist/tasks/playbook-evidence-activation-smoke.js passed 14/14 on this delivery review. Covered evidence-qualified activation, no-evidence fail-closed behavior, DONE-settlement exclusion, duplicate idempotency protection, runtime active consumption with candidate inertness, status/help output, command policy, and process fact classification."
+    },
+    {
+      "featureId": "source-lineage-audit",
+      "transcript": "node packages/main/dist/tasks/source-lineage-audit-smoke.js passed 6/6 on this delivery review. Covered duplicate grouping across learning artifacts including playbook_auto_activation, missing-lineage diagnostics, read-only empty-store posture, malformed-row diagnostics, and L0 read-only command metadata."
+    },
+    {
+      "featureId": "lattice-validate",
+      "transcript": "Existing story evidence records lattice validate --story=B-7ee1 --json PASS at 2026-07-02T23:36:33.804Z with 31 configured commands passing and verificationCoverage 12/12 required intents covered. I did not rerun the full validation suite during delivery review."
+    },
+    {
+      "featureId": "user-visible-transcript",
+      "transcript": "Replayed dist CLI status/help during delivery review. Status reported activationImplemented=true, posture=evidence-activated/apply-eligible-candidates, activationPolicyDigest=68b1757e05e32e5b7f3abe2ef02454baf0b0d0d3afc4280d9bd924e5a40f608e, authority=non_authoritative, gateEvidence=false. Help reports Evidence-activated advisory promotion and --apply activation only for evidence-qualified advisory candidates."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted. Reverse-scanned main...HEAD, the two decision docs, transcript evidence, command metadata, source-lineage audit, learning-store activation audit, handler status/help output, and targeted smokes. The implementation is evidence-activated advisory playbook promotion only, not production, Authority, receipt, release, review, validation, delivery, or DONE gate evidence. Residual risks are non-blocking: timer-driven promotion remains future work, and catastrophic filesystem failure after status write is only partially rollbackable, though normal fail-closed/idempotent paths are covered."
+  },
+  "_hash": "6f61e532c56548095d7c39ec7928b01cd82054abbd069a5b1ba8cf30d4de16aa"
+}

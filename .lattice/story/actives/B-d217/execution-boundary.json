@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d217",
+  "allowedCommands": [
+    "diff *",
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "lattice *",
+    "node -e *",
+    "node experiments/experience-ablation/*",
+    "rg *",
+    "sha256sum *",
+    "shasum *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "experiments/experience-ablation/RUN-RECORD.md",
+    "experiments/experience-ablation/score-selfcheck.mjs",
+    "experiments/experience-ablation/score.mjs"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M4 scorer story: three new files under experiments/experience-ablation/. Read-only inspection of M1 files, recovery-runner patterns and B-ab8d event code is fine; no packages/main writes.",
+  "createdAt": "2026-07-03T00:22:51.193Z",
+  "updatedAt": "2026-07-03T00:22:51.193Z",
+  "_hash": "e0ee01b29f70f956286d8de10f26817cf82c599b566baf7288c21263659678de"
+}

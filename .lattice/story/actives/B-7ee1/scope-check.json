@@ -1,0 +1,80 @@
+{
+  "storyId": "B-7ee1",
+  "checkedAt": "2026-07-02T22:20:41.320Z",
+  "features": [
+    {
+      "feature": "Evidence activation policy and threshold contract",
+      "covered_by": "CHK-001 plus understanding constraints require candidate status, recommend_activate, decisive helped/dismissed/harmful denominator, exposure, structured verdict source, lineage audit posture, digest binding, idempotency, and rollback semantics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Real guarded evidence activation writer, not another fake default-off guard",
+      "covered_by": "CHK-002 and decision chosen=evidence-activated-apply require playbook_auto_promotion_apply --apply to activate evidence-eligible candidates under reviewed policy and remove the activationImplemented=false/always-off blocker for ordinary CLI use.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/decision.json"
+    },
+    {
+      "feature": "Learning remains advisory and non-authoritative",
+      "covered_by": "Understanding facts/constraints and CHK-002 require authority non_authoritative, gateEvidence false, audit-only advisory activation, and no lifecycle gate satisfaction from playbooks.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/understanding.json"
+    },
+    {
+      "feature": "Story DONE alone never activates playbooks",
+      "covered_by": "CHK-001 and CHK-004 explicitly exclude DONE success from promotion denominators and require negative fixtures proving story DONE cannot activate a candidate.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Demotion, rollback, audit provenance, digest binding, and idempotency",
+      "covered_by": "CHK-002/CHK-003 plus decision pre-mortem require append-only audit, current digest checks, idempotent re-apply, distinct manual vs auto provenance, and reversible advisory activation without deleting evidence.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/checklist.json#CHK-003"
+    },
+    {
+      "feature": "End-to-end and adversarial proof of evidence-driven activation",
+      "covered_by": "CHK-004 requires seed/proposal/candidate, explicit exposure/outcome, recommend_activate sweep, lineage check, dry-run eligibility, guarded apply activation, runtime consumption verification, and negative missing-policy/evidence/stale/duplicate/DONE fixtures.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-7ee1/checklist.json#CHK-004"
+    },
+    {
+      "feature": "Default-on or blanket automatic activation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded Default-on automatic activation; decision rejects blanket-auto-active.",
+      "source": ".lattice/story/actives/B-7ee1/scope-boundary.json"
+    },
+    {
+      "feature": "Using playbooks as lifecycle gate evidence",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes treating playbooks as lifecycle gate evidence; understanding says learning artifacts are advisory and non-authoritative.",
+      "source": ".lattice/story/actives/B-7ee1/scope-boundary.json"
+    },
+    {
+      "feature": "Using story DONE success as helped evidence",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes using story DONE as helped evidence; checklist requires negative fixtures proving DONE cannot activate.",
+      "source": ".lattice/story/actives/B-7ee1/scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 6,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a1258aee511617e3ed08a3377de4ac45373bda676c332ef6ed6467afa38e53bc",
+  "openQuestions": []
+}

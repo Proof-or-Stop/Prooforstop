@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d1bf",
+  "allowedCommands": [
+    "lattice done_prepare --storyId=B-* --mergeMain --refreshStale --validate",
+    "lattice quantum_claim_check",
+    "lattice validate --story=B-* --json",
+    "node packages/main/dist/tasks/quantum-claim-admissibility-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:quantum-claim-admissibility"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/quantum-claim-admissibility.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "excludedCommands": [
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M3 may add local read-only command wiring and smoke coverage only; lifecycle mutation and benchmark/reporting are excluded.",
+  "createdAt": "2026-07-03T00:09:16.762Z",
+  "updatedAt": "2026-07-03T00:09:16.762Z",
+  "_hash": "d53976da5d72b03aa40b360cf678c990185d2ac8a285d1e26c6f0308efd7c8d4"
+}

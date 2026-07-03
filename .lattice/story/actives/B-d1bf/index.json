@@ -1,0 +1,50 @@
+{
+  "storyId": "B-d1bf",
+  "name": "quantum-m3-gate-policy",
+  "title": "Quantum M3: add local gate policy check for claim-admissibility transitions",
+  "description": "Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md. This story adds a local, read-only gate policy layer over the existing Quantum M0-M2 claim/evidence evaluator so callers can classify claim-admissibility results into advance, repair, degrade, escalate, or stop decisions without mutating lifecycle state or claiming production, Authority, hardware, theory, benchmark, or report completion.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "quantum",
+    "claim-admissibility",
+    "M3",
+    "gate-policy",
+    "proof-or-stop"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-03T00:09:16.762Z",
+  "startedAt": "2026-07-03T00:09:16.762Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T00:09:17.231Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:11:59.877Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d1bf",
+    "branch": "story/B-d1bf",
+    "createdAt": "2026-07-03T00:11:58.555Z"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6e41",
+  "records": [
+    {
+      "id": "B-6e41-red-missing-pack-smoke",
+      "trigger": "M1 pack-framework smoke target is absent before implementation",
+      "acceptanceTargetRef": "sha256:00c44c4bda6d085150d49c739059309651b9b0b19795a4af09612a5d7bc764e0",
+      "baselineHeadHash": "84b075f902abd4dbbecb6576b41380a410b69d35",
+      "baselineMaterialHash": "da565ee5db5b3864547b04f5088755fec836c7a60efc76e31c99a4ac6b0c6ae9",
+      "observedFailure": "Before implementation, npm --prefix packages/main run test:claim-admissibility-pack-framework exits 1 with Missing script: test:claim-admissibility-pack-framework.",
+      "failingCommand": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+      "expectedGreenCommand": "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+      "greenRelation": {
+        "targetRef": "sha256:00c44c4bda6d085150d49c739059309651b9b0b19795a4af09612a5d7bc764e0",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:claim-admissibility-pack-framework"
+      },
+      "note": "Red baseline captured before adding the package script and smoke task.",
+      "createdAt": "2026-07-02T22:22:48.673Z"
+    }
+  ],
+  "createdAt": "2026-07-02T22:22:48.673Z",
+  "updatedAt": "2026-07-02T22:22:48.673Z"
+}

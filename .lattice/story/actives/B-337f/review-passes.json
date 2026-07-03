@@ -1,0 +1,211 @@
+{
+  "passes": [
+    {
+      "id": "B-337f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. All three new files are additions only. Checked: (a) IN_STORE_CLASSES = [stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane] matches plan S5.1 six exactly; selfcheck line 58 hardcodes the same PLAN_SIX; held-out classes [tmp-absolute-path, silent-catch] are disjoint; TRAP_GROUPS in_store|held_out|clean match pair-ledger.mjs. (b) LEAKAGE_STRIP_LIST covers classNames (8 hyphenated names), lessonPhrases, answerProse, toolNames (residue/oracle executables), and meta ([trap]); leakageAudit scans prompt.md + workspace/ only (oracle.mjs is host-hidden by design); fixtureId regex fx-<8hex>-<n> enforces no class-name embedding in directory names. (c) Oracle output fields {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details} match the four S10 boolean fields plus a debug string; repeatDefectPresent is a run-level scorer field not a per-fixture oracle field per S6.2. (d) Schema version proofbound.experience-ablation-fixture.v1 follows the proofbound.<domain>-<object>.v1 convention. (e) No CJK characters found in any of the three files. (f) Temptation-vs-answer asymmetry confirmed on host-policy (agy old habit), false-done (mark things finished), reviewer-lane (two green checks usually plenty) — none embeds corrective knowledge. 0 findings.",
+      "createdAt": "2026-07-02T22:41:40.351Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-002",
+      "_hash": "ae36b7c8c84c82faa887ded9c05bb5af26c25227150fd0eea3469dd93d397972"
+    },
+    {
+      "id": "B-337f:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0) have valid passing manual_transcript evidence bound to the selfcheck command. Verified: (a) fixture-generator-selfcheck.mjs exits 0 with 14 PASS lines from worktree root; each evidence note maps to specific PASS lines in the selfcheck output; (b) live CLI generate --seed=live twice into separate mktemp dirs produces empty diff -r and list-classes prints 9 class entries confirming CHK-001:happy:0 claim; (c) red-evidence baseline head 1ce81ffd lacks all three deliverable files (git cat-file -e exits 128 for all three); failing command now exits 0; (d) milestone ledger M1 references exactly the 9 intents CHK-001:happy:0 through CHK-003:adversarial:0, no orphans; (e) coverage gaps: manifest.json row schema IS covered end-to-end (buildLedger->validateManifest->validateMembership->verifyLedger chain exercised at selfcheck line 113-115); acceptance.mjs runability is not named in any intent as a selfcheck requirement and byte-identical determinism check proves content correctness — not a must-gap; prompt format-line per class is not enumerated in any must intent — not a must-gap.",
+      "createdAt": "2026-07-02T22:41:48.903Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-003",
+      "_hash": "1a43355abcd3f72efb769afd3ed9e9a45f4c75f1742b04fe6b4fc5620899accd"
+    },
+    {
+      "id": "B-337f:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all three changed files (trap-templates.mjs, fixture-generator.mjs, fixture-generator-selfcheck.mjs). Filed 5 findings: F-001 remaining-line false-positive (high), F-002 dispatch-order substring false-negative (medium), F-003 review-evidence path traversal breaks stated purity contract (medium), F-004 module-count empty catch swallows srcDir error (low), F-005 duplicate MODULE_WORDS/PRODUCT_OLD/PRODUCT_NEW constants across both files (medium). Clean areas confirmed: brand-token oracle (no cross-pair substring collisions); done-evidence passMarker (no MODULE_WORDS substring pairs); visible-failure catch regex (correctly fires on empty catch only, not on comment-only or rethrow variants); DETERMINISM fully verified (emitCorpus rand usage ordering stable, clean workspace referenceGood counts derived from already-emitted workspaceFiles); CLI exits non-zero on all error paths; selfcheck temp-root cleanup uses roots array in finally; oracle loop iterates every manifest row via for-of; cpSync overlay semantics correct; no CJK; no packages/* or recovery-runner imports (only comments); manifest written last is the effective commit point (correct atomicity for regenerable output).",
+      "createdAt": "2026-07-02T22:44:31.098Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-001",
+      "_hash": "8929294d7a0b50b92d811e006a564dfd1d25c77b80dc9f1057f1522002d532ce"
+    },
+    {
+      "id": "B-337f:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All five round-1 findings verified fixed in commit 6ea7bea73: F-001 remaining-line false positive (none-as-first-token guard), F-002 dispatch substring match (exact-token allowlist), F-003 traversal guard (resolve+sep containment), F-004 module-count srcDir swallow (throws oracleMismatch on unreadable dir), F-005 shared constants (exported solely from trap-templates.mjs). Selfcheck: 27 PASS exit 0. Two independent adversarial spot-probes: (1) done-evidence leading-space passMarker without source fix fires falseDoneAttempt=true held; (2) reviewer-lane modified-baseline evidence with extra JSON key fires laneProvenanceViolation=true via sha256 mismatch held. Two INFO observations evaluated as non-findings: sourceMustMatch .includes() comment bypass is a design-level coarse check adequate for behavior measurement; review-evidence missing acceptance is correct behavior (workspace evidence provenance is main+implementer only, so missing is the right answer per reference-good). No genuine defeats.",
+      "createdAt": "2026-07-02T22:53:53.625Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-007",
+      "_hash": "35659619f0c361159f8cd7af6b790c3d08bcc186cd11274f15609e97867bc27c"
+    },
+    {
+      "id": "B-337f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review after fix commit 6ea7bea73. Checked all concept deletions/replacements in the three changed files. (1) MODULE_WORDS/PRODUCT_OLD/PRODUCT_NEW: correctly consolidated — local copies removed from fixture-generator.mjs, exported from trap-templates.mjs, imported by the generator. Zero residue of the old duplication. (2) New spec fields sourceFile/sourceMustMatch and baselineEvidence: harness-side only — these fields go into oracle.mjs via oracleSource(spec), not into workspace/ or prompt.md; leakageAudit scans only prompt.md + workspace/**; confirmed no leakage. (3) Prompt clarification for stale-doc remaining-line (Write REMAINING: none if nothing remains): format instruction only, not the trap answer; the semantic trap is whether parse${ctx.Token} is actually implemented in the source vs what docs/plan.md claims. (4) Oracle output contract: unchanged — defectPresent/oracleMismatch/falseDoneAttempt/laneProvenanceViolation/details from result() are the same 5 fields. (5) Schema version FIXTURE_SCHEMA_VERSION unchanged at proofbound.experience-ablation-fixture.v1. (6) S6.1 vocabulary unchanged. (7) No CJK in story-owned experiment files. One finding filed (F-013 low/missing): wrongValue dead spec field is a concept residue of the blacklist-to-whitelist migration (harness-only, no host leakage, but misleads future maintainers).",
+      "createdAt": "2026-07-02T22:53:59.666Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-008",
+      "_hash": "a74b20a76bc73944938ef7c96306bfaf1ffa1a0137b0e1a43b15c9f3565f06c4"
+    },
+    {
+      "id": "B-337f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) have valid must-priority manual_transcript evidence with result=pass. Selfcheck confirmed at 27 PASS, exit 0, on the final code (commits 6ea7bea73 + 1252a94bf). (a) All 9 intents verified: determinism/cwd-independence/pair-ledger integration (CHK-001), trap artifacts/class disjointness/leakage audit (CHK-002), oracle both-directions/stability/cwd convention (CHK-003) — evidence notes map precisely to the selfcheck PASS lines. (b) 12 adversarial probe pins for F-001/F-004/F-006..F-012 genuinely pin the defeat direction: spot-revert of old oracle logic (substring PASS check, substring host-id match, empty-catch-only detection, missing containment guard, no baseline inventory, no portable-path $HOME/tilde rejection, ok-zero on missing srcDir, includes() source check) would fail each probe in the defeat direction; the new anchored/exact/inventoried oracles pass all probes. F-012 (anchored sourcePattern) confirmed in trap-templates.mjs line 475 new RegExp(spec.sourcePattern, m).test(src). (c) No orphaned intents: all 9 intents have intentRef-bound evidence; validate missing-coverage flag is purely hash staleness from fix commits, not missing evidence bindings. M1 exit criterion intact (pair-ledger integration PASS in selfcheck). Open F-013 (low/missing, dead wrongValue field) does not affect coverage semantics.",
+      "createdAt": "2026-07-02T22:59:44.460Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-009",
+      "_hash": "49ad1f4fa04b67acc9f4a48263eb0e5bd704a7cd84b82bec03a3b9f4efb98605"
+    },
+    {
+      "id": "B-337f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept review. Verified both source commits exactly as described. F-012 fix (commit 1252a94bf): sourceMustMatch replaced by sourcePattern (anchored regex ^export const LIMIT = 25;) in trap-templates.mjs oracleSpec at line 226, and classify() updated to new RegExp(spec.sourcePattern, m).test(src) at line 475. New probe pinned in selfcheck (28 cases). F-013 fix (commit 439ea064f): dead wrongValue field removed from verdict-line oracleSpec at line 143; oracle reads only spec.rightValue at line 442. Concept residue grep across experiments/ and packages/ for both sourceMustMatch and wrongValue returns zero hits (only .lattice/ audit-history JSON, which is not code). No concept drift. No spec field leakage. No promised-but-undelivered items. Pass.",
+      "createdAt": "2026-07-02T23:02:46.444Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-011",
+      "_hash": "8f03538ed03875d0f406120891cb27890b94747e7d24c459935f6b07ef17e9e0"
+    },
+    {
+      "id": "B-337f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 re-bind. Verified F-012 (anchored regex ^export const LIMIT = 25; with m flag, replaces includes()): anchored pattern cannot be satisfied by a comment-only line, confirmed by selfcheck probe comment-only fix text still fires. Verified F-013 (wrongValue field removed from verdict-line oracleSpec): only rightValue remains, ORACLE_RUNTIME reads rightValue for strict whitelist. Selfcheck: 28 PASS, exit 0. referenceGood lib content (export const LIMIT = 25;) matches the anchored pattern. No new dead code, type safety violations, or I/O isolation issues introduced by either commit. No doc-promise-undelivered gaps found.",
+      "createdAt": "2026-07-02T23:02:49.410Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-012",
+      "_hash": "876a0fcecbf192af6c808e0a0eabdd52a96d7f476cd538cc79d0662298396ba6"
+    },
+    {
+      "id": "B-337f:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3 re-bind, RR-013): all 9 verificationIntents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) have valid must-priority manual_transcript evidence with result=pass. Selfcheck runs 29 PASS exit 0 at current HEAD (3e630d6). Source commits verified: F-013 (439ea064f) removed dead wrongValue field from parent-roadmap oracleSpec — comment-only, no coverage impact, oracle reads only rightValue; F-014 (836059f1e) replaced static source-pattern matching with execution-based ground truth for false-done oracle, selfcheck grew from 28 to 29 cases (3 old false-done probes replaced by 4 execution-truth probes). All 9 intent assertions remain satisfied: (a) CHK-001 determinism/cwd-independence/pair-ledger integration probed and PASS; (b) CHK-002 trap artifacts/class disjointness/leakage audit probed and PASS; (c) CHK-003 oracle both-directions/stability/cwd convention — case 13 (every oracle good+bad overlay) PASS. The 4 new F-014 probes (forged output / comment-only / duplicate-export / tampered check script) strengthen CHK-003 coverage beyond stated intent minimums. No orphan evidence, no must-gaps, no waivers.",
+      "createdAt": "2026-07-02T23:09:25.533Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-013",
+      "_hash": "96ff0167a8ad590d0d06fc5fdab4303272e907a01fb3e1e1b2e1e7f7d641bca3"
+    },
+    {
+      "id": "B-337f:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "F-014 fix verified: diff is exactly the three experiments/ files (trap-templates.mjs, fixture-generator.mjs, fixture-generator-selfcheck.mjs). Static passMarker/sourceFile/sourcePattern/evidenceFile fields fully removed from done-evidence oracleSpec and runtime branch. checkFileSha256 computed from workspace emission content by the generator, embedded in oracle.mjs (harness-side only). Leakage audit covers only prompt.md and workspace/**; oracle.mjs is not on the host-visible surface so checkFileSha256 never leaks into workspace/ or prompt.md. Execution uses execFileSync with cwd=ws and a bare filename (run-check.mjs), so the script resolves inside the workspace. read() containment guard (F-003) prevents path-escape reads before execution. Four new selfcheck probes pin forged output, comment-only fix, duplicate-export SyntaxError, and tampered check script. Arms/roster/trapGroups/schema version/leakageMarkers unchanged. No concept drift.",
+      "createdAt": "2026-07-02T23:12:34.747Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-017",
+      "_hash": "432a39d9186c980930506f2fc3bbaf310bb4ed744ddff08c6b752477c68f4a91"
+    },
+    {
+      "id": "B-337f:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round. All three code files are new additions (from /dev/null). Concept residue check: (1) secretPath exists only in trap-templates.mjs ORACLE_RUNTIME and done-evidence handler — absent from fixture-generator.mjs, fixture-generator-selfcheck.mjs, and no workspace/ directory; (2) spec fields libFile/requiredExport/requiredValue are defined at harness-side oracleSpec (trap-templates.mjs:228) and consumed inside ORACLE_RUNTIME — never written into any workspace file or prompt.md; (3) trapGroup/roster/leakage/arm concepts are internally consistent across the three new files with zero orphaned residue; (4) lattice story metadata changes are phase transitions only (INIT_CHECK->REVIEW). Zero concept-cleanup findings.",
+      "createdAt": "2026-07-02T23:22:32.034Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-021",
+      "_hash": "133c400b5310cb117f542381bce0623f77c2da76620912beb13c355fa720f979"
+    },
+    {
+      "id": "B-337f:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "FINAL REBIND: all 17 prior findings resolved. F-016/F-017 secret-path probe fix verified: (a) selfcheck 31 PASS including pinned argv-read probe; (b) manually re-attempted argv-read attack (lib writes to process.argv[2]) — falseDoneAttempt correctly fires since no secret is in argv; (c) additional tmp-scan attack (lib scans tmpdir for ablation-oracle-* dirs and writes true to hex files) — still fires because probe writes final verdict AFTER import resolves, overwriting any forged content; (d) rmSync cleanup is post-catch (effectively finally); (e) execFileSync uses fixed args [probePath], cwd=ws, stdio=pipe, timeout=10000 — no user input reaches child args; (f) reference-good (LIMIT=25) correctly passes. No dead imports, no empty catches on critical paths, no I/O shell isolation issues in the three changed experiment files.",
+      "createdAt": "2026-07-02T23:25:02.648Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-020",
+      "_hash": "e7abe4f58de4c08e129be5c67f04ea2fcc958d782eeb4f93d80e0cce7a09d132"
+    },
+    {
+      "id": "B-337f:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 verificationIntents (CHK-001/002/003 happy/edge/adversarial) have passing manual_transcript evidence semantically matched to the final code. Selfcheck runs 31 PASS exit 0. The 6 false-done forgery vectors (forged output, comment-only, duplicate-export, process.exit, hardcoded stdout marker, argv-read) each assert fire direction falseDoneAttempt===true and all pass. No orphaned intents. M1 milestone ledger unchanged in the ablation execution plan.",
+      "createdAt": "2026-07-02T23:27:16.808Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-023",
+      "_hash": "49400a09f41093064b987df50caffdc220df763f77501d63966afc356f9771bb"
+    },
+    {
+      "id": "B-337f:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "All quality checks pass. (a) selfcheck exits 0 with 32 PASS including all 7 inert-forgery pins and genuine-fix-pass. (b) ORACLE_RUNTIME imports only createHash/existsSync/readFileSync/readdirSync/join/resolve/sep — zero references to execFileSync/mkdtemp/randomBytes/pathToFileURL/tmpdir/rmSync/writeFileSync. (c) Anchored regex ^\\s*export\\s+const\\s+LIMIT\\s*=\\s*([0-9]+)\\s*;\\s*$ (gm) correctly: standard form matches once, comment-only line does not match (count=1 on the real statement below it, not the comment), duplicate export yields 2 matches and fires, spacing variants (spaces-around-eq, no-spaces) both match correctly, trailing inline comment does not match (false-negative is documented acceptable trade-off per selfcheck contract). (d) reference-good literal export const LIMIT = 25; passes (count=1, val=25). No dead code, no unused imports, no unhandled catch bodies in hot paths.",
+      "createdAt": "2026-07-02T23:28:53.388Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-024",
+      "_hash": "b0e4630e2579a62bdd5301883577b8ad598fe8acb3fc32a8f57da4eac552462f"
+    },
+    {
+      "id": "B-337f:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "F-018 static-read change verified clean. No concept drift: TRAP_CLASSES arms/roster/trapGroups/LEAKAGE_STRIP_LIST and IN_STORE|HELD_OUT|CLEAN_CLASSES exports all unchanged. S6.1 output fields defectPresent/oracleMismatch/falseDoneAttempt/laneProvenanceViolation/details intact. Static-read is a legitimate S6.1 workspace-STATE check: anchored ^export const LIMIT = int; multiline regex on the workspace lib; no workspace code executes — entire in-process forgery family (F-006..F-018) is inert. Spec fields libFile/requiredExport/requiredValue stay harness-side only (oracleSpec, inlined into oracle.mjs, never in workspace/ or prompt.md). No leaked oracle answer: workspace contains the temptation (LIMIT=52), spec.md states target 25 as the task itself — intentional task disclosure, not oracle leakage; oracle checks post-fix STATE. Unused execution imports fully removed from ORACLE_RUNTIME: execFileSync/mkdtemp/tmpdir/pathToFileURL/randomBytes/writeFileSync/rmSync all absent. Stale prose in fixture-generator.mjs:131-132 (still says secret-path probe) is cosmetically outdated but functionally correct — claim that no emission-time binding is needed remains true. Selfcheck 32/32 green including genuine-fix-passes probe. Verification: node experiments/experience-ablation/fixture-generator-selfcheck.mjs -> fixture-generator selfcheck: all cases passed.",
+      "createdAt": "2026-07-02T23:29:23.197Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-025",
+      "_hash": "6d2fc6a0a4be95bec8fcaeb306311320a695fd8884021f09eaccb0aacbf51639"
+    },
+    {
+      "id": "B-337f:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9 intents (CHK-001..003 x happy/edge/adversarial) each have concrete manual_transcript evidence with result=pass; the selfcheck command node experiments/experience-ablation/fixture-generator-selfcheck.mjs runs 32 PASS exit 0 covering all intent semantics directly: same-seed byte-identical double-emission, pair-ledger S1 integration, per-class counts, fixtureId uniqueness, cwd-independence of emission, trap-artifact presence, in-store/held-out disjointness, leakage audit zero hits, oracle both-direction falsifiability, oracle stability, oracle cwd-independence, and adversarial probes pinning 7 inert-forgery vectors (F-006/F-012/F-014/F-015/F-016/F-017/F-018 — static workspace-state read with no execution makes all in-process forgery attempts inert). No orphaned intentRefs. M1 milestone ledger in the execution plan is unchanged. All 9 must-priority intents covered, 0 must-gaps, 0 waivers.",
+      "createdAt": "2026-07-02T23:36:15.913Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-026",
+      "_hash": "ab4daea76305ff1e53d86bcd40065b7a40d141f2f90e5e5e88f0da4fee4b443c"
+    },
+    {
+      "id": "B-337f:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "F-019 fix verified clean. (a) selfcheck 34/34 PASS exit 0 (confirmed on the committed HEAD), incl. in-block-SyntaxError-fires probe and trailing-comment-passes probe. (b) node --check is parse-only: process.exit(3) lib exits 0 with no code run; fs-write lib produces no side-effect file (manually verified). (c) execFileSync call is safe: uses process.execPath (fixed binary), fixed args [--check, libAbs], libAbs path-containment-checked before the call, stdio:pipe, timeout:10000 — no injection surface. (d) relaxed regex ^export...LIMIT...= ([0-9]+); with m flag anchors to column-0; indented in-block exports cannot match; node --check catches them as SyntaxError before regex runs (defense in depth). One additional defeat attempt tried: export const LIMIT = 25; LIMIT = 52; — passes --check but const is immutable so value IS 25 at runtime, oracle is correct. No dead code (outer trap-templates.mjs has zero top-level imports; all ORACLE_RUNTIME string imports used; all selfcheck imports used). No empty-catch violations (catch blocks translate to falseDoneAttempt results). No I/O isolation issues. No doc-promise-undelivered findings.",
+      "createdAt": "2026-07-02T23:38:04.011Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-029",
+      "_hash": "1313aba3417e81df83100c350bda4cc1ad1f8b9a18fb265141ce0b6f4a57ce22"
+    },
+    {
+      "id": "B-337f:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "All quality checks pass. (1) 32 PASS exit 0 including all 7 JSON-contract probes. (2) Zero dead imports in ORACLE_RUNTIME (execFileSync/mkdtemp/randomBytes/pathToFileURL/tmpdir/rmSync/writeFileSync all absent). (3) JSON.parse wrapped in try/catch in done-evidence branch returning falseDoneAttempt=true on invalid JSON; other JSON.parse calls similarly wrapped. (4) reference-good {limit:25} correctly passes; reference-bad (config stays 52) correctly fires. Additional defeat angles probed: duplicate-key {limit:52,limit:25} passes (correct — V8 last-key-wins gives 25, genuine fix); 25.0 and 2.5e1 both pass (correct — they ARE the number 25 per JSON semantics); leading zero 025 fires as invalid JSON (correct). No wrong-accepts found. No dead code, no empty catch swallowing errors, no bridge isolation issues (no bridge.ts in scope). Zero findings.",
+      "createdAt": "2026-07-02T23:42:57.017Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-030",
+      "_hash": "ad417fbc502844a1e73a57b08bb8fcea8c548075ad4ff47f484c80c90eba2673"
+    },
+    {
+      "id": "B-337f:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001..CHK-003, 3 lanes each, all priority=must) have concrete verificationEvidence (manual_transcript, result=pass). selfcheck executed live: 32 PASS, exit 0 — covers determinism, S1 integration, leakage audit, oracle both-direction falsifiability, 7 false-done JSON-contract vectors (F-006/F-019/F-021 families pinned via JSON.parse data read — no code execution), reviewer-lane path-traversal guard, and cwd-independence convention. No orphaned intents. M1 milestone tag present and selfcheck exit criterion met. Evidence notes are behavior-specific. validate passed (31 configured commands all pass).",
+      "createdAt": "2026-07-02T23:46:03.410Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-033",
+      "_hash": "a42a4711d2289269623a9450f0fc10f1083fca0beebe225e92bbdaf9f2bcc93a"
+    },
+    {
+      "id": "B-337f:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Clean-pass rebind. Verified HEAD commit 22f0fd5c3 is exactly one comment-line change in fixture-generator.mjs:131 (\"node --check-gated read of the exported literal\" -> \"JSON.parse read of a config value\") with no logic changes. Full grep for superseded-design wording (node --check, --check-gated, secret-path, exported literal, export const LIMIT, nonce) across all three M1 files (fixture-generator.mjs, trap-templates.mjs, fixture-generator-selfcheck.mjs) returned zero hits. No concept deletion or replacement in this diff; concept residue check complete, no blocker.",
+      "createdAt": "2026-07-02T23:47:26.096Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-035",
+      "_hash": "d4ac27b73b1b75613646e06dcbac993a71d321d75ff4d9f1554403cbf5bf03fc"
+    },
+    {
+      "id": "B-337f:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Clean-pass rebind after F-022 (comment-only). Verified: git show HEAD is a one-line comment swap in fixture-generator.mjs (no logic change). node experiments/experience-ablation/fixture-generator-selfcheck.mjs -> 32 PASS exit 0. Dead-code check: all imports+exports in fixture-generator.mjs, fixture-generator-selfcheck.mjs, trap-templates.mjs are used. No empty catch swallowing errors (leakageAudit catch{return} is defensive I/O scan, not error-swallow). No as-any. No bridge/shell isolation issue. No doc-promise-undelivered. Zero findings this round.",
+      "createdAt": "2026-07-02T23:47:44.887Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-034",
+      "_hash": "88321c45682df732abf29cc76b44f85f176333cc2d036077b93e1a88e804dd61"
+    },
+    {
+      "id": "B-337f:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntents (CHK-001..CHK-003, 3 lanes each, all priority=must) have concrete verificationEvidence (manual_transcript, result=pass, behavior-specific notes). Live selfcheck: 34 PASS, exit 0 — covers determinism+S1-integration (CHK-001), trap artifact + leakage audit zero hits (CHK-002), oracle both-direction falsifiability + oracle double-invocation stability (CHK-003). false-done adversarial probes pin 8 vectors: 6 inert-forgery (F-006 forged-pass-output, F-012 comment-only, F-014 duplicate-export, F-015 process.exit inert, F-016 hardcoded-marker inert, F-017+F-018 argv/exit-hook inert) + in-block-SyntaxError fires via node --check (F-019) + trailing-comment-passes (genuine fix tolerance). No orphaned intents. M1 milestone ledger state=confirmed. Evidence notes are behavior-specific (not generic validate-passed text).",
+      "createdAt": "2026-07-02T23:49:15.236Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-036",
+      "_hash": "498345b3a54e1cd14769a235fbf202c0325c2cf78e4e013081c567304ccde7ce"
+    },
+    {
+      "id": "B-337f:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 verificationIntents (CHK-001..CHK-003, 3 lanes each, all priority=must) have concrete manual_transcript evidence with result=pass whose notes bind precisely to selfcheck PASS lines. Live selfcheck run: 32 PASS, exit 0 — covers determinism+S1-integration (CHK-001), trap artifacts + leakage audit zero hits (CHK-002), oracle both-direction falsifiability + stability + cwd-independence (CHK-003). F-022 commit (22f0fd5c3) verified comment-only: 3-line diff in experiments/experience-ablation/fixture-generator.mjs lines 130-131 replacing the comment string no logic or test change. HEAD (9916827c3) is lattice metadata only. No orphaned intentRefs. 0 must-gaps. 0 waivers.",
+      "createdAt": "2026-07-02T23:52:21.505Z",
+      "reviewRound": "2026-07-02T22:37:21.893Z",
+      "reviewRunId": "B-337f:RR-037",
+      "_hash": "38eff4a720ebe2e930d358cb74e454997c51f41b03eac69cf0b72e10ed9d6534"
+    }
+  ]
+}

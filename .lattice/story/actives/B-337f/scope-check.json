@@ -1,0 +1,143 @@
+{
+  "storyId": "B-337f",
+  "checkedAt": "2026-07-02T22:28:50.013Z",
+  "features": [
+    {
+      "feature": "Seeded deterministic fixture emission: same seed + params -> byte-identical corpus (xmur3/mulberry32 over seed, class, index; no timestamps or Date.now in emitted content)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Per-fixture directory structure: prompt.md, task.json (schemaVersion proofbound.experience-ablation-fixture.v1, fixtureId, trapClass, trapGroup, oracleRef, workspaceRoot, seedTag), workspace/, acceptance.mjs, oracle.mjs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "manifest.json emission: rows {fixtureId, trapClass, trapGroup, oracleRef} directly consumable by pair-ledger.mjs build (B-047f schema incl. F-002 membership expectations)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Hermetic selfcheck: same-seed byte-identical re-emission (recursive diff), different-seed divergence, manifest consumable by real pair-ledger.mjs build in temp root, per-class counts respected, fixtureId uniqueness",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Six in-store trap classes matching plan S5.1 names: stale-doc, parent-roadmap, host-policy, deprecated-brand, false-done, reviewer-lane",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Held-out negative-control trap classes (at least two, NOT in the six, no lesson in runtime memory store); disjointness with in-store set asserted by selfcheck",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Clean class: same task shapes with no trap embedded, analyzed separately for overhead",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Per-trap leakage strip list documented as LEAKAGE_STRIP_LIST export with per-class entries (plan S9): no executable residue oracle, no runbook/convergence prose stating trap answer, no memory-pack/lesson text, no trap class name in host-visible workspace content",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Grep-based leakage audit in selfcheck: for every emitted fixture, grep workspace/ and prompt.md against LEAKAGE_STRIP_LIST markers -> zero matches",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Hidden deterministic oracle per fixture: oracle.mjs exports classify(workspaceDir) -> {defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details}; pure, deterministic, reading only the fixture workspace",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Both-direction reference validation: reference-good/ and reference-bad/ per fixture; oracle(known-good) -> defectPresent false AND oracle(known-bad) -> defectPresent true with class-appropriate S6.1 flag",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Oracle output schema documented as M4 scorer input contract (S10 fields: defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Oracle purity: classify depends only on workspaceDir argument; running from different cwd yields identical output",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M4 deterministic scoring oracle (structured scoring from validation evidence, DONE rows, final_response_check, ground-truth oracles, lane-provenance facts; known positive/negative fixtures score correctly on replay)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal per story description: M4 scorer is out of scope for M1",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2 pair ledger: immutable fixture manifest + pair ledger + committed run-order seed (same seed reproduces run order; ledger immutable once first score exists)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M2 is a separate milestone outside M1 scope; CHK-001 covers only manifest.json integration as a consumer-readiness check, not ledger immutability",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M6 controlled seeded pilot: store-isolation breach check, fixture-leakage audit passes, scorer agreement on replay, baseline defect rate estimation from >=15 control-arm fault-task runs",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal per story description: M6 runs are out of scope for M1",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M3 arm switch for full pack: extend experience-hint-surface.ts + hint-mode.ts from review-entrypoint hints to full runtime memory pack at all lifecycle entrypoints, with mechanical control-arm retrieval blocking",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "S1 tool changes (packages/*) are explicit non-goal per story description",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Real-repo content (CLAUDE.md, AGENTS.md, decision docs, scripts/verify-lattice-residue.mjs) stripped or relocated into oracle, never left in fixture workspace",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 13,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "523cb3f8c41e22f0cbcd5794dc0cf1a3af33ccdde334b09b8c1f5e23dbac270b",
+  "openQuestions": []
+}

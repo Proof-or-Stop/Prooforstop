@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-337f",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:9065c1c68b66ad13d5463dfd04ade9f320ab49f277d9cbd343eaad4278a55cac",
+  "confirmedMilestoneLedgerHash": "sha256:1633cc08bf0031e4d039524659f367d33056d54705ca41471f141c0a13e65ab5",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The acceptance claim (deterministic leakage-stripped oracle-labeled corpus + S1 integration) is proven by the three checklist items and all nine mechanical (cli) verification intents; no waivers planned."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "M1 fixture generator; all intents mechanical.",
+  "createdAt": "2026-07-02T22:33:05.500Z",
+  "updatedAt": "2026-07-02T22:33:05.500Z"
+}

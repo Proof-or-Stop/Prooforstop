@@ -1,0 +1,210 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add Quantum gate policy model and transition decisions",
+      "context": "Map existing evaluateQuantumClaim output into read-only decisions: advance, repair, degrade, escalate, or stop. The policy must preserve all no-overclaim boundary booleans and must not mutate lifecycle state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "A local Quantum gate check returns deterministic transition guidance for admissible, weak, stale, missing, mismatched, and overclaiming evidence.",
+      "excludes": [
+        "No Story machine mutation",
+        "No benchmark harness",
+        "No report/governance renderer",
+        "No quantum theory/hardware/production/Authority claim"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Complete bound Q5 evidence produces an advance decision with local claim-admissibility only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Weak but scoped evidence can produce a degrade decision rather than a false hard pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Production, Authority, hardware, theory, stale, missing, or mismatched evidence never produces advance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose a read-only quantum_claim_check CLI command",
+      "context": "Add command catalog, handler wiring, registry entry, command policy, and phase availability for a read-only local diagnostic command. The command must write no gate evidence and must never claim DONE, production, or Authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "Hosts can run quantum_claim_check to inspect local quantum claim admissibility and gate-policy guidance without changing story lifecycle state.",
+      "excludes": [
+        "No lifecycle phase advance",
+        "No evidence writing",
+        "No external command execution",
+        "No benchmark/report output"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/quantum-claim-admissibility.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "quantum_claim_check renders a passing JSON/text result for complete demo evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "quantum_claim_check supports a degraded/weak demo case and reports degrade without lifecycle mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "quantum_claim_check rejects overclaiming demo cases and reports boundary booleans with productionDone and authorityDone false.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend focused Quantum smoke coverage for M3",
+      "context": "Extend the existing quantum smoke to cover pure policy helpers and the CLI command path. Keep coverage deterministic and local.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "userSees": "The focused smoke transcript includes Quantum M3 gate policy pass/degrade/stop cases and the quantum_claim_check command surface.",
+      "excludes": [
+        "No A1-A4 benchmark metrics",
+        "No B1-B15 failure-injection matrix",
+        "No report renderer"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke prints a Quantum M3 gate policy success line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke exercises weak/degraded evidence and missing/stale evidence categories.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves no M4/M5 or external readiness claim is emitted by the M3 command.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update Quantum documentation runtime status to M0-M3",
+      "context": "Update the Quantum plan and adapter-pack framework docs so the delivered runtime status says M0-M3 implemented and M4-M5 pending, while preserving the no-theory/no-hardware/no-production/no-Authority boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "userSees": "The docs accurately state that M3 adds local read-only gate policy guidance and that benchmark/reporting remain pending.",
+      "excludes": [
+        "Do not claim full lifecycle transition integration",
+        "Do not claim benchmark/report/governance completion"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs say M0-M3 implemented and M4-M5 pending.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish local gate-policy guidance from global Story machine mutation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs retain no quantum theory, hardware, production, Authority, benchmark, or report completion claim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

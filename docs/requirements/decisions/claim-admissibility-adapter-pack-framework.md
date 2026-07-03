@@ -1,7 +1,7 @@
 # Claim-Admissibility Adapter Pack Framework
 
 Status: decision draft
-Scope: framework contract for future claim-admissibility packs
+Scope: framework contract for claim-admissibility packs and future domain capabilities
 Created: 2026-07-02
 
 ## Purpose
@@ -62,7 +62,7 @@ and blocks configured local consumers when policy is in enforce mode.
 The adapter-pack framework adds extensibility points around the existing base.
 It does not replace the base.
 
-Future pack names:
+Pack names and statuses:
 
 - `ClaimAdmissibilityPack`: the generic interface for a pack.
 - `DomainPack`: a pack specialized for a domain such as PINNs or computational
@@ -73,8 +73,14 @@ Future pack names:
 Boundary rules:
 
 - The Proofbound code runtime pack is the existing, mature path.
-- PINN and Quantum are design contracts for future domain packs, not delivered
-  runtime implementations.
+- PINN remains a design contract for a future domain pack.
+- Quantum M2 is implemented and registered by default as a read-only
+  descriptor/normalization pack. It exposes scoped claim/evidence schema
+  descriptors and read-receipt-only verifier adapter descriptors for normalized
+  local receipts.
+- Full future domain-pack capabilities such as command-backed verifier
+  execution, gate policies, benchmark harnesses, and benchmark reporting remain
+  pending. Theory, hardware, production, and Authority claims remain non-goals.
 - Future packs may claim only claim admissibility. They must not claim
   scientific truth, mathematical proof, physical reality, solver quality, or
   experimental validation.
@@ -87,9 +93,8 @@ Boundary rules:
 
 ## Proposed Pack Interface
 
-The future `ClaimAdmissibilityPack` should be a declarative contract plus
-adapter hooks. It should be loadable without giving the pack control over core
-lifecycle gates.
+`ClaimAdmissibilityPack` is a declarative contract plus adapter hooks. It should
+be loadable without giving the pack control over core lifecycle gates.
 
 Minimal interface shape:
 
@@ -263,7 +268,10 @@ Deliver this framework document and treat it as the pack boundary contract.
 Acceptance:
 
 - current base and future framework are separated;
-- PINN and Quantum are described as future domain-pack contracts;
+- PINN and full Quantum domain-pack capabilities are described as future
+  domain-pack contracts;
+- Quantum M2 is distinguished as the current read-only descriptor/normalization
+  pack implementation;
 - non-goals prevent second proof systems and scientific truth claims.
 
 ### M1: Pack Interface And Registry
@@ -277,15 +285,26 @@ Acceptance:
 - duplicate ids, schema ids, artifact kinds, and aliases are rejected;
 - unknown pack entries fail closed with clear diagnostics.
 
-### M2: Domain Schema Loader
+### M2: Domain Schema Loader And Quantum Read-Only Pack
 
-Add a schema loader for pack-owned claim and evidence schemas.
+Add a schema loader for pack-owned claim and evidence schemas. The current
+Quantum M2 slice also delivers the default-registered read-only quantum
+descriptor/normalization pack: scoped claim/evidence descriptors,
+read-receipt-only verifier adapter descriptors, and normalization of supplied
+local receipts.
+
+Quantum M2 does not execute external commands, create storage, create ledgers,
+create lifecycle gates, define gate policies, add benchmark harnesses or
+reporting, claim production completion, act as Authority, validate hardware, or
+prove quantum mechanics.
 
 Acceptance:
 
 - schemas are bound to pack id, pack version, and schema version;
 - required identity fields are validated deterministically;
 - strict-shape failures map to existing admissibility reason codes.
+- the default registry includes the read-only quantum descriptor/normalization
+  pack without adding lifecycle gate authority.
 
 ### M3: Verifier Adapter Contract
 
@@ -346,4 +365,5 @@ Acceptance:
 - Whether verifier adapters should execute commands directly or only normalize
   receipts produced by existing command runners.
 - How much of the existing code/runtime proof path should be re-described as a
-  built-in pack before adding PINN or Quantum packs.
+  built-in pack before adding PINN packs or expanding Quantum beyond the M2
+  read-only descriptor/normalization slice.

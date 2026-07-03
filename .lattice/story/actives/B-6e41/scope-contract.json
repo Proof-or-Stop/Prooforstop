@@ -1,0 +1,49 @@
+{
+  "storyId": "B-6e41",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate required these story-local intent and red-evidence artifacts before implementation; they are command-generated lifecycle evidence for B-6e41, not business-code scope expansion.",
+      "timestamp": "2026-07-02T22:44:45.386Z",
+      "paths": [
+        ".lattice/story/actives/B-6e41/intent-collision.json",
+        ".lattice/story/actives/B-6e41/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6e41/proofstory.json",
+        ".lattice/story/actives/B-6e41/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6e41/intent-collision.json",
+        ".lattice/story/actives/B-6e41/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6e41/proofstory.json",
+        ".lattice/story/actives/B-6e41/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "a56372c0c2e71b0ece0683f33e9cd70b2a939d00",
+      "materialHash": "6c53e16b1e1c3c3bbb37a1c7423776e25bfa2eecd2061efb624d6ba3e9874a56",
+      "anchors": [
+        "proofstory.dev_admission",
+        "claim_admissibility.pack_registry"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-02T22:26:32.776Z",
+  "updatedAt": "2026-07-02T22:44:45.386Z"
+}

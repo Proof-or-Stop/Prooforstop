@@ -1,0 +1,82 @@
+{
+  "storyId": "B-5118",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-5118/checklist.json",
+      ".lattice/story/actives/B-5118/decision.json",
+      ".lattice/story/actives/B-5118/findings.json",
+      ".lattice/story/actives/B-5118/index.json",
+      ".lattice/story/actives/B-5118/intent-collision.json",
+      ".lattice/story/actives/B-5118/milestone-ledger.json",
+      ".lattice/story/actives/B-5118/original-intent-snapshot.json",
+      ".lattice/story/actives/B-5118/plan.md",
+      ".lattice/story/actives/B-5118/process-events.jsonl",
+      ".lattice/story/actives/B-5118/process-metrics.json",
+      ".lattice/story/actives/B-5118/proofstory.json",
+      ".lattice/story/actives/B-5118/red-evidence.json",
+      ".lattice/story/actives/B-5118/review-passes.json",
+      ".lattice/story/actives/B-5118/review-runs.json",
+      ".lattice/story/actives/B-5118/review.json",
+      ".lattice/story/actives/B-5118/scope-check.json",
+      ".lattice/story/actives/B-5118/scope-contract.json",
+      ".lattice/story/actives/B-5118/test-evidence.json",
+      ".lattice/story/actives/B-5118/understanding.json",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "packages/main/src/core/claim-admissibility/pack-framework.ts",
+      "packages/main/src/core/claim-admissibility/quantum.ts",
+      "packages/main/src/core/evidence/admissibility/index.ts",
+      "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-5118/checklist.json       | 188 ++++++-\n .lattice/story/actives/B-5118/decision.json        |  78 +++\n .lattice/story/actives/B-5118/findings.json        |  50 ++\n .lattice/story/actives/B-5118/index.json           |  59 ++-\n .../story/actives/B-5118/intent-collision.json     |  14 +\n .../story/actives/B-5118/milestone-ledger.json     |  93 ++++\n .../actives/B-5118/original-intent-snapshot.json   |  16 +\n .lattice/story/actives/B-5118/plan.md              |  54 ++\n .lattice/story/actives/B-5118/process-events.jsonl |  19 +\n .lattice/story/actives/B-5118/process-metrics.json | 360 +++++++++++++\n .lattice/story/actives/B-5118/proofstory.json      |  92 ++++\n .lattice/story/actives/B-5118/red-evidence.json    |  25 +\n .lattice/story/actives/B-5118/review-passes.json   |  58 +++\n .lattice/story/actives/B-5118/review-runs.json     | 556 +++++++++++++++++++++\n .lattice/story/actives/B-5118/review.json          | 123 +++++\n .lattice/story/actives/B-5118/scope-check.json     | 213 ++++++++\n .lattice/story/actives/B-5118/scope-contract.json  |  74 +++\n .lattice/story/actives/B-5118/test-evidence.json   | 281 +++++++++++\n .lattice/story/actives/B-5118/understanding.json   |  31 ++\n .../claim-admissibility-adapter-pack-framework.md  |  42 +-\n ...p-quantum-claim-admissibility-execution-plan.md |  21 +-\n .../src/core/claim-admissibility/pack-framework.ts | 121 ++++-\n .../main/src/core/claim-admissibility/quantum.ts   | 447 ++++++++++++++++-\n .../main/src/core/evidence/admissibility/index.ts  |   1 +\n .../src/tasks/quantum-claim-admissibility-smoke.ts | 236 ++++++++-\n 25 files changed, 3215 insertions(+), 37 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "Quantum M2 exposes named verifier adapters with explicit evidence kind, required identity fields, and deterministic fail-closed boundaries."
+    },
+    {
+      "source": "userSees",
+      "promise": "Verifier adapter output can be converted into bound receipts that evaluateQuantumClaim can consume."
+    },
+    {
+      "source": "userSees",
+      "promise": "listClaimAdmissibilityPacks includes a quantum pack whose verifierAdapters describe M2 capabilities."
+    },
+    {
+      "source": "userSees",
+      "promise": "npm --prefix packages/main run test:quantum-claim-admissibility prints a passing transcript for M2 verifier adapters."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [],
+    "evidenceCommands": [
+      "npm --prefix packages/main run test:quantum-claim-admissibility",
+      "npm --prefix packages/main run test:quantum-claim-admissibility && npm --prefix packages/main run test:claim-admissibility-pack-framework"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-02T23:49:32.577Z",
+    "headHash": "0392eb72c001a1480108bf6e7aa5c921e2d88e76",
+    "materialHash": "a5e891e40fc11a2f3741a7085367710ef3ff9ea63dc2581d4628b85691fe524a",
+    "storyFilesHash": "492cf0a0d1df5756e7a710983ccb018ba42ab6a9bf72e0385b5e502a34c003a4"
+  },
+  "reviewRound": "2026-07-02T23:42:11.661Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

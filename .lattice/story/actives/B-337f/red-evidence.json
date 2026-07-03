@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-337f",
+  "records": [
+    {
+      "id": "RED-20260702223305",
+      "trigger": "Feature claim: the M1 generator, templates, and corpus selfcheck must exist and pass; at baseline none of the three files exist so the acceptance selfcheck cannot run.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "1ce81ffd97c76714ad2f316acce5deec487a11e2",
+      "baselineMaterialHash": "da565ee5db5b3864547b04f5088755fec836c7a60efc76e31c99a4ac6b0c6ae9",
+      "observedFailure": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs exits 1 with MODULE_NOT_FOUND — the M1 deliverables are absent from the story branch, so the acceptance claim is unmet before implementation.",
+      "failingCommand": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/fixture-generator-selfcheck.mjs"
+      },
+      "note": "Red = deliverables absent (selfcheck import fails); green = the corpus selfcheck passes all cases after implementation (determinism, roster, leakage, both-direction oracles, ledger integration). Spike proof: the full implementation was validated in the session scratchpad before DEV (14/14 cases passing with the S1 tools copied alongside).",
+      "createdAt": "2026-07-02T22:33:05.238Z"
+    }
+  ],
+  "createdAt": "2026-07-02T22:33:05.238Z",
+  "updatedAt": "2026-07-02T22:33:05.238Z"
+}

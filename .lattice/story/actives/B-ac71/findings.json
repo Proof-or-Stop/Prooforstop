@@ -1,0 +1,66 @@
+{
+  "findings": [
+    {
+      "id": "B-ac71:F-001",
+      "desc": "doc-internal-contradiction: execution-plan §1 uses the phrase \"mutually-distrusting vendor hosts\" (line 37) — the exact framing the threat-model §3 explicitly marks as FORBIDDEN for any description of the independence claim (forbidden = \"mutually-distrusting parties\" / \"no operator trust required\"). The threat-model correctly caps the claim at cross-vendor-independent, same-operator-orchestrated, not a mutually-hostile trust boundary. The execution-plan §1 is the narrative that sets reader expectations before M1-M5; leaving the forbidden phrase there means the independence over-claim lives precisely where it shapes go/no-go decisions on M4 and M5.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:13:47.626Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-003",
+      "_hash": "1e905f0f38763125495d577169fc357d3dbe5d78367d950e4bdc118d9666b313",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "adversarial|md|internal-contradiction-execution",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 367b05322: line 38 'mutually-distrusting vendor hosts' → 'independent vendor hosts (Claude + Codex)' per threat-model §3 forbidden-wording rule.",
+      "resolvedAt": "2026-07-02T22:21:31.835Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-ac71:F-002",
+      "desc": "doc-milestone-label-collision: execution-plan §0 (Autopilot section) uses M1/M2/M3/M4 labels to refer to autopilot-v2 milestones (\"M1 (checkpoint/resume) + M2 (429/network health-aware) are production; M3/M4 (throttle, process-pool) are gated\") in the same document where §2 defines M0–M5 as the Tier-C quorum milestones. A reader scanning the document cannot distinguish autopilot-M1 from quorum-M1 without re-reading from context. The collision is especially confusing at M4 where §0 says \"needed only for the powered run (M4 below)\" — a reader naturally reads that as a self-reference to quorum-M4 (the powered run) but it is actually pointing at an entirely different autopilot-M4. The §0 autopilot labels should be namespaced or referenced by capability name rather than sharing the M-numbering.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-02T22:13:57.085Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-003",
+      "_hash": "8aeb7a4442520bdb581e19a6336f0d5effdbf044ec38368ca8c690a1facc62ed",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|milestone-label-collision",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 367b05322: autopilot milestones renamed by capability, removing M1-M4 labels that collided with Tier-C M0-M5.",
+      "resolvedAt": "2026-07-02T22:21:32.662Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-ac71:F-003",
+      "desc": "CHK-001:adversarial:0 evidence note is a generic template that does not address the specific verification challenge: the intent mandates grep for the exact phrase mutually-distrusting parties returns zero matches, but the phrase appears once in tier-c-crosshost-quorum-threat-model.md (line 37) in a meta-context naming it as forbidden wording for M5. The evidence note (Documentation deliverable verified by review: the committed doc satisfies this intent as part of its acceptance criteria) does not document how the reviewer resolved the literal-grep vs contextual-meta-use tension. All 29 evidence notes share this same generic template. For most intents the generic note is acceptable, but for this adversarial intent with an explicit grep=0 verification criterion, the note should state: the phrase appears only within the forbidden-phrases list (a meta-use, not an assertion), not as a claim about the system.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-02T22:15:54.376Z",
+      "reviewRound": "2026-07-02T22:10:56.169Z",
+      "reviewRunId": "B-ac71:RR-004",
+      "_hash": "947c17265d20aa2ee898f950a5419f77306ee60bc7d952680ddab0cbe26b30c4",
+      "files": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "missing|md|adversarial-evidence-note",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

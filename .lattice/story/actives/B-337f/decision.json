@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Synthetic workspaces only — leakage is removed by construction, then audited by grep",
+    "Every oracle decision derives from workspace file state, never transcripts or repo state",
+    "Same seed means byte-identical corpus — no timestamps, no environment reads in emitted content",
+    "Known-bad and known-good reference overlays make every oracle falsifiable in both directions",
+    "Divergences from the recovery-runner precedent are named, not silent"
+  ],
+  "drivers": [
+    "Plan S9 leakage stripping and S5.1 held-out contrast are load-bearing for the study's validity (the two fixture-level validity holes from the plan review)",
+    "The corpus must slot into the already-merged S1 tools (pair-ledger manifest schema + F-002 membership) without adapters",
+    "Lifecycle traps are judged on multi-file workspace state, unlike recovery-runner's single-function coding tasks"
+  ],
+  "options": [
+    {
+      "name": "template-driven-synthetic-workspaces",
+      "pros": [
+        "Leakage-free by construction (no real repo content enters fixtures)",
+        "Deterministic from (seed, class, index) via the proven xmur3/mulberry32 pattern",
+        "Templates + oracles co-located per class keeps each trap's contract in one place"
+      ],
+      "cons": [
+        "Synthetic docs are less ecologically rich than real repo docs (acceptable: ecological validity is the M8 live phase's job, plan S5.2)"
+      ]
+    },
+    {
+      "name": "snapshot-real-repo-then-strip",
+      "pros": [
+        "Maximally realistic workspaces"
+      ],
+      "cons": [
+        "Re-imports the exact S9 leakage sources the plan forbids and makes stripping a blocklist race",
+        "Corpus drifts with the repo; same-seed determinism breaks across checkouts",
+        "Strip-list auditing becomes unbounded"
+      ]
+    },
+    {
+      "name": "llm-generated-fixture-content",
+      "pros": [
+        "Varied, realistic prose"
+      ],
+      "cons": [
+        "Non-deterministic generation breaks the byte-identical-corpus requirement",
+        "Un-audited generated text can smuggle trap answers or lesson phrasing into workspaces",
+        "Adds a model dependency to a tool that must run hermetically"
+      ]
+    }
+  ],
+  "chosen": "template-driven-synthetic-workspaces",
+  "rationale": "Only the template approach satisfies all three drivers simultaneously: leakage-free by construction (S9), deterministic (S1 tool integration and replayability), and per-class co-location of template + oracle + references keeps the M4 scorer contract auditable.",
+  "preMortem": [
+    {
+      "scenario": "A trap answer or lesson phrase leaks into workspace content via a template",
+      "trigger": "Template prose written from memory of the real runbooks/lessons",
+      "consequence": "Both arms can derive the answer from the fixture tree — the exact leakage confound S9 exists to prevent; treatment effect nulls or inverts",
+      "mitigation": "LEAKAGE_STRIP_LIST per class with grep markers (trap-class names, lesson signature phrases, answer-stating sentences); selfcheck greps EVERY emitted fixture workspace+prompt against the markers; review lane re-audits the templates"
+    },
+    {
+      "scenario": "An oracle fires on the known-good reference or stays silent on known-bad",
+      "trigger": "Oracle regex/state-check drift from the template output format",
+      "consequence": "M4 scoring becomes untrustworthy; M6/M7 results invalid",
+      "mitigation": "Selfcheck runs every fixture's oracle against BOTH reference overlays and asserts the class-appropriate S6.1 flag direction; both directions must hold for every emitted fixture"
+    },
+    {
+      "scenario": "Same-seed re-emission differs across machines or runs",
+      "trigger": "Timestamps, object-key iteration order, or filesystem enumeration order entering emitted bytes",
+      "consequence": "Protocol-frozen corpora cannot be reproduced; pair-ledger seals break",
+      "mitigation": "All content derives from the seeded PRNG; directory writes in sorted order; selfcheck does a full recursive byte-diff of two independent emissions"
+    },
+    {
+      "scenario": "Held-out classes accidentally overlap the in-store lesson space",
+      "trigger": "Choosing a held-out failure mode that a stored lesson already covers under different words",
+      "consequence": "The H2 mechanism-specificity contrast collapses (treatment lifts held-out via its lesson, looking like generic priming)",
+      "mitigation": "Held-out class names disjoint from the six (selfcheck-asserted); their defining semantics (portable-path, silent-catch) chosen from coding-hygiene space rather than lifecycle-lesson space; M6 protocol freeze must verify absence against the frozen memory snapshot (documented handoff)"
+    }
+  ],
+  "timestamp": "2026-07-02T22:25:18.158Z"
+}

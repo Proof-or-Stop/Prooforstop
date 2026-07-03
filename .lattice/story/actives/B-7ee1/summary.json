@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7ee1",
+  "changes": "Implemented evidence-activated advisory playbook promotion. playbook_auto_promotion_apply now activates only evidence-qualified candidates, writes append-only activation audit rows, keeps learning non-authoritative/gateEvidence=false, excludes DONE-settlement evidence, dedupes outcome idempotency keys, includes activation artifacts in source-lineage audit, updates CLI docs/help/policies, and wires the evidence activation smoke into routine test surfaces.",
+  "usage": "Use lattice playbook_promotion_status --json to inspect readiness, then lattice playbook_auto_promotion_apply --dryRun --json to inspect eligibility, and lattice playbook_auto_promotion_apply --apply --json to activate only qualifying advisory candidates. Use lattice source_lineage_audit --domain=learning --json and the evidence activation smoke for audit coverage.",
+  "expectedOutcome": "The CLI exposes a real evidence-activated advisory apply path instead of a default-off placeholder. Qualified candidates can become active only with current digest, applied recommend_activate decision, explicit non-DONE exposure/outcome evidence, clean lineage, reviewed policy, and audit provenance.",
+  "actualTranscript": "Real-machine transcript passed: playbook-evidence-activation-smoke reported 14/14 checks; playbook_promotion_status showed activationImplemented=true, posture=evidence-activated/apply-eligible-candidates, authority=non_authoritative, gateEvidence=false; playbook_auto_promotion_apply --help showed --apply activates only evidence-qualified advisory candidates and writes audit rows. Full lattice validate passed 31 configured commands and 12/12 verification intents.",
+  "outcomeDiff": "No user-value difference: observed output matches expected behavior. DONE-settlement rows and duplicate idempotency keys do not inflate activation evidence; candidates remain inert unless evidence-qualified activation succeeds.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story implements advisory playbook activation only. It does not make learning evidence authoritative, does not satisfy DONE/Authority/receipt/release gates, and does not add timer-driven background activation.",
+  "pitfalls": "The work exposed several real closure issues: stale docs suggesting default-off future activation, DONE-settlement helped rows counting as activation evidence, duplicate outcome idempotency keys inflating samples, review-pass staleness after main merge, and repeated stale verification evidence. Future stories should merge main before final review/quorum when possible and remember that delivery-check must be signed by lattice-review-delivery, not the main agent.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 282530
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14303
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 804884
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 2022647
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 2068511
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 679347
+    }
+  },
+  "totalDurationMs": 5872881,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-02T23:50:00.034Z",
+  "updatedAt": "2026-07-02T23:50:00.034Z"
+}
