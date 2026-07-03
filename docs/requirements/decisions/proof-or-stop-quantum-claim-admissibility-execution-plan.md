@@ -1,7 +1,7 @@
 # Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan
 
 Status: formal story source of truth for B-7b4e
-Runtime status: Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending.
+Runtime status: Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented.
 Created: 2026-07-02
 Scope: local computational quantum-mechanics claim-admissibility controls
 
@@ -18,7 +18,8 @@ evidence to advance across lifecycle stages.
 
 ## Current Implementation Slice
 
-B-7b4e, B-5118, and B-d1bf implement Milestones 0 through 3:
+B-7b4e, B-5118, B-d1bf, and B-3779 implement the local diagnostic Milestones 0
+through 5:
 
 - M0: scope, policy, non-goals, claim IDs, boundary semantics, and fail-closed
   reason vocabulary.
@@ -30,12 +31,24 @@ B-7b4e, B-5118, and B-d1bf implement Milestones 0 through 3:
   to `advance`, `repair`, `degrade`, `escalate`, or `stop`, exposed through
   `quantum_claim_check` without writing lifecycle evidence or mutating the Story
   machine.
+- M4: deterministic local benchmark harness exposed through
+  `quantum_claim_benchmark`. It covers supported cases A1-A4 and failure
+  injections B1-B15, reports unsupported advance, stale acceptance, boundary
+  violation, and false-stop rates with deterministic confidence intervals, and
+  remains diagnostic-only with `gateEvidence=false`.
+- M5: deterministic local governance report exposed through
+  `quantum_claim_report`. It summarizes benchmark totals, status, artifact
+  indexes, limitations, and the non-claim boundary while keeping production,
+  Authority, hardware, theory, and solver-improvement booleans false.
 
-M4 through M5 remain pending:
+The following remain future work and out of scope for the current local slice:
 
 - no global lifecycle transition engine integration or Story phase mutation;
-- no benchmark harness or failure-injection runner;
-- no reporting/governance integration beyond the local smoke task.
+- no generic framework `gatePolicies` adapter/plugin completion;
+- no proof-admissibility core rule change;
+- no Authority/DONE/production claim;
+- no quantum theory, hardware, lab, external solver execution, or
+  solver-improvement validation claim.
 
 ## Execution Boundary
 
@@ -327,13 +340,44 @@ overclaim cases return `stop`.
 
 ### Milestone 4 - Benchmark harness
 
-Pending. Future work may add A1-A4 baseline comparison, B1-B15 failure
-injections, rate metrics, confidence intervals, and bounded runtime fixtures.
+Implemented for the local diagnostic slice. `quantum_claim_benchmark` is
+read-only and deterministic. It includes supported cases:
+
+- A1: complete Q5 energy evidence, expected `advance`.
+- A2: weak Q5 energy evidence asked to support a stronger ground-state claim,
+  expected `degrade` with `weak_evidence_overclaim`.
+- A3: complete Q12 figure/table provenance evidence, expected `advance`.
+- A4: complete Q1 Hamiltonian/spec evidence asked to support a stronger
+  convergence claim, expected `degrade` with `weak_evidence_overclaim`.
+
+It also includes B1-B15 failure injections for stale, missing, mismatched, and
+fail-closed behavior. No failure injection may advance; each injection carries
+an exact expected reason category so smoke tests catch wrong-stop regressions.
+Metrics include `unsupportedAdvanceRate`, `staleAcceptanceRate`,
+`boundaryViolationRate`, `falseStopRate`, deterministic confidence intervals,
+`diagnosticOnly=true`, `gateEvidence=false`, `writesLifecycleEvidence=false`,
+and `mutatesLifecycle=false`.
+
+```bash
+lattice quantum_claim_benchmark --json
+```
 
 ### Milestone 5 - Reporting and governance integration
 
-Pending. Future work may add artifact indexes, report format, and downstream
-non-claim wording.
+Implemented for the local diagnostic slice. `quantum_claim_report` is read-only
+and deterministic. It renders benchmark totals/status, artifact indexes, and
+limitations, and keeps `productionClaim=false`, `authorityClaim=false`,
+`hardwareValidationClaim=false`, `quantumTheoryClaim=false`, and
+`solverImprovementClaim=false`.
+
+```bash
+lattice quantum_claim_report
+```
+
+Generic framework gate-adapter/plugin completion, lifecycle mutation,
+`done_prepare`, Authority/DONE/production claims, quantum theory validation,
+hardware/lab validation, external solver execution, and solver-improvement
+claims remain future/out of scope.
 
 ## Ready-to-Quote Boundary Paragraph
 

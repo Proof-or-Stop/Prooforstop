@@ -320,7 +320,7 @@ function checkGateDecision(
 
 const validEnergy = buildCompleteQuantumEvidence('Q5');
 const validEnergyResult = checkPass('valid Q5 energy evidence', validEnergy);
-assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: M0-M3 implemented; M4-M5 pending\./);
+assert.match(renderQuantumClaimCheckText(validEnergyResult), /Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented\./);
 
 const completeGate = checkGateDecision('quantum M3 complete gate-policy case', buildQuantumClaimCheckCase('complete'), 'advance');
 assert.equal(completeGate.transition, 'claim-admissibility', 'complete gate policy is claim-admissibility scoped');
