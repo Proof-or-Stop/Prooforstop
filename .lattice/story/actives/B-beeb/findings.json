@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|mjs|dead-code-pilot",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-beeb:F-002",
+      "desc": "edge: run-pilot-selfcheck.mjs:324 hardcodes snapshotRelPaths as a 3-element list for the byte-identity check in case (6). This list is derived from buildSnapshotFiles() keys in snapshot-builder.mjs, but the selfcheck does not call buildSnapshotFiles() to get the authoritative file set. If snapshot-builder.mjs ever adds a new snapshot file, case (6) will silently under-check byte identity for the new file while the outer hash verification still works.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T04:14:25.143Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-002",
+      "_hash": "b4a33b6dc912da17fce8ccf01a1223172bc354d610ad44e05c697ec8f1d5555a",
+      "files": [
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+        "experiments/experience-ablation/snapshot-builder.mjs"
+      ],
+      "signatureTag": "edge|mjs|edge-pilot-selfcheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
