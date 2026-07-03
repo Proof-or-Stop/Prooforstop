@@ -1,0 +1,23 @@
+{
+  "storyId": "B-d217",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/experience-ablation/score.mjs",
+    "experiments/experience-ablation/score-selfcheck.mjs",
+    "experiments/experience-ablation/RUN-RECORD.md"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/score-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/experience-ablation/fixture-generator.mjs",
+    "experiments/experience-ablation/trap-templates.mjs",
+    "experiments/experience-ablation/fixture-generator-selfcheck.mjs",
+    "packages/**"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T00:24:36.051Z",
+  "updatedAt": "2026-07-03T00:24:36.051Z"
+}

@@ -1,0 +1,607 @@
+{
+  "storyId": "B-d217",
+  "checkedAt": "2026-07-03T00:28:13.977Z",
+  "features": [
+    {
+      "feature": "Create score.mjs exporting scoreArmRun({fixtureDir, runDir}) returning ExperienceAblationScore v1 JSON record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: schemaVersion (proofbound.experience-ablation-score.v1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: experimentId",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: taskId",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: pairId",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: arm (control|treatment)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: hostId",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: trapClass",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: trapGroup (in_store|held_out|clean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: cleanTask (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: memoryPackShown (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: expectedMemoryIds (string[])",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: surfacedMemoryIds (logged on BOTH arms)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: storeRoot (isolated per-run store root)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: defectPresent (boolean, deterministic composite section 6.1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: repeatDefectPresent (boolean, section 6.2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: falseDoneAttempt (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: oracleMismatch (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: laneProvenanceViolation (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: validationPass (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: doneReached (boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: timeToDoneMs (number|null)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: commandCount (number)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: retrievalViolationCount (control-arm blocked-retrieval attempts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "ExperienceAblationScore schema field: evidenceRefs (string[])",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "defectPresent composite logic: validationPass===false OR falseDoneAttempt OR oracleMismatch OR laneProvenanceViolation (section 6.1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "repeatDefectPresent logic: defect whose trapGroup is in_store with an expected lesson (section 6.2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "storeRoot assertion: resolved root equal to shared production learning root -> record voided with reason (section 12)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Scorer purity: no network, no clock (timestamps from inputs), no mutation; stable JSON key order",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "CLI wrapper for score.mjs: node score.mjs --fixture=<dir> --run=<dir> [--out=<file>]",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "falseDoneAttempt sources: structured DONE readiness rows + final_response_check records (preferred); oracle fallback when absent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Optional artifact degradation: missing done-readiness.json/final-response-check.json degrades gracefully; details.sources records which sources were absent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experience_pack_surfaced event mapping: memoryPackShown and surfacedMemoryIds extracted from run activity log",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "retrieval_violation count extracted from run activity log",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "RUN-RECORD.md documenting the arm-run directory layout and required/optional fields as binding producer contract for M6",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "run.json required fields: experimentId, arm (control|treatment), hostId, storeRoot, startedAt/endedAt or timeToDoneMs, commandCount, doneReached, validationPass",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "activity.jsonl (run-scoped event log slice) documented as run-dir input",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "workspace/ directory (post-run fixture workspace the oracle classifies) documented as run-dir input",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Optional done-readiness.json documented as run-dir input",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Optional final-response-check.json documented as run-dir input",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Runtime validation with actionable one-line errors naming missing field/file (Handler convention: runtime checks, not types alone)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Missing required run.json exits nonzero with exactly one line: score: missing required run record file: <path>/run.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Malformed arm value rejected with one-line error naming control|treatment",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "score-selfcheck.mjs: hermetic self-check using fixture-generator.mjs corpus in temp dirs with no repo mutation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck known-bad scores defectPresent=true with class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck known-good scores defectPresent=false",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck clean fixtures never fire falseDoneAttempt on good payloads",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Replay determinism: scoring every pair twice yields byte-identical records and stable corpus digest (sha256 over concatenated records) printed once",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck voiding case: run.json with production store root produces voided:true",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck event mapping: control run with N retrieval_violation events yields retrievalViolationCount=N and memoryPackShown=false; treatment yields memoryPackShown=true with surfacedMemoryIds from event",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "score-selfcheck.mjs exits nonzero on any failure",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Same fixture + seed rerun yields same deterministic scores (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: False-DONE task - scorer detects false-DONE attempt from structured DONE rows deterministically (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Review-lane trap - main/implementer evidence does not count as reviewer proof (lane-provenance check) (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Store isolation - resolved learning root for arm-run is experiment temp root, not production; violation voids run (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M4 exit criterion: known positive/negative fixtures score correctly, deterministically, on replay",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Oracle invoked via fixture oracleRef against the RUN workspace copy (not pristine fixture workspace) per section 10 preferred sources",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix rows for control arm behavior (no runtime memory pack visible; pack computed and logged; retrieval blocked and recorded) - M3 scope, not M4",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M4 scope is the scoring oracle only; arm-switch mechanics and control isolation are M3; verification matrix rows for control/treatment arm behavior and memory pack authority/gate-evidence are explicitly M3 responsibilities not claimed by B-d217",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Treatment arm-run - relevant active memory/playbook appears when expected (section 14) - M3 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 scope (arm switch mechanics), not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Memory pack authority always non_authoritative (section 14) - M3 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 scope (arm switch mechanics), not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Memory snapshot hash identical before and after powered run (section 14) - M6/M7 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M6/M7 powered run scope, not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Fixture leakage audit - neither arm can derive trap answer from fixture tree (section 14) - M6 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M6 pilot exit criterion scope, not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Held-out trap lesson absent from frozen memory snapshot (section 14) - M0/M6 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M0 protocol freeze / M6 scope, not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Parent-roadmap trap - treatment pack nudges parent rollup check; score still relies on current structured facts (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Host-policy trap - treatment expects Codex CLI + Claude Code CLI; agy is fallback only (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Deprecated-brand trap - old brand residue detected by ORACLE (not by an in-tree script both arms can run) (section 14)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Analysis rerun - same score records produce same report digest (section 14) - M7/M9 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M7/M9 analysis scope, not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Candidate memory/playbook not surfaced as active guidance (section 14) - M3 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 scope (arm switch mechanics), not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Verification matrix row: Superseded memory suppressed by default and recorded as suppressed (section 14) - M3 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 scope (arm switch mechanics), not M4 scoring oracle",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M0: protocol.json machine-validated with task classes, per-population sample-size config, trap-group membership, memory-snapshot hash",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M0 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M1: Task fixture generator for six in-store trap classes + held-out + clean tasks with hidden deterministic oracle",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M1 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M2: Immutable fixture manifest + pair ledger + committed run-order seed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M2 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M3: Arm switch extending experience-hint-surface.ts + hint-mode.ts to full runtime memory pack with mechanical control-arm retrieval blocking",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M3 scope; B-d217 is M4 only; no changes to packages/main",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M5: Sample-size calculator per-population adequacy report (unpaired reference + McNemar paired sizing)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M5 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M6: Controlled seeded pilot with plumbing, isolation, leakage validation + baseline-rate estimation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M6 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M7: Powered controlled study full-factorial paired run at frozen N",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M7 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M8: Live shadow readout extending production assignment + learning_effectiveness observational readout",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M8 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M9: Paper-ready evidence map claim-to-artifact table + no-overclaim summary",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M9 scope; B-d217 is M4 only",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Experiment artifacts directory layout under .lattice/experiments/experience-ablation/<experimentId>/ (section 12)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Directory layout is populated by M6+ run machinery; M4 scorer reads run-dir inputs, does not create these experiment-root artifacts",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Statistical analysis: McNemar test on discordant pairs for H1a/H1b, risk difference with 95% CI (section 11)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Statistical analysis belongs to M7/M9; M4 scorer only produces score records consumed by analysis",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Sample size policy: two-proportion z-test approximation and McNemar discordant-pair sizing (section 7)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M5 sample-size calculator scope",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Live LLM reviewer findings excluded from seeded-study primary endpoint (section 6.1 policy)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "fixture-generator.mjs used by score-selfcheck.mjs to generate corpus (CHK-003 depends on M1 fixture generator already existing)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 78,
+    "covered": 51,
+    "excluded": 25,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "737007cdabab8ac11d721cc9397feb99cf98c1b992d6c30c34d148014e630c4b",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-003 context says score-selfcheck.mjs uses fixture-generator.mjs to generate a corpus in a temp root, but fixture-generator.mjs is an M1 deliverable. The story description and checklist do not address whether fixture-generator.mjs is expected to already exist (from a prior story) or must be created within B-d217. If it does not yet exist, the CHK-003 selfcheck cannot run. Is fixture-generator.mjs a pre-existing artifact (from M1 preceding this M4 story) or does it need to be created as part of B-d217?",
+      "evidence": "CHK-003 context: \"(a) generate a corpus with fixture-generator.mjs into a temp root\"; M4 milestone in section 13 lists reuses: \"adjudicate.mjs outcome state machine; checks.mjs; packages/lab scoring core; ground-truth.mjs pattern\" — fixture-generator.mjs is NOT listed as reused and is not listed as a new deliverable either. M1 exit criteria (section 13): \"Generator emits deterministic fixtures with oracle labels; per-trap answer-source strip list documented.\"",
+      "sourcePointers": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-implementation-milestones"
+      ]
+    }
+  ]
+}
