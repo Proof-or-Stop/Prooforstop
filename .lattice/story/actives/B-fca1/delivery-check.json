@@ -1,0 +1,46 @@
+{
+  "storyId": "B-fca1",
+  "checkedAt": "2026-07-03T10:32:05.672Z",
+  "headHash": "46cb0ef72f025bda6a6b734ca87e0d7a19ca63a1",
+  "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+  "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+  "reviewRound": "2026-07-03T10:25:12.220Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/experience-ablation/evidence-map.mjs#header-comment",
+      "promise": "evidence-map.mjs CLI emits evidence-map.json + evidence-map.md with a claim-to-artifact table covering all 10 plan-section-18 rows, each with existence and sha256 digest checks; no-overclaim section with circularity disclosure and four disallowed claims; final summary stating Causal impact: INCONCLUSIVE with basis; paper table per plan section 16 with every figure labeled unpowered/exploratory; deterministic (generatedAt input-only); writes only under --out; any missing artifact exits nonzero with one actionable line",
+      "verifiedBy": "direct code read + selfcheck execution",
+      "evidence": "evidence-map.mjs exports SECTION18_ROWS (10 rows), REQUIRED_ARTIFACTS (12 artifacts), buildEvidenceMap (assembles all four sections), renderMarkdown (emits md). CIRCULARITY_DISCLOSURE and VERDICT_LINE constants present verbatim. computePaperTable sets inference: unpowered/exploratory on every row. fail() function exits with one actionable line. Selfcheck ran 39 PASS exit 0 independently verifying all stated behaviors including determinism double-run, write boundary, tamper detection, fail-closed guard."
+    },
+    {
+      "docPath": "experiments/experience-ablation/evidence-map-selfcheck.mjs#header-comment",
+      "promise": "evidence-map-selfcheck.mjs is hermetic (mkdtemp stubs, no repo path read), asserts: table covers all section-18 rows in order with existence+digest check; each missing required artifact fails with exactly one actionable line; digest mismatches detected after tamper; circularity disclosure + four disallowed claims + INCONCLUSIVE verdict line present; every paper-table figure labeled unpowered/exploratory; deterministic double-run byte-identity; tool never writes outside --out",
+      "verifiedBy": "direct code read + live execution",
+      "evidence": "selfcheck.mjs uses mkdtempSync + rmSync cleanup, imports no production packages, stubs all 12 required artifacts with canonical hashing. Verified case coverage: missing artifact loop over all 12 REQUIRED_ARTIFACTS + plan-doc, 4 tamper cases, 2 determinism cases, write-boundary digestTree, fail-closed freezeVerdict guard, store isolation sibling/production cases, unit computePaperTable. Live run: node experiments/experience-ablation/evidence-map-selfcheck.mjs -> 39 PASS, exit 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md#13-M9-exit-criteria",
+      "promise": "M9 exit criteria (plan section 13): the paper section can cite protocol, ledger, score records, leakage audit, and analysis report; plan section 18 requires final summary to state supported/unsupported/inconclusive",
+      "verifiedBy": "inspection of generated evidence-map.md at runtime evidence root",
+      "evidence": "Pre-existing doc not modified by this story. Generated evidence-map.md at .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/evidence-map.md confirmed: all 10 section-18 rows status ok with sha256 digests; verdict line reads exactly Causal impact: INCONCLUSIVE; basis includes planning-band invalidation (1/30=0.0333 vs [0.5,0.8] band), N-freeze REFUSED + skip_powered_study decision, unpowered contrast; circularity disclosure and four disallowed claims present; paper table has [unpowered/exploratory] on all three trap-group rows."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/experience-ablation/evidence-map-selfcheck.mjs run live during delivery review: 39 PASS exit 0. Covers: happy path (all 10 SECTION18_ROWS in order, status ok, every cited artifact existence+digest correct, plan doc sha256 verified, self-referential claim-map rows carry null digest); no-overclaim (circularity disclosure exact match, all 4 disallowed claims in json+md); verdict (exact INCONCLUSIVE line, basis has 3 parts: pilot baseline 1/3=0.3333 vs band [0.5,0.8], REFUSED+skip_powered_study, never powered); paper table (3 sorted trap groups, figures correct against stub records, every row inference=unpowered/exploratory, voided treatment excluded); determinism (double run byte-identical with and without --generatedAt); write boundary (digestTree before/after identical outside --out); missing-artifact one-liner for each of 12 REQUIRED_ARTIFACTS + plan-doc; 4 tamper cases (protocol payload->protocolHash mismatch, manifest append->manifestHash mismatch, snapshot edit->memorySnapshotHash mismatch, score records drift->pilot baseline recount mismatch); store isolation (sibling .lattice/learning-extra/ path passes, production .lattice/learning/ path fails); fail-closed freezeVerdict guard; usage exits 2; unit computePaperTable pure function matches CLI output."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Runtime evidence-map.md inspected directly at /Users/jek/Documents/Work/proofbound/.lattice/experiments/experience-ablation/expabl-m6-pilot-v1/evidence-map.md. All 10 section-18 rows present with status ok and sha256 digests. Protocol cross-checks pass (memorySnapshotHash recomputed f5c7d4be matches recorded). Arm-behavior: 90 non-voided records render-gate verified. Leakage audit: 45 rows all-pass. Score records: 90/90 sealed arm-runs covered. Verdict line 83: Causal impact: INCONCLUSIVE with basis citing 1/30=0.0333 vs [0.5,0.8] band, N-freeze REFUSED + skip_powered_study, unpowered contrast. Paper table: 3 trap groups (clean/held_out/in_store), every row [unpowered/exploratory]. Circularity disclosure and four disallowed claims in No-overclaim section."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both CHK-001 and CHK-002 delivered. The evidence-map generator is committed code independently verified: selfcheck ran 39 PASS exit 0 covering happy path, missing-artifact one-liners for all 12 artifacts, 4 tamper cases, determinism double-run, write boundary, fail-closed guard, store isolation, and unpowered labeling. The real M9 evidence-map.md at expabl-m6-pilot-v1 was read directly and confirms all 10 section-18 rows status ok, exact INCONCLUSIVE verdict with artifact-composed basis, circularity disclosure, four disallowed claims, and [unpowered/exploratory] on all paper-table rows. No TODOs, no unverified promises."
+  },
+  "_hash": "e9519f0e885753f7fd41eb8d96d765e06ebcbfb3d281de4062bda23e320e043b"
+}

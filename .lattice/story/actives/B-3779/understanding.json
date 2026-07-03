@@ -1,0 +1,33 @@
+{
+  "task": "Finish Quantum local diagnostic M4-M5 by adding a deterministic benchmark harness and bounded governance report over the existing claim-admissibility evaluator.",
+  "outcome": "After build, the user can run lattice quantum_claim_benchmark --json and see A1-A4 supported cases plus B1-B15 injections with unsupportedAdvanceRate=0 and diagnosticOnly=true; then run lattice quantum_claim_report and see a plain report saying Quantum local diagnostic M0-M5 implemented, while theory/hardware/solver-improvement/production/Authority claims remain false and out of scope.",
+  "facts": [
+    "B-7b4e/B-5118/B-d1bf already completed Quantum M0-M3: schema, identity binding, verifier adapter normalization, and local read-only gate policy.",
+    "The Quantum execution plan currently says M4-M5 pending and already enumerates B1-B15 failure injections.",
+    "INIT reviewers passed but both noted that A1-A4 supported-case semantics were underdefined; plan.md now defines A1 complete Q5, A2 weak Q5 stronger request, A3 complete Q12 provenance, and A4 complete Q1 stronger request.",
+    "Command names are decided as quantum_claim_benchmark and quantum_claim_report to preserve the existing quantum_claim prefix.",
+    "Benchmark confidence intervals use deterministic Wilson intervals for small-n rates.",
+    "Existing PINN commands provide a nearby pattern: pinn_benchmark_run and pinn_report_render are local read-only diagnostics."
+  ],
+  "constraints": [
+    "Do not mutate Story lifecycle state from Quantum benchmark/report commands.",
+    "Do not execute external quantum solvers or validate quantum hardware/lab results.",
+    "Do not create a second proof manager, storage root, or ledger.",
+    "Keep benchmark/report outputs diagnostic-only unless a future gate explicitly consumes them.",
+    "Keep all production, Authority, hardware, theory, physical-validation, and solver-improvement boundary claims false."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/handlers/quantum-claim-admissibility.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/quantum-claim-benchmark-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+  ],
+  "timestamp": "2026-07-03T03:30:38.585Z"
+}

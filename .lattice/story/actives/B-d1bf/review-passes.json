@@ -1,0 +1,220 @@
+{
+  "passes": [
+    {
+      "id": "B-d1bf:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "F-002 pass: claim-admissibility-adapter-pack-framework.md states Quantum remains descriptor/normalization-only with empty gatePolicies; quantum_claim_check is separate local M3 projection; generic M4 gatePolicies remains future; no production/Authority/hardware/theory/solver overclaim found.",
+      "createdAt": "2026-07-03T00:55:49.799Z",
+      "reviewRound": "2026-07-03T00:54:11.063Z",
+      "reviewRunId": "B-d1bf:RR-007",
+      "_hash": "28e951d492a73da216a343210eb7474d828b114d3320d0adf3e60c2153de7c86"
+    },
+    {
+      "id": "B-d1bf:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 targeted re-review passed: custom evidenceJson/evidencePath with requestedStrength=production/theory fail closed with decision=stop, allowed=false, no lifecycle mutation/evidence writes, and no production/Authority completion claims; no M4/M5/global lifecycle overclaim observed.",
+      "createdAt": "2026-07-03T00:57:35.335Z",
+      "reviewRound": "2026-07-03T00:54:11.063Z",
+      "reviewRunId": "B-d1bf:RR-009",
+      "_hash": "6fac8fe3f406a23dc17996a5dc32f63f4176ba1809990138ca75a620ac20777e"
+    },
+    {
+      "id": "B-d1bf:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review inspected only packages/main/src/handlers/quantum-claim-admissibility.ts, packages/main/src/tasks/command-catalog-smoke.ts, packages/main/src/tasks/quantum-claim-admissibility-smoke.ts. Empty evidenceJson fails closed via parseJsonObject; evidencePath with requestedStrength=production is forced through gate policy and covered by CLI smoke as decision stop/allowed false; production/Authority overclaim flags and hard requestedStrength values are rejected or stopped, with authorityDone/productionDone false.",
+      "createdAt": "2026-07-03T01:04:27.412Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-010",
+      "_hash": "a1731c3766a78624c65acf98d2d3334fc3060aa6d0e9469c97e07a6f5fdda62e"
+    },
+    {
+      "id": "B-d1bf:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "No doc files changed in this round; F-005/F-006 only touched TS handler/smoke coverage and no documentation update is needed. Prior docs pass still stands.",
+      "createdAt": "2026-07-03T01:04:55.766Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-011",
+      "_hash": "94710d8f1329bd8a5b9e77203d134237621ba110523938ccc8316b303b441a9d"
+    },
+    {
+      "id": "B-d1bf:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-006 re-review PASS: command-catalog smoke asserts quantum_claim_check evidencePath schema and exercises real dist CLI evidenceJson/evidencePath paths plus empty evidenceJson nonzero fail-closed; quantum smoke covers handler blank evidenceJson fail-closed. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:quantum-claim-admissibility; npm --prefix packages/main run test:command-catalog-smoke.",
+      "createdAt": "2026-07-03T01:05:32.473Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-013",
+      "_hash": "38cd44e759f132350d0a0f1a85aba923d823cb3a84403d349e37ebf8bf2cb50d"
+    },
+    {
+      "id": "B-d1bf:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-005 re-review passed: handler uses presence checks for evidenceJson/evidencePath, rejects empty or blank direct evidence inputs, malformed direct JSON/path content fails closed, and incomplete direct evidence stops instead of falling back to the complete fixture. Verified with build, focused smokes, and explicit dist CLI probes.",
+      "createdAt": "2026-07-03T01:06:55.414Z",
+      "reviewRound": "2026-07-03T01:02:59.755Z",
+      "reviewRunId": "B-d1bf:RR-012",
+      "_hash": "67db24e5d37ec1aff2db466e34082f7bdbe87ee90207bdc1bbcf4768848c68d3"
+    },
+    {
+      "id": "B-d1bf:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: reviewed docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md and docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md. They state Quantum M0-M3 implemented with M4-M5 pending, keep generic framework M4 as future work, avoid production/Authority completion overclaim, use boundary.productionClaim/boundary.authorityClaim, and avoid retired Authority completion vocabulary.",
+      "createdAt": "2026-07-03T01:29:54.526Z",
+      "reviewRound": "2026-07-03T01:26:58.592Z",
+      "reviewRunId": "B-d1bf:RR-016",
+      "_hash": "e56a2c5670db2d76910b19f7ffb59dc996d37be570a8e8f62e2f9a8b0957a30d"
+    },
+    {
+      "id": "B-d1bf:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS. Reviewed B-d1bf current baseline after 10a5615f4 plus metadata. Quantum M3 remains a local read-only claim-admissibility projection: complete case advances only transition=claim-admissibility with localClaimAdmissibilityOnly=true, writesLifecycleEvidence=false, mutatesLifecycle=false, and boundary.productionClaim/boundary.authorityClaim false. Production/Authority/theory/hardware overclaims stop or are rejected at CLI validation. Default quantum pack gatePolicies remains empty and docs keep generic framework M4/M5 pending.",
+      "createdAt": "2026-07-03T01:30:15.918Z",
+      "reviewRound": "2026-07-03T01:26:58.592Z",
+      "reviewRunId": "B-d1bf:RR-017",
+      "_hash": "d7540bea08c2496416bd44740672fc1ddfb5e0c3366ca99eea412c6535889c2e"
+    },
+    {
+      "id": "B-d1bf:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: reviewed Quantum M3 test coverage after vocabulary/direct-evidence fixes. Verified focused quantum smoke, command-catalog smoke, command-ownership contract, retired-authority vocabulary guard, exact real CLI probes for evidenceJson/evidencePath requestedStrength=production plus blank evidenceJson fail-closed, and full lattice validate PASS with verificationCoverage 18/18.",
+      "createdAt": "2026-07-03T01:31:55.665Z",
+      "reviewRound": "2026-07-03T01:26:58.592Z",
+      "reviewRunId": "B-d1bf:RR-014",
+      "_hash": "4d63aa43033aa6e9e6a0e039b7d35201ddc1cadce49e27be1363303fb0cf1061"
+    },
+    {
+      "id": "B-d1bf:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "F-007 handler-boundary fix verified: invalid handler requestedStrength and claimId now throw deterministic Error, valid results remain local read-only claim-admissibility with no lifecycle, Authority, or production overclaim.",
+      "createdAt": "2026-07-03T01:49:02.994Z",
+      "reviewRound": "2026-07-03T01:38:27.260Z",
+      "reviewRunId": "B-d1bf:RR-022",
+      "_hash": "e8c9b994460894b36f60cd7efad2cf2187d6f6cf917209e83555ec78b384ff37"
+    },
+    {
+      "id": "B-d1bf:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Quantum M3 coverage verified for invalid requestedStrength and claimId, valid claim and strength, evidenceJson/evidencePath direct inputs, fail-closed overclaims, stale/missing/mismatched/unbound evidence, command-catalog/schema smoke, retired vocabulary guard, and validate PASS 18/18 at 9eed6d668.",
+      "createdAt": "2026-07-03T01:49:08.528Z",
+      "reviewRound": "2026-07-03T01:38:27.260Z",
+      "reviewRunId": "B-d1bf:RR-020",
+      "_hash": "354cdf1cecb89910d693d0fbcf4a1bcde4a2307623d070ab69872b75c4abf63b"
+    },
+    {
+      "id": "B-d1bf:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Docs verified: Quantum docs state M0-M3 implemented and M4-M5 pending, M3 remains local/read-only, retired Authority/DONE/production vocabulary is absent, overclaims are bounded as non-goals, and generic pack M4 gatePolicies remains future work.",
+      "createdAt": "2026-07-03T01:49:12.557Z",
+      "reviewRound": "2026-07-03T01:38:27.260Z",
+      "reviewRunId": "B-d1bf:RR-021",
+      "_hash": "362b9463f22ea08a498aef04a812c979714557cc3c17548f86b8db612c7627d8"
+    },
+    {
+      "id": "B-d1bf:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Quantum M3 concept reviewed at current head: invalid requestedStrength and claimId fail deterministically, retired true-ish DONE/Authority fields fail closed, scoped behavior remains valid, and no lifecycle mutation or M4/M5/generic pack-policy overclaim found.",
+      "createdAt": "2026-07-03T02:17:38.960Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "reviewRunId": "B-d1bf:RR-030",
+      "_hash": "7972970a7673a84f5c7c412406ae4d6a07d508de22887ccfde0aee3accbd7927"
+    },
+    {
+      "id": "B-d1bf:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Quality reviewed at current head: invalid requestedStrength, invalid claimId, and retired Authority/DONE fields fail closed deterministically; gate ordering and result shape preserve no lifecycle mutation and no positive Authority, production, or DONE claims; quantum, command-catalog, and retired-vocabulary smokes pass.",
+      "createdAt": "2026-07-03T02:17:45.635Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "reviewRunId": "B-d1bf:RR-028",
+      "_hash": "95a1a71b1eef53d17ab6fd074625b862b060c866219561bc5e8be08b991cca85"
+    },
+    {
+      "id": "B-d1bf:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage reviewed at current head: embedded invalid requestedStrength, invalid handler requestedStrength and claimId, retired fields across core/evidenceJson/top-level args, valid/direct inputs, fail-closed overclaims/evidence states, catalog/schema and retired guard, and full validate PASS 18/18 are covered.",
+      "createdAt": "2026-07-03T02:17:54.698Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "reviewRunId": "B-d1bf:RR-027",
+      "_hash": "d516e7c7b663c0796b5423406a1d2f0f180f665c9258509cf3f043d759e957ca"
+    },
+    {
+      "id": "B-d1bf:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Docs reviewed at current head: touched docs state Quantum M0-M3 implemented and M4-M5 pending, keep M3 local/read-only with no lifecycle mutation, preserve generic pack M4 gatePolicies as future work, and show no retired active vocabulary or overclaim in active/touched doc surfaces.",
+      "createdAt": "2026-07-03T02:17:59.414Z",
+      "reviewRound": "2026-07-03T02:13:31.766Z",
+      "reviewRunId": "B-d1bf:RR-029",
+      "_hash": "ed2515b6f3c91d90274c3183def7324ffd9e1ecad104c884e7fd824f4571599d"
+    },
+    {
+      "id": "B-d1bf:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS: F-010 fix makes non-Q5 stronger requestedStrength overclaims degrade/allowed=false while preserving Q5 complete advance and local read-only M3 boundaries.",
+      "createdAt": "2026-07-03T02:42:19.283Z",
+      "reviewRound": "2026-07-03T02:39:23.212Z",
+      "reviewRunId": "B-d1bf:RR-031",
+      "_hash": "a6cb8a1850642075a93f682e993d7de9657034bd2fe967fc14a51a1d79b928f9"
+    },
+    {
+      "id": "B-d1bf:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review PASS: requestedStrengthOverclaims now covers ground-state, convergence, and quantum-advantage across claim IDs; build, focused smoke, and retired vocabulary guard passed.",
+      "createdAt": "2026-07-03T02:42:20.649Z",
+      "reviewRound": "2026-07-03T02:39:23.212Z",
+      "reviewRunId": "B-d1bf:RR-032",
+      "_hash": "63e379ff6f503a2d2f5a35914ffd874ab143e0e5b8a7c6fd420af145eec93a08"
+    },
+    {
+      "id": "B-d1bf:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-review PASS: focused smoke covers Q1 ground-state, Q1 convergence, Q12 quantum-advantage as degrade with weak_evidence_overclaim; lattice validate PASS 18/18.",
+      "createdAt": "2026-07-03T02:42:22.049Z",
+      "reviewRound": "2026-07-03T02:39:23.212Z",
+      "reviewRunId": "B-d1bf:RR-033",
+      "_hash": "7b822c0f1bebbef1f1a428a998167fc056abfff1e6a9fb3194343a466862c6ae"
+    },
+    {
+      "id": "B-d1bf:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review PASS: docs still state M0-M3 implemented and M4-M5 pending, with no production, Authority, hardware, theory, benchmark, or report completion overclaim.",
+      "createdAt": "2026-07-03T02:42:23.274Z",
+      "reviewRound": "2026-07-03T02:39:23.212Z",
+      "reviewRunId": "B-d1bf:RR-034",
+      "_hash": "339b8220fa3bb3ea2e544f9878bbcf3a26f2a27f06cd4193d5a38323fbb21ce2"
+    },
+    {
+      "id": "B-d1bf:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Post-main-merge concept PASS: Quantum M3 remains local/read-only; F-010 stronger requestedStrength overclaims degrade across claim IDs; no production, Authority, hardware, theory, M4, or M5 claim.",
+      "createdAt": "2026-07-03T02:56:24.723Z",
+      "reviewRound": "2026-07-03T02:53:19.220Z",
+      "reviewRunId": "B-d1bf:RR-035",
+      "_hash": "84cdf91c071f7fda399c51114ed736d3337783482144e173617dab90e7a0af86"
+    },
+    {
+      "id": "B-d1bf:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge quality PASS: command catalog and command policy merge keep quantum_claim_check readOnly/destructiveRisk none; build, ownership, catalog, and quantum smoke passed.",
+      "createdAt": "2026-07-03T02:56:25.475Z",
+      "reviewRound": "2026-07-03T02:53:19.220Z",
+      "reviewRunId": "B-d1bf:RR-036",
+      "_hash": "78d7cc734f5e30109456519bf0f5b1e0572ba5ca2d5dde8f93fe4d53e79cb0c7"
+    },
+    {
+      "id": "B-d1bf:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-main-merge test coverage PASS: validate PASS 32 configured commands, verification coverage 18/18 fresh, quantum F-010 and command catalog smoke covered.",
+      "createdAt": "2026-07-03T02:56:26.224Z",
+      "reviewRound": "2026-07-03T02:53:19.220Z",
+      "reviewRunId": "B-d1bf:RR-037",
+      "_hash": "f6ccbfe49c5d75b51a08f6d54c024c6fb6541a9cf20970d1abfcafe62d1924b6"
+    },
+    {
+      "id": "B-d1bf:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Post-main-merge docs PASS: docs retain M0-M3 implemented/M4-M5 pending and no benchmark, report, production, Authority, hardware, or theory overclaim.",
+      "createdAt": "2026-07-03T02:56:27.118Z",
+      "reviewRound": "2026-07-03T02:53:19.220Z",
+      "reviewRunId": "B-d1bf:RR-038",
+      "_hash": "cb6054ff468837f39700529b8bb95a0726c50a01a152198a0a9105d910908e42"
+    }
+  ]
+}

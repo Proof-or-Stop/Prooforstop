@@ -1,0 +1,23 @@
+{
+  "storyId": "B-148c",
+  "name": "control-arm memory JSON-leak isolation layer",
+  "title": "Control-arm memory JSON-leak isolation on top of B-ab8d experiment-arm gate",
+  "description": "Add a control-arm isolation layer on top of main's B-ab8d experiment-arm render gate: redact the runtime memory pack at every JSON/file serialization surface the render gate leaves host-readable (done_closure/final_response_check/host_dispatch/handoff/manifest/health), gate final_response_check (the 8th RuntimeConsumer) through surfaceRuntimeMemoryPack, gate parallel_dispatch experience injection, and add two corpus-export commands to the memoryRetrieval block. Keyed on main's resolveExperimentArm (LATTICE_* env). Measurement stays lossless via the experience_pack_surfaced event; treatment and no-experiment output byte-identical.",
+  "type": "feature",
+  "phase": "IDEA",
+  "priority": "P2",
+  "createdAt": "2026-07-03T09:20:47.700Z",
+  "startedAt": null,
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "IDEA",
+      "action": "create",
+      "timestamp": "2026-07-03T09:20:48.115Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ]
+}

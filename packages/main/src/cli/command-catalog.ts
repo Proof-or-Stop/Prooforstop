@@ -67,6 +67,8 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
   refresh: z.never().optional().describe('Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation.'),
 } satisfies Record<string, z.ZodType>;
 
+const inlineJsonObjectSchema = z.union([z.string(), z.object({}).passthrough()]);
+
 const proofStoryMilestoneSchema = z.object({
   id: z.string().min(1).describe('Stable milestone id, for example M1.'),
   sourceRequirementId: z.string().min(1).describe('Original intent key requirement id this milestone derives from.'),
@@ -805,6 +807,47 @@ Behavior:
     externalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     terminalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     pdeCorrectnessClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'quantum_claim_check', description: 'Local-only Quantum M3 claim-admissibility gate-policy check; read-only and never grants production, Authority, hardware, theory, or solver-improvement claims.', schema: {
+    claimId: z.enum(['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12']).optional().describe('Quantum claim id to evaluate for built-in complete evidence (default Q5).'),
+    case: z.enum(['complete', 'weak', 'degraded', 'stale', 'missing', 'mismatched', 'unbound', 'overclaim']).optional().describe('Built-in local read-only smoke case to evaluate (default complete).'),
+    evidenceJson: inlineJsonObjectSchema.optional().describe('Inline JSON quantum evidence object to evaluate.'),
+    evidencePath: z.string().optional().describe('Path to a JSON quantum evidence object to evaluate.'),
+    requestedStrength: z.enum(['scoped', 'ground-state', 'convergence', 'quantum-advantage', 'theory', 'hardware', 'physical-validation', 'solver-improvement', 'production', 'authority']).optional().describe('Requested claim strength; unsupported strengths fail closed as boundary overclaims.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    quantumTheoryClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    physicalValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    hardwareValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    solverImprovementClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'quantum_claim_benchmark', description: 'Run deterministic local Quantum M4 benchmark cases A1-A4 and B1-B15 failure injections; read-only diagnostic only.', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    quantumTheoryClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    physicalValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    hardwareValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    solverImprovementClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'quantum_claim_report', description: 'Render deterministic Quantum M5 governance report from the local benchmark; read-only diagnostic only.', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    quantumTheoryClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    physicalValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    hardwareValidationClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    solverImprovementClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'pinn_benchmark_run', description: 'Run deterministic local PINN claim-admissibility benchmark arms A1-A4 over B1-B15 injections.', schema: {

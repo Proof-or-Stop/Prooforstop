@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fca1",
+  "checkedAt": "2026-07-03T09:52:05.803Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "52dad64f5e964026ee7adb8bfede727e2e96b647b60477ab1fc2e0413afe2cc4",
+  "executionBoundaryHash": "8ddea324e48b7f101d40e84dfce39bb282e27f3e798e4351708c6ef5624ad4ff",
+  "freshnessHash": "c9f7797547845f14676c9772828281b6870bd071e5c59cdccdd4dfa9c72b87b5",
+  "effectiveExcludedKeywords": [
+    "Any change to packages/main or prior milestone tools",
+    "Any modification of existing pilot artifacts (the map only reads and digest-checks them)",
+    "The decision doc itself (no plan rewrite)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to packages/main or prior milestone tools",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to packages/main or prior milestone tools",
+      "excluded": true
+    },
+    {
+      "keyword": "Any modification of existing pilot artifacts (the map only reads and digest-checks them)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any modification of existing pilot artifacts (the map only reads and digest-checks them)",
+      "excluded": true
+    },
+    {
+      "keyword": "The decision doc itself (no plan rewrite)",
+      "source": "scopeBoundary.excluded",
+      "text": "The decision doc itself (no plan rewrite)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a3ffee86cd03ca9f310ae125e7e9bbb7e8b9217db68bc24744470df3ffe789c9"
+}

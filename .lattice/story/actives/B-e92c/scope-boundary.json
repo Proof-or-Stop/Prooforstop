@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e92c",
+  "mode": "feature",
+  "allowed": [
+    "Generated M8 report artifacts live-readout.json + live-readout.md under .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/",
+    "New committed report tool experiments/experience-ablation/live-readout.mjs + live-readout-selfcheck.mjs"
+  ],
+  "excluded": [
+    "Any change to packages/main (no CLI/runtime changes; the existing learning_effectiveness readout is consumed as-is)",
+    "Any change to prior milestone tools (fixture-generator, trap-templates, score, sample-size, protocol, pair-ledger, run-pilot, leakage-audit, snapshot-builder)",
+    "Any second live assignment system (plan section 13 M8 exit criterion forbids it)",
+    "M9 evidence map"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User decision 2026-07-03: accept inconclusive, proceed to M8+M9; M8 scope is the plan section 13 M8 row (exploratory live readout reusing the existing substrate).",
+  "createdAt": "2026-07-03T09:20:54.314Z",
+  "updatedAt": "2026-07-03T09:20:54.314Z",
+  "_hash": "b4e512a150f863be9cf26ff24165a5bc03b52225f90cdfd27f5a1ef1664edc09"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-e92c",
+  "records": [
+    {
+      "id": "RED-20260703092147",
+      "trigger": "M8 new capability: no live-readout report tool or artifact exists",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "ccb7d6a59448a284c1264aa072fe6a3a06683dee",
+      "baselineMaterialHash": "8ba4074bd770376ad3e4a1fbf0995af35c100ef4c45eea58b54b2a5185a0afd7",
+      "observedFailure": "ls experiments/experience-ablation/live-readout.mjs -> No such file or directory; the expabl-m6-pilot-v1 evidence root has no live-readout.json/.md.",
+      "failingCommand": "node experiments/experience-ablation/live-readout-selfcheck.mjs # Cannot find module (ENOENT) before this story",
+      "expectedGreenCommand": "node experiments/experience-ablation/live-readout-selfcheck.mjs # prints live-readout-selfcheck: all cases passed, exit 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/live-readout-selfcheck.mjs # prints live-readout-selfcheck: all cases passed, exit 0"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-e92c before any M8 code exists.",
+      "createdAt": "2026-07-03T09:21:47.742Z"
+    }
+  ],
+  "createdAt": "2026-07-03T09:21:47.742Z",
+  "updatedAt": "2026-07-03T09:21:47.742Z"
+}

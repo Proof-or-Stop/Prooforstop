@@ -1,0 +1,80 @@
+{
+  "storyId": "B-3779",
+  "checkedAt": "2026-07-03T03:32:40.419Z",
+  "features": [
+    {
+      "feature": "A1-A4 supported Quantum benchmark cases are defined in PLAN",
+      "covered_by": "plan_get CHK-001 Supported Cases A1-A4 defines A1 complete scoped Q5 energy -> advance; A2 weak Q5 ground-state strength -> degrade; A3 complete Q12 provenance -> advance; A4 complete Q1 freeze asked for convergence -> degrade.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "B1-B15 Quantum failure injections align with Quantum decision doc",
+      "covered_by": "plan_get CHK-001 Failure Injections B1-B15 matches docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md Future Failure Injection Set items 1-15.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "M4 benchmark harness",
+      "covered_by": "checklist_get CHK-001 and plan_get CHK-001 cover deterministic benchmark over existing evaluator, exactly 4 supported cases, 15 failure injections, unsupportedAdvanceRate, staleAcceptanceRate, boundaryViolationRate, falseStopRate, deterministic confidence intervals, read-only/no lifecycle mutation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "M5 report/governance",
+      "covered_by": "checklist_get CHK-002 and plan_get CHK-002 cover benchmark totals, rates, pass/fail status, limitations, boundary wording; diagnostic-only, not gate evidence, not production/Authority/hardware/theory/physical-validation/solver-improvement/broad quantum-advantage proof.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "docs/runtime status updated for local Quantum diagnostic M0-M5",
+      "covered_by": "checklist_get CHK-003 and plan_get CHK-003 require runtime status local diagnostic M0-M5 implemented, docs define A1-A4 and B1-B15, and docs distinguish local Quantum M4-M5 completion from generic framework lifecycle gate-policy adapter completion.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "excluded global lifecycle mutation and generic framework M4 gate adapter",
+      "covered_by": "plan_get CHK-001 says command remains read-only and cannot write lifecycle evidence or mutate Story state; plan_get CHK-003 distinguishes local Quantum M4-M5 from generic framework lifecycle gate-policy adapter completion; framework doc M4 says generic framework milestone remains future work and Quantum projection does not complete generic pack gatePolicies integration.",
+      "status": "excluded",
+      "excluded_by": "local Quantum diagnostic M4-M5 scope only; generic lifecycle gate adapter and global lifecycle mutation remain future/out of scope.",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "excluded external solver execution",
+      "covered_by": "plan_get CHK-001 benchmark runs over existing Quantum claim-admissibility evaluator; CHK-002 report renders from a fresh local benchmark result without reading or writing external files; Quantum doc says this is not a quantum solver and M2 does not run verifier commands; framework doc says Quantum M3 does not execute external commands.",
+      "status": "excluded",
+      "excluded_by": "deterministic local evaluator benchmark/report only; no external solver or command-backed verifier execution in this story.",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "excluded production/Authority/hardware/lab/theory/solver-improvement claims",
+      "covered_by": "checklist_get CHK-001/CHK-002/CHK-003 adversarial intents; plan_get CHK-002 keeps boundary claims false and report not production, Authority, hardware, theory, physical-validation, solver-improvement, or broad quantum-advantage proof; plan_get CHK-003 retains no-theory/no-hardware/no-solver-improvement/no-production/no-Authority boundaries; Quantum doc repeats these boundaries.",
+      "status": "excluded",
+      "excluded_by": "boundary booleans and doc governance language must keep these claims false/out of scope.",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "excluded second proof system",
+      "covered_by": "plan_get CHK-003 retains no-second-proof-system boundaries; Quantum doc Reuse Boundary says no second proof manager/storage root/ledger/gate-specific proof system; adapter framework Non-Goals says no second proof manager/storage root/ledger.",
+      "status": "excluded",
+      "excluded_by": "reuse existing Proofbound proof-admissibility/EvidenceRuntime boundaries only.",
+      "source": "PLAN scope review"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5cc976b753f8e7252d0bf2812286f468379c238be96076bb16167c57bb672bb3",
+  "openQuestions": []
+}

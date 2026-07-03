@@ -1,9 +1,12 @@
 # Playbook Promotion Worker Execution Plan
 
 Status: revised draft after Claude CLI + agy CLI audit; V1 M3-M6 plus M5.5
-implemented by B-6241. B-7ee1 adds evidence-activated advisory
-candidate-to-active apply. Trial serving, matched-control serving, and timers
-remain future work.
+implemented by B-6241. B-7ee1 added the guarded evidence-activated advisory
+candidate-to-active apply surface. B-6703 makes that apply path self-contained:
+`playbook_auto_promotion_apply --apply` may write deterministic
+`recommend_activate` evidence for already-qualified candidates before
+activation. Trial serving, matched-control serving, historical backfill, and
+timers remain future work.
 
 ## 1. Why This Document Exists
 
@@ -139,9 +142,12 @@ V1 does not require:
 V1 closes the assessment loop. B-7ee1 then closes the guarded advisory
 activation loop through `playbook_auto_promotion_apply`: promotion sweep remains
 recommendation-only, while the separate apply command consumes reviewed policy,
-current candidate digest, applied `recommend_activate` decision, explicit
-exposure/outcome evidence, clean lineage, and rollback readiness. The apply
-command remains non-authoritative and never writes gate evidence.
+current candidate digest, explicit exposure/outcome evidence, clean lineage,
+and rollback readiness. As of B-6703, `playbook_auto_promotion_apply --apply`
+can write or reuse the deterministic, digest-bound `recommend_activate`
+decision needed for activation; dry-run remains read-only and reports the
+pre-write posture. The apply command remains non-authoritative and never writes
+gate evidence.
 
 `playbook_promotion_observe` is an evidence-gathering surface for M7/M8
 readiness: it reports current candidates, explicit candidate-consumption
@@ -704,9 +710,12 @@ Future flags:
 Evidence-activated advisory promotion is not controlled by a default-off
 ordinary-use flag. `playbook_auto_promotion_apply --apply` may activate only
 candidate playbooks that satisfy the reviewed activation policy, current
-candidate digest, applied `recommend_activate` decision, explicit exposure,
-structured outcome evidence, clean source lineage, and rollback/demotion
-readiness. It remains non-authoritative and never writes gate evidence.
+candidate digest, deterministic `recommend_activate` evidence, explicit
+exposure, structured outcome evidence, clean source lineage, and
+rollback/demotion readiness. If the matching recommendation row is absent,
+apply may append it idempotently before activation; if the row is stale or
+digest-mismatched, apply fails closed. It remains non-authoritative and never
+writes gate evidence.
 
 Fail-closed rules:
 
@@ -934,9 +943,12 @@ Deliverables:
   `recommend_activate` decisions when explicitly applied;
 - `playbook_auto_promotion_apply` is the separate evidence-activated apply
   writer for candidate-to-active advisory activation;
-- apply requires reviewed policy, current candidate digest, an applied
-  `recommend_activate` decision, explicit non-DONE exposure/outcome evidence,
+- apply requires reviewed policy, current candidate digest, deterministic
+  `recommend_activate` evidence, explicit non-DONE exposure/outcome evidence,
   clean source lineage, and rollback/demotion readiness;
+- apply may append the missing matching recommendation row itself, but only
+  when all non-decision activation guards already pass and the row binds the
+  current aggregate and candidate digest;
 - apply writes non-authoritative, `gateEvidence:false` activation audit rows;
 - optional periodic timer registration remains future work.
 

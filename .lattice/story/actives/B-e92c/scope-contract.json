@@ -1,0 +1,46 @@
+{
+  "storyId": "B-e92c",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedCreate": [
+    "experiments/experience-ablation/live-readout.mjs",
+    "experiments/experience-ablation/live-readout-selfcheck.mjs",
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/live-readout-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/**",
+    "experiments/recovery-runner/**"
+  ],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated ProofStory lifecycle metadata required by the enforce-mode ProofStory gates; same lifecycle-registry gap acknowledged in B-6b39/B-ab8d/B-d217/B-beeb.",
+      "timestamp": "2026-07-03T09:35:04.934Z",
+      "paths": [
+        ".lattice/story/actives/B-e92c/intent-collision.json",
+        ".lattice/story/actives/B-e92c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e92c/proofstory.json",
+        ".lattice/story/actives/B-e92c/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e92c/intent-collision.json",
+        ".lattice/story/actives/B-e92c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e92c/proofstory.json",
+        ".lattice/story/actives/B-e92c/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "ddd766c5f78a5343efe6b7f13cc1ab1d2feaab99",
+      "materialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942"
+    }
+  ],
+  "createdAt": "2026-07-03T09:21:47.438Z",
+  "updatedAt": "2026-07-03T09:35:04.934Z"
+}

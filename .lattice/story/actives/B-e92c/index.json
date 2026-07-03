@@ -1,0 +1,78 @@
+{
+  "storyId": "B-e92c",
+  "name": "experience-ablation-m8-live-shadow-readout",
+  "title": "Experience-ablation M8: exploratory live shadow readout report",
+  "description": "Milestone M8 of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Build a committed report tool (experiments/experience-ablation/live-readout.mjs + selfcheck) that composes the EXISTING live observational substrate with the controlled pilot evidence and emits the M8 report artifact under the experiment evidence root: (a) live side — consume the existing read-only learning_effectiveness readout (per-story hint predictive value + ON/OFF arm comparison from recorded experience_hint_surfaced hintMode events; the existing resolveHintMode per-story assignment is reused as-is, no second live assignment system is built); (b) controlled side — read the expabl-m6-pilot-v1 score-records.jsonl, n-freeze.json and m7-decision.json; (c) emit live-readout.json + live-readout.md that STRICTLY separate the live exploratory results from the controlled causal results, label every live figure exploratory-only/non-inferential per plan sections 5.2 and 15, and carry the no-overclaim language including the skip_powered_study decision context. Exit criteria (plan section 13 M8 row): report separates live exploratory results from controlled causal results; no second live assignment system exists.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-07-03T09:18:13.222Z",
+  "startedAt": "2026-07-03T09:18:13.222Z",
+  "endedAt": "2026-07-03T09:48:53.760Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T09:18:13.597Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:20:56.415Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:21:16.529Z",
+      "branch": "story/B-e92c",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:22:10.091Z",
+      "branch": "story/B-e92c",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:35:05.965Z",
+      "branch": "story/B-e92c",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:42:05.356Z",
+      "branch": "story/B-e92c",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T09:48:53.760Z",
+      "branch": "story/B-e92c",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-03T09:35:05.965Z"
+}

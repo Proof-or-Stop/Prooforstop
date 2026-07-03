@@ -1,0 +1,32 @@
+{
+  "storyId": "B-e92c",
+  "checkedAt": "2026-07-03T09:19:54.759Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights section uses \"H1\" (\"it cannot answer H1\") without defining what H1 refers to. A newly-onboarded reader cannot determine this is the primary causal hypothesis from the execution plan without external context. The term appears once with no inline expansion."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-03T09:19:29.383Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-03T09:19:54.759Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights section uses \"H1\" (\"it cannot answer H1\") without defining what H1 refers to. A newly-onboarded reader cannot determine this is the primary causal hypothesis from the execution plan without external context. The term appears once with no inline expansion."
+        }
+      ]
+    }
+  ],
+  "_hash": "656f232f7233360f5589c9e8f13bc247cfbab8e6d923a551cc62e850d831d3bb"
+}

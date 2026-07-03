@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-fca1:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: two new .mjs files (evidence-map.mjs + evidence-map-selfcheck.mjs) plus story metadata mutations. No concept words were deleted or replaced en masse. Key findings: (1) No source deletions outside story metadata phase/status fields. (2) SECTION18_ROWS in evidence-map.mjs lists all 10 plan-section-18 rows verbatim and in order, exactly matching docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md section 18 — no row is missing or paraphrased. (3) Duplicate constant names NO_OVERCLAIM_HEADING and renderMarkdown appear in both live-readout.mjs and evidence-map.mjs — these are independent module-scoped definitions with identical string values, no import relationship between them; not residue. (4) All 12 REQUIRED_ARTIFACTS are present in the real evidence root expabl-m6-pilot-v1/. (5) No doc-promise-undelivered: CLAUDE.md was not modified, no new CLI command, ENV var, or behavior paragraph was added. (6) DISALLOWED_CLAIMS (4 items) imported from live-readout.mjs correctly; selfcheck asserts count === 4. (7) Interface between tool and generated artifacts is consistent: evidence-map.json schema version proofbound.experience-ablation-evidence-map.v1 matches EVIDENCE_MAP_SCHEMA_VERSION constant. Zero concept deletion findings.",
+      "createdAt": "2026-07-03T10:17:16.748Z",
+      "reviewRound": "2026-07-03T10:13:57.436Z",
+      "reviewRunId": "B-fca1:RR-001",
+      "_hash": "b03f159e95355ea572cdb317c475b31540fca79954d10c300a335be27e25d20f"
+    },
+    {
+      "id": "B-fca1:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence-map.mjs and evidence-map-selfcheck.mjs. Dead code: none — all exports used internally or imported by selfcheck. Type safety: catch blocks in parseJson/parseJsonl call fail() (not empty swallowers); selfcheck catch-to-null at line 269 is intentional test-harness pattern. I/O shell isolation: N/A (no bridge.ts). Catch blocks in rewrap/main correctly propagate errors. Determinism discipline: no wall-clock reads; generatedAt from --flag only; sorted group keys; fixed insertion order. Digest cross-checks: protocolHash, protocolConfig, memorySnapshotHash, manifestHash, ledgerHash, sealHash all recomputed and compared to recorded values. Fail-closed: freezeVerdict === refused guard is present and tested. Unpowered-label: inference field hardcoded to unpowered/exploratory on every row and asserted in selfcheck for both JSON and MD views. Selfcheck tightness: 37 assertions covering happy path, section-18 coverage, artifact digests, plan doc digest, no-overclaim, verdict, paper table math, determinism (with and without --generatedAt), write boundary, 12 missing-artifact error cases (one per REQUIRED_ARTIFACTS + plan-doc), 4 tamper detection cases (protocol payload, manifest, memory snapshot, score records drift), 1 fail-closed verdict guard, 1 usage error case, 1 computePaperTable unit test. One medium finding registered (F-001: storeRoot startsWith without trailing separator).",
+      "createdAt": "2026-07-03T10:17:23.055Z",
+      "reviewRound": "2026-07-03T10:13:57.436Z",
+      "reviewRunId": "B-fca1:RR-002",
+      "_hash": "410507a6dad5757beccec53d6105452c055ce319d7f7c41613fda8a60273d6f7"
+    },
+    {
+      "id": "B-fca1:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 must intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) covered by valid manual_transcript evidence with result=pass. Selfcheck reproduced twice (37/37 PASS both runs, exit 0). Real artifacts verified: 10 section-18 rows all status=ok with sha256, verdict line 83 Causal impact: INCONCLUSIVE, unpowered count>=7, JSON keys claimToArtifact/noOverclaim/finalSummary/paperTable present. No stale or unreproducible evidence found.",
+      "createdAt": "2026-07-03T10:18:04.622Z",
+      "reviewRound": "2026-07-03T10:13:57.436Z",
+      "reviewRunId": "B-fca1:RR-003",
+      "_hash": "3109b4eaf4ba233b195463a3da2ec905ec0e580131d1dff4aedaaddf59a05cc5"
+    },
+    {
+      "id": "B-fca1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check on fix commit a37257c (separator-safe production-store prefix check). Delta: evidence-map.mjs + evidence-map-selfcheck.mjs only. Old naive startsWith(productionStore) replaced by insideProductionStore(p) = (p===productionStore || p.startsWith(productionStore+sep)); no residue of old pattern in any live source file. findings.json mentions it only as historical bug description — not live code. Selfcheck sanity-run: 39/39 PASS (0 FAIL), including both new sibling-path and production-path cases. No concept deletion/replacement that leaves residue. No blocker.",
+      "createdAt": "2026-07-03T10:26:28.752Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-004",
+      "_hash": "894aa0564fe7e7dec94e4388440d52b12c36a4baf6120495b2259d82250c619a"
+    },
+    {
+      "id": "B-fca1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of delta commit a37257c (two changed files: evidence-map.mjs and evidence-map-selfcheck.mjs). Fix verified: insideProductionStore uses p === productionStore || p.startsWith(productionStore + sep), satisfying F-001. Selfcheck 39/39 cases pass including sibling learning-extra NOT-flagged and learning/x MUST-flag. No dead code, all imports used, empty catch blocks call fail() not swallow, no I/O isolation concern (plain .mjs scripts). No new issues found.",
+      "createdAt": "2026-07-03T10:27:05.812Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-005",
+      "_hash": "5e35eba5f0c494b05837c66cc3b0eea39dcf04b24f3ec023399c27f18e259bbe"
+    },
+    {
+      "id": "B-fca1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 2: 6/6 must-intents covered (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial), all evidence bound to fix commit a37257c. Selfcheck runs 39/39 PASS twice (exit 0). Evidence notes say 37/37 from pre-fix text but hashes are refreshed to a37257c and reproduced reality is 39/39; stale note text only, not a substantive error. Persisted evidence-map.md line 83 verdict Causal impact: INCONCLUSIVE confirmed present.",
+      "createdAt": "2026-07-03T10:29:01.303Z",
+      "reviewRound": "2026-07-03T10:25:12.220Z",
+      "reviewRunId": "B-fca1:RR-006",
+      "_hash": "ad72d5f579e09c1e0547ef454fada055b755b3af12679e17bc3c5b53c317bf62"
+    }
+  ]
+}

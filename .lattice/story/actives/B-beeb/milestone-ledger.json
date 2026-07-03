@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-beeb",
+  "state": "confirmed",
+  "ledgerHash": "sha256:97cf8c223e8f86713933579bf4362b3003ef3b0e3221456957458c2c28b3ee3f",
+  "milestones": [
+    {
+      "id": "M6-RUNNER",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Committed pilot campaign runner emits RUN-RECORD-conformant arm-run dirs with resume and isolation preconditions",
+      "doneMeans": "run-pilot.mjs --plan prints the cell table; a completed cell scores via score.mjs without voiding; selfcheck proves resume with a stub host",
+      "requiredEvidence": [
+        "manual_transcript",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6-LEAKAGE",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Mechanical fixture-leakage audit passes over the pilot corpus",
+      "doneMeans": "leakage-audit.mjs prints all fixtures clean with exit 0 and writes leakage-audit.jsonl; poisoned fixture detected nonzero",
+      "requiredEvidence": [
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6-PILOT",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Pilot executed: both arms over the frozen protocol corpus, >=15 control-arm fault runs, zero voided records, replay byte-identity",
+      "doneMeans": "Pilot summary shows cells complete, control fault runs >= 15, voided 0, replay digest match; protocol.json validates",
+      "requiredEvidence": [
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6-NFREEZE",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Powered N frozen at the N-maximizing baseline within the control-arm Wilson 95% CI via pilotFreezeCheck",
+      "doneMeans": "Freeze transcript prints baseline, CI (width <= 0.30), p*, frozen N; n-freeze.json written; independent recomputation matches",
+      "requiredEvidence": [
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-03T01:39:17.591Z",
+  "updatedAt": "2026-07-03T01:39:41.332Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703013847",
+    "acceptedInterpretationHash": "sha256:c571b168044e9132b5321346375029c028018c89868b7663debb6f786a2fede7",
+    "acceptedAt": "2026-07-03T01:39:41.332Z"
+  }
+}

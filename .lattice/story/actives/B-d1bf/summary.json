@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d1bf",
+  "changes": "Implemented Quantum M3 local gate-policy projection and read-only quantum_claim_check CLI wiring; added fail-closed guards for stale, missing, mismatched, invalid, retired, production, Authority, hardware, and theory overclaim inputs; updated Quantum and adapter-pack docs to state M0-M3 implemented and M4-M5 pending.",
+  "usage": "Run lattice quantum_claim_check --case=complete --json for a complete bound Q5 evidence demo; use --case=degraded for weak scoped evidence and --case=overclaim for fail-closed boundary behavior.",
+  "expectedOutcome": "Complete bound evidence prints decision=advance with productionClaim=false and authorityClaim=false; weak scoped evidence degrades; stale, missing, mismatched, invalid, retired, production, Authority, hardware, and theory overclaims stop.",
+  "actualTranscript": "Live smoke printed complete decision=advance allowed=true writesLifecycleEvidence=false mutatesLifecycle=false productionClaim=false authorityClaim=false, and retired-field decision=stop allowed=false reasons=claim_boundary_violation:retired_boundary_field.",
+  "outcomeDiff": "No functional difference from expected; observed transcript matched the expected proof-or-stop boundaries for complete and retired-field cases.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M3 only: local claim-admissibility gate policy and read-only CLI are implemented; M4 benchmark harness and M5 report/governance remain pending future stories.",
+  "pitfalls": "Review found and fixed invalid requestedStrength handling and retired authority vocabulary leakage; DONE required additional done_required evidence, delivery context, and review assurance floor.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 162646
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17221
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 826386
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 4037135
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 2711617
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 427769
+    }
+  },
+  "totalDurationMs": 8183243,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T02:25:40.005Z",
+  "updatedAt": "2026-07-03T02:25:40.005Z"
+}

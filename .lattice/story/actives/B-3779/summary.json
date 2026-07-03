@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3779",
+  "changes": "Added Quantum M4 deterministic benchmark and M5 governance report commands: quantum_claim_benchmark and quantum_claim_report, wired through command catalog, handler, command policy, config, process-fact L0 classification, package script, smoke tests, and Quantum/adapter-pack docs.",
+  "usage": "Run npm --prefix packages/main run test:quantum-claim-benchmark, or run node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_benchmark --json and node packages/main/dist/cli.js --root \"$PWD\" quantum_claim_report --json.",
+  "expectedOutcome": "Users see Quantum local diagnostic M0-M5 implemented, benchmark suiteStatus PASS, 4 supported cases, 15 failure injections, unsupportedAdvanceRate 0, diagnosticOnly true, gateEvidence false, and no Authority/production/hardware/theory/solver-improvement claims.",
+  "actualTranscript": "Validation PASS. quantum_claim_benchmark --json reported suiteStatus PASS, supportedCaseTotal 4, failureInjectionTotal 15, unsupportedAdvanceRate 0, diagnosticOnly true, gateEvidence false. quantum_claim_report --json reported diagnosticOnly true, gateEvidence false, writesLifecycleEvidence false, mutatesLifecycle false, and all boundary claim booleans false.",
+  "outcomeDiff": "No user-visible diff from expected; observed transcript matches the diagnostic-only benchmark/report contract.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local diagnostic-only Quantum claim-admissibility slice. It does not prove quantum theory, validate hardware or lab experiments, improve solvers, claim production readiness, claim Authority/DONE status, or implement the generic cross-domain gate-policy plugin framework.",
+  "pitfalls": "Review found and fixed stale future-only docs, missing process-fact L0 classification, and B1-B15 corpus drift. Main merge required evidence refresh, validation rerun, rebuilt REVIEW round, and full 3x2 local host quorum before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 97950
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7972
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 486927
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1442546
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 848520
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 684396
+    }
+  },
+  "totalDurationMs": 3568608,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T04:26:41.052Z",
+  "updatedAt": "2026-07-03T04:26:41.052Z"
+}

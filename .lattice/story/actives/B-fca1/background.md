@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-07-03 milestone M8 (story B-e92c) reached DONE: live-readout.{json,md} now sits beside the full pilot evidence under .lattice/experiments/experience-ablation/expabl-m6-pilot-v1/. Every prior milestone is closed (M1 B-337f, M3 B-ab8d, M4 B-d217, M6 B-beeb, M7 closed-by-decision in m7-decision.json, M8 B-e92c), so M9 — the paper-ready evidence map — is the last open milestone of the plan.
+
+## Key Insights
+Plan section 18 enumerates the definition-of-done rows the map must prove artifact-by-artifact (frozen protocol + snapshot hashes, immutable manifest/ledger/run-order, mechanically verified arm behavior, per-run store-isolation assertions + leakage audit, recorded sample-size calculation with pilot-validated baseline, complete score records, analysis with effect size/CI, no-overclaim text incl. the circularity disclosure, the claim-to-artifact map itself, and a final supported/unsupported/inconclusive statement). Because the powered study was refused at the N freeze, the honest final statement is inconclusive-by-design-invalidation, and the paper table (section 16) must label the pilot contrast unpowered/exploratory. All inputs are on-disk artifacts; the generator is a pure composition tool exactly like live-readout.mjs, and every artifact reference must be existence- and digest-checked so the map cannot cite a missing or drifted file.
+
+## Solution Tradeoffs
+Option A: hand-write evidence-map.md once — rejected: unreproducible, no drift detection, breaks the committed-tool discipline of M4/M6/M8. Option B (chosen): committed generator + hermetic selfcheck following the live-readout.mjs pattern (deterministic given fixed inputs, stub-driven selfcheck, one-line actionable errors on missing artifacts, digest-checked references). Option C: extend live-readout.mjs — rejected: M8 output is itself an input artifact the map must cite; merging the tools would make the map self-referential and muddy the two milestones audit trails.
+
+## Conversational Texture
+User (2026-07-03): after the pilot invalidated the powered-study sizing, the user chose accept-inconclusive-proceed-to-M8-M9. M9 closes the plan: its evidence map plus the final verdict completes the plan section 18 definition of done, with every claim tied to a mechanically checkable artifact.

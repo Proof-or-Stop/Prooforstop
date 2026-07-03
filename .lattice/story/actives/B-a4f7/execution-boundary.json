@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a4f7",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "dist external publish artifacts",
+    "node_modules"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use Lattice lifecycle commands plus local build/smoke validation only; no remote push or external service dependency.",
+  "createdAt": "2026-07-03T10:15:04.500Z",
+  "updatedAt": "2026-07-03T10:15:04.500Z",
+  "_hash": "21a2a68ac5cc418e0edcf360d5089d75ef7841eb61cc3705e06eb892dd59c652"
+}
