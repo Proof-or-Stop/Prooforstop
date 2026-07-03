@@ -971,6 +971,72 @@
         "bindingHash": "8227bb4dcbdf39eae4633b62be9236c3b28b4df0554f2c069efa1420ddde2661"
       },
       "_hash": "02710a27de1c6733c9a534c8bf48120deca258253bb239c5c392f18dd836ba9f"
+    },
+    {
+      "reviewRunId": "B-f57a:RR-016",
+      "storyId": "B-f57a",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-03T09:52:09.312Z",
+      "startedAt": "2026-07-03T09:56:21.539Z",
+      "headHash": "536ad0a88e6930044f116cbbdef0ed1a3b9672a5",
+      "materialHash": "44e551167887562ccedff209ad2a7030391548fa3842cab2336e9f4e300c0e46",
+      "storyFilesHash": "6669e40d41d54f0b5cf372afc846cc0d2e51a7b367b9ee65ed193dd6a77158b7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6779b6cdc500436d9a92c8856065578abd13da1dbdcccc2aab34f5cadaf23a1a",
+        "diffPackHash": "57cf711b412ca2593bacd50843e24ab62582137f3fccc3225db8c1ea13779100",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/cross-host-review.ts",
+          "packages/main/src/core/dispatch-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "15e8a962dadddc8c508ac56e14b2278d1a91e5839568218097a46ef06a2f901e",
+          "1b87f671c60d4d36828c28b28bd0189685eacb4c2a0671105e93b49799954ea1",
+          "24ccdef1eed86f94868a32f98f47ca11a1b9368b53db0ad9204f86f1d7dfbbb7",
+          "259cd6db22f1b65e333c04ee1a2cef9508d1b0a18ea2cf4dfe8fa48ebcc3533a",
+          "2a82b7d9ba0a957ca563e5f5f10b55679acfbf3ea1f01c9a9ab871ff9be5740b",
+          "2f0d6d2327cbdd6eb51a09018c8dfca3c2668fc27cdb2ff954bae3dd25cfa525",
+          "363e99f1c864b72a611fb52b432e9a06d9903aa84d273a9245b354bb13f7cc71",
+          "38fab1d988ac88ad74fed9fa46e3bdb5365e0ccfdb1caffd126acc72b4f44fcc",
+          "3eed1f12ca64f7d35a0622c99030ce6ec03a0617fd32638809216a48b7a1671c",
+          "482f04b3f988ac98fd3137b9fc5dae913a5afa04725281027b8727a884c6c706",
+          "5b79cae7856ca871b2e09edc4d55ffefca0f33e5dbc2866377bb749c3fe70e8e",
+          "6640777466932d02e4278436187b35dee148cbfcc7d13938e1e13927ab958eca",
+          "7aaf4c0f7e9d6d40be5fb34d3f2ad955a44a60f400327c155eb560d7460c3b8e",
+          "7d7300d624001fcb99e3f93533d8b7b390acd7815ebf14d9e07e4b35532390c7",
+          "7e907ccdcc85eb0e3ce9a64012bd739355b68cf69df8e11dc5135f5c9b15ea7a",
+          "8383fbfc014bdb9b778f013f607930caa9a924beb91c82bbcf9d2b9f75ed4012",
+          "987bcb553c89025ac5bda23b01c26307b16fc816f9393c2e292b360d17c2b3f6",
+          "a4daacfacc58300b633826e35c572f293ea4de30ddf75ac4e3e8b8c6f2f8e634",
+          "e3f9e96479116b7ee2bb19856ddedf2adb63793116bbfeaa915dfee69649da8a"
+        ],
+        "bindingHash": "9bf0bce1d06d1573c01deb7aa405dad5e53dd566104349f08bd0e0f68d82508f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f57a",
+        "workspaceMode": "story-worktree",
+        "headHash": "536ad0a88e6930044f116cbbdef0ed1a3b9672a5",
+        "materialHash": "44e551167887562ccedff209ad2a7030391548fa3842cab2336e9f4e300c0e46",
+        "storyFilesHash": "6669e40d41d54f0b5cf372afc846cc0d2e51a7b367b9ee65ed193dd6a77158b7",
+        "bindingHash": "89dccbebd87f2e2d1f021bca943133e0ff6661f6f9278cd0f0a43c55280635da"
+      },
+      "_hash": "a47da680ea997acaba4786dd3f83f57bc0fe8ecb92cc9858e63625a0b660f5ab"
     }
   ]
 }

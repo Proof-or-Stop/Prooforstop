@@ -260,6 +260,25 @@
       ],
       "signatureTag": "adversarial|ts|still-committed-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-013",
+      "desc": "Quality review confirms the same committed-HEAD drift window as B-f57a:F-012: F-010 is not fully closed because cross_host_review captures materialDigest/storyFilesHash/headHash from HEAD at packages/main/src/handlers/cross-host-review.ts:536-544, but createCleanHeadReviewWorktree later runs git worktree add --detach <tmp> HEAD at packages/main/src/handlers/cross-host-review.ts:314-323. HEAD is not pinned to the captured headHash, so a clean concurrent commit/reset/rebase between those points can make the detached snapshot review a different tree than the recorded materialDigest. The post-run check at packages/main/src/handlers/cross-host-review.ts:639 only checks dirty status relative to the then-current HEAD, so it passes after a clean HEAD advance, and verdicts are recorded at packages/main/src/handlers/cross-host-review.ts:651-679 with stale bindings. The smoke coverage at packages/main/src/tasks/cross-host-review-smoke.ts:1139-1191 covers uncommitted source drift but not clean HEAD advancement. Pin the snapshot to the captured headHash and fail closed before submitLocalVerdict unless currentGitHead/currentMaterialHash/currentStoryFilesHash still match the captured values; add a smoke case for clean committed drift.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T09:57:27.570Z",
+      "reviewRound": "2026-07-03T09:52:09.312Z",
+      "reviewRunId": "B-f57a:RR-016",
+      "_hash": "9b02bab516bd5f723f6eba1d2356d4ec75e49adfba6be13efb4fc2af5e5d9b0e",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/tasks/cross-host-review-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|quality-review-confirms",
+      "signatureTagSource": "auto"
     }
   ]
 }
