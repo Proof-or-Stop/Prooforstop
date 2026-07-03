@@ -391,14 +391,13 @@
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "integration_test",
-          "file": "lattice.config.json",
-          "command": "lattice validate",
+          "command": "lattice validate --story=B-ab8d --json",
           "result": "pass",
-          "note": "Full lattice validate exit 0; output shows configured validate.commands[31]: node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js with TOTAL 23 | PASS 23 | FAIL 0 and ALL PASS",
-          "headHash": "cebf74b83598321d63a36a9c9318507cf540bec1",
+          "note": "Re-run after F-002 fix commit cebf74b83 (retired token removed from arm-switch smoke fixture): lattice validate exits 0, allPass true, 32/32 commands ok including retired-authority-vocabulary-guard-smoke, arm-switch smoke 23/23 ALL PASS, verification coverage 18/18.",
+          "headHash": "db3fab96497394aa17e76ed933a85ade35c2dd22",
           "materialHash": "5ea53b8e46063c540c7183d14a1dbf55ad77b35167b48a1216a4658fd1d1ebb6",
           "storyFilesHash": "2842874e90ee7416310d5c35ded2f0c48dcdc532ac73f290e85c38de96b25733",
-          "timestamp": "2026-07-03T00:17:49.912Z"
+          "timestamp": "2026-07-03T00:21:31.365Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
