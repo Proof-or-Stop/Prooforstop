@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Only activate advisory playbooks from explicit evidence, never from DONE success alone.",
+    "Keep the workflow host-neutral and command-layer neutral.",
+    "Preserve fail-closed digest, lineage, and harmful-signal guards.",
+    "Do not add broad automation just to remove a manual step.",
+    "Prove the user-facing CLI transcript, not just internal handler calls."
+  ],
+  "drivers": [
+    "The user rejected hidden default-off or human-memory-dependent activation as fake closure.",
+    "Existing activation guards already know how to verify outcomes, lineage, recommendation, and candidate digest.",
+    "Historical backfill and daemon/timer rollout are explicitly out of Story 2 scope."
+  ],
+  "options": [
+    {
+      "name": "auto-apply writes deterministic recommendation before activation",
+      "pros": [
+        "Removes the separate default-off promotion_sweep apply step for candidates that already meet activation evidence thresholds.",
+        "Keeps activation guarded by the same aggregate digest, candidate digest, lineage, exposure, and harmful-signal checks.",
+        "Can be proven in one CLI transcript with playbook_auto_promotion_apply --apply and runtime consumption verify."
+      ],
+      "cons": [
+        "Requires careful idempotency so recommendation rows are not duplicated.",
+        "Must ensure dry-run remains read-only and does not silently promote."
+      ]
+    },
+    {
+      "name": "require separate promotion_sweep apply then activation apply",
+      "pros": [
+        "Minimal code change because current primitives already exist.",
+        "Explicitly separates evaluation from activation."
+      ],
+      "cons": [
+        "Still leaves the workflow dependent on a manually remembered default-off step.",
+        "Does not satisfy the user requirement to avoid fake/off-by-default closure."
+      ]
+    },
+    {
+      "name": "timer-driven activation worker",
+      "pros": [
+        "Could eventually automate backlog processing.",
+        "Might reduce operator action after enough data exists."
+      ],
+      "cons": [
+        "Too broad for this story and explicitly out of scope.",
+        "Adds lifecycle risk before proving the single evidence path."
+      ]
+    }
+  ],
+  "chosen": "auto-apply writes deterministic recommendation before activation",
+  "rationale": "Choose the smallest real correctness/product fix: playbook_auto_promotion_apply --apply should create the missing deterministic recommend_activate evidence for already-qualified candidates, then activate through the existing guarded audit path. This removes the fake default-off/manual step while preserving fail-closed evidence boundaries.",
+  "preMortem": [
+    {
+      "scenario": "Auto apply activates from DONE settlement or neutral rows.",
+      "trigger": "Outcome filtering treats done-settlement or exposureMode none as helped evidence.",
+      "consequence": "Playbook becomes active without real candidate consumption proof.",
+      "mitigation": "Keep isCandidateConsumedPlaybookOutcome and verdictSource != done-settlement checks load-bearing in smoke."
+    },
+    {
+      "scenario": "Recommendation row is written but candidate digest changes before activation.",
+      "trigger": "Candidate mutates between decision construction and apply write.",
+      "consequence": "Stale recommendation authorizes a different playbook body.",
+      "mitigation": "Bind recommendation to aggregateDigest and playbookDigest, then re-read and verify candidate digest before status write."
+    },
+    {
+      "scenario": "Second apply duplicates decisions or activation audit rows.",
+      "trigger": "Idempotency key does not include stable candidate/evidence/policy digest fields.",
+      "consequence": "Learning store gets noisy and future audit cannot tell what happened.",
+      "mitigation": "Reuse deterministic idempotency keys and assert second apply activatedCount=0 with one activation audit row."
+    },
+    {
+      "scenario": "Docs imply playbooks are gate evidence or production policy.",
+      "trigger": "Activation wording says automatic without advisory/non-authoritative boundary.",
+      "consequence": "Users over-trust memory advice as proof.",
+      "mitigation": "Docs and delivery check must state advisory, non-authoritative, no gate evidence, and no blocking policy."
+    }
+  ],
+  "timestamp": "2026-07-03T02:54:07.985Z"
+}
