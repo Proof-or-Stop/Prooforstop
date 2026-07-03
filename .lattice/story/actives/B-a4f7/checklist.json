@@ -311,9 +311,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T10:43:09.430Z",
-      "endTime": null
+      "endTime": "2026-07-03T10:43:19.738Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"playbook_candidate_ingest|PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED|candidate ingestion\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md packages/main/src -S",
+          "result": "pass",
+          "note": "Docs, command catalog, status, and hook surfaces mention playbook_candidate_ingest and DONE candidate ingestion flag/status.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:20.073Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"historical bulk backfill|auto-activate|PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly separate per-story DONE candidate ingestion from historical bulk backfill and activation.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:20.421Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js playbook_promotion_status --json",
+          "result": "pass",
+          "note": "Status output includes PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED default-on, candidatePlaybooks count, authority=non_authoritative, and gateEvidence=false.",
+          "headHash": "faf26687f32ec13ed46f2bf43d902266aa6b5d59",
+          "materialHash": "a5319ae4b7aa188385dc1925619fa38b6a1faa7a2aabfb04a7d2296dcd9095ab",
+          "storyFilesHash": "2b85d04e4ef5f2ca9c11af347ffd29b70cfd5767268c1f6ac53c39c629cacb90",
+          "timestamp": "2026-07-03T10:43:20.730Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -379,6 +414,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Binding docs/status verification evidence."
+    },
+    {
+      "timestamp": "2026-07-03T10:43:19.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs and status surfaces updated and verified."
     }
   ]
 }
