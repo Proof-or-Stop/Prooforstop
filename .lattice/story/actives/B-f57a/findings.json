@@ -157,7 +157,7 @@
       "desc": "CHK-001:adversarial:2 through :5 are implemented as runtime smoke checks but are NOT registered as verificationIntents in the checklist and have no verificationEvidence. The smoke grew 17->21 but the checklist verificationIntent list still only declares 17 intents. The four new checks exercise real F-003/F-004 fix behaviors (codex BOTH-flags refused; missing policy fail-closed; unauthorized policy fail-closed; env-denylist+timeout threaded to runner) — each is non-hollow and non-tautological. They must be registered as verificationIntents (priority=must, category=adversarial) so the gate can verify the new fix behaviors are evidenced.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T02:44:30.776Z",
@@ -168,7 +168,10 @@
         "packages/main/src/tasks/cross-host-review-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-through-implemented",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Registered CHK-001:adversarial:2-5 verificationIntents + evidence (ecbce6853/c6d8471)",
+      "resolvedAt": "2026-07-03T02:53:41.871Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-f57a:F-009",
