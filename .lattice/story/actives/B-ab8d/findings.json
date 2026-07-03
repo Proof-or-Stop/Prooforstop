@@ -19,6 +19,24 @@
       ],
       "signatureTag": "edge|ts|usersees-says-control",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ab8d:F-002",
+      "desc": "CHK-005:edge:0 evidence stale/invalid: the intent requires lattice validate to exit 0 with the arm-switch smoke green, but current lattice validate exits non-zero (allPass:false) because experience-pack-arm-switch-smoke.ts:794 uses retired vocabulary productionDone, causing validate.commands[1] (retired-authority-vocabulary-guard-smoke) to fail. The violation was introduced by this storys own CHK-005 commit (e557aa5a4). The CHK-005:edge:0 integration_test evidence (headHash 58c51a83a) is bound to a state where validate was green; current HEAD 20717fe shows validate broken by this storys own code.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T00:10:09.930Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-003",
+      "_hash": "f9c618c6361c3fe7ea58315d502b06f6101e29c5036809697420a9eb6269b867",
+      "files": [
+        "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|edge-evidence-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
