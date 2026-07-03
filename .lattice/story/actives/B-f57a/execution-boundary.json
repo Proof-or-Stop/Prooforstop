@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f57a",
+  "allowedCommands": [
+    "codex exec *",
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*smoke*.js",
+    "npm --prefix packages/main run build",
+    "npx tsc*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [],
+  "excludedCommands": [
+    "git push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Build + smoke + tsc for the new cross-host review command; codex exec is used (bounded) to drive host B as a reviewer. No push (product repo).",
+  "createdAt": "2026-07-03T01:22:33.815Z",
+  "updatedAt": "2026-07-03T01:22:33.815Z",
+  "_hash": "104d88f567bdf46aeac1c59cf5decbd1da4b4eeb1af4c09616f225d42e09a55d"
+}
