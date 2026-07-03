@@ -87,7 +87,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/leakage-audit.mjs",
+          "command": "node experiments/experience-ablation/leakage-audit.mjs --selftest",
+          "result": "pass",
+          "note": "Selftest clean phase: generator corpus (9 fixtures, perClass=1) audited via spawned CLI -> exit 0, 9 PASS lines, final line leakage-audit: all fixtures clean (9 fixtures), leakage-audit.jsonl rows {fixtureId, checks, pass} all pass and sorted. Also manually ran --corpus on an 18-fixture demo corpus: sorted PASS lines + clean summary + jsonl written, exit 0.",
+          "headHash": "aed48ef50ceba043586404072f9112353500e6e4",
+          "materialHash": "9363f89a1dbdcdb6a25cfcab7312951870bb9f14895c06ce844e89ab11cc4205",
+          "storyFilesHash": "0c258bcd9d15fe23dab8dd17b9698794b4a1534a2c6dfe6fb7a3881271498f70",
+          "timestamp": "2026-07-03T01:50:36.853Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
