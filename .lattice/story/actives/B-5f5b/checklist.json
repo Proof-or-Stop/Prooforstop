@@ -221,9 +221,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T16:22:01.294Z",
-      "endTime": null
+      "endTime": "2026-07-03T16:22:07.479Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke exercised promotion timer dry-run and apply with explicit bounded backfill/trial/activate steps and verified apply only ran enabled bounded actions.",
+          "headHash": "89424fecfe8c4c1fb81aa1d7acd8d9640db52c75",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:22:07.946Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted unrequested timer actions are reported disabled/skipped and requested steps honor explicit limits rather than running hidden background work.",
+          "headHash": "89424fecfe8c4c1fb81aa1d7acd8d9640db52c75",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:22:08.419Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted timer activation delegates to the existing auto-promotion guard and blocks unknown-only candidates instead of activating them.",
+          "headHash": "89424fecfe8c4c1fb81aa1d7acd8d9640db52c75",
+          "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+          "storyFilesHash": "a8792f80d10832050aed89b0c1f91b7916c75d03ef7f636b9c287abe8f9b37f1",
+          "timestamp": "2026-07-03T16:22:08.881Z"
+        }
+      ]
     }
   ]
 }
