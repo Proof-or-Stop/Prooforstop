@@ -1,0 +1,276 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make DONE settlement default-on with explicit opt-out",
+      "context": "Change PLAYBOOK_DONE_SETTLEMENT_ENABLED handling so unset means enabled, while false/0/no disables. Preserve learning-only, non-gate behavior and do not block lifecycle DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "\"PLAYBOOK_DONE_SETTLEMENT_ENABLED\": { \"raw\": \"\", \"enabled\": true, \"defaultPolicy\": \"default-on\" }",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "unset PLAYBOOK_DONE_SETTLEMENT_ENABLED records settlement by default",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "explicit false/0/no disables settlement without writing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE settlement still cannot create helped outcome or gate evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-03T00:25:27.810Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves unset PLAYBOOK_DONE_SETTLEMENT_ENABLED records a post-DONE settlement health row by default.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves explicit false/0/no/off opt out disables settlement and writes no health file.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies DONE success alone creates no candidate helped outcome and settlement remains gateEvidence=false.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Surface settlement posture in status and docs",
+      "context": "Update status/docs wording so operators can see that DONE settlement is default-on learning health, not promotion evidence and not historical backfill.",
+      "relatedDocs": [
+        "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+      ],
+      "userSees": "\"settlementHealth\": { \"latest\": [{ \"storyId\": \"B-5e28\", \"settlementStatus\": \"recorded\", \"gateEvidence\": false }] }",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook.ts",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "status reports settlement enabled by default when env is unset",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "status reports disabled when explicit opt-out is set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "status labels settlement as non-authoritative and gateEvidence=false",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-03T00:25:41.939Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+          "result": "pass",
+          "note": "CLI status reports raw empty, enabled true, defaultPolicy default-on, explicitOptOut false.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "PLAYBOOK_DONE_SETTLEMENT_ENABLED=false node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+          "result": "pass",
+          "note": "CLI status reports raw false, enabled false, defaultPolicy default-on, explicitOptOut true.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "node packages/main/dist/cli.js playbook_promotion_status --json",
+          "result": "pass",
+          "note": "Status output preserves authority=non_authoritative and gateEvidence=false for learning settlement posture.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove live data enters learning after DONE",
+      "context": "Add/adjust smoke coverage, then use this story DONE as the first live proof that settlement health data is written automatically before any historical backfill.",
+      "relatedDocs": [
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "userSees": "\"kind\":\"done-settlement\",\"storyId\":\"B-5e28\",\"settlementStatus\":\"recorded\",\"authority\":\"non_authoritative\",\"gateEvidence\":false",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke proves default-on settlement records health row",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "repeated settlement is idempotent",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "settlement failure remains non-blocking and does not mutate story evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-03T00:25:53.691Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves default-on settlement records a done-settlement health row before historical backfill.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves repeated settlement is idempotent through alreadyApplied=true.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke preserves non-blocking learning-only behavior; final live B-5e28 DONE row will be inspected after story_advance DONE.",
+          "headHash": "9e1e0d2f078f0b48e372ceb1a88e89cce89a67f9",
+          "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+          "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+          "timestamp": "2026-07-03T00:40:36.261Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T00:25:27.810Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed in fe96d23c8; focused smoke passed."
+    },
+    {
+      "timestamp": "2026-07-03T00:25:41.939Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Status output verified after fe96d23c8."
+    },
+    {
+      "timestamp": "2026-07-03T00:25:53.691Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Mechanism proven by focused smoke; live B-5e28 row is a post-DONE verification step."
+    }
+  ]
+}

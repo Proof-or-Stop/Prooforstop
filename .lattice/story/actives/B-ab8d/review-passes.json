@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-ab8d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement with residue. The PR replaces old direct pack render pattern (buildMemoryFreshnessPack + renderMemoryFreshnessPack at seven handler sites) with the surfaceRuntimeMemoryPack wrapper. All seven handler wirings confirmed updated: story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory. core/lattice-handoff.ts host_dispatch projection gated via shouldRenderRuntimeMemoryPack(). No handler renders the pack directly without the shared leaf outside the diagnostic final_response_check (intentionally out of scope). memoryRetrieval marker added to COMMAND_POLICIES for all memory-family commands (confirmed 28 commands). experiment-arm module only imported by cli-engine.ts, experience-pack-surface.ts, and smoke tests — not by gate or hash modules. No stale docs or comments describing old direct render paths as current behavior. Doc promises (plan.md CHK-001 through CHK-005) all delivered: resolveExperimentArm exported and pure; surfaceRuntimeMemoryPack shared leaf used at all seven sites; retrieval_violation appended before throw; resolvedLearningRoot exposed in observability_snapshot; experience-pack-arm-switch-smoke registered in lattice.config.json. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-03T00:07:18.866Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-001",
+      "_hash": "9ab01a5ada2885a897e8aa4f8c2e25b4d788059daa398c83559bd4e04d4f8c36"
+    },
+    {
+      "id": "B-ab8d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all changed source files: experiment-arm.ts, experience-pack-surface.ts, cli-engine.ts, command-policy.ts, command-catalog.ts, observability-snapshot.ts, and seven handler wirings (session, story-create, transition-orchestrator, dev-memory, done-closure, done-prepare, lattice-handoff) plus core/lattice-handoff.ts and both smoke/test files. No dead code, no unsafe as-any, no empty catch swallowing errors, no shell-layer violations (experience-pack-surface.ts imports only from activity-log/experiment-arm/playbook-runtime-memory). Runtime re-validation of ExperimentArmContext at each consumer boundary is correct and follows the handler coding convention. The once-latch in experiment-arm.ts is intentionally shared across misconfiguration types (by design). The retrieval_violation event fires before throwing (attempt countable even on refusal). Event schema between experience_pack_surfaced and retrieval_violation is distinct and consistent throughout tests. The dedup key (experimentId, consumer, storyId-or-global, roundKey) is applied uniformly across all seven entrypoints. The MEMORY_RETRIEVAL_COMMAND_FAMILIES cross-check is bidirectional. final_response_check and source_lineage_audit are intentionally not marked (ablation plan uses final_response_check as M4 scorer oracle; source_lineage_audit reads structural metadata not memory pack content) -- the catalog cross-check mechanically enforces this classification remains consistent. No blocking findings.",
+      "createdAt": "2026-07-03T00:07:46.291Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-002",
+      "_hash": "628d74c5cc303497e25cd3ea11138576b10de0361ca77484c66417122d960e26"
+    },
+    {
+      "id": "B-ab8d:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 re-review of F-001 fix (commit 055fc5678). Root cause confirmed: renderOptionalMemoryLines fires when EITHER memoryFreshnessPack OR runtimeHostPolicy is present; the fix strips both from the render projection on control arm, while the JSON path retains both for lossless measurement. Smoke case (j) drives real handoff_create -> handoff_resume across no-env/treatment/control arms, asserting: (1) control text omits all five markers (header, packDigest, topHitIds, hostPolicy, memoryCompletionProof); (2) control text equals baseline minus exactly the advisory section; (3) treatment text byte-identical to no-env; (4) control JSON retains memoryFreshnessPack and runtimeHostPolicy. All 24/24 checks pass. No new userSees mismatches, no new boundary issues, no doc-promise-undelivered items. R1 finding F-001 is resolved.",
+      "createdAt": "2026-07-03T00:36:51.844Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-008",
+      "_hash": "42a13d49bad150a96fa0d708d36af6584944a07c3ea08416ebac043ce7093d4f"
+    },
+    {
+      "id": "B-ab8d:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 delta (commits cebf74b83 and 055fc5678): two changed files reviewed. (1) handlers/lattice-handoff.ts: strip-seam extended cleanly — both memoryFreshnessPack and runtimeHostPolicy are destructured into named _-prefixed discard variables and stripped from enrichedWithoutAdvisory; the comment accurately explains WHY hostPolicy must also be stripped (renderOptionalMemoryLines fires the section header when either arg is present). No dead code, no as-any, no logic gap. (2) experience-pack-arm-switch-smoke.ts: case (j) uses the real createLatticeHandoffHandlers via mkGitStoryRoot fixture (no partial-cast needed here; the partial-cast as-unknown approach is only on the pre-existing HostDispatchProjection fixture in case (i)). The new import (line 86) is from handlers, consistent with other handler imports in this task file — no I/O isolation concern. The smoke test assertions are tight: positive inclusion checks on no-env/treatment, marker-absence checks on control, an exact-diff check confirming only the advisory section is stripped, and JSON-projection checks confirming lossless measurement. No findings.",
+      "createdAt": "2026-07-03T00:37:06.021Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-006",
+      "_hash": "5e2a895cb3fa59428aed0748fe7dcc9ed40cf5d7f13c56006e449671b21db922"
+    },
+    {
+      "id": "B-ab8d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. Two files changed since prior pass (lattice-handoff.ts, experience-pack-arm-switch-smoke.ts). No en-masse concept deletion or replacement found. (1) productionDone removed from arm-switch smoke fixture (one instance, new file; retired-vocabulary token per guard smoke). The productionDone field still legitimately exists in pre-existing source files not touched by this story; no cross-repo mass deletion occurred. (2) enrichedWithoutPack local variable replaced with enrichedWithoutAdvisory in lattice-handoff.ts; it was never a cross-repo concept. All render call sites (renderHandoffMemoryText, renderHandoffResumeText) are properly gated via shouldRenderRuntimeMemoryPack(). No ungated direct-render patterns remain. No residue requiring a finding.",
+      "createdAt": "2026-07-03T00:37:25.285Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-005",
+      "_hash": "5f444ea55575f29fbfcfe9566827d16ca83cf28b9ed9a579973b2edef7b199f4"
+    },
+    {
+      "id": "B-ab8d:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. Verified: (1) F-002 resolution confirmed — retired-authority-vocabulary-guard-smoke PASS, arm-switch smoke no longer uses retired vocab token. (2) F-003 resolution confirmed — all 18/18 verificationEvidence records refreshed to headHash 055fc5678 (F-001 fix commit); storyFilesHash f7482ba stable across all evidence; headHash-only drift from evidence to current HEAD (9bd9b54) is metadata-only (review_pass_set, finding_resolve commits, no source changes). (3) CHK-005:edge:0 re-recorded with integration_test kind covering lattice validate exit 0. (4) New case j (handoff_resume control suppresses memory advisory) verified via arm-switch smoke case j PASS. (5) lattice validate --story=B-ab8d exit 0, allPass:true, verificationCoverage 18/18 covered 0 missing, 32/32 commands ok. All 5 checklist items have 3/3 intent columns with must-priority evidence: no must-gaps found. No new findings required.",
+      "createdAt": "2026-07-03T00:39:42.255Z",
+      "reviewRound": "2026-07-03T00:34:07.393Z",
+      "reviewRunId": "B-ab8d:RR-007",
+      "_hash": "d0625e83d57210580460292654fca723a2347cb7ce90e87d53e1033a69d7fa70"
+    },
+    {
+      "id": "B-ab8d:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check after merge-main conflict resolution in command-policy.ts. Verified: (1) zero conflict markers in command-policy.ts, (2) 28 memoryRetrieval: true catalog entries present (matches stated count), (3) no stale duplicate command keys, (4) all 13 playbook_* memoryRetrieval markers restored, (5) playbook_auto_promotion_apply carries main branch reason text, (6) enforceExperimentArmRetrievalGate and isMemoryRetrievalCommand implementations confirmed present, (7) no concept deletion or replacement en masse in this diff — only additive memoryRetrieval marker insertion. No blocker.",
+      "createdAt": "2026-07-03T00:56:53.676Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-009",
+      "_hash": "87cbf89dec958f680f0bee1c867f916a2bc29dec770e29d5225533b4a501294b"
+    },
+    {
+      "id": "B-ab8d:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality pass. Reviewed single delta: merge-conflict resolution in packages/main/src/core/command-policy.ts. Verified: (1) 28 memoryRetrieval:true markers present on all 28 expected command entries; (2) marker is always the first key in each entry object — placement consistent; (3) playbook_auto_promotion_apply reason string preserved verbatim from main; (4) no duplicate keys in COMMAND_POLICIES; (5) tsc build passes cleanly. No dead code, no type-safety issues, no I/O shell violations introduced by this delta.",
+      "createdAt": "2026-07-03T00:57:14.311Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-010",
+      "_hash": "aea1215dbb7f83519ce42b2000bad8cc33d5e4b6b8d7bae2ae7dfee3a64ca25e"
+    },
+    {
+      "id": "B-ab8d:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round-3 behavioral re-verification of command-policy.ts merge conflict resolution. Confirmed: (1) playbook_promotion_status on control arm BLOCKED with retrieval_violation event appended to activity log; (2) playbook_auto_promotion_apply on control arm BLOCKED with retrieval_violation event appended; (3) treatment arm passes through normally; (4) no-env mode passes through normally; (5) non-memory command (story_list) on control arm works normally. The memoryRetrieval:true marker was correctly restored on all playbook-family commands including playbook_auto_promotion_apply (the entry whose reason text changed in the merge). Gate behavior is unaffected by the merge conflict resolution.",
+      "createdAt": "2026-07-03T00:57:39.228Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-011",
+      "_hash": "850e678a43f4b8840a4e550c2b3ebd0943742e2920aa9e0604d6d1906d302b06"
+    },
+    {
+      "id": "B-ab8d:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 3 spot-verification: validate --story=B-ab8d --json coverage 18/18 (0 missing, 0 waived); experience-pack-arm-switch-smoke 24/24 ALL PASS; control-arm-retrieval-gate catalog cross-check ALL PASS. All 15 must-priority intents across 5 checklist items have concrete, non-fail evidence. The single changed file in scope (packages/main/src/core/command-policy.ts — merge-main conflict resolution) carries no new verification intent and does not break any existing evidence binding. storyFilesHash 8c3b43d unchanged from round-2 pass; evidence records refreshed post-merge via verification_evidence_refresh_stale; lattice validate PASS at CLI 0.3.143.",
+      "createdAt": "2026-07-03T01:00:56.469Z",
+      "reviewRound": "2026-07-03T00:54:53.624Z",
+      "reviewRunId": "B-ab8d:RR-012",
+      "_hash": "ad569288cc791e83e148f13ddd8608c1d6511f6ba3905f6c6888246f6a6f4dfb"
+    }
+  ]
+}

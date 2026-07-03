@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5e28",
+  "mode": "correctness_fix",
+  "allowed": [
+    "DONE settlement feature flag/default resolution",
+    "focused smoke tests for default-on, explicit opt-out, idempotency, and no helped evidence",
+    "playbook promotion status display for settlement posture",
+    "post-DONE learning health row recording"
+  ],
+  "excluded": [
+    "automatic active playbook activation from DONE success",
+    "automatic candidate approval for all historical seeds",
+    "historical seed backfill/import",
+    "making learning artifacts authoritative gate evidence",
+    "timer-driven promotion worker or matched-control trial serving"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Fix only the default-on DONE learning settlement path and live proof. Do not batch import historical seeds or make DONE success count as helped evidence.",
+  "createdAt": "2026-07-03T00:15:04.613Z",
+  "updatedAt": "2026-07-03T00:15:04.613Z",
+  "_hash": "2816082fb65cb5dc26c2f131e3cf39e62f04787fcb05cd89939d4ffc1a91e17b"
+}

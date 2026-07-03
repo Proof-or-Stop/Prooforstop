@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "No-experiment mode is byte-identical to today at every entrypoint (experiment is strictly opt-in)",
+    "One shared leaf for the arm decision — no per-handler arm logic",
+    "Gate only the render; compute and log on both arms (control is the instrumented shadow)",
+    "Mechanical enforcement over instructions: blocking in the CLI engine, violations as structured events",
+    "The arm never touches gate decisions, blockers, or prompt hashes"
+  ],
+  "drivers": [
+    "M6/M7 arm-runs execute lattice commands in isolated workspaces via a campaign runner that can set per-process environment",
+    "Plan section 9 requires recorded retrieval violations countable by the M4 scorer (retrievalViolationCount)",
+    "Seven render sites with two render shapes (full renderMemoryFreshnessPack and renderMemoryFreshnessPackSummary in done-prepare)",
+    "B-5a48 precedent: shared firing leaf eliminated per-site drift for hints"
+  ],
+  "options": [
+    {
+      "name": "env-var-context",
+      "pros": [
+        "Per-process scoping matches the campaign runner model (each arm-run is a separate process tree)",
+        "Zero persistent repo state — a crashed run cannot leave experiment mode active",
+        "Trivially testable",
+        "Subprocesses inherit env automatically"
+      ],
+      "cons": [
+        "Not discoverable by repo inspection",
+        "A stray exported env var could suppress pack rendering (mitigated: require BOTH vars, validate arm value, stamp events with experimentId)"
+      ]
+    },
+    {
+      "name": "arm-context-file",
+      "pros": [
+        "Repo-inspectable",
+        "Survives across processes without env plumbing"
+      ],
+      "cons": [
+        "Repo state leaks between runs — a crashed run silently poisons subsequent commands",
+        "Cannot express per-process arm identity when both arms share one machine",
+        "Cleanup discipline becomes a new failure mode"
+      ]
+    },
+    {
+      "name": "per-command-flag",
+      "pros": [
+        "Most explicit per invocation"
+      ],
+      "cons": [
+        "Touches every command signature",
+        "A missed flag silently mixes arms mid-task",
+        "Does not cover implicit internal renders"
+      ]
+    }
+  ],
+  "chosen": "env-var-context",
+  "rationale": "The env-var context (LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM, both required, validated) matches the process-per-arm-run execution model of the M6/M7 campaign runner, keeps zero persistent repo state so a crashed run cannot leak experiment mode into production, and makes per-run arm identity structurally constant for the whole process tree. Stray-env risk is mitigated by refusing partial context, validating the arm value, warning on partial context, and stamping every surfaced/violation event with the active experimentId. The resolved-learning-root inspection surface goes on observability_snapshot (existing read-only JSON command) — smallest new surface.",
+  "preMortem": [
+    {
+      "scenario": "A developer shell has LATTICE_EXPERIMENT_ARM=control exported from an earlier debugging session; weeks later normal lattice commands silently stop rendering the memory pack and block recall",
+      "trigger": "Stray or partial env context",
+      "consequence": "Sessions lose memory advisories and retrieval; activity log polluted with violations",
+      "mitigation": "resolveExperimentArm requires BOTH vars and a valid arm value else null; exactly-one-set prints a warning naming the ignored var; block messages name the experimentId; smoke covers partial-context"
+    },
+    {
+      "scenario": "One of the seven handler sites (e.g. done-prepare summary path) bypasses the shared leaf so control-arm runs still render the pack there",
+      "trigger": "The full vs summary render shapes diverge during wiring",
+      "consequence": "Control arm contaminated at one entrypoint — paired comparison biased; M7 campaign invalidated (plan 11.3 stopping-rule breach)",
+      "mitigation": "Smoke asserts NO pack section at ALL seven entrypoints on control (grep full command output); M6 pilot re-audits per plan"
+    },
+    {
+      "scenario": "The retrieval block list drifts from the command catalog — a later memory-consuming command is not blocked on control",
+      "trigger": "Hand-maintained block array separate from the catalog",
+      "consequence": "Control arm can retrieve memory via the unblocked command; isolation silently broken",
+      "mitigation": "Block classification co-located with catalog entries (ownershipClass pattern); smoke cross-checks every command matching the memory families (recall, dev_memory_*, playbook_*, learning_*, memory_playbook_baseline_*) carries the marker"
+    },
+    {
+      "scenario": "The arm leaks into resolveReviewPromptHash or reviewer runId binding via the rendered section, breaking review-run signatures repo-wide after merge",
+      "trigger": "A handler concatenates the gated section into a hashed prompt domain",
+      "consequence": "Reviewer evidence reads stale/tampered for every active story",
+      "mitigation": "Smoke asserts resolveReviewPromptHash byte-identical across arms (extends existing ab-shadow-gate invariance case); review checklist verifies no hash-domain consumer"
+    },
+    {
+      "scenario": "experience_pack_surfaced fires on every command, bloating activity.jsonl and slowing readActivityLogTail consumers during campaigns",
+      "trigger": "No dedup on the new event",
+      "consequence": "Unbounded log growth; all lifecycle commands slow down",
+      "mitigation": "Dedup keyed on (experimentId, consumer, storyId/roundKey) per plan.md; M6 pilot checks per-run log growth"
+    }
+  ],
+  "timestamp": "2026-07-02T22:57:21.957Z"
+}

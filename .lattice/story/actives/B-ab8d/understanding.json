@@ -1,0 +1,42 @@
+{
+  "task": "Extend the production experience-layer render-gate from review-entrypoint advisory hints to the FULL runtime memory pack at every lifecycle entrypoint that renders it, controlled by an explicit experimentId+arm override, and add mechanical control-arm blocking of memory retrieval commands with recorded violations — the M3 milestone of the ablation plan.",
+  "outcome": "With LATTICE_EXPERIMENT_ID=exp1 LATTICE_EXPERIMENT_ARM=control, running lattice session_brief prints NO \"## Memory Runtime Preflight\" section and running lattice recall exits nonzero with \"blocked: memory retrieval is disabled on the control arm of experiment exp1\", while the activity log gains experience_pack_surfaced {arm:control, packDigest, hintIds} and retrieval_violation events; with LATTICE_EXPERIMENT_ARM=treatment the same commands behave byte-identically to today plus the surfaced event; with no experiment env vars everything is byte-identical to current behavior; node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js prints experience-pack-arm-switch-smoke: ALL PASS.",
+  "facts": [
+    "Full pack built by buildMemoryFreshnessPack (core/playbook-runtime-memory.ts:752) and rendered via renderMemoryFreshnessPack at seven handler sites: story-create.ts:150, transition-orchestrator.ts:291, session.ts:583, lattice-handoff.ts:509, done-prepare.ts, done-closure.ts:186, dev-memory.ts:307",
+    "Existing A/B substrate covers only advisory review hints: resolveHintMode (core/hint-mode.ts, sha256 parity) + surfaceExperienceHints (core/experience-hint-surface.ts) at story-review.ts:658 and transition-effects.ts:333, verified by tasks/experience-layer-ab-shadow-gate-smoke.ts",
+    "No experimentId concept exists in packages/main/src (grep verified 2026-07-02)",
+    "Single CLI choke point where every command passes an enforcement gate: cli-engine.ts:940-951 (enforceStoryOwnerLeaseGate), with per-command ownershipClass policy in core/command-policy.ts",
+    "learning-store.ts resolveLearningRoot (line 129) canonicalizes worktrees to the shared main-repo .lattice/learning; no override mechanism exists; plan section 12 mandates isolated non-git temp store roots per arm-run and per-run storeRoot assertions",
+    "Plan section 4: pack computed and logged on BOTH arms (control = instrumented shadow); only the render is gated; treatment must not gain gate power; authority=non_authoritative gateEvidence=false always"
+  ],
+  "constraints": [
+    "No-experiment mode must be byte-identical to current behavior at all entrypoints (production safety)",
+    "The arm must never enter issues/blocker computation, gate decisions, or resolveReviewPromptHash",
+    "Retrieval blocking must be mechanical (CLI-refused + recorded), not instruction-only (plan section 9)",
+    "Block list must be a declared constant tied to command catalog classification, not string guessing",
+    "Handler wiring must go through ONE shared leaf to avoid the per-site drift B-5a48 eliminated for hints",
+    "English-only code/comments/commits; CJK triggers the english-artifacts gate"
+  ],
+  "unknowns": [
+    "Whether env vars alone suffice for arm context or a context file under .lattice/experiments/ is also needed for subprocess propagation — resolve in decision_set",
+    "Whether done-prepare renders via runbook.pack differently from the other six sites — implementer must confirm exact call shape when wiring",
+    "Where the resolved-learning-root inspection surface best lives (observability_snapshot field vs read-only flag) — resolve in decision_set"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experiment-arm.ts (new)",
+    "packages/main/src/core/experience-pack-surface.ts (new)",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts (new)",
+    ".lattice/validate.json"
+  ],
+  "timestamp": "2026-07-02T22:55:44.556Z"
+}

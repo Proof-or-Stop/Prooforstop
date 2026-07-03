@@ -1,0 +1,53 @@
+{
+  "storyId": "B-ffe0",
+  "name": "experience-ablation-m3-arm-switch",
+  "title": "Experience-ablation M3: gate the full runtime memory pack under an experiment arm + control-arm retrieval blocking",
+  "description": "Milestone M3 of the experience-layer A/B ablation plan (product code, packages/main). Today the sha256-parity render-gate (resolveHintMode + surfaceExperienceHints) covers only the review-entrypoint experience HINTS at two sites; the richer runtime memory PACK (buildMemoryFreshnessPack/renderMemoryFreshnessPack*) is rendered UNGATED at all 8 RuntimeConsumer lifecycle entrypoints (session_brief, dev_memory_start, host_handoff, story_create, story_advance, done_prepare, done_closure, final_response_check). M3 extends the gate to the full pack under an EXPERIMENT ARM: (1) a pure env-based arm resolver (resolveExperienceArm) returning {experimentId, arm: control|treatment} from PROOFBOUND_EXPERIMENT_ARM/PROOFBOUND_EXPERIMENT_ID, or null when not an experiment task; (2) a shared gate that every pack render site routes through — ALWAYS build the pack, RENDER it on treatment (and on non-experiment normal work, preserving current behavior byte-for-byte), SUPPRESS the render on control, and LOG a runtime_memory_pack_surfaced event on BOTH arms with the lossless would-have-surfaced pack digest (the plan's Shadow C = both-arms-compute-and-log, mirroring the existing experience_hint_surfaced design); (3) mechanical control-arm retrieval blocking in command-policy so a control-arm host cannot pull memory via recall/dev_memory_*/playbook_*/learning_*/memory_playbook_* commands. Normal (non-experiment) sessions are unchanged. Memory stays authority=non_authoritative, gateEvidence=false. No change to the experiment fixtures/protocol/ledger (S1/M1); this is the product-side switch those artifacts drive.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "experience-layer",
+    "ablation",
+    "arm-switch",
+    "runtime-memory-pack",
+    "control-arm",
+    "command-policy",
+    "M3",
+    "product-code"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-07-03T00:21:42.195Z",
+  "startedAt": "2026-07-03T00:21:42.195Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T00:21:42.511Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:26:04.019Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ffe0",
+    "branch": "story/B-ffe0",
+    "createdAt": "2026-07-03T00:26:02.606Z"
+  }
+}

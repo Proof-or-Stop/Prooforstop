@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5e28",
+  "checkedAt": "2026-07-03T00:19:09.476Z",
+  "features": [
+    {
+      "feature": "Default-on DONE settlement health",
+      "covered_by": "CHK-001 + packages/main/src/handlers/done-effects.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request and plan"
+    },
+    {
+      "feature": "Status/docs visibility for settlement posture",
+      "covered_by": "CHK-002 + packages/main/src/handlers/playbook.ts + playbook-promotion-worker-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist"
+    },
+    {
+      "feature": "Live proof after B-5e28 DONE",
+      "covered_by": "CHK-003 + playbook-promotion-worker-smoke + source-lineage doc",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist"
+    },
+    {
+      "feature": "Historical seed backfill/import",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: historical seed backfill/import",
+      "source": "scope-boundary"
+    },
+    {
+      "feature": "Automatic activation from DONE success",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: automatic active playbook activation from DONE success",
+      "source": "scope-boundary"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "af6286a16a90644ba4a202b777579b14f066680e6b6f6d563f2cda6e152cb723",
+  "openQuestions": []
+}

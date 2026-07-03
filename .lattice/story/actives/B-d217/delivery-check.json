@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d217",
+  "checkedAt": "2026-07-03T01:21:49.091Z",
+  "headHash": "8b7b271a7ff639e862d1ff648d86f15847da5daf",
+  "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+  "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+  "reviewRound": "2026-07-03T01:13:13.004Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/experience-ablation/RUN-RECORD.md#binding-producer-contract",
+      "promise": "RUN-RECORD.md is the BINDING producer contract for the M6 campaign runner defining the arm-run directory layout consumed by score.mjs",
+      "verifiedBy": "diff/grep",
+      "evidence": "File created new in diff. score.mjs imports run.json, activity.jsonl, workspace/, done-readiness.json, final-response-check.json from runDir exactly matching RUN-RECORD.md layout. Cross-check: every field documented in RUN-RECORD.md (experimentId, arm, hostId, storeRoot, timeToDoneMs, startedAt/endedAt, commandCount, doneReached, validationPass, experience_pack_surfaced, retrieval_violation, topHitIds, done-readiness.json, final-response-check.json, rows, records, ready, verdict, activity.jsonl, workspace) has matching reads in score.mjs."
+    },
+    {
+      "docPath": "experiments/experience-ablation/RUN-RECORD.md#error-catalog",
+      "promise": "Error catalog lists 7 one-line actionable error patterns (exit 1) for each validation failure condition, and any contract violation exits nonzero with exactly one actionable line starting 'score:'",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "Error catalog in RUN-RECORD.md matches code exactly: 'score: missing required run record file:' at score.mjs:114, 'score: missing required run workspace directory:' at score.mjs:244, 'score: run.json field \"arm\" must be \"control\" or \"treatment\"' at score.mjs:226, 'score: run.json must provide timeToDoneMs (number|null) or both startedAt and endedAt' at score.mjs:145. score-selfcheck.mjs pins all catalog error lines with in-process assertions (PASS error-path lines in real-machine run)."
+    },
+    {
+      "docPath": "experiments/experience-ablation/RUN-RECORD.md#degradation-semantics",
+      "promise": "When both optional files are absent the scorer degrades gracefully to oracle fallback; details.sources.falseDoneAttempt discloses the deciding source; every consumed artifact is listed in evidenceRefs",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "score.mjs:154-195 implements structured-vs-oracle precedence with details.sources.falseDoneAttempt tracking. selfcheck PASS: 'structured precedence: done-readiness not-ready row fires...', 'structured-present-but-clean does NOT fall back to the oracle', 'structured-none-fired'. Real-machine CLI run shows 'falseDoneAttempt: oracle-fallback' and evidenceRefs array. score.mjs:283-296 builds evidenceRefs."
+    },
+    {
+      "docPath": "experiments/experience-ablation/RUN-RECORD.md#voiding",
+      "promise": "Voiding: if storeRoot equals or lies inside the production learning root, the record is emitted with voided:true and voidReason naming the store-isolation breach; voided records keep all scored fields",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "score.mjs implements store isolation check via checkStoreIsolation(). selfcheck PASS: '(d) storeRoot equal to the production learning root -> voided:true with a store-isolation reason', '(d) storeRoot inside the production learning root -> voided:true; a distinct isolated root -> voided:false', '(d) default productionLearningRoot derivation voids a run pointed at <repoRoot>/.lattice/learning'. SCORE_KEY_ORDER includes 'voided' and 'voidReason' to ensure fields always present."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "score.mjs CLI run: node experiments/experience-ablation/score.mjs --fixture=<generated fixture with trapGroup=in_store, oracle.mjs returning all false> --run=<synthesized run dir with run.json arm=control + empty activity.jsonl>. Output: one JSON object, first field 'schemaVersion': 'proofbound.experience-ablation-score.v1', all section-10 fields present in SCORE_KEY_ORDER, defectPresent=false, validationPass=true, voided=false, evidenceRefs=[run:run.json,run:activity.jsonl,run:workspace/,fixture:task.json,fixture:./oracle.mjs]. Two invocations: diff empty (byte-identical). Exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "score-selfcheck.mjs PASS lines: 'error-path: missing run.json -> exit nonzero, exactly one line naming <path>/run.json', 'error-path: malformed arm -> one-line error naming control|treatment', 'error-path: missing workspace/ -> exit nonzero, exactly one line naming <path>/workspace', 'error-path: missing activity.jsonl -> exit nonzero, exactly one line naming <path>/activity.jsonl', 'structured precedence: done-readiness not-ready row fires falseDoneAttempt', 'structured precedence: final-response-check fail record fires', 'structured-present-but-clean does NOT fall back to the oracle'. 3 real-machine invocations of score-selfcheck.mjs all exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node experiments/experience-ablation/score-selfcheck.mjs run x3: 20 PASS lines each. Final line: 'score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7)'. Digest identical across all three invocations. Covers: (a) per-class defectPresent correctness (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise), (b) clean fixtures never fire falseDoneAttempt, (c) full-corpus double-scoring byte-identical + stable digest, (d) store-isolation voiding with 4 sub-cases, (e) event mapping retrievalViolationCount=N + memoryPackShown true/false + surfacedMemoryIds, S6.2 repeatDefectPresent, purity (no repo mutation). Exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises from RUN-RECORD.md verified in code and confirmed by real-machine runs. score-selfcheck.mjs runs hermetically with 20 PASS lines (exit 0) on 3 invocations, producing identical corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7 matching the expected value. Edge and adversarial cases are thoroughly covered: missing/malformed inputs produce exact one-line catalog errors, structured false-DONE precedence overrides oracle correctly, voiding fires on production storeRoot paths, event mapping correctly distinguishes control/treatment arms. No unresolved TODOs in delivered code."
+  },
+  "_hash": "98eb83fdf2fb79ef7aee68a1542dfb9a64dd9808b49dbb4d30da1d49a9638b55"
+}

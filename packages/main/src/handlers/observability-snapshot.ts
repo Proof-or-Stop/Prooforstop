@@ -13,6 +13,9 @@
  *   `session_brief` / `status` Markdown, and never widens local assurance.
  * @changes
  *   - [CHK-002] Add validator-required changes metadata for the observability snapshot handler task header.
+ *   - [B-ab8d CHK-004] Expose read-only resolvedLearningRoot (via existing
+ *     resolveLearningDir) in both text and JSON output as the mechanical
+ *     store-root isolation assertion hook. Zero change to resolution logic.
  */
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -22,7 +25,19 @@ import {
   OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
   type LatticeObservabilitySnapshot,
 } from '../core/observability-snapshot.js';
+import { resolveLearningDir } from '../core/learning-store.js';
 import type { HandlerContext } from './context.js';
+
+/**
+ * Snapshot payload augmented with the resolved shared learning-store root.
+ * Additive, read-only field: consumers (M4 runner/scorer) assert that every
+ * arm-run resolves to the isolated experiment root instead of the shared
+ * main-repo `.lattice/learning`. Resolution itself is untouched — the value
+ * is computed by the existing `resolveLearningDir` leaf.
+ */
+type LatticeObservabilitySnapshotWithLearningRoot = LatticeObservabilitySnapshot & {
+  readonly resolvedLearningRoot: string;
+};
 
 function writeJsonNoOverwrite(file: string, value: unknown): void {
   if (existsSync(file)) throw new Error(`refusing to overwrite existing file: ${file}`);
@@ -30,7 +45,7 @@ function writeJsonNoOverwrite(file: string, value: unknown): void {
   writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
-function renderText(snapshot: LatticeObservabilitySnapshot): string {
+function renderText(snapshot: LatticeObservabilitySnapshotWithLearningRoot): string {
   const ladder = snapshot.sections.authorityLadder;
   return [
     `Proofbound observability snapshot (${snapshot.schemaVersion})`,
@@ -46,6 +61,7 @@ function renderText(snapshot: LatticeObservabilitySnapshot): string {
     `admissibilityStatus: ${snapshot.localAssurance.admissibilityStatus}`,
     `assuranceLevel: ${snapshot.localAssurance.assuranceLevel}`,
     `evidenceScope: ${snapshot.localAssurance.evidenceScope}`,
+    `resolvedLearningRoot: ${snapshot.resolvedLearningRoot}`,
     `warnings: ${snapshot.warnings.length}`,
   ].join('\n');
 }
@@ -59,10 +75,16 @@ export function createObservabilitySnapshotHandlers(ctx: HandlerContext): Record
       json?: boolean;
       output?: string;
     } = {}) {
-      const snapshot = buildObservabilitySnapshot(ctx.store, ctx.root, {
+      const base = buildObservabilitySnapshot(ctx.store, ctx.root, {
         storyIds: args.storyIds,
         activeOnly: args.activeOnly,
       });
+      // Read-only isolation assertion hook (B-ab8d CHK-004): surface where the
+      // shared learning store actually resolves from this context's root.
+      const snapshot: LatticeObservabilitySnapshotWithLearningRoot = {
+        ...base,
+        resolvedLearningRoot: resolveLearningDir(ctx.root),
+      };
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, snapshot);

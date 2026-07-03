@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ffe0",
+  "allowedCommands": [
+    "edit the allowed packages/main source + smoke files",
+    "lattice story lifecycle commands for B-ffe0",
+    "node packages/main/dist/tasks/experience-arm-gate-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "read-only repo inspection"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-03T00:21:56.678Z",
+  "updatedAt": "2026-07-03T00:21:56.678Z",
+  "_hash": "81614ee68c9e5d23135faf73f75dc03cd6a3bd3359fe7e9639880e3c8f4f5002"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-5e28",
+  "sourceText": "User asked: 赶紧修复，看看修复完之后，有没有数据进去，如果有数据进去，再考虑把历史数据放进去. The concrete complaint is that PLAYBOOK_DONE_SETTLEMENT_ENABLED is off after prior work, so new DONE stories do not automatically enter the learning settlement layer.",
+  "normalizedOutcome": "A future story reaching DONE writes a non-authoritative done-settlement learning health row without a manual env var, while explicit opt-out still disables it and DONE success still does not count as helped evidence.",
+  "acceptanceClaim": "With PLAYBOOK_DONE_SETTLEMENT_ENABLED unset, runPostDoneLearningSettlement records a done-settlement health row; playbook_promotion_status reports settlement default-on posture; after B-5e28 reaches DONE the live learning health log contains a B-5e28 done-settlement row.",
+  "keyRequirementIds": [
+    "REQ-default-on-settlement",
+    "REQ-live-proof-before-backfill",
+    "REQ-no-helped-from-done"
+  ],
+  "requestHash": "sha256:f987010cb59e23a8d17adec37e1f0c0b96fcf84eee06ab9eed0b7d41293faaab",
+  "createdAt": "2026-07-03T00:17:16.345Z",
+  "updatedAt": "2026-07-03T00:17:16.345Z"
+}

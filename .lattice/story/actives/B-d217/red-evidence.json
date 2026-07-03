@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d217",
+  "records": [
+    {
+      "id": "RED-20260703002447",
+      "trigger": "M4 new capability: no deterministic arm-run scorer exists today",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "a500d018394dfe3442b96e423962e2213e67f75f",
+      "baselineMaterialHash": "84eb591c5d37a85cf8b6d6ec21a8daecaa12ae749733cd50d3fd958481dd96fb",
+      "observedFailure": "ls experiments/experience-ablation/score.mjs -> No such file or directory; no module in the repo consumes fixture oracle output plus run records to emit ExperienceAblationScore v1 records (grep for proofbound.experience-ablation-score finds only the plan doc).",
+      "failingCommand": "node experiments/experience-ablation/score-selfcheck.mjs # Cannot find module (ENOENT) before this story",
+      "expectedGreenCommand": "node experiments/experience-ablation/score-selfcheck.mjs # prints score-selfcheck: all cases passed (corpus digest <sha256>), exit 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/score-selfcheck.mjs # prints score-selfcheck: all cases passed (corpus digest <sha256>), exit 0"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-d217 before any M4 code exists.",
+      "createdAt": "2026-07-03T00:24:47.670Z"
+    }
+  ],
+  "createdAt": "2026-07-03T00:24:47.670Z",
+  "updatedAt": "2026-07-03T00:24:47.670Z"
+}

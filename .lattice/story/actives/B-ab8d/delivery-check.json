@@ -1,0 +1,70 @@
+{
+  "storyId": "B-ab8d",
+  "checkedAt": "2026-07-03T01:04:48.258Z",
+  "headHash": "e472ec18ccd1598a1b26837075acd05ca9e89d4f",
+  "materialHash": "397a6085a44b3e5a7b9b02c45ac0d7d886734104c526eab8a0cfc09ba9b0229d",
+  "storyFilesHash": "8c3b43d59806910bf77d6b595ea9ff42d0fb29deb779330d1d3a71247da6ae5a",
+  "reviewRound": "2026-07-03T00:54:53.624Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ab8d/plan.md#CHK-001",
+      "promise": "resolveExperimentArm(env?) exported from packages/main/src/core/experiment-arm.ts as pure function returning ExperimentArmContext|null; both vars required, module-level once-warn latch, no I/O beyond env, plain runtime validation",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/experiment-arm.ts created in diff (99 lines); export resolveExperimentArm found at line 72; once-latch misconfigWarned at line 35; resetExperimentArmWarnLatch test hook exported. experiment-arm-smoke 11/11 confirms happy/edge/adversarial paths."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ab8d/plan.md#CHK-002",
+      "promise": "Shared leaf surfaceRuntimeMemoryPack used by all seven lifecycle entrypoints; shouldRender=false on control, true on treatment/no-experiment; experience_pack_surfaced event fires on both arms with dedup; no-experiment mode byte-identical to today; arm never reaches resolveReviewPromptHash",
+      "verifiedBy": "diff/grep/smoke",
+      "evidence": "packages/main/src/core/experience-pack-surface.ts created in diff (155 lines); shouldRenderRuntimeMemoryPack and surfaceRuntimeMemoryPack exported; seven handler files (story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory) all in diff; grep shows zero import of experiment-arm in review-run.ts/machine.ts/guard-utils.ts; arm-switch smoke 24/24 covers all seven entrypoints across both arms plus no-env."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ab8d/plan.md#CHK-003",
+      "promise": "enforceExperimentArmRetrievalGate at single CLI choke point beside enforceStoryOwnerLeaseGate; memoryRetrieval policy marker on all recall/dev_memory/playbook/learning/memory_playbook_baseline commands; retrieval_violation event appended BEFORE throw on control; treatment/no-env unaffected",
+      "verifiedBy": "diff/grep/smoke",
+      "evidence": "command-policy.ts adds memoryRetrieval?: boolean to CommandPolicy interface and marks all family commands; cli-engine.ts enforceExperimentArmRetrievalGate at line 133, called at line 1006 before enforceStoryOwnerLeaseGate; retrieval_violation event appended before throw at line 145; control-arm-retrieval-gate.test.mjs ALL PASS (28 commands verified, gate unit checks pass)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ab8d/plan.md#CHK-004",
+      "promise": "observability_snapshot text+JSON output gains resolvedLearningRoot computed via existing resolveLearningDir; zero change to resolution logic in learning-store.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "observability-snapshot.ts adds resolveLearningDir import and LatticeObservabilitySnapshotWithLearningRoot type; resolvedLearningRoot: resolveLearningDir(ctx.root) in handler at line 86; renderText includes resolvedLearningRoot line at line 64. git diff of learning-store.ts is 0 lines (resolution unchanged). observability-snapshot-learning-root.test.mjs coverage confirmed in CHK-004 verificationEvidence."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ab8d/plan.md#CHK-005",
+      "promise": "experience-pack-arm-switch-smoke task covering M3 exit criteria end-to-end (cases a-j), registered in validate.commands, exits 0 with ALL PASS",
+      "verifiedBy": "diff/execution",
+      "evidence": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts created in diff (906 lines); node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js ran in this reviewer session: TOTAL 24 | PASS 24 | FAIL 0, experience-pack-arm-switch-smoke: ALL PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/experiment-arm-smoke.js: 11/11 checks passed, experiment-arm smoke passed. Covers: both vars valid (control and treatment) -> {experimentId,arm}; neither set -> silent null; partial (id-only, arm-only, whitespace-only counterpart) -> null + one warning naming ignored var; invalid arm -> null + warning naming control|treatment; empty/whitespace experimentId -> treated as unset; once-latch warns exactly once per process; default env argument reads process.env."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js: TOTAL 24 | PASS 24 | FAIL 0. Cases (a-j) cover: no-experiment pack pass-through at session_brief/dev_memory_start/done_prepare/story_create byte-identical; treatment renders identically and fires experience_pack_surfaced; control hides pack and fires event; host_dispatch memory lines suppressed on control; handoff_resume advisory section suppressed on control but JSON keeps pack; dedup (exactly one event per key). Also node packages/main/tests/control-arm-retrieval-gate.test.mjs: ALL PASS cross-checks memoryRetrieval marker on all 28 family commands."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/tests/control-arm-retrieval-gate.test.mjs: control-arm-retrieval-gate: ALL PASS. Covers: families constant non-empty; every MAIN_TOOLS/COMMAND_POLICIES family member carries memoryRetrieval marker (28 commands); no non-family command marked; sentinels (recall marked; story_list/memory_benchmark_run/unknown not marked); control refused + error names experimentId + event appended BEFORE throw; every attempt appends event; non-memory passes on control; treatment passes; no-experiment passes; invalid arm treated as no experiment. Also confirmed in arm-switch smoke case (e) adversarial."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/tests/observability-snapshot-learning-root.test.mjs (per CHK-004 verificationEvidence): ALL PASS, asserts handler field byte-equal to resolveLearningDir(root), resolution call sites unchanged (git diff learning-store.ts is 0 lines). Also arm-switch smoke confirms no-env/control/treatment mode does not affect observability_snapshot output."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js: TOTAL 24 | PASS 24 | FAIL 0, experience-pack-arm-switch-smoke: ALL PASS. Independently executed in this reviewer session. All 24 cases cover the M3 exit criteria: no-experiment regression, control hide+log, treatment show+log, partial env warning, retrieval block+record, catalog cross-check non-vacuous, hash invariance, event dedup, host_dispatch projection, handoff_resume text suppression."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified against diff and code. Three real-machine test suites independently re-executed in this reviewer session: experiment-arm-smoke 11/11, control-arm-retrieval-gate ALL PASS (28 commands), experience-pack-arm-switch-smoke 24/24. Edge cases covered: partial env with once-warn, invalid arm, empty/whitespace values, event dedup, non-memory commands unaffected on control, hash invariance across arms. No unresolved TODOs in new source files. learning-store.ts resolution logic untouched (0 diff lines). M3 exit criteria fully delivered."
+  },
+  "_hash": "0cf97f6c8013bfcc5a43419eb258284358e1490c9825edf3e6f2d56ba3b97541"
+}

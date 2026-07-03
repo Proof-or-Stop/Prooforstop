@@ -1,0 +1,122 @@
+{
+  "storyId": "B-d217",
+  "checkedAt": "2026-07-03T00:32:37.478Z",
+  "features": [
+    {
+      "feature": "score.mjs created: scoreArmRun({fixtureDir,runDir}) function emitting ExperienceAblationScore v1 records from on-disk arm-run artifacts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "ExperienceAblationScore v1 schema (section 10): all named fields including schemaVersion, experimentId, taskId, pairId, arm, hostId, trapClass, trapGroup, cleanTask, memoryPackShown, expectedMemoryIds, surfacedMemoryIds, storeRoot, defectPresent, repeatDefectPresent, falseDoneAttempt, oracleMismatch, laneProvenanceViolation, validationPass, doneReached, timeToDoneMs, commandCount, retrievalViolationCount, evidenceRefs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "defectPresent deterministic composite (section 6.1): validationPass false OR falseDoneAttempt OR oracleMismatch OR laneProvenanceViolation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "repeatDefectPresent (section 6.2): defect whose trapGroup is in_store with an expected lesson",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experience_pack_surfaced event mapping: memoryPackShown and surfacedMemoryIds from activity log (BOTH arms log pack; control logs would-have-surfaced pack)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "retrieval_violation event mapping: retrievalViolationCount from activity log",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "storeRoot assertion and voiding (section 12): run whose resolved learning root equals shared production store is voided with reason",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Scorer purity: pure function, no network, no clock (timestamps from inputs), stable key order, byte-identical replay output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "CLI wrapper: node score.mjs --fixture=<dir> --run=<dir> [--out=<file>] prints or writes the record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run-record input contract documented in RUN-RECORD.md: required fields (run.json: experimentId, arm, hostId, storeRoot, timings, commandCount, doneReached, validationPass), activity.jsonl, workspace/, optional done-readiness.json and final-response-check.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Actionable runtime validation errors for missing required run-dir artifacts/fields (one-line error naming missing field/file path, nonzero exit)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Graceful degradation when optional artifacts absent (falseDoneAttempt falls back to oracle-only; details.sources records absent optional files)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "M4 exit criterion (section 13): known positive/negative fixtures score correctly, deterministically, on replay — implemented as score-selfcheck.mjs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "score-selfcheck.mjs: hermetic selfcheck asserting known-bad defectPresent true with class-appropriate flags, known-good defectPresent false, replay determinism (byte-identical records, stable corpus digest), voiding case, event mapping for both arms",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "fixture-generator.mjs: pre-existing M1 (B-337f DONE) artifact consumed read-only by score-selfcheck.mjs to generate the selfcheck corpus",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "experiments/experience-ablation/fixture-generator.mjs — pre-existing M1 (B-337f DONE) artifact consumed READ-ONLY to generate the selfcheck corpus; never modified by this story (also in scope-contract explicitExcludes)",
+      "source": "decisions:decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 14,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6d3cc9cdbdba60bb6230a33c488fab2072f32b34ff94c1671f7e12cb247602b3",
+  "openQuestions": []
+}

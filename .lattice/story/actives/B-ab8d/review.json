@@ -1,0 +1,50 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-02T23:05:11.877Z",
+      "issueCount": 7,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Experiment arm context resolver (experimentId override) as a new core leaf + Full-pack render gate applied at all seven lifecycle entrypoints via one shared leaf are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): State Machine/Gate, Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-ab8d\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Whether env vars alone suffice for arm context or a context file under .lattice/experiments/ is also needed for subprocess propagation — resolve in decision_set; Whether done-prepare renders via runbook.pack differently from the other six sites — implementer must confirm exact call shape when wiring; Where the resolved-learning-root inspection surface best lives (observability_snapshot field vs read-only flag) — resolve in decision_set"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "01cd8ef6f451c0c5ade6d83ecfdc0580f6a571b7339a359295aa7dc09d58fffa"
+    }
+  ]
+}

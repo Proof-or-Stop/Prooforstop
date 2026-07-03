@@ -306,6 +306,7 @@ they must not promote a playbook by themselves.
 A candidate cannot receive `helped` from DONE settlement unless the event
 records a concrete exposure mode other than `none` and a structured verdict
 source. DONE success alone cannot settle a candidate as `helped`.
+DONE experience seeds create candidate playbooks only; DONE success alone never records helped and never activates runtime guidance.
 
 ### 9.2 Signals That Must Not Count As Positive
 
@@ -691,7 +692,7 @@ Suggested V1 flags:
 | Flag | Default | Meaning |
 |---|---|---|
 | `PLAYBOOK_PROMOTION_SWEEP_ENABLED` | off for apply, dry-run available | Allows sweep apply mode |
-| `PLAYBOOK_DONE_SETTLEMENT_ENABLED` | off until M2 | Allows post-DONE learning settlement |
+| `PLAYBOOK_DONE_SETTLEMENT_ENABLED` | default-on, explicit opt-out with `false` / `0` / `no` / `off` | Allows post-DONE learning settlement health rows |
 
 Future flags:
 
@@ -709,8 +710,11 @@ readiness. It remains non-authoritative and never writes gate evidence.
 
 Fail-closed rules:
 
-- absent flag means disabled;
-- malformed flag means disabled;
+- promotion sweep apply remains disabled unless
+  `PLAYBOOK_PROMOTION_SWEEP_ENABLED` is explicitly true-like;
+- DONE settlement is default-on when
+  `PLAYBOOK_DONE_SETTLEMENT_ENABLED` is absent or malformed, and is disabled
+  only by explicit opt-out values (`false`, `0`, `no`, or `off`);
 - dry-run remains available when apply is disabled;
 - blocking policy promotion is never controlled by these flags because it is out
   of scope.

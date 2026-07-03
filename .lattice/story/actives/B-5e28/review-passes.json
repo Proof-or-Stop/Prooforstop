@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-5e28:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after fix 9552bf295: F-001 docs drift is fixed. Default-on DONE settlement wording now matches runtime behavior; historical backfill, candidate approval, activation, stronger automation, helped evidence, authority, and gateEvidence boundaries remain explicit and non-blocking.",
+      "createdAt": "2026-07-03T00:32:44.310Z",
+      "reviewRound": "2026-07-03T00:26:45.076Z",
+      "reviewRunId": "B-5e28:RR-005",
+      "_hash": "cc7068fa51c2595f70d6ee731203b6691946ad6724935b28e5a5543673a011f3"
+    },
+    {
+      "id": "B-5e28:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: default-on DONE settlement, explicit false/0/no/off opt-out, no historical backfill/stronger automation boundary, active activation boundary, and non_authoritative gateEvidence=false wording are consistent with implementation and smokes.",
+      "createdAt": "2026-07-03T00:34:12.714Z",
+      "reviewRound": "2026-07-03T00:26:45.076Z",
+      "reviewRunId": "B-5e28:RR-004",
+      "_hash": "112c3b2800eb3922ea1f457d0a904c05f2f4fffd0b13c3b9db243ad989966373"
+    },
+    {
+      "id": "B-5e28:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: inspected done-effects, playbook status, promotion smoke changes, and rollout docs. Default-on env semantics are explicit-opt-out only; malformed/unset values enable settlement per docs. Settlement remains non-blocking, learning-only, gateEvidence=false, and idempotent via existing health-event idempotency keys. Duplication is limited to presentation/runtime helper parity and is not material for this narrow flag. Main-agent implementation after implementer 401 is not a material code-quality issue because process metrics mark fast-channel main code as allowed and reviewer evidence is independently bound.",
+      "createdAt": "2026-07-03T00:35:15.022Z",
+      "reviewRound": "2026-07-03T00:26:45.076Z",
+      "reviewRunId": "B-5e28:RR-006",
+      "_hash": "7bc5b2548b02af051f41eab686ca511355eeeb40901bb86c8df13f5a0cbaae5a"
+    },
+    {
+      "id": "B-5e28:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Checked B-5e28 test coverage for unset default-on, false/0/no/off opt-out, idempotency, no helped outcome, non-authoritative gateEvidence false, and status output; no blocking gaps found.",
+      "createdAt": "2026-07-03T00:35:59.317Z",
+      "reviewRound": "2026-07-03T00:26:45.076Z",
+      "reviewRunId": "B-5e28:RR-003",
+      "_hash": "cf7f2777bbdae80e2e1442401511983c1fccfa7c62c008b8337043cee9818371"
+    },
+    {
+      "id": "B-5e28:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review after metadata-only scope_shrinkage_decision_set: user intent remains default-on DONE settlement plus live proof before historical backfill. Historical seed backfill, automatic candidate approval, and automatic active playbook activation are deferred scope/accepted shrinkage milestones, not removed from the future roadmap. No concept blocker found.",
+      "createdAt": "2026-07-03T00:59:18.530Z",
+      "reviewRound": "2026-07-03T00:57:25.298Z",
+      "reviewRunId": "B-5e28:RR-007",
+      "_hash": "07e2fdc6a43fee3a81dc5ef9b743b5fb5e0eda062a9b3c3863a7a7448d29cdd3"
+    },
+    {
+      "id": "B-5e28:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs re-review after confirmed scope shrinkage: docs and summary still describe DONE settlement as default-on with explicit opt-out, learning-only/non-blocking/non-authoritative/gateEvidence=false, and historical seed backfill, automatic candidate approval, and automatic active playbook activation remain outside B-5e28 scope.",
+      "createdAt": "2026-07-03T00:59:20.277Z",
+      "reviewRound": "2026-07-03T00:57:25.298Z",
+      "reviewRunId": "B-5e28:RR-009",
+      "_hash": "5dcb367064d82b3ea906ad2c86ebb6cde5231e20850c470356570c7facfb0ae4"
+    },
+    {
+      "id": "B-5e28:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review after metadata-only scope shrinkage: checklist/test_list/summary/evidence_plan confirm 9/9 fresh coverage for default-on DONE settlement, explicit false/0/no/off opt-out, non_authoritative gateEvidence=false status/health, idempotency alreadyApplied=true, and no helped outcome from DONE success alone.",
+      "createdAt": "2026-07-03T01:00:02.638Z",
+      "reviewRound": "2026-07-03T00:57:25.298Z",
+      "reviewRunId": "B-5e28:RR-010",
+      "_hash": "7f774592d8b777ace28dac0c6beae82414370ce81210992108a4b1c571db9d7d"
+    },
+    {
+      "id": "B-5e28:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality re-review after user-confirmed scope_shrinkage_decision_set: no product/runtime/doc source changes since prior quality pass outside Lattice lifecycle metadata; scope decision only removes historical backfill, automatic candidate approval, and automatic active playbook activation. Fresh smoke/status confirm default-on settlement remains explicit-opt-out only (false/0/no/off), malformed/unset values enable settlement, and status remains non_authoritative with gateEvidence=false.",
+      "createdAt": "2026-07-03T01:00:27.927Z",
+      "reviewRound": "2026-07-03T00:57:25.298Z",
+      "reviewRunId": "B-5e28:RR-008",
+      "_hash": "c48f161374f92539c64be3e0d0172287c0c890b63121019ab172ff866f036b2d"
+    }
+  ]
+}

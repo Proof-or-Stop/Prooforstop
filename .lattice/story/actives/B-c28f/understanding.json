@@ -1,0 +1,28 @@
+{
+  "task": "Make completed story experience available as deduplicated playbook candidate material without activating it or treating DONE success as helped evidence.",
+  "outcome": "After running playbook_seed_observe on a project with a DONE story, the user can see a done_experience seed; after digest-guarded propose and candidate approval, playbook_promotion_status shows candidatePlaybooks greater than zero while active playbooks and helped outcomes remain unchanged.",
+  "facts": [
+    "PLAYBOOK_DONE_SETTLEMENT_ENABLED is default-on and records settlement health rows.",
+    "Current playbook_seed_observe only exposes dev_memory, finding_signal, and finding seed kinds.",
+    "Batch propose and candidate approval already have observeDigest and manifestDigest guards.",
+    "Candidate playbooks are intentionally inert until exposure and structured outcome evidence exist.",
+    "DONE experience text can be derived from summary.changes, summary.usage, summary.pitfalls, and delivery-check closingSelfCheck/docsPromises/realMachineTests.",
+    "Add a done-experience source filter while preserving all as the default aggregate view."
+  ],
+  "constraints": [
+    "Do not implement automatic activation in Story 1.",
+    "Do not count DONE success alone as helped.",
+    "Do not run historical backfill in this story.",
+    "Keep the workflow host-neutral and non-authoritative; no gate evidence is produced."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/source-lineage-audit.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+  ],
+  "timestamp": "2026-07-03T01:39:50.583Z"
+}

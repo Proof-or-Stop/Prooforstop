@@ -1,0 +1,129 @@
+{
+  "storyId": "B-d217",
+  "name": "experience-ablation-m4-deterministic-scorer",
+  "title": "Experience-ablation M4: deterministic per-arm-run scoring oracle emitting ExperienceAblationScore records",
+  "description": "Milestone M4 of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Build the deterministic scoring layer that turns one arm-run of one fixture into a structured ExperienceAblationScore record (schemaVersion proofbound.experience-ablation-score.v1, plan section 10): consumes the fixture task.json labels (trapClass, trapGroup in_store|held_out|clean from the M1 generator), the hidden oracle classify(workspaceDir) output ({defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details} from trap-templates.mjs), the arm-run activity log events defined by M3 (experience_pack_surfaced supplies memoryPackShown/surfacedMemoryIds/packDigest; retrieval_violation supplies retrievalViolationCount), a storeRoot assertion (a run whose resolved learning root is the shared production store is voided per plan section 12), and run metadata (hostId, timeToDoneMs, commandCount, doneReached, validationPass). No live LLM reviewer input in the seeded-phase primary. Scoring must be pure and replay-stable: the same input artifacts produce a byte-identical score record, and a corpus of known-good/known-bad reference payloads (emitted by the M1 generator per fixture) must score correctly on every replay. Exit criteria (plan section 13 M4 row): known positive/negative fixtures score correctly, deterministically, on replay.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-03T00:19:59.241Z",
+  "startedAt": "2026-07-03T00:19:59.241Z",
+  "endedAt": "2026-07-03T01:32:11.065Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T00:19:59.720Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:22:53.427Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:23:04.408Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:34:23.075Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:47:45.954Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:13:11.984Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:13:13.004Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:18:34.691Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:28:00.389Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:28:01.886Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:30:17.024Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:32:11.065Z",
+      "branch": "story/B-d217",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-03T01:28:01.886Z"
+}

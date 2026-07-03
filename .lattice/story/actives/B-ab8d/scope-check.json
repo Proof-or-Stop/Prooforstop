@@ -1,0 +1,241 @@
+{
+  "storyId": "B-ab8d",
+  "checkedAt": "2026-07-02T23:04:44.252Z",
+  "features": [
+    {
+      "feature": "experimentId override context resolver (resolveExperimentArm) returning {experimentId, arm: control|treatment} | null",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Arm value validation: accepted values control|treatment; invalid arm value rejected with explicit message; empty experimentId treated as unset",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Null context (no experiment active) = byte-identical to today at every entrypoint",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experimentId override overrides resolveHintMode for pack/hint gating when experiment context is active",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full-pack render gate applied at all seven lifecycle entrypoints (story-create, transition-orchestrator, session, lattice-handoff, done-prepare, done-closure, dev-memory) via one shared leaf",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experience_pack_surfaced activity event fired on BOTH arms with {experimentId, arm, consumer, packDigest, topHitIds}",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Control arm: pack computed and logged but NOT rendered to host",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Treatment arm: pack rendered identically to no-experiment mode",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experience_pack_surfaced event dedup: repeated same-consumer calls in one round append exactly one event",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Arm must never affect resolveReviewPromptHash",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "authority=non_authoritative and gateEvidence=false rendered unchanged on treatment arm",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "done-prepare summary render shape (renderMemoryFreshnessPackSummary via runbook.pack) gated identically to the six full-render sites",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Mechanical control-arm retrieval blocking at CLI choke point (cli-engine.ts) for memory retrieval/consumption commands",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "retrieval_violation structured event appended to activity log on every control-arm blocked attempt (with experimentId, command, timestamp)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "retrievalViolationCount countable by M4 scorer (plan section 10 score schema field)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Block list is a declared constant co-located with command catalog classification (not string guessing in the engine)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Treatment arm and no-experiment mode: retrieval commands unaffected (no block, no violation event)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Write-side dev_memory_capture/dev_memory_finish also blocked on control arm (store writes forbidden per plan section 12)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Read-only surface exposing resolved learning root (resolveLearningDir result) for isolation assertions",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Store-root resolution surface is read-only: no change to resolution behavior itself",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "End-to-end smoke test covering all M3 exit criteria wired into lattice validate",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: no-experiment mode byte-identical regression at all seven entrypoints",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: resolveReviewPromptHash byte-identical across arms (hash invariance)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: catalog cross-check that every command in memory families (recall, dev_memory_*, playbook_*, learning_*, memory_playbook_baseline_*) carries the retrieval-block marker",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Any change to gate decisions, issues/blocker computation, or reviewer evidence semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Any change to gate decisions, issues/blocker computation, resolveReviewPromptHash, or reviewer evidence semantics",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "learning-store.ts resolveLearningRoot resolution behavior change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Any change to resolveLearningRoot resolution behavior itself",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "hint-mode.ts modification (resolveHintMode production mechanism is reused/overridden, not changed)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Memory pack content/ranking changes (buildMemoryFreshnessPack internals stay untouched)",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "experiments/ directory M1 fixture generator",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: experiments/ directory (M1 fixture generator territory, story B-337f)",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M4 scorer, M6 campaign runner, M8 live readout",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: M4 scorer, M6 campaign runner, M8 live readout",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "M0 Protocol freeze, M1 task fixture generator, M2 pair ledger (other milestones from the ablation plan)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: M3 only; other milestones are separate stories",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Sample-size calculator (M5) from the ablation plan",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: M3 only; M5 is a separate milestone",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    },
+    {
+      "feature": "Memory pack content/ranking changes (buildMemoryFreshnessPack internals)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Memory pack content/ranking changes (buildMemoryFreshnessPack internals stay untouched)",
+      "source": "decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 32,
+    "covered": 24,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f0039f5cbe146f73ecbfa6121a5bb9465585445da22ad8cededdd13e97e88992",
+  "openQuestions": []
+}

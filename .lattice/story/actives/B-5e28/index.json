@@ -1,0 +1,113 @@
+{
+  "storyId": "B-5e28",
+  "name": "done-settlement-default-on-learning-proof",
+  "title": "Enable default-on DONE learning settlement with live proof",
+  "description": "Future DONE stories should automatically write non-authoritative learning settlement health rows without requiring PLAYBOOK_DONE_SETTLEMENT_ENABLED to be manually set. The fix must keep DONE success out of helped/promotion evidence, prove settlement is idempotent and opt-out-able, and use this story DONE as live proof before any historical backfill.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "source": "user-2026-07-03",
+  "keywords": [
+    "playbook",
+    "done-settlement",
+    "learning",
+    "default-on",
+    "live-proof"
+  ],
+  "createdAt": "2026-07-03T00:15:04.613Z",
+  "startedAt": "2026-07-03T00:15:04.613Z",
+  "endedAt": "2026-07-03T01:01:39.281Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T00:15:04.986Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:16:24.562Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:16:35.554Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:19:29.605Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:26:45.076Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:43:55.729Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:56:57.481Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-03T00:57:25.298Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:01:19.446Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:01:39.281Z",
+      "branch": "story/B-5e28",
+      "user": "Harmonygo",
+      "sessionId": "sess-9887ebe52886f8a5",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-03T00:57:25.298Z"
+}

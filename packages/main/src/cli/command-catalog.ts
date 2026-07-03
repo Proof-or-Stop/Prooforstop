@@ -116,6 +116,41 @@ const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evi
 const proofStoryGreenRelationSchema = z.enum(['same_acceptance', 'regression_to_green', 'replacement']);
 const parentRoadmapCaseSchema = z.enum(['full', 'partial', 'blocked', 'invalid', 'stale', 'migration', 'b-43de']);
 
+/**
+ * B-ab8d CHK-003: memory retrieval/consumption command FAMILIES, declared next
+ * to the command catalog so the classification lives beside the command
+ * registry itself — never a string-prefix guess inside the CLI engine.
+ *
+ * Families (experience-layer-ablation-causal-validation-execution-plan.md):
+ * story recall, dev-memory store reads AND writes (capture/finish included —
+ * store writes are forbidden during experiment runs), playbook lifecycle and
+ * consumption, learning-signal scan/validation/effectiveness, and the
+ * memory/playbook baseline benchmarks.
+ *
+ * The runtime gate does NOT consume these patterns: it keys off the
+ * per-command `memoryRetrieval: true` marker in COMMAND_POLICIES
+ * (core/command-policy.ts, same static-table pattern as `ownershipClass`).
+ * These declared families exist so the arm-switch smoke / catalog cross-check
+ * can mechanically assert the marker set stays exactly consistent with the
+ * families: every MAIN_TOOLS command matching a family carries the marker and
+ * no non-family command does.
+ */
+export const MEMORY_RETRIEVAL_COMMAND_FAMILIES: readonly RegExp[] = [
+  /^recall$/,
+  /^dev_memory_/,
+  /^playbook_/,
+  /^learning_scan$/,
+  /^learning_validate$/,
+  /^learning_effectiveness$/,
+  /^memory_playbook_baseline_/,
+] as const;
+
+/** Whether a registered command name belongs to a memory retrieval/consumption family. */
+export function matchesMemoryRetrievalFamily(commandName: string): boolean {
+  if (typeof commandName !== 'string' || commandName.length === 0) return false;
+  return MEMORY_RETRIEVAL_COMMAND_FAMILIES.some((family) => family.test(commandName));
+}
+
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -1937,12 +1972,12 @@ Behavior:
     json: z.boolean().optional().describe('Emit structured JSON.'),
   }},
   { name: 'playbook_seed_observe', description: 'Read-only deduped historical playbook seed view with observeDigest (non-authoritative)', schema: {
-    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    source: z.enum(['dev-memory', 'finding-signals', 'done-experience', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
     json: z.boolean().optional().describe('Emit structured JSON including observeDigest.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'playbook_seed_propose_batch', description: 'Dry-run default batch proposal staging from deduped seeds; --apply requires observeDigest and never creates candidates/active', schema: {
-    source: z.enum(['dev-memory', 'finding-signals', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
+    source: z.enum(['dev-memory', 'finding-signals', 'done-experience', 'raw-findings', 'all']).optional().describe('Optional seed source filter. Default all.'),
     dryRun: z.boolean().optional().describe('Preview staged proposals without writing. Default true unless apply=true.'),
     apply: z.boolean().optional().describe('Write proposal files only. Requires observeDigest; fails closed on observe drift.'),
     limit: z.coerce.number().int().optional().describe('Maximum seeds to stage (default 20, max 100).'),

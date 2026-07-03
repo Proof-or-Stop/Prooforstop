@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Only fix the real learning-consumption gap: DONE experience must become candidate material before activation can be evidence based.",
+    "Keep Proofbound host-neutral: seed/proposal/candidate logic lives in CLI core, not a Codex/Claude namespace.",
+    "Do not optimize arbitrarily; reuse existing lineage audit, observeDigest, proposal, and candidate approval boundaries.",
+    "Preserve evidence safety: DONE success alone is not helped, not gate evidence, and not runtime active guidance."
+  ],
+  "drivers": [
+    "Users need to see new DONE story experience enter the playbook pipeline without manual historical hunting.",
+    "Existing seed flow has digest guards and candidate inertness, so extending source lineage is safer than adding a parallel pipeline.",
+    "Story 2 needs candidates to exist before exposure/outcome/activation can be proven."
+  ],
+  "options": [
+    {
+      "name": "extend-source-lineage-with-done-experience",
+      "pros": [
+        "Reuses source_lineage_audit, playbook_seed_observe, proposal, and candidate approval commands.",
+        "Keeps dedup and canonical key checks in one place.",
+        "Maintains candidate-only boundary and no-helped safety."
+      ],
+      "cons": [
+        "Requires adding a new source kind and focused tests across several files.",
+        "DONE experience without findings needs a synthetic but stable sourceFindingId convention."
+      ]
+    },
+    {
+      "name": "write-candidates-directly-from-done-settlement",
+      "pros": [
+        "Would make candidate count increase immediately after DONE.",
+        "Requires fewer CLI steps for the first demonstration."
+      ],
+      "cons": [
+        "Bypasses observe/propose/approve digest review.",
+        "Risks treating DONE settlement as promotion evidence.",
+        "Creates a second path that is harder to dedup."
+      ]
+    },
+    {
+      "name": "wait-for-historical-backfill-story",
+      "pros": [
+        "Could process all old data in one broader pass.",
+        "Avoids changing current DONE seed semantics first."
+      ],
+      "cons": [
+        "Does not solve new DONE stories continuously feeding candidates.",
+        "Would mix historical ingestion risk with current-story learning closure.",
+        "Leaves Story 2 without fresh candidate proof."
+      ]
+    }
+  ],
+  "chosen": "extend-source-lineage-with-done-experience",
+  "rationale": "Extending source lineage is the smallest correctness fix that proves DONE experience enters candidate playbooks while preserving existing digest guards and inert candidate safety.",
+  "preMortem": [
+    {
+      "scenario": "DONE success is accidentally counted as helped.",
+      "trigger": "Implementation reuses done-settlement outcome rows as positive samples or writes helped during seeding.",
+      "consequence": "Unexposed candidates could become eligible for activation based on completion alone.",
+      "mitigation": "Add smoke assertions that DONE success alone creates no helped outcome and candidates remain inactive."
+    },
+    {
+      "scenario": "Repeated observation creates duplicate candidates.",
+      "trigger": "done_experience canonicalSourceKey is unstable or proposal approval ignores represented canonical sources.",
+      "consequence": "One DONE story appears as multiple independent lessons, corrupting promotion statistics.",
+      "mitigation": "Use stable story-backed lineage and test repeated observe/propose/approve dedup behavior."
+    },
+    {
+      "scenario": "Source filters or priority break existing historical seed behavior.",
+      "trigger": "Adding done_experience changes default priority ordering or unsupported-source validation unexpectedly.",
+      "consequence": "Existing dev_memory/finding_signal seed flows regress.",
+      "mitigation": "Keep source kind addition additive, preserve existing priorities, and run playbook seed promotion smoke."
+    },
+    {
+      "scenario": "Docs imply automatic activation was implemented in Story 1.",
+      "trigger": "Execution docs blur candidate generation with V2 activation.",
+      "consequence": "Operators expect playbooks to become active without exposure/outcome evidence.",
+      "mitigation": "Document exact candidate-only boundary and reserve activation for Story 2."
+    }
+  ],
+  "timestamp": "2026-07-03T01:41:15.064Z"
+}

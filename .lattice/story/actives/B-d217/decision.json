@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Pure offline scoring — replay without re-running hosts is the exit criterion",
+    "Deterministic composite outcomes only; no reviewer nondeterminism in the primary",
+    "Fail-closed on missing required inputs, degrade gracefully on optional ones with sources noted",
+    "Voiding over guessing: production store root voids the record rather than scoring it"
+  ],
+  "drivers": [
+    "M6 pilot needs scorer-agreement-on-replay as an exit criterion",
+    "M7 analysis consumes score-records.jsonl; schema stability matters",
+    "M1 reference-good/reference-bad payloads exist precisely to prove scorer label correctness"
+  ],
+  "options": [
+    {
+      "name": "standalone-pure-scorer",
+      "pros": [
+        "Replay-stable by construction",
+        "Re-scorable after scorer fixes without re-running hosts",
+        "Mirrors the proven adjudicate.mjs pattern"
+      ],
+      "cons": [
+        "Requires a documented run-record contract for M6 to produce"
+      ]
+    },
+    {
+      "name": "score-inside-campaign-runner",
+      "pros": [
+        "One fewer module"
+      ],
+      "cons": [
+        "Couples scoring to execution",
+        "Breaks replay-stability",
+        "Scorer bugs force re-running paid host campaigns"
+      ]
+    },
+    {
+      "name": "extend-fixture-selfcheck",
+      "pros": [
+        "Reuses existing file"
+      ],
+      "cons": [
+        "Mixes corpus validation with run scoring",
+        "M1 file churns on every scorer change"
+      ]
+    }
+  ],
+  "chosen": "standalone-pure-scorer",
+  "rationale": "Only the standalone pure scorer satisfies the M4 exit criterion (correct, deterministic, on replay) while letting M6/M7 re-score archived run dirs after any scorer fix without burning host tokens; the run-record contract cost is paid once in RUN-RECORD.md and is exactly what M6 needs as its output spec.",
+  "preMortem": [
+    {
+      "scenario": "The scorer silently reads state outside the fixture/run dirs (cwd, repo files, clock), so records differ across machines or reruns and the corpus digest is unstable",
+      "trigger": "Accidental ambient dependency (Date.now, process.cwd-relative path, production activity log)",
+      "consequence": "Replay determinism broken — M4 exit criterion fails and M7 analysis is unreproducible",
+      "mitigation": "Selfcheck case (c) scores every pair twice asserting byte-identical records + stable digest; purity convention documented; timestamps only from inputs"
+    },
+    {
+      "scenario": "The run-record contract drifts from what the M6 campaign runner actually writes, so real pilot runs cannot be scored",
+      "trigger": "RUN-RECORD.md written from assumption rather than being the binding spec M6 implements",
+      "consequence": "M6 pilot blocked or forced into ad-hoc adapters, undermining scorer agreement",
+      "mitigation": "RUN-RECORD.md is declared THE binding producer contract (M6 story must cite it); required-field validation fails with one-line errors so mismatches surface on first pilot run"
+    },
+    {
+      "scenario": "falseDoneAttempt semantics differ between the oracle (workspace evidence) and the run record (structured DONE rows), double-counting or missing defects",
+      "trigger": "Ambiguity about which source wins when both present",
+      "consequence": "Primary composite biased; per-class breakdowns wrong",
+      "mitigation": "Documented precedence: structured DONE rows + final_response_check when present, else oracle fallback, with details.sources recording which path fired; selfcheck covers both paths"
+    },
+    {
+      "scenario": "Score records accepted from runs that touched the production learning store, contaminating the paired analysis",
+      "trigger": "Missing or wrong storeRoot assertion",
+      "consequence": "Store-isolation breach invalidates the study (plan section 11.3 stopping rule)",
+      "mitigation": "Voiding is mandatory and tested: selfcheck case (d) asserts voided:true with a store-isolation reason when run.json storeRoot equals the production root"
+    }
+  ],
+  "timestamp": "2026-07-03T00:23:49.258Z"
+}

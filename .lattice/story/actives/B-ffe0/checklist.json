@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "resolveExperienceArm pure leaf + red/spike proving the pack must suppress on a control-arm experiment task",
+      "context": "Create packages/main/src/core/experience-arm.ts exporting resolveExperienceArm(env: NodeJS.ProcessEnv | Record<string,string|undefined>): { experimentId: string; arm: 'control' | 'treatment' } | null — pure (reads only the passed env, no fs/git/time/random; mirrors hint-mode.ts purity). Returns the pair when PROOFBOUND_EXPERIMENT_ARM is exactly 'control' or 'treatment' AND PROOFBOUND_EXPERIMENT_ID is a non-empty slug; returns null otherwise (absent, malformed, or unknown arm value) so normal non-experiment work is unaffected. RED evidence (repro-first, per B-8628): add a failing check to a new smoke packages/main/src/tasks/experience-arm-gate-smoke.ts asserting that with PROOFBOUND_EXPERIMENT_ARM=control the shared pack gate (to be built in CHK-002) returns an empty render — this fails before CHK-002 exists (the gap: the pack renders regardless of arm). Unit-cover resolveExperienceArm: control/treatment accepted; absent/empty/unknown('shadow','on','')/missing-id -> null; env object is not mutated. Verify node dist smoke runs and npm test green.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/experience-arm.ts",
+          "packages/main/src/tasks/experience-arm-gate-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-arm-gate-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Shared runtime-memory-pack gate (compute-always / render-on-treatment / suppress-on-control / log-on-both) routed through every pack render site",
+      "context": "Create the shared gate in packages/main/src/core/runtime-memory-arm-gate.ts: gateRuntimeMemoryPackRender(root, { consumer, pack, renderedLines, roundKey, env? }) -> string[] that (a) resolves the arm via resolveExperienceArm(env ?? process.env); (b) when null (normal work) returns renderedLines unchanged — byte-for-byte identical to today; (c) when arm='treatment' returns renderedLines AND, (d) when arm='control' returns [] (suppress); (e) in BOTH experiment arms, emits a runtime_memory_pack_surfaced activity event once per (experimentId, consumer, roundKey) — dedup via readActivityLogTail like experience-hint-surface.ts:96-101 — with {timestamp, event, experimentId, arm, consumer, packDigest (a stable sha256 of the would-have-surfaced pack top-hits), surfacedIds}; failures swallowed (try/catch, never throw, treat as pass-through render on error). Route ALL runtime-memory pack render sites through this gate: the session.ts renderMemoryRuntimePreflight helper (2 call sites) plus the direct render sites in handlers/lattice-handoff.ts, handlers/story-create.ts, handlers/transition-orchestrator.ts, handlers/done-closure.ts, handlers/done-prepare.ts, and the final_response_check path in handlers/playbook-runtime-memory.ts — the exact set enumerated by the consumer-wiring list at handlers/playbook-runtime-memory.ts:110-118. authority=non_authoritative/gateEvidence=false are untouched. Extend experience-arm-gate-smoke.ts: control -> [] + one event on both arms with matching packDigest and lossless surfacedIds; treatment -> full render + event; normal (no env) -> render byte-identical to a no-gate baseline and ZERO events; per-(experimentId,consumer,round) dedup. Update the playbook_runtime_health wiring oracle if the render-site signatures change so the drift check still passes. Verify npm test green.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "create": [
+          "packages/main/src/core/runtime-memory-arm-gate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-arm-gate-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Mechanical control-arm retrieval blocking in command-policy",
+      "context": "In packages/main/src/core/command-policy.ts, add a check keyed on resolveExperienceArm(process.env)?.arm === 'control' that refuses the memory-RETRIEVAL command set — recall, dev_memory_start, dev_memory_preflight, playbook_diff/playbook_activate-class read paths, learning_scan, learning_effectiveness, memory_playbook_baseline_generate/verify, and any other command whose effect is to surface stored memory/playbooks/lessons to the host — with a clear refusal message ('blocked on the experiment control arm: memory retrieval is disabled to keep the control-arm isolation mechanical, plan S9'). Non-experiment and treatment-arm sessions are unaffected (the check is a no-op unless arm==='control'). Do NOT block memory-WRITE/audit commands that do not surface memory to the host (e.g. dev_memory_capture, playbook_outcome_record) unless they also read-and-surface. Extend the smoke: a control-arm env blocks a representative retrieval command (recall) and permits it on treatment/normal; the blocked set is enumerated and asserted. Verify node scripts/verify-process-fact-contract.mjs still passes (if the command set is process-fact-registered) and npm test green.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/experience-arm-gate-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure score-record builder assembling ExperienceAblationScore v1 from on-disk arm-run artifacts",
+      "context": "Create experiments/experience-ablation/score.mjs exporting scoreArmRun({fixtureDir, runDir}) -> score record per plan section 10 schema. Inputs read ONLY from disk: fixture task.json (fixtureId->pairId/taskId, trapClass, trapGroup, expectedMemoryIds if present), oracle classify(workspaceDir) via the fixture oracleRef against the RUN workspace copy, run record JSON (arm, hostId, experimentId, storeRoot, timings, commandCount, doneReached, validationPass, doneReadinessRows, finalResponseCheckRecords) and the run activity log (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds, retrieval_violation count). defectPresent = deterministic composite per section 6.1 (validationPass false OR falseDoneAttempt OR oracleMismatch OR laneProvenanceViolation). repeatDefectPresent per section 6.2 (defect whose trapGroup is in_store with an expected lesson). storeRoot assertion: resolved root equal to the shared production learning root -> the record is marked voided with reason (section 12). Pure function: no network, no clock (timestamps come from inputs), no mutation; a CLI wrapper (node score.mjs --fixture=<dir> --run=<dir> [--out=<file>]) prints or writes the record with stable key order.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> prints one JSON object whose first line contains \"schemaVersion\": \"proofbound.experience-ablation-score.v1\" and includes arm, pairId, trapGroup, defectPresent, retrievalViolationCount, storeRoot; running it twice produces byte-identical output (diff empty)",
+      "status": "done",
+      "startTime": "2026-07-03T00:38:05.281Z",
+      "endTime": "2026-07-03T00:41:25.525Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "score.mjs against a generated fixture + synthesized run dir prints one JSON record with schemaVersion proofbound.experience-ablation-score.v1 and all section-10 fields; two invocations byte-identical",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional artifacts absent (no done-readiness.json / final-response-check.json) degrades to oracle-only falseDoneAttempt detection and details.sources records the absence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scorer purity: no reads outside fixtureDir/runDir (chdir-independence transcript), timestamps only from inputs, stable key order",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/score.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node experiments/experience-ablation/score.mjs --fixture=corpus/fx-bd7417c9-0 --run=run-a (x2) + diff",
+          "result": "pass",
+          "note": "Generated corpus (seed chk001-verify), synthesized control-arm run dir (stale-doc reference-bad payload, 2 retrieval_violation + 1 experience_pack_surfaced events). Output: one JSON record, schemaVersion proofbound.experience-ablation-score.v1, all section-10 fields in SCORE_KEY_ORDER (experimentId..evidenceRefs); diff of two invocations empty (byte-identical); oracleMismatch=true, defectPresent=true, retrievalViolationCount=2, memoryPackShown=false, surfacedMemoryIds=[mem-001,mem-002], timeToDoneMs=270000 from startedAt/endedAt inputs.",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node score.mjs --fixture=corpus/<false-done-fx> --run=run-fd (without/with done-readiness.json + final-response-check.json)",
+          "result": "pass",
+          "note": "Run dir with NO done-readiness.json/final-response-check.json: falseDoneAttempt=true via oracle fallback, details.sources.falseDoneAttempt=oracle-fallback, sources.doneReadiness=absent. With done-readiness.json all-ready: structured precedence overrides oracle (falseDoneAttempt=false, source=structured-none-fired, evidenceRefs gains run:done-readiness.json). With not-ready row + failing final-response-check record: falseDoneAttempt=true, source=done-readiness+final-response-check.",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "cd / && node score.mjs --fixture=<abs> --run=<abs>; cd /tmp && node score.mjs ... ; cmp outputs; grep -n \"Date.now|new Date\" score.mjs",
+          "result": "pass",
+          "note": "Identical output from cwd=/ and cwd=/tmp with absolute args (CHDIR-INDEPENDENT). grep for Date.now/new Date in score.mjs: zero hits — timeToDoneMs derived only from run.json timeToDoneMs or startedAt/endedAt inputs. Stable key order enforced by SCORE_KEY_ORDER in renderScoreRecord (rejects unknown keys); --out file byte-identical to stdout. storeRoot must be absolute (cwd-resolution rejected at validation).",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run-record input contract documented and validated with actionable errors",
+      "context": "The scorer needs a stable arm-run directory layout for M6 to produce. Document it in a module header + RUN-RECORD.md (experiments/experience-ablation/): run.json required fields (experimentId, arm control|treatment, hostId, storeRoot, startedAt/endedAt or timeToDoneMs, commandCount, doneReached, validationPass), activity.jsonl (the run-scoped event log slice), workspace/ (post-run fixture workspace the oracle classifies), plus optional done-readiness.json and final-response-check.json. score.mjs validates presence/types at runtime and fails with one-line actionable errors naming the missing field/file (Handler convention: runtime checks, not types alone). Missing OPTIONAL artifacts degrade gracefully (falseDoneAttempt falls back to oracle-only detection) and the record notes which sources were absent in details.sources.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "Running score.mjs against a run dir missing run.json exits nonzero with exactly one line: score: missing required run record file: <path>/run.json; a run dir with storeRoot pointing at the production learning root yields a record with \"voided\": true and a reason string naming store isolation",
+      "status": "done",
+      "startTime": "2026-07-03T00:41:33.876Z",
+      "endTime": "2026-07-03T00:43:12.767Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "RUN-RECORD.md documents every required and optional run-dir artifact and field consumed by score.mjs; doc matches code (grep cross-check)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing run.json exits nonzero with exactly one actionable line naming the path; missing optional file does not error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "run.json storeRoot equal to the production learning root yields voided:true with a store-isolation reason; malformed arm value rejected naming control|treatment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "experiments/experience-ablation/score.mjs"
+        ],
+        "create": [
+          "experiments/experience-ablation/RUN-RECORD.md"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/experience-ablation/RUN-RECORD.md",
+          "command": "for f in experimentId arm hostId storeRoot timeToDoneMs startedAt endedAt commandCount doneReached validationPass experience_pack_surfaced retrieval_violation topHitIds done-readiness.json final-response-check.json rows records ready verdict activity.jsonl workspace productionLearningRoot; do grep -c $f score.mjs; done",
+          "result": "pass",
+          "note": "RUN-RECORD.md documents the full run-dir layout (run.json required fields incl. timings alternative, activity.jsonl slice with both M3 event mappings, workspace/, optional done-readiness.json + final-response-check.json, degradation semantics, voiding, error catalog) and states it is the BINDING producer contract for the M6 campaign runner. Grep cross-check: every documented field/artifact has >=2 hits in score.mjs reads; reverse check: all runtime-validated run.json fields (arm, commandCount, storeRoot, timeToDoneMs) are documented.",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node score.mjs --fixture=<fx> --run=run-empty; node score.mjs --fixture=<fx> --run=run-fd (optional files absent)",
+          "result": "pass",
+          "note": "Empty run dir: exit=1, stderr exactly one line: score: missing required run record file: <path>/run.json. Missing activity.jsonl similarly one-line + exit 1. Missing OPTIONAL done-readiness.json/final-response-check.json does NOT error: record emitted with details.sources oracle-fallback (CHK-001 edge transcript).",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "run.json storeRoot=<repoRoot>/.lattice/learning -> score; run.json arm=CONTROL -> score",
+          "result": "pass",
+          "note": "storeRoot set to the default production learning root (<repoRoot>/.lattice/learning derived from score.mjs location): record voided=true, voidReason names store isolation breach (plan section 12) with both paths. Malformed arm CONTROL: exit=1, exactly one line: score: run.json field \"arm\" must be \"control\" or \"treatment\" (got \"CONTROL\").",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Scorer selfcheck: known positive/negative fixtures score correctly, deterministically, on replay",
+      "context": "Create experiments/experience-ablation/score-selfcheck.mjs (hermetic, temp dirs, no repo mutation): (a) generate a corpus with fixture-generator.mjs into a temp root; (b) for every fixture, synthesize a control-arm run dir from the reference-bad payload and a treatment-arm run dir from reference-good (copy into workspace/, plus a minimal valid run.json + activity.jsonl with experience_pack_surfaced/retrieval_violation events matching the arm) and assert: known-bad scores defectPresent true with the class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise), known-good scores defectPresent false, clean fixtures never fire falseDoneAttempt on good payloads; (c) replay determinism — scoring every pair twice yields byte-identical records and a stable corpus digest (sha256 over concatenated records) printed once; (d) voiding — a run.json with the production store root produces voided:true; (e) event mapping — control run with N retrieval_violation events yields retrievalViolationCount N and memoryPackShown false, treatment yields memoryPackShown true with surfacedMemoryIds from the event. Exits nonzero on any failure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/score-selfcheck.mjs prints per-case PASS lines ending score-selfcheck: all cases passed (corpus digest <sha256>) with exit code 0, and a second invocation prints the identical digest",
+      "status": "done",
+      "startTime": "2026-07-03T00:43:21.541Z",
+      "endTime": "2026-07-03T00:46:09.167Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selfcheck: every fixture known-bad payload scores defectPresent true with the class-appropriate flag; known-good scores false; clean never fires falseDoneAttempt on good payloads",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay determinism: scoring the whole corpus twice yields byte-identical records and the same printed corpus digest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Event mapping: control run with N retrieval_violation events yields retrievalViolationCount=N and memoryPackShown=false; treatment yields memoryPackShown=true with surfacedMemoryIds from the event; voiding case covered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "excludes": [
+        "experiments/experience-ablation/fixture-generator.mjs — pre-existing M1 (B-337f DONE) artifact consumed READ-ONLY to generate the selfcheck corpus; never modified by this story (also in scope-contract explicitExcludes)"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs",
+          "result": "pass",
+          "note": "All 14 PASS lines, exit 0. Case (a): all nine classes reference-bad -> defectPresent=true with class-appropriate flag (falseDoneAttempt for false-done via oracle fallback, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise); all reference-good -> defectPresent=false. Case (b): clean fixtures never fire falseDoneAttempt on good payloads. taskId/pairId/trapGroup identity fields checked per fixture.",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs (three invocations, tail -1 compared)",
+          "result": "pass",
+          "note": "Full-corpus double scoring byte-identical (18 records, manifest order x control/treatment). Final line score-selfcheck: all cases passed (corpus digest 634f398bf468976065a6688832260330647c0324c1ab0307af2827b0c1ebdba7) identical across three separate invocations; digest corpus asserted to contain no temp-root bytes (fixed synthetic storeRoots + fixed input timestamps).",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs; git status --porcelain",
+          "result": "pass",
+          "note": "Case (e): control run with N=3 retrieval_violation events -> retrievalViolationCount=3, memoryPackShown=false; treatment -> memoryPackShown=true, surfacedMemoryIds from experience_pack_surfaced topHitIds; foreign-experiment events ignored. Case (d): production storeRoot (exact, contained subpath, and exported default derivation) -> voided:true with store-isolation reason; isolated root -> voided:false. Hermetic: mkdtemp roots cleaned in finally, git status shows no repo mutation. CHK-002 error paths pinned in-selfcheck (one-line errors, exit 1). S6.2 repeatDefectPresent covered via expectedMemoryIds-augmented temp fixture copy.",
+          "headHash": "2ee5f3e2802999d8cc4503395aa9f8447830a261",
+          "materialHash": "f3a30e3fd4755901de6ce55564b635e564cce35ee4a3f98c0efc33dce09dcae7",
+          "storyFilesHash": "1488158db5385df3e1180a3e331bea14323834fe94a5c8a52927ae3ae0004bb1",
+          "timestamp": "2026-07-03T01:06:48.784Z"
+        }
+      ]
+    }
+  ]
+}
