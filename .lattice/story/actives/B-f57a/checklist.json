@@ -453,6 +453,19 @@
           "materialHash": "870dae6fb5b3c80920d188bfbab804a741b56ece37b5581b3b76c1b1c3f4b0e1",
           "storyFilesHash": "cb071e56144f8586e411158ffd02c1e5e492d9b287207312e223382ccef906b2",
           "timestamp": "2026-07-03T09:34:48.586Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check CHK-002:adversarial:2: identical hostA/hostB identity is rejected before Codex spawn, and no verdict is recorded, preserving independent cross-host proof semantics.",
+          "headHash": "6a3dc41910ec7d5668c1482371dedef4426bb29a",
+          "materialHash": "44e551167887562ccedff209ad2a7030391548fa3842cab2336e9f4e300c0e46",
+          "storyFilesHash": "6669e40d41d54f0b5cf372afc846cc0d2e51a7b367b9ee65ed193dd6a77158b7",
+          "timestamp": "2026-07-03T09:48:28.872Z"
         }
       ]
     }
