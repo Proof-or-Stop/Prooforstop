@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure score-record builder assembling ExperienceAblationScore v1 from on-disk arm-run artifacts",
+      "context": "Create experiments/experience-ablation/score.mjs exporting scoreArmRun({fixtureDir, runDir}) -> score record per plan section 10 schema. Inputs read ONLY from disk: fixture task.json (fixtureId->pairId/taskId, trapClass, trapGroup, expectedMemoryIds if present), oracle classify(workspaceDir) via the fixture oracleRef against the RUN workspace copy, run record JSON (arm, hostId, experimentId, storeRoot, timings, commandCount, doneReached, validationPass, doneReadinessRows, finalResponseCheckRecords) and the run activity log (experience_pack_surfaced -> memoryPackShown/surfacedMemoryIds, retrieval_violation count). defectPresent = deterministic composite per section 6.1 (validationPass false OR falseDoneAttempt OR oracleMismatch OR laneProvenanceViolation). repeatDefectPresent per section 6.2 (defect whose trapGroup is in_store with an expected lesson). storeRoot assertion: resolved root equal to the shared production learning root -> the record is marked voided with reason (section 12). Pure function: no network, no clock (timestamps come from inputs), no mutation; a CLI wrapper (node score.mjs --fixture=<dir> --run=<dir> [--out=<file>]) prints or writes the record with stable key order.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/score.mjs --fixture=<fixtureDir> --run=<runDir> prints one JSON object whose first line contains \"schemaVersion\": \"proofbound.experience-ablation-score.v1\" and includes arm, pairId, trapGroup, defectPresent, retrievalViolationCount, storeRoot; running it twice produces byte-identical output (diff empty)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run-record input contract documented and validated with actionable errors",
+      "context": "The scorer needs a stable arm-run directory layout for M6 to produce. Document it in a module header + RUN-RECORD.md (experiments/experience-ablation/): run.json required fields (experimentId, arm control|treatment, hostId, storeRoot, startedAt/endedAt or timeToDoneMs, commandCount, doneReached, validationPass), activity.jsonl (the run-scoped event log slice), workspace/ (post-run fixture workspace the oracle classifies), plus optional done-readiness.json and final-response-check.json. score.mjs validates presence/types at runtime and fails with one-line actionable errors naming the missing field/file (Handler convention: runtime checks, not types alone). Missing OPTIONAL artifacts degrade gracefully (falseDoneAttempt falls back to oracle-only detection) and the record notes which sources were absent in details.sources.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "Running score.mjs against a run dir missing run.json exits nonzero with exactly one line: score: missing required run record file: <path>/run.json; a run dir with storeRoot pointing at the production learning root yields a record with \"voided\": true and a reason string naming store isolation",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Scorer selfcheck: known positive/negative fixtures score correctly, deterministically, on replay",
+      "context": "Create experiments/experience-ablation/score-selfcheck.mjs (hermetic, temp dirs, no repo mutation): (a) generate a corpus with fixture-generator.mjs into a temp root; (b) for every fixture, synthesize a control-arm run dir from the reference-bad payload and a treatment-arm run dir from reference-good (copy into workspace/, plus a minimal valid run.json + activity.jsonl with experience_pack_surfaced/retrieval_violation events matching the arm) and assert: known-bad scores defectPresent true with the class-appropriate flag (falseDoneAttempt for false-done, laneProvenanceViolation for reviewer-lane, oracleMismatch otherwise), known-good scores defectPresent false, clean fixtures never fire falseDoneAttempt on good payloads; (c) replay determinism — scoring every pair twice yields byte-identical records and a stable corpus digest (sha256 over concatenated records) printed once; (d) voiding — a run.json with the production store root produces voided:true; (e) event mapping — control run with N retrieval_violation events yields retrievalViolationCount N and memoryPackShown false, treatment yields memoryPackShown true with surfacedMemoryIds from the event. Exits nonzero on any failure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "node experiments/experience-ablation/score-selfcheck.mjs prints per-case PASS lines ending score-selfcheck: all cases passed (corpus digest <sha256>) with exit code 0, and a second invocation prints the identical digest",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

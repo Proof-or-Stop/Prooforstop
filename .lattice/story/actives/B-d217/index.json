@@ -1,0 +1,29 @@
+{
+  "storyId": "B-d217",
+  "name": "experience-ablation-m4-deterministic-scorer",
+  "title": "Experience-ablation M4: deterministic per-arm-run scoring oracle emitting ExperienceAblationScore records",
+  "description": "Milestone M4 of docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md. Build the deterministic scoring layer that turns one arm-run of one fixture into a structured ExperienceAblationScore record (schemaVersion proofbound.experience-ablation-score.v1, plan section 10): consumes the fixture task.json labels (trapClass, trapGroup in_store|held_out|clean from the M1 generator), the hidden oracle classify(workspaceDir) output ({defectPresent, oracleMismatch, falseDoneAttempt, laneProvenanceViolation, details} from trap-templates.mjs), the arm-run activity log events defined by M3 (experience_pack_surfaced supplies memoryPackShown/surfacedMemoryIds/packDigest; retrieval_violation supplies retrievalViolationCount), a storeRoot assertion (a run whose resolved learning root is the shared production store is voided per plan section 12), and run metadata (hostId, timeToDoneMs, commandCount, doneReached, validationPass). No live LLM reviewer input in the seeded-phase primary. Scoring must be pure and replay-stable: the same input artifacts produce a byte-identical score record, and a corpus of known-good/known-bad reference payloads (emitted by the M1 generator per fixture) must score correctly on every replay. Exit criteria (plan section 13 M4 row): known positive/negative fixtures score correctly, deterministically, on replay.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-03T00:19:59.241Z",
+  "startedAt": "2026-07-03T00:19:59.241Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T00:19:59.720Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "06b25297-8998-43e0-a113-974fbdc53a3f",
+      "agent": "main"
+    }
+  ]
+}
