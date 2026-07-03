@@ -25,7 +25,7 @@
       "desc": "quality-cleanup: score-selfcheck.mjs:196 tmpdir()-based digest-stability check may produce a false-pass on macOS — os.tmpdir() can return /var/folders/... while mkdtempSync resolves to a /private/var/folders/... path (symlink target); the string-inclusion check for tmpdir() would miss a leaked resolved path. The corpus variable check on the same line is more reliable. Fix: also check the resolved (realpath) form of tmpdir(), or use only the corpus variable check which is already the actual temp root used",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T00:50:29.105Z",
@@ -36,7 +36,9 @@
         "experiments/experience-ablation/score-selfcheck.mjs"
       ],
       "signatureTag": "edge|mjs|quality-cleanup-score",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Digest temp-root leak check in score-selfcheck.mjs now scans for both the raw and fs.realpathSync-resolved forms of tmpdir() and the corpus root (commit 2ee5f3e2802999d8cc4503395aa9f8447830a261), closing the macOS /var/folders vs /private/var/folders symlink false-pass; digest 634f398b... stable across two consecutive runs.",
+      "resolvedAt": "2026-07-03T01:12:28.471Z"
     },
     {
       "id": "B-d217:F-003",
