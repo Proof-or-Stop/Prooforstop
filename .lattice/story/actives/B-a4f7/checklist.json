@@ -311,8 +311,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-03T10:43:09.430Z",
       "endTime": null
     }
   ],
@@ -370,6 +370,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Candidate safety boundary implemented and smoke verified."
+    },
+    {
+      "timestamp": "2026-07-03T10:43:09.430Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Binding docs/status verification evidence."
     }
   ]
 }
