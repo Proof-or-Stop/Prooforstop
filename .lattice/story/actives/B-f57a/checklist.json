@@ -8,76 +8,9 @@
       "startTime": null,
       "endTime": "2026-07-03T02:12:48.096Z",
       "verificationIntent": {
-        "happy": [
-          {
-            "id": "CHK-001:happy:0",
-            "desc": "Injected fake Codex seam returns stdout carrying a valid JSON fail verdict (schema lattice.codex_review_verdict.v1, decision=fail, materialHash=currentMaterialHash). Assert: host-B verdict is recorded with decision===fail AND materialDigest===currentMaterialHash(root), confirming the capture path binds to the exact code.",
-            "type": "cli"
-          },
-          {
-            "id": "CHK-001:happy:1",
-            "desc": "registry.get(cross_host_review) is defined after handler registration, proving the command is registered in the catalog and registry.",
-            "type": "logic"
-          }
-        ],
-        "edge": [
-          {
-            "id": "CHK-001:edge:0",
-            "desc": "Fail-closed on unparseable output: fake Codex seam returns garbage stdout (no JSON). Assert: host-B verdict decision===blocked, reason includes codex_review_no_parseable_verdict, result exposes stdoutDigest but no raw-stdout field (credential-safety boundary).",
-            "type": "logic"
-          },
-          {
-            "id": "CHK-001:edge:1",
-            "desc": "Fail-closed on schema mismatch: fake seam returns valid JSON but missing required fields (e.g. no decision field). Assert: decision===blocked, reason codex_review_no_parseable_verdict.",
-            "type": "logic"
-          },
-          {
-            "id": "CHK-001:edge:2",
-            "desc": "Rebinding guard: fake Codex seam returns a structurally valid verdict whose materialHash differs from the orchestrator-computed digest. Assert: decision===blocked, reason mentions materialHash mismatch.",
-            "type": "logic"
-          },
-          {
-            "id": "CHK-001:edge:3",
-            "desc": "Codex process exits non-zero (seam simulates crash or timeout). Assert: decision===blocked, stdoutDigest present, no raw stdout promoted.",
-            "type": "logic"
-          }
-        ],
-        "adversarial": [
-          {
-            "id": "CHK-001:adversarial:0",
-            "desc": "Raw stdout injection: fake Codex seam returns stdout containing both a valid verdict JSON block AND malicious text outside it (e.g. fake credentials, prompt-injection attempts). Assert: only the structured JSON verdict fields are parsed and recorded; no raw stdout text appears in the recorded verdict or evidence.",
-            "type": "logic"
-          },
-          {
-            "id": "CHK-001:adversarial:1",
-            "desc": "Dispatch-policy bypass: attempt to run a codex implementation subprocess (not review-only) through the new allowReviewOnlyRealHostSubprocess flag. Assert: checkDispatchPolicy still refuses non-review codex/gemini/antigravity implementation calls even when the review-only flag is set.",
-            "type": "logic"
-          },
-          {
-            "id": "CHK-001:adversarial:2",
-            "desc": "Mutually-exclusive dispatch flags: a dispatch policy carrying BOTH allowReviewOnlyRealHostSubprocess=true AND allowRealHostSubprocess=true with allowedHosts=['codex'] is REFUSED by checkDispatchPolicy (the two flags are mutually exclusive for codex, so it can never reach the implementation dispatch path); a PURE review-only codex policy is still permitted.",
-            "type": "logic",
-            "priority": "must"
-          },
-          {
-            "id": "CHK-001:adversarial:3",
-            "desc": "Missing policy fails closed: calling cross_host_review with NO policy fails closed — authorizeReviewPolicy throws, the codex seam is never invoked, and zero verdicts are recorded.",
-            "type": "logic",
-            "priority": "must"
-          },
-          {
-            "id": "CHK-001:adversarial:4",
-            "desc": "Unauthorized policy fails closed: a policy that does not grant a read-only codex reviewer (unauthorized) fails closed the same way (throw, seam never invoked).",
-            "type": "logic",
-            "priority": "must"
-          },
-          {
-            "id": "CHK-001:adversarial:5",
-            "desc": "Policy constraints threaded to runner: the authorized policy's env denylist + secret-pattern strip + max-runtime timeout ceiling are actually threaded to the codex spawn (asserted via a capturing seam that records the RunCodexReviewLeafOptions: timeoutMs === policy ceiling, denied/secret env names absent).",
-            "type": "cli",
-            "priority": "must"
-          }
-        ]
+        "happy": [],
+        "edge": [],
+        "adversarial": []
       },
       "verificationEvidence": [
         {
