@@ -87,7 +87,7 @@
       "desc": "CHK-005 has no authored verificationIntent rows (happy/edge/adversarial) — the CLI reports these as legacy evidence without intent and explicitly states this is NOT a coverage pass. CHK-005 was added during DEV after intent freeze, so evidence was recorded with intentRefs CHK-005:happy:0/edge:0/adversarial:0 but no corresponding intent schema entries exist. The framework gate will not count these as coverage. lattice verification_intent_repair should be run to backfill the intent rows from the evidence, then the gate will recognize coverage. Substantively, the selfcheck covers all three behavioral dimensions: happy (snapshot materialized+hash verified, treatment/control prompt differentiation, case 6-8), edge (real CLI isolation probes, case CHK-005:edge evidence), adversarial (tamper abort before execution + post-run mutation abort + disjointness assertion, cases 9a/9b/10); 39/39 PASS verified live.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T04:39:55.645Z",
@@ -99,7 +99,9 @@
         "experiments/experience-ablation/snapshot-builder.mjs"
       ],
       "signatureTag": "missing|mjs|authored-verificationintent-rows",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ran lattice verification_intent_repair mode=fromEvidence legacyRepair=true (dry-run inspected first) which reconstructed the 3 missing CHK-005 intent lanes from the passing evidence: CHK-005:happy:0 (logic), CHK-005:edge:0 (manual), CHK-005:adversarial:0 (logic), priority=should, metadata commit a513162. lattice validate --story=B-beeb --json now counts all three as covered: coverage 15/15, 0 required missing.",
+      "resolvedAt": "2026-07-03T04:49:05.478Z"
     }
   ]
 }
