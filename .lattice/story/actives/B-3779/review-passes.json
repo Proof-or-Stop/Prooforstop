@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-03T04:09:39.690Z",
       "reviewRunId": "B-3779:RR-011",
       "_hash": "7600534c453132d547c7cfd2213796ceef747b96ce1c45599c343269df9a69e8"
+    },
+    {
+      "id": "B-3779:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS. F-001 remains fixed: the Quantum plan says local diagnostic M0-M5 are implemented and M4/M5 are implemented local benchmark/report slices, not future-only. The plan and runtime now align on the domain B1-B15 corpus: Hamiltonian, potential, boundary condition, basis/grid, timestep, normalization, residual, invariant, units/reference mismatch, baseline grid/basis, checkpoint config, verifier threshold, stale figure, random seed, and edited table/plot. quantum_claim_benchmark --json reports diagnosticOnly=true, gateEvidence=false, 15 failure injections; quantum_claim_report --json keeps production/Authority/hardware/theory/solver-improvement claims false and states generic framework/lifecycle integration remains future/out of scope. No docs blocker found.",
+      "createdAt": "2026-07-03T04:12:19.176Z",
+      "reviewRound": "2026-07-03T04:09:39.690Z",
+      "reviewRunId": "B-3779:RR-012",
+      "_hash": "0dc03597e9c932587f576d6e8d4c665aa0526fcdc6aeecea0d8beef5a7b1f897"
     }
   ]
 }
