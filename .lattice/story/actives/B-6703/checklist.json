@@ -233,9 +233,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T03:16:16.563Z",
-      "endTime": null
+      "endTime": "2026-07-03T03:16:16.992Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"playbook_auto_promotion_apply --apply|runtime consumption\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs include the evidence activation command and runtime consumption verification boundary.",
+          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:17.142Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"historical seed backfill|timer\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs distinguish this apply path from historical backfill, timer-driven promotion, trial serving, and broad rollout mechanics.",
+          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:17.304Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"DONE success alone|gate evidence\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Docs explicitly forbid DONE success alone as helped evidence and state activation remains non-authoritative non-gate evidence.",
+          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:17.469Z"
+        },
+        {
+          "intentRef": "CHK-003:smoke",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Runtime behavior matches documented boundary: advisory activation only after explicit exposure/outcome evidence.",
+          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:17.618Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -277,6 +323,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting documentation boundary synchronization.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:16.992Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs updated by commit 7d4ce26bd and verified with rg plus build/smoke.",
       "agent": "lattice-implementer"
     }
   ]
