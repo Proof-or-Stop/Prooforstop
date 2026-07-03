@@ -57,10 +57,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts complete bound Q5 evidence maps to Quantum M3 gate-policy decision advance with local claim-admissibility only.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,10 +69,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts weak scoped Q5 evidence maps to decision degrade and degradedClaimAvailable=true instead of a false hard pass.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -81,10 +81,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Smoke asserts stale, missing, mismatched, unbound, production, Authority, hardware, theory, physical-validation, and solver-improvement overclaims never advance.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     },
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
           "result": "pass",
           "note": "CLI complete JSON output includes decision=advance, boundary.productionClaim=false, boundary.authorityClaim=false, writesLifecycleEvidence=false, and mutatesLifecycle=false.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -164,10 +164,10 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=degraded --json",
           "result": "pass",
           "note": "CLI degraded JSON output includes decision=degrade and keeps lifecycle mutation/evidence writing disabled.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -176,10 +176,10 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json",
           "result": "pass",
           "note": "CLI overclaim JSON output includes decision=stop with boundary.productionClaim=false and boundary.authorityClaim=false.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     },
@@ -239,10 +239,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Focused smoke prints Quantum M3 gate-policy PASS lines for the complete case and handler path.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -251,10 +251,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Focused smoke covers weak/degraded, stale, missing, mismatched, and unbound evidence categories.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -263,10 +263,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Focused smoke asserts no M4/M5, external readiness, production/Authority boundary claim, hardware, theory, or solver-improvement claim is emitted by M3 command behavior.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     },
@@ -327,10 +327,10 @@
           "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
           "result": "pass",
           "note": "Quantum execution plan states runtime status M0-M3 implemented and M4-M5 pending, using current boundary.productionClaim/boundary.authorityClaim wording.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -339,10 +339,10 @@
           "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
           "result": "pass",
           "note": "Docs distinguish Quantum-specific local read-only M3 gate-policy diagnostics from generic framework M4 gate-policy adapter completion and global Story machine mutation.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -351,10 +351,10 @@
           "command": "rg -n \"M0-M3 implemented; M4-M5 pending|quantum_claim_check|boundary.productionClaim=false|boundary.authorityClaim=false|M4: Gate Policy Adapter\" docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
           "result": "pass",
           "note": "Docs retain no quantum theory, hardware, production/Authority boundary, benchmark, or report/governance completion claim.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     },
@@ -426,10 +426,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passes with Quantum M3 pure helper, handler, registry, command policy, and config wiring committed.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -438,10 +438,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Committed implementation keeps weak/scoped evidence in degrade guidance and does not convert it into advance.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -450,10 +450,10 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:command-catalog-smoke",
           "result": "pass",
           "note": "Command ownership and catalog smoke prove quantum_claim_check is dispatchable/read-only and does not add lifecycle mutation or benchmark/report command scope.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     },
@@ -515,10 +515,10 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
           "result": "pass",
           "note": "CLI complete JSON path was rerun and returned decision=advance with boundary.productionClaim=false and boundary.authorityClaim=false.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -527,10 +527,10 @@
           "command": "npm --prefix packages/main run test:quantum-claim-admissibility",
           "result": "pass",
           "note": "Smoke rerun covers weak/degraded and missing/stale evidence categories with deterministic PASS output.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -539,10 +539,10 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json",
           "result": "pass",
           "note": "CLI overclaim path was rerun and stopped instead of advancing, while keeping boundary.productionClaim=false and boundary.authorityClaim=false.",
-          "headHash": "78ab2e4fd761179eaa437b162652e87b1a021661",
-          "materialHash": "e0569462d039a12d9305c2076023f8a273931400bf957e35c7d062cbb1643d2f",
-          "storyFilesHash": "96a6f7cd893aa82048b2a94159d9b62a2dc97c574f1f91a97579f0fad469560b",
-          "timestamp": "2026-07-03T01:55:37.108Z"
+          "headHash": "45dad855cdd4fa22d88b19d0c154a77f035b9da5",
+          "materialHash": "1cde56ec8aec9c93e45ab8666b11c058b188abdca682fe1a2137b42e220d65a6",
+          "storyFilesHash": "901e31d3ca14882106d85841d755401d561351a912f4eae846027e05622a6fdb",
+          "timestamp": "2026-07-03T02:10:04.851Z"
         }
       ]
     }
