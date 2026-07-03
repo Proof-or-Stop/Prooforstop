@@ -167,9 +167,50 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T01:54:19.758Z",
-      "endTime": null
+      "endTime": "2026-07-03T01:54:51.731Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke stages a done_experience proposal with observeDigest and approves it with manifestDigest; candidatePlaybookIds is populated for the DONE-experience seed.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:51.931Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Existing M3 observeDigest drift smoke remained green, proving apply still fails closed when the observe set drifts.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:52.117Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "B-c28f smoke asserts the approved playbook status is candidate and runtime verification continues to keep candidates inert.",
+          "headHash": "211e3131bf99c01e7ea7afb7e081a72927a9611c",
+          "materialHash": "13651ad6d8db288852c0a2393c4e682d759878cf1fbceb4622c7e02a62bef4d7",
+          "storyFilesHash": "48538c43774832a20c70c4568ceb2ec3b2f159d7e70c9c45d7ea38fdbc6c6788",
+          "timestamp": "2026-07-03T01:54:52.295Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
