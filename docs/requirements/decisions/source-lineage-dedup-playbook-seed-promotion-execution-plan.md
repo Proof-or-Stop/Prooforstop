@@ -385,18 +385,19 @@ It must prove:
 
 ## 10. DONE Settlement Rollout
 
-`PLAYBOOK_DONE_SETTLEMENT_ENABLED` should not be enabled by default until it has
-clear product value.
+`PLAYBOOK_DONE_SETTLEMENT_ENABLED` is default-on for learning health settlement
+after B-5e28. Operators can explicitly opt out with `false`, `0`, `no`, or
+`off`.
 
 Current safe but limited behavior:
 
 ```text
 DONE durable
-  -> optional non-blocking health row
+  -> default-on non-blocking health row
   -> no helped outcome inferred from DONE success
 ```
 
-Rollout criteria before default-on:
+Rollout criteria before historical backfill or stronger automation:
 
 1. `playbook_promotion_status` clearly displays settlement health and retention.
 2. Settlement rows are compacted or bounded.
@@ -406,7 +407,9 @@ Rollout criteria before default-on:
    not the only learning output.
 5. Documentation states that settlement does not prove usefulness.
 
-Until then, the flag may be used in experimental local runs only.
+Until those criteria are satisfied, default-on settlement remains limited to a
+learning health row. It must not trigger historical backfill, candidate
+approval, active playbook activation, or stronger automation by itself.
 
 ## 11. Milestones
 

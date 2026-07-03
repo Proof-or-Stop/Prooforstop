@@ -1,0 +1,61 @@
+{
+  "storyId": "B-5e28",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate required original intent, collision, red evidence, and proofstory contract metadata. These files are story evidence for B-5e28, not business-code scope expansion.",
+      "timestamp": "2026-07-03T00:26:33.177Z",
+      "paths": [
+        ".lattice/story/actives/B-5e28/intent-collision.json",
+        ".lattice/story/actives/B-5e28/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5e28/proofstory.json",
+        ".lattice/story/actives/B-5e28/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5e28/intent-collision.json",
+        ".lattice/story/actives/B-5e28/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5e28/proofstory.json",
+        ".lattice/story/actives/B-5e28/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "cf8feb8a0cbd100cbf5258a49dca91ee7053a66d",
+      "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+      "anchors": [
+        "proofstory_dev_gate"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DONE intent-equivalence gate required an explicit user-confirmed scope shrinkage decision for deferred historical backfill, automatic candidate approval, and automatic active activation. This is command-generated story lifecycle evidence, not product implementation scope.",
+      "timestamp": "2026-07-03T00:57:05.834Z",
+      "paths": [
+        ".lattice/story/actives/B-5e28/scope-shrinkage-decision.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5e28/scope-shrinkage-decision.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5c9af015312ac600ee88b636a6d09361d1b97e50",
+      "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8"
+    }
+  ],
+  "createdAt": "2026-07-03T00:19:47.299Z",
+  "updatedAt": "2026-07-03T00:57:05.834Z"
+}

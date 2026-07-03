@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Default behavior should create useful learning health data, not rely on a remembered env var.",
+    "DONE settlement must remain learning-only, non-gate, and non-blocking.",
+    "Do not turn historical backfill or active playbook promotion into hidden side effects.",
+    "Preserve explicit opt-out for local experiments and rollback."
+  ],
+  "drivers": [
+    "User explicitly rejected another default-off learning feature.",
+    "The existing settlement implementation is safe but not enabled by default.",
+    "The system has many proposable historical seeds but no candidate playbooks yet, so this story must not batch import them."
+  ],
+  "options": [
+    {
+      "name": "keep-env-default-off",
+      "pros": [
+        "No behavior change",
+        "Lowest immediate risk"
+      ],
+      "cons": [
+        "Does not solve the user problem",
+        "Future DONE stories still produce no settlement data unless someone remembers the flag"
+      ]
+    },
+    {
+      "name": "default-on-settlement-with-opt-out",
+      "pros": [
+        "Future DONE stories automatically leave learning health data",
+        "Preserves explicit opt-out and non-blocking behavior",
+        "Does not infer helped or import history"
+      ],
+      "cons": [
+        "Writes one extra learning health row per DONE story",
+        "Requires status/docs/tests update"
+      ]
+    },
+    {
+      "name": "default-on-plus-historical-backfill",
+      "pros": [
+        "Immediately populates historical learning store"
+      ],
+      "cons": [
+        "Too broad for this fix",
+        "Could create noisy candidates before live settlement proof exists"
+      ]
+    }
+  ],
+  "chosen": "default-on-settlement-with-opt-out",
+  "rationale": "This directly fixes the real closure bug while preserving safety and deferring historical backfill until live settlement data is proven.",
+  "preMortem": [
+    {
+      "scenario": "DONE settlement rows are mistaken for helped evidence",
+      "trigger": "Aggregator includes verdictSource done-settlement as helped or decisive",
+      "consequence": "Weak candidates could be promoted from DONE success alone",
+      "mitigation": "Keep existing B-7ee1 exclusion tests and add/retain smoke coverage."
+    },
+    {
+      "scenario": "Default-on settlement blocks DONE",
+      "trigger": "Learning store lock or append failure propagates through story_advance DONE",
+      "consequence": "Lifecycle completion becomes fragile",
+      "mitigation": "Keep try/catch, timeout, and non-blocking failed settlement result."
+    },
+    {
+      "scenario": "Historical backfill sneaks into this story",
+      "trigger": "Implementation tries to approve candidates while changing settlement defaults",
+      "consequence": "Large noisy data mutation without live proof",
+      "mitigation": "Scope boundary excludes historical backfill and candidate approval."
+    }
+  ],
+  "timestamp": "2026-07-03T00:17:41.522Z"
+}

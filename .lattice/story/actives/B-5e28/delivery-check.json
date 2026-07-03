@@ -1,0 +1,57 @@
+{
+  "storyId": "B-5e28",
+  "checkedAt": "2026-07-03T00:54:46.761Z",
+  "headHash": "370f0263371819d419757f565156ba7166e44e4e",
+  "materialHash": "9375a3f6f6807b5b250a10ae28c51ae8bd837d09f38688c7a30f2e4f34a12fb8",
+  "storyFilesHash": "72c55c35c16f5547733e1b8f56b208521e6577e3cff6cbb4a626c4360286e4f4",
+  "reviewRound": "2026-07-03T00:26:45.076Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "PLAYBOOK_DONE_SETTLEMENT_ENABLED is default-on for DONE settlement when absent or malformed, and explicit false/0/no/off opt out disables learning settlement.",
+      "status": "verified",
+      "verifiedBy": "diff review plus fresh CLI status and smoke",
+      "evidence": "Docs changed the flag table to default-on explicit opt-out and fail-closed rules to absent/malformed default-on; fresh status showed unset enabled=true defaultPolicy=default-on explicitOptOut=false and explicit false enabled=false explicitOptOut=true."
+    },
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "Default-on DONE settlement remains limited to a non-blocking learning health row and must not trigger historical backfill, candidate approval, active playbook activation, or stronger automation by itself.",
+      "status": "verified",
+      "verifiedBy": "diff review plus smoke/test evidence",
+      "evidence": "Docs section 10 says historical backfill/stronger automation criteria remain future work and the row must not trigger historical backfill, candidate approval, active playbook activation, or stronger automation. Smoke confirms DONE success alone creates no candidate helped outcome and settlement remains gateEvidence=false."
+    },
+    {
+      "docPath": "packages/main/src/handlers/playbook.ts",
+      "promise": "playbook_promotion_status reports settlement feature flag posture and preserves authority=non_authoritative and gateEvidence=false.",
+      "status": "verified",
+      "verifiedBy": "fresh real-machine CLI transcript",
+      "evidence": "node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED,.authority,.gateEvidence returned raw empty enabled true defaultPolicy default-on explicitOptOut false, authority non_authoritative, gateEvidence false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh reviewer run: node packages/main/dist/tasks/playbook-promotion-worker-smoke.js exited 0 with smoke passed TOTAL 6 PASS 6 FAIL 0. The CHK-004 smoke covers unset PLAYBOOK_DONE_SETTLEMENT_ENABLED recording settlement by default, repeated idempotence, explicit false/0/no/off opt-out with no health file, and no helped outcome from DONE success alone."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh reviewer run: node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED,.authority,.gateEvidence returned raw empty, enabled true, defaultPolicy default-on, explicitOptOut false, authority non_authoritative, gateEvidence false."
+    },
+    {
+      "featureId": "CHK-002-edge",
+      "transcript": "Fresh reviewer run: PLAYBOOK_DONE_SETTLEMENT_ENABLED=false node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED returned raw false, enabled false, defaultPolicy default-on, explicitOptOut true."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reviewed test-evidence.json and done-required-evidence.json: lattice validate PASS with 31 configured commands and verificationCoverage total=9 required=9 covered=9; done_required_validate PASS for packages/main build and root full test suite."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted: default-on unset settlement, explicit false opt-out, non_authoritative/gateEvidence=false status, and out-of-scope boundaries for historical backfill, candidate approval, and active activation are all bound to docs, source diff, fresh CLI/smoke transcripts, and current validation evidence."
+  },
+  "_hash": "b3bbcaebe059a2d4ffa58342925b712f5682222c7c0c36e707c99c1a8e62930a"
+}
