@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Author the rev 3 pre-registration document (fresh-failure recurrence execution plan)",
+      "context": "Create docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md (English, self-contained). Required sections: (1) Trigger and supersession — rev 2 pilot outcome (baseline 0.0333, freeze refused, m7-decision skip_powered_study), lesson-aging interpretation, explicit statement that this document supersedes ONLY the M7 route of the rev 2 plan and that the rev 2 file stays byte-untouched; (2) Revised hypothesis H1-prime — within the pre-absorption window, surfacing a freshly captured lesson reduces recurrence of that failure mode on same-mode variants; value under test = the capture loop, not the archival store; (3) Design — harvest (findings-corpus mining + harvest campaign), repro-first filter (only deterministically reproducible failure classes; cite the existing repro machinery), random half/half lessonize-vs-holdout split with disjointness assertions, same-mode variant generation, two-arm paired run on the existing instrument, host model version PINNED for the whole study and recorded per run; (4) Metrics and statistics — primary = difference-in-differences (in-store recurrence delta minus held-out recurrence delta), paired analysis with bootstrap CI for the DiD, pre-registered alpha 0.05 / power 0.80 / explicit MDE band for the DiD, per-class variant-baseline calibration mini-pilot with an acceptance band and pilotFreezeCheck N sizing before any powered run; (5) Leakage and validity — variant-vs-lesson surface-similarity audit (lesson must describe the failure mode, never the variant answer), strip-list discipline inherited, circularity disclosure updated for shared provenance of lessons and variants; (6) Milestones R1-R6 with exit criteria (R1 harvester, R2 lessonizer+split, R3 variant generator+similarity audit, R4 calibration mini-pilot+N freeze, R5 powered paired run, R6 analysis+evidence map); (7) Stopping rules incl. model-version change mid-study; (8) No-overclaim boundary and definition of done. Follow the rev 2 document structure and honesty discipline as the template.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "The new file exists at docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; its header states rev 3 and the supersession scope; grep shows sections for H1-prime, difference-in-differences, repro-first filter, similarity audit, model-version pinning, milestones R1-R6, stopping rules and definition of done; the rev 2 file is byte-identical to before (sha256 unchanged: 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Adversarial design review passed with all findings resolved",
+      "context": "The document must survive adversarial review before any implementation story may cite it. Review dimensions the reviewers must attack: (a) statistics — is the DiD contrast actually sizeable, is the calibration acceptance band coherent with the MDE band, does pilotFreezeCheck apply cleanly to the DiD sizing or does the doc need an explicit derived formula; (b) leakage — can a variant leak its answer through the lesson text, is the similarity audit mechanically definable; (c) repro filter — what fraction of real failures survives deterministic-reproduction filtering and what happens to the study if yield is low (explicit minimum-yield stopping rule); (d) window validity — model pinning semantics, what invalidates the window claim; (e) circularity and no-overclaim — shared provenance of lessons and variants disclosed, permitted and disallowed claims enumerated; (f) supersession hygiene — rev 2 untouched, M7 closure references correct. All blocking findings fixed in the document and re-reviewed; the story DONE means the rev 3 document is implementation-ready.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "lattice finding_list for this story shows every review finding resolved; the final document incorporates the fixes; story reaches DONE with the delivery check confirming the review dimensions were each covered by a registered reviewer finding or explicit pass",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
