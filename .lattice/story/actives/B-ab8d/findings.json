@@ -25,7 +25,7 @@
       "desc": "CHK-005:edge:0 evidence stale/invalid: the intent requires lattice validate to exit 0 with the arm-switch smoke green, but current lattice validate exits non-zero (allPass:false) because experience-pack-arm-switch-smoke.ts:794 uses retired vocabulary productionDone, causing validate.commands[1] (retired-authority-vocabulary-guard-smoke) to fail. The violation was introduced by this storys own CHK-005 commit (e557aa5a4). The CHK-005:edge:0 integration_test evidence (headHash 58c51a83a) is bound to a state where validate was green; current HEAD 20717fe shows validate broken by this storys own code.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T00:10:09.930Z",
@@ -36,7 +36,9 @@
         "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|edge-evidence-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the retired vocabulary token from the hand-built HostDispatchProjection fixture in packages/main/src/tasks/experience-pack-arm-switch-smoke.ts (commit cebf74b83). Chose the finding-preferred partial-fixture approach: renderHostDispatchProjectionText never reads the retired-named boolean, so the field is omitted entirely from the fixture (already cast as unknown as HostDispatchProjection); no identifier splitting, no allowlist or core/lattice-handoff.ts changes. Verified: retired-authority-vocabulary-guard-smoke PASS, arm-switch smoke 23/23 ALL PASS, full lattice validate exit 0 allPass:true at HEAD cebf74b83.",
+      "resolvedAt": "2026-07-03T00:21:40.588Z"
     },
     {
       "id": "B-ab8d:F-003",
