@@ -4,7 +4,7 @@
   "title": "Automatically ingest DONE story experience into candidate playbooks",
   "description": "Add a host-neutral, digest-bound playbook candidate ingestion path so DONE story settlement can automatically convert eligible done-experience seeds into inert candidate playbooks without directly activating them.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-07-03T10:15:04.500Z",
   "startedAt": "2026-07-03T10:15:04.500Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T11:11:14.838Z",
   "events": [
     {
       "phase": "INIT",
@@ -77,12 +77,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-ec461d038beb2dd8",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T11:11:14.838Z",
+      "branch": "story/B-a4f7",
+      "user": "Harmonygo",
+      "sessionId": "sess-ec461d038beb2dd8",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a4f7",
-    "branch": "story/B-a4f7",
-    "createdAt": "2026-07-03T10:16:30.666Z"
-  },
   "currentReviewRound": "2026-07-03T10:44:20.132Z"
 }
