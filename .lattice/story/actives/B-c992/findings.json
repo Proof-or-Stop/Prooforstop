@@ -5,7 +5,7 @@
       "desc": "CHK-001:happy:0, CHK-001:edge:0, and CHK-001:adversarial:0 all have stale verificationEvidence at current HEAD. Evidence was recorded at commits 9fa9d239d/056d3e7f8/12e7c113d before CHK-002 hardening commit 172b55142 modified the rev 3 doc (533 insertions, 181 deletions). The validate CLI reports these 3 must-intents as stale-not-valid (3/6 covered). Substantively, my independent checks confirm all three intents are actually satisfied at current HEAD (section headings verified, shasum 2ef4122e... reproduced, CJK=0 confirmed, supersession clause present at line 8), but the evidence headHashes must be refreshed to remove the gate block. Resolution: re-run verification_evidence_add for each of the three CHK-001 intents against the current HEAD so validate reports 6/6 covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T16:31:29.448Z",
@@ -17,7 +17,11 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "signatureTag": "missing|md|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "verification_evidence_refresh_stale re-ran and rebound all 3 stale CHK-001 evidence records to current HEAD (metadata commit 2a58ec0); the staleness was administrative (CHK-002 hardening commit landed after CHK-001 evidence was recorded) and the reviewer independently verified the substance at HEAD.",
+      "resolvedAt": "2026-07-03T16:32:35.791Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
