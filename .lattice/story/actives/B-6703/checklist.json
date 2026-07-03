@@ -140,9 +140,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T03:16:06.558Z",
-      "endTime": null
+      "endTime": "2026-07-03T03:16:07.011Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses built CLI for seed observe/propose/approve, outcome record, playbook_auto_promotion_apply --apply activatedCount=1, and runtime consumption verification.",
+          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:07.183Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts second apply returns activatedCount=0 and leaves exactly one recommendation row plus one activation audit row.",
+          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:07.331Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts activation apply fails closed before explicit outcomes and does not mutate playbooks or learning artifacts.",
+          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:07.484Z"
+        },
+        {
+          "intentRef": "CHK-002:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Built dist CLI used by smoke.",
+          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
+          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
+          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
+          "timestamp": "2026-07-03T03:16:07.645Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -211,6 +257,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting verification of the full CLI seed/candidate/outcome/activation/runtime loop.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-03T03:16:07.011Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Verified by the built dist CLI path inside playbook-seed-promotion-loop-smoke.",
       "agent": "lattice-implementer"
     }
   ]
