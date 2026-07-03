@@ -1,13 +1,13 @@
 {
   "storyId": "B-ab8d",
-  "generatedAt": "2026-07-02T23:05:24.296Z",
+  "generatedAt": "2026-07-03T00:10:00.731Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 5,
     "reviewRounds": 1,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -238,7 +238,7 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -247,7 +247,7 @@
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -258,7 +258,7 @@
           "note": "proxy: uses reviewer findings as signal, not git commit author data"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -266,7 +266,7 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [

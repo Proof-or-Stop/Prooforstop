@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-ab8d:F-001",
+      "desc": "CHK-002 userSees says arm=control prints no Memory Runtime Preflight section, but handoff_resume text output still renders a Runtime memory advisory: section header (with hostPolicy lines and memoryCompletionProof: false) even on the control arm. The renderHandoffResumeText function calls renderOptionalMemoryLines(projection.memoryFreshnessPack, projection.runtimeHostPolicy). The handler strips the pack into enrichedWithoutPack but leaves runtimeHostPolicy intact, so renderOptionalMemoryLines fires (it returns early only when BOTH args are falsy) and emits the section header with hostPolicy lines. No pack content leaks (memoryPackDigest/topHitIds are absent), but the Runtime memory advisory: section is visible on control arm, which is not byte-identical to the expected no-section behavior. Neither smoke test (CHK-005 experience-pack-arm-switch-smoke nor experience-layer-ab-shadow-gate-smoke) exercises handoff_resume text mode on the control arm. Fix: in the handoff_resume handler, also strip runtimeHostPolicy when control arm is active (or refactor renderHandoffResumeText to accept a flag); alternatively, gate renderOptionalMemoryLines on shouldRenderRuntimeMemoryPack(). File: packages/main/src/handlers/lattice-handoff.ts line 764, packages/main/src/core/lattice-handoff.ts lines 1372-1383.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-03T00:10:00.729Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-004",
+      "_hash": "5aa756927b2c2c40bd0e8a90c2d7be6078372ac26128a85d4a444e5082a983e0",
+      "files": [
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|usersees-says-control",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
