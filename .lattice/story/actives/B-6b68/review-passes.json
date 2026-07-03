@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-03T11:50:14.801Z",
       "reviewRunId": "B-6b68:RR-001",
       "_hash": "02c585d36b08fa79b383c703aae10cd8373dab8ef99c186902d0e7e4ed3ac557"
+    },
+    {
+      "id": "B-6b68:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: the source diff changes only the task annotation comment from invalid @type test to allowed @type chore in claim-admissibility-pack-framework-smoke.ts, which fixes annotation convergence without runtime behavior changes. validate-tasks and convergence_check both pass the annotation row. The ProofStory scope expansion is visible via scope_contract_show/check as acknowledged-expansion warnings with blocking=false.",
+      "createdAt": "2026-07-03T11:52:07.062Z",
+      "reviewRound": "2026-07-03T11:50:14.801Z",
+      "reviewRunId": "B-6b68:RR-002",
+      "_hash": "88f467dcfc77fc1e60a654e557b2d7c60b45d8c8fdca1fab10bd034c170e5b76"
     }
   ]
 }
