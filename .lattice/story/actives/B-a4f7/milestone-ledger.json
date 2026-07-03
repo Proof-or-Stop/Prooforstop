@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-a4f7",
+  "state": "confirmed",
+  "ledgerHash": "sha256:2d6ced4c75373dd606d6f06190cb1ef0efd991f704898d42c62e47e369db3eea",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-DONE-CANDIDATE-INGEST",
+      "claim": "Add digest-bound playbook_candidate_ingest wrapper for DONE/story seed to candidate conversion.",
+      "doneMeans": "playbook_candidate_ingest --apply creates inert candidate playbooks from eligible done-experience seeds and reports observeDigest, manifestDigest, created/skipped counts.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-NONBLOCKING-DONE-HOOK",
+      "claim": "Wire post-DONE settlement to best-effort candidate ingestion for the completed story.",
+      "doneMeans": "A simulated post-DONE settlement records learning health and attempts story-scoped candidate ingestion without blocking DONE.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-NO-DIRECT-ACTIVE",
+      "claim": "Preserve candidate inertness and evidence-based activation boundary.",
+      "doneMeans": "Candidate ingestion writes no helped outcome rows, no auto-activation rows, and runtime consumption verification keeps candidates out of active guidance.",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-DONE-CANDIDATE-INGEST",
+      "claim": "Document and surface automatic seed-to-candidate ingestion distinctly from activation/backfill.",
+      "doneMeans": "Docs and status output name playbook_candidate_ingest, DONE candidate ingestion, default-on/opt-out boundary, and gateEvidence=false authority limits.",
+      "requiredEvidence": [
+        "docs_check",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-03T10:23:34.780Z",
+  "updatedAt": "2026-07-03T10:24:39.992Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703101903",
+    "acceptedInterpretationHash": "sha256:4cab0b5899f26a106db74e3bdf45073c85ed546563fd7844434468335369dbd7",
+    "acceptedAt": "2026-07-03T10:24:39.992Z"
+  }
+}

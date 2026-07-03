@@ -1,0 +1,33 @@
+{
+  "storyId": "B-a4f7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/config.ts",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "direct active playbook activation",
+    "historical bulk backfill",
+    "timer or daemon scheduling",
+    "DONE success as helped evidence",
+    "gate evidence or blocking DONE policy"
+  ],
+  "scopeChangeReason": "Initialize enforce contract from B-a4f7 PLAN checklist; scope is limited to automatic done-experience seed to inert candidate ingestion.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T10:24:00.583Z",
+  "updatedAt": "2026-07-03T10:24:00.583Z"
+}
