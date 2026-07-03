@@ -45,7 +45,30 @@
       "userSees": "Running score.mjs against a run dir missing run.json exits nonzero with exactly one line: score: missing required run record file: <path>/run.json; a run dir with storeRoot pointing at the production learning root yields a record with \"voided\": true and a reason string naming store isolation",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "RUN-RECORD.md documents every required and optional run-dir artifact and field consumed by score.mjs; doc matches code (grep cross-check)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing run.json exits nonzero with exactly one actionable line naming the path; missing optional file does not error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "run.json storeRoot equal to the production learning root yields voided:true with a store-isolation reason; malformed arm value rejected naming control|treatment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
