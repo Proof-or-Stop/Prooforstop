@@ -236,6 +236,18 @@
           "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
           "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
           "timestamp": "2026-07-03T00:46:07.980Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/score-selfcheck.mjs; git status --porcelain",
+          "result": "pass",
+          "note": "Case (e): control run with N=3 retrieval_violation events -> retrievalViolationCount=3, memoryPackShown=false; treatment -> memoryPackShown=true, surfacedMemoryIds from experience_pack_surfaced topHitIds; foreign-experiment events ignored. Case (d): production storeRoot (exact, contained subpath, and exported default derivation) -> voided:true with store-isolation reason; isolated root -> voided:false. Hermetic: mkdtemp roots cleaned in finally, git status shows no repo mutation. CHK-002 error paths pinned in-selfcheck (one-line errors, exit 1). S6.2 repeatDefectPresent covered via expectedMemoryIds-augmented temp fixture copy.",
+          "headHash": "f5252d78a70f09e4ac552855cc7bb51590f8cd66",
+          "materialHash": "55d863004c7b66e4c6f8b68885c8a02e7013ed746dcbc4aec56b66f192e7d826",
+          "storyFilesHash": "4ebc1fd1c853427822ef7ef025032d7c9510a7f40dd2666916b113f9807ef2f5",
+          "timestamp": "2026-07-03T00:46:08.647Z"
         }
       ]
     }
