@@ -172,10 +172,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke uses built CLI for seed observe/propose/approve, outcome record, playbook_auto_promotion_apply --apply activatedCount=1, and runtime consumption verification.",
-          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:07.183Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -183,10 +183,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke asserts second apply returns activatedCount=0 and leaves exactly one recommendation row plus one activation audit row.",
-          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:07.331Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -194,10 +194,10 @@
           "command": "node packages/main/dist/tasks/playbook-seed-promotion-loop-smoke.js",
           "result": "pass",
           "note": "Smoke asserts activation apply fails closed before explicit outcomes and does not mutate playbooks or learning artifacts.",
-          "headHash": "a361e06ad6079f04778a87c08d8fce4e5c0c4674",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:07.484Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-002:build",
@@ -265,10 +265,10 @@
           "command": "rg -n \"playbook_auto_promotion_apply --apply|runtime consumption\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
           "result": "pass",
           "note": "Docs include the evidence activation command and runtime consumption verification boundary.",
-          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:17.142Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -276,10 +276,10 @@
           "command": "rg -n \"historical seed backfill|timer\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
           "result": "pass",
           "note": "Docs distinguish this apply path from historical backfill, timer-driven promotion, trial serving, and broad rollout mechanics.",
-          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:17.304Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -287,10 +287,10 @@
           "command": "rg -n \"DONE success alone|gate evidence\" docs/requirements/decisions/playbook-promotion-worker-execution-plan.md docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
           "result": "pass",
           "note": "Docs explicitly forbid DONE success alone as helped evidence and state activation remains non-authoritative non-gate evidence.",
-          "headHash": "d8636ae5955cc152cb3d70a06006565f88b1ef47",
-          "materialHash": "8614b5282f0dd187642fb9b798f3667cff9ea0e7681abe4c3930525f90937a91",
-          "storyFilesHash": "73ef6ce649b2348ae80ff73067315e04da77d86075e59e2d47c766afe909b8fd",
-          "timestamp": "2026-07-03T03:16:17.469Z"
+          "headHash": "c03159e3b69fc59da59330e652a3d4be726de01e",
+          "materialHash": "ce9a9ba9820611d0de510d239fc9bb217ebc6eeea9bf989c0e62f5964aa715aa",
+          "storyFilesHash": "47f73974002e64251f154998d98156edfdfc5b720c18bddee1f3d3d36707a205",
+          "timestamp": "2026-07-03T03:28:11.606Z"
         },
         {
           "intentRef": "CHK-003:smoke",
