@@ -35,6 +35,24 @@
       ],
       "signatureTag": "edge|mjs|quality-cleanup-score",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d217:F-003",
+      "desc": "quality-cleanup: score-selfcheck.mjs: the CHK-002 error-path section only pins two error cases (missing run.json, malformed arm); the documented RUN-RECORD.md error catalog includes at least two further required-file errors (activity.jsonl missing, workspace/ missing) that are not pinned as CLI one-line error checks. A scorer that produces a multi-line or wrongly-formatted error for these cases would pass selfcheck undetected. Lines ~387-408 cover only --run missing run.json and arm malformation",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:50:38.892Z",
+      "reviewRound": "2026-07-03T00:47:45.954Z",
+      "reviewRunId": "B-d217:RR-002",
+      "_hash": "2407a6910c4f464327b059df0b1d4a91f756b9787db1597c1518a41d7d647bfe",
+      "files": [
+        "experiments/experience-ablation/score-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-score",
+      "signatureTagSource": "auto"
     }
   ]
 }
