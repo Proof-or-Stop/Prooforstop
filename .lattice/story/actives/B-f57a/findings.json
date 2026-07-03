@@ -306,6 +306,25 @@
       ],
       "signatureTag": "adversarial-ts-cross-host-review-pre-capture-head-race",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f57a:F-015",
+      "desc": "cross_host_review still has a pre-capture HEAD race: packages/main/src/handlers/cross-host-review.ts computes materialDigest and storyFilesHash from the moving ref HEAD before capturing headHash. A clean concurrent commit between those git commands can produce an old materialDigest/storyFilesHash paired with a new headHash; the new pre/post head guards then accept the new headHash, createCleanHeadReviewWorktree snapshots the new commit, and submitLocalVerdict can record a verdict whose material binding does not match the reviewed snapshot. Capture headHash first and compute currentMaterialHash/currentStoryFilesHash against that exact SHA, or re-check the full head/material/story tuple before spawn and before record. Add smoke coverage for a clean commit between material-hash capture and headHash capture.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T10:08:50.191Z",
+      "reviewRound": "2026-07-03T10:04:46.771Z",
+      "reviewRunId": "B-f57a:RR-020",
+      "_hash": "3d0f7295e8fde3cad4b0a6a4b8dc81304c59475dd81c925bd35d9e8c6fb93fd1",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/tasks/cross-host-review-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|cross-host-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
