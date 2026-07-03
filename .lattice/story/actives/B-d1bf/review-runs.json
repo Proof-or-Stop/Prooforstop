@@ -571,6 +571,81 @@
         "bindingHash": "f00e4c8d4e4dab7db4ebe3422438b54b9e19f7987fc688e1acb9e309e59c5bca"
       },
       "_hash": "216559c56f8b41a4baa2a6eba2c7ab3eae3f85a4b72d654da8d13f0c8efd9a73"
+    },
+    {
+      "reviewRunId": "B-d1bf:RR-009",
+      "storyId": "B-d1bf",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-03T00:54:11.063Z",
+      "startedAt": "2026-07-03T00:57:11.140Z",
+      "headHash": "d48c6f1be55ab5818e7fbf95470e08f22c1c918c",
+      "materialHash": "c5efe321f4da697e1b97565d7f684393cf2175d892953ed6c129ae6bbbecbb81",
+      "storyFilesHash": "eb9a33ffa5f9d86cb9c02e81c98427fe61ad14384b72cea22f788ad346748af7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "884ba519bf4b3cd785045218a65c7b4ad44ce690f65287787dd4440f0fc1077d",
+        "diffPackHash": "ae0a62684858b6b494d24f1bcb03f913b1d62e4c85bc04b98eb3a832026e78a2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/claim-admissibility/quantum.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/quantum-claim-admissibility.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "044edf39473fc16370b88de9a42775b524c1ea3ab63a2bed7a8d02b2d9b96a4f",
+          "04ef2eec7b4325b2e489b475a436131a3aea4a6dfc776e38b1384422c5fcce48",
+          "135e605e87f10f20eee5d9a61f582d807fc1e2bf2a2bd1a6585a67d213f854b7",
+          "1be0014c2f169288a6fe8faf241fd80f0b1cb8016f2aa9e06dd970a1b76051b5",
+          "1e7aff92a3475a2b9fa4b9c5f4c52b33f78deb568b948e2086bc8c9bb916f8ff",
+          "26af58995a03036f1f793b57230fe7463fed5ebb4c19c0f5764630913eb7ffbe",
+          "2b482ae1d678d62b8a452ddee9fa1fda9fa75d2a3667bf4a7450350961e110a7",
+          "499a3bfa71836889f7c77e9dc5717b16878fbd38c811c372c614bec722e16e51",
+          "504ca940a2ca084df9526115597c7ee80bee4b8f2dcf0e0c7e877b9d7d73c7ad",
+          "5417767eda5df65804db0fc8bedd1cfbcb8976198fcb7d1ecaaa32a736b617a0",
+          "5546a8240b4d23252a8dd5d8b712f2779f92014306f8af7a00a70f00c087eed5",
+          "620e44fc66bf3cf26cca84700be1c5199e66e32b2a26f8578786385b2e204dbe",
+          "6909741ccb6508109f97c93907c27549c2fa291d94cf1abb435864d37e4bda33",
+          "69f3c3e9c0b2e5ebb518d9c26fe71f8f61a1f69c45f3d7d810e8c99ed904fe93",
+          "6ca7b6ec746248dbb3971eaca23b6d431f5dd5011f62659a439813fc754e5026",
+          "7be6ac3bfd1e238736403513a9d210dc700a381ed4f9b189b16ca4475bfdd6d4",
+          "820a6dc1a0e1efc415e5096daa52a2c82a9d1db84004d7dfa8a4c0052619ac16",
+          "825238661437cdc2d5d6a2b80c63e103e3b9ed200f023d1cdfcfde32dcb165f1",
+          "9bf793bd0e31d089bd29b054491f02a22717ddfd148c3a76b1ee55b33b42093c",
+          "a8f0eb085ec75ef259a794ff2e1f184a060b82b61254e4c3e1cb9efa3db1b1a1",
+          "b0406348b46e8ad47f45890c331005ff6a9ee46165b754015b098703e26e84c3",
+          "b82f8bbc50dc96467274116d22b614c8193447e5172e77c6019dd82719937416",
+          "bd1862bc80f5a2c030afa7b9b55d268ddfdc81a77e76a354e18b8cd7630cc6c5",
+          "bd589b7ba2d77c87df6fe8328406b42b3271931f32e2d3d572284014e0505132",
+          "c680310ef844d5dcc47c04057b60dee64c113d5246bd271f3a92f722b3623c1c",
+          "cd84d18750976624ec050f0e63b76da807ebdb08e8e8a1164985846198b81ce0",
+          "e21d64532f1f093bab885a6410050e5b0f633d891c6da2e5b46a710e7e15af9a",
+          "fa0fde8b04150a093d67041a680964e571cd670b85ae7b5d20841c151a20c9af",
+          "fc14c9a2a97dd2df605817976dd1a91a85fd4958c23b80d31bf54c8f238a842f"
+        ],
+        "bindingHash": "3334f6241822d3817638f19a0769ab39358a07a28d6c67cfdb5d32a8756c54a7"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf",
+        "workspaceMode": "story-worktree",
+        "headHash": "d48c6f1be55ab5818e7fbf95470e08f22c1c918c",
+        "materialHash": "c5efe321f4da697e1b97565d7f684393cf2175d892953ed6c129ae6bbbecbb81",
+        "storyFilesHash": "eb9a33ffa5f9d86cb9c02e81c98427fe61ad14384b72cea22f788ad346748af7",
+        "bindingHash": "922fe483e950d195d059749be1f73dff70edfd8b54637796599788527cdfe1b3"
+      },
+      "_hash": "becd7a4481dc4a2e9e866a2703fb15784effb0860ddf2bd3646b7f49e2285dad"
     }
   ]
 }
