@@ -170,6 +170,15 @@
       "reviewRound": "2026-07-03T11:11:00.662Z",
       "reviewRunId": "B-f57a:RR-030",
       "_hash": "0c8b2671955a465b9a9f2c3933921aebde6ce1b126cce42e16a342ef2934bb4f"
+    },
+    {
+      "id": "B-f57a:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS round 12: evidence_plan reports 24/24 fresh intents with missing=0 rerun=0 refresh-only=0 after main merge 9850f7601 and evidence refresh. Checklist evidence is bound to post-merge material/storyFiles hashes and covers cross_host_review smoke safety/disagreement behavior, including CHK-001:adversarial:6 dirty/head/final-record cleanup and CHK-002 disagreement/material divergence cases. Process-fact/phase-tool alignment inspected: cross_host_review is L4 gate-evidence in process-fact-levels, command-policy marks it storyScopedMutating/gateEvidence/allowedPhases=all, and DEFAULT_PHASE_TOOLS includes cross_host_review with the same guard expectations. No test coverage blocker found.",
+      "createdAt": "2026-07-03T11:24:22.696Z",
+      "reviewRound": "2026-07-03T11:22:51.374Z",
+      "reviewRunId": "B-f57a:RR-033",
+      "_hash": "a12f0bbcac4ed40c075f6dd5f6c55629897cc115b2bffac08d69691005bdb082"
     }
   ]
 }
