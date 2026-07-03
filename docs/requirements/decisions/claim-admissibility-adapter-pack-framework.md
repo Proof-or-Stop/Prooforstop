@@ -38,7 +38,7 @@ Implemented base capabilities:
   material binding requirements, allowed consumers, allowed claims, and
   remediation text.
 - `ProofClaimPolicy` for deciding which claims a surface may satisfy for which
-  consumers, while keeping `productionDoneEligible` false in the local CLI core.
+  consumers, while keeping local production-claim eligibility false.
 - Strict shape and semantic digest helpers in the proof binding layer, including
   digest input over gate-consumed semantic fields such as story, head/material
   hashes, claim, verdict, and reason.
@@ -48,7 +48,7 @@ Implemented base capabilities:
   `DONE_REQUIRED` local gate evidence, review-assurance/quorum evidence, and
   handoff proof-ref separation.
 - Read-only `AdmissibilityWaterline` projection for diagnostics. The waterline
-  is diagnostic-only and cannot satisfy DONE or mint production completion.
+  is diagnostic-only and cannot satisfy DONE or create release-readiness claims.
 - Compatibility re-export through
   `packages/main/src/core/evidence/admissibility/index.ts`, which avoids
   duplicating registries or proof definitions.
@@ -206,7 +206,7 @@ Responsibilities:
 - decide `advance`, `repair`, `degrade`, `escalate`, or `stop` results;
 - pass final checks through the proof-admissibility evaluator;
 - preserve existing lifecycle gates and configured enforce/warn behavior;
-- keep local CLI `productionDone` and release-readiness claims out of domain
+- keep local CLI production claims and release-readiness claims out of domain
   packs.
 
 Gate policy adapters must not weaken DONE, REVIEW, TEST, HANDOFF, or
@@ -304,9 +304,11 @@ decisions; it is not registered as a generic pack `gatePolicies` adapter.
 
 Quantum M3 does not execute external commands, create storage, create ledgers,
 create global lifecycle gates, add benchmark harnesses or reporting, claim
-production completion, act as Authority, validate hardware, or prove quantum
-mechanics. Its local gate-policy projection is read-only and keeps
-`productionDone=false` and `authorityDone=false`.
+production readiness, act as Authority, validate hardware, or prove quantum
+mechanics. Its local gate-policy projection is read-only, local-only, and keeps
+`boundary.productionClaim=false`, `boundary.authorityClaim=false`,
+`localClaimAdmissibilityOnly=true`, `writesLifecycleEvidence=false`, and
+`mutatesLifecycle=false`.
 
 Acceptance:
 
@@ -340,7 +342,7 @@ Acceptance:
 
 - policies call the shared proof-admissibility evaluator;
 - domain policies can strengthen but not weaken lifecycle gates;
-- local CLI production completion remains false unless a separate external
+- local CLI production claims remain false unless a separate external
   production adapter proves its own policy outside the local core.
 
 ### M5: Benchmark Adapter
@@ -365,7 +367,7 @@ Acceptance:
 - Do not weaken lifecycle gates.
 - Do not let caller-writable metadata become admissible proof.
 - Do not let local diagnostics, waterline rows, handoff packs, or benchmark
-  reports mint production completion.
+  reports create release-readiness claims.
 - Do not claim PINN correctness, quantum-mechanics truth, numerical exactness,
   solver quality, physical validation, quantum advantage, or experimental
   validation.

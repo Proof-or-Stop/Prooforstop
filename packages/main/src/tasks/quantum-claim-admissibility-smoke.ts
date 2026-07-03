@@ -146,8 +146,8 @@ function checkGateDecision(
   assert.equal(result.localClaimAdmissibilityOnly, true, `${label} remains local claim-admissibility only`);
   assert.equal(result.writesLifecycleEvidence, false, `${label} writes no lifecycle evidence`);
   assert.equal(result.mutatesLifecycle, false, `${label} mutates no lifecycle state`);
-  assert.equal(result.authorityDone, false, `${label} never claims authorityDone`);
-  assert.equal(result.productionDone, false, `${label} never claims productionDone`);
+  assert.equal(result.boundary.productionClaim, false, `${label} keeps boundary.productionClaim false`);
+  assert.equal(result.boundary.authorityClaim, false, `${label} keeps boundary.authorityClaim false`);
   if (decision === 'advance') {
     assert.equal(result.allowed, true, `${label} advance is the only allowed gate-policy pass`);
   } else {
@@ -307,8 +307,11 @@ assert.equal(completeGate.transition, 'claim-admissibility', 'complete gate poli
 assert.equal(completeGate.claimId, 'Q5', 'complete case defaults to Q5');
 const completeGateText = renderQuantumClaimGatePolicyText(completeGate);
 assert.match(completeGateText, /decision: advance/);
-assert.match(completeGateText, /authorityDone: false/);
-assert.match(completeGateText, /productionDone: false/);
+assert.match(completeGateText, /localClaimAdmissibilityOnly: true/);
+assert.match(completeGateText, /writesLifecycleEvidence: false/);
+assert.match(completeGateText, /mutatesLifecycle: false/);
+assert.match(completeGateText, /productionClaim: false/);
+assert.match(completeGateText, /authorityClaim: false/);
 
 const degradedGate = checkGateDecision('quantum M3 weak/degraded gate-policy case', buildQuantumClaimCheckCase('degraded'), 'degrade');
 assert.ok(hasReason(degradedGate, 'weak_evidence_overclaim'), 'degraded gate has weak_evidence_overclaim reason');
@@ -506,10 +509,10 @@ for (const requestedStrength of ['theory', 'hardware', 'physical-validation', 's
   assert.ok(hasReason(result, 'claim_boundary_violation'), `${requestedStrength} overclaim has boundary violation`);
 }
 
-const directAuthorityDone = buildCompleteQuantumEvidence('Q5');
-(directAuthorityDone as unknown as Record<string, unknown>).authorityDone = true;
-const directAuthorityDoneGate = checkGateDecision('quantum M3 direct authorityDone overclaim gate-policy case', directAuthorityDone, 'stop');
-assert.ok(hasReason(directAuthorityDoneGate, 'claim_boundary_violation'), 'direct authorityDone field has boundary violation');
+const directAuthorityClaim = buildCompleteQuantumEvidence('Q5');
+(directAuthorityClaim as unknown as Record<string, unknown>).authorityClaim = true;
+const directAuthorityClaimGate = checkGateDecision('quantum M3 direct Authority claim overclaim gate-policy case', directAuthorityClaim, 'stop');
+assert.ok(hasReason(directAuthorityClaimGate, 'claim_boundary_violation'), 'direct authorityClaim field has boundary violation');
 
 const theoryNarrative = buildCompleteQuantumEvidence('Q5');
 theoryNarrative.narrativeClaim = 'quantum theory proven';
@@ -524,14 +527,14 @@ assert.ok(hasReason(hardwareNarrativeGate, 'claim_boundary_violation'), 'hardwar
 const handlers = createQuantumClaimAdmissibilityHandlers({} as any);
 const handlerComplete = handlers.quantum_claim_check({ case: 'complete', format: 'json' }) as QuantumClaimGatePolicyResult;
 assert.equal(handlerComplete.decision, 'advance', 'handler complete JSON advances');
-assert.equal(handlerComplete.authorityDone, false, 'handler complete JSON authorityDone false');
-assert.equal(handlerComplete.productionDone, false, 'handler complete JSON productionDone false');
+assert.equal(handlerComplete.boundary.productionClaim, false, 'handler complete JSON boundary.productionClaim false');
+assert.equal(handlerComplete.boundary.authorityClaim, false, 'handler complete JSON boundary.authorityClaim false');
 const handlerDegraded = handlers.quantum_claim_check({ case: 'degraded', format: 'json' }) as QuantumClaimGatePolicyResult;
 assert.equal(handlerDegraded.decision, 'degrade', 'handler degraded JSON degrades');
 const handlerOverclaimText = handlers.quantum_claim_check({ case: 'overclaim' }) as string;
 assert.match(handlerOverclaimText, /decision: stop/, 'handler overclaim text stops');
-assert.match(handlerOverclaimText, /authorityDone: false/, 'handler overclaim text authorityDone false');
-assert.match(handlerOverclaimText, /productionDone: false/, 'handler overclaim text productionDone false');
+assert.match(handlerOverclaimText, /productionClaim: false/, 'handler overclaim text boundary.productionClaim false');
+assert.match(handlerOverclaimText, /authorityClaim: false/, 'handler overclaim text boundary.authorityClaim false');
 const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
 const directCompleteEvidenceObject = JSON.parse(directCompleteEvidenceJson) as QuantumClaimCheckInput;
 for (const blankEvidenceJson of ['', '   ']) {
@@ -562,8 +565,8 @@ assert.ok(
   hasReason(handlerEvidenceJsonOverclaim, 'claim_boundary_violation'),
   'handler evidenceJson requestedStrength=production has boundary violation',
 );
-assert.equal(handlerEvidenceJsonOverclaim.authorityDone, false, 'handler evidenceJson overclaim authorityDone false');
-assert.equal(handlerEvidenceJsonOverclaim.productionDone, false, 'handler evidenceJson overclaim productionDone false');
+assert.equal(handlerEvidenceJsonOverclaim.boundary.productionClaim, false, 'handler evidenceJson overclaim boundary.productionClaim false');
+assert.equal(handlerEvidenceJsonOverclaim.boundary.authorityClaim, false, 'handler evidenceJson overclaim boundary.authorityClaim false');
 const handlerParsedEvidenceJsonOverclaim = handlers.quantum_claim_check({
   evidenceJson: directCompleteEvidenceObject as unknown as Record<string, unknown>,
   requestedStrength: 'production',
@@ -594,9 +597,9 @@ try {
   rmSync(evidencePathRoot, { recursive: true, force: true });
 }
 assert.throws(
-  () => handlers.quantum_claim_check({ productionDone: true } as any),
+  () => handlers.quantum_claim_check({ productionClaim: true } as any),
   /refuses unsupported/,
-  'handler rejects productionDone overclaim flag',
+  'handler rejects productionClaim overclaim flag',
 );
 console.log('quantum M3 handler gate-policy cases: PASS');
 

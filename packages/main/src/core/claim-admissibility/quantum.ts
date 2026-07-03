@@ -269,8 +269,6 @@ export interface QuantumClaimGatePolicyResult {
   localClaimAdmissibilityOnly: true;
   writesLifecycleEvidence: false;
   mutatesLifecycle: false;
-  authorityDone: false;
-  productionDone: false;
   sourceNextAction: QuantumClaimCheckResult['nextAction'];
   scopedClaim: boolean;
   degradedClaimAvailable: boolean;
@@ -418,9 +416,6 @@ const QUANTUM_DIRECT_BOUNDARY_CLAIM_FIELDS = [
   'productionClaim',
   'authorityClaim',
   'productionReadyClaim',
-  'productionDone',
-  'authorityDone',
-  'fullAuthorityDone',
 ] as const;
 
 const QUANTUM_BOUNDARY_FIELD_OVERCLAIM_PATTERN = new RegExp(
@@ -1001,10 +996,10 @@ export function buildQuantumClaimCheckCase(
 
   const input = buildCompleteQuantumEvidence('Q5');
   input.requestedStrength = 'production';
-  input.narrativeClaim = 'productionDone: true; authorityDone: true; hardware validation complete; quantum theory proven.';
+  input.narrativeClaim = 'productionClaim: true; authorityClaim: true; hardware validation complete; quantum theory proven.';
   const unsafeRecord = input as unknown as Record<string, unknown>;
-  unsafeRecord.productionDone = true;
-  unsafeRecord.authorityDone = true;
+  unsafeRecord.productionClaim = true;
+  unsafeRecord.authorityClaim = true;
   return input;
 }
 
@@ -1211,8 +1206,6 @@ export function evaluateQuantumClaimGatePolicy(input: QuantumClaimCheckInput): Q
     localClaimAdmissibilityOnly: true,
     writesLifecycleEvidence: false,
     mutatesLifecycle: false,
-    authorityDone: false,
-    productionDone: false,
     sourceNextAction: check.nextAction,
     scopedClaim: check.scopedClaim,
     degradedClaimAvailable: decision === 'degrade' && check.scopedClaim,
@@ -1258,8 +1251,6 @@ export function renderQuantumClaimGatePolicyText(result: QuantumClaimGatePolicyR
     `localClaimAdmissibilityOnly: ${result.localClaimAdmissibilityOnly}`,
     `writesLifecycleEvidence: ${result.writesLifecycleEvidence}`,
     `mutatesLifecycle: ${result.mutatesLifecycle}`,
-    `authorityDone: ${result.authorityDone}`,
-    `productionDone: ${result.productionDone}`,
     `sourceNextAction: ${result.sourceNextAction}`,
     `scopedClaim: ${result.scopedClaim}`,
     `degradedClaimAvailable: ${result.degradedClaimAvailable}`,

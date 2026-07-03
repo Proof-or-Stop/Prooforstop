@@ -310,8 +310,8 @@ Implemented as a local read-only M3 gate-policy check. The implementation maps
 the existing Quantum evaluator reason codes into `advance`, `repair`, `degrade`,
 `escalate`, or `stop` decisions for claim-admissibility transitions only. It
 does not mutate the global Story lifecycle, write lifecycle evidence, claim
-production/Authority completion, or validate quantum theory, hardware, lab
-results, physical systems, or solver improvements.
+production readiness or Authority status, or validate quantum theory, hardware,
+lab results, physical systems, or solver improvements.
 
 The read-only CLI surface is:
 
@@ -320,8 +320,10 @@ lattice quantum_claim_check --case=complete --json
 ```
 
 The `complete` case advances only the local Q5 claim-admissibility projection
-and keeps `authorityDone=false` and `productionDone=false`. The weak/degraded
-case returns `degrade`, and hard overclaim cases return `stop`.
+and keeps `boundary.productionClaim=false`, `boundary.authorityClaim=false`,
+`localClaimAdmissibilityOnly=true`, `writesLifecycleEvidence=false`, and
+`mutatesLifecycle=false`. The weak/degraded case returns `degrade`, and hard
+overclaim cases return `stop`.
 
 ### Milestone 4 - Benchmark harness
 
@@ -338,7 +340,7 @@ non-claim wording.
 Proof-or-Stop can be extended to computational quantum mechanics as local
 claim-admissibility control. It does not prove quantum mechanics, validate a
 physical system, improve solvers, prove broad quantum advantage, or create
-production/Authority completion. It checks whether a reported quantum-simulation
+production-readiness or Authority claims. It checks whether a reported quantum-simulation
 claim has enough current, bound, admissible evidence to advance across scoped
 lifecycle stages such as model/spec freeze, solver execution, invariant checking,
 convergence analysis, reference comparison, reproducibility, and result

@@ -145,7 +145,7 @@ assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', [quantumComple
 assert.equal(schemaAccepts('quantum_claim_check', 'evidenceJson', 1), false, 'quantum evidenceJson schema rejects scalar non-JSON values');
 assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', '/tmp/complete-q5.json'), true, 'quantum evidencePath schema accepts file path strings');
 assert.equal(schemaAccepts('quantum_claim_check', 'evidencePath', quantumCompleteEvidence), false, 'quantum evidencePath schema rejects parser-produced JSON objects');
-assert.equal(schemaAccepts('quantum_claim_check', 'productionDone', true), false, 'quantum command schema keeps productionDone unsupported');
+assert.equal(schemaAccepts('quantum_claim_check', 'productionClaim', true), false, 'quantum command schema keeps productionClaim unsupported');
 
 const currentHostText = [
   findTool('host_runtime_list').description,

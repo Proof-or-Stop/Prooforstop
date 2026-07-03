@@ -40,9 +40,6 @@ interface QuantumClaimCheckArgs extends FormatArgs {
   productionClaim?: never;
   authorityClaim?: never;
   productionReadyClaim?: never;
-  productionDone?: never;
-  authorityDone?: never;
-  fullAuthorityDone?: never;
 }
 
 const UNSUPPORTED_FLAGS = [
@@ -64,9 +61,6 @@ const UNSUPPORTED_FLAGS = [
   'productionClaim',
   'authorityClaim',
   'productionReadyClaim',
-  'productionDone',
-  'authorityDone',
-  'fullAuthorityDone',
 ] as const;
 
 function wantsJson(args: FormatArgs = {}): boolean {
