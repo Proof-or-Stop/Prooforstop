@@ -1,0 +1,34 @@
+{
+  "task": "Add a local read-only Quantum M3 gate-policy check over existing quantum claim-admissibility evidence.",
+  "outcome": "Running lattice quantum_claim_check --case=complete --json prints a local Quantum claim check with decision advance, authorityDone false, productionDone false, and no hardware/theory claim; weak and overclaim cases print degrade or stop instead of advance.",
+  "facts": [
+    "B-7b4e and B-5118 already implemented Quantum M0-M2 schema, evaluator, adapter descriptors, and adapter-output normalization.",
+    "The Quantum execution plan says M3 is gate policy / transition guidance and M4-M5 remain pending.",
+    "PINN has an analogous local command pattern, but Quantum M3 must remain bounded to local read-only diagnostics.",
+    "Story-init review recorded a low advisory: docs must not claim the generic adapter-pack framework M4 gate-policy milestone is complete."
+  ],
+  "constraints": [
+    "Do not mutate the global Story machine or lifecycle transitions in M3.",
+    "Do not add benchmark harnesses, report/governance output, quantum theory/hardware validation, solver improvement, production readiness, or Authority completion claims.",
+    "Command surface must be read-only and produce no gate evidence.",
+    "Evidence and docs must stay deterministic and locally testable through focused smoke."
+  ],
+  "unknowns": [
+    "Exact CLI argument shape for quantum_claim_check should align with existing command catalog conventions.",
+    "Which demo cases are enough for M3 without pre-consuming M4 benchmark scope.",
+    "Whether docs should mention M3 in the generic pack framework or only in Quantum-specific runtime status."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/claim-admissibility/quantum.ts",
+    "packages/main/src/handlers/quantum-claim-admissibility.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+  ],
+  "timestamp": "2026-07-03T00:12:32.957Z"
+}
