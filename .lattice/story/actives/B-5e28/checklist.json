@@ -120,9 +120,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-03T00:25:41.939Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+          "result": "pass",
+          "note": "CLI status reports raw empty, enabled true, defaultPolicy default-on, explicitOptOut false.",
+          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:42.283Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "PLAYBOOK_DONE_SETTLEMENT_ENABLED=false node packages/main/dist/cli.js playbook_promotion_status --json | jq .featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED",
+          "result": "pass",
+          "note": "CLI status reports raw false, enabled false, defaultPolicy default-on, explicitOptOut true.",
+          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:42.628Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/playbook.ts",
+          "command": "node packages/main/dist/cli.js playbook_promotion_status --json",
+          "result": "pass",
+          "note": "Status output preserves authority=non_authoritative and gateEvidence=false for learning settlement posture.",
+          "headHash": "35f348c70a1e56715ae915460cf9540d9c1cd385",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:42.842Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -177,6 +215,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implementation committed in fe96d23c8; focused smoke passed."
+    },
+    {
+      "timestamp": "2026-07-03T00:25:41.939Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Status output verified after fe96d23c8."
     }
   ]
 }
