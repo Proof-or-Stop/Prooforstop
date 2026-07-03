@@ -514,11 +514,11 @@
           "file": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=complete --json",
           "result": "pass",
-          "note": "CLI complete JSON path was rerun and returned decision=advance with authorityDone=false and productionDone=false.",
-          "headHash": "3bc2a2fba64806be86715fa146a489bdabb8473c",
-          "materialHash": "c0c434b5583ddf5eb21bd42e4668fd20fdc03230e8ece29f91eccb5102dd2426",
-          "storyFilesHash": "a9511e2e0357559a70a554f0851e1662e744f3d782ddc96445ed5ee506e2b0a1",
-          "timestamp": "2026-07-03T01:03:26.433Z"
+          "note": "CLI complete JSON path was rerun and returned decision=advance with boundary.productionClaim=false and boundary.authorityClaim=false.",
+          "headHash": "3c8a4718b9d31bd71c0cb99e7c1b04f0d05934cf",
+          "materialHash": "c09566ece777a1a39dfd2238238bc6c73bfa98d770e6c422bb797b59d20d4e78",
+          "storyFilesHash": "b79c847dfbae45f626f09ed17732f250dea27f7e94715adec1ff9945b7fc9cd6",
+          "timestamp": "2026-07-03T01:23:29.615Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
