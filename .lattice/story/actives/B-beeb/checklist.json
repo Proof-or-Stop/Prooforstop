@@ -56,6 +56,18 @@
           "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
           "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
           "timestamp": "2026-07-03T02:06:25.469Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/run-pilot-selfcheck.mjs",
+          "result": "pass",
+          "note": "Hermetic stub host, zero tokens. Case (4): second invocation printed 1 skipped / 1 executed / 0 still pending and the skipped cells run.json stayed byte-identical (no double execution); progress jsonl gained the cell_skip row (append-only); third invocation printed 2 skipped / 0 executed. Identity key = (experimentId, fixtureId, arm) via terminal run.json detection. Full selfcheck: 24/24 PASS, rerun stable (exit 0 twice).",
+          "headHash": "21c9bfe3935d1f84885ae0387eca07ead0fc09e5",
+          "materialHash": "dbde796876326786b4cec1105ac3a2c94595d762bf56e2f0ab77bde677c004f8",
+          "storyFilesHash": "0cb8cecd7e62042aba1038984c098b9a3a8dcc9b555a11e0a484a7091da842c4",
+          "timestamp": "2026-07-03T02:06:41.756Z"
         }
       ]
     },
