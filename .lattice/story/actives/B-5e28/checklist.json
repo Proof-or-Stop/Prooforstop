@@ -39,9 +39,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-03T00:25:27.810Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves unset PLAYBOOK_DONE_SETTLEMENT_ENABLED records a post-DONE settlement health row by default.",
+          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:28.003Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves explicit false/0/no/off opt out disables settlement and writes no health file.",
+          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:28.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "command": "node packages/main/dist/tasks/playbook-promotion-worker-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies DONE success alone creates no candidate helped outcome and settlement remains gateEvidence=false.",
+          "headHash": "fe96d23c892022bb5da20752fbe158ce917eba8b",
+          "materialHash": "8682092b443f5a55140689e9d2918de01eb2d580cbfd350d6e5bcea0b3060d2d",
+          "storyFilesHash": "15b850177d6f243f9c8a4d29a95749fb161aa4902e9c1ed6a6cdd2b1801d230f",
+          "timestamp": "2026-07-03T00:25:28.367Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -128,6 +166,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-03T00:25:27.810Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed in fe96d23c8; focused smoke passed."
     }
   ]
 }
