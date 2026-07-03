@@ -10,7 +10,37 @@
       "userSees": "The new file exists at docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md; its header states rev 3 and the supersession scope; grep shows sections for H1-prime, difference-in-differences, repro-first filter, similarity audit, model-version pinning, milestones R1-R6, stopping rules and definition of done; the rev 2 file is byte-identical to before (sha256 unchanged: 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471)",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The rev 3 document exists with every required section grep-verifiable: supersession statement, H1-prime, harvest + repro-first filter, random split, variant generation + similarity audit, DiD statistics with explicit sizing, model-version pinning, milestones R1-R6 with exit criteria, stopping rules, no-overclaim, definition of done",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The rev 2 plan is byte-untouched: shasum -a 256 equals 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471 after the story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document is entirely English, self-contained (terms defined on first use), and its supersession clause names ONLY the M7 route (not the rev 2 evidence or completed milestones)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
