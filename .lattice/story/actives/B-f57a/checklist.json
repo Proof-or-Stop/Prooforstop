@@ -255,11 +255,11 @@
           "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
           "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
           "result": "pass",
-          "note": "Smoke \"CHK-001:adversarial:6\": dirty SOURCE worktree -> handler throws cross_host_review_dirty_worktree, codex seam never invoked, 0 verdicts recorded; .lattice-only dirt proceeds normally. RED-verified un-gameable (neutralizing the preflight fails only this check).",
-          "headHash": "9275313ba1466377f277b48f32f178f36ee7c054",
-          "materialHash": "870dae6fb5b3c80920d188bfbab804a741b56ece37b5581b3b76c1b1c3f4b0e1",
-          "storyFilesHash": "cb071e56144f8586e411158ffd02c1e5e492d9b287207312e223382ccef906b2",
-          "timestamp": "2026-07-03T09:34:48.586Z"
+          "note": "Smoke check CHK-001:adversarial:6: dirty source worktree fails closed before spawn; Codex receives a detached clean HEAD snapshot; post-spawn live source drift fails closed before verdict record; .lattice-only metadata drift still proceeds.",
+          "headHash": "99f6d050e0bed5a5210a45dbd4e8d589c2ca3715",
+          "materialHash": "44e551167887562ccedff209ad2a7030391548fa3842cab2336e9f4e300c0e46",
+          "storyFilesHash": "6669e40d41d54f0b5cf372afc846cc0d2e51a7b367b9ee65ed193dd6a77158b7",
+          "timestamp": "2026-07-03T09:48:28.334Z"
         },
         {
           "intentRef": "CHK-001:adversarial:7",
