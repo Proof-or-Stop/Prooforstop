@@ -205,7 +205,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/experience-ablation/run-pilot.mjs --experimentId=expabl-m6-pilot-v1 --corpus=... --memorySnapshotDir=...",
+          "result": "pass",
+          "note": "pilot: 90 cells, 1 skipped (terminal smoke), 89 executed, 0 still pending. Control fault runs 40 (in-store 30) >= 15. score-records.jsonl 90 records. Evidence persisted at <mainRepo>/.lattice/experiments/experience-ablation/expabl-m6-pilot-v1/ (protocol.mjs validate PASS there, hash 22705b73).",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "score all 90 runs twice + sha256 compare",
+          "result": "pass",
+          "note": "replayByteIdentical true; scoreDigest 8cea19029c633dbd identical across two full re-scoring passes of all archived run dirs.",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "summary over score-records.jsonl + protocol.mjs validate + leakage-audit",
+          "result": "pass",
+          "note": "voided=0 across all 90 runs (store isolation held); memoryPackShown 0/45 control vs 45/45 treatment; leakage-audit: all fixtures clean (45); protocol validates.",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -247,7 +282,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "pilotFreezeCheck({defects:1,n:30}, rule, {alpha:0.05, power:0.80, mde:0.25|0.35})",
+          "result": "pass",
+          "note": "Freeze transcript in n-freeze.json: N=30, K=1, p=0.0333, Wilson CI [0.0059, 0.1667] width 0.1608 <= 0.30; verdict REFUSED (freeze_baseline_too_low) across the entire pre-registered MDE band — recorded as the documented out-of-band recompute path per plan section 7 and the CHK-004 context (record the recompute instead of silently proceeding).",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "wilson95(1,30) width gate",
+          "result": "pass",
+          "note": "CI width 0.1608 <= 0.30: the extend-pilot gate did not fire; the refusal is freeze_baseline_too_low, i.e. baseline invalidation, not insufficient pilot size.",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "independent recomputation via sample-size.mjs pilotFreezeCheck (mde 0.25 and 0.35)",
+          "result": "pass",
+          "note": "n-freeze.json freezeAttempts embed exact pilotFreezeCheck outputs (ok:false, freeze_baseline_too_low, sizing baseline 0.1667); no hand-derived numbers; outOfBandFinding documents the plan-section-7 consequence for M7.",
+          "headHash": "a6f41dfabb137ead72351a3bbdb2ae4906fa29f3",
+          "materialHash": "5a9d2146eb2b94d7a1019fba8097c850d804fb5335f83796bfdfa3de2804b988",
+          "storyFilesHash": "16ee12e4c151bd817830fa33494c502aef4c658a4cca5a09df40772b55a259aa",
+          "timestamp": "2026-07-03T04:11:41.646Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
