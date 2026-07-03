@@ -26,11 +26,21 @@
             "desc": "playbook_seed_observe reports a done_experience seed for a DONE story with summary and delivery material.",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "The same DONE story produces a stable done_experience canonicalSourceKey and canonicalSourceKeyVersion across repeated observations.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
           {
             "desc": "DONE stories with partial or missing optional fields do not crash observation and either produce a bounded seed or a clear diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeated observe/propose/approve for the same DONE story is deduped through canonical source representation and cannot create duplicate proposal or candidate rows.",
             "type": "logic",
             "priority": "must"
           }
