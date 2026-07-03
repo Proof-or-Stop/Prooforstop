@@ -8,9 +8,9 @@
         "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
       ],
       "userSees": "node experiments/experience-ablation/run-pilot.mjs --plan prints a cell table (fixtureId x arm, pending/done counts) and exits 0; after a real cell runs, the run dir contains run.json + activity.jsonl + workspace/ and node experiments/experience-ablation/score.mjs --fixture=<f> --run=<r> emits a valid score record with voided absent",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-03T01:53:36.439Z",
-      "endTime": null,
+      "endTime": "2026-07-03T02:06:48.913Z",
       "files": {
         "modify": [],
         "create": [
