@@ -36,6 +36,7 @@ import type {
   PlaybookPromotionObserveSinceWindow,
   PlaybookProposal,
   PlaybookSourceReference,
+  PlaybookTrialControlEvent,
 } from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
@@ -62,6 +63,8 @@ export const SIGNATURE_REGISTRY_FILENAME = 'signature-registry.json';
 export const PLAYBOOKS_FILENAME = 'playbooks.json';
 /** B-dddd: append-only explicit playbook outcome observations. */
 export const PLAYBOOK_OUTCOMES_FILENAME = 'playbook-outcomes.jsonl';
+/** B-5f5b: append-only matched-control observations for candidate trials. */
+export const PLAYBOOK_TRIAL_CONTROLS_FILENAME = 'playbook-trial-controls.jsonl';
 /** B-6241: append-only promotion sweep recommendation/decision rows. */
 export const PLAYBOOK_PROMOTION_DECISIONS_FILENAME = 'playbook-promotion-decisions.jsonl';
 /** B-7ee1: append-only evidence-activation rows for advisory playbooks. */
@@ -186,6 +189,11 @@ export function resolvePlaybooksPath(projectRoot: string): string {
 /** Absolute playbook outcome ledger path under the shared learning root. */
 export function resolvePlaybookOutcomesPath(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PLAYBOOK_OUTCOMES_FILENAME);
+}
+
+/** Absolute matched-control trial ledger path under the shared learning root. */
+export function resolvePlaybookTrialControlsPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOK_TRIAL_CONTROLS_FILENAME);
 }
 
 /** Absolute promotion decision log path under the shared learning root. */
@@ -985,6 +993,128 @@ export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookO
     return resolvePlaybookOutcomesPath(projectRoot);
   }
   return atomicAppendCanonicalJsonLine(resolvePlaybookOutcomesPath(projectRoot), validated.event);
+}
+
+// ── B-5f5b: matched-control trial ledger ───────────────────────────────────
+
+const PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION = 'proofbound.playbook-trial-control.v1';
+
+export function validatePlaybookTrialControlEvent(raw: unknown): {
+  ok: true;
+  event: PlaybookTrialControlEvent;
+} | {
+  ok: false;
+  error: string;
+} {
+  if (!isRecord(raw)) return { ok: false, error: 'control event must be an object' };
+  if (ownString(raw, 'schemaVersion') !== PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION}` };
+  }
+  const controlId = ownString(raw, 'controlId');
+  const idempotencyKey = ownString(raw, 'idempotencyKey');
+  const observedAt = ownString(raw, 'observedAt');
+  const storyId = ownString(raw, 'storyId');
+  const playbookId = ownString(raw, 'playbookId');
+  const candidatePlaybookDigest = ownString(raw, 'candidatePlaybookDigest');
+  const consumer = ownString(raw, 'consumer');
+  if (!controlId) return { ok: false, error: 'controlId must be a non-empty string' };
+  if (!idempotencyKey) return { ok: false, error: 'idempotencyKey must be a non-empty string' };
+  const tsError = validateIsoTimestamp(observedAt, 'observedAt');
+  if (tsError) return { ok: false, error: tsError };
+  if (!storyId) return { ok: false, error: 'storyId must be a non-empty string' };
+  if (!playbookId) return { ok: false, error: 'playbookId must be a non-empty string' };
+  if (!candidatePlaybookDigest) return { ok: false, error: 'candidatePlaybookDigest must be a non-empty string' };
+  if (!consumer) return { ok: false, error: 'consumer must be a non-empty string' };
+
+  const context = own(raw, 'context');
+  if (!isRecord(context)) return { ok: false, error: 'context must be an object' };
+  const fileKinds = ownStringArray(context, 'fileKinds');
+  if (!fileKinds) return { ok: false, error: 'context.fileKinds must be a string array' };
+  const triggerClasses = ownStringArray(context, 'triggerClasses');
+  if (!triggerClasses) return { ok: false, error: 'context.triggerClasses must be a string array' };
+  const contextOptionalError = validateOptionalStringFields(context, ['storyPhase', 'storyType', 'host', 'hostProvider', 'hostCapabilityId'], 'context');
+  if (contextOptionalError) return { ok: false, error: contextOptionalError };
+
+  const control = own(raw, 'control');
+  if (!isRecord(control)) return { ok: false, error: 'control must be an object' };
+  if (ownString(control, 'exposureMode') !== 'none') return { ok: false, error: 'control.exposureMode must be none' };
+  const matchedOn = ownStringArray(control, 'matchedOn');
+  if (!matchedOn || matchedOn.length === 0) return { ok: false, error: 'control.matchedOn must be a non-empty string array' };
+  if (ownString(control, 'verdict') !== 'unknown') return { ok: false, error: 'control.verdict must be unknown' };
+  if (ownString(control, 'verdictSource') !== 'matched-control') return { ok: false, error: 'control.verdictSource must be matched-control' };
+  if (own(control, 'causedNoise') !== false) return { ok: false, error: 'control.causedNoise must be false' };
+  if (own(control, 'causedWrongClaim') !== false) return { ok: false, error: 'control.causedWrongClaim must be false' };
+  if (own(control, 'preventedRepeatFinding') !== false) return { ok: false, error: 'control.preventedRepeatFinding must be false' };
+  if (ownString(raw, 'authority') !== 'non_authoritative') return { ok: false, error: 'authority must be non_authoritative' };
+  if (own(raw, 'gateEvidence') !== false) return { ok: false, error: 'gateEvidence must be false' };
+
+  return {
+    ok: true,
+    event: {
+      schemaVersion: PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION,
+      controlId,
+      idempotencyKey,
+      observedAt,
+      storyId,
+      playbookId,
+      candidatePlaybookDigest,
+      consumer,
+      context: {
+        ...(optionalOwnString(context, 'storyPhase') ? { storyPhase: optionalOwnString(context, 'storyPhase') } : {}),
+        ...(optionalOwnString(context, 'storyType') ? { storyType: optionalOwnString(context, 'storyType') } : {}),
+        fileKinds,
+        triggerClasses,
+        ...(optionalOwnString(context, 'host') ? { host: optionalOwnString(context, 'host') } : {}),
+        ...(optionalOwnString(context, 'hostProvider') ? { hostProvider: optionalOwnString(context, 'hostProvider') } : {}),
+        ...(optionalOwnString(context, 'hostCapabilityId') ? { hostCapabilityId: optionalOwnString(context, 'hostCapabilityId') } : {}),
+      },
+      control: {
+        exposureMode: 'none',
+        matchedOn,
+        verdict: 'unknown',
+        verdictSource: 'matched-control',
+        causedNoise: false,
+        causedWrongClaim: false,
+        preventedRepeatFinding: false,
+      },
+      authority: 'non_authoritative',
+      gateEvidence: false,
+    },
+  };
+}
+
+export function readPlaybookTrialControlEventsWithDiagnostics(projectRoot: string): {
+  events: PlaybookTrialControlEvent[];
+  malformedCount: number;
+} {
+  const filePath = resolvePlaybookTrialControlsPath(projectRoot);
+  if (!existsSync(filePath)) return { events: [], malformedCount: 0 };
+  const events: PlaybookTrialControlEvent[] = [];
+  let malformedCount = 0;
+  for (const line of readFileSync(filePath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const validated = validatePlaybookTrialControlEvent(JSON.parse(line));
+      if (validated.ok) events.push(validated.event);
+      else malformedCount += 1;
+    } catch {
+      malformedCount += 1;
+    }
+  }
+  return { events, malformedCount };
+}
+
+export function readPlaybookTrialControlEvents(projectRoot: string): PlaybookTrialControlEvent[] {
+  return readPlaybookTrialControlEventsWithDiagnostics(projectRoot).events;
+}
+
+export function appendPlaybookTrialControlEvent(projectRoot: string, event: PlaybookTrialControlEvent): string {
+  const validated = validatePlaybookTrialControlEvent(event);
+  if (!validated.ok) throw new Error(`appendPlaybookTrialControlEvent: ${validated.error}`);
+  if (readPlaybookTrialControlEvents(projectRoot).some((row) => row.idempotencyKey === validated.event.idempotencyKey)) {
+    return resolvePlaybookTrialControlsPath(projectRoot);
+  }
+  return atomicAppendCanonicalJsonLine(resolvePlaybookTrialControlsPath(projectRoot), validated.event);
 }
 
 // ── B-6241 M3-M6: promotion worker learning metadata ────────────────────────

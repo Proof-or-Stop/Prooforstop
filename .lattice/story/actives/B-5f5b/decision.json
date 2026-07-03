@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Only fix real consumption and lifecycle gaps, not arbitrary automation.",
+    "Historical backfill creates inert candidate material only; activation remains evidence-gated.",
+    "All new surfaces remain host-neutral and non-authoritative.",
+    "Digest-bound dry-run/apply contracts are required for large batch mutations.",
+    "Timer automation must be explicit, bounded, observable, and safe to rerun."
+  ],
+  "drivers": [
+    "2074 currently proposable historical seeds are not practical to process through manual small-batch loops.",
+    "Candidate playbooks currently have no exposure/outcome path, so promotion cannot progress from real evidence.",
+    "The user explicitly wants future-work items completed without weakening Proofbound evidence boundaries."
+  ],
+  "options": [
+    {
+      "name": "single_explicit_cli_closure",
+      "pros": [
+        "Keeps all actions auditable and manually invocable while still eliminating repetitive loops",
+        "Reuses existing seed/proposal/candidate and auto-promotion guards",
+        "Avoids hidden background mutation and preserves host-neutral CLI boundaries"
+      ],
+      "cons": [
+        "Requires users or a scheduler to invoke the timer command",
+        "Still cannot activate candidates without real outcomes"
+      ]
+    },
+    {
+      "name": "hidden_background_daemon",
+      "pros": [
+        "Would require less manual invocation once installed"
+      ],
+      "cons": [
+        "Harder to audit",
+        "Can surprise users with background mutations",
+        "Risks violating the no hidden daemon scope boundary"
+      ]
+    },
+    {
+      "name": "activate_from_backfill",
+      "pros": [
+        "Would quickly turn historical experience into runtime guidance"
+      ],
+      "cons": [
+        "Unsafe because historical seed existence is not proof the playbook helped",
+        "Would contradict DONE success alone cannot count as helped",
+        "Breaks evidence activation design"
+      ]
+    }
+  ],
+  "chosen": "single_explicit_cli_closure",
+  "rationale": "The explicit CLI closure solves the real throughput and learning-consumption gaps while preserving Proofbound evidence boundaries: large backfill is digest-bound and inert, trial records exposure evidence, and timer automation only runs bounded safe actions.",
+  "preMortem": [
+    {
+      "scenario": "Backfill creates duplicate or active playbooks",
+      "trigger": "Apply reuses stale observe data or ignores represented canonical keys",
+      "consequence": "Learning store grows misleading duplicate runtime material",
+      "mitigation": "Require observe digest, recompute representation before candidate write, and assert all created rows are status=candidate."
+    },
+    {
+      "scenario": "Trial exposure is mistaken for helped outcome",
+      "trigger": "Trial command writes helped verdicts automatically",
+      "consequence": "Auto-promotion activates unproven candidates",
+      "mitigation": "Trial writes exposure/control observations only; helped still requires explicit playbook_outcome_record or equivalent structured outcome."
+    },
+    {
+      "scenario": "Timer becomes an unsafe hidden daemon",
+      "trigger": "Timer registers or runs unbounded background mutation by default",
+      "consequence": "Users cannot audit when learning state changes",
+      "mitigation": "Implement an explicit command with dry-run default, apply flag, per-action flags, and bounded limits."
+    },
+    {
+      "scenario": "Promotion sweep or activation runs without feature policy",
+      "trigger": "Timer calls apply paths without existing feature/evidence guards",
+      "consequence": "Activation bypasses reviewed policy",
+      "mitigation": "Timer delegates to existing guarded apply reports and reports blockers instead of bypassing them."
+    }
+  ],
+  "timestamp": "2026-07-03T15:14:37.616Z"
+}

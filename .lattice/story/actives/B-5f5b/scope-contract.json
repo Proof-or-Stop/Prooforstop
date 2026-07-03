@@ -1,0 +1,65 @@
+{
+  "storyId": "B-5f5b",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-required-validation.ts"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "remote publish",
+    "authority receipt gates",
+    "DONE gate semantics",
+    "hidden background daemon"
+  ],
+  "scopeChangeReason": "High-assurance scope narrowed to playbook learning-store automation only; lifecycle gates and authority surfaces are protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory high-assurance metadata was required by the DEV gate, and command-policy/process-fact-levels are the required registration surfaces for the new host-neutral playbook CLI commands.",
+      "timestamp": "2026-07-03T16:24:20.755Z",
+      "paths": [
+        ".lattice/story/actives/B-5f5b/intent-collision.json",
+        ".lattice/story/actives/B-5f5b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5f5b/proofstory.json",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5f5b/intent-collision.json",
+        ".lattice/story/actives/B-5f5b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-5f5b/proofstory.json",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "719da71fc493dcb4baa5383b8d549f3268266641",
+      "materialHash": "0ceaa0f93703b4eac79df8830232ee4a190260b78157104ce67e314a423185c4",
+      "anchors": [
+        "ProofStoryIntentHardening",
+        "CommandPolicyRegistration",
+        "ProcessFactLevelRegistration"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-03T15:15:16.808Z",
+  "updatedAt": "2026-07-03T16:24:20.755Z"
+}

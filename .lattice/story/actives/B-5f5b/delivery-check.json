@@ -1,0 +1,61 @@
+{
+  "storyId": "B-5f5b",
+  "checkedAt": "2026-07-03T17:24:22.645Z",
+  "headHash": "e24e9e6e632bbd24b5341bc6f61015c234842c91",
+  "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+  "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+  "reviewRound": "2026-07-03T17:07:33.188Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "promise": "Historical experience may become playbook candidate material only through a deduped lineage-backed non-authoritative path; it must not create gate evidence, infer helped from DONE success, or bulk-activate playbooks.",
+      "status": "verified",
+      "verifiedBy": "docs/code/smoke review",
+      "evidence": "Reviewed buildPlaybookSeedBackfillReport and handler wiring; npm run build passed; node packages/main/dist/tasks/playbook-seed-backfill-smoke.js passed 1/1; acceptance transcript shows dry-run seed backfill authority=non_authoritative and gateEvidence=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Candidate lifecycle automation must keep candidates inert unless the evidence-activation guard passes; any timer/trial automation must remain explicit, bounded, visible, and non-authoritative.",
+      "status": "verified",
+      "verifiedBy": "docs/code/smoke review",
+      "evidence": "Reviewed playbook_trial_run, playbook_promotion_timer, command policy, and process-fact registrations; node packages/main/dist/tasks/playbook-trial-automation-smoke.js passed 3/3; transcript shows disabled sweep rendered and activate blocked with no candidate activation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "promise": "Only active playbooks may surface as runtime guidance; candidate playbooks and learning artifacts remain inert and cannot become blocking or gate evidence by themselves.",
+      "status": "verified",
+      "verifiedBy": "docs/code/smoke review",
+      "evidence": "Trial smoke proves active playbooks are skipped for candidate trial, candidates remain candidate after timer apply, no auto-activation rows are written, and registered command policies keep the new commands non-gate experience-layer operations."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-5f5b:full-validate",
+      "transcript": "Existing story evidence records lattice validate --story=B-5f5b --json PASS at 2026-07-03T17:12:09.961Z with 32 configured commands passing and verification coverage 9/9 required intents covered."
+    },
+    {
+      "featureId": "B-5f5b:done-required",
+      "transcript": "lattice done_required_validate --storyId=B-5f5b PASS at 2026-07-03T17:21:09.264Z; receipts: packages/main build npm --prefix packages/main run build exitCode=0 durationMs=11766, root full test suite npm test exitCode=0 durationMs=96269."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run build passed locally; node packages/main/dist/tasks/playbook-seed-backfill-smoke.js passed: backfill all seeds, clean proposals/outcomes, and repeat idempotently - PASS; playbook seed backfill smoke passed 1/1 checks."
+    },
+    {
+      "featureId": "CHK-002/CHK-003",
+      "transcript": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js passed: trial writes unknown candidate exposure and matched control idempotently - PASS; timer dry-run/apply is bounded and cannot activate unqualified candidates - PASS; command catalog, registry, policies, and process fact levels wire automation commands - PASS; playbook trial automation smoke passed 3/3 checks."
+    },
+    {
+      "featureId": "B-5f5b:user-acceptance",
+      "transcript": "Acceptance transcript .lattice/story/actives/B-5f5b/evidence/transcript-diff.md records built CLI help for playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer; dry-run backfill planned candidates without writes; trial dry-run selected bounded candidates without outcome/control writes; timer dry-run rendered disabled sweep and blocked activation; all dry-run outputs were non_authoritative and gateEvidence=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepted: docs promises were checked against implementation and transcript evidence; full validation, DONE-required validation, root build, focused backfill smoke, and focused trial/timer smoke passed; edge/adversarial coverage includes stale observeDigest refusal, repeat idempotency, candidate-only bounds, disabled timer steps, and activation guard failure."
+  },
+  "_hash": "394533a1c2226c03e79f6f8e9ee88947d3f8a57483dc17029030675d0e6eb28a"
+}

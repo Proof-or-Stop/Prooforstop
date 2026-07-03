@@ -64,6 +64,7 @@ import {
   readPlaybookOutcomeEventsWithDiagnostics,
   readPlaybookPromotionDecisionRows,
   readPlaybookPromotionHealthEvents,
+  readPlaybookTrialControlEventsWithDiagnostics,
   readProposal,
   resolveLearningOwnerRoot,
   resolveNonDeducibleSourcesPath,
@@ -71,6 +72,7 @@ import {
   resolvePlaybookPromotionDecisionsPath,
   resolvePlaybookPromotionHealthPath,
   resolvePlaybookOutcomesPath,
+  resolvePlaybookTrialControlsPath,
   recordNonDeducibleOverride,
   validatePlaybook,
   withLearningStoreLock,
@@ -86,15 +88,21 @@ import {
   buildPlaybookAutoPromotionApplyReport,
   buildPlaybookCandidateIngestReport,
   buildPlaybookCandidateBatchManifest,
+  buildPlaybookPromotionTimerReport,
   buildPlaybookRuntimeConsumptionVerifyReport,
   buildPlaybookSeedObservation,
+  buildPlaybookSeedBackfillReport,
   buildPlaybookSeedProposalBatch,
+  buildPlaybookTrialRunReport,
   renderPlaybookAutoPromotionApply,
   renderPlaybookCandidateIngest,
   renderPlaybookCandidateBatchManifest,
+  renderPlaybookPromotionTimer,
   renderPlaybookRuntimeConsumptionVerify,
+  renderPlaybookSeedBackfill,
   renderPlaybookSeedObservation,
   renderPlaybookSeedProposalBatch,
+  renderPlaybookTrialRun,
 } from '../core/playbook-seed.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
@@ -422,6 +430,15 @@ type PlaybookSeedProposeBatchArgs = {
   json?: boolean;
 };
 
+type PlaybookSeedBackfillArgs = {
+  source?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  observeDigest?: string;
+  json?: boolean;
+};
+
 type PlaybookCandidateBatchApproveArgs = {
   dryRun?: boolean;
   apply?: boolean;
@@ -445,6 +462,31 @@ type PlaybookRuntimeConsumptionVerifyArgs = {
   write?: boolean;
   execute?: boolean;
   run?: boolean;
+};
+
+type PlaybookTrialRunArgs = {
+  storyId?: string;
+  playbookId?: string;
+  consumer?: string;
+  dryRun?: boolean;
+  apply?: boolean;
+  limit?: number;
+  json?: boolean;
+};
+
+type PlaybookPromotionTimerArgs = {
+  dryRun?: boolean;
+  apply?: boolean;
+  backfill?: boolean;
+  trial?: boolean;
+  sweep?: boolean;
+  activate?: boolean;
+  backfillLimit?: number;
+  trialLimit?: number;
+  sweepLimit?: number;
+  source?: string;
+  storyId?: string;
+  json?: boolean;
 };
 
 type PlaybookAutoPromotionApplyArgs = {
@@ -642,6 +684,40 @@ function latestDecisions(rows: PlaybookPromotionDecisionRow[], limit: number): P
     .slice()
     .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt))
     .slice(0, limit);
+}
+
+function buildTrialControlSummary(
+  outcomeRows: ReturnType<typeof readPlaybookOutcomeEventsWithDiagnostics>,
+  controlRows: ReturnType<typeof readPlaybookTrialControlEventsWithDiagnostics>,
+  playbookId?: string,
+) {
+  const scopedTrialOutcomes = outcomeRows.events.filter((event) =>
+    (!playbookId || event.playbookId === playbookId)
+    && event.playbookStatusAtObservation === 'candidate'
+    && event.exposureMode === 'candidate-inspection'
+    && event.outcome.verdictSource === 'candidate-trial');
+  const scopedControls = controlRows.events.filter((event) =>
+    (!playbookId || event.playbookId === playbookId)
+    && event.control.exposureMode === 'none'
+    && event.control.verdictSource === 'matched-control');
+  const playbookIds = uniqSorted([
+    ...scopedTrialOutcomes.map((event) => event.playbookId),
+    ...scopedControls.map((event) => event.playbookId),
+  ]);
+
+  return {
+    outcomeTrialExposureRows: scopedTrialOutcomes.length,
+    matchedControlRows: scopedControls.length,
+    malformedOutcomeRows: outcomeRows.malformedCount,
+    malformedControlRows: controlRows.malformedCount,
+    candidateTrialPlaybookCount: new Set(scopedTrialOutcomes.map((event) => event.playbookId)).size,
+    matchedControlPlaybookCount: new Set(scopedControls.map((event) => event.playbookId)).size,
+    perPlaybook: playbookIds.map((id) => ({
+      playbookId: id,
+      outcomeTrialExposureRows: scopedTrialOutcomes.filter((event) => event.playbookId === id).length,
+      matchedControlRows: scopedControls.filter((event) => event.playbookId === id).length,
+    })),
+  };
 }
 
 function renderObserveOutput(report: PlaybookPromotionObserveReport, json?: boolean): string {
@@ -1039,6 +1115,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const limit = Math.max(1, Math.min(50, Number.isFinite(args.limit) ? Number(args.limit) : 10));
       const outcomeRows = readPlaybookOutcomeEventsWithDiagnostics(ctx.root);
       const decisionRows = readPlaybookPromotionDecisionRows(ctx.root);
+      const controlRows = readPlaybookTrialControlEventsWithDiagnostics(ctx.root);
       const events = outcomeRows.events;
       const registry = readNonDeducibleSourcesRegistry(ctx.root);
       const healthRows = readPlaybookPromotionHealthEvents(ctx.root);
@@ -1080,11 +1157,13 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       const autoPromotion = buildPlaybookAutoPromotionApplyReport({ projectRoot: ctx.root, store: ctx.store });
       const latestSettlement = latestDecisions([], 1); // keep status payload shape stable below.
       void latestSettlement;
+      const trialControlSummary = buildTrialControlSummary(outcomeRows, controlRows, playbookId);
 
       const payload = {
         pendingLearning,
         activeNegativeSignals,
         latestDecisions: latest,
+        trialControlSummary,
         nonPromotableSources: registry.sources,
         settlementHealth: {
           latest: healthRows.events.slice().sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, limit),
@@ -1120,6 +1199,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         paths: {
           decisions: resolvePlaybookPromotionDecisionsPath(ctx.root),
           autoActivations: resolvePlaybookAutoActivationsPath(ctx.root),
+          trialControls: resolvePlaybookTrialControlsPath(ctx.root),
           nonPromotableSources: resolveNonDeducibleSourcesPath(ctx.root),
           settlementHealth: resolvePlaybookPromotionHealthPath(ctx.root),
         },
@@ -1145,6 +1225,12 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
         `latestDecisions: ${latest.length}`,
         ...latest.map((row) => `  - ${row.decidedAt} ${row.action} ${row.playbookId} aggregateDigest=${row.aggregateDigest} applied=${row.applied}`),
+        `trialControlSummary.outcomeTrialExposureRows: ${trialControlSummary.outcomeTrialExposureRows}`,
+        `trialControlSummary.matchedControlRows: ${trialControlSummary.matchedControlRows}`,
+        `trialControlSummary.malformedOutcomeRows: ${trialControlSummary.malformedOutcomeRows}`,
+        `trialControlSummary.malformedControlRows: ${trialControlSummary.malformedControlRows}`,
+        ...trialControlSummary.perPlaybook.map((row) =>
+          `  - ${row.playbookId} outcomeTrialExposureRows=${row.outcomeTrialExposureRows} matchedControlRows=${row.matchedControlRows}`),
         `nonPromotableSources: ${registry.sources.length} (legacy storage: non_deducible)`,
         ...registry.sources.map((source) => `  - ${source.source.sourceKey} finding=${source.source.sourceFindingId} reasons=${source.reasonCodes.join(',')}`),
         `seedPromotionReadiness.v1.proposableSeeds: ${seedObservation.proposableSeeds.length}`,
@@ -1201,6 +1287,27 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * Historical all-seed backfill. Default dry-run; apply requires the current
+     * observeDigest and writes only inert candidate playbooks.
+     */
+    playbook_seed_backfill(args: PlaybookSeedBackfillArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_seed_backfill: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookSeedBackfill(buildPlaybookSeedBackfillReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        source: args.source,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+        observeDigest: args.observeDigest,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-seed-backfill', () =>
+        withPlaybookWriteLock(ctx, 'playbook_seed_backfill', run));
+    },
+
+    /**
      * M4: default dry-run approval manifest for seed proposals. Apply requires
      * manifest digest and converts proposals to candidate playbooks only.
      */
@@ -1252,6 +1359,28 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * Trial candidate playbooks by recording concrete unknown candidate
+     * inspection exposures plus separate matched-control observations.
+     */
+    playbook_trial_run(args: PlaybookTrialRunArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_trial_run: pass either apply or dryRun, not both');
+      const run = (): string => renderPlaybookTrialRun(buildPlaybookTrialRunReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        storyId: args.storyId ?? '',
+        playbookId: args.playbookId,
+        consumer: args.consumer,
+        apply,
+        limit: Number.isFinite(args.limit) ? Number(args.limit) : undefined,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-trial-run', () =>
+        withPlaybookWriteLock(ctx, 'playbook_trial_run', run));
+    },
+
+    /**
      * Evidence-activated advisory promotion. Dry-run explains eligibility;
      * apply activates only candidates whose digest-bound evidence passes.
      */
@@ -1267,6 +1396,36 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       if (!apply) return run();
       return withLearningStoreLock(ctx.root, 'playbook-promotion-decisions', () =>
         withPlaybookWriteLock(ctx, 'playbook_auto_promotion_apply', run));
+    },
+
+    /**
+     * Explicit bounded timer-style orchestration. No daemon is registered; each
+     * requested step runs at most once and activation still uses the evidence
+     * guard path above.
+     */
+    playbook_promotion_timer(args: PlaybookPromotionTimerArgs = {}): string {
+      const apply = normalizeOptionalBoolean(args.apply);
+      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
+      if (apply && dryRunFlag) throw new Error('playbook_promotion_timer: pass either apply or dryRun, not both');
+      const sweepFlag = envFlagEnabled('PLAYBOOK_PROMOTION_SWEEP_ENABLED');
+      const run = (): string => renderPlaybookPromotionTimer(buildPlaybookPromotionTimerReport({
+        projectRoot: ctx.root,
+        store: ctx.store,
+        apply,
+        backfill: normalizeOptionalBoolean(args.backfill),
+        trial: normalizeOptionalBoolean(args.trial),
+        sweep: normalizeOptionalBoolean(args.sweep),
+        activate: normalizeOptionalBoolean(args.activate),
+        backfillLimit: Number.isFinite(args.backfillLimit) ? Number(args.backfillLimit) : undefined,
+        trialLimit: Number.isFinite(args.trialLimit) ? Number(args.trialLimit) : undefined,
+        sweepLimit: Number.isFinite(args.sweepLimit) ? Number(args.sweepLimit) : undefined,
+        source: args.source,
+        storyId: args.storyId,
+        sweepApplyEnabled: sweepFlag.enabled,
+      }), args.json);
+      if (!apply) return run();
+      return withLearningStoreLock(ctx.root, 'playbook-promotion-timer', () =>
+        withPlaybookWriteLock(ctx, 'playbook_promotion_timer', run));
     },
 
     /**

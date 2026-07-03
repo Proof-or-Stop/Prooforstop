@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5f5b",
+  "changes": "Added and executed playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer. The implementation includes learning-store support, matched-control ledger reporting, promotion status trial/control counts, command policy/process fact registration, and smoke coverage for backfill, trial, timer, disabled steps, and activation guard behavior.",
+  "usage": "Use lattice playbook_seed_backfill --json to preview all eligible historical seeds, then --apply --observeDigest=<digest> to create inert candidates. Use lattice playbook_trial_run --storyId=<story> --limit=N --apply for bounded unknown candidate exposure plus matched controls. Use lattice playbook_promotion_timer --apply --trial --activate --storyId=<story> --trialLimit=N for one-shot bounded automation with guarded activation.",
+  "expectedOutcome": "All currently eligible/proposable historical seeds are backfilled into inert candidate playbooks; non-proposable seeds are blocked with explicit reasons; trial/timer automation writes bounded non-authoritative exposure and matched-control rows; activation remains blocked unless evidence-activation guards pass.",
+  "actualTranscript": "Full lattice validate passed 32 configured commands with 9/9 verification intents covered. DONE-required validation passed packages/main build and root npm test. User acceptance transcript shows full backfill dry-run found 864 eligible seeds, 743 blocked seeds, and 5 already represented seeds; apply created 864 candidate playbooks PBP-006 through PBP-869. Timer apply selected 10 of 869 candidates, wrote 10 unknown exposure rows and 10 matched-control rows, and activation stayed blocked with activeCount=0.",
+  "outcomeDiff": "No functional difference from expected: all eligible/proposable seeds were backfilled; blocked raw seeds were intentionally not converted because lineage/support guards rejected them; trial/control rows were written without creating active playbooks or gate evidence.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Backfill is intentionally safety-filtered: 743 raw seeds were blocked rather than converted because they lacked required lineage/support, and 5 were already represented. Candidate playbooks remain inert until future structured helped outcomes satisfy evidence-activation guards. Rendering full promotion_status over 869 candidates is slow and should get a later summary/pagination UX story.",
+  "pitfalls": "Review found four coverage issues before final pass. F-001/F-003 required promotion_status to report trial/control ledger counts. F-002 required registry/policy/process-fact command coverage instead of helper-only smokes. F-004 required explicit disabled timer step assertions. done_prepare timed out after spawning child validation, leaving a stale validation lock; waiting for stale recovery and rerunning done_required_validate fixed it. ProofStory caught a real intent shrink when backfill was initially deferred, so the full apply was executed before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 135552
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7418
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 263234
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 4887078
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2235662
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1455742
+    }
+  },
+  "totalDurationMs": 8985029,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T17:19:13.220Z",
+  "updatedAt": "2026-07-03T17:41:25.278Z"
+}

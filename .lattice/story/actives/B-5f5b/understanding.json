@@ -1,0 +1,30 @@
+{
+  "task": "Complete the remaining playbook lifecycle automation: full historical seed backfill plus bounded trial/matched-control/timer surfaces.",
+  "outcome": "The user can run a Proofbound CLI command that reports thousands of historical seeds, backfills them into inert candidate playbooks in one resumable apply flow, runs bounded candidate trials/matched-control observation, and then runs a timer command that advances only evidence-safe actions while clearly reporting skipped or blocked activation.",
+  "facts": [
+    "Current playbook_seed_observe reports 2074 proposable seeds and 4 already represented candidate sources.",
+    "Existing playbook_candidate_ingest defaults to done-experience and is capped for small story-scoped ingestion, so it is not a full historical backfill tool.",
+    "Existing playbook_auto_promotion_apply already requires explicit non-DONE exposure/outcome evidence before activation.",
+    "Existing candidate playbooks are inert and currently have no consumed candidate outcomes."
+  ],
+  "constraints": [
+    "Backfill must never activate playbooks or write helped outcomes.",
+    "Trial and timer automation must remain host-neutral and non-authoritative.",
+    "Timer apply must be bounded, explicit, and fail closed; no hidden daemon or gate evidence.",
+    "Historical processing must be idempotent and digest-bound so repeat runs do not duplicate candidates."
+  ],
+  "unknowns": [
+    "Exact final command names and output schema may change during implementation if existing core helpers need a cleaner split.",
+    "Whether matched-control should be a separate ledger or integrated into trial exposure rows will be resolved by the minimal safe store shape."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/playbook-seed-backfill-smoke.ts",
+    "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+  ],
+  "timestamp": "2026-07-03T15:14:18.415Z"
+}

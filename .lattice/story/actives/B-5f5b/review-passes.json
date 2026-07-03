@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-5f5b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed CHK-001 through CHK-003 for concept/design correctness: historical backfill remains inert candidate-only with no outcomes, trial/control observations are non-authoritative unknown rows that do not record helped, and timer activation delegates to existing evidence guards without bypassing lifecycle evidence boundaries.",
+      "createdAt": "2026-07-03T16:39:00.657Z",
+      "reviewRound": "2026-07-03T16:31:16.209Z",
+      "reviewRunId": "B-5f5b:RR-002",
+      "_hash": "788846f2399b404da7663c33126e0722fc5027f3a372231b92dfceaa42d72e12"
+    },
+    {
+      "id": "B-5f5b:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept matches story intent: all-seed backfill writes only inert idempotent candidates, trial records unknown candidate exposures plus matched controls, and timer remains explicit bounded one-shot activation through existing evidence guards.",
+      "createdAt": "2026-07-03T17:01:31.193Z",
+      "reviewRound": "2026-07-03T16:45:06.845Z",
+      "reviewRunId": "B-5f5b:RR-004",
+      "_hash": "ef43c02436cf09427d11c18ca57a017b68dc713fc33a8eb26d9187d4167d169b"
+    },
+    {
+      "id": "B-5f5b:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed after fixes: backfill remains digest-bound/candidate-only/idempotent; trial writes non-authoritative unknown exposure plus matched-control rows; status reports trial/control diagnostics; timer is explicit, bounded, dry-run default, and delegates activation to existing guards; command policy and process-fact wiring verified.",
+      "createdAt": "2026-07-03T17:04:11.594Z",
+      "reviewRound": "2026-07-03T16:45:06.845Z",
+      "reviewRunId": "B-5f5b:RR-005",
+      "_hash": "31c8335caf0f514bcf43d2002150857ad185cc16f6bf821d943e26412c4dba31"
+    },
+    {
+      "id": "B-5f5b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review after F-004 fix: CHK-001 covered by playbook-seed-backfill-smoke; CHK-002/CHK-003 covered by playbook-trial-automation-smoke. Confirmed disabled backfill and sweep timer steps assert requested=false, status=disabled, applied=false, dryRun consistency, and step-not-requested messages in dry-run and apply. Registry/policy/process-fact coverage remains present for playbook_seed_backfill, playbook_trial_run, and playbook_promotion_timer. Focused smokes passed: node packages/main/dist/tasks/playbook-trial-automation-smoke.js; node packages/main/dist/tasks/playbook-seed-backfill-smoke.js.",
+      "createdAt": "2026-07-03T17:15:08.862Z",
+      "reviewRound": "2026-07-03T17:07:33.188Z",
+      "reviewRunId": "B-5f5b:RR-009",
+      "_hash": "d128cbab20e1630cc0115b2423697bd2266dbcaafe618f26c7851d53dbe39bda"
+    },
+    {
+      "id": "B-5f5b:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed current round after F-004: historical backfill writes only inert candidates, candidate trial/matched-control rows are bounded non-authoritative unknown evidence, timer is explicit one-shot with disabled step reporting and no daemon, and activation delegates to evidence guard without candidate/DONE-only activation.",
+      "createdAt": "2026-07-03T17:15:13.072Z",
+      "reviewRound": "2026-07-03T17:07:33.188Z",
+      "reviewRunId": "B-5f5b:RR-007",
+      "_hash": "df8265bd091d2494dc135718d7c5de94447764d53fdbaf511aa43999c34eab55"
+    },
+    {
+      "id": "B-5f5b:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review after F-004: test-only disabled timer assertions; production behavior remains candidate-only, bounded, idempotent, locked, non-authoritative, and process-fact registered.",
+      "createdAt": "2026-07-03T17:16:43.231Z",
+      "reviewRound": "2026-07-03T17:07:33.188Z",
+      "reviewRunId": "B-5f5b:RR-010",
+      "_hash": "5c854149b703f476e2531d94fdec24ed730fad708ce50128b88116ed11bdf093"
+    }
+  ]
+}

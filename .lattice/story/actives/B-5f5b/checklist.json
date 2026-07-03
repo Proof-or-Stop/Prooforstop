@@ -47,9 +47,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T16:20:19.926Z",
+      "endTime": "2026-07-03T16:20:43.194Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke backfilled 131 deduped dev-memory seeds in one apply run, including a pre-staged proposal converted to a candidate.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Repeat apply with the current observeDigest created zero duplicate candidates and reported all sources already represented.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-seed-backfill-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted stale observeDigest refusal, all resulting playbooks stayed status=candidate, staged proposal was deleted, and no outcome rows were written.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -100,9 +135,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T16:21:49.221Z",
+      "endTime": "2026-07-03T16:21:55.941Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke recorded one unknown candidate-inspection exposure and one matched-control ledger row for a candidate playbook, then reported them through promotion status.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted candidate-only selection, active playbook exclusion, explicit limit behavior, deterministic idempotency keys, and repeat apply no-op.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted trial outcomes remain non-authoritative unknown candidate-trial evidence with no helped verdict and no activation of candidates.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -151,9 +221,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-03T16:22:01.294Z",
+      "endTime": "2026-07-03T16:22:07.479Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke exercised promotion timer dry-run and apply with explicit bounded backfill/trial/activate steps and verified apply only ran enabled bounded actions.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted unrequested timer actions are reported disabled/skipped and requested steps honor explicit limits rather than running hidden background work.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/playbook-trial-automation-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted timer activation delegates to the existing auto-promotion guard and blocks unknown-only candidates instead of activating them.",
+          "headHash": "9a2c4fda28feb50168dbd1e87b727e4622632e0a",
+          "materialHash": "18a666a1853108cacd21a50e3b28432246aeba05ebcd18e393fc6c452c117d5a",
+          "storyFilesHash": "ead826238747f9ed30bb94001da038d8613cb1f4fcaaf9c7ab887ac231e6b36c",
+          "timestamp": "2026-07-03T17:08:11.441Z"
+        }
+      ]
     }
   ]
 }

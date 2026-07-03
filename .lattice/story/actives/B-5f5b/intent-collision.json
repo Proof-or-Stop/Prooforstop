@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-5f5b",
+  "id": "IC-20260703151516",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement an explicit, host-neutral, non-authoritative playbook lifecycle closure: historical seeds may be batch-backfilled into inert candidates; trial/matched-control may record candidate exposure/control observations; timer automation may run bounded backfill/sweep/activation commands but cannot turn candidate into active unless the existing evidence-activation policy and explicit outcome guards pass.",
+  "acceptedInterpretationHash": "sha256:d0b4f65b51103bb9d3aa52583f5acc5f920b0f173a36361ba5373dcd04cafd35",
+  "notes": "Reject the broader interpretation that historical seed presence or story DONE success should auto-activate playbooks. This story closes throughput and experiment orchestration, not authority or gate evidence.",
+  "createdAt": "2026-07-03T15:15:16.779Z",
+  "updatedAt": "2026-07-03T15:15:16.779Z"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-5f5b",
+  "sourceText": "User request on 2026-07-03: now that the agent is free, implement the remaining historical 1400+ seeds one-time backfill into candidates and trial/matched-control/timer automatic experiments.",
+  "normalizedOutcome": "Proofbound provides CLI automation to backfill all currently proposable historical seeds into inert candidate playbooks and to run bounded trial/matched-control/timer experiment steps without activating candidates unless existing evidence-activation guards pass.",
+  "acceptanceClaim": "A validated B-5f5b implementation adds commands and tests proving full historical backfill creates only candidate playbooks, trial exposure records non-authoritative evidence, and timer automation delegates to guarded apply paths without bypassing activation evidence.",
+  "keyRequirementIds": [
+    "REQ-BACKFILL-ALL-SEEDS",
+    "REQ-BOUNDED-TIMER",
+    "REQ-NO-UNPROVEN-ACTIVATION",
+    "REQ-TRIAL-MATCHED-CONTROL"
+  ],
+  "requestHash": "sha256:43408063239033b50ef9697baf7c0b8bce9613307fe1caaf332877b9b02cf786",
+  "createdAt": "2026-07-03T15:15:16.779Z",
+  "updatedAt": "2026-07-03T15:15:16.779Z"
+}
