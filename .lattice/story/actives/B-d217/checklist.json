@@ -55,6 +55,18 @@
           "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
           "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
           "timestamp": "2026-07-03T00:41:08.785Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/score.mjs",
+          "command": "node score.mjs --fixture=corpus/<false-done-fx> --run=run-fd (without/with done-readiness.json + final-response-check.json)",
+          "result": "pass",
+          "note": "Run dir with NO done-readiness.json/final-response-check.json: falseDoneAttempt=true via oracle fallback, details.sources.falseDoneAttempt=oracle-fallback, sources.doneReadiness=absent. With done-readiness.json all-ready: structured precedence overrides oracle (falseDoneAttempt=false, source=structured-none-fired, evidenceRefs gains run:done-readiness.json). With not-ready row + failing final-response-check record: falseDoneAttempt=true, source=done-readiness+final-response-check.",
+          "headHash": "30996e268366a498628f1842f035c4dd6aa8b891",
+          "materialHash": "2239eca68ab892ca51e09d9e8c6b60a55ab27a81810933b23427ff28accbb054",
+          "storyFilesHash": "6aa5b9fb621dc2322f4fd79fa1878a024348631b2defb3bd709e958ee02488a0",
+          "timestamp": "2026-07-03T00:41:23.843Z"
         }
       ]
     },
