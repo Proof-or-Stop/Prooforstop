@@ -4,7 +4,7 @@
   "title": "Complete historical playbook backfill and bounded trial automation",
   "description": "Finish the remaining playbook lifecycle closure by adding an auditable historical seed backfill path and a bounded trial/matched-control/timer automation path without weakening evidence activation or runtime authority boundaries.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "playbook",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-07-03T15:11:40.248Z",
   "startedAt": "2026-07-03T15:11:40.248Z",
-  "endedAt": null,
+  "endedAt": "2026-07-03T17:41:59.233Z",
   "events": [
     {
       "phase": "INIT",
@@ -107,12 +107,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-f5e42e2b7eb6b75a",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-03T17:41:59.233Z",
+      "branch": "story/B-5f5b",
+      "user": "Harmonygo",
+      "sessionId": "sess-f5e42e2b7eb6b75a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5f5b",
-    "branch": "story/B-5f5b",
-    "createdAt": "2026-07-03T15:13:54.616Z"
-  },
   "currentReviewRound": "2026-07-03T17:07:33.188Z"
 }
