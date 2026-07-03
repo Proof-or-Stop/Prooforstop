@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6703",
+  "mode": "feature",
+  "allowed": [
+    ".lattice/story/actives/<storyId>/**",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "excluded": [
+    "blocking policy generation",
+    "historical seed backfill",
+    "remote publish",
+    "timer/daemon promotion",
+    "trial serving"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to do Story 1 and Story 2 first, with historical experience handled separately; Story 2 must close evidence-based activation without default-off fake behavior.",
+  "createdAt": "2026-07-03T02:48:57.463Z",
+  "updatedAt": "2026-07-03T02:48:57.463Z",
+  "_hash": "8ffd5b89717f970f8b14cf8d75495747211fdd72cd25f8a450dfd0ad6966a5ef"
+}
