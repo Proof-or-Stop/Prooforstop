@@ -7,7 +7,25 @@
     "packages/main/src/core/playbook-seed.ts",
     "packages/main/src/handlers/playbook.ts",
     "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
-    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    ".lattice/story/actives/B-c28f/background.md",
+    ".lattice/story/actives/B-c28f/checklist.json",
+    ".lattice/story/actives/B-c28f/decision.json",
+    ".lattice/story/actives/B-c28f/execution-boundary.json",
+    ".lattice/story/actives/B-c28f/index.json",
+    ".lattice/story/actives/B-c28f/init-check.json",
+    ".lattice/story/actives/B-c28f/intent-collision.json",
+    ".lattice/story/actives/B-c28f/original-intent-snapshot.json",
+    ".lattice/story/actives/B-c28f/plan.md",
+    ".lattice/story/actives/B-c28f/process-events.jsonl",
+    ".lattice/story/actives/B-c28f/process-metrics.json",
+    ".lattice/story/actives/B-c28f/proofstory.json",
+    ".lattice/story/actives/B-c28f/review.json",
+    ".lattice/story/actives/B-c28f/scope-boundary.json",
+    ".lattice/story/actives/B-c28f/scope-check.json",
+    ".lattice/story/actives/B-c28f/scope-contract.json",
+    ".lattice/story/actives/B-c28f/scope-freeze-check.json",
+    ".lattice/story/actives/B-c28f/scope-question-resolutions.json"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -26,8 +44,8 @@
     "DONE gate semantics",
     "remote publish"
   ],
-  "scopeChangeReason": "Lock Story 1 to done_experience seed/candidate flow and docs; activation remains Story 2.",
+  "scopeChangeReason": "Allow only B-c28f story-local lifecycle metadata required by PLAN/ProofStory gates, while keeping product code scope unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-07-03T01:40:17.788Z",
-  "updatedAt": "2026-07-03T01:40:17.788Z"
+  "updatedAt": "2026-07-03T01:45:15.841Z"
 }
