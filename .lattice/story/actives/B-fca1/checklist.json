@@ -68,6 +68,18 @@
           "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
           "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
           "timestamp": "2026-07-03T10:12:37.955Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
+          "result": "pass",
+          "note": "Adversarial cases PASS: every paper-table figure row carries inference unpowered/exploratory in JSON and the [unpowered/exploratory] label on all 3 md table rows; recursive tree digest before/after proves nothing outside --out was created or modified (cited artifacts never mutated); tamper cases detected (protocol payload edit -> protocolHash recompute mismatch, manifest append -> manifestHash mismatch, snapshot edit -> memorySnapshotHash recompute mismatch, drifted score records -> pilot baseline recount mismatch); fail-closed guard when n-freeze verdict is not refused.",
+          "headHash": "6c23a28d9e9c2ffa3b17a959edd3e7247909c8a3",
+          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
+          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
+          "timestamp": "2026-07-03T10:12:38.537Z"
         }
       ]
     },
