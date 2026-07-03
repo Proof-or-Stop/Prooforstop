@@ -5,7 +5,7 @@
       "desc": "CHK-002:happy:0 is not fully covered: packages/main/src/tasks/playbook-trial-automation-smoke.ts:140 records candidate-trial outcome rows and packages/main/src/tasks/playbook-trial-automation-smoke.ts:162 records matched-control rows directly, but the smoke never invokes playbook_promotion_status to prove the required status reporting path. The current status handler only builds pendingLearning from outcome aggregates at packages/main/src/handlers/playbook.ts:1093 and does not expose/verify matched-control reporting, so the evidence note overclaims promotion status coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T16:35:44.971Z",
@@ -17,7 +17,11 @@
         "packages/main/src/handlers/playbook.ts"
       ],
       "signatureTag": "missing|ts|happy-fully-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "playbook_promotion_status now reads playbook-trial-controls.jsonl, emits trialControlSummary in JSON/text, and playbook-trial-automation-smoke proves status reports one candidate-trial outcome and one matched-control row after registered playbook_trial_run --apply. Evidence: npm run build; node packages/main/dist/tasks/playbook-trial-automation-smoke.js; node packages/main/dist/tasks/playbook-seed-backfill-smoke.js; command catalog/ownership/process fact checks all passed.",
+      "resolvedAt": "2026-07-03T16:45:14.597Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5f5b:F-002",
