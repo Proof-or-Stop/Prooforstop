@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-d1bf:F-001",
+      "desc": "quantum_claim_check only applies the requestedStrength CLI argument to built-in cases. In packages/main/src/handlers/quantum-claim-admissibility.ts:108-110 the handler skips args.requestedStrength whenever evidenceJson or evidencePath is present, even though the command schema exposes requestedStrength as a normal argument and describes unsupported strengths as fail-closed overclaims. As a result, caller-supplied complete evidence plus --requestedStrength=production/theory can be evaluated as advance unless the JSON itself redundantly includes requestedStrength, creating CLI/direct-input policy drift and a fail-closed overclaim bypass. Apply requestedStrength consistently after parsing all evidence sources, or reject combining it with evidenceJson/evidencePath so the command cannot silently ignore the overclaim signal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-03T00:41:28.363Z",
+      "reviewRound": "2026-07-03T00:39:01.624Z",
+      "reviewRunId": "B-d1bf:RR-002",
+      "_hash": "c608590e6da41aafbf0bcf14ec4b139ca4945af0aee2f15bd8143b86b59ff147",
+      "files": [
+        "packages/main/src/handlers/quantum-claim-admissibility.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/claim-admissibility/quantum.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|quantum-claim-check",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
