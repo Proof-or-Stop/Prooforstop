@@ -65,6 +65,17 @@
           "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
           "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
           "timestamp": "2026-07-03T11:48:11.794Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff HEAD~1..HEAD -- packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "result": "pass",
+          "note": "Manual diff inspection shows the only source change is @type test -> @type chore in the top @task comment; no imports, assertions, registry calls, or runtime smoke logic changed.",
+          "headHash": "07cd3f56f8c8e992d5b5ca0762feab0efc296aff",
+          "materialHash": "b99d37b88a02e8d7ac26c9287216d181ba975b370ddec97a6154e5f295d6a6b4",
+          "storyFilesHash": "5ed12e72aa8336f9b77ef57ffb2c2359114f290fc3763530aafb778e7502a4c1",
+          "timestamp": "2026-07-03T11:48:18.268Z"
         }
       ]
     }
