@@ -9,9 +9,10 @@
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "A DONE story can appear as a first-class playbook seed source instead of only a settlement health row.",
+      "userSees": "CLI JSON includes \"sourceArtifactKind\":\"done_experience\", \"canonicalSourceKeyVersion\":\"proofbound.learning-source-key.v1\", and a stable canonicalSourceKey for the same DONE story.",
       "files": {
         "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
           "packages/main/src/core/source-lineage-audit.ts",
           "packages/main/src/core/playbook-seed.ts"
         ],

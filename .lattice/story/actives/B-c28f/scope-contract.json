@@ -1,0 +1,33 @@
+{
+  "storyId": "B-c28f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/source-lineage-audit.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "explicitExcludes": [
+    "automatic active playbook activation",
+    "historical seed backfill execution",
+    "semantic LLM dedup",
+    "DONE gate semantics",
+    "remote publish"
+  ],
+  "scopeChangeReason": "Lock Story 1 to done_experience seed/candidate flow and docs; activation remains Story 2.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T01:40:17.788Z",
+  "updatedAt": "2026-07-03T01:40:17.788Z"
+}
