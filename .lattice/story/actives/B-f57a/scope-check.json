@@ -145,10 +145,12 @@
       "q": "Milestone numbering conflict: tier-c-crosshost-quorum-execution-plan.md M1 is unambiguously titled 'Provenance: signed verdict + public-key pinning' with no reframe language. B-f57a plan.md describes itself as 'crypto-deferred M1' and CHK-002 includes updating the execution-plan M1 entry. Until CHK-002 lands, the existing execution-plan M1 spec still mandates cryptographic provenance. The question is: does the scope-reviewer treat the existing (pre-CHK-002) execution-plan text as the authoritative spec commitment, or does the story's plan.md override take precedence for scope purposes? If the former, the non-crypto collection work maps more precisely to M2 in the current spec, making M1 a label mismatch rather than a deferral. The INIT product-reviewer already flagged this as a low advisory.",
       "evidence": "Execution-plan M1 text: 'make each verdict cryptographically bound to a distinct pinned host key ... bind the signature INTO the HostVerdict record ... Add the pinned hostId-to-publicKey manifest'. Story plan.md Overview: 'Cryptographic signing is explicitly OUT OF SCOPE (deferred as external-skeptic-only)'. INIT product-reviewer: 'Title says M1 but execution-plan M1 is signed-verdict+pinned-key provenance (which this story explicitly defers). The actual scope maps to M2 (cross-host collection) plus disagreement surfacing.'",
       "sourcePointers": [
-        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md M1 section",
-        ".lattice/story/actives/B-f57a/plan.md Overview and Out of scope sections",
-        "story_get initCheck agentResults product-reviewer low advisory"
-      ]
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        ".lattice/story/actives/B-f57a/plan.md",
+        "CHK-002"
+      ],
+      "resolution": "RESOLVED: plan.md intent overrides the pre-amendment execution-plan M1 text for scope purposes. The 2026-07-03 design review (recorded in this story background + plan.md Overview/SPIKE sections) deliberately reframed M1: cryptographic provenance is DEFERRED as external-skeptic-only because on a single-machine, same-operator setup tamper-proofing defends against a non-existent adversary; the delivered value is the automatic adversarial joint decision. The conflict is self-healing: CHK-002 explicitly amends docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md so the M1 milestone text reflects this crypto-deferred collection+disagreement scope, moving signed-verdict/pinned-key work to a later external-skeptic milestone. Thus no title/milestone correction is needed beyond the in-scope doc amendment. The signature-distinct independence predicate noted as orphan-suspect (from three-round-two-host-review-escalation-execution-plan.md) is explicitly OUT of this story and remains available for a future crypto milestone.",
+      "resolvedAt": "2026-07-03T01:48:32.605Z"
     }
   ]
 }
