@@ -1,0 +1,131 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "redactMemoryPackForControlArm empties every serialized memory-pack surface on the control arm",
+      "context": "main's B-ab8d gates only the 7 TEXT renders (surfaceRuntimeMemoryPack) and keeps the pack in JSON 'for lossless measurement', leaving the JSON/--output surfaces host-readable. redactMemoryPackForControlArm (core/runtime-memory-arm-gate.ts, keyed on resolveExperimentArm) empties results/items, nulls sourceDigests, collapses packDigest, and fails CLOSED on control; applied at done_closure/final_response_check/host_dispatch/handoff_create/handoff_resume JSON + the prefetch manifest. Measurement stays lossless via the experience_pack_surfaced event.",
+      "userSees": "With LATTICE_EXPERIMENT_ARM=control and LATTICE_EXPERIMENT_ID set, done_closure --json, host_dispatch --json, handoff_create --json and handoff_resume --json return a memoryFreshnessPack with empty results/items arrays, nulled sourceDigests, and the content-free empty-set packDigest (4f53cda1...), and the prefetch manifest carries no memoryPackDigest/memoryTopHitIds; on treatment and no-experiment the pack is fully populated and unchanged.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-memory-arm-gate.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/lattice-handoff.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+          "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "control done_closure/handoff/host_dispatch --json return empty result/item arrays + empty-set packDigest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "treatment and no-experiment JSON packs are byte-identical to pre-isolation (redaction is a no-op)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "redaction fails CLOSED on control (a throwing pack yields empty surfaces, never the populated one) and no stored id survives serialization; sourceDigests fingerprints nulled",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "final_response_check routes through the shared arm render gate and redacts its JSON pack",
+      "context": "main's surfaceRuntimeMemoryPack was wired at 7 consumers; final_response_check (handlers/playbook-runtime-memory.ts) rendered + returned the pack UNGATED. It now calls surfaceRuntimeMemoryPack (fires experience_pack_surfaced on both arms, suppresses the text section on control) and returns redactMemoryPackForControlArm(pack) as memoryFreshnessPack.",
+      "userSees": "On control, final_response_check text omits the memory summary (no memoryTopHitIds line) and its --json memoryFreshnessPack is empty; on treatment/normal the summary renders and the JSON pack is populated; the consumer-wiring health oracle requires surfaceRuntimeMemoryPack at the final_response_check site.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "control final_response_check --json pack empty + text omits memoryTopHitIds; treatment/normal populated",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "playbook_runtime_health required-class checks redact topHitIds/packDigest on control",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the wiring oracle fails if final_response_check stops routing through surfaceRuntimeMemoryPack (drift guard)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "parallel dispatch injects no experience on control; two corpus tools added to the memoryRetrieval block",
+      "context": "experienceRefs() (core/lattice-parallel-wave.ts) is the single chokepoint for parallel_dispatch/report/plan experience injection; it returns [] on control. memory_benchmark_real_data (exports the real corpus) and source_lineage_audit (surfaces dev-memory ids+paths) are added to command-policy.ts memoryRetrieval markers so main's block refuses them on control.",
+      "userSees": "On control, parallel_dispatch --includeExperience returns experienceRefs=[]; memory_benchmark_real_data and source_lineage_audit are refused with 'memory retrieval is disabled on the control arm'; treatment and no-experiment are unaffected.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "control parallel_dispatch experienceRefs=[]; treatment populated",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "memory_benchmark_real_data + source_lineage_audit refused on control, permitted on no-experiment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the experienceRefs chokepoint gates ALL injection paths (dispatch/report/plan), not just one",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
