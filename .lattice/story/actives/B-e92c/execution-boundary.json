@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e92c",
+  "allowedCommands": [
+    "diff *",
+    "git diff *",
+    "git log *",
+    "git status",
+    "grep *",
+    "head *",
+    "lattice *",
+    "ls *",
+    "mktemp *",
+    "node -e *",
+    "node experiments/experience-ablation/*",
+    "rg *",
+    "shasum *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/experiments/experience-ablation",
+    "experiments/experience-ablation/live-readout-selfcheck.mjs",
+    "experiments/experience-ablation/live-readout.mjs"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "npm publish *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M8 report tool story: two new committed files + gitignored report artifacts under the experiment evidence root. learning_effectiveness consumed read-only; no packages/main writes.",
+  "createdAt": "2026-07-03T09:20:54.574Z",
+  "updatedAt": "2026-07-03T09:20:54.574Z",
+  "_hash": "1fb177081ae77fb3e38c52a332b9c6de0e3059741f4ef2603585173ec51ef53c"
+}
