@@ -17,6 +17,26 @@
       ],
       "signatureTag": "missing|md|concept-cleanup-tier",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f57a:F-002",
+      "desc": "concept-cleanup: cross_host_review command calls submitLocalVerdict twice and emits host_verdict process events (L4 evidence-producing), but is missing entries in both command-policy.ts and process-fact-levels.ts — every other evidence-producing command (autopilot_review_submit, quorum_submit) has both entries; without a command-policy entry the access-control tier is undeclared",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-03T02:22:25.678Z",
+      "reviewRound": "2026-07-03T02:19:40.977Z",
+      "reviewRunId": "B-f57a:RR-001",
+      "_hash": "1b1f4abd15c2be1b5af127118bf9dce2a2677a5318a09542aafe3b268ba89c9a",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
