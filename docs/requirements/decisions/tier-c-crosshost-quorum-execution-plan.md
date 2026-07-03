@@ -57,7 +57,44 @@ Deliverable: `docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.m
 Acceptance: names the trust anchor, the independence claim + its ceiling, and every fail-closed rule.
 Repro-first: exempt (documentation, not material code).
 
-### M1 — Provenance: signed verdict + public-key pinning  [build · medium · the technical crux]
+### M1 — Automatic cross-host review + disagreement surfacing (crypto-deferred)  [build · medium · the mechanism crux]
+Decision (2026-07-03): M1 is **crypto-deferred**. On the current single-machine, same-operator
+setup, tamper-proofing (signed verdicts / pinned keys) defends against a non-existent adversary —
+the value we can earn today is the **adversarial joint decision**, not a signature. So M1 builds the
+collection+decision mechanism now and defers the provenance crypto to M-crypto (below,
+external-skeptic-only).
+Objective: turn the manual 2-host quorum into an **automatic** cross-host adversarial review that
+records a materialHash-bound host-B verdict through the existing capture path and surfaces where
+host A (Claude) and host B (Codex) disagree.
+- A new `cross_host_review` command auto-runs Codex as an independent **read-only** reviewer over the
+  current materialHash-bound change (stdin-piped `codex exec -s read-only -C <worktree>`; parse ONLY
+  the structured JSON verdict, record only a `stdoutDigest` for provenance — never raw stdout).
+- Fail-closed: no parseable/schema-valid verdict → `blocked` (`codex_review_no_parseable_verdict`);
+  a verdict bound to a different materialHash → `blocked` (`codex_review_material_mismatch`).
+- Capture the host-B verdict via the existing `submitLocalVerdict` path (binds `materialDigest`,
+  appends a `host_verdict` event) with a distinct derived hostId/session/key so the two hosts do not
+  collapse in `groupByIndependentHost`.
+- `diffFindings` + `jointDecision` (pure): the joint decision is `pass` IFF both hosts pass AND there
+  is no finding-level divergence; otherwise `blocked`, surfacing WHICH finding one host raised and the
+  other missed (the gap `summarizeVerdicts` does not fill — it only counts pass/fail hosts).
+- Dispatch policy gains a NARROW `allowReviewOnlyRealHostSubprocess` flag that permits ONLY a
+  read-only Codex reviewer; the general `allowRealHostSubprocess` implementation path for codex, and
+  gemini/antigravity, stay refused.
+Files: `core/codex-review-leaf.ts` (new), `core/cross-host-review.ts` (new),
+`handlers/cross-host-review.ts` (new), `core/dispatch-policy.ts`, `cli/command-catalog.ts`,
+`registry.ts`. Crypto files (`receipt-bundle.ts`/`authority-signing.ts`) are explicitly **untouched**.
+Acceptance: with an injected fake Codex seam, a `fail` verdict carrying a host-B-only finding yields
+`jointDecision === 'blocked'` with `disagreement.onlyHostB.length === 1`; an agreeing case (both pass,
+identical findings) yields `jointDecision === 'pass'`, `hasDisagreement === false`; both fail-closed
+paths return a synthesized `blocked` verdict and never surface raw stdout.
+Repro-first RED: `registry.get('cross_host_review')` FAILS on the pre-fix baseline. SPIKE (done):
+codex 0.141.0 emits the verdict JSON cleanly only via the stdin-pipe read-only mechanism (prompt-as-arg
+hangs; there is no `--prompt-file`).
+
+### M-crypto — Provenance: signed verdict + public-key pinning  [build · medium · external-skeptic-only, DEFERRED]
+Deferred (2026-07-03): only worth building when a strong EXTERNAL-skeptic claim is actually needed
+(pairs with M4's powered campaign). On the current same-operator setup it defends against no present
+adversary, so it is explicitly moved out of the near-term M0–M3 block.
 Objective: make each verdict cryptographically bound to a distinct pinned host key.
 - Each host emits a `receipt-bundle`-signed verdict; bind the signature INTO the `HostVerdict` record.
 - Add the pinned `[hostId → publicKey]` manifest.
@@ -107,18 +144,25 @@ Objective: promote Tier-C in the paper once earned.
 Files: `lattice-Paper/paper/main.tex`.
 
 ## 3. Dependencies & sequence
-M0 → M1 → M2 → M3 → (stop / decide) → M4 → M5. M0 can run in parallel with M1 design.
-The M0–M3 block is the committed near-term scope; M4 is a separate go/no-go.
+M0 → M1 (crypto-deferred cross-host review) → M2 → M3 → (stop / decide) → M-crypto → M4 → M5.
+M0 can run in parallel with M1 design. The M0–M3 block is the committed near-term scope; the
+provenance crypto (M-crypto) and the powered campaign (M4) are separate, external-skeptic-only
+go/no-go decisions taken together.
 
 ## 4. Non-goals
 - No central server / no remote proof service (CLI-only by design; Eq.adm unchanged).
-- No new evidence type beyond signed cross-host verdicts.
-- Do not over-claim independence beyond cross-vendor (state the same-operator boundary).
+- No cryptographic provenance in the near-term M0–M3 block (signed verdicts / pinned keys are the
+  DEFERRED, external-skeptic-only M-crypto; M1 records materialHash-bound verdicts, not signatures).
+- Do not over-claim independence beyond cross-vendor (state the same-operator boundary — the honest
+  ceiling is "cross-vendor independent, same-operator orchestrated; not a Byzantine multi-party
+  trust claim", per the threat model §3).
 - Do not flip `tab:tier` before the evidence exists (M5 is last).
 
 ## 5. Lattice story sequence (all via the story workflow)
 1. M0 threat-model doc — story (docs; repro-first exempt).
-2. M1 signed-verdict provenance — story (material code; repro-first RED/SPIKE required).
+2. M1 automatic cross-host review + disagreement surfacing (crypto-deferred) — story B-f57a
+   (material code; repro-first RED/SPIKE done).
 3. M2 cross-host collection — story (material code; repro-first required).
 4. M3 proof-of-mechanism run — story (run + captured transcript evidence).
-(4') Decide go/no-go on M4. M4/M5 are separate stories opened only if pursued.
+(4') Decide go/no-go on M-crypto + M4 together (external-skeptic-only). M-crypto/M4/M5 are separate
+stories opened only if pursued.

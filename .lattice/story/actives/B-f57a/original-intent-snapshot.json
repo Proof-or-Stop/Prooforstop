@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f57a",
+  "sourceText": "User chose option B: build a small M1 that automates running Codex as an independent second reviewer and surfaces where the two hosts (Claude, Codex) disagree, reusing the existing quorum/dispatch/verdict primitives, with cryptographic signing explicitly deferred because tamper-proofing is meaningless on a single-machine same-operator own-benefit setup.",
+  "normalizedOutcome": "One command (cross_host_review) auto-runs a read-only Codex review over the current materialHash-bound change, records a codex-provider verdict bound to the exact materialHash through the existing submitLocalVerdict path, and returns a joint decision that lists findings raised by exactly one host (the disagreement report).",
+  "acceptanceClaim": "Running cross_host_review produces a materialHash-bound codex verdict via the real capture path plus a disagreement report surfacing host-only findings; an injected fake Codex seam lets the smoke prove capture, materialHash binding, fail-closed on unparseable/mismatched verdicts, and disagreement detection deterministically.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:183c9da879ed61131236147e591a86ee90354f1af62e626ba6dec42e89ab45d4",
+  "createdAt": "2026-07-03T01:49:44.855Z",
+  "updatedAt": "2026-07-03T01:49:44.855Z"
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-f57a",
+  "state": "confirmed",
+  "ledgerHash": "sha256:941bb8b0588240d42263fe341f0b362514e9b1fc9c45df6dea18958233aad1cb",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Auto-run Codex as an independent read-only reviewer and capture a structured materialHash-bound verdict through the existing capture path",
+      "doneMeans": "cross_host_review runs a read-only Codex review (stdin-pipe), parses only the structured JSON verdict, records a codex-provider verdict bound to the current materialHash via submitLocalVerdict, and fails closed (blocked) on unparseable/schema-invalid/materialHash-mismatched output",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Combine host-A and host-B verdicts into a joint decision that surfaces finding-level disagreements",
+      "doneMeans": "diffFindings + jointDecision report onlyHostA/onlyHostB findings and block when any single-host finding or non-pass decision exists; pass only when both hosts pass and there is no disagreement; command registered",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-03T01:50:26.243Z",
+  "updatedAt": "2026-07-03T01:50:49.867Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260703015001",
+    "acceptedInterpretationHash": "sha256:0a5f2a60d7f11ff64cd77e6106734eb6a2bf748fcf37d7a6950f730b79f5585c",
+    "acceptedAt": "2026-07-03T01:50:49.867Z"
+  }
+}

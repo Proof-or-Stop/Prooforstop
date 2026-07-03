@@ -4,17 +4,475 @@
       "id": "CHK-001",
       "title": "Auto-run Codex as an independent reviewer over the bound change and capture a structured materialHash-bound verdict",
       "context": "Reuse dispatch_prepare and the bounded Codex spawn primitive (runBoundedCodexProvider / runCodexRealLeafDispatch); extend checkDispatchPolicy to sanction a bounded Codex real-leaf for REVIEW only. Capture ONLY structured verdict fields (decision plus findings); do NOT promote raw stdout transcript into evidence (respect the credential-safety boundary in codex-cli.ts). Feed the verdict into the existing submitLocalVerdict / autopilot_review_submit path so it binds to the exact materialHash. No cryptographic signing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-03T02:12:48.096Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Injected fake Codex seam returns stdout carrying a valid JSON fail verdict (schema lattice.codex_review_verdict.v1, decision=fail, materialHash=currentMaterialHash). Assert: host-B verdict is recorded with decision===fail AND materialDigest===currentMaterialHash(root), confirming the capture path binds to the exact code.",
+            "type": "cli"
+          },
+          {
+            "id": "CHK-001:happy:1",
+            "desc": "registry.get(cross_host_review) is defined after handler registration, proving the command is registered in the catalog and registry.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Fail-closed on unparseable output: fake Codex seam returns garbage stdout (no JSON). Assert: host-B verdict decision===blocked, reason includes codex_review_no_parseable_verdict, result exposes stdoutDigest but no raw-stdout field (credential-safety boundary).",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:1",
+            "desc": "Fail-closed on schema mismatch: fake seam returns valid JSON but missing required fields (e.g. no decision field). Assert: decision===blocked, reason codex_review_no_parseable_verdict.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:2",
+            "desc": "Rebinding guard: fake Codex seam returns a structurally valid verdict whose materialHash differs from the orchestrator-computed digest. Assert: decision===blocked, reason mentions materialHash mismatch.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:3",
+            "desc": "Codex process exits non-zero (seam simulates crash or timeout). Assert: decision===blocked, stdoutDigest present, no raw stdout promoted.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "Raw stdout injection: fake Codex seam returns stdout containing both a valid verdict JSON block AND malicious text outside it (e.g. fake credentials, prompt-injection attempts). Assert: only the structured JSON verdict fields are parsed and recorded; no raw stdout text appears in the recorded verdict or evidence.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:adversarial:1",
+            "desc": "Dispatch-policy bypass: attempt to run a codex implementation subprocess (not review-only) through the new allowReviewOnlyRealHostSubprocess flag. Assert: checkDispatchPolicy still refuses non-review codex/gemini/antigravity implementation calls even when the review-only flag is set.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:adversarial:2",
+            "desc": "Mutually-exclusive dispatch flags: a dispatch policy carrying BOTH allowReviewOnlyRealHostSubprocess=true AND allowRealHostSubprocess=true with allowedHosts=['codex'] is REFUSED by checkDispatchPolicy (the two flags are mutually exclusive for codex, so it can never reach the implementation dispatch path); a PURE review-only codex policy is still permitted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:3",
+            "desc": "Missing policy fails closed: calling cross_host_review with NO policy fails closed -- authorizeReviewPolicy throws, the codex seam is never invoked, and zero verdicts are recorded.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:4",
+            "desc": "Unauthorized policy fails closed: a policy that does not grant a read-only codex reviewer (unauthorized) fails closed the same way (throw, seam never invoked).",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:5",
+            "desc": "Policy constraints threaded to runner: the authorized policy's env denylist + secret-pattern strip + max-runtime timeout ceiling are actually threaded to the codex spawn (asserted via a capturing seam that records the RunCodexReviewLeafOptions: timeoutMs === policy ceiling, denied/secret env names absent).",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:6",
+            "desc": "Dirty-worktree integrity fail-closed: cross_host_review binds the verdict to currentMaterialHash(HEAD) (committed tree) but Codex reviews the LIVE worktree. When the worktree has uncommitted MATERIAL (source) drift vs HEAD (excluding .lattice/ metadata), the handler MUST fail closed (throw cross_host_review_dirty_worktree, no codex spawn, no verdict recorded) so a HEAD-bound verdict can never reflect a review of a dirty tree. Control: a worktree dirty only in .lattice/ proceeds normally.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:7",
+            "desc": "Malformed host-A findings input fails closed: the hostAFindingsFile (caller-supplied JSON) is strictly validated as Finding[] (strict Zod — no missing/extra/wrong-typed keys, must be an array). A malformed host-A findings file (missing a required Finding field, extra keys, or non-array) causes cross_host_review to fail closed (reject) rather than trusting unvalidated JSON.parse output — hardening the host-A trust boundary alongside the strict codex-verdict schema and runtime policy-shape validation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:happy:0\": fake FAIL verdict -> recorded host-B decision===fail and materialDigest===currentMaterialHash (capture path binds to exact code).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:happy:1\": registry.get(cross_host_review) is defined (command registered).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:0\": garbage stdout -> blocked, reason codex_review_no_parseable_verdict, no raw-stdout field.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:1\": valid JSON missing decision field -> blocked, no_parseable_verdict.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:2\": wrong materialHash -> blocked (material mismatch / rebinding guard).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:edge:3\": non-zero exit + timeout, no verdict -> blocked, stdoutDigest present, no raw stdout.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:adversarial:0\": verdict JSON + malicious out-of-band text -> only structured fields parsed; malicious raw text absent from recorded verdict.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-001:adversarial:1\": checkDispatchPolicy still refuses non-review codex impl subprocess, and gemini/antigravity under the review-only flag.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:2\": a policy with BOTH allowReviewOnlyRealHostSubprocess AND allowRealHostSubprocess + allowedHosts=[codex] is REFUSED by checkDispatchPolicy; a pure review-only codex policy is permitted (F-003 mutual-exclusion).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:3\": cross_host_review with NO policy fails closed — authorizeReviewPolicy throws, codex seam never invoked, 0 verdicts recorded (F-004).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:4\": an unauthorized policy (no read-only codex grant) fails closed the same way — throw, seam never invoked (F-004).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:5\": authorized policy env denylist + secret-strip + max-runtime timeout ceiling threaded to the codex spawn, asserted via a capturing seam recording RunCodexReviewLeafOptions (F-004/F-007).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:6",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/cross-host-review.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js && node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Post-main DONE-required blocker fixed by c8674ebae: cross_host_review now resolves a story-keyed gitCwd via resolveGitCwd and uses it consistently for HEAD/material/storyFiles hashes, dirty/head drift checks, and git worktree add/remove. Fresh HEAD verification passed: build, gitroot-cwd-contract smoke (0 bare-cwd violations), and cross_host_review smoke 24/24 including F-016 final-record cleanup.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:7",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke \"CHK-001:adversarial:7\": malformed host-A findings file (missing/extra/wrong-typed keys or non-array) -> cross_host_review fails closed via strict Zod Finding[] validation, not trusting raw JSON.parse. RED-verified.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Combine host-A and host-B verdicts into a joint decision that explicitly surfaces disagreements",
       "context": "New logic that diffs the two hosts findings and reports where they diverge (a finding raised by one host and not the other), instead of only a pass/fail union. This is the adversarial-value output. Bind to the same materialHash.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-03T02:12:48.850Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Injected fake Codex seam returns a fail verdict carrying one finding NOT in host-A findings. Assert: result.jointDecision.jointDecision===blocked, result.disagreement.onlyHostB.length===1, result.disagreement.hasDisagreement===true. Proves single-host findings cause fail-closed blocking.",
+            "type": "cli"
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "Agreeing case: both hosts pass with identical findings (or both empty). Assert: jointDecision===pass, hasDisagreement===false, divergentCount===0. Proves the pass-through path works when hosts agree.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Host-A has a finding that host-B does not. Assert: onlyHostA.length>=1, hasDisagreement===true, jointDecision===blocked. Proves disagreement detection is symmetric (not just host-B-only).",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:1",
+            "desc": "One host passes and the other fails (no overlapping findings). Assert: jointDecision===blocked, blockedReason present, both hostADecision and hostBDecision accurately reflect their individual decisions.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:2",
+            "desc": "Finding key normalization: two findings with same file:line but differently-cased titles (e.g. Foo Bar vs foo bar) are treated as the SAME finding (not a disagreement). Assert: they appear in agreed, not onlyHostA/onlyHostB.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:3",
+            "desc": "Both hosts fail with identical findings. Assert: jointDecision===blocked (both non-pass), hasDisagreement===false (no finding-level divergence), agreed array contains the shared findings.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:edge:4",
+            "desc": "Host-B verdict is blocked (e.g. from CHK-001 fail-closed). Assert: jointDecision===blocked, blockedReason indicates host-B was blocked. Proves blocked propagates through the joint decision.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Cross-host materialHash mismatch: host-A and host-B verdicts reference different materialHash values. Assert: jointDecision===blocked. The joint decision must never pass when the two hosts reviewed different code states.",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-002:adversarial:1",
+            "desc": "Duplicate finding injection: host-B returns the same finding twice (duplicate key). Assert: diffFindings deduplicates correctly and does not double-count as multiple disagreements or inflate the agreed set.",
+            "type": "logic"
+          },
+          {
+            "desc": "Reconstructed from logic_test evidence: Smoke check CHK-002:adversarial:2: identical hostA/hostB identity is rejected before Codex spawn, and no verdict is recorded, preserving ...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:happy:0\": host-B-only finding -> jointDecision blocked, onlyHostB.length===1, hasDisagreement true.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:happy:1\": identical findings both pass -> jointDecision pass, hasDisagreement false, divergentCount 0.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:0\": host-A-only finding -> onlyHostA>=1, hasDisagreement true, blocked (symmetric detection).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:1\": one pass / one fail no overlap -> blocked, blockedReason present, decisions accurate.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:2\": same file:line differently-cased titles -> treated as SAME (agreed, not only*).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:3\": both fail identical findings -> blocked, hasDisagreement false, agreed contains shared findings.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:edge:4\": host-B verdict blocked -> jointDecision blocked (blocked propagation).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:adversarial:0\": divergent host-A/host-B materialHash -> jointDecision blocked (never pass on divergent code states).",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check \"CHK-002:adversarial:1\": host-B returns same finding twice -> diffFindings dedups, counts correct.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Smoke check CHK-002:adversarial:2: identical hostA/hostB identity is rejected before Codex spawn, and no verdict is recorded, preserving independent cross-host proof semantics.",
+          "headHash": "9850f7601e00cf6aab7a98688bfe1604e129a682",
+          "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+          "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+          "timestamp": "2026-07-03T11:20:27.265Z"
+        }
+      ]
     }
   ]
 }

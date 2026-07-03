@@ -1,0 +1,202 @@
+{
+  "passes": [
+    {
+      "id": "B-f57a:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 17 verificationIntents (CHK-001:happy:0/1, CHK-001:edge:0/1/2/3, CHK-001:adversarial:0/1, CHK-002:happy:0/1, CHK-002:edge:0/1/2/3/4, CHK-002:adversarial:0/1) have valid logic_test verificationEvidence bound to the same headHash/materialHash. Each check exercises real code paths via an injected fake seam (CHK-001 leaf/handler cases) or direct pure-function calls (CHK-002 diff/joint cases); no hollow assertions detected. Fail-closed cases (edge:0-3) assert blocked+reason on unparseable/schema-invalid/wrong-materialHash/timeout. Adversarial cases assert raw-stdout exclusion and dispatch-policy refusal against real checkDispatchPolicy logic. All 17 checks verified passing against dist.",
+      "createdAt": "2026-07-03T02:23:43.295Z",
+      "reviewRound": "2026-07-03T02:19:40.977Z",
+      "reviewRunId": "B-f57a:RR-003",
+      "_hash": "3034a672b0abde4b2710487f1205e0040c6cf400a6335b658717ee7d416e20b4"
+    },
+    {
+      "id": "B-f57a:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-consistency review. F-001 fix verified: threat-model.md lines 6/39/44/71 all retargeted M1→M-crypto; \"core M1 fix\" → \"core M-crypto fix\" with clarifying note; §4/§6 headings updated. Execution-plan.md fully consistent: M1 heading now \"Automatic cross-host review + disagreement surfacing (crypto-deferred)\"; old \"Provenance: signed verdict + public-key pinning\" content lives under M-crypto heading. Dependency chain updated M0→M1→M2→M3→M-crypto→M4→M5. Independence ceiling intact: cross-host-review.ts:12-13 states \"cross-vendor (Claude host A / Codex host B), same-operator orchestrated — the honest ceiling stated in the threat model\"; no Byzantine/mutually-distrusting language anywhere in new modules. No crypto leaked into M1 modules: receipt-bundle.ts and authority-signing.ts untouched (zero diff); canonicalDigest import in handlers/cross-host-review.ts is SHA-256 hashing only. Plan-promised interface delivered: diffFindings/jointDecision/submitLocalVerdict all implemented; allowReviewOnlyRealHostSubprocess distinct from allowRealHostSubprocess in dispatch-policy.ts. Residue grep for old M1=provenance/signed-verdict/public-key-pinning concept: one hit at execution-plan.md:94 is the M-crypto heading (correct). Other M1 hits in B-337f/B-d217/B-ac71 are (a) different program milestones (experience-ablation) or (b) immutable historical audit records for a completed story — not active concept residue. No doc-promise-undelivered found. Zero findings.",
+      "createdAt": "2026-07-03T02:40:53.464Z",
+      "reviewRound": "2026-07-03T02:38:16.913Z",
+      "reviewRunId": "B-f57a:RR-004",
+      "_hash": "e396cd5c61d57b7498af49ee829e1a1680c7c0c96d96e7abfbd2a0f1e2ca4450"
+    },
+    {
+      "id": "B-f57a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-consistency re-review. Scope: Round-2 fix commit ecbce6853 only (F-006/F-007/F-008). (1) F-006: dead reviewOnlyCodex variable correctly removed from checkDispatchPolicy; remaining usage at dispatch-policy.ts:280/283 is in validatePolicyArgs where allowRealHostSubprocess is an input (not always-true), so it is live and correct — not residue. (2) F-007: UNSAFE_ENV_PATTERN broadened to cover DATABASE/DSN/CONNECTION/AUTH/SESSION/COOKIE/PRIVATE/ACCESS/*_URL/*_URI; old narrower pattern gone; documented empty-allowlist semantics correct. (3) F-008: four new adversarial verificationIntents CHK-001:adversarial:2-5 confirmed present and implemented in cross-host-review-smoke.ts. (4) Crypto-deferred framing: unchanged — execution-plan M1 heading stays \"crypto-deferred cross-host review\"; threat-model references M-crypto not M1 for pinned-key enforcement; codex-review-leaf.ts and cross-host-review.ts file headers consistent. (5) Independence ceiling: intact at cross-host-review.ts:12-13 \"cross-vendor (Claude host A / Codex host B), same-operator orchestrated — the honest ceiling stated in the threat model\"; no Byzantine/mutually-distrusting language anywhere. (6) No new concept deletion/replacement introduced by Round-2 fixes. No concept residue found. Zero findings.",
+      "createdAt": "2026-07-03T02:55:39.091Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-007",
+      "_hash": "372de1c8a401e41def153f0321d44835ab6a2dd7a41a0d9d9255fb3d4ef6dccf"
+    },
+    {
+      "id": "B-f57a:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-006 verified: checkDispatchPolicy (~L436) now refuses codex directly inside the allowRealHostSubprocess===true block — no dead reviewOnlyCodex variable (it is unconditionally false in that block so removing it was correct). Codex+both-flags scenario traced: validatePolicyArgs sets reviewOnlyCodex=false when allowRealHostSubprocess=true, so codex is in unsupportedRealHosts and the error fires. Pure review-only codex (allowRealHostSubprocess=false, allowReviewOnlyRealHostSubprocess=true) is permitted: reviewOnlyCodex=true, codex excluded from unsupportedRealHosts, and the guard if(allowRealHostSubprocess&&...) never fires. gemini/antigravity refused in both paths. F-007 verified: UNSAFE_ENV_PATTERN=/TOKEN|SECRET|...|_URL$|_URI$/i — no catastrophic backtracking (all fixed-string alternations), correctly catches DATABASE_URL/SECRET_KEY/AWS_SECRET_ACCESS_KEY etc., $-anchoring for _URL$/_URI$ verified correct in JS alternation context. Essential env vars PATH/HOME/SHELL/TMPDIR preserved. Empty-allowlist semantics documented (means no-restriction, not strip-all). buildRedactedEnv returns a concrete env object (never process.env by reference). Broader scan: tsc clean, no unused imports, no as-any, documented empty-catch blocks are all justified (SIGKILL-already-gone, pipe-broken, JSON.parse-scan). I/O isolation clean — handler imports only core modules. Doc promises cross-checked against implementation — all features described in execution-plan.md are present in code.",
+      "createdAt": "2026-07-03T02:57:25.335Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-008",
+      "_hash": "50fde829b032fe901b8ff0feb71e43fbe0d15e9f90bfab313c3da1ae29828bcc"
+    },
+    {
+      "id": "B-f57a:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 21 intents across CHK-001 (12: happy:0-1, edge:0-3, adversarial:0-5) and CHK-002 (9: happy:0-1, edge:0-4, adversarial:0-1) each have non-stale logic_test evidence bound to materialHash a7602537... All 21 smoke checks green. The 4 newly-registered adversarial intents (CHK-001:adversarial:2-5) have genuine non-hollow evidence with specific assertions (mutual-exclusion refusal, missing-policy fail-closed, unauthorized-policy fail-closed, env-denylist+timeout threading). intent_coverage_check reports 0 diagnostic gaps. validate allPass:true (32 commands).",
+      "createdAt": "2026-07-03T03:02:52.826Z",
+      "reviewRound": "2026-07-03T02:53:26.313Z",
+      "reviewRunId": "B-f57a:RR-009",
+      "_hash": "14b10f9188dd3868ec1fdd14ab3fa54684364b1e98652e9420b402217b580dac"
+    },
+    {
+      "id": "B-f57a:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: current HEAD has 23 covered verification intents with fresh material/story hashes. Smoke assertions cover second-host verdict capture, disagreement surfacing, invalid/malformed and duplicate schema-valid verdict fail-closed paths, material binding, dirty-worktree fail-closed with .lattice-only control, closed env allowlist with exact LC locale categories, timeout ceiling threading, strict host-A findings validation, and duplicate-finding dedup. No hollow or stale evidence found.",
+      "createdAt": "2026-07-03T09:40:37.285Z",
+      "reviewRound": "2026-07-03T09:38:02.271Z",
+      "reviewRunId": "B-f57a:RR-010",
+      "_hash": "019feca872d729f852453ec961430bbe66d250198a071c3736c3193a046cdedb"
+    },
+    {
+      "id": "B-f57a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS: CHK-001:adversarial:6 covers pre-spawn dirty source, detached clean HEAD snapshot, post-spawn dirty-source TOCTOU, no dirty-path verdict record, and .lattice-only control; CHK-002:adversarial:2 covers same host identity rejected before spawn/record. Targeted smoke rerun passed 24/24.",
+      "createdAt": "2026-07-03T09:54:45.189Z",
+      "reviewRound": "2026-07-03T09:52:09.312Z",
+      "reviewRunId": "B-f57a:RR-014",
+      "_hash": "55cf17e206da2967fab28bd2fac87db83c80145e2e0f434a8ccce4f1e8edc728"
+    },
+    {
+      "id": "B-f57a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review round 7 PASS. Verified CHK-001:adversarial:6 smoke assertions cover dirty source before spawn, detached captured-HEAD snapshot, post-spawn source drift before record, post-spawn clean HEAD drift rejected with cross_host_review_head_drift before record, no verdict recorded on drift, and .lattice-only metadata control. Verified CHK-002:adversarial:2 covers same-host identity rejection before Codex spawn with no verdict recorded. Existing evidence records bind these intents to node packages/main/dist/tasks/cross-host-review-smoke.js and current validation summary reports 24/24 coverage.",
+      "createdAt": "2026-07-03T10:07:04.264Z",
+      "reviewRound": "2026-07-03T10:04:46.771Z",
+      "reviewRunId": "B-f57a:RR-018",
+      "_hash": "acd449fe1e64102513c6f216a76e0f6dbe2dac401c626c1a3f9a70ebb64f9f49"
+    },
+    {
+      "id": "B-f57a:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 8 PASS for F-014/F-015: cross_host_review captures headHash before material/story hash computation, computes both hashes against that captured SHA, checks live HEAD before spawn and before record, snapshots Codex at the captured SHA, preserves host identity fields, and keeps source/.lattice drift semantics intact. No blocker found.",
+      "createdAt": "2026-07-03T10:17:13.219Z",
+      "reviewRound": "2026-07-03T10:14:56.276Z",
+      "reviewRunId": "B-f57a:RR-021",
+      "_hash": "693d7a2e12ce2d23e1a5a81e3a8be2654bd58bb34f5e56ded6487de9248390f7"
+    },
+    {
+      "id": "B-f57a:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001:adversarial:6 evidence is adequate after F-014/F-015. cross-host-review-smoke mechanically covers dirty source before spawn, pre-hash clean HEAD drift before Codex spawn, captured-HEAD snapshot pinning, post-spawn source drift, post-spawn clean HEAD drift, no verdict recorded on drift, and .lattice-only metadata control; recorded evidence and latest validation show coverage.",
+      "createdAt": "2026-07-03T10:17:51.737Z",
+      "reviewRound": "2026-07-03T10:14:56.276Z",
+      "reviewRunId": "B-f57a:RR-023",
+      "_hash": "7b0cde606b39b93563c5afd8e377c5384ea2ecb412c096b7d613f972a2f26f56"
+    },
+    {
+      "id": "B-f57a:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: after 0170731fb, cross_host_review still binds host A and host B verdicts to the captured head/material/story hashes, runs Codex on a detached captured-HEAD snapshot, fail-closes on source or HEAD drift before spawn/before write/after pair write, deletes the pair before process-events append on post-write drift, and preserves disagreement/jointDecision semantics. No blocking concept issue found.",
+      "createdAt": "2026-07-03T10:30:15.855Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-024",
+      "_hash": "04dabb9956e6295ff81dbd8dd74ab8b3db8721b008dbb82e402f0a02bd629138"
+    },
+    {
+      "id": "B-f57a:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "CHK-001:adversarial:6 evidence is sufficient after F-016: smoke covers dirty source drift fail-closed with no spawn/no verdict, pre-hash clean HEAD drift before spawn, post-spawn source and clean HEAD drift before record, post-write clean HEAD drift cleanup leaving no stale/partial verdict pair, and .lattice-only dirty control. Evidence plan shows 24/24 fresh intents and lifecycle REVIEW localReady=true; latest validate snapshot PASS with unchanged material/storyFiles hashes.",
+      "createdAt": "2026-07-03T10:30:23.629Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-026",
+      "_hash": "89559a6cd5e49c9cae4703c60a55d98325d0b39a2680d144d39600e1d41a2069"
+    },
+    {
+      "id": "B-f57a:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS after F-016 fix: reviewed commit 0170731fb plus metadata through 7189890/current metadata-only passes. cross_host_review now builds both local host verdict records from captured head/material/story hashes, checks source cleanliness and HEAD before write, writes the host pair before process events, rechecks after pair write, deletes both files on post-write drift before any host_verdict events are appended, and appends both process events together only after the final guard. No stale/partial verdict persistence blocker found; process-event fields remain equivalent to submitLocalVerdict. Targeted verification rerun passed: npm --prefix packages/main run build && npm --prefix packages/main run test:cross-host-review (24 checks).",
+      "createdAt": "2026-07-03T10:31:32.453Z",
+      "reviewRound": "2026-07-03T10:27:22.324Z",
+      "reviewRunId": "B-f57a:RR-025",
+      "_hash": "a969d20c02fb8c249025ba315c8d2f789073ff53b583fd28a8fed595bcffebf3"
+    },
+    {
+      "id": "B-f57a:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS after c8674ebae/fd1299b69/e265fa0: cross_host_review still captures a concrete HEAD and computes materialDigest/storyFilesHash from that captured ref; all dirty/head/final post-write drift guards now use the resolved gitCwd consistently; host A/B verdict pair semantics and disagreement/jointDecision fail-closed behavior are unchanged. The gitCwd fix is cwd-only and only improves wrapper-root git safety.",
+      "createdAt": "2026-07-03T10:54:53.065Z",
+      "reviewRound": "2026-07-03T10:52:51.266Z",
+      "reviewRunId": "B-f57a:RR-027",
+      "_hash": "c1585a15345bcf0d54823a7d0a6834134eae362785a98d880105a976f50b3e6f"
+    },
+    {
+      "id": "B-f57a:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after post-main gitCwd fix: evidence_plan reports 24/24 fresh intents with no missing/rerun/refresh-only buckets; CHK-001:adversarial:6 is freshly evidenced at c8674ebae by build plus gitroot-cwd-contract smoke plus cross_host_review smoke 24/24, including F-016 final-record post-write cleanup; lattice validate --story=B-f57a --json is recorded PASS/allPass=true with 32 configured commands at fd1299b69 and unchanged material/storyFiles hashes through e265fa0. No test coverage blocker found.",
+      "createdAt": "2026-07-03T10:55:00.163Z",
+      "reviewRound": "2026-07-03T10:52:51.266Z",
+      "reviewRunId": "B-f57a:RR-029",
+      "_hash": "9995cc92a377dbf3f146de65807077a59b87ff23eaa90f297422bd34a718dc29"
+    },
+    {
+      "id": "B-f57a:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS after post-main gitCwd fix: reviewed c8674ebae/fd1299b69/e265fa0 and current metadata-only reviewer commits. cross_host_review now resolves one story-keyed gitCwd and uses it consistently for captured HEAD, materialDigest, storyFilesHash, dirty/source checks, HEAD drift checks, and git worktree add/remove; metadata writes remain through the story store. The final verdict pair is written only after pre-record guards, post-write drift deletes both verdict files before any host_verdict process events are appended, and process events append only after the final guard. Targeted verification passed: gitroot-cwd-contract-smoke (0 bare-cwd violations) and cross-host-review-smoke (24 checks). No quality/race-safety blocker found.",
+      "createdAt": "2026-07-03T10:55:36.703Z",
+      "reviewRound": "2026-07-03T10:52:51.266Z",
+      "reviewRunId": "B-f57a:RR-028",
+      "_hash": "426552c7ba860619a166485831429c84a66f6f9eb1076bffb108672986095065"
+    },
+    {
+      "id": "B-f57a:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "DEFAULT_PHASE_TOOLS wildcard addition for cross_host_review is minimal and consistent with command-policy allowedPhases=all; policy/handler still require owner-scoped write, explicit review-only codex policy, bounded timeout, and dirty/head fail-closed guards. Checks passed: node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run build.",
+      "createdAt": "2026-07-03T11:13:08.002Z",
+      "reviewRound": "2026-07-03T11:11:00.662Z",
+      "reviewRunId": "B-f57a:RR-031",
+      "_hash": "73b54a141496cf99562a101791c3f1c6b3c53880ddd12517ddb0ed1b0985ecd7"
+    },
+    {
+      "id": "B-f57a:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage adequate: evidence_plan reports 24/24 fresh checklist intents; checklist evidence at material head 7b0cb258 covers cross_host_review safety/disagreement behavior; config/policy alignment is covered by verify-process-fact-contract drift checks and DEFAULT_PHASE_TOOLS includes cross_host_review aligned with command-policy allowedPhases=all.",
+      "createdAt": "2026-07-03T11:13:13.765Z",
+      "reviewRound": "2026-07-03T11:11:00.662Z",
+      "reviewRunId": "B-f57a:RR-032",
+      "_hash": "d7ffaed5a69971977d4b426a09a98e995378ca09acd60243a80073eb4aa9b2fe"
+    },
+    {
+      "id": "B-f57a:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: DEFAULT_PHASE_TOOLS all-phase exposure aligns with command-policy/process-fact allowedPhases=all; execution remains story-owned, requires review-only Codex dispatch authorization, binds material/story hashes with dirty/HEAD guards, and records only local non-authority verdict evidence.",
+      "createdAt": "2026-07-03T11:13:18.242Z",
+      "reviewRound": "2026-07-03T11:11:00.662Z",
+      "reviewRunId": "B-f57a:RR-030",
+      "_hash": "0c8b2671955a465b9a9f2c3933921aebde6ce1b126cce42e16a342ef2934bb4f"
+    },
+    {
+      "id": "B-f57a:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS round 12: evidence_plan reports 24/24 fresh intents with missing=0 rerun=0 refresh-only=0 after main merge 9850f7601 and evidence refresh. Checklist evidence is bound to post-merge material/storyFiles hashes and covers cross_host_review smoke safety/disagreement behavior, including CHK-001:adversarial:6 dirty/head/final-record cleanup and CHK-002 disagreement/material divergence cases. Process-fact/phase-tool alignment inspected: cross_host_review is L4 gate-evidence in process-fact-levels, command-policy marks it storyScopedMutating/gateEvidence/allowedPhases=all, and DEFAULT_PHASE_TOOLS includes cross_host_review with the same guard expectations. No test coverage blocker found.",
+      "createdAt": "2026-07-03T11:24:22.696Z",
+      "reviewRound": "2026-07-03T11:22:51.374Z",
+      "reviewRunId": "B-f57a:RR-033",
+      "_hash": "a12f0bbcac4ed40c075f6dd5f6c55629897cc115b2bffac08d69691005bdb082"
+    },
+    {
+      "id": "B-f57a:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS: inspected command-policy/config/dispatch safeguards and cross_host_review handler/leaf; no accidental broadening found; focused cross_host_review smoke rerun passed 24/24.",
+      "createdAt": "2026-07-03T11:25:29.839Z",
+      "reviewRound": "2026-07-03T11:22:51.374Z",
+      "reviewRunId": "B-f57a:RR-034",
+      "_hash": "f38f9c2abc7fa77c06a4773f63e39161db79d540c133e72490b0c33ced4ff535"
+    },
+    {
+      "id": "B-f57a:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS round 12 after main merge 9850f7601: cross_host_review remains local non-authority evidence, storyScopedMutating and owner-gated by command policy, with explicit review-only Codex dispatch authorization before any spawn. gitCwd routing is consistent for HEAD, material/story hashes, dirty checks, head drift guards, and clean snapshot worktree cleanup. Final verdict pair write is guarded by pre/post material and HEAD checks with cleanup on post-write drift before process-event append. DEFAULT_PHASE_TOOLS all-phase exposure aligns with command-policy/process-fact allowedPhases=all and does not bypass handler/policy guards.",
+      "createdAt": "2026-07-03T11:25:59.203Z",
+      "reviewRound": "2026-07-03T11:22:51.374Z",
+      "reviewRunId": "B-f57a:RR-035",
+      "_hash": "5ffc69bb879b6d6d390b0c10beeceb67b8a3593d427e9c4cd260a1ab0879c939"
+    }
+  ]
+}

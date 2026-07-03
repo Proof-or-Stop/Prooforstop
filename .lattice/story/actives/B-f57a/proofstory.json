@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f57a",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "spike_evidence_required",
+      "message": "Unclear code path or explicit investigation wording should have spike evidence.",
+      "requires": "spike-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:183c9da879ed61131236147e591a86ee90354f1af62e626ba6dec42e89ab45d4",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1"
+      ],
+      "acceptanceClaim": "cross_host_review produces a materialHash-bound codex verdict via the real capture path (fail-closed on bad output)",
+      "note": "Leaf capture + binding + fail-closed"
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:1"
+      ],
+      "milestoneIds": [
+        "M2"
+      ],
+      "acceptanceClaim": "the joint decision surfaces host-only findings and blocks on any disagreement or non-pass",
+      "note": "Disagreement diff + joint decision"
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_confirmed_milestone_ledger",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "A candidate milestone ledger exists, but accepted intent interpretation has not confirmed it for gate consumption.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    },
+    {
+      "code": "missing_spike_evidence",
+      "severity": "warn",
+      "artifact": "spike.json",
+      "message": "Spike evidence is triggered but no spike artifact is present.",
+      "triggeredBy": [
+        "spike_evidence_required"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Crypto-deferred M1: two acceptance bindings — leaf capture/binding (M1/CHK-001) and joint-decision disagreement surfacing (M2/CHK-002).",
+  "createdAt": "2026-07-03T01:50:39.625Z",
+  "updatedAt": "2026-07-03T01:50:39.625Z"
+}

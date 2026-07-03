@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "proofstory.spike.v1",
+  "storyId": "B-f57a",
+  "spikes": [
+    {
+      "id": "SPIKE-001",
+      "question": "Can Codex CLI 0.141.0 be driven non-interactively to emit a parseable structured JSON verdict, and via which channel (positional arg / stdin / workspace-write file)?",
+      "status": "discarded",
+      "disposableCodePaths": [
+        "scratchpad/xhr-spike/*"
+      ],
+      "createdAt": "2026-07-03T01:53:10.966Z",
+      "updatedAt": "2026-07-03T01:56:01.289Z",
+      "result": "CONFIRMED via 3 real codex runs. (1) prompt-as-positional-arg is UNRELIABLE on 0.141.0 (hangs printing \"Reading additional input from stdin...\", no output). (2) workspace-write + prompt-arg also hung; and a read-only reviewer should not have write access anyway, so file-drop is rejected. (3) Piping the prompt via STDIN to codex exec -s read-only -C <git-worktree> reliably makes Codex emit the exact verdict JSON as its final stdout message; parsed cleanly (decision=pass, findings=1). MECHANISM: stdin pipe + parse the structured JSON block from stdout, read-only, own bounded spawn (NOT runBoundedCodexProvider which hides stdout). Also found: codex 0.141.0 has NO --prompt-file flag, so the lattice-dispatch.ts:487 template [codex,exec,--prompt-file,...] is stale and must not be reused.",
+      "note": "Disposable spike scripts (scratchpad/xhr-spike/*) deleted after they proved the stdin+stdout mechanism; the finding is retained as audit-only investigation evidence. The production mechanism is reimplemented cleanly in codex-review-leaf.ts during DEV, not from the scratch scripts."
+    }
+  ],
+  "createdAt": "2026-07-03T01:53:10.966Z",
+  "updatedAt": "2026-07-03T01:56:01.289Z"
+}
