@@ -120,7 +120,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "command": "git show 172b55142 -- docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+          "result": "pass",
+          "note": "Per-finding fix mapping. Stats report (10): F1 critical MDE-achievability refusal freeze_mde_exceeds_achievable_did (S7.5+S8+S10+S13); F2 high n pinned=6, grid search deleted with vacuity rationale, S8 floor 13/split re-derived at n=6 (S7.5); F3 high n_cal raised 4->8, explicit binomial attrition model published, K_min recomputed 32->40 (S6.2+S8); F4 med R4 seeded coverage simulation >=93% with BCa/cluster-t fallback ladder (S7.3+S8); F5 med ANOVA MoM rho estimator named, calibration bootstrap seed committed at R2, pessimistic worked row sigma2=0.5/rho=0.4 -> m=33/split (S7.5); F6 med generalized below-frozen-m stop any cause + 0/0 class exits m_S (S7.1+S10); F7 low p-hat_c rename, strict CI boundary rule, asymmetric-m Var(DiD) formula, calibration cost incl dropped+retries (S8+S7.2+S7.5); F8 high harvest budget 500 runs/21 days makes K_min stop decidable + matrix row (S6.2+S10+S13); F9 med split stratified by source+task family, family cap<=2 (S6.3+S7.3); F10 pass-with-pointers resolved via F2/F3/F6 fixes. Leakage/window report (11): F1 high Jaccard->containment |lesson-grams∩surface|/|lesson-grams|<0.05 (S6.5.2); F2 critical allowlist frozen in protocol.json at R2 pre-variants, mechanical admission rule (>=3 classes reproducers or fixed framework scan), answer tokens denied by construction, edits=protocol amendment (S6.5.7); F3 high per-class answer-token denylist auto-extracted from reference-good/bad distinguishing bytes + spelled-out numerals, paraphrase residual disclosed un-mechanizable (S6.5.5+S6.5.8+S11); F4 high lesson surface=full rendered pack bytes (playbook+anchor), acceptance.mjs added to scan surface, acceptance format-only proof exit 0 on BOTH overlays (S6.5.1+S6.5.6+S6.4); F5 med strip-list per-class derivation rule + non-empty marker selfcheck (S6.5.6); F6 med shared tokenizer split on [^a-z0-9_-]+, all checks over full surface incl prompt.md in check 4, binary handling (S6.5.1); F7 critical mechanical model pin: --model in frozen hostCmd, --output-format json parsed into REQUIRED modelId run.json field, fail-closed absent, scorer void, named as the two deltas from rev 2 reuse (S6.6+S6.7); F8 high dated snapshot id regex, aliases refused at freeze (S6.7+S13); F9 high hostCliVersion per-run recorded+voided, auto-update disabled, hostCmdHash frozen, stopping rule extended (S6.7+S10); F10 med 45-day staleness cap + drift test statistic/threshold/consequence (S6.7+S10+S13); F11 med Source B isolation contract, lessonize to study-local root, reproducer re-check pre-R5 and R5-close voids non-firing classes (S6.1+S6.3+S10). Claims/hygiene report (9): F1 high reorder lessons->variants->split->snapshot + generator-manifest input hashes lesson-free (S6.3+S6.4+S9+S14); F2 high disallowed lesson-aging/decay/absorption causal-claim bullet incl rev-2-null (S11); F3 med rev 2 already-established reworded to consistent-with-but-not-proving (S5+S2); F4 med fail-closed non-empty-pack assertion on held-out treatment cells + per-split pack-size reporting (S6.6+S7.6+S13); F5 med capture-loop reframed to surfacing within pinned window + pipeline-viability disallowed bullet (S3+S5+S11); F6 med m7-decision rejected-rev-3 reconciliation note (S1); F7 low DoD row 10 bound to analysis-report.md+evidence-map.md, budget-cap DoD row added, rows verified via score-records protocolHash binding (S15); F8 low rev 2 overhead qualified as 5-fixture unpowered exploratory no cost data (S7.6); F9 low 0.1667 N-maximizing upper bound parenthetical (S2).",
+          "headHash": "172b55142ce6c53c585d0e0b21ef8e1ea6829acd",
+          "materialHash": "35123500197160a811feb8365235c1dbc1e075d388866bcbcb5bc464555c5dcd",
+          "storyFilesHash": "b3da75a62e8ecc15f3f7f695acf7d515244d4170247ee268ddeb546b651f2b52",
+          "timestamp": "2026-07-03T16:20:29.824Z"
+        }
+      ]
     }
   ]
 }
