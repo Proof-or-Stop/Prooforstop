@@ -52,7 +52,7 @@
       "desc": "quantum_claim_check exposes requestedStrength as a normal fail-closed overclaim control, including production/theory/hardware/Authority strengths, but the handler only applies args.requestedStrength when no evidenceJson or evidencePath is supplied. A caller can provide otherwise complete custom evidence and pass --requestedStrength=production or --requestedStrength=theory; because packages/main/src/handlers/quantum-claim-admissibility.ts skips the override for custom evidence, evaluateQuantumClaimGatePolicy can see a scoped request and return decision=advance instead of stop. This makes the local gate-policy decision less meaningful for direct evidence input and creates a production/theory overclaim bypass at the CLI boundary. Apply requestedStrength consistently after parsing all evidence sources, or reject combining requestedStrength with evidenceJson/evidencePath so unsupported strengths cannot be silently ignored.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T00:42:12.258Z",
@@ -65,7 +65,11 @@
         "packages/main/src/core/claim-admissibility/quantum.ts"
       ],
       "signatureTag": "spec-boundary|ts|quantum-claim-check",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commits 4803d15f5 and e896ad5d9: same root cause as F-001; custom evidence plus requestedStrength production/theory/hardware overclaims are no longer ignored and fail closed instead of advancing.",
+      "resolvedAt": "2026-07-03T00:54:30.849Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d1bf:F-004",
