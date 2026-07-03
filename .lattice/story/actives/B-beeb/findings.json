@@ -73,6 +73,25 @@
       ],
       "signatureTag": "missing|mjs|happy-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-beeb:F-005",
+      "desc": "CHK-005 has no authored verificationIntent rows (happy/edge/adversarial) — the CLI reports these as legacy evidence without intent and explicitly states this is NOT a coverage pass. CHK-005 was added during DEV after intent freeze, so evidence was recorded with intentRefs CHK-005:happy:0/edge:0/adversarial:0 but no corresponding intent schema entries exist. The framework gate will not count these as coverage. lattice verification_intent_repair should be run to backfill the intent rows from the evidence, then the gate will recognize coverage. Substantively, the selfcheck covers all three behavioral dimensions: happy (snapshot materialized+hash verified, treatment/control prompt differentiation, case 6-8), edge (real CLI isolation probes, case CHK-005:edge evidence), adversarial (tamper abort before execution + post-run mutation abort + disjointness assertion, cases 9a/9b/10); 39/39 PASS verified live.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T04:39:55.645Z",
+      "reviewRound": "2026-07-03T04:12:03.561Z",
+      "reviewRunId": "B-beeb:RR-003",
+      "_hash": "ec08f5c5c8e99a66ff601c4d155e9e99df3d22a16815e56e9306483eea919a78",
+      "files": [
+        "experiments/experience-ablation/run-pilot-selfcheck.mjs",
+        "experiments/experience-ablation/snapshot-builder.mjs"
+      ],
+      "signatureTag": "missing|mjs|authored-verificationintent-rows",
+      "signatureTagSource": "auto"
     }
   ]
 }
