@@ -1,0 +1,38 @@
+{
+  "storyId": "B-364f",
+  "checkedAt": "2026-07-03T17:52:39.640Z",
+  "features": [
+    {
+      "feature": "Add required @changes metadata to both B-5f5b smoke file-level @task annotations",
+      "covered_by": "CHK-001 and plan touchpoints cover exactly packages/main/src/tasks/playbook-seed-backfill-smoke.ts and packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Runtime playbook behavior, learning stores, activation/backfill/trial execution, and validator semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Background, understanding, decision, and plan explicitly require metadata-only correction and exclude behavior, stores, validator semantics, activation, and historical backfill/trial data",
+      "source": "description"
+    },
+    {
+      "feature": "User-facing command behavior or documentation behavior changes beyond restoring convergence annotation compliance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Plan docs promise says no user-facing command behavior; verification is limited to annotation validator and convergence_check",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 1,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "be93a8d1040a171d6bd08114d17b9c48664ba790fb5f9a83bf162626d4103c7b",
+  "openQuestions": []
+}
