@@ -52,7 +52,37 @@
       "userSees": "lattice finding_list for this story shows every review finding resolved; the final document incorporates the fixes; story reaches DONE with the delivery check confirming the review dimensions were each covered by a registered reviewer finding or explicit pass",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every adversarial finding registered by reviewers across the six dimensions (statistics, leakage, repro yield, window validity, circularity/no-overclaim, supersession hygiene) is resolved and the fixes are present in the document",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finding_list shows zero open findings at story end; each of the six dimensions traceable to a registered finding or an explicit reviewer pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No resolution weakened the pre-registration (spot-check: sizing numbers, stopping rules and disallowed claims were strengthened or clarified, never deleted, across review rounds)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
