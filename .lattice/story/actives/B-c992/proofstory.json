@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-c992",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:5d4dcd3199342955ea3b07031b84fffc5f8407595bfd1e1f4802d046f2ad6922",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The rev 3 document exists with all required sections grep-verifiable; shasum of the rev 2 plan still equals 2ef4122ef1030c97536b8d6eda37619a9c029fc466d5b8706102201130835471; lattice finding_list for B-c992 shows all adversarial review findings resolved; the story delivery check confirms each of the six attack dimensions was covered by a registered finding or explicit reviewer pass.",
+      "note": "Design story: document + adversarial review clearance."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_milestone_ledger",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "Milestone triggers exist but no milestone ledger is configured.",
+      "triggeredBy": [
+        "structural_milestone_intent"
+      ]
+    },
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Docs-only rev 3 pre-registration story.",
+  "createdAt": "2026-07-03T14:49:08.233Z",
+  "updatedAt": "2026-07-03T14:49:08.233Z"
+}
