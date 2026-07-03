@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7de9",
+  "sourceText": "After reconciling the earlier duplicate M3 onto main, keep only the genuinely net-new value: close the control-arm memory JSON-leak surfaces that main B-ab8d left host-readable (it keeps the pack in JSON for lossless measurement), gate final_response_check (the 8th RuntimeConsumer), gate parallel_dispatch experience injection, and add two corpus tools to the retrieval block.",
+  "normalizedOutcome": "On the control arm (LATTICE_EXPERIMENT_ARM=control), every JSON/file runtime-memory-pack surface is empty (done_closure/final_response_check/host_dispatch/handoff/manifest/health), final_response_check text is suppressed, parallel_dispatch injects no experienceRefs, and memory_benchmark_real_data/source_lineage_audit are refused; treatment and no-experiment output is byte-identical.",
+  "acceptanceClaim": "Running the CLI under LATTICE_EXPERIMENT_ARM=control returns empty runtime-memory packs (empty results/items, nulled sourceDigests, empty-set packDigest) at every serialized surface while treatment/no-experiment return populated packs, proven by the experience-arm-gate + experience-arm-isolation-e2e smokes.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:4301700abd63904cc1fcf59f317d0eff52bd003fd01d6a960a4b49fbe1eff265",
+  "createdAt": "2026-07-03T11:19:14.491Z",
+  "updatedAt": "2026-07-03T11:19:14.491Z"
+}
