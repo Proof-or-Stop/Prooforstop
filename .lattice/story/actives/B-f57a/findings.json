@@ -339,7 +339,7 @@
       "desc": "cross_host_review still has a final clean-commit TOCTOU window after the last drift guard: packages/main/src/handlers/cross-host-review.ts:657-658 checks HEAD and worktree cleanliness, but verdicts are recorded later at :670 and :685 through submitLocalVerdict, whose implementation in packages/main/src/handlers/verdict.ts:82-120 / core/verdicts.ts:228-265 does not accept or re-check the captured headHash and is not wrapped in a source/write lock. A clean concurrent commit after the final guard but before either verdict write passes all current guards and records stale materialDigest/storyFilesHash-bound host_verdict facts; a commit between the two writes can also leave a partial stale host pair. Move the expected-head guard into an atomic verdict-record critical section (or pass expectedHeadHash into submitLocalVerdict and re-check immediately inside the write path for each record, under the relevant lock/source lease) so clean HEAD drift cannot occur after the guard and before record.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T10:18:08.069Z",
@@ -351,7 +351,11 @@
         "packages/main/src/handlers/verdict.ts"
       ],
       "signatureTag": "adversarial-ts-cross-host-review-final-head-check-to-record-race",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by source commit 0170731fb: cross_host_review now builds host-A/host-B verdicts as a pair, performs a final head/worktree guard before writing, performs a post-write head/worktree guard, and deletes the pair if post-write drift is observed before process events are appended. Evidence: npm --prefix packages/main run build PASS; node packages/main/dist/tasks/cross-host-review-smoke.js PASS 24/24 with CHK-001:adversarial:6 covering post-write clean HEAD drift cleanup; lattice validate --story=B-f57a --json PASS 32/32 recorded in f5eb36692.",
+      "resolvedAt": "2026-07-03T10:27:37.866Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
