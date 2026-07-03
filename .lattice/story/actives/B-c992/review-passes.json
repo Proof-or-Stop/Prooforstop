@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-03T16:21:59.999Z",
       "reviewRunId": "B-c992:RR-001",
       "_hash": "c1db8bc7c1e5387d9d31d8c48b1ef2917fb07f1a17026d38f3910cbae5a82d31"
+    },
+    {
+      "id": "B-c992:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 applied (pure docs diff; Step 1 symbol set empty). New document: docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md (1076 lines). Full-text scan against 9 committed instrument files in experiments/experience-ablation/ and 5 lattice repro_* CLI commands. Paragraphs compared: all sections of the new doc cross-checked against: protocol.mjs (freeze/validate/hashDirectorySnapshot/validateProtocolPayload), pair-ledger.mjs (guardImmutable + seeded PRNG), sample-size.mjs (pilotFreezeCheck/twoProportionNPerArm/mcnemarDiscordantPairs/wilson95/freeze_baseline_too_low), run-pilot.mjs (DEFAULT_HOST_CMD/validateRunRecord/RUN-RECORD.md), score.mjs (voiding/SCORE_KEY_ORDER), leakage-audit.mjs (auditFixture checks), snapshot-builder.mjs (inStoreClasses/assertSnapshotDisjoint), evidence-map.mjs (PLAN_DOC_RELPATH/REQUIRED_ARTIFACTS/SECTION18_ROWS), fixture-generator.mjs (oracle/reference-good-bad patterns), analyze.mjs (clusterBootstrap/BH), and repro_probe/repro_probe_get/repro_review_set/spike_record/story_create_from_repro CLI schemas. No blockers: every mechanical behavior not currently in committed code is correctly labeled as a pre-registered delta (R1-R6 build work) with explicit milestone attribution. Specifically: (1) run-pilot.mjs model-pin flags and validateRunRecord modelId/hostCliVersion fields are correctly called out as two pre-registered section-6.6 deltas required at R4; (2) score.mjs modelId/hostCliVersion void class is the third pre-registered delta at R4; (3) protocol.mjs hostModelId/hostCliVersion/seeds/staleness-cap fields are R2 additions; (4) leakage-audit.mjs 5-gram/12-gram/identifier/denylist/similarity extensions are R3 pre-registered extensions with explicit current-scanner acknowledgment; (5) snapshot-builder.mjs lesson-table adaptation is R3; (6) freeze_mde_exceeds_achievable_did refusal code does not exist yet but is correctly framed as R4 adaptation. Committed instruments verified as claimed: all repro_* CLI fields match (CLI 0.3.153 confirmed), pilotFreezeCheck/guardImmutable/hashDirectorySnapshot/xmur3+mulberry32+Fisher-Yates all present and behave as described, finding-signals.json count (1511 findings, 333 stories) matches doc exactly, 0 symbols changed (pure doc diff).",
+      "createdAt": "2026-07-03T16:30:05.677Z",
+      "reviewRound": "2026-07-03T16:21:59.999Z",
+      "reviewRunId": "B-c992:RR-003",
+      "_hash": "2429af1a0b94a2f14ad57401e1029081e1ba01458a1dda2c8b3f6b2a09b0eeb3"
     }
   ]
 }
