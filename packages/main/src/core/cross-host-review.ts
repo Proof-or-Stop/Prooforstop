@@ -98,18 +98,34 @@ export function diffFindings(hostA: Finding[], hostB: Finding[]): DisagreementRe
 }
 
 /**
+ * Optional material-state binding for `jointDecision`. When both hosts' verdicts
+ * carry a `materialHash`, the joint decision fails closed unless the two hashes
+ * are identical — a joint PASS must never be asserted across two DIVERGENT code
+ * states (a rebinding / stale-tree attack where host A and host B reviewed
+ * different code). Omit this argument for the pure decision+disagreement fold.
+ */
+export interface JointMaterialBinding {
+  hostAMaterialHash: string;
+  hostBMaterialHash: string;
+}
+
+/**
  * Combine host-A and host-B decisions into a fail-closed joint decision.
  * `jointDecision` is 'pass' IFF BOTH decisions === 'pass' AND
- * `!disagreement.hasDisagreement`; otherwise 'blocked' with a descriptive
- * `blockedReason` naming exactly why.
+ * `!disagreement.hasDisagreement` AND (when a `material` binding is supplied)
+ * both hosts reviewed the SAME materialHash; otherwise 'blocked' with a
+ * descriptive `blockedReason` naming exactly why.
  */
 export function jointDecision(
   hostAVerdict: CrossHostDecision,
   hostBVerdict: CrossHostDecision,
   disagreement: DisagreementReport,
+  material?: JointMaterialBinding,
 ): JointDecisionResult {
+  const materialMismatch = material !== undefined
+    && material.hostAMaterialHash !== material.hostBMaterialHash;
   const bothPass = hostAVerdict === 'pass' && hostBVerdict === 'pass';
-  if (bothPass && !disagreement.hasDisagreement) {
+  if (bothPass && !disagreement.hasDisagreement && !materialMismatch) {
     return {
       hostADecision: hostAVerdict,
       hostBDecision: hostBVerdict,
@@ -124,6 +140,12 @@ export function jointDecision(
     reasons.push(
       `hosts disagree on ${disagreement.divergentCount} finding(s) `
       + `(only host A: ${disagreement.onlyHostA.length}, only host B: ${disagreement.onlyHostB.length})`,
+    );
+  }
+  if (materialMismatch) {
+    reasons.push(
+      `hosts reviewed divergent code states (host A materialHash ${material!.hostAMaterialHash} `
+      + `!== host B materialHash ${material!.hostBMaterialHash})`,
     );
   }
   return {
