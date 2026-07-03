@@ -49,7 +49,7 @@
       "desc": "dispatch-policy: allowReviewOnlyRealHostSubprocess=true un-gates checkDispatchPolicy for codex but lattice-dispatch.ts line 2710 triggers runCodexRealLeafDispatch on allowRealHostSubprocess===true alone — a policy with both flags + allowedHosts=[codex] passes checkDispatchPolicy as authorized, then lattice-dispatch runs the IMPLEMENTATION path; the review-only narrowing is enforced only at the policy-check layer, not at the dispatch-execution layer, defeating the stated narrower-grant intent",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T02:23:25.292Z",
@@ -61,7 +61,10 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "adversarial|ts|dispatch-policy-allowreviewonlyrealhostsubprocess",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ca7615450 (see commit body); smoke 21 checks green, tsc clean.",
+      "resolvedAt": "2026-07-03T02:38:37.315Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-f57a:F-004",
