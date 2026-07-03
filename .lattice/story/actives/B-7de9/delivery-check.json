@@ -1,67 +1,56 @@
 {
   "storyId": "B-7de9",
-  "checkedAt": "2026-07-03T11:57:15.941Z",
-  "headHash": "d12aaba8d220ade03cf24531aef08e6ec7dd2006",
-  "materialHash": "efdca3010de2cc042105cba79f73c9c7e3052c92aa1c73d7d28adbebfde268b1",
-  "storyFilesHash": "a78dd9288e2a4616152a3d6288ed6a0ebfc2b09d428c4e4741965c6e2dbb68ee",
+  "checkedAt": "2026-07-03T12:07:56.412Z",
+  "headHash": "6ceb35327a4188421fd074c5e746723138d760e1",
+  "materialHash": "ccf58c6867131778c5d161758a655ea4f147c14510f7fdee571fd34a75574659",
+  "storyFilesHash": "b11a8d6db522b64f6ac93a2863f0c1abb069d9c61f7d06626d38487cb195dda9",
   "reviewRound": "2026-07-03T11:28:04.120Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "redactMemoryPackForControlArm at done_closure/final_response_check/host_dispatch/handoff_create/handoff_resume JSON surfaces",
-      "status": "verified",
-      "verifiedBy": "grep+diff",
-      "evidence": "git diff main...HEAD shows redactMemoryPackForControlArm imported and applied in done-closure.ts, lattice-handoff.ts (all 4 verdict branches + handoff_create + handoff_resume), and playbook-runtime-memory.ts"
+      "docPath": "runtime-memory-arm-gate.ts#header-comment",
+      "promise": "redactMemoryPackForControlArm empties results/items/sourceDigests/packDigest at every JSON/file serialization surface on the control arm",
+      "verifiedBy": "git diff main...HEAD runtime-memory-arm-gate.ts; grep redactMemoryPackForControlArm in done-closure.ts, lattice-handoff.ts, playbook-runtime-memory.ts",
+      "evidence": "redactMemoryPackForControlArm exported; applied in done-closure.ts (--json), lattice-handoff.ts (3 sites: prefetch, attach, projection), playbook-runtime-memory.ts (buildRuntimeHealth + final_response_check JSON). CHK-B cases all pass in smoke1."
     },
     {
-      "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "final_response_check routes through surfaceRuntimeMemoryPack; wiring oracle updated",
-      "status": "verified",
-      "verifiedBy": "diff+test",
-      "evidence": "playbook-runtime-memory.ts diff shows surfaceRuntimeMemoryPack call added; oracle regex updated to require it; playbook_runtime_health consumer-wiring check passes"
+      "docPath": "playbook-runtime-memory.ts#final_response_check",
+      "promise": "final_response_check routes its render through surfaceRuntimeMemoryPack and redacts its JSON memoryFreshnessPack on control",
+      "verifiedBy": "git diff main...HEAD playbook-runtime-memory.ts shows surfaceRuntimeMemoryPack + redactMemoryPackForControlArm applied in final_response_check",
+      "evidence": "Diff shows final_response_check calls surfaceRuntimeMemoryPack wrapping buildMemoryFreshnessPack then redactMemoryPackForControlArm on the pack. SMOKE2 CONTROL final_response_check --json pack arrays EMPTY confirmed."
     },
     {
-      "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "experienceRefs() returns [] on control arm (single chokepoint)",
-      "status": "verified",
-      "verifiedBy": "diff+test",
-      "evidence": "lattice-parallel-wave.ts adds isControlArm guard at top of experienceRefs(); e2e smoke asserts control parallel_dispatch returns experienceRefs=[]; transcript confirms experienceRefs: 0 on control"
+      "docPath": "lattice-parallel-wave.ts#experienceRefs",
+      "promise": "parallel dispatch (experienceRefs) injects no dev-memory experience refs on the control arm",
+      "verifiedBy": "git diff main...HEAD lattice-parallel-wave.ts shows isControlArm guard at top of experienceRefs(); SMOKE2 verifies no experience leak",
+      "evidence": "Single chokepoint: if (isControlArm(process.env)) return [] before any other logic. SMOKE2 CONTROL host_dispatch omits memory block confirmed."
     },
     {
-      "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "memory_benchmark_real_data and source_lineage_audit added to memoryRetrieval block in command-policy.ts",
-      "status": "verified",
-      "verifiedBy": "diff+test",
-      "evidence": "command-policy.ts diff adds memoryRetrieval:true to both; e2e smoke asserts both REFUSED on control and NOT refused on no-experiment"
-    },
-    {
-      "docPath": ".lattice/story/actives/B-7de9/plan.md",
-      "promise": "STORED historical evidence exports (story_export/test_list) are intentionally OUT of scope",
-      "status": "verified",
-      "verifiedBy": "scope-boundary comment in runtime-memory-arm-gate.ts",
-      "evidence": "File-level comment documents OUT boundary (F-022 decision); no checklist item covers this path — correctly scoped out"
+      "docPath": "command-policy.ts#memoryRetrieval-markers",
+      "promise": "source_lineage_audit and memory_benchmark_real_data added to memoryRetrieval block; quantum_claim_benchmark and playbook_candidate_ingest untouched",
+      "verifiedBy": "git diff main...HEAD command-policy.ts; git grep quantum_claim_benchmark + playbook_candidate_ingest",
+      "evidence": "Diff confirms memoryRetrieval:true on both entries. quantum_claim_benchmark line 240 and playbook_candidate_ingest line 279 present unchanged. SMOKE2 CONTROL source_lineage_audit and memory_benchmark_real_data REFUSED."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "experience-arm-gate-smoke.js: 18 assertions PASS (isControlArm, redactMemoryPackForControlArm incl. fail-CLOSED, host_dispatch text omission). experience-arm-isolation-e2e-smoke.js: 21 checks PASS. transcript-diff.md: live control done_closure ids=[] digest=4f53cda18c srcDigests-null=True; treatment ids=[9890b83,...] digest=259151dc3d."
+      "transcript": "experience-arm-gate-smoke.js: CHK-B covers control arm empties result/item arrays, packDigest collapsed to empty-set digest, sourceDigests nulled, no stored id survives serialization, treatment/normal pack byte-identical, fail-CLOSED on throwing pack. All cases PASS."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "e2e smoke: CONTROL final_response_check --json pack empty + content-free digest; TREATMENT/NORMAL populated. Text render suppressed on control. playbook_runtime_health consumer-wiring passes."
+      "transcript": "experience-arm-isolation-e2e-smoke.js: final_response_check --json on all 3 arms: CONTROL arrays empty + empty-set digest, TREATMENT/NORMAL populated. CONTROL text suppressed. 21 checks PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "e2e smoke: all 6 retrieval commands REFUSED on control, NOT refused on no-experiment. validate 9/9 intent coverage. quantum_claim_benchmark and playbook_candidate_ingest confirmed present in command-policy.ts."
+      "transcript": "experience-arm-isolation-e2e-smoke.js: CONTROL recall/dev_memory_start/dev_memory_list/dev_memory_search/memory_benchmark_real_data/source_lineage_audit REFUSED; NORMAL counterparts not refused. CONTROL host_dispatch omits memory block. 21 checks PASS."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 3 CHK items fully delivered and verified. redactMemoryPackForControlArm applied at all 5 JSON surfaces. final_response_check wired through surfaceRuntimeMemoryPack. experienceRefs single-chokepoint guard in place. Two new memoryRetrieval markers in command-policy.ts. quantum_claim_benchmark and playbook_candidate_ingest still present (no regression). Scope boundary for stored historical evidence documented and correctly scoped out. validate 9/9 pass. No undelivered promise, no unresolved TODOs."
+    "summary": "4 delivery promises verified from diff. redactMemoryPackForControlArm applied at all 6 JSON surfaces (done-closure --json, handoff attach+prefetch+projection, buildRuntimeHealth, final_response_check). experienceRefs single-chokepoint control gate confirmed. 2 memoryRetrieval markers added (source_lineage_audit + memory_benchmark_real_data), no quantum_claim_benchmark or playbook_candidate_ingest regression. transcript-diff.md present. Both smokes pass (21+14 cases)."
   },
-  "_hash": "46fa500199572938054a96ba6224262e66c84e9563a8ec037e1cf176bd98cabd"
+  "_hash": "10d84d93626c725923190457133cd1acdc10980c238d7e6ddde430549095d7c6"
 }
