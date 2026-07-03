@@ -2,12 +2,15 @@
   "storyId": "B-beeb",
   "mode": "enforce",
   "allowedModify": [
+    "experiments/experience-ablation/run-pilot.mjs",
+    "experiments/experience-ablation/run-pilot-selfcheck.mjs",
     ".lattice/experiments/experience-ablation/**"
   ],
   "allowedCreate": [
     "experiments/experience-ablation/run-pilot.mjs",
     "experiments/experience-ablation/run-pilot-selfcheck.mjs",
     "experiments/experience-ablation/leakage-audit.mjs",
+    "experiments/experience-ablation/snapshot-builder.mjs",
     ".lattice/experiments/experience-ablation/**"
   ],
   "allowedTest": [
@@ -25,7 +28,8 @@
     "experiments/recovery-runner/**",
     "packages/**"
   ],
+  "scopeChangeReason": "CHK-005 added after the pilot smoke exposed the experience-delivery gap: snapshot-builder.mjs joins allowedCreate and the runner files become modifiable for the prelude extension.",
   "acknowledgements": [],
   "createdAt": "2026-07-03T01:38:47.883Z",
-  "updatedAt": "2026-07-03T01:38:47.883Z"
+  "updatedAt": "2026-07-03T02:10:46.779Z"
 }

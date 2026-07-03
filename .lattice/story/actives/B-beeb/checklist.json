@@ -248,6 +248,18 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Experience-delivery prelude and frozen-snapshot materialization in the pilot runner",
+      "context": "CHK-003 smoke discovered the experience-delivery gap: fixture workspaces carry no .lattice/learning store and prompts never invoke the lattice CLI, so in isolated roots BOTH arms would see an empty pack and the experiment would be null by construction. Fix per plan sections 4/9/12: (a) new deterministic snapshot builder (experiments/experience-ablation/snapshot-builder.mjs) emitting a frozen memory-store directory whose lessons cover exactly the six in-store trap classes (and none of the held-out classes; disjointness asserted); protocol.mjs freeze consumes it via --snapshotDir so memorySnapshotHash binds the content. (b) run-pilot.mjs extension: --memorySnapshotDir materialized BYTE-IDENTICALLY into each isolated root learning path on BOTH arms, sha256-verified against protocol.json before host execution and re-verified unchanged after the run (plan section 14 snapshot row). (c) experience-delivery prelude: before host execution invoke the real gated entrypoint (node <cli> session_brief with the experiment env, cwd=isolated workspace) so the pack is computed+logged on both arms via the production M3 mechanism; prepend the rendered pack section to the host prompt ONLY when the entrypoint rendered it (treatment); control prompt stays byte-identical to the raw prompt.md. Update run-pilot-selfcheck to cover: snapshot hash mismatch aborts; treatment prompt contains the pack section while control does not; experience_pack_surfaced appears in both arms run records; snapshot unchanged after run.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "run-pilot-selfcheck prints the new PASS cases (snapshot materialized + hash verified, treatment prompt carries the pack section, control prompt byte-identical to prompt.md, surfaced events on both arms) ending ALL PASS; a smoke cell run record shows surfacedMemoryIds non-empty on treatment",
+      "status": "in_progress",
+      "startTime": "2026-07-03T02:25:30.390Z",
+      "endTime": null
     }
   ]
 }
