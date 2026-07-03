@@ -52,10 +52,10 @@
           "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck run twice, 37/37 PASS both runs, exit 0: section-18 rows all present in order with status ok; every required artifact + plan doc cited with existence check and recomputed sha256; circularity disclosure, four plan-15 disallowed claims, and exact verdict line Causal impact: INCONCLUSIVE asserted in json + md.",
-          "headHash": "e70a88eea37dfa36530f1ef86a0a49a2d9ea0b58",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:12:23.061Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
           "result": "pass",
           "note": "Determinism cases PASS: double run byte-identical for json + md with --generatedAt, and without the flag generatedAt records null while staying byte-identical. Missing-artifact loop PASS: each of the 12 required evidence artifacts plus the plan document, when omitted from a hermetic stub root, fails with exactly one actionable stderr line prefixed evidence-map: naming the artifact.",
-          "headHash": "079fca5200e1dd44951ef18add67042874af05d8",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:12:37.955Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs",
           "result": "pass",
           "note": "Adversarial cases PASS: every paper-table figure row carries inference unpowered/exploratory in JSON and the [unpowered/exploratory] label on all 3 md table rows; recursive tree digest before/after proves nothing outside --out was created or modified (cited artifacts never mutated); tamper cases detected (protocol payload edit -> protocolHash recompute mismatch, manifest append -> manifestHash mismatch, snapshot edit -> memorySnapshotHash recompute mismatch, drifted score records -> pilot baseline recount mismatch); fail-closed guard when n-freeze verdict is not refused.",
-          "headHash": "6c23a28d9e9c2ffa3b17a959edd3e7247909c8a3",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:12:38.537Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "node experiments/experience-ablation/evidence-map.mjs --root=<main> --experimentId=expabl-m6-pilot-v1 --out=<evidenceRoot> --generatedAt=2026-07-03T11:20:00Z",
           "result": "pass",
           "note": "evidence-map.md claim-to-artifact table lists all 10 plan-section-18 rows, every artifact exists with sha256 recorded and status ok (protocol.json, protocol-config, memory-snapshot-hash, fixture-manifest, pair-ledger, run-order-seed, score-records, leakage-audit, n-freeze, m7-decision, live-readout pair, self rows).",
-          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:13:55.362Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,10 +142,10 @@
           "command": "node -e require(evidence-map.json) keys",
           "result": "pass",
           "note": "evidence-map.json parses; content mirrors the md (rows/figures spot-checked).",
-          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:13:55.362Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,10 +153,10 @@
           "command": "grep -n Causal impact evidence-map.md; grep -c unpowered",
           "result": "pass",
           "note": "Final verdict line 83: Causal impact: INCONCLUSIVE with the invalidated-assumption basis; paper-table figures carry unpowered labels; circularity disclosure and the four disallowed claims present.",
-          "headHash": "3d14c6aa6f6d3dcc69c5e513ac5897bc3bc74852",
-          "materialHash": "9d98cb06e25ac46243a16367ca7ddc8f8bad4c57ebdafef3bc369ba254c62669",
-          "storyFilesHash": "f133522ac7f435d5c68bdc874009d10c7fc06dd2b930aaee687780f58d2c57d9",
-          "timestamp": "2026-07-03T10:13:55.362Z"
+          "headHash": "a37257c0de87839acfb25be74ae996cdac076152",
+          "materialHash": "f70baac9f973c9427b1373e92a68189bd223664f82d8dfde436bbdd9d24c650f",
+          "storyFilesHash": "44b0cfb1ed455b5886b263d3bc54f473fd7bdf96fa70c6f3b39773c4ad0374fd",
+          "timestamp": "2026-07-03T10:21:27.376Z"
         }
       ]
     }
