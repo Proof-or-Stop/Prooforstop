@@ -169,7 +169,7 @@
       "desc": "Invalid requestedStrength fails closed only when passed as the handler argument. If an invalid requestedStrength is embedded inside evidenceJson or core evidence input, it is not validated; unknown values are ignored by boundaryViolationReasons/requestedStrengthOverclaims, so complete Q5 evidence with requestedStrength=productionn can return decision=advance, allowed=true, reasons=[]. This violates Quantum M3 proof-or-stop semantics requiring invalid requestedStrength to fail closed deterministically.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T01:49:20.916Z",
@@ -181,7 +181,11 @@
         "packages/main/src/handlers/quantum-claim-admissibility.ts"
       ],
       "signatureTag": "quantum-requested-strength-payload-validation-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 78ab2e4f: core Quantum claim evaluation now validates input.requestedStrength against QUANTUM_REQUESTED_STRENGTHS and emits invalid_requested_strength:<value>, which is a hard STOP reason consumed by the M3 gate policy. Added smoke coverage for direct core payload and handler evidenceJson payload with requestedStrength=productionn. Verified by build, quantum claim-admissibility smoke, command-catalog smoke, direct node probe returning decision=stop/allowed=false/reasons=invalid_requested_strength:productionn, and full lattice validate PASS with 18/18 verification intents covered.",
+      "resolvedAt": "2026-07-03T01:58:59.294Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
