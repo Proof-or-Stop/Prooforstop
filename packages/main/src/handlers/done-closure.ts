@@ -6,6 +6,7 @@ import {
 } from '../core/review-escalation.js';
 import type { StoryInfo } from '../core/types.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary, type MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { HandlerContext } from './context.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
@@ -225,7 +226,7 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
   };
 }
 
-function renderDoneClosure(runbook: DoneClosureRunbook): string {
+function renderDoneClosure(runbook: DoneClosureRunbook, showMemoryPack = true): string {
   const blocking = runbook.blockers.filter((row) => row.blocking && row.status === 'fail');
   const lines = [
     `DONE closure (${runbook.schemaVersion})`,
@@ -258,13 +259,17 @@ function renderDoneClosure(runbook: DoneClosureRunbook): string {
     lines.push(`        source: ${row.source}; blocking=${row.blocking}; assuranceImpact=${row.assuranceImpact}`);
     if (row.nextCommand) lines.push(`        next: ${row.nextCommand}`);
   }
-  lines.push(
-    '',
-    'Advisory memory considered:',
-    ...renderMemoryFreshnessPackSummary(runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
-    `  completionClaimSource: ${runbook.completionClaimSource}`,
-    '  memoryCompletionProof: false',
-  );
+  // B-ab8d CHK-002: control arm hides the rendered memory summary section
+  // only; the runbook JSON keeps the pack for lossless measurement.
+  if (showMemoryPack) {
+    lines.push(
+      '',
+      'Advisory memory considered:',
+      ...renderMemoryFreshnessPackSummary(runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
+      `  completionClaimSource: ${runbook.completionClaimSource}`,
+      '  memoryCompletionProof: false',
+    );
+  }
   return lines.join('\n');
 }
 
@@ -272,8 +277,17 @@ export function createDoneClosureHandlers(ctx: HandlerContext): Record<string, (
   return {
     done_closure(args: { storyId: string } & DoneClosureFormatArgs) {
       const runbook = buildDoneClosureRunbook(ctx, args.storyId);
+      // B-ab8d CHK-002: experiment-arm surfacing at the done_closure
+      // entrypoint — the runbook pack is already computed; fire the
+      // once-per-key event on both arms, gate only the rendered section.
+      const packSurface = surfaceRuntimeMemoryPack(ctx.root, {
+        consumer: 'done_closure',
+        storyId: args.storyId,
+        roundKey: runbook.phase,
+        buildPack: () => runbook.memoryFreshnessPack,
+      });
       if (wantsJson(args)) return runbook;
-      return renderDoneClosure(runbook);
+      return renderDoneClosure(runbook, packSurface.shouldRender);
     },
   };
 }

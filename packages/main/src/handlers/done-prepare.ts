@@ -21,6 +21,7 @@ import {
 } from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 
 type StepStatus = 'pending' | 'skipped' | 'pass' | 'blocked';
@@ -581,6 +582,7 @@ function renderPass(args: {
   runbook: DoneClosureRunbook;
   runtime: RuntimeChangeReport;
   dryRun: boolean;
+  showMemoryPack: boolean;
 }): string {
   const lines = [
     'DONE prepare: PASS',
@@ -601,11 +603,15 @@ function renderPass(args: {
     `  assuranceLevel: ${args.runbook.localAssurance.assuranceLevel}`,
     `  evidenceScope: ${args.runbook.localAssurance.evidenceScope}`,
     `  reviewAssurance: ${reviewAssuranceText(args.runbook)}`,
-    '',
-    'Advisory memory considered:',
-    ...renderMemoryFreshnessPackSummary(args.runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
-    `  completionClaimSource: ${args.runbook.completionClaimSource}`,
-    '  memoryCompletionProof: false',
+    // B-ab8d CHK-002: control arm hides the rendered memory summary section
+    // only; the runbook JSON keeps the pack for lossless measurement.
+    ...(args.showMemoryPack ? [
+      '',
+      'Advisory memory considered:',
+      ...renderMemoryFreshnessPackSummary(args.runbook.memoryFreshnessPack).split('\n').map((line) => `  ${line}`),
+      `  completionClaimSource: ${args.runbook.completionClaimSource}`,
+      '  memoryCompletionProof: false',
+    ] : []),
     '',
     'Next:',
     `lattice story_advance '{"storyId":"${args.storyId}","phase":"DONE"}'`,
@@ -920,6 +926,15 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
 
   const runbook = buildDoneClosureRunbook(ctx, storyId);
+  // B-ab8d CHK-002: experiment-arm surfacing for the done_prepare entrypoint —
+  // the runbook pack is already computed; fire the once-per-key event on both
+  // arms and gate ONLY the rendered summary section (control hides it).
+  const packSurface = surfaceRuntimeMemoryPack(ctx.root, {
+    consumer: 'done_prepare',
+    storyId,
+    roundKey: story.phase,
+    buildPack: () => runbook.memoryFreshnessPack,
+  });
   const blockers = blockingRows(runbook);
   const nonCleanBlockers = blockers.filter((row) => row.id !== 'git-working-tree');
   if (nonCleanBlockers.length > 0) {
@@ -932,7 +947,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
-      memoryFreshnessPack: runbook.memoryFreshnessPack,
+      ...(packSurface.shouldRender ? { memoryFreshnessPack: runbook.memoryFreshnessPack } : {}),
       next: nextForDoneClosureBlock(storyId, runbook),
       commands: commandsForDoneClosureBlock(storyId, runbook, currentBinding),
       steps,
@@ -973,6 +988,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     runbook,
     runtime,
     dryRun: args.dryRun,
+    showMemoryPack: packSurface.shouldRender,
   });
 }
 

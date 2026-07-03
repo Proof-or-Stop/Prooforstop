@@ -32,6 +32,7 @@ import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { loadConfig } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
 // ---------------------------------------------------------------------------
 // dev_memory_capture
@@ -304,15 +305,21 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     dryRun?: boolean;
   }): string {
     const agentName = args.agent || 'agent';
-    const preflight = buildMemoryFreshnessPack({
-      query: args.query,
-      projectRoot: root,
+    // B-ab8d CHK-002: experiment-arm render gate — pack always computed, event
+    // fires on both arms, only the rendered preflight section is hidden on
+    // control (the session-end reminder below always prints).
+    const surfaced = surfaceRuntimeMemoryPack(root, {
       consumer: 'dev_memory_start',
-      host: agentName,
-      maxEntries: args.maxEntries ?? 5,
-      maxLines: 60,
+      buildPack: () => buildMemoryFreshnessPack({
+        query: args.query,
+        projectRoot: root,
+        consumer: 'dev_memory_start',
+        host: agentName,
+        maxEntries: args.maxEntries ?? 5,
+        maxLines: 60,
+      }),
     });
-    const preflightText = renderMemoryFreshnessPack(preflight);
+    const preflightText = surfaced.shouldRender ? renderMemoryFreshnessPack(surfaced.pack) : '';
     const reminder = [
       ``,
       `Dev session starting (agent: ${agentName})`,

@@ -48,6 +48,7 @@ import { renderScopeAntiExpansionSummary } from '../core/machine.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack, type RuntimeConsumer } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -577,19 +578,28 @@ function normalizeSessionCommandHints(text: string): string {
 
 function renderMemoryRuntimePreflight(
   projectRoot: string,
-  args: { query: string; consumer: RuntimeConsumer; storyPhase?: string; touchedPaths?: string[]; host?: string },
+  args: { query: string; consumer: RuntimeConsumer; storyId?: string; storyPhase?: string; touchedPaths?: string[]; host?: string },
 ): string[] {
   try {
-    const pack = buildMemoryFreshnessPack({
-      projectRoot,
-      query: args.query,
+    // B-ab8d CHK-002: experiment-arm render gate — pack always computed, event
+    // fires on both arms, only the rendered section is hidden on control
+    // (empty array; callers skip the section spacer for empty output).
+    const surfaced = surfaceRuntimeMemoryPack(projectRoot, {
       consumer: args.consumer,
-      storyPhase: args.storyPhase,
-      touchedPaths: args.touchedPaths,
-      host: args.host,
-      maxLines: 60,
+      storyId: args.storyId,
+      roundKey: args.storyPhase,
+      buildPack: () => buildMemoryFreshnessPack({
+        projectRoot,
+        query: args.query,
+        consumer: args.consumer,
+        storyPhase: args.storyPhase,
+        touchedPaths: args.touchedPaths,
+        host: args.host,
+        maxLines: 60,
+      }),
     });
-    return renderMemoryFreshnessPack(pack).split('\n');
+    if (!surfaced.shouldRender) return [];
+    return renderMemoryFreshnessPack(surfaced.pack).split('\n');
   } catch (err) {
     const msg = err instanceof Error ? err.message.replace(/\s+/g, ' ').slice(0, 160) : String(err).slice(0, 160);
     return [
@@ -932,12 +942,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
             ...activeStories.slice(0, 5).flatMap((s) => [s.storyId, s.phase, s.title]),
             'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
           ].filter((part) => part && part.trim().length > 0).join(' ');
-          lines.push('');
-          for (const l of renderMemoryRuntimePreflight(ctx.root, {
+          const memoryPreflightLines = renderMemoryRuntimePreflight(ctx.root, {
             query,
             consumer: 'session_brief',
             storyPhase: activeStories[0]?.phase,
-          })) lines.push(l);
+          });
+          if (memoryPreflightLines.length > 0) {
+            lines.push('');
+            for (const l of memoryPreflightLines) lines.push(l);
+          }
         }
 
         // Cross-story open bugs sample (concise mode skips this).
@@ -1124,12 +1137,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
       }
 
       if (!concise) {
-        lines.push('');
-        for (const l of renderMemoryRuntimePreflight(ctx.root, {
+        const memoryPreflightLines = renderMemoryRuntimePreflight(ctx.root, {
           query: buildStoryMemoryQuery(story, checklistSummary),
           consumer: 'session_brief',
+          storyId: story.storyId,
           storyPhase: story.phase,
-        })) lines.push(l);
+        });
+        if (memoryPreflightLines.length > 0) {
+          lines.push('');
+          for (const l of memoryPreflightLines) lines.push(l);
+        }
       }
 
       if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {

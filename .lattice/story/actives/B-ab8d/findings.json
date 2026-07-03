@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "id": "B-ab8d:F-001",
+      "desc": "CHK-002 userSees says arm=control prints no Memory Runtime Preflight section, but handoff_resume text output still renders a Runtime memory advisory: section header (with hostPolicy lines and memoryCompletionProof: false) even on the control arm. The renderHandoffResumeText function calls renderOptionalMemoryLines(projection.memoryFreshnessPack, projection.runtimeHostPolicy). The handler strips the pack into enrichedWithoutPack but leaves runtimeHostPolicy intact, so renderOptionalMemoryLines fires (it returns early only when BOTH args are falsy) and emits the section header with hostPolicy lines. No pack content leaks (memoryPackDigest/topHitIds are absent), but the Runtime memory advisory: section is visible on control arm, which is not byte-identical to the expected no-section behavior. Neither smoke test (CHK-005 experience-pack-arm-switch-smoke nor experience-layer-ab-shadow-gate-smoke) exercises handoff_resume text mode on the control arm. Fix: in the handoff_resume handler, also strip runtimeHostPolicy when control arm is active (or refactor renderHandoffResumeText to accept a flag); alternatively, gate renderOptionalMemoryLines on shouldRenderRuntimeMemoryPack(). File: packages/main/src/handlers/lattice-handoff.ts line 764, packages/main/src/core/lattice-handoff.ts lines 1372-1383.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-03T00:10:00.729Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-004",
+      "_hash": "5aa756927b2c2c40bd0e8a90c2d7be6078372ac26128a85d4a444e5082a983e0",
+      "files": [
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|usersees-says-control",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 055fc5678aa5baca030e6659d3c0e550e02c044e. Seam: in the handoff_resume handler, extended the existing shouldRenderRuntimeMemoryPack()-gated strip (which already removed memoryFreshnessPack) to also strip runtimeHostPolicy from the render projection, so renderOptionalMemoryLines receives neither arg and the whole Runtime memory advisory: section (header, pack lines, hostPolicy lines, memoryCompletionProof) is suppressed on control. Chose whole-section suppression over a control-only non-memory hostPolicy header because that would create a render variant existing only on control; host policy is still enforced by assertRuntimeHostPolicyAllowed on every arm and the JSON projection keeps pack + hostPolicy (render-only gating). Treatment/no-env use the untouched enriched projection, byte-identical to before. New smoke case (j) in experience-pack-arm-switch-smoke.ts exercises the real handoff_create -> handoff_resume flow: control equals no-env baseline minus exactly the advisory section, treatment byte-identical to no-env, control JSON keeps pack + hostPolicy. Arm-switch smoke 24/24 ALL PASS, ab-shadow-gate smoke 14/14 PASS, full lattice validate exit 0.",
+      "resolvedAt": "2026-07-03T00:32:25.070Z"
+    },
+    {
+      "id": "B-ab8d:F-002",
+      "desc": "CHK-005:edge:0 evidence stale/invalid: the intent requires lattice validate to exit 0 with the arm-switch smoke green, but current lattice validate exits non-zero (allPass:false) because experience-pack-arm-switch-smoke.ts:794 uses retired vocabulary productionDone, causing validate.commands[1] (retired-authority-vocabulary-guard-smoke) to fail. The violation was introduced by this storys own CHK-005 commit (e557aa5a4). The CHK-005:edge:0 integration_test evidence (headHash 58c51a83a) is bound to a state where validate was green; current HEAD 20717fe shows validate broken by this storys own code.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T00:10:09.930Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-003",
+      "_hash": "f9c618c6361c3fe7ea58315d502b06f6101e29c5036809697420a9eb6269b867",
+      "files": [
+        "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|edge-evidence-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the retired vocabulary token from the hand-built HostDispatchProjection fixture in packages/main/src/tasks/experience-pack-arm-switch-smoke.ts (commit cebf74b83). Chose the finding-preferred partial-fixture approach: renderHostDispatchProjectionText never reads the retired-named boolean, so the field is omitted entirely from the fixture (already cast as unknown as HostDispatchProjection); no identifier splitting, no allowlist or core/lattice-handoff.ts changes. Verified: retired-authority-vocabulary-guard-smoke PASS, arm-switch smoke 23/23 ALL PASS, full lattice validate exit 0 allPass:true at HEAD cebf74b83.",
+      "resolvedAt": "2026-07-03T00:21:40.588Z"
+    },
+    {
+      "id": "B-ab8d:F-003",
+      "desc": "CHK-001 through CHK-004: all 15 must-priority intent evidence records are marked stale by lattice validate (3/18 covered). materialHash changed after each evidence was recorded as subsequent CHK-002/CHK-003/CHK-004/CHK-005 material code landed (cli-engine.ts, experience-pack-surface.ts, observability-snapshot.ts, lattice-handoff.ts etc.). The underlying smoke tests reproduce green at HEAD but evidence bindings must be refreshed so the gate can accept them. Stale evidence cannot satisfy the coverage gate regardless of whether the code is correct.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T00:10:18.795Z",
+      "reviewRound": "2026-07-03T00:00:43.132Z",
+      "reviewRunId": "B-ab8d:RR-003",
+      "_hash": "8abfa146c25fc17a0454a1ad024a6f48550b3fd32fe8cb8a41169b2b17661910",
+      "files": [
+        "packages/main/src/tasks/experiment-arm-smoke.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/tests/control-arm-retrieval-gate.test.mjs",
+        "packages/main/tests/observability-snapshot-learning-root.test.mjs",
+        "packages/main/src/handlers/observability-snapshot.ts"
+      ],
+      "signatureTag": "missing|ts|through-priority-intent",
+      "signatureTagSource": "auto",
+      "resolvedReason": "After the F-002 fix commit cebf74b83 and green full validate (exit 0, allPass:true), ran lattice verification_evidence_refresh_stale for B-ab8d: refreshed 18/18 stale evidence records (CHK-001..CHK-005) to headHash cebf74b83; none were unrefreshable. Independently re-ran underlying commands at current HEAD: experiment-arm-smoke 11/11, control-arm-retrieval-gate.test.mjs ALL PASS, ab-shadow-gate smoke 14/14, observability_snapshot transcript clean (local-only, warnings 0). CHK-005:edge:0 additionally re-recorded via verification_evidence_add with the fresh validate result. lattice validate --story=B-ab8d --json now reports verification coverage 18/18 covered, missingRequired 0.",
+      "resolvedAt": "2026-07-03T00:21:53.460Z"
+    }
+  ]
+}

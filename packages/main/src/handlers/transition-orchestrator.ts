@@ -92,6 +92,7 @@ import {
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -288,23 +289,31 @@ function runRuntimeEnforcementPreflight(
 
 function renderStoryAdvanceMemoryRuntimeAdvisory(projectRoot: string, story: StoryInfo, targetPhase: StoryPhase): string {
   try {
-    const pack = buildMemoryFreshnessPack({
-      projectRoot,
+    // B-ab8d CHK-002: experiment-arm render gate — pack always computed, event
+    // fires on both arms, only the rendered section is hidden on control.
+    const surfaced = surfaceRuntimeMemoryPack(projectRoot, {
       consumer: 'story_advance',
-      storyPhase: targetPhase,
-      query: [
-        `story:${story.storyId}`,
-        story.title,
-        story.description,
-        `from:${story.phase}`,
-        `to:${targetPhase}`,
-        'phase advance runtime memory playbook non-authoritative stale-doc truth-first repro-first intent-totality delivery review',
-      ].filter(Boolean).join('\n'),
-      maxEntries: 5,
-      maxPlaybooks: 5,
-      maxLines: 60,
+      storyId: story.storyId,
+      roundKey: `${story.phase}->${targetPhase}`,
+      buildPack: () => buildMemoryFreshnessPack({
+        projectRoot,
+        consumer: 'story_advance',
+        storyPhase: targetPhase,
+        query: [
+          `story:${story.storyId}`,
+          story.title,
+          story.description,
+          `from:${story.phase}`,
+          `to:${targetPhase}`,
+          'phase advance runtime memory playbook non-authoritative stale-doc truth-first repro-first intent-totality delivery review',
+        ].filter(Boolean).join('\n'),
+        maxEntries: 5,
+        maxPlaybooks: 5,
+        maxLines: 60,
+      }),
     });
-    return `\n\nRuntime memory advisory (not gate evidence):\n${renderMemoryFreshnessPack(pack)}`;
+    if (!surfaced.shouldRender) return '';
+    return `\n\nRuntime memory advisory (not gate evidence):\n${renderMemoryFreshnessPack(surfaced.pack)}`;
   } catch {
     return '';
   }

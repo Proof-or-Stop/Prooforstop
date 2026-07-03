@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ab8d",
+  "changes": "Milestone M3 of the experience-layer ablation plan. New core leaves: packages/main/src/core/experiment-arm.ts (env-var experiment context resolver: LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM, both required, validated, once-latched warnings) and core/experience-pack-surface.ts (shared full-pack render gate: compute + log experience_pack_surfaced on both arms, render only on treatment/no-experiment, per-round dedup). Eight pack surfaces wired through it: story-create, transition-orchestrator, session, lattice-handoff, done-prepare (summary shape), done-closure, dev-memory handlers plus the core lattice-handoff host_dispatch text projection and handoff_resume advisory section. Mechanical control-arm retrieval blocking at the cli-engine choke point (memoryRetrieval policy marker on 28 commands; retrieval_violation event appended before refusal). observability_snapshot gains resolvedLearningRoot for M4 store-isolation assertions. Integration smoke experience-pack-arm-switch-smoke (24 checks) registered in validate.",
+  "usage": "LATTICE_EXPERIMENT_ID=<id> LATTICE_EXPERIMENT_ARM=control|treatment lattice <lifecycle command>. Control: no Memory Runtime Preflight rendering, memory retrieval commands refused with retrieval_violation events. Treatment/no-env: byte-identical to today. Verify: node packages/main/dist/tasks/experience-pack-arm-switch-smoke.js",
+  "expectedOutcome": "Control env: lattice session_brief prints no Memory Runtime Preflight section; lattice recall exits nonzero naming the experiment; activity log gains experience_pack_surfaced {arm:control} and retrieval_violation events. Treatment env: output byte-identical to no-experiment mode plus surfaced events. Smoke prints TOTAL 24 | PASS 24 | FAIL 0.",
+  "actualTranscript": "experience-pack-arm-switch-smoke.js: TOTAL 24 | PASS 24 | FAIL 0 (exit 0) covering all seven handler entrypoints + host_dispatch projection + handoff_resume case j; experiment-arm-smoke.js 11/11; control-arm-retrieval-gate.test.mjs ALL PASS (28 commands cross-checked bidirectionally); ab-shadow-gate smoke 14/14; lattice validate exit 0 (32/32 commands); delivery reviewer independently re-ran both smokes at the same counts.",
+  "outcomeDiff": "No difference — expected and actual match; the only semantic adjustments vs the original plan.md were reviewer-driven: dev_memory_start on control is refused by the retrieval gate before rendering (correct per plan section 9) and two extra pack surfaces (host_dispatch projection, handoff_resume advisory) were discovered and gated during DEV/REVIEW.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Store-root isolation remains the M6 campaign runner responsibility (mkdtemp non-git roots); this story only exposes resolvedLearningRoot for assertions. The experiment context is env-var scoped by design — no persistent repo state.",
+  "pitfalls": "Three review findings, all fixed within the story: F-002 the smoke fixture used the retired vocabulary token productionDone (the grandfathered HostDispatchProjection type leaks it; fixed with a partial fixture omitting the field); F-001/eighth-and-ninth surfaces — renderHostDispatchProjectionText and renderHandoffResumeText print pack/advisory lines outside the seven handler sites (root cause: renderOptionalMemoryLines fires the header when EITHER pack OR runtimeHostPolicy present — strip both on control). Review-run bindings went storyFilesHash-stale after fix commits: the only legal path is DEV -> REVIEW re-entry for a new round + fresh reviewer receipts (round 2 needs >= 1 valid receipt); do not retry review_run_start within the stale round.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 202861
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13711
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 618230
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3320711
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2386782
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 318678
+    }
+  },
+  "totalDurationMs": 6861462,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T00:45:50.429Z",
+  "updatedAt": "2026-07-03T00:45:50.429Z"
+}

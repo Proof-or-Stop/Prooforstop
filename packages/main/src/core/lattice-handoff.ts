@@ -15,6 +15,7 @@ import {
   type HandoffAdmissibilitySummary,
 } from './proof-admissibility-handoff.js';
 import type { ProofAdmissibilityPolicy } from './proof-admissibility-gates.js';
+import { shouldRenderRuntimeMemoryPack } from './experience-pack-surface.js';
 import {
   renderMemoryFreshnessPackSummary,
   runtimeMemoryTopHits,
@@ -1537,7 +1538,12 @@ export function renderHostDispatchProjectionText(result: HostDispatchProjection)
     `prefetchManifest.verdict: ${result.prefetchManifest.verdict}`,
     `prefetchManifest.winSignal: ${result.prefetchManifest.winSignal}`,
     `prefetchManifest.targetStoryId: ${result.prefetchManifest.targetStoryId}`,
-    ...(result.preflight.memoryFreshnessPack ? [
+    // B-ab8d CHK-002 follow-up: eighth pack render surface. The control arm
+    // hides these summary lines only; the projection JSON keeps the pack and
+    // the experience_pack_surfaced event already fired via the shared leaf
+    // when buildHandoffRuntimeMemoryPack computed this pack (consumer
+    // host_handoff), so no second event fires here.
+    ...(result.preflight.memoryFreshnessPack && shouldRenderRuntimeMemoryPack() ? [
       `memoryPackDigest: ${result.preflight.memoryFreshnessPack.packDigest}`,
       `memoryTopHitIds: ${runtimeMemoryTopHits(result.preflight.memoryFreshnessPack).ids.join(', ') || 'none'}`,
       `memoryAuthority: ${result.preflight.memoryFreshnessPack.authority}`,
