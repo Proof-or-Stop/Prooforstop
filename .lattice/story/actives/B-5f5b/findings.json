@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-5f5b:F-001",
+      "desc": "CHK-002:happy:0 is not fully covered: packages/main/src/tasks/playbook-trial-automation-smoke.ts:140 records candidate-trial outcome rows and packages/main/src/tasks/playbook-trial-automation-smoke.ts:162 records matched-control rows directly, but the smoke never invokes playbook_promotion_status to prove the required status reporting path. The current status handler only builds pendingLearning from outcome aggregates at packages/main/src/handlers/playbook.ts:1093 and does not expose/verify matched-control reporting, so the evidence note overclaims promotion status coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-03T16:35:44.971Z",
+      "reviewRound": "2026-07-03T16:31:16.209Z",
+      "reviewRunId": "B-5f5b:RR-003",
+      "_hash": "8ce85984152c73cb39d720336ba17b2d83613e0987d8d943712aa5262b7f0da4",
+      "files": [
+        "packages/main/src/tasks/playbook-trial-automation-smoke.ts",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "missing|ts|happy-fully-covered",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
