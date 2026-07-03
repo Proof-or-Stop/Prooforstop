@@ -5,7 +5,7 @@
       "desc": "playbook_auto_promotion_apply and playbook_promotion_sweep can append duplicate or lost recommend_activate rows because they write the same .lattice/learning/playbook-promotion-decisions.jsonl ledger under different locks. The new self-contained apply path stages a recommendation after checking existing idempotency keys in packages/main/src/core/playbook-seed.ts:1241 and appends it in packages/main/src/core/playbook-seed.ts:1388, while sweep does the same idempotency check/append in packages/main/src/handlers/playbook.ts:966 but only holds withLearningStoreLock at packages/main/src/handlers/playbook.ts:1008. Auto-apply instead holds the main/playbook lock via packages/main/src/handlers/playbook.ts:1232, and appendPlaybookPromotionDecision itself only validates then atomic-appends without enforcing idempotency in packages/main/src/core/learning-store.ts:1417. If sweep --apply and auto_promotion_apply --apply overlap on an eligible candidate, each can observe no applied key and append the same deterministic recommendation, or one read-modify-write append can overwrite the other; this violates the story idempotency/duplicate-recommendation safety for the self-contained apply path. Serialize all writers of playbook-promotion-decisions.jsonl on the same lock or make appendPlaybookPromotionDecision enforce idempotency inside the shared lock/write primitive.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-03T03:21:25.915Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/learning-store.ts"
       ],
       "signatureTag": "playbook-promotion-decision-lock-mismatch",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 0536f3433 by switching promotion sweep and auto-promotion apply to the shared playbook-promotion-decisions learning-store lock and by making appendPlaybookPromotionDecision no-op for duplicate applied idempotency keys. Verified with npm --prefix packages/main run build, playbook-seed-promotion-loop smoke 16/16, git diff --check, and fresh verification evidence plan 9/9.",
+      "resolvedAt": "2026-07-03T03:28:20.959Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
