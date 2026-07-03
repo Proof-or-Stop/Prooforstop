@@ -222,7 +222,7 @@
       "desc": "cross_host_review accepts caller-supplied hostA/hostB identifiers but never fail-closed-validates that host A and host B remain independent. If a caller passes the same host id, the handler derives the same sessionId/keyId for both records and can still return jointDecision=pass when both decisions pass and findings agree. Downstream summarizeVerdicts collapses the shared identity, but the new cross_host_review proof surface itself can overstate an independent joint pass instead of stopping on non-independent reviewer identities. Mirror quorum_submit's hostId/sessionId/keyId independence guard before recording verdicts or computing jointDecision.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-03T09:41:19.464Z",
@@ -236,7 +236,11 @@
         "packages/main/src/core/verdicts.ts"
       ],
       "signatureTag": "adversarial|ts|cross-host-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 99f6d050e: cross_host_review now derives hostA/hostB identities before Codex spawn and rejects shared hostId/sessionId/keyId, so a caller cannot manufacture an independent joint pass from one host. Smoke CHK-002:adversarial:2 proves identical hostA/hostB identity is rejected before spawn and records no verdict. Full lattice validate PASS recorded in cade28cf8.",
+      "resolvedAt": "2026-07-03T09:52:24.971Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
