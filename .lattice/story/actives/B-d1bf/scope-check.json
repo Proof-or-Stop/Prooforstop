@@ -1,0 +1,108 @@
+{
+  "storyId": "B-d1bf",
+  "checkedAt": "2026-07-03T00:19:26.332Z",
+  "features": [
+    {
+      "feature": "Quantum M3 local gate-policy model maps existing claim checks into advance/repair/degrade/escalate/stop decisions without overclaiming.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "quantum_claim_check exposes a local read-only diagnostic command with JSON/text output for complete, weak/degraded, and overclaim cases.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Read-only command surface writes no gate evidence, advances no lifecycle phase, and executes no external verifier command.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story:.lattice/story/actives/B-d1bf/plan.md"
+    },
+    {
+      "feature": "Focused deterministic smoke covers complete, weak/degraded, stale, missing, mismatched, and overclaiming evidence without becoming a benchmark harness.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum documentation runtime status is updated to M0-M3 implemented while M4-M5 remain pending and no broader readiness is claimed.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "CHK-005 implement umbrella row remains non-expanding and is satisfied by CHK-001 through CHK-004 scope.",
+      "covered_by": "CHK-005 plus CHK-001/CHK-002/CHK-003/CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story:.lattice/story/actives/B-d1bf/plan.md"
+    },
+    {
+      "feature": "CHK-006 verify umbrella row remains non-expanding and is satisfied by CHK-001 through CHK-004 verification evidence.",
+      "covered_by": "CHK-006 plus CHK-001/CHK-002/CHK-003/CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story:.lattice/story/actives/B-d1bf/plan.md"
+    },
+    {
+      "feature": "M4 benchmark harness, A1-A4 metrics, B1-B15 failure-injection matrix, rate metrics, and confidence intervals.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 No benchmark harness; CHK-003 No A1-A4 benchmark metrics / No B1-B15 failure-injection matrix; CHK-004 Do not claim benchmark/report/governance completion; scope-contract explicitExcludes M4 benchmark harness or failure-injection runner",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "M5 reporting/governance renderer, artifact index, report format, and downstream governance workflow.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 No report/governance renderer; CHK-003 No report renderer; CHK-004 Do not claim benchmark/report/governance completion; scope-contract explicitExcludes M5 report/governance renderer",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Global Story machine mutation, lifecycle transition engine integration, or full lifecycle transition advancement.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 No Story machine mutation; CHK-002 No lifecycle phase advance; CHK-004 Do not claim full lifecycle transition integration; scope-contract explicitExcludes Global Story machine transition mutation",
+      "source": "description"
+    },
+    {
+      "feature": "Production readiness, terminal completion proof, external Authority integration, or Authority completion.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 No quantum theory/hardware/production/Authority claim; CHK-002 command must never claim DONE, production, or Authority; scope-contract explicitExcludes Production readiness and Authority completion",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Quantum theory proof, physical/lab/hardware validation, or solver/algorithm improvement.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 No quantum theory/hardware/production/Authority claim; CHK-004 docs retain no quantum theory/hardware claim; scope-contract explicitExcludes Quantum hardware/lab/physical validation and Solver improvement",
+      "source": "decisions:proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+    },
+    {
+      "feature": "Generic claim-admissibility adapter-pack framework M4 gate-policy adapter completion.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-004 docs note: do not claim generic framework M4 gate-policy adapter milestone complete; init-check advisory: Quantum runtime status only, not generic framework M4 or broader lifecycle integration",
+      "source": "decisions:claim-admissibility-adapter-pack-framework.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 7,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9863e36f34ea7b6ba97c3e7af4ac486997ec5de9783a6e96a676b86cab38f4a2",
+  "openQuestions": []
+}
