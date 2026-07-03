@@ -523,6 +523,18 @@ for (const requestedStrength of ['theory', 'hardware', 'physical-validation', 's
   assert.ok(hasReason(result, 'claim_boundary_violation'), `${requestedStrength} overclaim has boundary violation`);
 }
 
+const directInvalidRequestedStrength = buildCompleteQuantumEvidence('Q5');
+(directInvalidRequestedStrength as unknown as Record<string, unknown>).requestedStrength = 'productionn';
+const directInvalidRequestedStrengthGate = checkGateDecision(
+  'quantum M3 invalid requestedStrength core gate-policy case',
+  directInvalidRequestedStrength,
+  'stop',
+);
+assert.ok(
+  hasReason(directInvalidRequestedStrengthGate, 'invalid_requested_strength'),
+  'direct invalid requestedStrength has validation reason',
+);
+
 const directAuthorityClaim = buildCompleteQuantumEvidence('Q5');
 (directAuthorityClaim as unknown as Record<string, unknown>).authorityClaim = true;
 const directAuthorityClaimGate = checkGateDecision('quantum M3 direct Authority claim overclaim gate-policy case', directAuthorityClaim, 'stop');
@@ -590,6 +602,18 @@ assert.throws(
   () => handlers.quantum_claim_check({ evidenceJson: '{', format: 'json' } as any),
   SyntaxError,
   'handler malformed evidenceJson fails closed instead of falling back to complete fixture',
+);
+const invalidRequestedStrengthEvidence = buildCompleteQuantumEvidence('Q5');
+(invalidRequestedStrengthEvidence as unknown as Record<string, unknown>).requestedStrength = 'productionn';
+const handlerEvidenceJsonInvalidRequestedStrength = handlers.quantum_claim_check({
+  evidenceJson: JSON.stringify(invalidRequestedStrengthEvidence),
+  format: 'json',
+}) as QuantumClaimGatePolicyResult;
+assert.equal(handlerEvidenceJsonInvalidRequestedStrength.decision, 'stop', 'handler evidenceJson invalid requestedStrength stops');
+assert.equal(handlerEvidenceJsonInvalidRequestedStrength.allowed, false, 'handler evidenceJson invalid requestedStrength fails closed');
+assert.ok(
+  hasReason(handlerEvidenceJsonInvalidRequestedStrength, 'invalid_requested_strength'),
+  'handler evidenceJson invalid requestedStrength has validation reason',
 );
 const handlerEvidenceJsonOverclaim = handlers.quantum_claim_check({
   evidenceJson: directCompleteEvidenceJson,

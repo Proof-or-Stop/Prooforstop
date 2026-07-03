@@ -350,6 +350,7 @@ const CLAIM_REQUIREMENTS: Record<QuantumClaimId, ClaimRequirements> = {
 const ALL_REASON_PREFIXES = [
   'unsupported_schema_version',
   'unknown_claim',
+  'invalid_requested_strength',
   'claim_boundary_violation',
   'missing_core_identity_field',
   'missing_conditional_identity_field',
@@ -373,6 +374,7 @@ export type QuantumReasonPrefix = typeof ALL_REASON_PREFIXES[number];
 
 const HARD_STOP_REASON_PREFIXES: readonly QuantumReasonPrefix[] = [
   'unknown_claim',
+  'invalid_requested_strength',
   'claim_boundary_violation',
   'missing_core_identity_field',
   'missing_conditional_identity_field',
@@ -404,6 +406,10 @@ function assertKnownClaim(claimId: string): asserts claimId is QuantumClaimId {
 
 function isKnownEvidenceKind(evidenceKind: string): evidenceKind is QuantumEvidenceKind {
   return (QUANTUM_EVIDENCE_KINDS as readonly string[]).includes(evidenceKind);
+}
+
+function isKnownRequestedStrength(value: unknown): value is QuantumRequestedStrength {
+  return typeof value === 'string' && (QUANTUM_REQUESTED_STRENGTHS as readonly string[]).includes(value);
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -1022,6 +1028,10 @@ export function evaluateQuantumClaim(input: QuantumClaimCheckInput): QuantumClai
     reasons.push(reason('unsupported_schema_version', schemaVersion));
   }
 
+  if (input.requestedStrength !== undefined && !isKnownRequestedStrength(input.requestedStrength)) {
+    reasons.push(reason('invalid_requested_strength', String(input.requestedStrength)));
+  }
+
   const claimId = String(input.claimId);
   if (!isKnownClaim(claimId)) {
     reasons.push(reason('unknown_claim', claimId));
@@ -1173,6 +1183,7 @@ const QUANTUM_GATE_POLICY_REPAIR_REASON_PREFIXES = [
 
 const QUANTUM_GATE_POLICY_STOP_REASON_PREFIXES = [
   'unknown_claim',
+  'invalid_requested_strength',
   'claim_boundary_violation',
   'duplicate_receipt',
   'receipt_exit_nonzero',
