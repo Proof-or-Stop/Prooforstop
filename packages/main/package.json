@@ -23,6 +23,7 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",
+    "test:cross-host-review": "node dist/tasks/cross-host-review-smoke.js",
     "test:experience-layer-finding-signals": "node dist/tasks/experience-layer-finding-signals-smoke.js",
     "test:experience-layer-finding-enums": "node dist/tasks/experience-layer-finding-enums-smoke.js",
     "test:experience-layer-hint-injection": "node dist/tasks/experience-layer-hint-injection-smoke.js",

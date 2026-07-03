@@ -22,6 +22,15 @@ export interface DispatchPolicy {
   requireReceipt: boolean;
   requireReview: boolean;
   allowRealHostSubprocess?: boolean;
+  /**
+   * B-f57a: permit ONLY a read-only Codex review subprocess (the cross_host_review
+   * leaf) — a materially narrower grant than allowRealHostSubprocess (which is the
+   * IMPLEMENTATION real-host path and stays refused for codex). This flag permits
+   * `codex` as an independent read-only REVIEWER; gemini/antigravity remain refused,
+   * and the general allowRealHostSubprocess implementation path for codex remains
+   * refused. Absent/false ⇒ unchanged behavior.
+   */
+  allowReviewOnlyRealHostSubprocess?: boolean;
   allowAutoMerge: boolean;
   allowProductionDone: boolean;
   createdAt: string;
@@ -81,6 +90,7 @@ export interface CreateDispatchPolicyArgs {
   requireReceipt?: boolean;
   requireReview?: boolean;
   allowRealHostSubprocess?: boolean;
+  allowReviewOnlyRealHostSubprocess?: boolean;
   allowAutoMerge?: boolean;
   allowProductionDone?: boolean;
 }
@@ -249,11 +259,25 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     normalized.requireReview = requireReview;
   }
 
+  const allowReviewOnlyRealHostSubprocess = args.allowReviewOnlyRealHostSubprocess ?? false;
+  if (typeof allowReviewOnlyRealHostSubprocess !== 'boolean') {
+    errors.push(`allowReviewOnlyRealHostSubprocess must be a boolean; got ${String(allowReviewOnlyRealHostSubprocess)}`);
+  } else {
+    normalized.allowReviewOnlyRealHostSubprocess = allowReviewOnlyRealHostSubprocess;
+  }
+
   const allowRealHostSubprocess = args.allowRealHostSubprocess ?? false;
   if (typeof allowRealHostSubprocess !== 'boolean') {
     errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
   } else {
-    const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    // The IMPLEMENTATION real-host path supports claude-code only. codex is a
+    // refused implementation target UNLESS the narrower review-only flag permits it
+    // as a read-only reviewer (B-f57a); gemini/antigravity always remain refused.
+    const unsupportedRealHosts = allowedHosts.filter((host) => {
+      if (host === 'antigravity' || host === 'gemini') return true;
+      if (host === 'codex') return !allowReviewOnlyRealHostSubprocess;
+      return false;
+    });
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
       errors.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
@@ -302,6 +326,7 @@ export function createDispatchPolicy(root: string, args: CreateDispatchPolicyArg
     requireReceipt: normalized.requireReceipt!,
     requireReview: normalized.requireReview!,
     allowRealHostSubprocess: normalized.allowRealHostSubprocess ?? false,
+    ...(normalized.allowReviewOnlyRealHostSubprocess ? { allowReviewOnlyRealHostSubprocess: true } : {}),
     allowAutoMerge: false,
     allowProductionDone: false,
     createdAt: new Date().toISOString(),
@@ -366,6 +391,7 @@ function normalizeDispatchPolicyRecord(policy: DispatchPolicy): DispatchPolicy {
     ...policy,
     allowedHosts,
     allowRealHostSubprocess: policy.allowRealHostSubprocess === true,
+    ...(policy.allowReviewOnlyRealHostSubprocess === true ? { allowReviewOnlyRealHostSubprocess: true } : {}),
   };
 }
 
@@ -403,7 +429,15 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
-    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    // codex is a refused IMPLEMENTATION real-host target UNLESS the narrower
+    // review-only flag permits it as a read-only reviewer (B-f57a);
+    // gemini/antigravity always remain refused.
+    const reviewOnlyCodex = policyRecord.allowReviewOnlyRealHostSubprocess === true;
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter((host) => {
+      if (host === 'antigravity' || host === 'gemini') return true;
+      if (host === 'codex') return !reviewOnlyCodex;
+      return false;
+    });
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
@@ -549,6 +583,7 @@ export function renderDispatchPolicyText(result: DispatchPolicy): string {
     `requireReceipt: ${result.requireReceipt}`,
     `requireReview: ${result.requireReview}`,
     `allowRealHostSubprocess: ${result.allowRealHostSubprocess === true}`,
+    `allowReviewOnlyRealHostSubprocess: ${result.allowReviewOnlyRealHostSubprocess === true}`,
     `allowAutoMerge: ${result.allowAutoMerge}`,
     `allowProductionDone: ${result.allowProductionDone}`,
     `commandAllowlist: ${result.commandAllowlist.join(', ') || '(empty)'}`,

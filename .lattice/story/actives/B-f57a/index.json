@@ -4,7 +4,7 @@
   "title": "M1: auto-collect an independent second-host review verdict and surface disagreements",
   "description": "Build the missing orchestration that turns the manual 2-host quorum into an automatic cross-host adversarial review. Scope: (1) an orchestrating command that runs Codex as an INDEPENDENT REVIEWER over the same materialHash-bound change and captures a STRUCTURED verdict (decision plus findings), parsing only structured fields; (2) feed that verdict into the existing submitLocalVerdict / autopilot_review_submit path so it binds to the exact code; (3) a joint-decision step that compares host-A and host-B verdicts and explicitly surfaces disagreements. Reuse dispatch_prepare, the bounded Codex spawn primitive, and the verdict-capture endpoint; extend checkDispatchPolicy to sanction a bounded Codex real-leaf for REVIEW only. OUT OF SCOPE: cryptographic signing / pinned-key receipts (deferred as external-skeptic-only), any Authority-server path (deleted), and the work-signal dispatch verdict field. Repro-first: a RED test asserting no command today produces a structured materialHash-bound host-B review verdict plus a disagreement report; a SPIKE proving Codex can emit a parseable structured verdict that the joint-decision step diffs.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "riskSignals": [
     {
@@ -38,6 +38,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-03T01:22:58.831Z",
+      "branch": "story/B-f57a",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-03T01:56:08.530Z",
       "branch": "story/B-f57a",
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",

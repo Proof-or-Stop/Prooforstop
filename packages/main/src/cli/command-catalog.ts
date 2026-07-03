@@ -2634,6 +2634,17 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
+    storyId: z.string().describe('Canonical Story id'),
+    policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),
+    hostAFindingsFile: z.string().optional().describe('Path to a JSON array of host-A (Claude) Finding objects to diff against host B'),
+    hostA: z.string().optional().describe('Host-A id; default claude-host-a'),
+    hostB: z.string().optional().describe('Host-B id; default codex-host-b'),
+    runId: z.string().optional().describe('Local run id; default <storyId>-xhr-r1'),
+    timeoutMinutes: z.number().int().positive().optional().describe('Bounded timeout for the Codex review subprocess; default 12'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
   { name: 'autopilot_review_status', description: 'Summarize local independent host verdicts. Alias: lattice autopilot review status', schema: {
     storyId: z.string().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),
