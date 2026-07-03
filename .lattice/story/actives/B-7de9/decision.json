@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "One coherent experiment-arm system (reuse B-ab8d's resolveExperimentArm; do not add a second resolver/env/event).",
+    "Measurement stays lossless via the experience_pack_surfaced event, independent of what the host-visible JSON carries.",
+    "Non-control paths (treatment, no-experiment) must be byte-identical no-ops."
+  ],
+  "drivers": [
+    "Control-arm isolation VALIDITY for the experience-ablation experiment: a control-arm host must not be able to read stored memory through any live host-visible surface.",
+    "Minimize blast radius on B-ab8d's already-merged infrastructure."
+  ],
+  "options": [
+    {
+      "name": "A: thin isolation layer on B-ab8d",
+      "pros": [
+        "Smallest blast radius",
+        "Reuses B-ab8d's resolver/event/render-gate",
+        "Keeps B-ab8d's measurement-shape contract + passing smokes",
+        "Treatment/no-experiment byte-identical"
+      ],
+      "cons": [
+        "Adds a redaction call at each JSON surface (must not miss one)"
+      ]
+    },
+    {
+      "name": "B: rewrite B-ab8d to not keep the JSON pack",
+      "pros": [
+        "No separate redaction needed"
+      ],
+      "cons": [
+        "Large blast radius on already-merged B-ab8d",
+        "Breaks its measurement-shape contract",
+        "Breaks its passing smokes"
+      ]
+    },
+    {
+      "name": "C: block every serialized command on control",
+      "pros": [
+        "Uniform enforcement point"
+      ],
+      "cons": [
+        "Over-broad: kills legitimate treatment/no-experiment output",
+        "Blocks non-memory fields of those commands"
+      ]
+    }
+  ],
+  "chosen": "A: thin isolation layer on B-ab8d",
+  "rationale": "A is the smallest change that fully closes the leak while preserving B-ab8d's contracts: it reuses B-ab8d's resolver/event, keeps the JSON pack KEY (so B-ab8d's measurement shape + its smokes are unchanged) while emptying its CONTENT on control, and leaves treatment/no-experiment byte-identical. B breaks B-ab8d's measurement contract; C is over-broad and harms non-control usage.",
+  "preMortem": [
+    {
+      "scenario": "Stale-file merge silently reverts an unrelated main change",
+      "trigger": "Bringing a touched file from an older branch instead of re-deriving from the current main base",
+      "consequence": "An unrelated feature regresses (this happened once: command-policy.ts quantum_claim policies were deleted)",
+      "mitigation": "Re-derive each touched file from the current main base and re-apply only the intended edits, verified by git diff showing only the intended deletions"
+    },
+    {
+      "scenario": "Redaction fails OPEN on an internal error",
+      "trigger": "A malformed pack or a resolver throw inside redactMemoryPackForControlArm",
+      "consequence": "Stored memory leaks to a control-arm host despite the isolation layer",
+      "mitigation": "Resolve the arm first (default non-control on resolver error) and FAIL CLOSED inside control (return a fresh empty pack, never the input); covered by a throwing-getter smoke case"
+    },
+    {
+      "scenario": "A future memory surface bypasses the redaction",
+      "trigger": "A new command serializes the pack without calling redactMemoryPackForControlArm",
+      "consequence": "A new control-arm leak reappears",
+      "mitigation": "A hermetic e2e exercises the real handlers end-to-end and the consumer-wiring oracle requires surfaceRuntimeMemoryPack at final_response_check"
+    },
+    {
+      "scenario": "Emptying the JSON pack breaks a downstream consumer",
+      "trigger": "Some analysis reads pack CONTENT from the JSON rather than the experience_pack_surfaced event",
+      "consequence": "Measurement or a dependent tool breaks",
+      "mitigation": "Keep the pack KEY present (empty) so the shape is stable; confirm main's experience-pack-arm-switch smoke (asserts key-presence) still passes"
+    }
+  ],
+  "timestamp": "2026-07-03T11:18:08.920Z"
+}

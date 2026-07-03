@@ -1,0 +1,50 @@
+{
+  "storyId": "B-7de9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/runtime-memory-arm-gate.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/core/command-policy.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+    "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory lifecycle metadata (command-generated: original_intent_snapshot_set / intent_collision_set / red_evidence_create / proofstory_contract_set / milestone_ledger_set) plus package.json (the declared test-script wiring for the two new smokes). All intended lifecycle/scope artifacts for this story.",
+      "timestamp": "2026-07-03T11:28:03.448Z",
+      "paths": [
+        ".lattice/story/actives/B-7de9/intent-collision.json",
+        ".lattice/story/actives/B-7de9/milestone-ledger.json",
+        ".lattice/story/actives/B-7de9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7de9/proofstory.json",
+        ".lattice/story/actives/B-7de9/red-evidence.json",
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7de9/intent-collision.json",
+        ".lattice/story/actives/B-7de9/milestone-ledger.json",
+        ".lattice/story/actives/B-7de9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7de9/proofstory.json",
+        ".lattice/story/actives/B-7de9/red-evidence.json",
+        "package.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "55329ce8d2ea37c31df01fe6862697703ce78bf8",
+      "materialHash": "d596af65300be46c742f667454edb34a37fc51bb7bf7ff7f82a5fab8975467dc"
+    }
+  ],
+  "createdAt": "2026-07-03T11:18:47.811Z",
+  "updatedAt": "2026-07-03T11:28:03.448Z"
+}

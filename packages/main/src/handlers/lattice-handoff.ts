@@ -46,6 +46,7 @@ import {
   type RuntimeHostPolicyDecision,
 } from '../core/playbook-runtime-memory.js';
 import { shouldRenderRuntimeMemoryPack, surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -402,6 +403,12 @@ function buildHostDispatchPrefetchManifest(
   storyIsDone: boolean,
   hostPolicy?: RuntimeHostPolicyDecision,
 ): HostDispatchPrefetchManifest {
+  // Control-arm isolation: the manifest's memoryPackDigest/memoryTopHitIds are
+  // serialized to host_dispatch --format=json and the --output file, so redact
+  // the pack by the current arm here (control -> empty ids + empty-set digest).
+  const safePack = preflight.memoryFreshnessPack
+    ? redactMemoryPackForControlArm(preflight.memoryFreshnessPack)
+    : undefined;
   const staleSignals: string[] = [];
   const allUnavailable = [
     preflight.sessionBrief.status,
@@ -440,9 +447,9 @@ function buildHostDispatchPrefetchManifest(
           ? 'doneStorySummary.available'
           : 'ready-for-open-work',
       staleSignals,
-      ...(preflight.memoryFreshnessPack ? {
-        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
-        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      ...(safePack ? {
+        memoryPackDigest: safePack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(safePack).ids,
       } : {}),
       ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
@@ -456,9 +463,9 @@ function buildHostDispatchPrefetchManifest(
       verdict: 'uncertain',
       winSignal: `supersession(${supersession.winner})`,
         staleSignals,
-      ...(preflight.memoryFreshnessPack ? {
-        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
-        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      ...(safePack ? {
+        memoryPackDigest: safePack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(safePack).ids,
       } : {}),
       ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
@@ -477,9 +484,9 @@ function buildHostDispatchPrefetchManifest(
       verdict: 'uncertain',
       winSignal: 'requires_revalidation',
       staleSignals,
-      ...(preflight.memoryFreshnessPack ? {
-        memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
-        memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+      ...(safePack ? {
+        memoryPackDigest: safePack.packDigest,
+        memoryTopHitIds: runtimeMemoryTopHits(safePack).ids,
       } : {}),
       ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
     };
@@ -492,9 +499,9 @@ function buildHostDispatchPrefetchManifest(
     verdict: 'no-block',
     winSignal: 'activeStorySummary/gapAnalyze/learningValidate',
     staleSignals,
-    ...(preflight.memoryFreshnessPack ? {
-      memoryPackDigest: preflight.memoryFreshnessPack.packDigest,
-      memoryTopHitIds: runtimeMemoryTopHits(preflight.memoryFreshnessPack).ids,
+    ...(safePack ? {
+      memoryPackDigest: safePack.packDigest,
+      memoryTopHitIds: runtimeMemoryTopHits(safePack).ids,
     } : {}),
     ...(hostPolicy ? { runtimeHostPolicy: hostPolicy } : {}),
   };
@@ -656,12 +663,14 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         admissibleProofRefs,
         policy,
       });
-      pack.memoryFreshnessPack = buildHandoffRuntimeMemoryPack(ctx, {
+      // Control-arm isolation: a control-arm host must not EMIT memory into the
+      // handoff pack it serializes (--json) or writes (--output); redact at attach.
+      pack.memoryFreshnessPack = redactMemoryPackForControlArm(buildHandoffRuntimeMemoryPack(ctx, {
         storyId: pack.storyId,
         phase: pack.recoveryPoint.phase,
         host: pack.toHost,
         objective: pack.objective,
-      });
+      }));
       pack.runtimeHostPolicy = hostPolicy;
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
@@ -746,11 +755,14 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'handoff_resume');
       const projection = buildHandoffResumeProjection(source, { resumeHost: hostPolicy.capabilityHostId, ...options });
-      const memoryFreshnessPack = projection.memoryFreshnessPack ?? buildHandoffRuntimeMemoryPack(ctx, {
+      // Control-arm isolation: the resume pack comes either from the source file
+      // or (when absent, e.g. an accept.json) is REBUILT live — redact whichever
+      // by the arm so the control JSON/--output surface carries no memory.
+      const memoryFreshnessPack = redactMemoryPackForControlArm(projection.memoryFreshnessPack ?? buildHandoffRuntimeMemoryPack(ctx, {
         storyId: projection.storyId,
         phase: projection.recoveryPoint.phase,
         host: projection.resumeHost,
-      });
+      }));
       const enriched = { ...projection, memoryFreshnessPack, runtimeHostPolicy: hostPolicy };
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
@@ -829,10 +841,17 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       });
       assertRuntimeHostPolicyAllowed(hostPolicy, 'host_dispatch');
       const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, hostPolicy.capabilityHostId, hostPolicy);
+      // Control-arm isolation: the projection is serialized to --json / --output,
+      // both embedding preflight.memoryFreshnessPack; redact it by the arm (the
+      // manifest is redacted inside buildHostDispatchPrefetchManifest; the text
+      // render omits via shouldRenderRuntimeMemoryPack).
+      const safePreflight = preflight.memoryFreshnessPack
+        ? { ...preflight, memoryFreshnessPack: redactMemoryPackForControlArm(preflight.memoryFreshnessPack) }
+        : preflight;
       const result = buildHostDispatchProjection(pack, {
         host: hostPolicy.capabilityHostId,
         mode: args.mode,
-        preflight,
+        preflight: safePreflight,
         prefetchManifest,
       });
       if (args.output) {

@@ -1,0 +1,94 @@
+{
+  "storyId": "B-7de9",
+  "checkedAt": "2026-07-03T11:24:21.955Z",
+  "features": [
+    {
+      "feature": "redactMemoryPackForControlArm primitive (core/runtime-memory-arm-gate.ts): empties results/items, nulls sourceDigests, collapses packDigest, fails CLOSED",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-001"
+    },
+    {
+      "feature": "done_closure --json surface redacted on control arm",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-001 + checklist CHK-001 files: done-closure.ts"
+    },
+    {
+      "feature": "host_dispatch --json + prefetch manifest memoryPackDigest/memoryTopHitIds redacted on control",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-001 + checklist CHK-001 files: lattice-handoff.ts"
+    },
+    {
+      "feature": "handoff_create + handoff_resume JSON pack redacted on control arm",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-001 + checklist CHK-001 files: lattice-handoff.ts"
+    },
+    {
+      "feature": "treatment and no-experiment paths byte-identical (redaction is a no-op on non-control)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 verificationIntent edge case"
+    },
+    {
+      "feature": "final_response_check as the 8th RuntimeConsumer routed through surfaceRuntimeMemoryPack; JSON pack redacted; consumer-wiring health oracle drift guard",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-002 + checklist CHK-002 files: playbook-runtime-memory.ts"
+    },
+    {
+      "feature": "playbook_runtime_health required-class topHitIds/packDigest redacted on control",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 verificationIntent edge case"
+    },
+    {
+      "feature": "experienceRefs() returns [] on control arm (parallel_dispatch/report/plan chokepoint)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-003 + checklist CHK-003 files: lattice-parallel-wave.ts"
+    },
+    {
+      "feature": "memory_benchmark_real_data + source_lineage_audit added to memoryRetrieval markers in command-policy.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md ## CHK-003 + checklist CHK-003 files: command-policy.ts"
+    },
+    {
+      "feature": "experience-arm-gate-smoke unit test (fail-CLOSED, array/sourceDigests/packDigest empty)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 files.test: experience-arm-gate-smoke.ts"
+    },
+    {
+      "feature": "experience-arm-isolation-e2e-smoke CLI test covering all 3 CHKs",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001/CHK-002/CHK-003 files.test: experience-arm-isolation-e2e-smoke.ts"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8a6bc826618597d6a1f4e223df3e1e629721422658d621565b402985a6be8316",
+  "openQuestions": []
+}

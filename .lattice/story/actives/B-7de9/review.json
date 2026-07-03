@@ -1,0 +1,34 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-03T11:25:16.378Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when redactMemoryPackForControlArm empties every serialized memory-pack surface on the control arm + final_response_check routes through the shared arm render gate and redacts its JSON pack are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether any downstream analysis reads the JSON pack CONTENT rather than the experience_pack_surfaced event (verified: it uses the event)."
+        }
+      ],
+      "_hash": "e3a0fd5f9e9ef9731fc8b79ffabc2e03a352d1c7fdb7b65fc2e2765bd9beec86"
+    }
+  ]
+}

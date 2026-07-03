@@ -1,0 +1,29 @@
+{
+  "task": "Add a control-arm memory ISOLATION layer on top of main's B-ab8d experiment-arm render gate, closing the JSON/serialized surfaces the render gate leaves host-readable on the control arm.",
+  "outcome": "On the control arm (LATTICE_EXPERIMENT_ARM=control), the runtime memory pack is empty at every JSON/file serialization surface (done_closure/final_response_check/host_dispatch/handoff_create/handoff_resume/prefetch-manifest/playbook_runtime_health), final_response_check (the 8th RuntimeConsumer) suppresses its text render, parallel_dispatch injects no experienceRefs, and two corpus tools are refused. Treatment and no-experiment output is byte-identical to before.",
+  "facts": [
+    "main's B-ab8d ships resolveExperimentArm (core/experiment-arm.ts, LATTICE_* env), surfaceRuntimeMemoryPack + experience_pack_surfaced (core/experience-pack-surface.ts), and memoryRetrieval markers (command-policy.ts).",
+    "B-ab8d suppresses only the TEXT render on control and deliberately keeps the pack in JSON for lossless measurement.",
+    "final_response_check (handlers/playbook-runtime-memory.ts) is the 8th RuntimeConsumer and was never routed through surfaceRuntimeMemoryPack by B-ab8d.",
+    "The experience_pack_surfaced event carries packDigest + topHitIds on both arms, so measurement does not need the JSON pack."
+  ],
+  "constraints": [
+    "Key everything on the SAME resolveExperimentArm resolver (no second arm system).",
+    "Measurement must stay lossless (the JSON pack key is kept; only its CONTENT is emptied on control).",
+    "Treatment and no-experiment paths must be byte-identical no-ops."
+  ],
+  "unknowns": [
+    "Whether any downstream analysis reads the JSON pack CONTENT rather than the experience_pack_surfaced event (verified: it uses the event)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/runtime-memory-arm-gate.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/tasks/experience-arm-gate-smoke.ts",
+    "packages/main/src/tasks/experience-arm-isolation-e2e-smoke.ts"
+  ],
+  "timestamp": "2026-07-03T11:17:02.090Z"
+}

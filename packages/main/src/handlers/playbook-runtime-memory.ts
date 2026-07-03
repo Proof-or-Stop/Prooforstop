@@ -12,6 +12,8 @@ import {
   evaluateRuntimeMemoryConsumerPolicy,
   renderMemoryFreshnessPackSummary,
 } from '../core/playbook-runtime-memory.js';
+import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { HandlerContext } from './context.js';
 
@@ -99,11 +101,16 @@ function buildRuntimeHealth(ctx: HandlerContext) {
       maxPlaybooks: 3,
       maxLines: 60,
     });
+    // Experience-ablation control-arm isolation: the pass/fail status is an
+    // arm-independent health signal and stays honest, but the emitted packDigest
+    // + topHitIds carry stored ids, so redact them by the arm (empty ids +
+    // empty-set digest on control).
+    const shown = redactMemoryPackForControlArm(pack);
     return {
       id: `required-class:${requiredClass}`,
       status: pack.results.devMemoryEntryIds.length + pack.results.playbookIds.length > 0 ? 'pass' as const : 'fail' as const,
-      packDigest: pack.packDigest,
-      topHitIds: [...pack.results.playbookIds, ...pack.results.devMemoryEntryIds],
+      packDigest: shown.packDigest,
+      topHitIds: [...shown.results.playbookIds, ...shown.results.devMemoryEntryIds],
       authority: pack.authority,
       gateEvidence: pack.gateEvidence,
     };
@@ -115,7 +122,7 @@ function buildRuntimeHealth(ctx: HandlerContext) {
     ['src/handlers/transition-orchestrator.ts', /buildMemoryFreshnessPack[\s\S]*Runtime memory advisory \(not gate evidence\)/],
     ['src/handlers/done-closure.ts', /buildMemoryFreshnessPack[\s\S]*Advisory memory considered/],
     ['src/handlers/done-prepare.ts', /renderMemoryFreshnessPackSummary[\s\S]*Advisory memory considered/],
-    ['src/handlers/playbook-runtime-memory.ts', /final_response_check[\s\S]*completionClaimSource[\s\S]*ParentRollupResult\/current-structured-facts/],
+    ['src/handlers/playbook-runtime-memory.ts', /final_response_check[\s\S]*surfaceRuntimeMemoryPack[\s\S]*completionClaimSource[\s\S]*ParentRollupResult\/current-structured-facts/],
   ] as Array<[string, RegExp]>).map(([rel, pattern]) => ({
     id: `consumer-wiring:${rel}`,
     status: fileContains(ctx.scanRoot, rel, pattern) ? 'pass' as const : 'fail' as const,
@@ -259,25 +266,37 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
 
     final_response_check(args: { storyId?: string; claim?: string } & FormatArgs = {}) {
       const story = args.storyId ? ctx.store.readStory(args.storyId) : undefined;
-      const pack = buildMemoryFreshnessPack({
-        projectRoot: ctx.root,
+      // Experience-ablation control-arm isolation: route the render through the
+      // shared arm gate (surfaceRuntimeMemoryPack fires the experience_pack_surfaced
+      // event on both arms and suppresses the TEXT section on control), then
+      // REDACT the pack on control so the JSON surface (memoryFreshnessPack) does
+      // not leak memory either. This closes final_response_check (the 8th
+      // RuntimeConsumer, which the render-gate did not previously cover).
+      const surfaced = surfaceRuntimeMemoryPack(ctx.root, {
         consumer: 'final_response_check',
-        storyPhase: story?.phase,
-        query: [
-          args.claim ?? '',
-          story?.title ?? '',
-          story?.description ?? '',
-          'final response intent-totality delivery ParentRollupResult current structured facts memory non-authoritative',
-        ].join('\n'),
-        maxEntries: 5,
-        maxPlaybooks: 5,
-        maxLines: 60,
+        storyId: args.storyId,
+        roundKey: args.storyId ?? 'final_response_check',
+        buildPack: () => buildMemoryFreshnessPack({
+          projectRoot: ctx.root,
+          consumer: 'final_response_check',
+          storyPhase: story?.phase,
+          query: [
+            args.claim ?? '',
+            story?.title ?? '',
+            story?.description ?? '',
+            'final response intent-totality delivery ParentRollupResult current structured facts memory non-authoritative',
+          ].join('\n'),
+          maxEntries: 5,
+          maxPlaybooks: 5,
+          maxLines: 60,
+        }),
       });
+      const pack = surfaced.pack;
       const result = {
         schemaVersion: 'proofbound.final-response-check.v1',
         storyId: args.storyId,
         completionClaimSource: 'ParentRollupResult/current-structured-facts' as const,
-        memoryFreshnessPack: pack,
+        memoryFreshnessPack: redactMemoryPackForControlArm(pack),
         memoryCompletionProof: false as const,
         policy: evaluateRuntimeMemoryConsumerPolicy({ consumer: 'final_response_check' }),
         authority: 'non_authoritative' as const,
@@ -288,7 +307,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
         'Final response advisory check',
         `completionClaimSource: ${result.completionClaimSource}`,
         'memoryCompletionProof: false',
-        ...renderMemoryFreshnessPackSummary(pack).split('\n'),
+        ...(surfaced.shouldRender ? renderMemoryFreshnessPackSummary(pack).split('\n') : []),
         `authority: ${result.authority}`,
         `gateEvidence: ${result.gateEvidence}`,
       ].join('\n');
