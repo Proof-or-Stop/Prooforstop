@@ -123,6 +123,18 @@
             "priority": "must"
           }
         ]
+      },
+      "excludes": [
+        "experiments/experience-ablation/fixture-generator.mjs — pre-existing M1 (B-337f DONE) artifact consumed READ-ONLY to generate the selfcheck corpus; never modified by this story (also in scope-contract explicitExcludes)"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/experience-ablation/score-selfcheck.mjs"
+        ]
       }
     }
   ]
