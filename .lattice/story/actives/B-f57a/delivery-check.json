@@ -1,0 +1,23 @@
+{
+  "storyId": "B-f57a",
+  "checkedAt": "2026-07-03T11:34:10.686Z",
+  "headHash": "29efb60e6e760a158bc976537f3ce23f69973e7f",
+  "materialHash": "02c52ba9d6134d7affff62220a5bd2ddf777c910595fe012e1e1edca5a495387",
+  "storyFilesHash": "4465133d0bb085fd9c1c0e6d4d75071f35f083e68d1d9bd0350c8b744e9d0e3b",
+  "reviewRound": "2026-07-03T11:22:51.374Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "B-f57a-delivery-readiness",
+      "transcript": "Current delivery-review evidence verified on 2026-07-03: npm --prefix packages/main run build PASS; node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js PASS; node packages/main/dist/tasks/cross-host-review-smoke.js PASS 24/24; node scripts/verify-process-fact-contract.mjs PASS; npm test PASS; lattice validate --story=B-f57a --json PASS allPass=true over 32 configured commands; evidence_plan fresh=24 missing=0 rerun=0 refreshOnly=0; review_escalation_status assuranceLevel=full-3x2 with three valid 2-host local rounds; delivery_context_pack docsPromises=[] and claims authorityDone=false fullAuthorityDone=false productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery-review PASS for local non-authority scope: verified build, gitroot smoke, cross-host smoke 24/24, process-fact contract, npm test, lattice validate 32/32, fresh evidence plan, current RP-020/RP-021/RP-022, and full-3x2 local quorum; no Authority/release/production claim is in scope."
+  },
+  "_hash": "25cc7103c0d0252f4e2240b619034030331e1bab987ead93405790fdd653e0d0"
+}

@@ -1,0 +1,31 @@
+{
+  "task": "Build a cross_host_review command that automatically runs Codex as an independent reviewer over a materialHash-bound change, captures its structured verdict through the existing verdict-capture path, and surfaces where host A (Claude) and host B (Codex) disagree.",
+  "outcome": "Running one command auto-drives a read-only Codex review, records a codex-provider verdict bound to the current materialHash, and returns a joint decision that lists findings raised by exactly one host (the disagreement report); with no crypto.",
+  "facts": [
+    "The bounded Codex spawn primitive and the submitLocalVerdict capture endpoint both exist but share no call edge (audit-verified).",
+    "SPIKE confirmed: codex exec -s read-only with the prompt on STDIN emits a parseable JSON verdict on stdout; prompt-as-arg is unreliable in codex 0.141.0 and workspace-write file-drop is not viable for a read-only reviewer.",
+    "runBoundedCodexProvider deliberately returns stdout as a digest only, so the new leaf must do its own bounded spawn and parse only the structured JSON block.",
+    "submitLocalVerdict (handlers/verdict.ts:82) binds materialDigest and appends a host_verdict event; quorum-submit.ts:247-255 shows the materialHash/storyFilesHash computation.",
+    "Finding type (adversarial-review.ts:37) and command registration (MAIN_TOOLS in command-catalog.ts + registerBatch in registry.ts) are reusable."
+  ],
+  "constraints": [
+    "No cryptographic signing / pinned keys / receipts (deferred external-skeptic-only); do not touch receipt-bundle.ts or authority-signing.ts.",
+    "Codex runs read-only so it cannot modify the code it reviews.",
+    "Parse only structured verdict fields; never promote the raw provider transcript into gate evidence (record only a stdoutDigest for provenance).",
+    "All changes via this Lattice story; do not touch other-host domain-pack files."
+  ],
+  "unknowns": [
+    "Whether the fake-Codex process seam should mirror the real stdin-pipe/stdout shape exactly (resolve in DEV by matching the spike output format).",
+    "Final finding-match key tolerance (exact file:line:title for M1; line-window matching deferred)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/codex-review-leaf.ts (NEW: bounded read-only codex review runner + stdout JSON verdict parse)",
+    "packages/main/src/core/cross-host-review.ts (NEW: diffFindings + jointDecision)",
+    "packages/main/src/handlers/cross-host-review.ts (NEW: cross_host_review command handler)",
+    "packages/main/src/core/dispatch-policy.ts (EXTEND: allowReviewOnlyRealHostSubprocess)",
+    "packages/main/src/cli/command-catalog.ts + registry.ts (register command)",
+    "packages/main/src/tasks/cross-host-review-smoke.ts (NEW: RED+GREEN smoke)",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md (reconcile M1 reframe)"
+  ],
+  "timestamp": "2026-07-03T01:41:31.191Z"
+}

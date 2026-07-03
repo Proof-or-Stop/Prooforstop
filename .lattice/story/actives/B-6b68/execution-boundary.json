@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6b68",
+  "allowedCommands": [
+    "lattice convergence_check --json",
+    "lattice validate --story=<storyId> --json",
+    "node scripts/validate-tasks.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "scripts/validate-tasks.js"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Only annotation metadata and verification commands are needed; no runtime contract or domain adapter behavior changes.",
+  "createdAt": "2026-07-03T11:39:51.750Z",
+  "updatedAt": "2026-07-03T11:39:51.750Z",
+  "_hash": "9d7a1f25041333501ce674dfb1a9aaba2bc38d373c2e1dfd392f0a7a9af7df3a"
+}

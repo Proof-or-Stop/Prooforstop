@@ -3,7 +3,9 @@
 Status: draft for human review (2026-07-02)
 Scope: define, before any run, what makes a CLI-only 2-host signed quorum SOUND, and the honest
 ceiling of the independence claim. This is M0 of `tier-c-crosshost-quorum-execution-plan.md`.
-Non-goal: no implementation here; this fixes the rules M1/M2 must enforce and the wording M5 may use.
+Non-goal: no implementation here; this fixes the rules M-crypto/M2 must enforce and the wording M5 may use.
+(M1 was reframed to crypto-deferred cross-host review — story B-f57a; pinned-key/signature enforcement
+moved to the deferred M-crypto milestone. See `tier-c-crosshost-quorum-execution-plan.md`.)
 
 ## 1. What a quorum asserts (and does not)
 
@@ -36,12 +38,12 @@ mutually-hostile trust boundary. See the independence ceiling (§3).
   cryptographically verifiable verdict"; forbidden = "mutually-distrusting parties" / "no operator
   trust required."
 
-## 4. Threats and fail-closed defenses (the rules M1/M2 enforce)
+## 4. Threats and fail-closed defenses (the rules M-crypto/M2 enforce)
 
 | Threat | Attack | Defense (fail-closed) |
 |---|---|---|
 | Forged verdict | unsigned, or signed by a non-pinned key | reject: signature must verify against the pinned key for that hostId |
-| Same-key masquerade | one CLI/key emits both "independent" verdicts | reject: quorum requires two DISTINCT pinned keys (this is the core M1 fix — today independence is label-only) |
+| Same-key masquerade | one CLI/key emits both "independent" verdicts | reject: quorum requires two DISTINCT pinned keys (this is the core M-crypto fix — until then independence is cross-vendor label-only, not key-enforced) |
 | Stale materialHash | a host reviewed old code, submits over a drifted tree | reject: materialHash freshness check + the M2 handshake (both hosts pinned to the same tree sha before either submits) |
 | Replay | reuse a previously-valid signed verdict | reject: verdict binds materialHash + round + timestamp; a verdict is admissible only for its bound (material, round) |
 | Partial/omission | drop one verdict, or `push(null)` after signing | reject: strict bundle-shape check (the F-005 anti-null-elision defense already in `receipt-bundle.ts`) |
@@ -68,6 +70,6 @@ is always full recompute / hard reject, never a relaxed accept (keeps Eq.adm un-
 
 - [ ] Trust anchor named (pinned out-of-band manifest, verify-against-pinned-not-self).
 - [ ] Independence claim + explicit ceiling stated (cross-vendor, same-operator).
-- [ ] Every fail-closed rule enumerated (the §4 table) — these become M1/M2 RED tests.
+- [ ] Every fail-closed rule enumerated (the §4 table) — these become M-crypto/M2 RED tests.
 - [ ] Key generation / pinning / rotation / revocation decided.
 - [ ] Paper wording boundary fixed for M5 (allowed vs forbidden phrasings).

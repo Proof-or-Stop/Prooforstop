@@ -1,0 +1,50 @@
+{
+  "storyId": "B-6b68",
+  "name": "fix-claim-pack-smoke-annotation-type",
+  "title": "Fix claim-admissibility pack smoke annotation type",
+  "description": "Resolve the project convergence annotation error by changing the claim-admissibility pack framework smoke @type from invalid test to an allowed task type without changing runtime behavior.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "riskSignals": [
+    {
+      "category": "Compliance/Privacy",
+      "matched": "compliance"
+    }
+  ],
+  "createdAt": "2026-07-03T11:39:51.750Z",
+  "startedAt": "2026-07-03T11:39:51.750Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-03T11:39:52.026Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-03T11:42:18.576Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Compliance/Privacy",
+      "reason": "False positive: the story only fixes a task annotation enum used by convergence annotation compliance checks; it does not modify compliance, privacy, security, policy, or user-data behavior.",
+      "at": "2026-07-03T11:40:06.401Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6b68",
+    "branch": "story/B-6b68",
+    "createdAt": "2026-07-03T11:42:17.495Z"
+  }
+}

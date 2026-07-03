@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f57a",
+  "records": [
+    {
+      "id": "RED-20260703015522",
+      "trigger": "The cross_host_review orchestration command (auto cross-host review collection + disagreement surfacing) does not exist; behavior-change feature.",
+      "acceptanceTargetRef": "CHK-001:happy:1",
+      "baselineHeadHash": "1266e1c8e28c3e703d619adb3d519a861609a030",
+      "baselineMaterialHash": "a7d066cd26e75f3fa9cfa7e5f45f46c4c8cb297e4d8900da46339969e3249665",
+      "observedFailure": "node packages/main/dist/tasks/cross-host-review-smoke.js fails with AssertionError: \"cross_host_review command must be registered\" (registry.get returns undefined). tsc build passes; the command surface is genuinely absent on baseline.",
+      "failingCommand": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:1",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/cross-host-review-smoke.js"
+      },
+      "note": "RED committed at 1266e1c8e (smoke present, command absent). GREEN after implementing the command + handler + registration.",
+      "createdAt": "2026-07-03T01:55:22.001Z"
+    }
+  ],
+  "createdAt": "2026-07-03T01:55:22.001Z",
+  "updatedAt": "2026-07-03T01:55:22.001Z"
+}

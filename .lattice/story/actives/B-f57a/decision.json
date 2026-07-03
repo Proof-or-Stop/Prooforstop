@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reuse existing spawn + capture + binding primitives; build only the missing bridge and the disagreement diff.",
+    "The reviewer is read-only and never modifies the code under review.",
+    "Fail-closed: any unparseable/mismatched/absent verdict blocks; never soft-accept.",
+    "Never promote a raw provider transcript into evidence; extract only structured verdict fields.",
+    "No cryptography in this milestone; value is the adversarial joint decision."
+  ],
+  "drivers": [
+    "codex 0.141.0 reliably takes the prompt via stdin and emits the verdict on stdout (SPIKE).",
+    "runBoundedCodexProvider hides raw stdout by design so a new leaf must own the spawn.",
+    "The verdict must bind to the exact materialHash via the existing submitLocalVerdict path."
+  ],
+  "options": [
+    {
+      "name": "stdin-pipe read-only codex + stdout JSON verdict",
+      "pros": [
+        "SPIKE-confirmed on codex 0.141.0",
+        "reviewer stays read-only",
+        "own bounded spawn keeps runBoundedCodexProvider digest contract intact",
+        "parses only structured fields"
+      ],
+      "cons": [
+        "must extract JSON from a transcript with headers",
+        "depends on Codex honoring output-only-JSON"
+      ]
+    },
+    {
+      "name": "workspace-write file-drop verdict",
+      "pros": [
+        "verdict is a clean on-disk artifact"
+      ],
+      "cons": [
+        "SPIKE: workspace-write + prompt hung on stdin",
+        "write access lets a reviewer modify reviewed code"
+      ]
+    },
+    {
+      "name": "reuse runBoundedCodexProvider",
+      "pros": [
+        "already bounded/retry/timeout"
+      ],
+      "cons": [
+        "returns stdout as a digest only, cannot yield verdict text"
+      ]
+    }
+  ],
+  "chosen": "stdin-pipe read-only codex + stdout JSON verdict",
+  "rationale": "SPIKE confirmed this is the only reliable, read-only-safe channel on codex 0.141.0; keeps the reviewer from modifying code, leaves runBoundedCodexProvider untouched, parses only structured fields. File-drop needs workspace-write (unsafe + hung in spike); runBoundedCodexProvider cannot return the text.",
+  "preMortem": [
+    {
+      "scenario": "Codex wraps the verdict in prose or markdown fences",
+      "trigger": "model ignores the JSON-only instruction",
+      "consequence": "no clean verdict to record",
+      "mitigation": "parser extracts the last schema-matching JSON object; if none, fail-closed to a blocked verdict"
+    },
+    {
+      "scenario": "materialHash the orchestrator computed differs from what Codex reviewed",
+      "trigger": "worktree drift between prompt build and capture",
+      "consequence": "a verdict could bind to the wrong code",
+      "mitigation": "embed materialHash in the prompt and reject a verdict whose materialHash field mismatches (rebinding guard)"
+    },
+    {
+      "scenario": "the review-only policy flag widens the implementation subprocess path",
+      "trigger": "refusal logic reused instead of a separate narrower flag",
+      "consequence": "codex could be auto-driven to write code",
+      "mitigation": "keep allowRealHostSubprocess refusal for codex intact; add a separate narrower flag + a smoke asserting the impl path stays refused"
+    },
+    {
+      "scenario": "fake-Codex test seam diverges from real stdin/stdout shape",
+      "trigger": "seam returns a different structure than the spike output",
+      "consequence": "tests pass but real runs fail",
+      "mitigation": "shape the seam to the exact spike output format"
+    }
+  ],
+  "timestamp": "2026-07-03T01:42:52.762Z"
+}

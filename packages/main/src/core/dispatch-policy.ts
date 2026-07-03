@@ -22,6 +22,15 @@ export interface DispatchPolicy {
   requireReceipt: boolean;
   requireReview: boolean;
   allowRealHostSubprocess?: boolean;
+  /**
+   * B-f57a: permit ONLY a read-only Codex review subprocess (the cross_host_review
+   * leaf) — a materially narrower grant than allowRealHostSubprocess (which is the
+   * IMPLEMENTATION real-host path and stays refused for codex). This flag permits
+   * `codex` as an independent read-only REVIEWER; gemini/antigravity remain refused,
+   * and the general allowRealHostSubprocess implementation path for codex remains
+   * refused. Absent/false ⇒ unchanged behavior.
+   */
+  allowReviewOnlyRealHostSubprocess?: boolean;
   allowAutoMerge: boolean;
   allowProductionDone: boolean;
   createdAt: string;
@@ -81,6 +90,7 @@ export interface CreateDispatchPolicyArgs {
   requireReceipt?: boolean;
   requireReview?: boolean;
   allowRealHostSubprocess?: boolean;
+  allowReviewOnlyRealHostSubprocess?: boolean;
   allowAutoMerge?: boolean;
   allowProductionDone?: boolean;
 }
@@ -249,15 +259,48 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     normalized.requireReview = requireReview;
   }
 
+  const allowReviewOnlyRealHostSubprocess = args.allowReviewOnlyRealHostSubprocess ?? false;
+  if (typeof allowReviewOnlyRealHostSubprocess !== 'boolean') {
+    errors.push(`allowReviewOnlyRealHostSubprocess must be a boolean; got ${String(allowReviewOnlyRealHostSubprocess)}`);
+  } else {
+    normalized.allowReviewOnlyRealHostSubprocess = allowReviewOnlyRealHostSubprocess;
+  }
+
   const allowRealHostSubprocess = args.allowRealHostSubprocess ?? false;
   if (typeof allowRealHostSubprocess !== 'boolean') {
     errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
   } else {
-    const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    // F-003: the IMPLEMENTATION real-host path supports claude-code only. codex may
+    // be excluded from this refusal ONLY for a PURE review-only policy — the narrow
+    // review-only grant WITHOUT the implementation flag. When allowRealHostSubprocess
+    // is true the policy expresses IMPLEMENTATION intent and codex stays refused
+    // (codex is the live impl target at lattice-dispatch.ts's runCodexRealLeafDispatch,
+    // which fires on selectedHost==='codex' && allowRealHostSubprocess===true), so the
+    // two flags are mutually exclusive for codex. gemini/antigravity always remain refused.
+    const reviewOnlyCodex = allowReviewOnlyRealHostSubprocess && !allowRealHostSubprocess;
+    const unsupportedRealHosts = allowedHosts.filter((host) => {
+      if (host === 'antigravity' || host === 'gemini') return true;
+      if (host === 'codex') return !reviewOnlyCodex;
+      return false;
+    });
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
       errors.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
       );
+    }
+    // Codex host-B lane: the guard above only fires when allowRealHostSubprocess is
+    // true, so a PURE review-only policy could still carry allowedHosts=['gemini'|
+    // 'antigravity']. The review-only flag sanctions ONLY a read-only codex reviewer —
+    // refuse any non-codex real host in that case.
+    if (reviewOnlyCodex) {
+      const unsupportedReviewHosts = allowedHosts.filter(
+        (host) => host === 'antigravity' || host === 'gemini',
+      );
+      if (unsupportedReviewHosts.length > 0) {
+        errors.push(
+          `allowReviewOnlyRealHostSubprocess sanctions a read-only codex reviewer only; ${unsupportedReviewHosts.join(', ')} are not permitted review-only real-host targets`,
+        );
+      }
     }
     normalized.allowRealHostSubprocess = allowRealHostSubprocess;
   }
@@ -302,6 +345,7 @@ export function createDispatchPolicy(root: string, args: CreateDispatchPolicyArg
     requireReceipt: normalized.requireReceipt!,
     requireReview: normalized.requireReview!,
     allowRealHostSubprocess: normalized.allowRealHostSubprocess ?? false,
+    ...(normalized.allowReviewOnlyRealHostSubprocess ? { allowReviewOnlyRealHostSubprocess: true } : {}),
     allowAutoMerge: false,
     allowProductionDone: false,
     createdAt: new Date().toISOString(),
@@ -330,8 +374,20 @@ export function getDispatchPolicy(root: string, policy: string): DispatchPolicy 
   if (!existsSync(filePath)) {
     throw new Error(`dispatch policy not found: ${name} (expected at .lattice/dispatch-policies/${name}.json)`);
   }
-  const raw = JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy;
-  return normalizeDispatchPolicyRecord(raw);
+  // Sweep hardening: the on-disk record is untrusted input. Fail closed on invalid
+  // JSON or a malformed field shape rather than casting it to DispatchPolicy and
+  // trusting it (the same trust-boundary fix applied at the checkDispatchPolicy gate).
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(filePath, 'utf8'));
+  } catch (err) {
+    throw new Error(`dispatch policy "${name}" file is not valid JSON: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  const shapeErrors = validatePolicyRecordShape(raw);
+  if (shapeErrors.length > 0) {
+    throw new Error(`dispatch policy "${name}" is malformed:\n${shapeErrors.map(e => `  - ${e}`).join('\n')}`);
+  }
+  return normalizeDispatchPolicyRecord(raw as DispatchPolicy);
 }
 
 function fakePolicyRecord(): DispatchPolicy {
@@ -366,12 +422,87 @@ function normalizeDispatchPolicyRecord(policy: DispatchPolicy): DispatchPolicy {
     ...policy,
     allowedHosts,
     allowRealHostSubprocess: policy.allowRealHostSubprocess === true,
+    ...(policy.allowReviewOnlyRealHostSubprocess === true ? { allowReviewOnlyRealHostSubprocess: true } : {}),
   };
+}
+
+/**
+ * Bug10 (runtime type guard): validate the raw SHAPE of a dispatch policy record
+ * BEFORE any authorization logic runs. `checkDispatchPolicy` accepts either an
+ * inline caller object or a JSON record loaded from disk — both are untrusted input
+ * that TypeScript casts (`as DispatchPolicy`) do NOT actually enforce at runtime. A
+ * malformed value that survives the cast (e.g. `maxRuntimeMinutes: "bogus"` — a
+ * string, not a number) would otherwise sail through the numeric checks below:
+ * `"bogus" > 0` and `"bogus" > MAX` both coerce to false, so the truthy string
+ * passes authorization, and downstream (cross-host-review.ts timeout-ceiling
+ * computation) `typeof !== 'number'` silently discards the ceiling and falls back to
+ * the caller timeout — spawning codex WITHOUT the intended runtime bound.
+ *
+ * FAIL-CLOSED: any field of the wrong type is a hard type error → the caller REFUSES
+ * the policy (no codex spawn). We check every field's TYPE (not its value/range — the
+ * existing checks below own range/business rules). Optional fields are only type-checked
+ * when present. Returns [] when the record shape is well-typed.
+ */
+function validatePolicyRecordShape(record: unknown): string[] {
+  const errors: string[] = [];
+  if (typeof record !== 'object' || record === null || Array.isArray(record)) {
+    return ['policy record must be a non-null object'];
+  }
+  const r = record as Record<string, unknown>;
+
+  const isStringArray = (v: unknown): boolean => Array.isArray(v) && v.every(x => typeof x === 'string');
+  const requireStringArray = (field: string): void => {
+    if (r[field] === undefined) return; // absence is caught by the emptiness checks below
+    if (!isStringArray(r[field])) errors.push(`${field} must be an array of strings`);
+  };
+  const requireFiniteNumber = (field: string, optional: boolean): void => {
+    const v = r[field];
+    if (v === undefined) {
+      if (!optional) errors.push(`${field} must be a finite number`);
+      return;
+    }
+    if (typeof v !== 'number' || !Number.isFinite(v)) errors.push(`${field} must be a finite number; got ${JSON.stringify(v)} (${typeof v})`);
+  };
+  const requireBoolean = (field: string, optional: boolean): void => {
+    const v = r[field];
+    if (v === undefined) {
+      if (!optional) errors.push(`${field} must be a boolean`);
+      return;
+    }
+    if (typeof v !== 'boolean') errors.push(`${field} must be a boolean; got ${JSON.stringify(v)} (${typeof v})`);
+  };
+
+  if (r.policy !== undefined && typeof r.policy !== 'string') errors.push('policy must be a string');
+  requireStringArray('allowedHosts');
+  requireStringArray('allowedPaths');
+  requireStringArray('deniedPaths');
+  requireStringArray('envAllowlist');
+  requireStringArray('envDenylist');
+  requireStringArray('commandAllowlist');
+  // Numbers: maxRuntimeMinutes / maxParallel are the safety ceilings and MUST be
+  // finite numbers when present (Bug10 core case). Range/positivity is enforced later.
+  requireFiniteNumber('maxRuntimeMinutes', false);
+  requireFiniteNumber('maxParallel', false);
+  requireFiniteNumber('retryLimit', true);
+  requireFiniteNumber('maxBudgetUSD', true);
+  // Boolean flags gate authorization decisions; a non-boolean must never be coerced.
+  requireBoolean('requireReceipt', true);
+  requireBoolean('requireReview', true);
+  requireBoolean('allowRealHostSubprocess', true);
+  requireBoolean('allowReviewOnlyRealHostSubprocess', true);
+  requireBoolean('allowAutoMerge', true);
+  requireBoolean('allowProductionDone', true);
+  if (r.network !== undefined && typeof r.network !== 'string') errors.push('network must be a string when present');
+
+  return errors;
 }
 
 export function checkDispatchPolicy(root: string, policy: string | DispatchPolicy): DispatchPolicyCheckResult {
   let policyRecord: DispatchPolicy;
   let policyName: string;
+  // Bug10: the raw (pre-normalization) record whose runtime SHAPE we type-check.
+  // Loaded/inline records are untrusted; a `as DispatchPolicy` cast enforces nothing.
+  let rawRecord: unknown;
 
   if (typeof policy === 'string') {
     policyName = (policy ?? '').trim();
@@ -382,18 +513,37 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
       return refusedResult(policyName, [`invalid policy name: ${policyName}`], 'Use alphanumeric, hyphen, or underscore characters (1-64 chars).');
     }
     if (policyName === 'fake') {
-      policyRecord = fakePolicyRecord();
+      rawRecord = fakePolicyRecord();
     } else {
       const filePath = policyPath(root, policyName);
       if (!existsSync(filePath)) {
         return refusedResult(policyName, [`policy not found: ${policyName} (no file at .lattice/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
       }
-      policyRecord = normalizeDispatchPolicyRecord(JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy);
+      let loaded: unknown;
+      try {
+        loaded = JSON.parse(readFileSync(filePath, 'utf8'));
+      } catch (err) {
+        return refusedResult(policyName, [`policy file is not valid JSON: ${err instanceof Error ? err.message : String(err)}`], 'Fix or recreate the policy file, then re-check.');
+      }
+      rawRecord = loaded;
     }
   } else {
-    policyRecord = normalizeDispatchPolicyRecord(policy);
-    policyName = policyRecord.policy;
+    rawRecord = policy;
+    policyName = typeof (policy as { policy?: unknown })?.policy === 'string' ? (policy as { policy: string }).policy : '(inline)';
   }
+
+  // Bug10 (fail-closed): reject a malformed policy record BEFORE any authorization
+  // logic. This runs for BOTH the inline-object path and the disk-loaded path, and
+  // BEFORE normalizeDispatchPolicyRecord (which assumes well-typed fields). A single
+  // wrong-typed field (e.g. maxRuntimeMinutes:"bogus") refuses the policy so no codex
+  // subprocess is ever spawned with an unenforced runtime ceiling.
+  const shapeErrors = validatePolicyRecordShape(rawRecord);
+  if (shapeErrors.length > 0) {
+    return refusedResult(policyName, shapeErrors, 'Fix the malformed policy field types above and re-check.');
+  }
+
+  policyRecord = normalizeDispatchPolicyRecord(rawRecord as DispatchPolicy);
+  if (typeof policy !== 'string') policyName = policyRecord.policy;
 
   const reasons: string[] = [];
   const degradations: string[] = [];
@@ -403,10 +553,42 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
-    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    // F-003: codex may be excluded from this IMPLEMENTATION-path refusal ONLY for
+    // a PURE review-only policy — i.e. the narrow review-only grant WITHOUT the
+    // implementation flag. When allowRealHostSubprocess === true the policy
+    // expresses IMPLEMENTATION intent, and codex is the live impl target at
+    // lattice-dispatch.ts (runCodexRealLeafDispatch fires whenever
+    // selectedHost==='codex' && allowRealHostSubprocess===true). So codex must
+    // stay refused here regardless of allowReviewOnlyRealHostSubprocess, making
+    // the two flags mutually exclusive for codex: a review-only policy can never
+    // also carry the implementation flag, so it can never reach that impl path.
+    // gemini/antigravity always remain refused.
+    // F-006: this block runs only when allowRealHostSubprocess === true, so codex
+    // is ALWAYS refused here (the review-only carve-out lives in the create/validate
+    // path, where allowRealHostSubprocess is false). Refusing codex directly avoids
+    // a dead `reviewOnlyCodex` variable that is unconditionally false in this block.
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(
+      (host) => host === 'antigravity' || host === 'gemini' || host === 'codex',
+    );
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+      );
+    }
+  }
+
+  // Codex host-B lane: the review-only flag sanctions ONLY a read-only codex reviewer.
+  // A PURE review-only policy (allowRealHostSubprocess=false) never enters the block
+  // above, so without this guard a policy could set allowReviewOnlyRealHostSubprocess
+  // + allowedHosts=['gemini'|'antigravity'] and pass — violating the codex-only invariant.
+  // Refuse any non-codex real host whenever the review-only flag is set.
+  if (policyRecord.allowReviewOnlyRealHostSubprocess === true) {
+    const unsupportedReviewHosts = (policyRecord.allowedHosts ?? []).filter(
+      (host) => host === 'antigravity' || host === 'gemini',
+    );
+    if (unsupportedReviewHosts.length > 0) {
+      reasons.push(
+        `allowReviewOnlyRealHostSubprocess sanctions a read-only codex reviewer only; ${unsupportedReviewHosts.join(', ')} are not permitted review-only real-host targets`,
       );
     }
   }
@@ -549,6 +731,7 @@ export function renderDispatchPolicyText(result: DispatchPolicy): string {
     `requireReceipt: ${result.requireReceipt}`,
     `requireReview: ${result.requireReview}`,
     `allowRealHostSubprocess: ${result.allowRealHostSubprocess === true}`,
+    `allowReviewOnlyRealHostSubprocess: ${result.allowReviewOnlyRealHostSubprocess === true}`,
     `allowAutoMerge: ${result.allowAutoMerge}`,
     `allowProductionDone: ${result.allowProductionDone}`,
     `commandAllowlist: ${result.commandAllowlist.join(', ') || '(empty)'}`,

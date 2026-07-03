@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make claim-admissibility pack smoke task annotation compliant",
+      "context": "convergence_check reports one annotation error: packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts uses @type test, but validate-tasks allows only feature, bugfix, refactor, chore. Fix the annotation only and verify validate-tasks plus convergence annotation compliance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/validate-tasks.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node scripts/validate-tasks.js passes after the annotation type is changed to an allowed enum value.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice convergence_check --json no longer reports Code annotations compliant=false for this annotation error.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Manual diff inspection confirms the fix does not change claim-admissibility smoke runtime assertions or registry behavior; only the @type metadata line changes.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

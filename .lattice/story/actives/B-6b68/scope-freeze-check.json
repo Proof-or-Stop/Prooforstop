@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6b68",
+  "checkedAt": "2026-07-03T11:42:04.481Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "3675597eff0973ad18883c6758276c4a5c3e5ff34be735f7ea4b7d4adf4b1432",
+  "executionBoundaryHash": "9d7a1f25041333501ce674dfb1a9aaba2bc38d373c2e1dfd392f0a7a9af7df3a",
+  "freshnessHash": "dad9e84f0844ab0d06d0cedc0a42c97ffbc9ccdbd7ba2838866dc35f084486ec",
+  "effectiveExcludedKeywords": [
+    "docs/requirements/decisions/** runtime contract rewrites",
+    "packages/main/src/core/claim-admissibility/**",
+    "packages/main/src/handlers/**"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "docs/requirements/decisions/** runtime contract rewrites",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/** runtime contract rewrites",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/claim-admissibility/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/claim-admissibility/**",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/**",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "40b5573709cd3ce2cd8d77ff2eaae27b04f6ccb2116a61ce05d2ffd249fc0cd4"
+}
