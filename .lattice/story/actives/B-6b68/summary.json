@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6b68",
+  "changes": "Changed the claim-admissibility pack smoke task annotation from @type test to @type chore so the repository task annotation validator accepts the file without altering runtime behavior.",
+  "usage": "Run node scripts/validate-tasks.js or lattice convergence_check --json; the annotation check should pass and report all task annotations compliant.",
+  "expectedOutcome": "node scripts/validate-tasks.js prints PASSED: All task annotations are valid, and lattice convergence_check --json no longer reports the claim-admissibility pack smoke @type error.",
+  "actualTranscript": "Live smoke exited 0 and printed PASSED: All task annotations are valid plus Code annotations compliant / All 81 annotations compliant.",
+  "outcomeDiff": "No difference: actual output matches the expected annotation validation and convergence result.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered",
+  "pitfalls": "TEST delivery review initially found a scope blocker because a written delivery-context-pack artifact was out of scope; remove optional written context packs in TEST and use read-only context plus transcript evidence unless the path is acknowledged earlier.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 146550
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 43160
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 265538
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 167527
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 412432
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 8962283
+    }
+  },
+  "totalDurationMs": 9997766,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-03T14:26:29.516Z",
+  "updatedAt": "2026-07-03T14:26:29.516Z"
+}
