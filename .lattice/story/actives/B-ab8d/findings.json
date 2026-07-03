@@ -45,7 +45,7 @@
       "desc": "CHK-001 through CHK-004: all 15 must-priority intent evidence records are marked stale by lattice validate (3/18 covered). materialHash changed after each evidence was recorded as subsequent CHK-002/CHK-003/CHK-004/CHK-005 material code landed (cli-engine.ts, experience-pack-surface.ts, observability-snapshot.ts, lattice-handoff.ts etc.). The underlying smoke tests reproduce green at HEAD but evidence bindings must be refreshed so the gate can accept them. Stale evidence cannot satisfy the coverage gate regardless of whether the code is correct.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-03T00:10:18.795Z",
@@ -60,7 +60,9 @@
         "packages/main/src/handlers/observability-snapshot.ts"
       ],
       "signatureTag": "missing|ts|through-priority-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "After the F-002 fix commit cebf74b83 and green full validate (exit 0, allPass:true), ran lattice verification_evidence_refresh_stale for B-ab8d: refreshed 18/18 stale evidence records (CHK-001..CHK-005) to headHash cebf74b83; none were unrefreshable. Independently re-ran underlying commands at current HEAD: experiment-arm-smoke 11/11, control-arm-retrieval-gate.test.mjs ALL PASS, ab-shadow-gate smoke 14/14, observability_snapshot transcript clean (local-only, warnings 0). CHK-005:edge:0 additionally re-recorded via verification_evidence_add with the fresh validate result. lattice validate --story=B-ab8d --json now reports verification coverage 18/18 covered, missingRequired 0.",
+      "resolvedAt": "2026-07-03T00:21:53.460Z"
     }
   ]
 }
