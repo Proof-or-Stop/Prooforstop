@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-3779:F-001",
+      "desc": "Docs touchpoint has stale Future Failure Injection wording: proof-or-stop-quantum-claim-admissibility-execution-plan.md lines 258-286 still say M4 may later implement the benchmark and call A1-A4/B1-B15 future, while the same doc lines 4, 21-42, and 343-380 and source evidence (packages/main/src/core/claim-admissibility/quantum.ts QUANTUM_RUNTIME_STATUS plus runQuantumClaimBenchmark/buildQuantumClaimReport) describe local diagnostic M0-M5, M4 benchmark, and M5 report as implemented. Update that section so the doc consistently says the benchmark/injections are implemented diagnostic-only and keep generic gatePolicies/lifecycle/Authority/production/scientific claims out of scope.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-03T03:50:52.920Z",
+      "reviewRound": "2026-07-03T03:49:01.968Z",
+      "reviewRunId": "B-3779:RR-001",
+      "_hash": "7e72fdb7c32b6bbd07a9fd0d3f78d751afff11db2841225623f091758abc09a0",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-touchpoint-stale",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
