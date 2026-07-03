@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-fca1",
+  "records": [
+    {
+      "id": "RED-20260703095242",
+      "trigger": "M9 new capability: no evidence-map generator or artifact exists",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "bd29bbb0018462d752369ad2c204f381d350692c",
+      "baselineMaterialHash": "1b7fff7b3f21efee235eb5255d5159fc2265009afb10aa984223c9f3af780942",
+      "observedFailure": "ls experiments/experience-ablation/evidence-map.mjs -> No such file or directory; the expabl-m6-pilot-v1 evidence root has no evidence-map.json/.md.",
+      "failingCommand": "node experiments/experience-ablation/evidence-map-selfcheck.mjs # Cannot find module (ENOENT) before this story",
+      "expectedGreenCommand": "node experiments/experience-ablation/evidence-map-selfcheck.mjs # prints evidence-map-selfcheck: all cases passed, exit 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/experience-ablation/evidence-map-selfcheck.mjs # prints evidence-map-selfcheck: all cases passed, exit 0"
+      },
+      "note": "Red probe run 2026-07-03 in worktree B-fca1 before any M9 code exists.",
+      "createdAt": "2026-07-03T09:52:42.870Z"
+    }
+  ],
+  "createdAt": "2026-07-03T09:52:42.870Z",
+  "updatedAt": "2026-07-03T09:52:42.870Z"
+}

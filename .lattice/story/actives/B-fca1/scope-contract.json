@@ -1,0 +1,23 @@
+{
+  "storyId": "B-fca1",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedCreate": [
+    "experiments/experience-ablation/evidence-map.mjs",
+    "experiments/experience-ablation/evidence-map-selfcheck.mjs",
+    ".lattice/experiments/experience-ablation/**"
+  ],
+  "allowedTest": [
+    "experiments/experience-ablation/evidence-map-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/**",
+    "experiments/recovery-runner/**"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-07-03T09:52:42.592Z",
+  "updatedAt": "2026-07-03T09:52:42.592Z"
+}
