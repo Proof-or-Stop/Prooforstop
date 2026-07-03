@@ -538,11 +538,11 @@
           "file": "packages/main/src/handlers/quantum-claim-admissibility.ts",
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-d1bf quantum_claim_check --case=overclaim --json",
           "result": "pass",
-          "note": "CLI overclaim path was rerun and stopped instead of advancing, while keeping productionDone=false and authorityDone=false.",
-          "headHash": "3bc2a2fba64806be86715fa146a489bdabb8473c",
-          "materialHash": "c0c434b5583ddf5eb21bd42e4668fd20fdc03230e8ece29f91eccb5102dd2426",
-          "storyFilesHash": "a9511e2e0357559a70a554f0851e1662e744f3d782ddc96445ed5ee506e2b0a1",
-          "timestamp": "2026-07-03T01:03:26.433Z"
+          "note": "CLI overclaim path was rerun and stopped instead of advancing, while keeping boundary.productionClaim=false and boundary.authorityClaim=false.",
+          "headHash": "410165742d1d48b7140532747cf4fb777bc2d1fe",
+          "materialHash": "c09566ece777a1a39dfd2238238bc6c73bfa98d770e6c422bb797b59d20d4e78",
+          "storyFilesHash": "b79c847dfbae45f626f09ed17732f250dea27f7e94715adec1ff9945b7fc9cd6",
+          "timestamp": "2026-07-03T01:23:31.362Z"
         }
       ]
     }
