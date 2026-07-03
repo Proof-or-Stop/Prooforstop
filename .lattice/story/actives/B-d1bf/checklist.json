@@ -211,11 +211,61 @@
       "title": "Implement Quantum M3: add local gate policy check for claim-admissibility t...",
       "context": "Story description source: Implement the pending Quantum Milestone 3 from proof-or-stop-quantum-claim-admissibility-execution-plan.md.. ReadinessReport(REVIEW) highlighted: branch_behind_main_advisory, checklist_items_not_done, missing_verification_evidence.",
       "relatedDocs": [
-        ".lattice/story/actives/B-d1bf/background.md"
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "M3 umbrella implementation is present: quantum gate policy helpers, quantum_claim_check command wiring, focused smoke coverage, and bounded docs status are all committed under B-d1bf scope.",
+      "excludes": [
+        "No global Story machine mutation",
+        "No M4 benchmark harness",
+        "No M5 report/governance renderer",
+        "No quantum theory/hardware/production/Authority claim"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/quantum.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/quantum-claim-admissibility.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The implemented M3 slice exposes pure policy helpers and a read-only quantum_claim_check command over existing Quantum M0-M2 evaluator output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The implementation keeps weak/scoped evidence in degrade guidance and does not silently convert it into advance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation does not add lifecycle mutation, M4 benchmark, M5 report/governance, production, Authority, hardware, theory, or solver-improvement claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
