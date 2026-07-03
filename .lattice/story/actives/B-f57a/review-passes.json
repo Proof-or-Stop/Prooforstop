@@ -125,6 +125,15 @@
       "reviewRound": "2026-07-03T10:52:51.266Z",
       "reviewRunId": "B-f57a:RR-027",
       "_hash": "c1585a15345bcf0d54823a7d0a6834134eae362785a98d880105a976f50b3e6f"
+    },
+    {
+      "id": "B-f57a:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after post-main gitCwd fix: evidence_plan reports 24/24 fresh intents with no missing/rerun/refresh-only buckets; CHK-001:adversarial:6 is freshly evidenced at c8674ebae by build plus gitroot-cwd-contract smoke plus cross_host_review smoke 24/24, including F-016 final-record post-write cleanup; lattice validate --story=B-f57a --json is recorded PASS/allPass=true with 32 configured commands at fd1299b69 and unchanged material/storyFiles hashes through e265fa0. No test coverage blocker found.",
+      "createdAt": "2026-07-03T10:55:00.163Z",
+      "reviewRound": "2026-07-03T10:52:51.266Z",
+      "reviewRunId": "B-f57a:RR-029",
+      "_hash": "9995cc92a377dbf3f146de65807077a59b87ff23eaa90f297422bd34a718dc29"
     }
   ]
 }
