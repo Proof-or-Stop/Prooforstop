@@ -533,6 +533,7 @@ assert.match(handlerOverclaimText, /decision: stop/, 'handler overclaim text sto
 assert.match(handlerOverclaimText, /authorityDone: false/, 'handler overclaim text authorityDone false');
 assert.match(handlerOverclaimText, /productionDone: false/, 'handler overclaim text productionDone false');
 const directCompleteEvidenceJson = JSON.stringify(buildCompleteQuantumEvidence('Q5'));
+const directCompleteEvidenceObject = JSON.parse(directCompleteEvidenceJson) as QuantumClaimCheckInput;
 const handlerEvidenceJsonOverclaim = handlers.quantum_claim_check({
   evidenceJson: directCompleteEvidenceJson,
   requestedStrength: 'production',
@@ -546,6 +547,17 @@ assert.ok(
 );
 assert.equal(handlerEvidenceJsonOverclaim.authorityDone, false, 'handler evidenceJson overclaim authorityDone false');
 assert.equal(handlerEvidenceJsonOverclaim.productionDone, false, 'handler evidenceJson overclaim productionDone false');
+const handlerParsedEvidenceJsonOverclaim = handlers.quantum_claim_check({
+  evidenceJson: directCompleteEvidenceObject as unknown as Record<string, unknown>,
+  requestedStrength: 'production',
+  format: 'json',
+}) as QuantumClaimGatePolicyResult;
+assert.equal(handlerParsedEvidenceJsonOverclaim.decision, 'stop', 'handler parsed evidenceJson requestedStrength=production stops');
+assert.equal(handlerParsedEvidenceJsonOverclaim.allowed, false, 'handler parsed evidenceJson requestedStrength=production fails closed');
+assert.ok(
+  hasReason(handlerParsedEvidenceJsonOverclaim, 'claim_boundary_violation'),
+  'handler parsed evidenceJson requestedStrength=production has boundary violation',
+);
 const evidencePathRoot = mkdtempSync(join(tmpdir(), 'quantum-claim-admissibility-'));
 const directCompleteEvidencePath = join(evidencePathRoot, 'complete-q5.json');
 try {

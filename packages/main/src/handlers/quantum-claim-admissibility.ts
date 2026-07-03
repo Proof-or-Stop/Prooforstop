@@ -19,7 +19,7 @@ interface FormatArgs {
 interface QuantumClaimCheckArgs extends FormatArgs {
   claimId?: QuantumClaimId;
   case?: QuantumClaimCheckCase;
-  evidenceJson?: string;
+  evidenceJson?: string | Record<string, unknown>;
   evidencePath?: string;
   requestedStrength?: QuantumRequestedStrength;
   runCommands?: never;
@@ -79,8 +79,8 @@ function assertReadOnlyBoundary(command: string, args: Record<string, unknown>):
   throw new Error(`${command} refuses unsupported side effects or overclaims: ${rejected.join(', ')}.`);
 }
 
-function parseJsonObject(text: string, label: string): Record<string, unknown> {
-  const parsed = JSON.parse(text) as unknown;
+function parseJsonObject(value: unknown, label: string): Record<string, unknown> {
+  const parsed = typeof value === 'string' ? JSON.parse(value) as unknown : value;
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error(`${label} must be a JSON object`);
   }
@@ -106,10 +106,8 @@ export function createQuantumClaimAdmissibilityHandlers(_ctx: HandlerContext): R
     quantum_claim_check(args: QuantumClaimCheckArgs = {}) {
       assertReadOnlyBoundary('quantum_claim_check', args as Record<string, unknown>);
       const input = evidenceFromArgs(args);
-      if (args.requestedStrength) {
-        input.requestedStrength = args.requestedStrength;
-      }
-      const result = evaluateQuantumClaimGatePolicy(input);
+      const effectiveInput = args.requestedStrength ? { ...input, requestedStrength: args.requestedStrength } : input;
+      const result = evaluateQuantumClaimGatePolicy(effectiveInput);
       return wantsJson(args) ? result : renderQuantumClaimGatePolicyText(result);
     },
   };
