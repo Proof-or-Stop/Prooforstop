@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f57a",
+  "mode": "custom",
+  "allowed": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md (reconcile M1/M2 with the crypto-deferred reframe)",
+    "packages/main/src/core/* NEW module for cross-host review orchestration + disagreement report",
+    "packages/main/src/core/dispatch-policy.ts (extend checkDispatchPolicy to sanction a bounded Codex real-leaf for REVIEW only)",
+    "packages/main/src/core/lattice-dispatch.ts (orchestrating cross-host review command / dispatch wiring)",
+    "packages/main/src/core/verdicts.ts (joint-decision / host-A vs host-B disagreement diff)",
+    "packages/main/src/handlers/* (new command handler + CLI registration)",
+    "packages/main/src/providers/codex-cli.ts (structured-verdict capture path for a review run)",
+    "packages/main/src/tasks/* NEW smoke / RED test for the cross-host review collection + disagreement surfacing"
+  ],
+  "excluded": [
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md (other-host domain-pack WIP — do not touch)",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md (other-host — do not touch)",
+    "experiments/experience-ablation/* (other-host experiment — do not touch)",
+    "packages/main/src/core/authority-signing.ts (crypto — OUT)",
+    "packages/main/src/core/claim-admissibility/* (other-host quantum pack — do not touch)",
+    "packages/main/src/core/receipt-bundle.ts (cryptographic signing — OUT of scope, deferred external-skeptic-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "M1 (crypto-deferred reframe): automate cross-host Codex review collection + surface host-A/host-B disagreements, reusing dispatch + verdict-capture primitives. Confirmed 2026-07-03.",
+  "createdAt": "2026-07-03T01:22:11.266Z",
+  "updatedAt": "2026-07-03T01:22:11.266Z",
+  "_hash": "098df735ed7a7fb74bf93d8ff31f737c8ceb2661c8bf6b19106ddc2a27320d3b"
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f57a",
+  "checkedAt": "2026-07-03T01:22:34.236Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "098df735ed7a7fb74bf93d8ff31f737c8ceb2661c8bf6b19106ddc2a27320d3b",
+  "executionBoundaryHash": "104d88f567bdf46aeac1c59cf5decbd1da4b4eeb1af4c09616f225d42e09a55d",
+  "freshnessHash": "a6c6446b6b569c727a49dfa420c04ec6baae60012253b7851dab70abeb436c34",
+  "effectiveExcludedKeywords": [
+    "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md (other-host domain-pack WIP — do not touch)",
+    "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md (other-host — do not touch)",
+    "experiments/experience-ablation/* (other-host experiment — do not touch)",
+    "packages/main/src/core/authority-signing.ts (crypto — OUT)",
+    "packages/main/src/core/claim-admissibility/* (other-host quantum pack — do not touch)",
+    "packages/main/src/core/receipt-bundle.ts (cryptographic signing — OUT of scope, deferred external-skeptic-only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md (other-host domain-pack WIP — do not touch)",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md (other-host domain-pack WIP — do not touch)",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md (other-host — do not touch)",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md (other-host — do not touch)",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/experience-ablation/* (other-host experiment — do not touch)",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/experience-ablation/* (other-host experiment — do not touch)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/authority-signing.ts (crypto — OUT)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/authority-signing.ts (crypto — OUT)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/claim-admissibility/* (other-host quantum pack — do not touch)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/claim-admissibility/* (other-host quantum pack — do not touch)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/receipt-bundle.ts (cryptographic signing — OUT of scope, deferred external-skeptic-only)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/receipt-bundle.ts (cryptographic signing — OUT of scope, deferred external-skeptic-only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "cbb121c7e3fe5baebb1eedd29dbf12cb8916f1a72e134be90db5bcd361cfed66"
+}
