@@ -197,6 +197,24 @@
       "resolvedAt": "2026-07-04T22:40:52.090Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-010",
+      "desc": "F-009 test coverage still misses the fresh material-only evidence with head drift case. In packages/main/tests/milestone-status.test.mjs lines 421-426, CHK-MATERIAL-FRESH binds headHash=head-current with materialHash=material-current, so the test only proves fresh material-only evidence covers when storyFilesHash is absent. It does not exercise the required regression that fresh material-only evidence ignores stale headHash/head drift, unlike the story-only fresh case at lines 427-432.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T22:44:13.969Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-029",
+      "_hash": "0a9a9e7be50140cfb71066e769e55842f1c94248d9ff10ed4277bd2a88acbd19",
+      "files": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|test-coverage-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
