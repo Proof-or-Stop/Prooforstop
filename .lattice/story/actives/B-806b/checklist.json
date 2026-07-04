@@ -1,0 +1,191 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create M1 protocol lock and status table",
+      "context": "Record the protocol document digest and create an operator-readable M1 status table without editing the protocol document itself.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/protocol.lock.json",
+          "experiments/multi-model-ablation/m1-status.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "protocol.lock.json matches the SHA-256 digest of docs/requirements/decisions/multi-model-ablation-replication.md and m1-status.md marks M1 as provider-free.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "README.md is not modified or included in the story scope even if the root worktree has unrelated local edits.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the status table must not claim Phase 1 has started or that model snapshots are locked when they are only launch blockers.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Create deterministic seed and cell matrix manifests",
+      "context": "Represent planned Phase 1 cells for required ③/⑥ and optional ②/④ without running providers or writing outcome records.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/seed-manifest.m1.json",
+          "experiments/multi-model-ablation/cell-matrix.m1.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "manifests include deterministic seed derivation and valid pairwise comparisons ③ vs ⑥, ① vs ②, and ③ vs ④.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A2prime cells remain blocked until same-family A4 budget calibration exists.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "② vs ④ must not be marked as a legal confirmatory comparison because both executor and reviewer vary.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Create Phase 1 launch gate and budget rule artifact",
+      "context": "Make launchAllowed=false until human approval, dated snapshots, task inventory, and budget locks are present.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/phase1-launch-gate.m1.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "launch gate lists blockers and confirms M1 is a pre-campaign lock, not a campaign run.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "providerCallEnabled and formalPhase1UseAllowed remain false.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE cannot be used to imply Phase 1 campaign readiness or product gate behavior.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement local M1 freeze checker",
+      "context": "Add a deterministic checker that validates M1 artifacts and rejects common invalid states before costly Phase 1 execution.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/m1-freeze-check.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m1-freeze-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/multi-model-ablation/m1-freeze-check.mjs passes and prints assertion counts.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the checker handles missing optional cross-review cells while still requiring Phase 1 required cells.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "negative controls reject drifted protocol digests, launchAllowed=true, provider calls, outcome fields, A2prime-before-budget, and illegal ② vs ④ confirmatory comparison.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify and close M1 without provider execution",
+      "context": "Run local checker, diff checks, Lattice validation, review, delivery, and DONE while explicitly preserving the provider-free boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Lattice validation and DONE evidence show M1 artifacts are frozen locally.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "unrelated README.md changes are not touched by this story.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "summary must not claim Phase 1 was run, that data exists, or that multi-model claims are proven.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

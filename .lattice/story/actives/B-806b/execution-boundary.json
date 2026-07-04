@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-806b",
+  "allowedCommands": [
+    "git diff --check",
+    "lattice done_required_validate --storyId=* --json",
+    "lattice validate --story=* --json",
+    "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+    "rg * experiments/multi-model-ablation docs/requirements/decisions/multi-model-ablation-replication.md",
+    "shasum -a 256 docs/requirements/decisions/multi-model-ablation-replication.md"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex exec *",
+    "curl *",
+    "gh *",
+    "git push *"
+  ],
+  "excludedTools": [
+    "provider model execution",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl",
+    "README.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M1 execution is local and provider-free; cost-bearing Phase 1 execution remains blocked.",
+  "createdAt": "2026-07-04T19:02:25.933Z",
+  "updatedAt": "2026-07-04T19:02:25.933Z",
+  "_hash": "85ca46ffd0f0c1f8a90c7205f161fb2e29bdadd5efe26bb0ad92489d3c1e9c54"
+}

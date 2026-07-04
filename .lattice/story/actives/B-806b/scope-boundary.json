@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-806b",
+  "mode": "feature",
+  "allowed": [
+    "experiments/multi-model-ablation/cell-matrix.m1.json",
+    "experiments/multi-model-ablation/m1-freeze-check.mjs",
+    "experiments/multi-model-ablation/m1-status.md",
+    "experiments/multi-model-ablation/phase1-launch-gate.m1.json",
+    "experiments/multi-model-ablation/protocol.lock.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json"
+  ],
+  "excluded": [
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl",
+    "Phase 1 or Phase 2 campaign execution",
+    "product runtime gates, playbooks, DONE behavior, or publication claims",
+    "provider execution or paid model calls",
+    "README.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested the next milestone after B-69b8: execute M1 and keep a visible milestone table. Scope is limited to provider-free M1 lock artifacts and checker.",
+  "createdAt": "2026-07-04T19:02:25.933Z",
+  "updatedAt": "2026-07-04T19:02:25.933Z",
+  "_hash": "5eacff3e581e83a96cdea09bc2ae03cd607ab68873f5ee2bb1fa942949e4d8ec"
+}
