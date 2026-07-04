@@ -4,7 +4,7 @@
   "title": "Execute Multi-Model Ablation Research M0 smoke checks before any Phase 1 campaign",
   "description": "Run the provider-safe Research M0 startup checks for the multi-model ablation protocol: host/model registration, snapshot lock readiness, tool-surface equivalence, A2prime budget-lock ordering, and legal analysis contrast checks. This story must not run the large Phase 1 or Phase 2 campaign and must keep all outputs isolated under experiments/multi-model-ablation.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -72,6 +72,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-1f1f7a623dcf06be",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-04T18:11:08.003Z",
+      "branch": "story/B-69b8",
+      "user": "Harmonygo",
+      "sessionId": "sess-1f1f7a623dcf06be",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -79,5 +88,5 @@
     "branch": "story/B-69b8",
     "createdAt": "2026-07-04T17:44:35.101Z"
   },
-  "currentReviewRound": "2026-07-04T18:00:42.246Z"
+  "currentReviewRound": "2026-07-04T18:11:08.003Z"
 }
