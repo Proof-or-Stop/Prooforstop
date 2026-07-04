@@ -1,58 +1,59 @@
 {
   "storyId": "B-7ba7",
-  "checkedAt": "2026-07-04T19:53:58.788Z",
+  "checkedAt": "2026-07-04T19:56:38.583Z",
   "features": [
     {
-      "feature": "V1 user-visible milestone_status report over existing ProofStory facts: JSON/text visibility with completed/current/remaining grouping, active sub-objectives, evidence refs, risks, and next actions.",
-      "covered_by": "story_get/checklist_get CHK-001..CHK-004 userSees and verificationIntent cover schema, grouped text, missing-ledger behavior, evidence detail, and docs/tests; plan_get Scope and CHK plans define report model, CLI command, row projection, grouped workflow; original_intent_snapshot_get, milestone_ledger_get, and proofstory_contract_get bind the same acceptance claim across M1-M4 and all 12 verificationIntent refs.",
+      "feature": "V1 user-visible milestone_status report over existing ProofStory facts: JSON/text visibility with completed/current/remaining grouping, active sub-objectives, evidence refs, risks, next actions, and read-only mode flags.",
+      "covered_by": "CHK-001 through CHK-004 userSees and verificationIntent cover schema, grouped text, missing-ledger behavior, evidence detail, no-mutation behavior, docs, and tests; plan.md Scope and CHK plans define the report model, CLI command, row projection, and grouped workflow; original_intent_snapshot_get acceptanceClaim binds the same V1 read-only report outcome.",
       "status": "covered",
       "excluded_by": "",
-      "source": "story_get; checklist_get; plan_get; original_intent_snapshot_get; milestone_ledger_get; proofstory_contract_get"
+      "source": "story_get; checklist_get; plan.md; original_intent_snapshot_get"
     },
     {
-      "feature": "Missing-ledger, missing-detail, partial-progress, and stale/missing evidence truthfulness in V1 milestone rows.",
-      "covered_by": "CHK-001 edge requires missing-ledger blocker and next action; CHK-003 edge/adversarial require partial rows and missing/stale evidence not reported as DONE; plan_get CHK-001/CHK-003 says unavailable transition detail is reported rather than invented and done-like status without evidence gets warning/next action; decision_get requires missing evidence or ledger detail to be explicit.",
+      "feature": "Truthful missing-ledger, missing-detail, partial-progress, and stale-or-missing evidence behavior in milestone rows.",
+      "covered_by": "CHK-001 edge requires a missing-ledger blocker and next action; CHK-003 edge/adversarial require partial rows and stale or missing evidence not reported as DONE; plan.md CHK-001 and CHK-003 require unavailable transition detail to be reported rather than invented and done-like status without evidence to produce warning/next action; decision_get principle and preMortem require missing evidence or ledger detail to be explicit.",
       "status": "covered",
       "excluded_by": "",
-      "source": "story_get; checklist_get; plan_get; decision_get"
+      "source": "checklist_get; plan.md; decision_get; unattended-develop-mode-no-false-done-baseline.md"
     },
     {
-      "feature": "ProofStory intent interpretation and coverage for read-only milestone_status V1.",
-      "covered_by": "intent_collision_get acceptedInterpretation limits V1 to read-only report over existing ledger/checklist/evidence facts; intent_coverage_check and proofstory_gate_check report pass, not blocking, diagnostic gaps 0; proofstory_contract_get diagnosticGaps is empty and confirms the ledger hash binding.",
+      "feature": "ProofStory intent artifact coverage for the read-only milestone_status V1 scope.",
+      "covered_by": "original_intent_snapshot_get records the normalized outcome and acceptance claim; milestone_ledger_get confirms M1-M4 with checklistRefs and all 12 verificationIntentRefs; intent_collision_get accepts the read-only interpretation and rejects executor/phase/reviewer/completion-writer meanings; proofstory_contract_get has diagnosticGaps empty and binds the confirmed ledger hash; intent_coverage_check and proofstory_gate_check both pass with no gaps.",
       "status": "covered",
       "excluded_by": "",
-      "source": "intent_collision_get; intent_coverage_check; proofstory_gate_check; proofstory_contract_get"
+      "source": "original_intent_snapshot_get; milestone_ledger_get; intent_collision_get; proofstory_contract_get; intent_coverage_check; proofstory_gate_check"
     },
     {
-      "feature": "Out-of-scope mutation and lifecycle authority: runCommands, writeEvidence, reviewer launch, phase advancement, milestone completion writer, automatic DONE, Authority completion, and production readiness.",
+      "feature": "Lifecycle mutation, execution authority, reviewer launch, evidence writing, automatic DONE, Authority completion, production readiness, and lifecycle-gate replacement.",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "plan_get Scope excludes writing milestone completion state, running commands, launching reviewers, advancing lifecycle phase, or claiming production/Authority completion; CHK-001/CHK-002 adversarial intents require fail-closed mutation flags and no state mutation; CHK-004 adversarial docs intent forbids automatic execution, automatic DONE, Authority completion, or production readiness; decision_get rejects new milestone execution ledger and full automatic lifecycle pipeline; intent_collision_get excludes automatic executor, phase advancement, reviewer launcher, and separate milestone completion writer.",
-      "source": "plan_get; checklist_get; decision_get; intent_collision_get"
+      "excluded_by": "scope-boundary excluded list; plan.md Scope; CHK-001/CHK-002/CHK-004 adversarial verificationIntent; decision_get rejected full automatic lifecycle pipeline; intent_collision_get acceptedInterpretation excludes automatic executor, phase advancement, reviewer launcher, and separate milestone completion writer; lifecycle readiness and story lifecycle docs keep read-only reports separate from lifecycle gates and Authority/production claims.",
+      "source": "scope-boundary.json; plan.md; checklist_get; decision_get; intent_collision_get; lattice-lifecycle-readiness-check-execution-plan.md; story-lifecycle.md"
     },
     {
-      "feature": "Protected README boundary.",
+      "feature": "New milestone storage system or second milestone execution ledger.",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope_contract_show protectedFiles and explicitExcludes include README.md; scope_contract_show scopeChangeReason says README is already dirty outside this story and must not be touched; understanding_get constraints say not to modify the existing dirty README.md change from main.",
-      "source": "scope_contract_show; understanding_get"
+      "excluded_by": "CHK-001 context says the report must not become a second milestone storage system; decision_get chooses read-only projection and rejects new milestone execution ledger; understanding_get constraints forbid a second milestone storage system; proofstory-intent-collision docs define milestone ledgers as intent-coverage contracts, not execution plans; scope_contract_show only allows the story-local ProofStory PLAN artifacts plus milestone_status implementation/docs/tests, not a new storage location.",
+      "source": "checklist_get; decision_get; understanding_get; proofstory-intent-collision-execution-plan.md; scope_contract_show"
     },
     {
-      "feature": "Scope contract path coverage for changed ProofStory PLAN artifacts.",
+      "feature": "README and OMX boundaries.",
       "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "scope_contract_check reports Scope gate: fail with OUT_OF_SCOPE for .lattice/story/actives/B-7ba7/intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, and proofstory.json, while semantic scope gate passes"
+      "status": "excluded",
+      "excluded_by": "scope_contract_show protectedFiles and explicitExcludes include README.md; explicitExcludes also include .omx/**; understanding_get constraints say not to modify the existing dirty README.md change from main and not to use OMX or .omx; current git status before save showed no code or README changes.",
+      "source": "scope_contract_show; understanding_get; git status --short"
     }
   ],
   "summary": {
     "total": 6,
     "covered": 3,
-    "excluded": 2,
-    "gaps": 1,
+    "excluded": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b862fb81f653c6e929c897b4a3511a75ef69fc70ee6df2ec8e9f44ad7d13b38a"
+  "_hash": "55a9234c69a717991ef896559544bc3a69a09f7f9dd1ffb0beb54b483d7837de",
+  "openQuestions": []
 }

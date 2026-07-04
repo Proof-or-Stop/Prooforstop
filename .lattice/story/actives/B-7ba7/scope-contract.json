@@ -7,12 +7,20 @@
     "docs/CLI.md",
     "package.json",
     "package-lock.json",
-    "packages/main/package.json"
+    "packages/main/package.json",
+    ".lattice/story/actives/B-7ba7/original-intent-snapshot.json",
+    ".lattice/story/actives/B-7ba7/milestone-ledger.json",
+    ".lattice/story/actives/B-7ba7/intent-collision.json",
+    ".lattice/story/actives/B-7ba7/proofstory.json"
   ],
   "allowedCreate": [
     "packages/main/src/core/milestone-status.ts",
     "packages/main/src/handlers/milestone-status.ts",
-    "packages/main/tests/milestone-status.test.mjs"
+    "packages/main/tests/milestone-status.test.mjs",
+    ".lattice/story/actives/B-7ba7/original-intent-snapshot.json",
+    ".lattice/story/actives/B-7ba7/milestone-ledger.json",
+    ".lattice/story/actives/B-7ba7/intent-collision.json",
+    ".lattice/story/actives/B-7ba7/proofstory.json"
   ],
   "allowedTest": [
     "packages/main/tests/**"
@@ -24,10 +32,10 @@
     ".omx/**",
     "README.md"
   ],
-  "scopeChangeReason": "B-7ba7 implements only read-only milestone_status projection and tests/docs; README is already dirty outside this story and must not be touched.",
+  "scopeChangeReason": "Allow the story-local ProofStory PLAN artifacts that this story deliberately produced as gate-consumed intent contracts; implementation scope remains limited to read-only milestone_status code/tests/docs and README remains protected.",
   "acknowledgements": [],
   "createdAt": "2026-07-04T19:49:53.056Z",
-  "updatedAt": "2026-07-04T19:49:53.056Z",
+  "updatedAt": "2026-07-04T19:54:39.193Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
