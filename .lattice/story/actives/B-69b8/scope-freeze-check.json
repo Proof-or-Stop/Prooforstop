@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-69b8",
+  "checkedAt": "2026-07-04T17:44:31.524Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "664aaec1ef67755af042cf827d789d2105fa9d2725ab9f9eecf0ad30afcb2166",
+  "executionBoundaryHash": "a463a58080db843b5f83cfa306121b570a33c4ca2adaa604309ce82a40f022b8",
+  "freshnessHash": "9ea8d9a64646f81c8d8bb3f5a1dcec59560d0cca62d4a06b2562af66c6fdb617",
+  "effectiveExcludedKeywords": [
+    "changing Proofbound product gates, playbook activation, DONE policy, or runtime memory guidance",
+    "large Phase 1 or Phase 2 provider campaign",
+    "touching unrelated dirty files in README.md, docs/CLI.md, docs/assets",
+    "writing ablation outcome records from audit-only output"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "changing Proofbound product gates, playbook activation, DONE policy, or runtime memory guidance",
+      "source": "scopeBoundary.excluded",
+      "text": "changing Proofbound product gates, playbook activation, DONE policy, or runtime memory guidance",
+      "excluded": true
+    },
+    {
+      "keyword": "large Phase 1 or Phase 2 provider campaign",
+      "source": "scopeBoundary.excluded",
+      "text": "large Phase 1 or Phase 2 provider campaign",
+      "excluded": true
+    },
+    {
+      "keyword": "touching unrelated dirty files in README.md, docs/CLI.md, docs/assets",
+      "source": "scopeBoundary.excluded",
+      "text": "touching unrelated dirty files in README.md, docs/CLI.md, docs/assets",
+      "excluded": true
+    },
+    {
+      "keyword": "writing ablation outcome records from audit-only output",
+      "source": "scopeBoundary.excluded",
+      "text": "writing ablation outcome records from audit-only output",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f7173615e19643ea867acf60e99d99fdaeb1c84c78c481a9ee21df40b41d0960"
+}
