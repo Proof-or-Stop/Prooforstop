@@ -20,7 +20,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The closeout JSON contains each final milestone row with Status, Solved Problem, Acceptance, Evidence, Risks, and Next Action fields.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A completed sample milestone report can be converted to a closeout snapshot containing every milestone with solvedProblem and evidence summary fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A closeout snapshot preserves the accepted rows even when a later live milestone_status report would become stale.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The snapshot helper refuses to create final success from incomplete or risk-bearing milestone reports.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
