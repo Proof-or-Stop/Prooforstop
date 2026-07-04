@@ -17,6 +17,24 @@
       ],
       "signatureTag": "adversarial|ts|review-discovered-issue",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-002",
+      "desc": "review-discovered issue: milestones with no checklistRefs can still be reported completed. Empty checklistRefs pass vacuous every checks, letting a milestone with evidence but no checklist mapping hide a broken ledger mapping.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.449Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "f90a8e64e94984c8db2aea34bdff2787ba4a6f14c9d1af4c19fc8c7801851557",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|review-discovered-issue",
+      "signatureTagSource": "auto"
     }
   ]
 }
