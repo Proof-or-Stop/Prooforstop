@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7ba7",
+  "changes": "Added a read-only milestone_status command backed by existing ProofStory facts. It renders grouped Completed, Current, and Remaining milestone tables, exposes JSON output, rejects mutation-like arguments before story reads, and hardens evidence coverage semantics for stale bindings, waivers, and required evidence kinds.",
+  "usage": "Run node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 for text output, or add --json for structured output. The command is read-only and accepts only storyId, format, and json.",
+  "expectedOutcome": "The command prints a read-only grouped milestone report where B-7ba7 shows M1-M4 completed, Current and Remaining are empty, risks are none, and unknown flags are rejected before story facts are printed.",
+  "actualTranscript": "Real-machine transcript recorded node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 printing Completed rows for M1-M4, Current none, Remaining none, Risks none, and no remaining milestone action. The negative --surpriseFlag command failed with Argument validation failed before story facts.",
+  "outcomeDiff": "No user-visible difference: expected grouped completed/current/remaining output and fail-closed unknown flag behavior matched the observed transcript.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The command is intentionally read-only. It does not execute milestones, write evidence, advance phases, launch reviewers, claim Authority completion, or imply production readiness. Historical custom requiredEvidence labels are advisory mapped hints unless they match supported evidence kinds.",
+  "pitfalls": "Review found and fixed stale evidence false completion, empty checklistRefs vacuity, deferred or failed waiver coverage, requiredEvidence enforcement, pre-read argument validation, and material-only freshness fallback coverage. done_prepare exposed a stale self-held validate lock that required clearing the dead PID lock before independent validate could run.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 164607
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17825
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 624168
+    },
+    "DEV": {
+      "count": 8,
+      "durationMs": 7957779
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 2191728
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 747629
+    }
+  },
+  "totalDurationMs": 11704380,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-04T22:59:28.218Z",
+  "updatedAt": "2026-07-04T22:59:28.218Z"
+}
