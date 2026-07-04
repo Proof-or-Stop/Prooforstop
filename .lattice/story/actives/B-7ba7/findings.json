@@ -241,6 +241,24 @@
       "resolvedAt": "2026-07-04T22:48:03.267Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-012",
+      "desc": "milestone_status marks verificationEvidence stale on materialHash-only drift even when storyFilesHash is unchanged, conflicting with the core story_files_hash_freshness_gate and making the read-only progress report fail to converge after Lattice metadata commits.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-04T22:58:57.795Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "_hash": "92f6914f2aea0d509fb1f2a12217a1b3235dcda12c72689b9d22f368f0902fe2",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|milestone-status-marks",
+      "signatureTagSource": "auto"
     }
   ]
 }
