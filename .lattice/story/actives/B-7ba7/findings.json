@@ -269,7 +269,7 @@
       "desc": "milestone-status freshness treats EMPTY_STORY_FILES_HASH as a positive storyFilesHash signal. In evidenceFreshnessRisks, any matching evidence/current storyFilesHash returns no risk before materialHash comparison, so stale materialHash evidence with both storyFilesHash values equal to sha256(\"\") is marked covering. Core checkEvidenceFreshnessForGit explicitly treats that empty-diff hash as no-signal on both sides and falls through to strict materialHash; milestone status must mirror that to avoid unsafely broadening no-story-diff evidence. Existing focused tests pass but do not cover the empty sentinel case.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T23:05:19.833Z",
@@ -281,7 +281,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "edge|ts|milestone-status-freshness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by treating EMPTY_STORY_FILES_HASH as no story-scoped freshness signal in milestone_status, falling through to materialHash freshness instead of accepting the empty hash as authoritative. Added regression where matching empty storyFilesHash plus stale materialHash remains stale and requiredEvidence missing. Docs now state empty story-files hash is no-signal. npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T23:07:28.143Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
