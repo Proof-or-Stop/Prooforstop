@@ -284,8 +284,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-04T20:19:24.267Z",
       "endTime": null,
       "userSees": "User sees docs and tests name \"lattice milestone_status --storyId=B-demo\", \"read-only\", \"no automatic execution\", and \"no production readiness claim\".",
       "files": {
@@ -344,6 +344,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Milestone projection verified by focused tests and live milestone_status output after CHK-001/CHK-002 completion."
+    },
+    {
+      "timestamp": "2026-07-04T20:19:24.267Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting documentation and reporting workflow evidence."
     }
   ]
 }
