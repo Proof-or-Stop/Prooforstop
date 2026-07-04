@@ -1,64 +1,70 @@
 {
   "storyId": "B-7ba7",
-  "checkedAt": "2026-07-04T23:14:12.672Z",
-  "headHash": "4f24acd60977bb8e29e32b30ed3b68cc0ae10b67",
-  "materialHash": "a866756979308d7c43a50befc4570452450308110531522fe7382502e17f264e",
-  "storyFilesHash": "34a345a597dafba5e2d5afb8a1cbaaf5ea91c465155f10a9bd09831a65ae1422",
+  "checkedAt": "2026-07-04T23:15:19.439Z",
+  "headHash": "9e0157e70e4b6047fd3f9d654a40916912ce8c91",
+  "materialHash": "2ca20259e1f291529b0bc0ffbd10647d4ac259eb06adb9212a51ede5bdc1376b",
   "reviewRound": "2026-07-04T23:07:20.631Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/CLI.md",
-      "promise": "milestone_status is a read-only progress reporter over existing ProofStory facts and does not create milestone storage or mutate workflow state.",
+      "promise": "milestone_status is a read-only progress reporter over existing ProofStory facts and renders grouped completed/current/remaining progress with text and JSON outputs.",
       "status": "verified",
-      "verifiedBy": "source and docs review",
-      "evidence": "docs/CLI.md documents V1 read-only boundaries; command policy/handler expose read-only mode and reject mutation-like flags before story facts."
+      "verifiedBy": "manual docs read plus CLI smoke",
+      "evidence": "docs/CLI.md milestone_status section states read-only projection over existing facts, text grouped Markdown tables, JSON fields, mode.readOnly=true, and runCommands/writeEvidence/advancePhase/launchReviewers=false. Real-machine text output in the B-7ba7 worktree printed Mode: read-only, Completed table with M1-M4, empty Current and Remaining tables, Risks none, and no milestone action."
     },
     {
       "docPath": "docs/CLI.md",
-      "promise": "Freshness semantics prefer non-empty storyFilesHash, treat empty story-files hash as no-signal, then use materialHash, then headHash fallback.",
+      "promise": "Detail granularity comes from authored milestone ledger, checklist refs, verificationIntent refs, verificationEvidence, and optional completion or executor ledgers only improve future detail; V1 reports current committed story facts.",
       "status": "verified",
-      "verifiedBy": "source, tests, docs review",
-      "evidence": "packages/main/src/core/milestone-status.ts imports EMPTY_STORY_FILES_HASH and only lets non-empty storyFilesHash short-circuit; tests cover story-fresh/material-drift, empty story hash stale-material, material-only stale/fresh, and head-only fallback."
+      "verifiedBy": "manual docs read plus JSON smoke",
+      "evidence": "docs/CLI.md Host Progress Reporting Contract explicitly lists milestone ledger/checklist refs/verificationIntent/verificationEvidence as current detail sources and says future completion or executor ledgers are not required for V1. JSON smoke showed ledger.present=true, state=confirmed, hash sha256:7e92682a9a2237a1433c8c7f1cda677e4e0567eac7d93d9efcb6e92e5083e33a, and milestone rows populated from checklist and verification facts."
     },
     {
       "docPath": "docs/CLI.md",
-      "promise": "Text and JSON output expose grouped Completed, Current, and Remaining milestones with risks and next actions.",
+      "promise": "requiredEvidence semantics enforce supported evidence kinds exactly, display historical custom labels as mapped hints, and allow passing evidence or permanent non-failing waivers while excluding deferred gate-evidence and failed waivers.",
       "status": "verified",
-      "verifiedBy": "real-machine CLI transcript",
-      "evidence": ".lattice/story/actives/B-7ba7/evidence/transcript-diff.md records milestone_status text output with M1-M4 completed, Current/Remaining none, Risks none; JSON smoke reports groups, risks, and nextActions."
+      "verifiedBy": "manual docs read plus JSON smoke",
+      "evidence": "docs/CLI.md enumerates supported kinds logic_test, integration_test, browser_test, manual_transcript, docs_check, waiver and describes exact-kind enforcement, mapped historical labels, and waiver exclusions. JSON smoke showed requiredEvidence subObjectives with covered or mapped status and statusDetail requiredEvidence=covered for M1-M4."
     },
     {
       "docPath": "docs/CLI.md",
-      "promise": "V1 does not run commands, write evidence or summaries, write review passes, change phase, launch reviewers, claim automatic DONE, claim remote Authority completion, or claim production readiness.",
+      "promise": "Evidence freshness prioritizes matching non-empty storyFilesHash, treats empty story-files hash as no story-scoped signal, falls back to materialHash, and uses headHash only as a hard legacy/degraded fallback.",
       "status": "verified",
-      "verifiedBy": "docs and tests review",
-      "evidence": "docs/CLI.md states non-claims; command-catalog and milestone-status tests reject mutation, DONE, Authority, and production-like flags."
+      "verifiedBy": "manual docs read",
+      "evidence": "docs/CLI.md milestone_status section states matching storyFilesHash is authoritative when both sides provide it, empty story-files hash is no signal not freshness proof, comparable materialHash is checked when no non-empty storyFilesHash exists, and headHash is only a hard fallback for legacy/degraded bindings."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "milestone_status makes no automatic execution, automatic DONE, Authority completion, production readiness, mutation, phase-change, reviewer-launch, evidence-write, summary-write, or review-pass-write claim.",
+      "status": "verified",
+      "verifiedBy": "manual docs read plus negative CLI smoke",
+      "evidence": "docs/CLI.md says V1 is read-only, rejects mutation-like and completion/Authority-claiming flags before reading story facts, and does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution/DONE, claim remote Authority completion, or claim production readiness. Negative smoke with --surpriseFlag=true exited non-zero with Argument validation failed and no story facts."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-002:happy:0",
-      "transcript": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 printed read-only grouped tables with M1-M4 completed, Current none, Remaining none, Risks none, and no remaining milestone action."
+      "featureId": "CHK-002",
+      "transcript": "Positive text smoke in /Users/jek/Documents/Work/proofbound/.worktrees/B-7ba7 ran node packages/main/dist/cli.js milestone_status --storyId=B-7ba7. Exit 0. Output began Milestone Status - B-7ba7, Mode: read-only, Phase: TEST, Ledger state=confirmed, then Completed table containing M1, M2, M3, M4; Current and Remaining tables each contained none; Risks none; Next action: No milestone action; all ledger rows are completed or not applicable."
     },
     {
-      "featureId": "CHK-002:adversarial:0",
-      "transcript": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --format=json --surpriseFlag=true failed with Argument validation failed before story facts."
+      "featureId": "CHK-002",
+      "transcript": "Positive JSON smoke in /Users/jek/Documents/Work/proofbound/.worktrees/B-7ba7 ran node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --format=json. Exit 0. JSON included schemaVersion proofbound.milestone_status.v1, storyId B-7ba7, phase TEST, ledger.present=true, mode.readOnly=true with runCommands/writeEvidence/advancePhase/launchReviewers=false, milestones M1-M4 with status completed, groups.completed [M1,M2,M3,M4], groups.current [], groups.remaining [], risks [], and the expected no-action nextActions entry."
     },
     {
-      "featureId": "F-013-regression",
-      "transcript": "npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs passed; tests cover EMPTY_STORY_FILES_HASH no-signal with stale materialHash and existing freshness cases."
+      "featureId": "CHK-004",
+      "transcript": "Docs smoke read docs/CLI.md milestone_status section and confirmed it documents read-only grouped progress, detail granularity/ledger dependencies, requiredEvidence semantics, storyFilesHash/materialHash freshness priority including empty story-files hash as no signal, and explicit non-claims for automatic execution, automatic DONE, remote Authority completion, and production readiness."
     },
     {
-      "featureId": "validation",
-      "transcript": "lattice story_advance --phase=TEST ran 33 configured validate commands and wrote PASS test-evidence at 2026-07-04T23:12:19.476Z."
+      "featureId": "CHK-004",
+      "transcript": "Negative unknown-flag smoke in /Users/jek/Documents/Work/proofbound/.worktrees/B-7ba7 ran node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --format=json --surpriseFlag=true. Exit 1. Output was Argument validation failed with (root): Unrecognized key: surpriseFlag and command help, with no story-specific milestone facts printed before the validation error."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review PASS: read-only milestone_status reporting is implemented, freshness semantics are documented and tested including EMPTY_STORY_FILES_HASH, full validate passed, reviews are complete, and no execution/DONE/Authority/production overclaim remains."
+    "summary": "milestone_status delivery check verified text and JSON grouped read-only reporting for B-7ba7, unknown-flag fail-closed behavior before story facts, and docs promises for granularity, requiredEvidence, freshness, and non-execution/non-DONE/non-Authority/non-production claims."
   },
-  "_hash": "511ac61d75c967b76d7feade12e8582d4de3341e86d29fd08fd19539368ba706"
+  "_hash": "6e570fb08bdb28fe7bf9ecbd74fdf8609261fc02b1e0727474ce0c3a60191108"
 }
