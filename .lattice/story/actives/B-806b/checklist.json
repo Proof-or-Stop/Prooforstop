@@ -35,9 +35,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:19:20.857Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "protocol.lock.json digest matches the protocol document and m1-status.md marks M1 provider-free Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:21.176Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the story worktree did not modify README.md; business commit contains only M1 files Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:21.451Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "m1-status.md and launch artifacts do not claim Phase 1 started or snapshots are locked Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:21.721Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -186,6 +224,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-04T19:19:20.857Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
     }
   ]
 }

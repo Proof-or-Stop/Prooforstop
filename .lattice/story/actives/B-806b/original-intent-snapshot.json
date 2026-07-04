@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-806b",
+  "sourceText": "User requested: \"下一步的表格打出来看看，做完一个打✅，执行下一次吧\" after B-69b8 M0 completed. In context, the next approved non-provider milestone is Multi-Model Ablation M1: freeze protocol hash, seed manifest, required Phase 1 cell matrix, and launch gate before any Phase 1 campaign.",
+  "normalizedOutcome": "B-806b completes M1 by adding provider-free protocol lock, seed manifest, cell matrix, launch gate, status table, and a local checker. The checker prints PASS with assertion counts and keeps Phase 1 blocked until human approval, dated snapshots, task inventory, and budget locks exist.",
+  "acceptanceClaim": "M1 is accepted only if node experiments/multi-model-ablation/m1-freeze-check.mjs passes locally, required cells ③/⑥/② are encoded with ④ optional, provider execution and outcome records remain absent, and Lattice closure does not claim Phase 1 data or readiness.",
+  "keyRequirementIds": [
+    "REQ-CELL-MATRIX-②-REQUIRED",
+    "REQ-M1-NEXT-MILESTONE",
+    "REQ-PROVIDER-FREE"
+  ],
+  "requestHash": "sha256:104daf8d346385d74e74e420f10ead03f5dd80f0d1916a62febfc2c2f398ec22",
+  "createdAt": "2026-07-04T19:11:28.806Z",
+  "updatedAt": "2026-07-04T19:11:28.806Z"
+}
