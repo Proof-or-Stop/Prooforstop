@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7ba7",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git merge *",
+    "git status *",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/CLI.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "README.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation must remain local-only, avoid OMX, and avoid the existing README.md dirty change.",
+  "createdAt": "2026-07-04T19:44:23.838Z",
+  "updatedAt": "2026-07-04T19:44:23.838Z",
+  "_hash": "b73c672786f6781d425138e4d08bef9fd095f718950fde7031a34f5e64cab4b8"
+}

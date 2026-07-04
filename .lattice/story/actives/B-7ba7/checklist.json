@@ -1,0 +1,145 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the milestone status report contract and data model",
+      "context": "Add a machine-readable report model that projects milestone rows, subObjectives, evidence refs, risks, status transitions, and next actions from existing story facts. The report must be read-only and must not become a second milestone storage system.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A sample story with a milestone ledger renders a JSON report containing every milestone and sub-objective row.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story without a ledger returns a clear missing-ledger blocker and next action instead of pretending progress is complete.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Passing runCommands/writeEvidence/advancePhase-like options must fail closed or be unavailable; the status command must not mutate story state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add the read-only milestone_status CLI command",
+      "context": "Expose lattice milestone_status --storyId=B-xxxx with text and JSON output. The text view must group completed milestones first, current milestone in the middle with expanded sub-objectives, and remaining milestones below.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "docs/CLI.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice milestone_status --storyId=<story> prints a grouped progress table with status, evidence, and next action columns.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Text output remains useful when subObjectives are absent by falling back to checklist refs and requiredEvidence hints.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The command must reject mutation flags and must not write evidence, phase changes, review passes, summaries, or milestone ledger files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Project completion and verification detail into milestone rows",
+      "context": "Join milestone ledger rows with checklist statuses, verificationIntent, verificationEvidence, validation summary, and summary_set where available so the user can see what changed from which state to which state, evidence, risks, and next step.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A milestone with completed checklist refs and evidence appears completed with evidence refs and no blocking next action.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A partially complete milestone appears current or in_progress with remaining sub-objectives and the smallest next action.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale or missing evidence-like row must not be reported as DONE merely because checklist text says completed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document and test the grouped progress reporting workflow",
+      "context": "Add tests and documentation showing how hosts should print the full table after each milestone or sub-objective status change, at handoff, and in final responses.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Automated tests cover JSON shape, grouped text rendering, and missing-ledger behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explain prerequisites: milestone ledger granularity determines available detail; completion/executor ledgers improve future detail but are not required for V1.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs must not claim automatic execution, automatic DONE, Authority completion, or production readiness.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
