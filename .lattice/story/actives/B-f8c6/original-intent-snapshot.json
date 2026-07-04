@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f8c6",
+  "sourceText": "User request on 2026-07-04: start M0 for the multi-model ablation replication protocol after clarifying that Codex CLI or other hosts may run in parallel only if they are registered formal runners with locked model snapshots, cell manifests, and standard outcome records.",
+  "normalizedOutcome": "B-f8c6 completes M0 readiness only: canonical protocol documentation plus example cell manifest, runner registry, A2 prime budget lock, and provider-free README checks. It does not run Phase 1 or Phase 2 cells, call providers, or change product gates/playbooks/runtime.",
+  "acceptanceClaim": "M0 is complete when the canonical protocol doc and experiments/multi-model-ablation examples exist, document host/model separation and runner inclusion rules, require A2 prime budget lock before A2 prime cells, and can be checked locally without provider calls.",
+  "keyRequirementIds": [
+    "REQ-M0-BUDGET-LOCK",
+    "REQ-M0-PROTOCOL",
+    "REQ-M0-RESEARCH-BOUNDARY",
+    "REQ-M0-RUNNER-MANIFEST"
+  ],
+  "requestHash": "sha256:83f5cbc13452322a2bf0958cb4bd8d2d7893ba394108c0f4f85a813473ae7eca",
+  "createdAt": "2026-07-04T16:25:38.007Z",
+  "updatedAt": "2026-07-04T16:25:38.007Z"
+}

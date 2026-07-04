@@ -1,12 +1,12 @@
 {
   "storyId": "B-f8c6",
-  "generatedAt": "2026-07-04T16:21:06.804Z",
+  "generatedAt": "2026-07-04T16:27:22.303Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
-    "hasPlan": false,
+    "hasPlan": true,
     "checklistItems": 4,
-    "reviewRounds": 1,
+    "reviewRounds": 2,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -81,7 +81,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -184,7 +184,7 @@
     },
     "planning": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -202,7 +202,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 0,
+          "value": 1,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -211,13 +211,12 @@
           ]
         },
         "itemsWithVerifyRatio": {
-          "value": null,
+          "value": 0,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "plan.md"
-          ],
-          "note": "no plan.md"
+          ]
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -309,7 +308,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [

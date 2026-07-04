@@ -42,7 +42,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees docs/requirements/decisions/multi-model-ablation-replication.md in the canonical repo docs with M0 ordering, host/model constraints, runner inclusion rules, budget-lock ordering, and research-only claim boundaries preserved."
+      "userSees": "User sees docs/requirements/decisions/multi-model-ablation-replication.md in the canonical repo docs with M0 ordering, host/model constraints, runner inclusion rules, budget-lock ordering, and research-only claim boundaries preserved.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-replication.md",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "Canonical protocol file exists and the rg verification found M0/M1/M2 ordering plus E1/E2 host-model separation language.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-replication.md",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "Protocol states Codex CLI audit output is protocol audit only unless pre-registered as a formal runner with locked snapshots and records.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-replication.md",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "Protocol forbids cell 2 vs cell 4 as confirmatory evidence and keeps research evidence out of product gates, playbooks, and runtime guidance.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -82,7 +123,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees experiments/multi-model-ablation/cell-manifest.example.json and runner-registry.example.json with unique cellKeys and host/model identity separated."
+      "userSees": "User sees experiments/multi-model-ablation/cell-manifest.example.json and runner-registry.example.json with unique cellKeys and host/model identity separated.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/cell-manifest.example.json",
+          "command": "node -e 'const fs=require(\"fs\"); for (const f of [\"experiments/multi-model-ablation/cell-manifest.example.json\",\"experiments/multi-model-ablation/runner-registry.example.json\",\"experiments/multi-model-ablation/phase1-budget-lock.example.json\"]) JSON.parse(fs.readFileSync(f,\"utf8\")); console.log(\"json parse ok\")'",
+          "result": "pass",
+          "note": "Manifest and registry examples parse as JSON and include formal rows for cells 3, 6, 2, and optional 4.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/runner-registry.example.json",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "Registry keeps hostKind separate from executorSnapshot/reviewerSnapshot, so Codex CLI, Codex App, CI, or custom harness are hosts rather than model-family proof.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/cell-manifest.example.json",
+          "command": "node -e 'const fs=require(\"node:fs\"); const manifest=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/cell-manifest.example.json\",\"utf8\")); const keys=new Set(); for (const cell of manifest.cells) { if (keys.has(cell.cellKey)) throw new Error(\"duplicate cellKey: \"+cell.cellKey); keys.add(cell.cellKey); if (cell.arm===\"A2prime\" && !cell.budgetLockDigest) throw new Error(\"A2prime row missing budgetLockDigest: \"+cell.cellKey); if (\"outcome\" in cell) throw new Error(\"example cell must not include outcome: \"+cell.cellKey); } const registry=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/runner-registry.example.json\",\"utf8\")); for (const runner of registry.runners) { if (!runner.hostKind || !runner.executorSnapshot) throw new Error(\"runner missing host/model separation\"); if (runner.providerCallEnabled !== false) throw new Error(\"example runner must keep provider calls disabled\"); } console.log(\"example invariants passed\");'",
+          "result": "pass",
+          "note": "Invariant check passed: no duplicate cellKey, no outcomes in examples, A2prime has budgetLockDigest, and runners keep provider calls disabled.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -121,7 +203,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees experiments/multi-model-ablation/phase1-budget-lock.example.json showing that A2 prime rows require a prior A4-derived budget lock digest."
+      "userSees": "User sees experiments/multi-model-ablation/phase1-budget-lock.example.json showing that A2 prime rows require a prior A4-derived budget lock digest.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+          "command": "node -e 'const fs=require(\"fs\"); for (const f of [\"experiments/multi-model-ablation/cell-manifest.example.json\",\"experiments/multi-model-ablation/runner-registry.example.json\",\"experiments/multi-model-ablation/phase1-budget-lock.example.json\"]) JSON.parse(fs.readFileSync(f,\"utf8\")); console.log(\"json parse ok\")'",
+          "result": "pass",
+          "note": "Budget-lock example parses and records executor family, calibration medians, snapshot digests, and budgetLockDigest fields.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/cell-manifest.example.json",
+          "command": "node -e 'const fs=require(\"node:fs\"); const manifest=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/cell-manifest.example.json\",\"utf8\")); const keys=new Set(); for (const cell of manifest.cells) { if (keys.has(cell.cellKey)) throw new Error(\"duplicate cellKey: \"+cell.cellKey); keys.add(cell.cellKey); if (cell.arm===\"A2prime\" && !cell.budgetLockDigest) throw new Error(\"A2prime row missing budgetLockDigest: \"+cell.cellKey); if (\"outcome\" in cell) throw new Error(\"example cell must not include outcome: \"+cell.cellKey); } const registry=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/runner-registry.example.json\",\"utf8\")); for (const runner of registry.runners) { if (!runner.hostKind || !runner.executorSnapshot) throw new Error(\"runner missing host/model separation\"); if (runner.providerCallEnabled !== false) throw new Error(\"example runner must keep provider calls disabled\"); } console.log(\"example invariants passed\");'",
+          "result": "pass",
+          "note": "Manifest invariant check requires budgetLockDigest for every A2prime row, preserving the A4 calibration-before-A2prime rule.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "Budget-lock artifact documents immutable ordering constraints and rejects post-hoc A2prime budget edits after outcomes are known.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -162,7 +285,48 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees experiments/multi-model-ablation/README.md with provider-free local checks for protocol, manifest, runner registry, and budget-lock readiness."
+      "userSees": "User sees experiments/multi-model-ablation/README.md with provider-free local checks for protocol, manifest, runner registry, and budget-lock readiness.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/README.md",
+          "command": "sed -n '1,220p' experiments/multi-model-ablation/README.md",
+          "result": "pass",
+          "note": "README provides provider-free local rg/node checks that a maintainer can run without executing Phase 1/2 cells.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/README.md",
+          "command": "rg -n \"M0|Phase 1|Phase 2|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
+          "result": "pass",
+          "note": "README and protocol distinguish protocol audit evidence from formal ablation outcome evidence and state examples contain no outcomes.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/README.md",
+          "command": "node -e 'const fs=require(\"node:fs\"); const manifest=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/cell-manifest.example.json\",\"utf8\")); const keys=new Set(); for (const cell of manifest.cells) { if (keys.has(cell.cellKey)) throw new Error(\"duplicate cellKey: \"+cell.cellKey); keys.add(cell.cellKey); if (cell.arm===\"A2prime\" && !cell.budgetLockDigest) throw new Error(\"A2prime row missing budgetLockDigest: \"+cell.cellKey); if (\"outcome\" in cell) throw new Error(\"example cell must not include outcome: \"+cell.cellKey); } const registry=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/runner-registry.example.json\",\"utf8\")); for (const runner of registry.runners) { if (!runner.hostKind || !runner.executorSnapshot) throw new Error(\"runner missing host/model separation\"); if (runner.providerCallEnabled !== false) throw new Error(\"example runner must keep provider calls disabled\"); } console.log(\"example invariants passed\");'",
+          "result": "pass",
+          "note": "Documented invariant command fails on A2prime rows without budget locks and fails if a runner treats provider calls or host identity incorrectly.",
+          "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+          "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059",
+          "storyFilesHash": "2013c505f8ec9c80a032758751032242e9e2997971e926577310c3ef61227072",
+          "timestamp": "2026-07-04T16:38:22.739Z"
+        }
+      ]
     }
   ]
 }
