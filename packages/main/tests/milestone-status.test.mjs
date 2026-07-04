@@ -53,7 +53,7 @@ function checklistItem(id, status, evidence = [], verificationIntent = undefined
   };
 }
 
-function evidence(intentRef, result = 'pass') {
+function evidence(intentRef, result = 'pass', overrides = {}) {
   return {
     intentRef,
     kind: 'logic_test',
@@ -61,6 +61,7 @@ function evidence(intentRef, result = 'pass') {
     note: `${intentRef} ${result}`,
     command: `node ${intentRef}.test.mjs`,
     timestamp: '2026-07-04T00:00:00.000Z',
+    ...overrides,
   };
 }
 
@@ -111,6 +112,21 @@ function assertTextContract(text) {
   }
 }
 
+function assertReportShape(report) {
+  assert.deepEqual(Object.keys(report).sort(), [
+    'groups',
+    'ledger',
+    'milestones',
+    'mode',
+    'nextActions',
+    'phase',
+    'risks',
+    'schemaVersion',
+    'storyId',
+  ]);
+  assert.deepEqual(Object.keys(report.groups).sort(), ['completed', 'current', 'remaining']);
+}
+
 function assertRowShape(row) {
   assert.deepEqual(Object.keys(row).sort(), [
     'checklistRefs',
@@ -145,6 +161,7 @@ function assertEvidenceRefShape(evidenceRef) {
   });
 
   assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assertReportShape(report);
   assert.equal(report.storyId, 'B-7ba7');
   assert.equal(report.phase, 'DEV');
   assert.equal(report.ledger.present, false);
@@ -221,6 +238,7 @@ function assertEvidenceRefShape(evidenceRef) {
   });
 
   assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assertReportShape(report);
   assert.deepEqual(report.groups.completed, ['M1', 'M4']);
   assert.deepEqual(report.groups.current, ['M2']);
   assert.deepEqual(report.groups.remaining, ['M3']);
@@ -266,6 +284,102 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.doesNotMatch(currentSection, /\| M3 \|/);
   assert.match(remainingSection, /\| M3 \| Empty verification refs do not count \|/);
   assert.match(text, /CHK-001:happy:0 \[pass\/logic_test\]/);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-current',
+  };
+  const cl = {
+    items: [
+      checklistItem('CHK-STALE', 'done', [
+        evidence('CHK-STALE:happy:0', 'pass', {
+          headHash: 'head-old',
+          materialHash: 'material-old',
+          storyFilesHash: 'story-old',
+        }),
+      ], intent('fresh evidence required')),
+    ],
+  };
+  const staleLedger = ledger([
+    milestone({
+      id: 'M-stale',
+      sourceRequirementId: 'REQ-stale',
+      claim: 'Stale passing evidence must not complete',
+      doneMeans: 'Evidence must pass and match the current binding',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-STALE'],
+      verificationIntentRefs: ['CHK-STALE:happy:0'],
+      status: 'done',
+    }),
+  ]);
+
+  const legacyReport = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: staleLedger,
+  });
+  assert.deepEqual(legacyReport.groups.completed, ['M-stale'], 'without a current binding, legacy pass evidence remains covering');
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: staleLedger,
+    currentEvidenceBinding,
+  });
+  assert.deepEqual(report.groups.completed, []);
+  assert.deepEqual(report.groups.current, ['M-stale']);
+  assert.deepEqual(report.groups.remaining, []);
+
+  const row = report.milestones.find((candidate) => candidate.id === 'M-stale');
+  assert.ok(row);
+  assert.equal(row.status, 'current');
+  assert.match(row.statusDetail, /evidence=stale/);
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STALE:happy:0')?.status, 'stale-evidence');
+  assert.match(row.risks.join('\n'), /stale passing or waived evidence/);
+  assert.match(row.risks.join('\n'), /stale headHash/);
+  assert.match(row.risks.join('\n'), /stale materialHash/);
+  assert.match(row.risks.join('\n'), /stale storyFilesHash/);
+  assert.match(row.nextAction, /current evidence binding/);
+
+  const text = renderMilestoneStatusReport(report);
+  const currentSection = text.slice(text.indexOf('Current'), text.indexOf('\nRemaining'));
+  assert.match(currentSection, /\| M-stale \| Stale passing evidence must not complete \|/);
+  assert.match(currentSection, /stale-evidence/);
+}
+
+{
+  const cl = {
+    items: [
+      checklistItem('CHK-NOREF', 'done', [evidence('CHK-NOREF:happy:0')], intent('covered but unlinked')),
+    ],
+  };
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-no-checklistRefs',
+        sourceRequirementId: 'REQ-no-checklistRefs',
+        claim: 'No checklistRefs must not complete',
+        doneMeans: 'Normal milestones require at least one valid checklistRef',
+        requiredEvidence: [],
+        checklistRefs: [],
+        verificationIntentRefs: ['CHK-NOREF:happy:0'],
+        status: 'done',
+      }),
+    ]),
+  });
+
+  assert.deepEqual(report.groups.completed, []);
+  assert.deepEqual(report.groups.current, ['M-no-checklistRefs']);
+  const row = report.milestones.find((candidate) => candidate.id === 'M-no-checklistRefs');
+  assert.ok(row);
+  assert.match(row.statusDetail, /checklist=missing/);
+  assert.match(row.risks.join('\n'), /missing-checklistRefs/);
+  assert.match(row.nextAction, /valid checklistRef/);
 }
 
 {
@@ -355,14 +469,27 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  const reads = [];
   const handlers = createMilestoneStatusHandlers({
     root: '/tmp/lattice-milestone-status',
     scanRoot: '/tmp/lattice-milestone-status',
     store: {
-      readStory: () => story(),
-      readChecklist: () => ({ items: [] }),
-      readMilestoneLedger: () => null,
-      readSummary: () => null,
+      readStory() {
+        reads.push('story');
+        return story();
+      },
+      readChecklist() {
+        reads.push('checklist');
+        throw new SyntaxError('missing checklist json');
+      },
+      readMilestoneLedger() {
+        reads.push('ledger');
+        return null;
+      },
+      readSummary() {
+        reads.push('summary');
+        return null;
+      },
     },
   });
 
@@ -370,7 +497,10 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
   assert.equal(report.mode.readOnly, true);
   assert.equal(report.mode.runCommands, false);
+  assert.equal(report.ledger.present, false);
   assert.deepEqual(report.groups, { completed: [], current: [], remaining: [] });
+  assert.match(report.risks.join('\n'), /Missing milestone ledger/);
+  assert.deepEqual(reads, ['story', 'ledger', 'summary'], 'missing ledger report must not require checklist reads');
 }
 
 {
@@ -389,7 +519,7 @@ function assertEvidenceRefShape(evidenceRef) {
       },
       readMilestoneLedger() {
         reads.push('ledger');
-        return null;
+        return ledger([]);
       },
       readSummary() {
         reads.push('summary');
@@ -402,7 +532,7 @@ function assertEvidenceRefShape(evidenceRef) {
     () => handlers.milestone_status({ storyId: 'B-7ba7', json: true }),
     /corrupt checklist json/,
   );
-  assert.deepEqual(reads, ['story', 'checklist'], 'corrupt checklist reads must surface before later store reads');
+  assert.deepEqual(reads, ['story', 'ledger', 'summary', 'checklist'], 'corrupt checklist must surface when a ledger exists');
 }
 
 {
@@ -453,17 +583,47 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.match(stdout, /Remaining/);
     assert.match(stdout, /\| M-cli \| CLI report milestone \|/);
 
-    const rejected = spawnSync(process.execPath, [
+    const unknownFlag = spawnSync(process.execPath, [
       cliPath,
       'milestone_status',
       '--root',
       root,
       '--storyId',
       storyId,
-      '--runCommands=true',
+      '--format=json',
+      '--surpriseFlag=true',
     ], { cwd: root, encoding: 'utf8' });
-    assert.notEqual(rejected.status, 0, 'CLI parser must reject runCommands for milestone_status');
-    assert.match(rejected.stderr, /Argument validation failed[\s\S]*runCommands/);
+    assert.notEqual(unknownFlag.status, 0, 'CLI parser must reject unknown milestone_status flags');
+    assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');
+    assert.match(unknownFlag.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
+
+    for (const flag of [
+      'runCommands',
+      'writeEvidence',
+      'advancePhase',
+      'launchReviewers',
+      'write',
+      'apply',
+      'execute',
+      'run',
+      'launch',
+      'capture',
+      'refresh',
+      'authorityDone',
+      'productionDone',
+    ]) {
+      const rejected = spawnSync(process.execPath, [
+        cliPath,
+        'milestone_status',
+        '--root',
+        root,
+        '--storyId',
+        storyId,
+        `--${flag}=true`,
+      ], { cwd: root, encoding: 'utf8' });
+      assert.notEqual(rejected.status, 0, `CLI parser must reject ${flag} for milestone_status`);
+      assert.match(rejected.stderr, new RegExp(`Argument validation failed[\\s\\S]*${flag}`));
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

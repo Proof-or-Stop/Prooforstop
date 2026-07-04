@@ -284,6 +284,9 @@ lattice milestone_status --storyId=B-xxxx --format=json
 lattice milestone_status --storyId=B-xxxx --json
 ```
 
+The command accepts only `storyId`, `format`, and `json`. Every other key is
+rejected before story facts are read.
+
 Text output includes grouped Markdown tables for completed, current, and
 remaining milestones. JSON output includes `storyId`, `phase`, `ledger`, `mode`,
 `milestones`, `groups`, `risks`, and `nextActions`. `mode.readOnly` is `true`;
@@ -303,11 +306,11 @@ Host Progress Reporting Contract:
   and reports only current committed story facts.
 - V1 is read-only. It rejects mutation-like flags such as `runCommands`,
   `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
-  `execute`, `run`, `launch`, `capture`, `refresh`, and local/remote completion
-  claim flags before reading story facts.
+  `execute`, `run`, `launch`, `capture`, `refresh`, and flags that claim local
+  completion or claim remote Authority completion before reading story facts.
 - V1 does not run commands, write evidence or summaries, write review passes,
   change phase, launch reviewers, claim automatic execution, claim automatic
-  DONE, remote Authority completion, or claim production readiness.
+  DONE, claim remote Authority completion, or claim production readiness.
 
 ### Autopilot (local)
 
