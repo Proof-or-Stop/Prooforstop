@@ -311,10 +311,13 @@ Host Progress Reporting Contract:
   evidence-kind gates. Passing evidence and permanent non-failing waivers can
   cover verification refs; deferred gate-evidence waivers and failed waivers do
   not.
-- Evidence freshness uses `materialHash` and `storyFilesHash` when both the
-  current workspace and the evidence provide them. `headHash` is a hard fallback
-  only for legacy or degraded bindings that lack those stronger hashes, so
-  metadata-only HEAD movement does not block completion by itself.
+- Evidence freshness prefers the strongest comparable story-scoped binding:
+  matching `storyFilesHash` is authoritative when both the current workspace and
+  the evidence provide it, so metadata-only `materialHash` drift does not block
+  progress reporting. If no comparable `storyFilesHash` exists, comparable
+  `materialHash` is checked. `headHash` is a hard fallback only for legacy or
+  degraded bindings that lack those stronger hashes, so metadata-only HEAD
+  movement does not block completion by itself.
 - V1 is read-only. It rejects mutation-like flags such as `runCommands`,
   `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
   `execute`, `run`, `launch`, `capture`, `refresh`, and flags that claim local
