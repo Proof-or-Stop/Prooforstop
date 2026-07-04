@@ -35,9 +35,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:37:24.549Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "protocol.lock.json digest still matches the protocol document and m1-status.md marks M1 provider-free after the checker fix Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:24.850Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the story worktree still did not modify README.md; business changes remain limited to M1 experiment artifacts Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:25.145Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "m1-status.md and launch artifacts still do not claim Phase 1 started or snapshots are locked Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:25.428Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -74,9 +112,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:37:26.206Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "seed and cell matrix manifests include deterministic dimensions and required Phase 1 cells ③, ⑥, and ② plus optional ④ Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:26.490Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "A2prime ⑥ remains blocked behind ③-derived A4 calibration and budget lock sequencing; the checker now also accepts a required-only matrix without optional ④ Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:26.766Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the checker rejects missing required ② and illegal ②-vs-④ confirmatory use while allowing optional ④ absence Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:27.037Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -112,9 +188,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:37:27.801Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "phase1-launch-gate.m1.json lists blockers and identifies M1 as pre-campaign lock only Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:28.079Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "providerCallEnabled and formalPhase1UseAllowed remain false Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:28.351Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "DONE of this story cannot authorize Phase 1 campaign execution or product gate behavior Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:28.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -152,9 +266,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:37:29.417Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the local M1 freeze checker passes and prints assertion and negative-control counts after the required-only matrix fix Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:29.691Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the checker now includes a required-only positive control: optional ④ removed, required ③/⑥/② count 3456 accepted, and A2prime sequencing enforced Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:29.960Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "negative controls reject drift, premature launch/provider flags, outcome fields, missing ②, A2prime-before-budget, and illegal ②-vs-④ confirmatory comparison Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:30.234Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -183,9 +335,103 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-04T19:19:42.598Z",
+      "endTime": "2026-07-04T19:39:29.975Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice done_required_validate --storyId=B-806b --json --forceTakeover",
+          "result": "pass",
+          "note": "DONE-required validation passed after the required-only matrix fix: packages/main build and root npm test both PASS; M1 artifacts remain frozen locally and provider-free.",
+          "headHash": "41316013a4b3184993902a4d92144511bcd72f0a",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:39:30.264Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git show --stat --oneline --name-only 2c5a6fea5 f70607aed && git status --short",
+          "result": "pass",
+          "note": "Business commits contain only M1 experiment files; README.md was not touched in this story worktree. The follow-up fix changed only m1-freeze-check.mjs.",
+          "headHash": "41316013a4b3184993902a4d92144511bcd72f0a",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:39:30.541Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "M1 freeze checker passed: 219 assertions; 8 negative controls rejected. The checker now proves required-only validity without optional ④ and still keeps Phase 1 launchAllowed=false with no outcome data or multi-model result claim.",
+          "headHash": "41316013a4b3184993902a4d92144511bcd72f0a",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:39:30.814Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-04T19:19:20.857Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:22.524Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:24.111Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:25.696Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:42.598Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final local verification and Lattice closure checks."
+    },
+    {
+      "timestamp": "2026-07-04T19:25:40.877Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Final closure evidence recorded after local checker, scope check, validate configured commands, and done_required_validate PASS."
     }
   ]
 }

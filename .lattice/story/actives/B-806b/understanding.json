@@ -1,0 +1,30 @@
+{
+  "task": "Freeze the Multi-Model Ablation M1 protocol inputs so Phase 1 can only start from a reviewed, deterministic, provider-free launch baseline.",
+  "outcome": "When the user runs node experiments/multi-model-ablation/m1-freeze-check.mjs, the terminal prints a PASS line with assertion counts and confirms Phase 1 is still blocked until human approval, locked snapshots, task inventory, and budget sequencing are present.",
+  "facts": [
+    "B-69b8 completed M0 smoke checks and produced local harness artifacts without provider execution.",
+    "The protocol requires Phase 1 cells ③, ⑥, and ②; ④ is optional budget-permitting.",
+    "A2prime cells cannot run until matching same-family A4 calibration has frozen the budget lock.",
+    "The protocol forbids treating ② vs ④ as a confirmatory comparison because both executor and reviewer vary.",
+    "M1 is a pre-campaign freeze milestone and must not produce outcome records or claim multi-model findings.",
+    "Concrete dated model snapshots, final task corpus inventory, and human approval are intentionally absent launch blockers."
+  ],
+  "constraints": [
+    "Do not edit docs/requirements/decisions/multi-model-ablation-replication.md in this story.",
+    "Do not run provider models, Codex/Claude campaign cells, network calls, or any cost-bearing Phase 1 execution.",
+    "Do not touch README.md or unrelated main-root local edits.",
+    "Keep all new files under experiments/multi-model-ablation and keep them host-neutral.",
+    "Do not create product runtime gates, playbook behavior, DONE behavior, or publication claims.",
+    "Keep launchAllowed=false until model snapshots, task inventory, budget locks, and human approval are present."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/multi-model-ablation/protocol.lock.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/cell-matrix.m1.json",
+    "experiments/multi-model-ablation/phase1-launch-gate.m1.json",
+    "experiments/multi-model-ablation/m1-status.md",
+    "experiments/multi-model-ablation/m1-freeze-check.mjs"
+  ],
+  "timestamp": "2026-07-04T19:08:02.969Z"
+}

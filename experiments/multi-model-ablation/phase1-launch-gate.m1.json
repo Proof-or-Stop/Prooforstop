@@ -1,0 +1,58 @@
+{
+  "artifact": "phase1-launch-gate.m1",
+  "storyId": "B-806b",
+  "status": "m1_done_launch_blocked",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "launchAllowed": false,
+  "providerCallEnabled": false,
+  "formalPhase1UseAllowed": false,
+  "authorizationBoundary": {
+    "m1DoneAuthorizesProviderExecution": false,
+    "m1DoneAuthorizesPhase1Campaign": false,
+    "m1DoneAuthorizesFormalPhase1Use": false,
+    "statement": "M1 DONE freezes provider-free planning artifacts only; it does not authorize provider execution or a Phase 1 campaign."
+  },
+  "blockers": [
+    {
+      "blockerId": "human-approval-absent",
+      "status": "absent",
+      "blocksLaunch": true,
+      "requiredToClear": "Human approval explicitly authorizes paid/provider Phase 1 execution."
+    },
+    {
+      "blockerId": "dated-snapshots-absent",
+      "status": "absent",
+      "blocksLaunch": true,
+      "requiredToClear": "Dated executor and reviewer provider snapshots are locked for each formal cell."
+    },
+    {
+      "blockerId": "concrete-task-inventory-absent",
+      "status": "absent",
+      "blocksLaunch": true,
+      "requiredToClear": "The 24 concrete v1 stratified task records are bound without changing task definitions."
+    },
+    {
+      "blockerId": "a4-budget-lock-absent",
+      "status": "absent",
+      "blocksLaunch": true,
+      "requiredToClear": "The matching ③ A4 calibration budget lock is frozen before A2prime ⑥."
+    },
+    {
+      "blockerId": "a2prime-sequencing-not-satisfied",
+      "status": "not_satisfied",
+      "blocksLaunch": true,
+      "requiredToClear": "A2prime ⑥ remains blocked until same-family ③ A4 calibration and budget lock prerequisites are present."
+    }
+  ],
+  "nextAllowedState": {
+    "m2MayStart": false,
+    "reason": "All launch blockers must clear in a separate approval and execution-lock step."
+  }
+}
