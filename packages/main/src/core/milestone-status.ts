@@ -150,6 +150,16 @@ function headHashMatches(evidenceValue: string, currentValue: string): boolean {
   return evidenceValue === currentValue || evidenceValue.startsWith(currentValue) || currentValue.startsWith(evidenceValue);
 }
 
+function headHashFreshnessRisks(evidenceHeadHash: string | undefined, currentHeadHash: string): string[] {
+  if (!evidenceHeadHash) {
+    return [`missing headHash binding (current ${shortHash(currentHeadHash)})`];
+  }
+  if (!headHashMatches(evidenceHeadHash, currentHeadHash)) {
+    return [`stale headHash ${shortHash(evidenceHeadHash)} (current ${shortHash(currentHeadHash)})`];
+  }
+  return [];
+}
+
 function evidenceFreshnessRisks(
   evidence: VerificationEvidence,
   currentBinding: MilestoneStatusCurrentEvidenceBinding | null | undefined,
@@ -158,30 +168,38 @@ function evidenceFreshnessRisks(
   const headHash = normalizedBindingValue(currentBinding?.headHash);
   const materialHash = normalizedBindingValue(currentBinding?.materialHash);
   const storyFilesHash = normalizedBindingValue(currentBinding?.storyFilesHash);
+  const evidenceHeadHash = normalizedBindingValue(evidence.headHash);
+  const evidenceMaterialHash = normalizedBindingValue(evidence.materialHash);
+  const evidenceStoryFilesHash = normalizedBindingValue(evidence.storyFilesHash);
+  const currentHasStrongBinding = Boolean(materialHash && storyFilesHash);
+  const evidenceHasStrongBinding = Boolean(evidenceMaterialHash && evidenceStoryFilesHash);
+
+  if (currentHasStrongBinding && evidenceHasStrongBinding) {
+    const currentMaterialHash = materialHash as string;
+    const currentStoryFilesHash = storyFilesHash as string;
+    const boundMaterialHash = evidenceMaterialHash as string;
+    const boundStoryFilesHash = evidenceStoryFilesHash as string;
+    if (boundMaterialHash !== currentMaterialHash) {
+      risks.push(`stale materialHash ${shortHash(boundMaterialHash)} (current ${shortHash(currentMaterialHash)})`);
+    }
+    if (boundStoryFilesHash !== currentStoryFilesHash) {
+      risks.push(`stale storyFilesHash ${shortHash(boundStoryFilesHash)} (current ${shortHash(currentStoryFilesHash)})`);
+    }
+    return risks;
+  }
 
   if (headHash) {
-    const evidenceHeadHash = normalizedBindingValue(evidence.headHash);
-    if (!evidenceHeadHash) {
-      risks.push(`missing headHash binding (current ${shortHash(headHash)})`);
-    } else if (!headHashMatches(evidenceHeadHash, headHash)) {
-      risks.push(`stale headHash ${shortHash(evidenceHeadHash)} (current ${shortHash(headHash)})`);
-    }
+    return headHashFreshnessRisks(evidenceHeadHash, headHash);
   }
+
   if (materialHash) {
-    const evidenceMaterialHash = normalizedBindingValue(evidence.materialHash);
-    if (!evidenceMaterialHash) {
-      risks.push(`missing materialHash binding (current ${shortHash(materialHash)})`);
-    } else if (evidenceMaterialHash !== materialHash) {
-      risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
-    }
+    if (!evidenceMaterialHash) risks.push(`missing materialHash binding (current ${shortHash(materialHash)})`);
+    else if (evidenceMaterialHash !== materialHash) risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
   }
+
   if (storyFilesHash) {
-    const evidenceStoryFilesHash = normalizedBindingValue(evidence.storyFilesHash);
-    if (!evidenceStoryFilesHash) {
-      risks.push(`missing storyFilesHash binding (current ${shortHash(storyFilesHash)})`);
-    } else if (evidenceStoryFilesHash !== storyFilesHash) {
-      risks.push(`stale storyFilesHash ${shortHash(evidenceStoryFilesHash)} (current ${shortHash(storyFilesHash)})`);
-    }
+    if (!evidenceStoryFilesHash) risks.push(`missing storyFilesHash binding (current ${shortHash(storyFilesHash)})`);
+    else if (evidenceStoryFilesHash !== storyFilesHash) risks.push(`stale storyFilesHash ${shortHash(evidenceStoryFilesHash)} (current ${shortHash(storyFilesHash)})`);
   }
 
   return risks;

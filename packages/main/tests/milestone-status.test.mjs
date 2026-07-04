@@ -339,7 +339,7 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.match(row.statusDetail, /evidence=stale/);
   assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STALE:happy:0')?.status, 'stale-evidence');
   assert.match(row.risks.join('\n'), /stale passing or waived evidence/);
-  assert.match(row.risks.join('\n'), /stale headHash/);
+  assert.doesNotMatch(row.risks.join('\n'), /stale headHash/);
   assert.match(row.risks.join('\n'), /stale materialHash/);
   assert.match(row.risks.join('\n'), /stale storyFilesHash/);
   assert.match(row.nextAction, /current evidence binding/);
@@ -348,6 +348,111 @@ function assertEvidenceRefShape(evidenceRef) {
   const currentSection = text.slice(text.indexOf('Current'), text.indexOf('\nRemaining'));
   assert.match(currentSection, /\| M-stale \| Stale passing evidence must not complete \|/);
   assert.match(currentSection, /stale-evidence/);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-current',
+  };
+  const cl = {
+    items: [
+      checklistItem('CHK-HEAD-DRIFT', 'done', [
+        evidence('CHK-HEAD-DRIFT:happy:0', 'pass', {
+          headHash: 'head-before-metadata-commit',
+          materialHash: 'material-current',
+          storyFilesHash: 'story-current',
+        }),
+      ], intent('head-only metadata drift is not stale')),
+    ],
+  };
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-head-only',
+        sourceRequirementId: 'REQ-head-only',
+        claim: 'Head-only metadata drift does not block completion',
+        doneMeans: 'Evidence with current material and story file hashes remains covering',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-HEAD-DRIFT'],
+        verificationIntentRefs: ['CHK-HEAD-DRIFT:happy:0'],
+        status: 'done',
+      }),
+    ]),
+    currentEvidenceBinding,
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-head-only']);
+  assert.deepEqual(report.groups.current, []);
+  const row = report.milestones.find((candidate) => candidate.id === 'M-head-only');
+  assert.ok(row);
+  assert.equal(row.status, 'completed');
+  assert.match(row.statusDetail, /evidence=covered/);
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-HEAD-DRIFT:happy:0')?.status, 'covered');
+  assert.doesNotMatch(row.risks.join('\n'), /headHash/);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-current',
+  };
+  const cl = {
+    items: [
+      checklistItem('CHK-LEGACY-FRESH', 'done', [
+        evidence('CHK-LEGACY-FRESH:happy:0', 'pass', {
+          headHash: 'head-current',
+        }),
+      ], intent('legacy matching head evidence remains covering')),
+      checklistItem('CHK-LEGACY-STALE', 'done', [
+        evidence('CHK-LEGACY-STALE:happy:0', 'pass', {
+          headHash: 'head-old',
+        }),
+      ], intent('legacy stale head evidence is rejected')),
+    ],
+  };
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-legacy-fresh',
+        sourceRequirementId: 'REQ-legacy-fresh',
+        claim: 'Legacy head-only evidence can complete through the fallback',
+        doneMeans: 'Evidence lacking material/story hashes must match current head',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-LEGACY-FRESH'],
+        verificationIntentRefs: ['CHK-LEGACY-FRESH:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-legacy-stale',
+        sourceRequirementId: 'REQ-legacy-stale',
+        claim: 'Legacy stale head-only evidence must not complete',
+        doneMeans: 'Evidence lacking material/story hashes falls back to head freshness',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-LEGACY-STALE'],
+        verificationIntentRefs: ['CHK-LEGACY-STALE:happy:0'],
+        status: 'done',
+      }),
+    ]),
+    currentEvidenceBinding,
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-legacy-fresh']);
+  assert.deepEqual(report.groups.current, ['M-legacy-stale']);
+  const stale = report.milestones.find((candidate) => candidate.id === 'M-legacy-stale');
+  assert.ok(stale);
+  assert.equal(stale.subObjectives.find((sub) => sub.id === 'CHK-LEGACY-STALE:happy:0')?.status, 'stale-evidence');
+  assert.match(stale.risks.join('\n'), /stale headHash/);
+  assert.doesNotMatch(stale.risks.join('\n'), /missing materialHash/);
+  assert.doesNotMatch(stale.risks.join('\n'), /missing storyFilesHash/);
 }
 
 {
