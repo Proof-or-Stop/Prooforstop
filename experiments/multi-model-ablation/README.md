@@ -63,12 +63,14 @@ assertBoundary(registry, "runner registry");
 assertBoundary(budgetLock, "budget lock");
 
 const cellsByKey = new Map();
+const a2PrimeCellsByKey = new Map();
 for (const cell of manifest.cells) {
   if (cellsByKey.has(cell.cellKey)) throw new Error(`duplicate cellKey: ${cell.cellKey}`);
   cellsByKey.set(cell.cellKey, cell);
   if (cell.arm === "A2prime" && !cell.budgetLockDigest) {
     throw new Error(`A2prime row missing budgetLockDigest: ${cell.cellKey}`);
   }
+  if (cell.arm === "A2prime") a2PrimeCellsByKey.set(cell.cellKey, cell);
   if ("outcome" in cell) throw new Error(`example cell must not include outcome: ${cell.cellKey}`);
 }
 
@@ -100,6 +102,7 @@ for (const runner of registry.runners) {
   }
 }
 
+const a2PrimeClaimsByCellKey = new Map();
 for (const lock of budgetLock.locks) {
   for (const field of digestFields) {
     if (!isShaExample(lock[field])) throw new Error(`budget lock ${lock.lockKey} missing example digest field: ${field}`);
@@ -128,6 +131,31 @@ for (const lock of budgetLock.locks) {
   if (lock.medianSpendFromA4Calibration !== null) {
     throw new Error(`example budget lock must not include provider-derived spend: ${lock.lockKey}`);
   }
+  if (!Array.isArray(lock.appliesToCellKeys)) {
+    throw new Error(`budget lock missing appliesToCellKeys: ${lock.lockKey}`);
+  }
+  const appliesToCellKeysInLock = new Set();
+  for (const appliesToKey of lock.appliesToCellKeys) {
+    if (appliesToCellKeysInLock.has(appliesToKey)) {
+      throw new Error(`duplicate appliesToCellKey in budget lock ${lock.lockKey}: ${appliesToKey}`);
+    }
+    appliesToCellKeysInLock.add(appliesToKey);
+
+    const appliesToCell = cellsByKey.get(appliesToKey);
+    if (!appliesToCell) {
+      throw new Error(`budget lock appliesToCellKeys references missing manifest row: ${lock.lockKey} -> ${appliesToKey}`);
+    }
+    if (appliesToCell.arm !== "A2prime") {
+      throw new Error(`budget lock appliesToCellKeys references non-A2prime manifest row: ${lock.lockKey} -> ${appliesToKey}`);
+    }
+    if (appliesToCell.budgetLockDigest !== lock.budgetLockDigest) {
+      throw new Error(`A2prime budgetLockDigest does not match budget lock: ${appliesToKey} -> ${lock.lockKey}`);
+    }
+
+    const claims = a2PrimeClaimsByCellKey.get(appliesToKey) || [];
+    claims.push(lock.lockKey);
+    a2PrimeClaimsByCellKey.set(appliesToKey, claims);
+  }
   for (const sourceKey of lock.sourceCellKeys) {
     const sourceCell = cellsByKey.get(sourceKey);
     const sourceRunner = sourceCell && runnersById.get(sourceCell.runnerId);
@@ -138,6 +166,16 @@ for (const lock of budgetLock.locks) {
     if ((lock.sourceReviewerFamily === "same" || lock.sourceReviewerFamily === "cross") && sourceRunner.reviewerSnapshot !== lock.reviewerSnapshot) {
       throw new Error(`budget lock reviewerSnapshot does not match source runner: ${lock.lockKey}`);
     }
+  }
+}
+
+for (const [cellKey] of a2PrimeCellsByKey) {
+  const claims = a2PrimeClaimsByCellKey.get(cellKey) || [];
+  if (claims.length === 0) {
+    throw new Error(`A2prime row missing from all budget lock appliesToCellKeys: ${cellKey}`);
+  }
+  if (claims.length > 1) {
+    throw new Error(`A2prime row claimed by multiple budget locks: ${cellKey} (${claims.join(", ")})`);
   }
 }
 
