@@ -247,7 +247,7 @@
       "desc": "milestone_status marks verificationEvidence stale on materialHash-only drift even when storyFilesHash is unchanged, conflicting with the core story_files_hash_freshness_gate and making the read-only progress report fail to converge after Lattice metadata commits.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-04T22:58:57.795Z",
@@ -258,7 +258,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "edge|ts|milestone-status-marks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by making comparable storyFilesHash authoritative for milestone_status freshness: matching storyFilesHash accepts material-only metadata drift, while material-only evidence without storyFilesHash still uses materialHash and stale material remains blocking. Covered by CHK-STORY-FRESH-MATERIAL-DRIFT plus existing material-only stale/fresh regressions; node packages/main/tests/milestone-status.test.mjs and npm --prefix packages/main run build passed.",
+      "resolvedAt": "2026-07-04T23:02:09.951Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
