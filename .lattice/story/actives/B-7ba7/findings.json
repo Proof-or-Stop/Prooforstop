@@ -145,6 +145,24 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-008",
+      "desc": "packages/main/src/cli-engine.ts: strict milestone_status validation still reads active story facts before rejecting malformed arguments. Unexpected mutation-like args should fail before story facts/store reads in active-story worktrees.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:50.690Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "d153643de8ac2bc1422b15f4a03956fdf79eb15578702ee48f935b96e0041bba",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
