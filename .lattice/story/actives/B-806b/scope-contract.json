@@ -27,7 +27,33 @@
     "DONE behavior changes"
   ],
   "scopeChangeReason": "Initialize M1 provider-free scope contract from PLAN checklist.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "ProofStory high-assurance DEV gate required these CLI-generated intent artifacts after PLAN; they are lifecycle metadata, not business scope expansion.",
+      "timestamp": "2026-07-04T19:20:11.204Z",
+      "paths": [
+        ".lattice/story/actives/B-806b/intent-collision.json",
+        ".lattice/story/actives/B-806b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-806b/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-806b/intent-collision.json",
+        ".lattice/story/actives/B-806b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-806b/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "2edd8cc2bd47f90167e466f3533f97ab3ca7dacd",
+      "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+      "anchors": [
+        "proofstory.original_intent_snapshot",
+        "proofstory.intent_collision",
+        "proofstory.acceptance_binding"
+      ]
+    }
+  ],
   "createdAt": "2026-07-04T19:08:48.738Z",
-  "updatedAt": "2026-07-04T19:08:48.738Z"
+  "updatedAt": "2026-07-04T19:20:11.204Z"
 }
