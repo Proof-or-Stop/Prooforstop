@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-7ba7:F-001",
+      "desc": "review-discovered issue: stale passing verification evidence can mark a milestone completed. milestone_status currently accepts pass/waiver evidence without verifying the evidence head/material/storyFiles binding against the current story state, so old evidence can produce a false completed group.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.013Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "372a8a27ddf0f90e027a1bbcdf1fc1730350b5d8ee8cff3c76a07b8f9876fca7",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|review-discovered-issue",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
