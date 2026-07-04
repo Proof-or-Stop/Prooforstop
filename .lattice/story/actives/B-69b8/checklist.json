@@ -301,14 +301,14 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "experiments/multi-model-ablation/phase1-budget-lock.m0.json",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs; experiments/multi-model-ablation/phase1-budget-lock.m0.json; experiments/multi-model-ablation/cell-manifest.m0.json",
           "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
           "result": "pass",
-          "note": "phase1-budget-lock.m0.json binds A2prime appliesToCellKeys to exactly one matching budgetLockDigest derived from same-family A4 calibration source rows.",
+          "note": "Budget-lock checker now requires each sourceCellKeys row to match declared sourceCellNumber/sourceArm/sourceReviewerFamily/executorFamily/task and isCalibrationSourceForBudgetLock=true before binding A2prime appliesTo rows.",
           "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T18:00:15.551Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:36.606Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -320,8 +320,8 @@
           "note": "cell-manifest.m0.json separates legal confirmatory contrasts from descriptive/blocker semantics, including the Phase 1 descriptive warning for ① vs ② without a same-window anchor.",
           "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T18:00:15.929Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:37.071Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -330,11 +330,11 @@
           "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
           "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
           "result": "pass",
-          "note": "The checker rejects ②-vs-④ as confirmatory and rejects mismatched A2prime budgetLockDigest, proving contrast and budget locks fail closed.",
+          "note": "Negative controls reject forged E2 lock sourced from ⑥/A2prime, sourceCellNumber/source key mismatch, sourceArm not A4, illegal ②-vs-④ confirmatory contrast, and mismatched A2prime budgetLockDigest.",
           "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T18:00:16.356Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:37.458Z"
         }
       ]
     },
