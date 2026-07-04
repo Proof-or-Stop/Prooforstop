@@ -49,7 +49,7 @@
       "desc": "review-discovered issue: missing-ledger reporting can be preempted by checklist reads. A story with index metadata but no checklist throws before milestone_status can return its documented missing-ledger blocker.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-main",
       "createdAt": "2026-07-04T20:43:09.883Z",
@@ -60,7 +60,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by reading story, milestone ledger, and summary before checklist; missing ledger now returns the documented read-only missing-ledger report without requiring checklist data. Corrupt checklist still surfaces when a ledger exists. Regression coverage added.",
+      "resolvedAt": "2026-07-04T22:11:18.289Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-004",
