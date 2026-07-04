@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-04T19:29:17.106Z",
       "reviewRunId": "B-806b:RR-001",
       "_hash": "637f93cb6b4a9ebbd37c83934fb1b9e33ac9ae633f5c1e5ec243e393900ddad1"
+    },
+    {
+      "id": "B-806b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after f70607aed passes. The checker includes a positive required-only edge case that removes optional ④ and still accepts required ③/⑥/②, plus a negative control that removes optional ④ and required ② and is rejected. Local run passed: node experiments/multi-model-ablation/m1-freeze-check.mjs => M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+      "createdAt": "2026-07-04T19:44:53.769Z",
+      "reviewRound": "2026-07-04T19:42:45.891Z",
+      "reviewRunId": "B-806b:RR-006",
+      "_hash": "5a96cbef07c5b686ef917351c724b2e22666093c334177d56877604a45b5b9ce"
     }
   ]
 }
