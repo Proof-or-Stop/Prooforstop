@@ -94,6 +94,26 @@
       "resolvedAt": "2026-07-04T16:49:51.892Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f8c6:F-005",
+      "desc": "The strengthened README invariant still does not prove that an A2prime row is bound to the frozen budget-lock record; it only checks that A2prime cells have a non-empty budgetLockDigest (experiments/multi-model-ablation/README.md:65-72) and later validates only budget-lock sourceCellKeys against runner snapshots (README.md:131-140). It never checks that each A2prime cell budgetLockDigest equals a budgetLock.locks[].budgetLockDigest, nor that each lock.appliesToCellKeys entry resolves to the corresponding A2prime manifest row. A manifest with a wrong-but-nonempty A2prime digest or a typo in appliesToCellKeys would still pass the documented command, even though phase1-budget-lock.example.json:37-40 says A2prime rows are allowed only when budgetLockDigest matches the frozen lock. Add cross-binding assertions from A2prime manifest rows to exactly one budget-lock appliesToCellKeys entry with matching budgetLockDigest, and fail on orphaned or mismatched apply keys.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T16:52:58.995Z",
+      "reviewRound": "2026-07-04T16:49:29.474Z",
+      "reviewRunId": "B-f8c6:RR-008",
+      "_hash": "899c05df41ca58bb5d878e7cbeaa9f935007c0a2f6fbef963af15db68ff393dc",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        "experiments/multi-model-ablation/cell-manifest.example.json",
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json"
+      ],
+      "signatureTag": "missing|md|a2prime-budget-lock-cross-binding",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
