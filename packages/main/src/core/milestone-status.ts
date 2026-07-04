@@ -104,6 +104,9 @@ interface IntentIndexEntry {
   intent: VerificationIntentItem;
 }
 
+type IntentIndex = Map<string, IntentIndexEntry[]>;
+type EvidenceIndex = Map<string, VerificationEvidence[]>;
+
 const READ_ONLY_MODE: MilestoneStatusMode = {
   readOnly: true,
   runCommands: false,
@@ -114,6 +117,10 @@ const READ_ONLY_MODE: MilestoneStatusMode = {
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter((value) => value.trim().length > 0))];
+}
+
+function stringArrayField(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
 }
 
 function evidenceStatus(evidence: VerificationEvidence): MilestoneStatusEvidenceRef['status'] {
@@ -132,28 +139,35 @@ function buildChecklistIndex(checklist: ChecklistData): Map<string, ChecklistIte
   return new Map(checklist.items.map((item) => [item.id, item]));
 }
 
-function buildIntentIndex(checklist: ChecklistData): Map<string, IntentIndexEntry> {
-  const index = new Map<string, IntentIndexEntry>();
+function buildIntentIndex(checklist: ChecklistData): IntentIndex {
+  const index: IntentIndex = new Map();
   for (const item of checklist.items) {
     for (const collected of collectVerificationIntents(item)) {
-      index.set(collected.ref, {
+      const existing = index.get(collected.ref) ?? [];
+      existing.push({
         itemId: collected.itemId,
         lane: collected.lane,
         index: collected.index,
         intent: collected.intent,
       });
+      index.set(collected.ref, existing);
     }
   }
   return index;
 }
 
-function buildEvidenceIndex(checklist: ChecklistData): Map<string, VerificationEvidence[]> {
-  const index = new Map<string, VerificationEvidence[]>();
+function scopedEvidenceKey(itemId: string, intentRef: string): string {
+  return `${itemId}\0${intentRef}`;
+}
+
+function buildEvidenceIndex(checklist: ChecklistData): EvidenceIndex {
+  const index: EvidenceIndex = new Map();
   for (const item of checklist.items) {
     for (const evidence of item.verificationEvidence ?? []) {
-      const existing = index.get(evidence.intentRef) ?? [];
+      const key = scopedEvidenceKey(item.id, evidence.intentRef);
+      const existing = index.get(key) ?? [];
       existing.push(evidence);
-      index.set(evidence.intentRef, existing);
+      index.set(key, existing);
     }
   }
   return index;
@@ -192,9 +206,12 @@ function intentLabel(ref: string, entry: IntentIndexEntry | undefined): string {
 function buildMilestoneRow(
   milestone: MilestoneLedgerItem,
   checklistById: Map<string, ChecklistItem>,
-  intentByRef: Map<string, IntentIndexEntry>,
-  evidenceByRef: Map<string, VerificationEvidence[]>,
+  intentByRef: IntentIndex,
+  evidenceByOwnerAndRef: EvidenceIndex,
 ): Omit<MilestoneStatusRow, 'status'> & { complete: boolean } {
+  const checklistRefs = stringArrayField((milestone as { checklistRefs?: unknown }).checklistRefs);
+  const verificationIntentRefs = stringArrayField((milestone as { verificationIntentRefs?: unknown }).verificationIntentRefs);
+  const requiredEvidence = stringArrayField((milestone as { requiredEvidence?: unknown }).requiredEvidence);
   const subObjectives: MilestoneStatusSubObjective[] = [];
   const evidenceRefs: MilestoneStatusEvidenceRef[] = [];
   const seenEvidenceRefs = new Set<string>();
@@ -208,7 +225,7 @@ function buildMilestoneRow(
     evidenceRefs.push(summarized);
   };
 
-  for (const checklistRef of milestone.checklistRefs) {
+  for (const checklistRef of checklistRefs) {
     const item = checklistById.get(checklistRef);
     if (!item) {
       const risk = `Checklist ref ${checklistRef} is not present in checklist.json.`;
@@ -236,25 +253,38 @@ function buildMilestoneRow(
       status: item.status,
       risks: itemRisks,
     });
-    for (const evidence of item.verificationEvidence ?? []) pushEvidenceRef(evidence);
   }
 
-  for (const ref of milestone.verificationIntentRefs) {
-    const intent = intentByRef.get(ref);
-    const evidence = evidenceByRef.get(ref) ?? [];
+  if (milestone.status !== 'not_applicable' && verificationIntentRefs.length === 0) {
+    risks.push('Milestone has no verificationIntentRefs mapped.');
+    nextActionCandidates.push(`Map verificationIntentRefs for milestone ${milestone.id}.`);
+  }
+
+  for (const ref of verificationIntentRefs) {
+    const intentEntries = intentByRef.get(ref) ?? [];
+    const intent = intentEntries.length === 1 ? intentEntries[0] : undefined;
+    const evidence = intent ? evidenceByOwnerAndRef.get(scopedEvidenceKey(intent.itemId, ref)) ?? [] : [];
     const coveringEvidence = evidence.filter(evidenceIsCovering);
     const intentRisks: string[] = [];
 
-    if (!intent) {
+    if (intentEntries.length === 0) {
       intentRisks.push(`Verification intent ref ${ref} is not present in checklist verificationIntent.`);
       nextActionCandidates.push(`Restore or re-map verification intent ref ${ref}.`);
+    } else if (intentEntries.length > 1) {
+      intentRisks.push(`Verification intent ref ${ref} is ambiguous across ${intentEntries.length} checklist items.`);
+      nextActionCandidates.push(`Give each ${ref} verification intent a unique id and re-map the milestone.`);
+    } else if (intent && checklistRefs.length > 0 && !checklistRefs.includes(intent.itemId)) {
+      intentRisks.push(`Verification intent ref ${ref} belongs to checklist item ${intent.itemId}, which is not linked by this milestone.`);
+      nextActionCandidates.push(`Add checklist ref ${intent.itemId} to milestone ${milestone.id} or re-map verification intent ref ${ref}.`);
     }
-    if (evidence.length === 0) {
-      intentRisks.push(`Verification intent ${ref} has no evidence.`);
-      nextActionCandidates.push(`Record passing verificationEvidence for ${ref}.`);
-    } else if (coveringEvidence.length === 0) {
-      intentRisks.push(`Verification intent ${ref} has no passing or waived evidence.`);
-      nextActionCandidates.push(`Re-run or replace verificationEvidence for ${ref}.`);
+    if (intent) {
+      if (evidence.length === 0) {
+        intentRisks.push(`Verification intent ${ref} has no evidence on owning checklist item ${intent.itemId}.`);
+        nextActionCandidates.push(`Record passing verificationEvidence for ${ref} on checklist item ${intent.itemId}.`);
+      } else if (coveringEvidence.length === 0) {
+        intentRisks.push(`Verification intent ${ref} has no passing or waived evidence on owning checklist item ${intent.itemId}.`);
+        nextActionCandidates.push(`Re-run or replace verificationEvidence for ${ref} on checklist item ${intent.itemId}.`);
+      }
     }
 
     risks.push(...intentRisks);
@@ -262,40 +292,49 @@ function buildMilestoneRow(
       id: ref,
       kind: 'verificationIntent',
       label: intentLabel(ref, intent),
-      status: coveringEvidence.length > 0 ? 'covered' : evidence.length > 0 ? 'not-passing' : 'missing-evidence',
+      status: intentEntries.length > 1
+        ? 'ambiguous-intent'
+        : intentEntries.length === 0 ? 'missing-intent' : coveringEvidence.length > 0 ? 'covered' : evidence.length > 0 ? 'not-passing' : 'missing-evidence',
       risks: intentRisks,
     });
     for (const entry of evidence) pushEvidenceRef(entry);
   }
 
-  for (const required of milestone.requiredEvidence) {
-    const requiredRisks = milestone.verificationIntentRefs.length > 0
+  for (const required of requiredEvidence) {
+    const requiredRisks = verificationIntentRefs.length > 0
       ? []
       : [`Required evidence "${required}" has no verificationIntentRefs mapping.`];
     subObjectives.push({
       id: required,
       kind: 'requiredEvidence',
       label: required,
-      status: milestone.verificationIntentRefs.length > 0 ? 'mapped' : 'unmapped',
+      status: verificationIntentRefs.length > 0 ? 'mapped' : 'unmapped',
       risks: requiredRisks,
     });
     risks.push(...requiredRisks);
   }
 
-  const checklistRefsComplete = milestone.checklistRefs.every((ref) => checklistById.get(ref)?.status === 'done');
-  const verificationRefsCovered = milestone.verificationIntentRefs.every((ref) => {
-    const evidence = evidenceByRef.get(ref) ?? [];
+  const checklistRefsComplete = checklistRefs.every((ref) => checklistById.get(ref)?.status === 'done');
+  const checklistRefsValid = checklistRefs.every((ref) => checklistById.has(ref));
+  const verificationRefsValid = verificationIntentRefs.every((ref) => {
+    const entries = intentByRef.get(ref) ?? [];
+    return entries.length === 1 && (checklistRefs.length === 0 || checklistRefs.includes(entries[0].itemId));
+  });
+  const verificationRefsCovered = verificationIntentRefs.length > 0 && verificationIntentRefs.every((ref) => {
+    const entries = intentByRef.get(ref) ?? [];
+    if (entries.length !== 1) return false;
+    if (checklistRefs.length > 0 && !checklistRefs.includes(entries[0].itemId)) return false;
+    const evidence = evidenceByOwnerAndRef.get(scopedEvidenceKey(entries[0].itemId, ref)) ?? [];
     return evidence.some(evidenceIsCovering);
   });
   const referencesValid =
-    milestone.checklistRefs.every((ref) => checklistById.has(ref))
-    && milestone.verificationIntentRefs.every((ref) => intentByRef.has(ref));
-  const evidenceRequirementsMapped = milestone.requiredEvidence.length === 0 || milestone.verificationIntentRefs.length > 0;
-  const hasEvidenceRef = evidenceRefs.length > 0;
+    checklistRefsValid
+    && verificationRefsValid;
+  const evidenceRequirementsMapped = requiredEvidence.length === 0 || verificationIntentRefs.length > 0;
   const complete = milestone.status === 'not_applicable' || (
     referencesValid
     && checklistRefsComplete
-    && (milestone.status === 'done' || hasEvidenceRef)
+    && verificationRefsCovered
     && evidenceRequirementsMapped
   );
 
@@ -320,9 +359,9 @@ function buildMilestoneRow(
     sourceRequirementId: milestone.sourceRequirementId,
     ...(milestone.parentLedgerId ? { parentLedgerId: milestone.parentLedgerId } : {}),
     ...(milestone.assignedStory ? { assignedStory: milestone.assignedStory } : {}),
-    checklistRefs: milestone.checklistRefs,
-    verificationIntentRefs: milestone.verificationIntentRefs,
-    requiredEvidence: milestone.requiredEvidence,
+    checklistRefs,
+    verificationIntentRefs,
+    requiredEvidence,
     subObjectives,
     evidenceRefs,
     risks: unique(risks),

@@ -7,10 +7,14 @@
  *   node packages/main/tests/milestone-status.test.mjs
  */
 import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
+const cliPath = join(distRoot, 'cli.js');
 const { buildMilestoneStatusReport, renderMilestoneStatusReport } = await import(join(distRoot, 'core/milestone-status.js'));
 const { createMilestoneStatusHandlers } = await import(join(distRoot, 'handlers/milestone-status.js'));
 
@@ -26,6 +30,14 @@ function story(storyId = 'B-7ba7') {
     createdAt: '2026-07-04T00:00:00.000Z',
     startedAt: null,
     endedAt: null,
+  };
+}
+
+function intent(desc, id = undefined) {
+  return {
+    happy: [{ ...(id ? { id } : {}), desc, type: 'logic' }],
+    edge: [],
+    adversarial: [],
   };
 }
 
@@ -52,6 +64,35 @@ function evidence(intentRef, result = 'pass') {
   };
 }
 
+function ledger(milestones, storyId = 'B-7ba7') {
+  return {
+    schemaVersion: 'proofstory.milestone_ledger.v1',
+    storyId,
+    state: 'confirmed',
+    ledgerHash: 'abc123',
+    createdAt: '2026-07-04T00:00:00.000Z',
+    updatedAt: '2026-07-04T00:00:00.000Z',
+    milestones,
+  };
+}
+
+function milestone(overrides) {
+  return {
+    id: 'M-default',
+    sourceRequirementId: 'REQ-default',
+    claim: 'Default claim',
+    doneMeans: 'Default done means',
+    checklistRefs: [],
+    verificationIntentRefs: [],
+    status: 'planned',
+    ...overrides,
+  };
+}
+
+function writeJson(path, value) {
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
 function assertTextContract(text) {
   for (const label of [
     'Milestone Status - B-7ba7',
@@ -70,6 +111,32 @@ function assertTextContract(text) {
   }
 }
 
+function assertRowShape(row) {
+  assert.deepEqual(Object.keys(row).sort(), [
+    'checklistRefs',
+    'claim',
+    'doneMeans',
+    'evidenceRefs',
+    'id',
+    'ledgerStatus',
+    'nextAction',
+    'requiredEvidence',
+    'risks',
+    'sourceRequirementId',
+    'status',
+    'statusDetail',
+    'subObjectives',
+    'verificationIntentRefs',
+  ]);
+  for (const subObjective of row.subObjectives) {
+    assert.deepEqual(Object.keys(subObjective).sort(), ['id', 'kind', 'label', 'risks', 'status']);
+  }
+}
+
+function assertEvidenceRefShape(evidenceRef) {
+  assert.deepEqual(Object.keys(evidenceRef).sort(), ['command', 'intentRef', 'kind', 'note', 'status', 'timestamp']);
+}
+
 {
   const report = buildMilestoneStatusReport({
     story: story(),
@@ -77,6 +144,9 @@ function assertTextContract(text) {
     milestoneLedger: null,
   });
 
+  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(report.storyId, 'B-7ba7');
+  assert.equal(report.phase, 'DEV');
   assert.equal(report.ledger.present, false);
   assert.deepEqual(report.mode, {
     readOnly: true,
@@ -98,54 +168,46 @@ function assertTextContract(text) {
 {
   const cl = {
     items: [
-      checklistItem('CHK-001', 'done', [evidence('CHK-001:happy:0')]),
-      checklistItem('CHK-002', 'in_progress', [], {
-        happy: [{ desc: 'current intent', type: 'logic' }],
-        edge: [],
-        adversarial: [],
-      }),
-      checklistItem('CHK-003', 'pending'),
+      checklistItem('CHK-001', 'done', [evidence('CHK-001:happy:0')], intent('completed intent')),
+      checklistItem('CHK-002', 'done', [evidence('CHK-002:happy:0', 'fail')], intent('failing intent')),
+      checklistItem('CHK-003', 'done'),
+      checklistItem('CHK-004', 'done'),
     ],
   };
-  const ledger = {
-    schemaVersion: 'proofstory.milestone_ledger.v1',
-    storyId: 'B-7ba7',
-    state: 'confirmed',
-    ledgerHash: 'abc123',
-    createdAt: '2026-07-04T00:00:00.000Z',
-    updatedAt: '2026-07-04T00:00:00.000Z',
-    milestones: [
-      {
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
         id: 'M1',
         sourceRequirementId: 'REQ-1',
-        claim: 'Finished via checklist evidence',
-        doneMeans: 'Checklist done with evidence on the item',
-        requiredEvidence: [],
+        claim: 'Completed with scoped verification evidence',
+        doneMeans: 'Checklist done and verification evidence passes',
         checklistRefs: ['CHK-001'],
-        verificationIntentRefs: [],
+        verificationIntentRefs: ['CHK-001:happy:0'],
         status: 'covered',
-      },
-      {
+      }),
+      milestone({
         id: 'M2',
         sourceRequirementId: 'REQ-2',
-        claim: 'Current incomplete milestone',
-        doneMeans: 'Checklist item and verification evidence complete',
+        claim: 'Ledger done but verification failed',
+        doneMeans: 'Failing verification must not complete the milestone',
         requiredEvidence: ['logic_test'],
         checklistRefs: ['CHK-002'],
         verificationIntentRefs: ['CHK-002:happy:0'],
-        status: 'planned',
-      },
-      {
+        status: 'done',
+      }),
+      milestone({
         id: 'M3',
         sourceRequirementId: 'REQ-3',
-        claim: 'Later milestone',
-        doneMeans: 'Pending work complete',
+        claim: 'Empty verification refs do not count',
+        doneMeans: 'Normal milestones need mapped verification refs',
         requiredEvidence: [],
         checklistRefs: ['CHK-003'],
         verificationIntentRefs: [],
-        status: 'planned',
-      },
-      {
+        status: 'done',
+      }),
+      milestone({
         id: 'M4',
         sourceRequirementId: 'REQ-4',
         claim: 'Not applicable milestone',
@@ -154,26 +216,110 @@ function assertTextContract(text) {
         checklistRefs: [],
         verificationIntentRefs: [],
         status: 'not_applicable',
-      },
-    ],
-  };
-
-  const report = buildMilestoneStatusReport({
-    story: story(),
-    checklist: cl,
-    milestoneLedger: ledger,
+      }),
+    ]),
   });
 
+  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
   assert.deepEqual(report.groups.completed, ['M1', 'M4']);
   assert.deepEqual(report.groups.current, ['M2']);
   assert.deepEqual(report.groups.remaining, ['M3']);
-  assert.equal(report.milestones.find((row) => row.id === 'M1')?.evidenceRefs[0]?.intentRef, 'CHK-001:happy:0');
-  assert.match(report.risks.join('\n'), /M2: Checklist item CHK-002 is in_progress/);
+
+  const m1 = report.milestones.find((row) => row.id === 'M1');
+  const m2 = report.milestones.find((row) => row.id === 'M2');
+  const m3 = report.milestones.find((row) => row.id === 'M3');
+  assert.ok(m1);
+  assert.ok(m2);
+  assert.ok(m3);
+  assertRowShape(m1);
+  assertRowShape(m2);
+  assertRowShape(m3);
+  assert.deepEqual(m1.requiredEvidence, [], 'missing requiredEvidence field falls back to an empty array');
+  assert.equal(m1.subObjectives.some((sub) => sub.kind === 'requiredEvidence'), false);
+  assert.equal(m1.subObjectives[0].kind, 'checklist');
+  assert.equal(m1.subObjectives[1].kind, 'verificationIntent');
+  assert.equal(m1.evidenceRefs[0].intentRef, 'CHK-001:happy:0');
+  assert.equal(m1.evidenceRefs[0].status, 'pass');
+  assertEvidenceRefShape(m1.evidenceRefs[0]);
+
+  assert.equal(m2.status, 'current');
+  assert.equal(m2.ledgerStatus, 'done');
+  assert.equal(m2.evidenceRefs[0].status, 'fail');
+  assert.match(m2.risks.join('\n'), /no passing or waived evidence on owning checklist item CHK-002/);
+  assert.match(m2.nextAction, /Re-run or replace verificationEvidence/);
+  assert.deepEqual(
+    m2.subObjectives.filter((sub) => sub.kind === 'requiredEvidence').map((sub) => [sub.id, sub.status]),
+    [['logic_test', 'mapped']],
+  );
+
+  assert.equal(m3.status, 'remaining');
+  assert.match(m3.risks.join('\n'), /no verificationIntentRefs mapped/);
 
   const text = renderMilestoneStatusReport(report);
   assertTextContract(text);
-  assert.match(text, /\| M1 \| Finished via checklist evidence \|/);
+  const completedSection = text.slice(text.indexOf('Completed'), text.indexOf('\nCurrent'));
+  const currentSection = text.slice(text.indexOf('Current'), text.indexOf('\nRemaining'));
+  const remainingSection = text.slice(text.indexOf('Remaining'));
+  assert.match(completedSection, /\| M1 \| Completed with scoped verification evidence \|/);
+  assert.match(completedSection, /\| M4 \| Not applicable milestone \|/);
+  assert.match(currentSection, /\| M2 \| Ledger done but verification failed \|/);
+  assert.doesNotMatch(currentSection, /\| M3 \|/);
+  assert.match(remainingSection, /\| M3 \| Empty verification refs do not count \|/);
   assert.match(text, /CHK-001:happy:0 \[pass\/logic_test\]/);
+}
+
+{
+  const cl = {
+    items: [
+      checklistItem('CHK-A', 'done', [], intent('owner intent', 'misplaced-intent')),
+      checklistItem('CHK-B', 'done', [evidence('misplaced-intent')]),
+      checklistItem('CHK-C', 'done', [evidence('duplicate-intent')], intent('first duplicate', 'duplicate-intent')),
+      checklistItem('CHK-D', 'done', [evidence('duplicate-intent')], intent('second duplicate', 'duplicate-intent')),
+    ],
+  };
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-misplaced',
+        sourceRequirementId: 'REQ-misplaced',
+        claim: 'Misplaced evidence is not scoped evidence',
+        doneMeans: 'Evidence must be on the owning checklist item',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-A'],
+        verificationIntentRefs: ['misplaced-intent'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-duplicate',
+        sourceRequirementId: 'REQ-duplicate',
+        claim: 'Duplicate custom intent ids are ambiguous',
+        doneMeans: 'Ambiguous intent ids must not complete a milestone',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-C'],
+        verificationIntentRefs: ['duplicate-intent'],
+        status: 'done',
+      }),
+    ]),
+  });
+
+  assert.deepEqual(report.groups.completed, []);
+  assert.deepEqual(report.groups.current, ['M-misplaced']);
+  assert.deepEqual(report.groups.remaining, ['M-duplicate']);
+
+  const misplaced = report.milestones.find((row) => row.id === 'M-misplaced');
+  const duplicate = report.milestones.find((row) => row.id === 'M-duplicate');
+  assert.ok(misplaced);
+  assert.ok(duplicate);
+  assert.equal(misplaced.evidenceRefs.length, 0, 'evidence on another checklist item must not be attached as scoped evidence');
+  assert.match(misplaced.risks.join('\n'), /no evidence on owning checklist item CHK-A/);
+  assert.equal(duplicate.evidenceRefs.length, 0, 'ambiguous duplicate intent ids must not pick an arbitrary evidence owner');
+  assert.match(duplicate.risks.join('\n'), /ambiguous across 2 checklist items/);
+  assert.equal(
+    duplicate.subObjectives.find((sub) => sub.id === 'duplicate-intent')?.status,
+    'ambiguous-intent',
+  );
 }
 
 {
@@ -202,10 +348,10 @@ function assertTextContract(text) {
   });
 
   assert.throws(
-    () => handlers.milestone_status({ storyId: 'B-7ba7', runCommands: true }),
-    /read-only.*runCommands/s,
+    () => handlers.milestone_status({ storyId: 'B-7ba7', surpriseFlag: true }),
+    /read-only.*unexpected keys: surpriseFlag/s,
   );
-  assert.equal(readCount, 0, 'mutation-like flags must be rejected before reading story facts');
+  assert.equal(readCount, 0, 'unexpected args must be rejected before reading story facts');
 }
 
 {
@@ -221,8 +367,106 @@ function assertTextContract(text) {
   });
 
   const report = handlers.milestone_status({ storyId: 'B-7ba7', json: true });
+  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
   assert.equal(report.mode.readOnly, true);
   assert.equal(report.mode.runCommands, false);
+  assert.deepEqual(report.groups, { completed: [], current: [], remaining: [] });
+}
+
+{
+  const reads = [];
+  const handlers = createMilestoneStatusHandlers({
+    root: '/tmp/lattice-milestone-status',
+    scanRoot: '/tmp/lattice-milestone-status',
+    store: {
+      readStory() {
+        reads.push('story');
+        return story();
+      },
+      readChecklist() {
+        reads.push('checklist');
+        throw new SyntaxError('corrupt checklist json');
+      },
+      readMilestoneLedger() {
+        reads.push('ledger');
+        return null;
+      },
+      readSummary() {
+        reads.push('summary');
+        return null;
+      },
+    },
+  });
+
+  assert.throws(
+    () => handlers.milestone_status({ storyId: 'B-7ba7', json: true }),
+    /corrupt checklist json/,
+  );
+  assert.deepEqual(reads, ['story', 'checklist'], 'corrupt checklist reads must surface before later store reads');
+}
+
+{
+  const storyId = 'B-cli-ms';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-'));
+  try {
+    const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
+    mkdirSync(storyDir, { recursive: true });
+    writeJson(join(root, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+    });
+    writeJson(join(storyDir, 'index.json'), story(storyId));
+    writeJson(join(storyDir, 'checklist.json'), {
+      items: [
+        checklistItem('CHK-CLI', 'done', [evidence('CHK-CLI:happy:0')], intent('CLI-covered intent')),
+      ],
+    });
+    writeJson(join(storyDir, 'milestone-ledger.json'), ledger([
+      milestone({
+        id: 'M-cli',
+        sourceRequirementId: 'REQ-cli',
+        claim: 'CLI report milestone',
+        doneMeans: 'The built CLI renders milestone headings',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-CLI'],
+        verificationIntentRefs: ['CHK-CLI:happy:0'],
+        status: 'covered',
+      }),
+    ], storyId));
+
+    const stdout = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(stdout, /Milestone Status - B-cli-ms/);
+    assert.match(stdout, /Completed/);
+    assert.match(stdout, /Current/);
+    assert.match(stdout, /Remaining/);
+    assert.match(stdout, /\| M-cli \| CLI report milestone \|/);
+
+    const rejected = spawnSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+      '--runCommands=true',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.notEqual(rejected.status, 0, 'CLI parser must reject runCommands for milestone_status');
+    assert.match(rejected.stderr, /Argument validation failed[\s\S]*runCommands/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 console.log('ok milestone-status');
