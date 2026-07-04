@@ -20,6 +20,26 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-tooling-sync",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-69b8:F-002",
+      "desc": "Checker does not verify that budget-lock sourceCellKeys are A4 calibration rows or the declared sourceCellNumber/sourceArm. In validateBudgetLock it only checks that each source key exists and that the source runner snapshot matches the lock. A mutated in-memory budget lock that changes the E2 source from ③/A4 to ⑥/A2prime still passes node experiments/multi-model-ablation/m0-smoke-check.mjs, so the M0 checker can silently accept a circular/post-treatment A2prime budget source and overstate CHK-004 budget-order evidence. Repro: monkeypatch fs.readFileSync for phase1-budget-lock.m0.json to return an E2 lock with sourceCellNumber=⑥, sourceArm=A2prime, sourceReviewerFamily=not_applicable, and sourceCellKeys=[\"A2prime|task-stratified-01|B01|r01|E2|not_applicable\"]; the checker still prints all three pass lines.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T18:03:53.459Z",
+      "reviewRound": "2026-07-04T18:00:42.246Z",
+      "reviewRunId": "B-69b8:RR-004",
+      "_hash": "9b4aa184ec540727422aafc1b2e2933a72511f1cb0b1b73e18d7050959af9164",
+      "files": [
+        "experiments/multi-model-ablation/m0-smoke-check.mjs",
+        "experiments/multi-model-ablation/phase1-budget-lock.m0.json",
+        "experiments/multi-model-ablation/cell-manifest.m0.json"
+      ],
+      "signatureTag": "adversarial|mjs|checker-verify-budget",
+      "signatureTagSource": "auto"
     }
   ]
 }
