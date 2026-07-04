@@ -266,9 +266,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:19:25.696Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the local M1 freeze checker passes and prints assertion and negative-control counts Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:25.974Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the checker allows optional ④ absence while requiring ③, ⑥, and ② and enforcing A2prime sequencing Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:26.247Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "negative controls reject drift, premature launch/provider flags, outcome fields, missing ②, A2prime-before-budget, and illegal ②-vs-④ confirmatory comparison Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:26.514Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -325,6 +363,15 @@
       "timestamp": "2026-07-04T19:19:24.111Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:25.696Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "done",
