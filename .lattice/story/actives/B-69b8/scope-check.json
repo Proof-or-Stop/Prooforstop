@@ -1,40 +1,40 @@
 {
   "storyId": "B-69b8",
-  "checkedAt": "2026-07-04T17:49:29.500Z",
+  "checkedAt": "2026-07-04T17:51:46.770Z",
   "features": [
     {
       "feature": "Research M0 artifacts and provider-safe smoke checker under experiments/multi-model-ablation",
       "covered_by": "checklist CHK-001 through CHK-004; scope-contract allowedCreate M0 files; decision chosen=offline-m0-artifacts-and-checker; protocol sections 0, 0.2, 3.1.1, 3.2, 6",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story scope is limited to M0 readiness artifacts/checker that verify host/model separation, snapshot readiness, prompt/tool digests, A2prime budget ordering, and legal contrasts."
+      "source": "Story scope remains limited to M0 readiness artifacts/checker that verify host/model separation, snapshot readiness, prompt/tool digests, A2prime budget ordering, and legal contrasts."
     },
     {
       "feature": "M0 verification and story closure evidence without overclaiming research outcomes",
-      "covered_by": "checklist CHK-005; plan DoneWhen no H-M1/H-M3 outcome data exists yet; decision preMortem M0 is misread as completed Phase 1 mitigation; protocol section 6 startup discipline",
+      "covered_by": "checklist CHK-005; plan/understanding require no Phase 1/2 cells; decision preMortem M0 is misread as completed Phase 1 mitigation; protocol section 6 startup discipline",
       "status": "covered",
       "excluded_by": "",
       "source": "Verification is provider-safe and must state no Phase 1/2 cells or H-M1/H-M3 outcome data were produced."
     },
     {
       "feature": "Dated snapshot uncertainty handled as explicit blocker state",
-      "covered_by": "checklist CHK-003 edge intent; decision offline M0 option cons; understanding unknowns resolved as M0 blocker recording; protocol sections 0.2 and 3.4",
+      "covered_by": "checklist CHK-003 edge intent; understanding unknowns=[] with provider credentials/snapshots resolved as candidate-or-blocker recording; decision offline M0 option cons; protocol sections 0.2 and 3.4",
       "status": "covered",
       "excluded_by": "",
-      "source": "The scope need not lock live provider snapshots now; candidate-only or unavailable snapshots can be recorded as blockers."
+      "source": "The scope need not lock live provider snapshots now; candidate-only or unavailable snapshots can be recorded as blockers for later human-approved Phase 1."
     },
     {
-      "feature": "Story-scoped Lattice metadata/evidence paths",
-      "covered_by": "scope-boundary allowed story-scoped Lattice metadata/evidence; execution-boundary allowedPaths .lattice/story",
-      "status": "gap",
-      "excluded_by": "scope-contract allowedModify/allowedCreate omit .lattice/story metadata patterns; scope_contract_check fails on .lattice/story/actives/B-69b8/intent-collision.json, original-intent-snapshot.json, and proofstory.json",
-      "source": "Narrative scope includes story evidence, but enforce-mode scope-contract fails closed for generated story metadata paths, so PLAN scope gate is currently blocking."
+      "feature": "Story-scoped Lattice and ProofStory metadata/evidence paths",
+      "covered_by": "scope-boundary allows story-scoped Lattice metadata/evidence; execution-boundary allowedPaths .lattice/story; tightened scope-contract allowedModify includes exactly intent-collision.json, original-intent-snapshot.json, and proofstory.json; scope_contract_check --json status=pass with 0 violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "The prior gap is closed without widening business-file scope; only the three generated ProofStory metadata paths are newly allowed."
     },
     {
       "feature": "Phase 1/2 provider campaign execution",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope-boundary excluded large Phase 1 or Phase 2 provider campaign; scope-contract explicitExcludes large Phase 1 or Phase 2 campaign records; execution-boundary excluded provider prompt commands and powered campaign runner; protocol section 6 says M2/M4 require human approval",
+      "excluded_by": "scope-boundary excluded large Phase 1 or Phase 2 provider campaign; scope-contract explicitExcludes large Phase 1 or Phase 2 campaign records; execution-boundary excludes provider prompt commands and powered campaign runner; protocol section 6 says M2/M4 require human approval",
       "source": "No provider model cells, powered campaign, or large Phase 1/2 run belongs in B-69b8."
     },
     {
@@ -54,13 +54,13 @@
   ],
   "summary": {
     "total": 7,
-    "covered": 3,
+    "covered": 4,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "ce20eb6d69f5eba91017dfd42b0959203b01c77d7682052c1af6d4939244f193",
+  "_hash": "c6515ecf3949ac13ace797be44b876321519ace7a7ca2072c482a655cf32030d",
   "openQuestions": []
 }
