@@ -136,11 +136,11 @@
           "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
           "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
           "result": "pass",
-          "note": "The provider-safe checker passes on committed M0 artifacts and prints passed provider-safe local checks plus negative-control confirmation.",
+          "note": "Provider-safe checker passes on committed M0 artifacts and prints explicit counts: M0 smoke checker passed: 743 assertions; 9 negative controls rejected.",
           "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T17:59:54.682Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:18.897Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,11 +149,11 @@
           "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
           "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
           "result": "pass",
-          "note": "Negative controls in the checker mutate in-memory fixtures and reject missing A2prime budgetLockDigest plus missing same/cross reviewerSnapshot.",
+          "note": "Negative controls mutate in-memory fixtures and reject missing A2prime budgetLockDigest, missing same/cross reviewerSnapshot, illegal host/model substitutions, and forged budget source rows.",
           "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T17:59:55.075Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:19.237Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -165,8 +165,8 @@
           "note": "Negative control marks ②-vs-④ as legalConfirmatory=true and the checker rejects it because executor and reviewer both change.",
           "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
           "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
-          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
-          "timestamp": "2026-07-04T17:59:55.461Z"
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:19.597Z"
         }
       ]
     },
