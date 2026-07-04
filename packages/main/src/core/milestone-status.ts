@@ -12,6 +12,7 @@ import type {
   VerificationIntentItem,
   VerificationLane,
 } from './types.js';
+import { EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
 import { collectVerificationIntents } from './verification.js';
 
 export const MILESTONE_STATUS_SCHEMA_VERSION = 'proofbound.milestone_status.v1';
@@ -200,7 +201,7 @@ function evidenceFreshnessRisks(
     if (evidenceStoryFilesHash !== storyFilesHash) {
       risks.push(`stale storyFilesHash ${shortHash(evidenceStoryFilesHash)} (current ${shortHash(storyFilesHash)})`);
     }
-    return risks;
+    if (storyFilesHash !== EMPTY_STORY_FILES_HASH) return risks;
   }
 
   if (materialHash && evidenceMaterialHash) {

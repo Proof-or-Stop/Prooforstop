@@ -314,10 +314,11 @@ Host Progress Reporting Contract:
 - Evidence freshness prefers the strongest comparable story-scoped binding:
   matching `storyFilesHash` is authoritative when both the current workspace and
   the evidence provide it, so metadata-only `materialHash` drift does not block
-  progress reporting. If no comparable `storyFilesHash` exists, comparable
-  `materialHash` is checked. `headHash` is a hard fallback only for legacy or
-  degraded bindings that lack those stronger hashes, so metadata-only HEAD
-  movement does not block completion by itself.
+  progress reporting. The empty story-files hash is treated as no story-scoped
+  signal, not as freshness proof. If no comparable non-empty `storyFilesHash`
+  exists, comparable `materialHash` is checked. `headHash` is a hard fallback
+  only for legacy or degraded bindings that lack those stronger hashes, so
+  metadata-only HEAD movement does not block completion by itself.
 - V1 is read-only. It rejects mutation-like flags such as `runCommands`,
   `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
   `execute`, `run`, `launch`, `capture`, `refresh`, and flags that claim local

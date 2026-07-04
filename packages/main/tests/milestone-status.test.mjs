@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const cliPath = join(distRoot, 'cli.js');
 const { buildMilestoneStatusReport, renderMilestoneStatusReport } = await import(join(distRoot, 'core/milestone-status.js'));
+const { EMPTY_STORY_FILES_HASH } = await import(join(distRoot, 'core/evidence-freshness.js'));
 const { createMilestoneStatusHandlers } = await import(join(distRoot, 'handlers/milestone-status.js'));
 
 function story(storyId = 'B-7ba7') {
@@ -449,6 +450,60 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STORY-FRESH-MATERIAL-DRIFT:happy:0')?.status, 'covered');
   assert.equal(row.subObjectives.find((sub) => sub.id === 'logic_test')?.status, 'covered');
   assert.deepEqual(row.risks, []);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: EMPTY_STORY_FILES_HASH,
+  };
+  const cl = {
+    items: [
+      checklistItem('CHK-EMPTY-STORY-FILES-HASH', 'done', [
+        evidence('CHK-EMPTY-STORY-FILES-HASH:happy:0', 'pass', {
+          headHash: 'head-current',
+          materialHash: 'material-old',
+          storyFilesHash: EMPTY_STORY_FILES_HASH,
+        }),
+      ], intent('empty story files hash is not an authoritative freshness signal')),
+    ],
+  };
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-empty-story-files-hash',
+        sourceRequirementId: 'REQ-empty-story-files-hash',
+        claim: 'Empty story files hash does not hide material drift',
+        doneMeans: 'The empty-diff sentinel falls through to strict materialHash freshness',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-EMPTY-STORY-FILES-HASH'],
+        verificationIntentRefs: ['CHK-EMPTY-STORY-FILES-HASH:happy:0'],
+        status: 'done',
+      }),
+    ]),
+    currentEvidenceBinding,
+  });
+
+  assert.deepEqual(report.groups.completed, []);
+  assert.deepEqual(report.groups.current, ['M-empty-story-files-hash']);
+  assert.deepEqual(report.groups.remaining, []);
+  assert.match(report.risks.join('\n'), /stale materialHash/);
+  assert.doesNotMatch(report.risks.join('\n'), /stale storyFilesHash/);
+
+  const row = report.milestones.find((candidate) => candidate.id === 'M-empty-story-files-hash');
+  assert.ok(row);
+  assert.equal(row.status, 'current');
+  assert.match(row.statusDetail, /evidence=stale/);
+  assert.match(row.statusDetail, /requiredEvidence=missing/);
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-EMPTY-STORY-FILES-HASH:happy:0')?.status, 'stale-evidence');
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'logic_test')?.status, 'missing-evidence-kind');
+  assert.match(row.risks.join('\n'), /stale materialHash/);
+  assert.doesNotMatch(row.risks.join('\n'), /headHash/);
+  assert.doesNotMatch(row.risks.join('\n'), /storyFilesHash/);
 }
 
 {
