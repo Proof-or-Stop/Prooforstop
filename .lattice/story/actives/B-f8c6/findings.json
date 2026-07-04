@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/multi-model-ablation-replication.md:247 says the multi-model protocol should first do Tier-C M0 as \"multi-key + B-4c65 revalidation\" and directly reuse that M0, but the Tier-C execution plan defines M0 as only the threat model/key-management decision doc (lines 50-58), with cross-host review in M1 and pinned-key/signature provenance deferred to M-crypto (lines 60-107); the Tier-C threat model also says M0 has no implementation (lines 4-8). This blurs the M0/M1/M-crypto/M2 order and can imply already-available multi-key/runtime-ish quorum infrastructure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-04T16:43:02.432Z",
@@ -18,7 +18,11 @@
         "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
       ],
       "signatureTag": "spec-boundary|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by rewriting the Tier-C relationship paragraph: Tier-C M0 is doc-only decision work, M1 is cross-host/quorum, M-crypto is pinned-key/signature provenance, and this protocol no longer claims existing quorum/runtime reuse.",
+      "resolvedAt": "2026-07-04T16:49:49.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f8c6:F-002",
