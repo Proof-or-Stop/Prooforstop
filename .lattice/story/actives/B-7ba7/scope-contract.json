@@ -1,0 +1,90 @@
+{
+  "storyId": "B-7ba7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**"
+  ],
+  "protectedFiles": [
+    "README.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "README.md"
+  ],
+  "scopeChangeReason": "B-7ba7 implements only read-only milestone_status projection and tests/docs; README is already dirty outside this story and must not be touched.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-04T19:49:53.056Z",
+  "updatedAt": "2026-07-04T19:49:53.056Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/core/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-003:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/registry.ts",
+      "allowedAnchors": [
+        "createMilestoneStatusHandlers"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli/command-catalog.ts",
+      "allowedAnchors": [
+        "milestone_status",
+        "READ_ONLY_STATUS_UNSUPPORTED_FLAGS"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedAnchors": [
+        "milestone_status"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-004:edge:0"
+      ]
+    }
+  ]
+}

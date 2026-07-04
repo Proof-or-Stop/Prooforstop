@@ -70,7 +70,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs lattice milestone_status --storyId=B-demo and sees Completed, Current, and Remaining sections plus a read-only/no mutation line.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/milestone-status.ts"
+        ],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
