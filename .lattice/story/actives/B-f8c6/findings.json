@@ -19,6 +19,26 @@
       ],
       "signatureTag": "spec-boundary|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f8c6:F-002",
+      "desc": "phase1-budget-lock.example.json does not bind the budget lock to any executor/reviewer snapshot, prompt digest, tool-surface digest, or protocol lock digest even though the story checklist promises snapshot digests for the budget-lock artifact (.lattice/story/actives/B-f8c6/checklist.json:183-185, :215) and the protocol makes dated snapshots/tool/prompt/budget binding a validity condition (docs/requirements/decisions/multi-model-ablation-replication.md:43, :56, :152, :174-177). The example lock is keyed only by E2|task-stratified-01 with example cell keys (experiments/multi-model-ablation/phase1-budget-lock.example.json:30-56), so a future Phase 1 agent could copy the shape and treat an A2prime budget lock as reusable across provider snapshot or harness changes. Add explicit non-executable placeholder fields such as executorSnapshot, reviewerSnapshot/sourceReviewerFamily, toolSurfaceDigest, promptDigest, protocolLockDigest, and calibrationWindow/snapshotDate to keep the example coherent with the M0 traceability contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T16:43:13.967Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-003",
+      "_hash": "dcbb3900d436c6839687654c466aa443f7798f4cd282de15dfcdf712c53df473",
+      "files": [
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        ".lattice/story/actives/B-f8c6/checklist.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|json|phase1-budget-lock",
+      "signatureTagSource": "auto"
     }
   ]
 }
