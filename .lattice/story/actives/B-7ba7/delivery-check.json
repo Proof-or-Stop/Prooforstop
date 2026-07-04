@@ -1,0 +1,60 @@
+{
+  "storyId": "B-7ba7",
+  "checkedAt": "2026-07-04T22:20:47.145Z",
+  "headHash": "8f06861e795aaf38768054d48712be49b675146e",
+  "materialHash": "fe9f134f93c25fdab0419e7847b09f8dce5100be189cfb26105ac1db6e8f7216",
+  "storyFilesHash": "44c368d82b6c46670a44a8b8524425519fb67086a60c7ae1b6147392b088a6db",
+  "reviewRound": "2026-07-04T22:11:09.260Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "milestone_status is a read-only progress reporter over existing ProofStory facts and does not create milestone storage.",
+      "status": "verified",
+      "verifiedBy": "source review and CLI smoke",
+      "evidence": "packages/main/src/core/command-policy.ts marks milestone_status readOnly; packages/main/src/handlers/milestone-status.ts rejects unexpected args before reads; JSON smoke reported mode.readOnly=true and all mutation booleans false."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "The command accepts only storyId, format, and json; every other key is rejected before story facts are read.",
+      "status": "verified",
+      "verifiedBy": "schema/source review and negative transcript",
+      "evidence": "packages/main/src/cli/command-catalog.ts exposes only storyId/format/json plus never() refusal flags; assertMilestoneStatusReadOnlyBoundary allows only storyId/format/json; transcript-diff.md records surpriseFlag rejection before story facts."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "Text output includes completed/current/remaining grouped tables and JSON output includes story, ledger, mode, milestone groups, risks, and next actions.",
+      "status": "verified",
+      "verifiedBy": "real-machine CLI output",
+      "evidence": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 printed Completed/Current/Remaining tables with M1-M4 completed; --json reported schemaVersion, storyId, phase, ledger, mode, groups, risks, and nextActions."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "V1 does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution, automatic DONE, remote Authority completion, or production readiness.",
+      "status": "verified",
+      "verifiedBy": "docs/source/test review",
+      "evidence": "docs/CLI.md states the non-claims; command policy and READ_ONLY_MODE match; milestone-status tests cover mutation and Authority/production-like flag rejection."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002:happy:0",
+      "transcript": ".lattice/story/actives/B-7ba7/evidence/transcript-diff.md records node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 PASS with M1-M4 completed, Current/Remaining none, Risks none, and no remaining milestone action."
+    },
+    {
+      "featureId": "CHK-002:adversarial:0",
+      "transcript": "transcript-diff.md records --surpriseFlag=true rejected before story facts; packages/main/tests/milestone-status.test.mjs also covers runCommands/writeEvidence/advancePhase/launchReviewers and Authority/production-like flag rejection."
+    },
+    {
+      "featureId": "validation",
+      "transcript": ".lattice/story/actives/B-7ba7/test-evidence.json records lattice validate --story=B-7ba7 --json PASS at 2026-07-04T22:17:48.715Z with 12/12 required verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS: read-only grouped milestone_status reporting is implemented, docs promises are delivered without overclaim, concept/quality/test-coverage/docs review passes exist, latest validation is PASS, transcript diff exists, and no Authority/production/DONE automation overclaim was found."
+  },
+  "_hash": "17645abaa8f9c8493a8631feb5ec77c8aa867d449b2aa70f599bb2e171d3fac4"
+}
