@@ -52,10 +52,10 @@
           "command": "rg -n \"M0|Phase 1|Phase 2|Tier-C|M-crypto|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|executorSnapshotDigest|reviewerSnapshotDigest|toolSurfaceDigest|promptDigest|protocolLockDigest|calibrationWindow|snapshotDate|eligibleForOutcomeRecords|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
           "result": "pass",
           "note": "Canonical protocol file exists and current rg verification finds M0/M1/M2 ordering plus E1/E2 host-model separation language.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,10 +65,10 @@
           "command": "rg -n \"M0|Phase 1|Phase 2|Tier-C|M-crypto|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|executorSnapshotDigest|reviewerSnapshotDigest|toolSurfaceDigest|promptDigest|protocolLockDigest|calibrationWindow|snapshotDate|eligibleForOutcomeRecords|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
           "result": "pass",
           "note": "Protocol states Codex CLI audit output is protocol audit only unless pre-registered as a formal runner with locked snapshots and records.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,10 +78,10 @@
           "command": "rg -n \"M0|Phase 1|Phase 2|Tier-C|M-crypto|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|executorSnapshotDigest|reviewerSnapshotDigest|toolSurfaceDigest|promptDigest|protocolLockDigest|calibrationWindow|snapshotDate|eligibleForOutcomeRecords|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
           "result": "pass",
           "note": "Protocol forbids cell 2 vs cell 4 as confirmatory evidence and keeps research evidence out of product gates, playbooks, and runtime guidance.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         }
       ]
     },
@@ -133,10 +133,10 @@
           "command": "node -e 'const fs=require(\"fs\"); for (const f of [\"experiments/multi-model-ablation/cell-manifest.example.json\",\"experiments/multi-model-ablation/runner-registry.example.json\",\"experiments/multi-model-ablation/phase1-budget-lock.example.json\"]) JSON.parse(fs.readFileSync(f,\"utf8\")); console.log(\"json parse ok\")'",
           "result": "pass",
           "note": "Manifest and registry examples parse as JSON and include formal rows for cells 3, 6, 2, and optional 4.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -146,10 +146,10 @@
           "command": "awk '/^node <<'\"'\"'NODE'\"'\"'/{flag=1;next} /^NODE$/{flag=0} flag' experiments/multi-model-ablation/README.md | node",
           "result": "pass",
           "note": "README invariant passed and enforces that hostKind is separate from executorSnapshot/reviewerSnapshot, so host labels cannot stand in for model-family proof.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,11 +158,11 @@
           "file": "experiments/multi-model-ablation/cell-manifest.example.json",
           "command": "awk '/^node <<'\"'\"'NODE'\"'\"'/{flag=1;next} /^NODE$/{flag=0} flag' experiments/multi-model-ablation/README.md | node",
           "result": "pass",
-          "note": "Invariant check passed: no duplicate cellKey, no outcomes in examples, A2prime has budgetLockDigest, runners keep provider calls disabled, and examples are not eligible outcome records.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "note": "Invariant check passed: no duplicate cellKey, no outcomes in examples, A2prime has a matching frozen budgetLockDigest, runners keep provider calls disabled, and examples are not eligible outcome records.",
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         }
       ]
     },
@@ -212,11 +212,11 @@
           "file": "experiments/multi-model-ablation/phase1-budget-lock.example.json",
           "command": "awk '/^node <<'\"'\"'NODE'\"'\"'/{flag=1;next} /^NODE$/{flag=0} flag' experiments/multi-model-ablation/README.md | node",
           "result": "pass",
-          "note": "Strengthened invariant passed and verifies budget lock fields including executorSnapshotDigest, reviewerSnapshotDigest semantics, toolSurfaceDigest, promptDigest, protocolLockDigest, calibrationWindow, and snapshotDate.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "note": "Strengthened invariant passed and verifies budget lock fields plus exact cross-binding from each A2prime manifest row to one budget-lock appliesToCellKeys entry with a matching budgetLockDigest.",
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -225,11 +225,11 @@
           "file": "experiments/multi-model-ablation/cell-manifest.example.json",
           "command": "awk '/^node <<'\"'\"'NODE'\"'\"'/{flag=1;next} /^NODE$/{flag=0} flag' experiments/multi-model-ablation/README.md | node",
           "result": "pass",
-          "note": "Invariant check requires budgetLockDigest for every A2prime row and verifies the budget lock remains example-only, preserving the A4 calibration-before-A2prime rule.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "note": "Invariant check requires each A2prime row to match exactly one frozen budget lock and verifies the budget lock remains example-only, preserving the A4 calibration-before-A2prime rule.",
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -238,11 +238,11 @@
           "file": "experiments/multi-model-ablation/phase1-budget-lock.example.json",
           "command": "rg -n \"M0|Phase 1|Phase 2|Tier-C|M-crypto|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|executorSnapshotDigest|reviewerSnapshotDigest|toolSurfaceDigest|promptDigest|protocolLockDigest|calibrationWindow|snapshotDate|eligibleForOutcomeRecords|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
           "result": "pass",
-          "note": "Budget-lock artifact documents immutable ordering constraints and binds placeholders to protocol, prompt, tool surface, snapshot digests, and calibration window to prevent post-hoc reuse.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "note": "Budget-lock artifact documents immutable ordering constraints and binds placeholders to protocol, prompt, tool surface, snapshot digests, calibration window, and A2prime apply keys to prevent post-hoc reuse.",
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         }
       ]
     },
@@ -292,13 +292,13 @@
           "kind": "docs_check",
           "verdict": "success",
           "file": "experiments/multi-model-ablation/README.md",
-          "command": "sed -n '1,220p' experiments/multi-model-ablation/README.md",
+          "command": "sed -n '1,260p' experiments/multi-model-ablation/README.md",
           "result": "pass",
           "note": "README provides provider-free local rg/node checks that a maintainer can run without executing Phase 1/2 cells.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.716Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -308,10 +308,10 @@
           "command": "rg -n \"M0|Phase 1|Phase 2|Tier-C|M-crypto|E2 runner|Host cannot|Codex CLI|not_applicable|provider-free|no provider|research evidence|② vs ④|budgetLockDigest|executorSnapshotDigest|reviewerSnapshotDigest|toolSurfaceDigest|promptDigest|protocolLockDigest|calibrationWindow|snapshotDate|eligibleForOutcomeRecords|A2 prime\" docs/requirements/decisions/multi-model-ablation-replication.md experiments/multi-model-ablation",
           "result": "pass",
           "note": "README and protocol distinguish protocol audit evidence from formal ablation outcome evidence and state examples contain no outcomes or provider-derived values.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.717Z"
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -320,11 +320,11 @@
           "file": "experiments/multi-model-ablation/README.md",
           "command": "awk '/^node <<'\"'\"'NODE'\"'\"'/{flag=1;next} /^NODE$/{flag=0} flag' experiments/multi-model-ablation/README.md | node",
           "result": "pass",
-          "note": "Documented invariant command now fails on A2prime rows without budget locks, hostKind reused as model snapshot, missing reviewer snapshots for same/cross rows, outcome-eligible example runners, or missing budget-lock digest fields.",
-          "headHash": "23f1f58572624d68450ad1d72b1b1c6bd55b5648",
-          "materialHash": "f15309d979ca9e9cf979f0e3082343af09f579a1526fb3d857267fc1cdc5dbd0",
-          "storyFilesHash": "ba7ab50ef07300929ea8a506015e83a9a99a250b727fe4a3715f62b5e69e9b23",
-          "timestamp": "2026-07-04T16:49:07.717Z"
+          "note": "Documented invariant command now fails on A2prime rows without matching budget locks, hostKind reused as model snapshot, missing reviewer snapshots for same/cross rows, outcome-eligible example runners, duplicate apply keys, or missing budget-lock digest fields.",
+          "headHash": "6fafe19a430ecb39a24752c332ad0709fad4bc27",
+          "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+          "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+          "timestamp": "2026-07-04T16:56:12.264Z"
         }
       ]
     }
