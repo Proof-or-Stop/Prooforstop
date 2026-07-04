@@ -53,6 +53,24 @@
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-004",
+      "desc": "packages/main/src/core/milestone-status.ts:133 and packages/main/src/core/milestone-status.ts:323: milestone_status still treats any pass or waiver verificationEvidence as covering without checking headHash, materialHash, or storyFilesHash freshness against current story material. A stale pass can move a row into the completed group, violating the no false DONE/completion semantics for this read-only report.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-04T20:47:08.561Z",
+      "reviewRound": "2026-07-04T20:45:07.958Z",
+      "reviewRunId": "B-7ba7:RR-005",
+      "_hash": "47425f275167dc8d5d1a5fa5ad0175237253fec2a14b7115d375f86bb48c1094",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
