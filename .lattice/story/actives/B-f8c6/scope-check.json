@@ -1,0 +1,78 @@
+{
+  "storyId": "B-f8c6",
+  "checkedAt": "2026-07-04T16:23:45.540Z",
+  "features": [
+    {
+      "feature": "Canonical multi-model ablation M0 protocol doc is promoted under docs/requirements/decisions",
+      "covered_by": "plan.md CHK-001; checklist.json CHK-001; scope-boundary.allowed[0]",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/checklist.json; .lattice/story/actives/B-f8c6/scope-boundary.json"
+    },
+    {
+      "feature": "M0 cell manifest and runner registry example JSON artifacts are planned under experiments/multi-model-ablation",
+      "covered_by": "plan.md CHK-002; checklist.json CHK-002; scope-boundary.allowed[2]",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/checklist.json; .lattice/story/actives/B-f8c6/scope-boundary.json"
+    },
+    {
+      "feature": "A2 prime phase1 budget-lock example JSON artifact is planned before any A2 prime cells",
+      "covered_by": "plan.md CHK-003; checklist.json CHK-003; understanding facts/constraints",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/checklist.json; .lattice/story/actives/B-f8c6/understanding.json"
+    },
+    {
+      "feature": "Provider-free README readiness checks are planned instead of a new CLI checker or live experiment",
+      "covered_by": "plan.md CHK-004; checklist.json CHK-004; decision.chosen=docs-and-examples-only",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/checklist.json; .lattice/story/actives/B-f8c6/decision.json"
+    },
+    {
+      "feature": "Provider calls and Phase 1/Phase 2 cell execution remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Goal/Out Of Scope; scope-boundary.excluded; understanding.constraints",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/scope-boundary.json; .lattice/story/actives/B-f8c6/understanding.json"
+    },
+    {
+      "feature": "Product gate/playbook/runtime memory/DONE policy changes remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Goal/Out Of Scope; scope-boundary.excluded[1]; understanding.constraints[2]",
+      "source": ".lattice/story/actives/B-f8c6/plan.md; .lattice/story/actives/B-f8c6/scope-boundary.json; .lattice/story/actives/B-f8c6/understanding.json"
+    },
+    {
+      "feature": "Execution boundary should stay docs/examples-only for implementation paths",
+      "covered_by": "checklist files.create only docs/requirements/decisions and experiments/multi-model-ablation; scope-boundary.allowed docs/examples wording",
+      "status": "drift",
+      "excluded_by": "execution-boundary.allowedPaths includes packages/main/src and packages/main/test despite M0-only no product-runtime-change scope",
+      "source": ".lattice/story/actives/B-f8c6/execution-boundary.json; .lattice/story/actives/B-f8c6/checklist.json; .lattice/story/actives/B-f8c6/scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "5e5e41e69c96bca21c95c5f9c6944a1c266f5d1f23efda9c1c2c08c8e1909bf6",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should execution-boundary.allowedPaths be narrowed to docs/requirements/decisions and experiments/multi-model-ablation before PLAN approval, removing packages/main/src and packages/main/test from the implementation boundary?",
+      "evidence": "The story is M0-only and the plan/checklist create only the canonical protocol doc plus experiments/multi-model-ablation examples/README, while execution-boundary.json currently allows packages/main/src and packages/main/test even though product gate/playbook/runtime/DONE policy changes are excluded.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-f8c6/execution-boundary.json",
+        ".lattice/story/actives/B-f8c6/checklist.json",
+        ".lattice/story/actives/B-f8c6/plan.md",
+        ".lattice/story/actives/B-f8c6/scope-boundary.json"
+      ]
+    }
+  ]
+}
