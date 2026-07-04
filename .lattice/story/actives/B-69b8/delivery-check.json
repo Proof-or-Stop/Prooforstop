@@ -1,0 +1,82 @@
+{
+  "storyId": "B-69b8",
+  "checkedAt": "2026-07-04T18:31:52.843Z",
+  "headHash": "10d84aa34df51b7c460b8e6b849aba9622333b83",
+  "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+  "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+  "reviewRound": "2026-07-04T18:11:08.003Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/multi-model-ablation/m0-status.md",
+      "promise": "M0 status shows the Research M0 milestone table and the local-only boundary: providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, productGateImpact=none.",
+      "status": "verified",
+      "verifiedBy": "manual inspection plus node experiments/multi-model-ablation/m0-smoke-check.mjs",
+      "evidence": "m0-status.md lines report the boundary and blockers; checker output: M0 smoke checker passed: 743 assertions; 9 negative controls rejected."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+      "promise": "The user can run the M0 smoke checker and see a passing result with assertion and negative-control counts.",
+      "status": "verified",
+      "verifiedBy": "real-machine command",
+      "evidence": "Ran node experiments/multi-model-ablation/m0-smoke-check.mjs; observed: M0 smoke checker passed: 743 assertions; 9 negative controls rejected."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/runner-registry.m0.json",
+      "promise": "Runner registry records hostKind separately from executorSnapshot/reviewerSnapshot and disables provider calls/outcome eligibility for M0 runners.",
+      "status": "verified",
+      "verifiedBy": "checker plus grep/manual inspection",
+      "evidence": "Checker passed; rg shows providerCallEnabled=false for runners and researchBoundary productGateImpact=none."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
+      "promise": "Model snapshot lock records E1 and E2 as distinct provider families while keeping formal Phase 1 readiness blocked in M0.",
+      "status": "verified",
+      "verifiedBy": "checker plus manual inspection",
+      "evidence": "Checker validates E1 Anthropic/Claude and E2 OpenAI/GPT are distinct, and phase1FormalReadiness/providerExecutionLocked remain false."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell-manifest.m0.json",
+      "promise": "Cell manifest records M0 cell semantics, legal confirmatory contrasts, forbidden/descriptive contrasts, and no outcome fields.",
+      "status": "verified",
+      "verifiedBy": "checker with negative controls",
+      "evidence": "Checker validates legal contrasts, rejects illegal 2-vs-4 as confirmatory, and recursively rejects forbidden outcome fields."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/phase1-budget-lock.m0.json",
+      "promise": "Budget-lock artifact binds A2prime rows to prior budget locks and preserves the M0 rule that Phase 1 execution remains blocked until later approval/locks.",
+      "status": "verified",
+      "verifiedBy": "checker with adversarial controls",
+      "evidence": "Checker validates sourceCellKeys/sourceCellNumber/sourceArm/sourceReviewerFamily/executorFamily/task matching and rejects forged post-treatment or mismatched budget-lock sources."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran node experiments/multi-model-ablation/m0-smoke-check.mjs on this machine. Output included: M0 smoke checker passed: 743 assertions; 9 negative controls rejected. This covers the status and local-only research boundary artifacts."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran node experiments/multi-model-ablation/m0-smoke-check.mjs on this machine. Full observed headline: M0 smoke checker passed: 743 assertions; 9 negative controls rejected; M0 smoke artifacts passed provider-safe local checks; Negative controls rejected as expected; Existing example artifacts passed local invariant checks."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Checker pass covers runner-registry.m0.json and model-snapshot-lock.m0.json host/model separation; rg/manual inspection confirms providerCallEnabled=false and Phase 1 readiness remains false."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Checker pass covers cell-manifest.m0.json and phase1-budget-lock.m0.json budget ordering, A2prime lock binding, legal contrast declarations, and illegal contrast rejection through in-memory negative controls."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Stored TEST evidence for lattice validate --story=B-69b8 --json passed at 2026-07-04T18:27:58.471Z with 32/32 configured commands, 0 failed, and verification coverage 15/15 required covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery-scope check passed: M0 docs/user promises are verified, real-machine checker and validation evidence exist, edge/adversarial negative controls are covered, and no unresolved delivery-scope TODO remains. This signature does not claim story_advance DONE or resolve separate lifecycle blockers."
+  },
+  "_hash": "f30086c1911da67851b21a35199c73e46345c92a660d807f495ef5a3670cb484"
+}

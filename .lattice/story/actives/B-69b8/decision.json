@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Only fix real Research M0 readiness correctness, not cosmetic completeness.",
+    "Keep host-neutral boundaries: Codex/Claude/agy are hosts, not proof of model family.",
+    "Make evidence machine-checkable and provider-safe.",
+    "Prefer explicit blocker states over silent overclaiming.",
+    "Do not let research artifacts mutate product gates, playbooks, DONE policy, or runtime guidance."
+  ],
+  "drivers": [
+    "The user asked to execute Research M0 but selected text explicitly says not to run large Phase 1.",
+    "Provider model snapshots and real cells are costly and temporally unstable, so M0 must separate readiness from outcome production.",
+    "Lattice story scope excludes unrelated dirty files and product runtime changes."
+  ],
+  "options": [
+    {
+      "name": "offline-m0-artifacts-and-checker",
+      "pros": [
+        "Produces concrete machine-checkable evidence now",
+        "Keeps provider calls and Phase 1/2 cells out of scope",
+        "Can record blockers without faking results",
+        "Matches B-f8c6 protocol boundaries"
+      ],
+      "cons": [
+        "Does not produce H-M1/H-M3 outcome data",
+        "Dated provider snapshot readiness may remain a Phase 1 blocker"
+      ]
+    },
+    {
+      "name": "start-small-provider-cell-run-now",
+      "pros": [
+        "Would test actual model adapters earlier",
+        "Could reveal provider authentication issues"
+      ],
+      "cons": [
+        "Violates current no-Phase-1 boundary unless separately approved",
+        "Risks counting under-specified smoke output as research outcome",
+        "Costs money/time before budget-lock and runner registry are proven"
+      ]
+    },
+    {
+      "name": "docs-only-status-update",
+      "pros": [
+        "Fast and low risk",
+        "No provider cost"
+      ],
+      "cons": [
+        "Does not execute Research M0",
+        "Would repeat the prior problem of plan prose without a mechanical check"
+      ]
+    }
+  ],
+  "chosen": "offline-m0-artifacts-and-checker",
+  "rationale": "A provider-safe artifact set plus checker is the smallest real execution of Research M0: it verifies fairness mechanics and launch blockers without optimizing arbitrarily or overclaiming paper results.",
+  "preMortem": [
+    {
+      "scenario": "Host identity is mistaken for model identity",
+      "trigger": "A runner records Codex CLI or Claude Code CLI as the model snapshot",
+      "consequence": "The experiment could falsely claim multi-model evidence from a host-only difference",
+      "mitigation": "Checker rejects hostKind matching executorSnapshot or reviewerSnapshot and requires E1/E2 provider family separation."
+    },
+    {
+      "scenario": "A2prime budget is retroactively fitted",
+      "trigger": "A2prime rows run or validate without a frozen budgetLockDigest derived from ③ calibration",
+      "consequence": "The A2prime control becomes post-hoc and cannot support Q1",
+      "mitigation": "Checker requires each A2prime row to bind exactly one frozen budget lock and verifies source ③ precedes applies-to ⑥."
+    },
+    {
+      "scenario": "Illegal ② vs ④ comparison enters confirmatory analysis",
+      "trigger": "Analysis contrast metadata treats cross cells as directly comparable",
+      "consequence": "Executor and reviewer effects are confounded",
+      "mitigation": "Checker encodes allowed confirmatory contrasts and explicitly rejects ② vs ④ as confirmatory."
+    },
+    {
+      "scenario": "M0 is misread as completed Phase 1",
+      "trigger": "Status or summary says outcome records exist from smoke checks",
+      "consequence": "Research claims overstate evidence and could pollute product decisions",
+      "mitigation": "Artifacts state providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, and productGateImpact=none."
+    }
+  ],
+  "timestamp": "2026-07-04T17:45:29.740Z"
+}

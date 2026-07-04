@@ -1,0 +1,66 @@
+{
+  "storyId": "B-69b8",
+  "checkedAt": "2026-07-04T17:51:46.770Z",
+  "features": [
+    {
+      "feature": "Research M0 artifacts and provider-safe smoke checker under experiments/multi-model-ablation",
+      "covered_by": "checklist CHK-001 through CHK-004; scope-contract allowedCreate M0 files; decision chosen=offline-m0-artifacts-and-checker; protocol sections 0, 0.2, 3.1.1, 3.2, 6",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story scope remains limited to M0 readiness artifacts/checker that verify host/model separation, snapshot readiness, prompt/tool digests, A2prime budget ordering, and legal contrasts."
+    },
+    {
+      "feature": "M0 verification and story closure evidence without overclaiming research outcomes",
+      "covered_by": "checklist CHK-005; plan/understanding require no Phase 1/2 cells; decision preMortem M0 is misread as completed Phase 1 mitigation; protocol section 6 startup discipline",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Verification is provider-safe and must state no Phase 1/2 cells or H-M1/H-M3 outcome data were produced."
+    },
+    {
+      "feature": "Dated snapshot uncertainty handled as explicit blocker state",
+      "covered_by": "checklist CHK-003 edge intent; understanding unknowns=[] with provider credentials/snapshots resolved as candidate-or-blocker recording; decision offline M0 option cons; protocol sections 0.2 and 3.4",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "The scope need not lock live provider snapshots now; candidate-only or unavailable snapshots can be recorded as blockers for later human-approved Phase 1."
+    },
+    {
+      "feature": "Story-scoped Lattice and ProofStory metadata/evidence paths",
+      "covered_by": "scope-boundary allows story-scoped Lattice metadata/evidence; execution-boundary allowedPaths .lattice/story; tightened scope-contract allowedModify includes exactly intent-collision.json, original-intent-snapshot.json, and proofstory.json; scope_contract_check --json status=pass with 0 violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "The prior gap is closed without widening business-file scope; only the three generated ProofStory metadata paths are newly allowed."
+    },
+    {
+      "feature": "Phase 1/2 provider campaign execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded large Phase 1 or Phase 2 provider campaign; scope-contract explicitExcludes large Phase 1 or Phase 2 campaign records; execution-boundary excludes provider prompt commands and powered campaign runner; protocol section 6 says M2/M4 require human approval",
+      "source": "No provider model cells, powered campaign, or large Phase 1/2 run belongs in B-69b8."
+    },
+    {
+      "feature": "Ablation outcome records from audit-only or smoke-only output",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded writing ablation outcome records from audit-only output; scope-contract explicitExcludes records-multi-model-ablation.jsonl outcome records; protocol section 0.3 says audits cannot enter outcome records",
+      "source": "Smoke/audit output must not become records-multi-model-ablation.jsonl or H-M1/H-M3 outcome data."
+    },
+    {
+      "feature": "Proofbound product gates, playbooks, DONE policy, runtime memory guidance, and unrelated dirty docs/assets",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded product gate/playbook/runtime changes and README.md docs/CLI.md docs/assets; scope-contract protectedFiles README.md docs/CLI.md docs/assets/** packages/** experiments/recovery-runner/**; protocol sections 0 and 8 forbid automatic runtime or product gate adoption",
+      "source": "Business/product runtime surfaces and unrelated dirty files are outside this Research M0 story."
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c6515ecf3949ac13ace797be44b876321519ace7a7ca2072c482a655cf32030d",
+  "openQuestions": []
+}

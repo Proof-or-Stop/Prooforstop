@@ -1,0 +1,55 @@
+{
+  "artifact": "m0-research-smoke",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "m0_smoke_provider_safe_local_only",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "scope": {
+    "story": "B-69b8",
+    "directory": "experiments/multi-model-ablation",
+    "providerModelCallsForbidden": true,
+    "phase1CampaignForbidden": true,
+    "phase2CampaignForbidden": true,
+    "outcomeRecordsWritten": false,
+    "productGateChanges": "none",
+    "readinessClaim": "M0 smoke artifacts/checker only; not formal Phase 1 readiness."
+  },
+  "ownedArtifacts": [
+    "m0-smoke-check.mjs",
+    "m0-research-smoke.json",
+    "m0-status.md",
+    "runner-registry.m0.json",
+    "model-snapshot-lock.m0.json",
+    "cell-manifest.m0.json",
+    "phase1-budget-lock.m0.json"
+  ],
+  "localOnlyChecks": {
+    "checkerCommand": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+    "usesNetwork": false,
+    "usesProviderModels": false,
+    "writesOutcomeRecords": false,
+    "runsPhase1OrPhase2Cells": false,
+    "validatesExistingExamples": true,
+    "negativeControls": [
+      "hostKind reused as executorSnapshot",
+      "missing reviewerSnapshot for same/cross reviewer",
+      "A2prime missing budgetLockDigest",
+      "budget lock not matching A2prime row",
+      "illegal ② vs ④ marked confirmatory"
+    ]
+  },
+  "m0ExitBoundary": {
+    "m0SmokeCanPass": true,
+    "phase1MayStart": false,
+    "phase1StartRequires": [
+      "human approval",
+      "execution-locked dated provider snapshots",
+      "execution-locked provider-safe budget lock",
+      "frozen protocol lock"
+    ]
+  }
+}

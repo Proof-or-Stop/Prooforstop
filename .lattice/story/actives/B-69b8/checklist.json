@@ -39,9 +39,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T17:59:44.154Z",
+      "userSees": "User opens experiments/multi-model-ablation/m0-status.md and sees the Research M0 milestone table plus providerCallsMade=false and phase1OrPhase2CellsRun=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "M0 status records M0.1-M0.7 and explicitly states providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, and productGateImpact=none.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The checker validates dedicated .m0 artifacts while existing .example artifacts remain example-only and pass their original provider-free invariant checks.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-research-smoke.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Research boundary fields and eligibleForOutcomeRecords=false prevent host-only audit output from being mistaken for formal ablation records.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -82,9 +124,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T17:59:54.309Z",
+      "userSees": "User runs node experiments/multi-model-ablation/m0-smoke-check.mjs and sees M0 smoke check passed with assertion counts.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Provider-safe checker passes on committed M0 artifacts and prints explicit counts: M0 smoke checker passed: 743 assertions; 9 negative controls rejected.",
+          "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:18.897Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Negative controls mutate in-memory fixtures and reject missing A2prime budgetLockDigest, missing same/cross reviewerSnapshot, illegal host/model substitutions, and forged budget source rows.",
+          "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:19.237Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Negative control marks ②-vs-④ as legalConfirmatory=true and the checker rejects it because executor and reviewer both change.",
+          "headHash": "bcedb6cf4df77c8913b1d924530d20e921e21684",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:19.597Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -124,9 +208,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T18:00:04.815Z",
+      "userSees": "User opens runner-registry.m0.json and model-snapshot-lock.m0.json and sees hostKind recorded separately from executorSnapshot/reviewerSnapshot for E1 and E2.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/runner-registry.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "runner-registry.m0.json records codex-cli, Claude Code, and agy as host_or_adapter_not_model_family and keeps hostKind separate from executorSnapshot/reviewerSnapshot for E1/E2 runners.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "model-snapshot-lock.m0.json records E1=Anthropic/Claude and E2=OpenAI/GPT but marks exact dated execution snapshots as blocked pending human approval/provider execution lock instead of silently passing.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The checker negative control rejects a runner whose hostKind is reused as executorSnapshot, proving Codex CLI host alone cannot satisfy E2.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -166,9 +292,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T18:00:15.195Z",
+      "userSees": "User opens cell-manifest.m0.json and phase1-budget-lock.m0.json and sees A2prime rows bound to frozen budget locks plus legal and forbidden contrast declarations.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs; experiments/multi-model-ablation/phase1-budget-lock.m0.json; experiments/multi-model-ablation/cell-manifest.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Budget-lock checker now requires each sourceCellKeys row to match declared sourceCellNumber/sourceArm/sourceReviewerFamily/executorFamily/task and isCalibrationSourceForBudgetLock=true before binding A2prime appliesTo rows.",
+          "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:36.606Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/cell-manifest.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "cell-manifest.m0.json separates legal confirmatory contrasts from descriptive/blocker semantics, including the Phase 1 descriptive warning for ① vs ② without a same-window anchor.",
+          "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:37.071Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject forged E2 lock sourced from ⑥/A2prime, sourceCellNumber/source key mismatch, sourceArm not A4, illegal ②-vs-④ confirmatory contrast, and mismatched A2prime budgetLockDigest.",
+          "headHash": "2cb817fbc709ddde7e561986c0e206e83eb55236",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:10:37.458Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -201,9 +369,103 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T18:00:27.350Z",
+      "userSees": "User sees final verification evidence showing M0 readiness/pass-or-blocker status, no Phase 1/2 cells run, and no product gate/playbook/runtime impact.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs && node -e 'const fs=require(\"node:fs\"); for (const f of [\"experiments/multi-model-ablation/cell-manifest.example.json\",\"experiments/multi-model-ablation/runner-registry.example.json\",\"experiments/multi-model-ablation/phase1-budget-lock.example.json\"]) { JSON.parse(fs.readFileSync(f,\"utf8\")); }'",
+          "result": "pass",
+          "note": "Local verification proves M0 readiness/pass-or-blocker status and confirms no provider calls or Phase 1/2 cells were run.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The artifacts keep productGateImpact=none and state that smoke output does not mutate DONE, playbook, runtime, or default guidance.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "rg -n \"does not run provider calls|does not grant formal Phase 1 readiness|phase1OrPhase2CellsRun=false|containsOutcomeData=false\" experiments/multi-model-ablation/m0-status.md",
+          "result": "pass",
+          "note": "Status text explicitly prevents overclaiming: H-M1/H-M3 outcome data does not exist yet and Phase 1 still needs human approval plus execution-locked dated snapshots/budget.",
+          "headHash": "92a38c4f0d05e3846b42e83619324824bf809fa8",
+          "materialHash": "791b73ab168eaaea64b49cc50e537951a5f01178b5a4afaee7d5beda69fcfe68",
+          "storyFilesHash": "a57fa893b27a21421ec17616cc226f3c042e1b85bc01fcec294c3dd75a93d3a7",
+          "timestamp": "2026-07-04T18:19:32.051Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-04T17:59:44.154Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M0 status and boundary artifacts implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T17:59:54.309Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Provider-safe checker implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T18:00:04.815Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Runner/host and snapshot readiness artifacts implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T18:00:15.195Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Budget-lock and contrast mechanics implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T18:00:27.350Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Overall Research M0 verification completed with provider-safe checks.",
+      "agent": "codex-main"
     }
   ]
 }

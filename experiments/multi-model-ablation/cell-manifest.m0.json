@@ -1,0 +1,235 @@
+{
+  "artifact": "cell-manifest.m0",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "m0_cell_manifest_not_executable",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "cellKeyFormat": "arm|task|scenario|repeat|executorFamily|reviewerFamily",
+  "duplicatePolicy": {
+    "key": "cellKey",
+    "policy": "void_or_pre_registered_duplicate_handling_only",
+    "forbidden": "do_not_choose_the_better_outcome"
+  },
+  "phase1ExecutionOrder": [
+    {
+      "order": 1,
+      "stepId": "phase1-e2-a4-calibration",
+      "cellNumber": "③",
+      "requiredAction": "run E2 A4 R-same calibration cells in an approved Phase 1 campaign"
+    },
+    {
+      "order": 2,
+      "stepId": "phase1-budget-lock",
+      "cellNumber": "budget-lock",
+      "requiredAction": "freeze the executorFamily x task budget lock and digest from ③ before any matching A2prime row"
+    },
+    {
+      "order": 3,
+      "stepId": "phase1-e2-a2prime",
+      "cellNumber": "⑥",
+      "requiredAction": "run E2 A2prime only when budgetLockDigest matches the frozen lock"
+    }
+  ],
+  "cellSemantics": [
+    {
+      "cellNumber": "①",
+      "executorFamily": "E1",
+      "reviewerFamily": "same",
+      "arm": "A4",
+      "semantics": "Claude/Anthropic executor with same-family fresh-context reviewer; same-window anchor for confirmatory ① vs ②."
+    },
+    {
+      "cellNumber": "②",
+      "executorFamily": "E1",
+      "reviewerFamily": "cross",
+      "arm": "A4",
+      "semantics": "Claude/Anthropic executor with OpenAI/GPT reviewer; fixed E1 executor, changed reviewer family only relative to ①."
+    },
+    {
+      "cellNumber": "③",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "arm": "A4",
+      "semantics": "OpenAI/GPT executor with same-family fresh-context reviewer; E2 A4 calibration source for ⑥ budget lock."
+    },
+    {
+      "cellNumber": "④",
+      "executorFamily": "E2",
+      "reviewerFamily": "cross",
+      "arm": "A4",
+      "semantics": "OpenAI/GPT executor with Anthropic/Claude reviewer; fixed E2 executor, changed reviewer family only relative to ③."
+    },
+    {
+      "cellNumber": "⑤",
+      "executorFamily": "E1",
+      "reviewerFamily": "not_applicable",
+      "arm": "A2prime",
+      "semantics": "Claude/Anthropic A2prime control; no reviewer lane and requires a matching E1 budgetLockDigest before execution."
+    },
+    {
+      "cellNumber": "⑥",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "arm": "A2prime",
+      "semantics": "OpenAI/GPT A2prime control; no reviewer lane and requires the ③-derived E2 budgetLockDigest before execution."
+    }
+  ],
+  "confirmatoryContrasts": [
+    {
+      "contrastId": "③-vs-⑥",
+      "leftCellNumber": "③",
+      "rightCellNumber": "⑥",
+      "legalConfirmatory": true,
+      "hypothesis": "Q1/H-M1",
+      "fixedFactors": [
+        "executorFamily=E2"
+      ],
+      "changedFactor": "arm/lifecycle_control",
+      "requiresBudgetLockDigest": true,
+      "notes": "A2prime reviewerFamily not_applicable is structural, not a reviewer effect."
+    },
+    {
+      "contrastId": "①-vs-②",
+      "leftCellNumber": "①",
+      "rightCellNumber": "②",
+      "legalConfirmatory": true,
+      "hypothesis": "Q2/H-M3",
+      "fixedFactors": [
+        "executorFamily=E1",
+        "arm=A4"
+      ],
+      "changedFactor": "reviewerFamily",
+      "requiresSameWindowAnchor": true,
+      "notes": "Confirmatory only with same-window ①; otherwise descriptive under the protocol window-confounding warning."
+    },
+    {
+      "contrastId": "③-vs-④",
+      "leftCellNumber": "③",
+      "rightCellNumber": "④",
+      "legalConfirmatory": true,
+      "hypothesis": "Q2/H-M3",
+      "fixedFactors": [
+        "executorFamily=E2",
+        "arm=A4"
+      ],
+      "changedFactor": "reviewerFamily",
+      "requiresSameWindowAnchor": true,
+      "notes": "Optional Phase 1 or Phase 2 contrast; fixed E2 executor."
+    },
+    {
+      "contrastId": "②-vs-④",
+      "leftCellNumber": "②",
+      "rightCellNumber": "④",
+      "legalConfirmatory": false,
+      "hypothesis": "forbidden_as_confirmatory",
+      "fixedFactors": [
+        "arm=A4"
+      ],
+      "changedFactor": "executorFamily_and_reviewerFamily",
+      "rejection": "Illegal as confirmatory because executor and reviewer families both change."
+    }
+  ],
+  "cells": [
+    {
+      "cellNumber": "①",
+      "cellKey": "A4|task-stratified-01|B01|r01|E1|same",
+      "phase": "phase1_or_phase2_anchor_candidate",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E1",
+      "reviewerFamily": "same",
+      "runnerId": "runner-e1-same-m0",
+      "isOptional": true,
+      "isCalibrationSourceForBudgetLock": true,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null
+    },
+    {
+      "cellNumber": "②",
+      "cellKey": "A4|task-stratified-01|B01|r01|E1|cross",
+      "phase": "phase1_candidate",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E1",
+      "reviewerFamily": "cross",
+      "runnerId": "runner-e1-executor-e2-reviewer-m0",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null,
+      "phase1Interpretation": "descriptive_unless_same_window_cell_1_exists"
+    },
+    {
+      "cellNumber": "③",
+      "cellKey": "A4|task-stratified-01|B01|r01|E2|same",
+      "phase": "phase1_candidate",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "runnerId": "runner-e2-same-m0",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": true,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null
+    },
+    {
+      "cellNumber": "④",
+      "cellKey": "A4|task-stratified-01|B01|r01|E2|cross",
+      "phase": "phase1_optional_or_phase2_candidate",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "cross",
+      "runnerId": "runner-e2-executor-e1-reviewer-m0",
+      "isOptional": true,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null
+    },
+    {
+      "cellNumber": "⑤",
+      "cellKey": "A2prime|task-stratified-01|B01|r01|E1|not_applicable",
+      "phase": "phase2_or_same_window_anchor_candidate",
+      "arm": "A2prime",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E1",
+      "reviewerFamily": "not_applicable",
+      "runnerId": "runner-e1-a2prime-m0",
+      "isOptional": true,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": true,
+      "budgetLockDigest": "sha256:m0-provisional-budget-lock-e1-task-stratified-01"
+    },
+    {
+      "cellNumber": "⑥",
+      "cellKey": "A2prime|task-stratified-01|B01|r01|E2|not_applicable",
+      "phase": "phase1_candidate",
+      "arm": "A2prime",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "runnerId": "runner-e2-a2prime-m0",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": true,
+      "budgetLockDigest": "sha256:m0-provisional-budget-lock-e2-task-stratified-01"
+    }
+  ]
+}
