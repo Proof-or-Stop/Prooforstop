@@ -40,6 +40,24 @@
       ],
       "signatureTag": "adversarial|mjs|checker-verify-budget",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-69b8:F-003",
+      "desc": "CHK-002:happy:0 requires the M0 smoke checker to pass and print assertion counts, but node experiments/multi-model-ablation/m0-smoke-check.mjs prints only three status lines and rg found no assertion/count reporting in m0-smoke-check.mjs. The evidence therefore does not cover the asserted count-output portion of this must verification intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T18:04:13.436Z",
+      "reviewRound": "2026-07-04T18:00:42.246Z",
+      "reviewRunId": "B-69b8:RR-002",
+      "_hash": "855912469aeef0665f682ef8ce6e793e452731f4474a672308bc1f51bdf1a3f1",
+      "files": [
+        "experiments/multi-model-ablation/m0-smoke-check.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-requires-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
