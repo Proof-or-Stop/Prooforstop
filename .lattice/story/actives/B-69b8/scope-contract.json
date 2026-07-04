@@ -1,0 +1,37 @@
+{
+  "storyId": "B-69b8",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/README.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/m0-smoke-check.mjs",
+    "experiments/multi-model-ablation/m0-research-smoke.json",
+    "experiments/multi-model-ablation/m0-status.md",
+    "experiments/multi-model-ablation/runner-registry.m0.json",
+    "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
+    "experiments/multi-model-ablation/cell-manifest.m0.json",
+    "experiments/multi-model-ablation/phase1-budget-lock.m0.json"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m0-smoke-check.mjs"
+  ],
+  "protectedFiles": [
+    "README.md",
+    "docs/CLI.md",
+    "docs/assets/**",
+    "packages/**",
+    "experiments/recovery-runner/**"
+  ],
+  "explicitExcludes": [
+    "large Phase 1 or Phase 2 campaign records",
+    "records-multi-model-ablation.jsonl outcome records",
+    "Proofbound product gate/playbook/runtime changes",
+    "unrelated dirty root docs/assets"
+  ],
+  "scopeChangeReason": "Research M0 smoke is scoped to isolated experiment artifacts and checker only.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-04T17:46:01.031Z",
+  "updatedAt": "2026-07-04T17:46:01.031Z"
+}

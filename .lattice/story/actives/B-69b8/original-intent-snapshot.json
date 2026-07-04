@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-69b8",
+  "sourceText": "User selected the next step for Research M0: actually execute M0 rather than continue writing docs, select E1/E2 model family and dated snapshots, register runner/host/promptDigest/toolSurfaceDigest, smoke E2 harness tool-surface equivalence, check A2prime budget-lock, check analysis contrasts ③ vs ⑥, ① vs ②, ③ vs ④, and still not run large-scale Phase 1. User also requested a milestone table with details and checkmarks after each milestone.",
+  "normalizedOutcome": "A Research M0 smoke story produces provider-safe artifacts and a machine-checkable status table showing whether runner/host registration, snapshot readiness, tool-surface equivalence, A2prime budget-lock ordering, and legal contrast rules are ready or blocked, without running Phase 1/2 cells.",
+  "acceptanceClaim": "Running the M0 smoke checker against experiments/multi-model-ablation M0 artifacts passes and m0-status.md marks the requested Research M0 milestones with pass/blocker states while explicitly recording providerCallsMade=false and phase1OrPhase2CellsRun=false.",
+  "keyRequirementIds": [
+    "REQ-HOST-MODEL-SEPARATION",
+    "REQ-M0-EXECUTE",
+    "REQ-MILESTONE-TABLE",
+    "REQ-NO-PHASE1"
+  ],
+  "requestHash": "sha256:1c257245004e38bf3e504a9163cad0fe72c96d88700620a092384467a0124c40",
+  "createdAt": "2026-07-04T17:46:01.007Z",
+  "updatedAt": "2026-07-04T17:46:01.007Z"
+}

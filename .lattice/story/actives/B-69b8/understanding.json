@@ -1,0 +1,34 @@
+{
+  "task": "Execute the Multi-Model Ablation Research M0 readiness smoke so the project can tell whether a future Phase 1 campaign can run fairly.",
+  "outcome": "The user can open experiments/multi-model-ablation/m0-status.md and see every Research M0 milestone marked pass or blocker, with a machine-checkable smoke command proving host/model separation, snapshot readiness, tool-surface equivalence, A2prime budget-lock ordering, legal contrast rules, and no Phase 1/2 campaign execution.",
+  "facts": [
+    "Story B-f8c6 already promoted the multi-model ablation protocol and example artifacts.",
+    "Research M0 is paper-evidence readiness work, not a Proofbound product gate or runtime policy.",
+    "Current host CLIs available locally are codex 0.141.0, Claude Code 2.1.201, and agy 1.0.16.",
+    "The protocol requires E1/E2 model snapshots to be distinct provider families and requires host identity to be recorded separately from model snapshot identity.",
+    "The selected scope excludes large Phase 1/2 provider campaigns and excludes product gate/playbook/runtime changes."
+  ],
+  "constraints": [
+    "Do not run provider model cells or large Phase 1/2 campaigns in this story.",
+    "Keep all Research M0 artifacts under experiments/multi-model-ablation and story evidence under .lattice/story.",
+    "Do not touch unrelated dirty files: README.md, docs/CLI.md, or docs/assets.",
+    "Use host-neutral Proofbound/Lattice concepts: host adapters are not model families.",
+    "Do not write ablation outcome records from audit-only or smoke-only output."
+  ],
+  "unknowns": [
+    "Whether dated provider snapshot IDs are fully lockable today or must be recorded as Phase 1 blockers.",
+    "Whether the existing examples need a dedicated real-M0 artifact set rather than example-only files.",
+    "Whether the smoke checker should treat missing provider credentials as blocker or non-goal; for this story it records readiness without making provider calls."
+  ],
+  "touchpoints": [
+    "experiments/multi-model-ablation/m0-smoke-check.mjs",
+    "experiments/multi-model-ablation/m0-research-smoke.json",
+    "experiments/multi-model-ablation/m0-status.md",
+    "experiments/multi-model-ablation/runner-registry.m0.json",
+    "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
+    "experiments/multi-model-ablation/cell-manifest.m0.json",
+    "experiments/multi-model-ablation/phase1-budget-lock.m0.json",
+    "docs/requirements/decisions/multi-model-ablation-replication.md"
+  ],
+  "timestamp": "2026-07-04T17:45:15.685Z"
+}
