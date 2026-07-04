@@ -62,6 +62,7 @@ import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createDonePrepareHandlers } from './handlers/done-prepare.js';
 import { createDoneRequiredValidationHandlers } from './handlers/done-required-validation.js';
 import { createLifecycleCheckHandlers } from './handlers/lifecycle-check.js';
+import { createMilestoneStatusHandlers } from './handlers/milestone-status.js';
 import { createLifecycleControlHandlers } from './handlers/lifecycle-control.js';
 import { createPlanSkeletonHandlers } from './handlers/plan-skeleton.js';
 import { createEvidencePlanHandlers } from './handlers/evidence-plan.js';
@@ -247,6 +248,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createDonePrepareHandlers(ctx));
   registry.registerBatch(createDoneRequiredValidationHandlers(ctx));
   registry.registerBatch(createLifecycleCheckHandlers(ctx));
+  registry.registerBatch(createMilestoneStatusHandlers(ctx));
   registry.registerBatch(createLifecycleControlHandlers(ctx));
   registry.registerBatch(createPlanSkeletonHandlers(ctx));
   // B-09e7 (P3): evidence_plan — read-only DRY planner classifying verification

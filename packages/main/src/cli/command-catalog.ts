@@ -771,6 +771,18 @@ Behavior:
     runCommands: z.boolean().optional().describe('V1 must be false; true fails closed before reading story facts.'),
     writeEvidence: z.boolean().optional().describe('V1 must be false; true fails closed before reading story facts.'),
   }},
+  { name: 'milestone_status', description: 'Read-only grouped ProofStory milestone status report; projects existing milestone ledger, checklist, verification intent/evidence, phase, and summary facts without creating storage, running commands, writing evidence, launching reviewers, advancing phase, or claiming DONE/production readiness.', schema: {
+    storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    deploymentReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    externalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    terminalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
   { name: 'global_control_status', description: 'Read-only global lifecycle control plane dashboard over runtime closure, admissibility waterline, and queue governance.', schema: {
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     expanded: z.boolean().optional().describe('Expand experiment-batch details (default false).'),

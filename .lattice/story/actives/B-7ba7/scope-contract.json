@@ -4,6 +4,10 @@
   "allowedModify": [
     "packages/main/src/registry.ts",
     "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     "docs/CLI.md",
     "package.json",
     "package-lock.json",
@@ -32,25 +36,28 @@
     ".omx/**",
     "README.md"
   ],
-  "scopeChangeReason": "Allow the story-local ProofStory PLAN artifacts that this story deliberately produced as gate-consumed intent contracts; implementation scope remains limited to read-only milestone_status code/tests/docs and README remains protected.",
+  "scopeChangeReason": "Semantic scope refined: read-only milestone_status registration changes add rows to existing command/policy arrays, so add+modify are both allowed only for the explicitly scoped files.",
   "acknowledgements": [],
   "createdAt": "2026-07-04T19:49:53.056Z",
-  "updatedAt": "2026-07-04T19:54:39.193Z",
+  "updatedAt": "2026-07-04T20:16:20.215Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
       "allowedChangeKinds": [
-        "add"
+        "add",
+        "modify"
       ],
       "intentRefs": [
         "CHK-001:happy:0",
-        "CHK-003:happy:0"
+        "CHK-003:happy:0",
+        "CHK-004:happy:0"
       ]
     },
     {
       "path": "packages/main/src/handlers/milestone-status.ts",
       "allowedChangeKinds": [
-        "add"
+        "add",
+        "modify"
       ],
       "intentRefs": [
         "CHK-002:happy:0",
@@ -59,10 +66,8 @@
     },
     {
       "path": "packages/main/src/registry.ts",
-      "allowedAnchors": [
-        "createMilestoneStatusHandlers"
-      ],
       "allowedChangeKinds": [
+        "add",
         "modify"
       ],
       "intentRefs": [
@@ -71,11 +76,19 @@
     },
     {
       "path": "packages/main/src/cli/command-catalog.ts",
-      "allowedAnchors": [
-        "milestone_status",
-        "READ_ONLY_STATUS_UNSUPPORTED_FLAGS"
-      ],
       "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli/activity-policy.ts",
+      "allowedChangeKinds": [
+        "add",
         "modify"
       ],
       "intentRefs": [
@@ -83,11 +96,39 @@
       ]
     },
     {
-      "path": "docs/CLI.md",
-      "allowedAnchors": [
-        "milestone_status"
-      ],
+      "path": "packages/main/src/core/command-policy.ts",
       "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/config.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/process-fact-levels.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedChangeKinds": [
+        "add",
         "modify"
       ],
       "intentRefs": [
