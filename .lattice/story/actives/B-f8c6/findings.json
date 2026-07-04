@@ -53,7 +53,7 @@
       "desc": "CHK-003 is marked done, but its happy-path verificationIntent requires snapshot digests and the evidence overclaims that they are recorded. The recorded command at .lattice/story/actives/B-f8c6/checklist.json:213 only JSON-parses files, while its note at .lattice/story/actives/B-f8c6/checklist.json:215 says snapshot digests are present. The actual budget-lock lock object at experiments/multi-model-ablation/phase1-budget-lock.example.json:31 records budgetLockDigest/executorFamily/task/source cells/median placeholder but has no executorSnapshotDigest, reviewerSnapshotDigest, providerSnapshotDigest, or equivalent snapshot digest field. Fix by adding the required snapshot digest fields to the budget-lock example and replacing the parse-only evidence/README check with a field-level assertion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-04T16:43:23.816Z",
@@ -65,7 +65,11 @@
         ".lattice/story/actives/B-f8c6/checklist.json"
       ],
       "signatureTag": "missing|json|marked-happy-path",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 and reverified with the strengthened README node invariant, which asserts snapshot digest fields and not_applicable reviewer semantics for the budget-lock example instead of relying on parse-only evidence.",
+      "resolvedAt": "2026-07-04T16:49:51.054Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f8c6:F-004",
