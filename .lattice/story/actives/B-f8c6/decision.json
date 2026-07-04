@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Only fix real experimental correctness and traceability issues.",
+    "Keep host-neutral boundaries: host/adaptor names must not stand in for model-family evidence.",
+    "Prefer lightweight deterministic readiness artifacts over provider calls or large experiments.",
+    "Research evidence remains separate from product gates, playbooks, runtime memory, and DONE policy."
+  ],
+  "drivers": [
+    "M0 must make Phase 1 safe to start later without spending tokens now.",
+    "The protocol must prevent mixed-factor comparisons and post-hoc runner inclusion.",
+    "The artifacts must be readable and verifiable by future Codex CLI, Claude Code CLI, or other hosts."
+  ],
+  "options": [
+    {
+      "name": "docs-and-examples-only",
+      "pros": [
+        "Fast and low risk",
+        "No provider calls or experimental spend",
+        "Enough to freeze runner/cell/budget semantics before Phase 1"
+      ],
+      "cons": [
+        "Does not automatically validate manifests beyond documented checks",
+        "Future story may need scripts if the process becomes frequent"
+      ]
+    },
+    {
+      "name": "full-readiness-tooling-now",
+      "pros": [
+        "Could mechanically validate manifests and locks from day one",
+        "Reduces manual M0 review later"
+      ],
+      "cons": [
+        "Adds code surface before the need is proven",
+        "Risks optimizing tooling before any real Phase 1 execution"
+      ]
+    },
+    {
+      "name": "start-phase1-immediately",
+      "pros": [
+        "Produces early experimental data sooner"
+      ],
+      "cons": [
+        "Violates M0 boundary",
+        "Can waste tokens before harness/tool/budget readiness is proven",
+        "Risks mixing audit output with outcome data"
+      ]
+    }
+  ],
+  "chosen": "docs-and-examples-only",
+  "rationale": "Choose canonical docs plus example artifacts now because M0 should freeze semantics and readiness without running expensive or confounded experiments.",
+  "preMortem": [
+    {
+      "scenario": "The story accidentally starts Phase 1 data collection.",
+      "trigger": "A maintainer treats cell-manifest examples as active assignments.",
+      "consequence": "Research spend starts before budget lock and runner semantics are ready.",
+      "mitigation": "Label all artifacts as examples and keep README checks provider-free."
+    },
+    {
+      "scenario": "Codex CLI is mistaken for an E2 model family.",
+      "trigger": "A reader uses hostKind instead of executorSnapshot for classification.",
+      "consequence": "Multi-model evidence becomes invalid because host and model are conflated.",
+      "mitigation": "Protocol and runner registry must state that snapshots determine E1/E2 classification."
+    },
+    {
+      "scenario": "A2 prime cells are considered valid before budget lock.",
+      "trigger": "A manifest includes A2 prime rows without budgetLockDigest.",
+      "consequence": "A2 prime comparison can be post-hoc budgeted and becomes non-admissible.",
+      "mitigation": "Examples and README checks require phase1-budget-lock before A2 prime cells."
+    },
+    {
+      "scenario": "Research evidence leaks into product runtime policy.",
+      "trigger": "M6 wording or README implies results should change gates/playbooks automatically.",
+      "consequence": "Proofbound product behavior changes without lineage/exposure/outcome process.",
+      "mitigation": "Keep explicit research-only boundary and require a separate story for product policy changes."
+    }
+  ],
+  "timestamp": "2026-07-04T16:20:45.974Z"
+}
