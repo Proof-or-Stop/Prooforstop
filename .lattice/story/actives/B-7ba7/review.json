@@ -51,6 +51,48 @@
         }
       ],
       "_hash": "78df1ff43421292dd401e66fac07949c1a942a15e7148476eab400887040abf3"
+    },
+    {
+      "timestamp": "2026-07-04T19:57:06.106Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Define the milestone status report contract and data model + Add the read-only milestone_status CLI command are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/tests is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "963ca84f4da8b2119ccc5c76f6774c92e5312e32d7cc9d8e76eb2d739b80d069"
     }
   ]
 }
