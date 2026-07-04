@@ -76,7 +76,7 @@
       "desc": "The README provider-free invariant command does not actually enforce the host/model-separation failure promised by CHK-004. The checklist says the check should fail or document failure if Codex CLI is treated as a model family (.lattice/story/actives/B-f8c6/checklist.json:277-282), while README.md:27-31 only checks that each runner has a hostKind and an executorSnapshot and that providerCallEnabled is false. A registry where executorSnapshot equals \"Codex CLI\" or reviewerSnapshot is missing for same/cross reviewer rows would still pass that command, despite the protocol requiring model classification by executorSnapshot/reviewerSnapshot rather than app name (docs/requirements/decisions/multi-model-ablation-replication.md:40-43, :56, :66). Strengthen the documented node check to reject hostKind reused as a snapshot, require reviewerSnapshot for same/cross reviewer families, and verify eligibleForOutcomeRecords remains false for examples.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T16:43:50.563Z",
@@ -89,7 +89,11 @@
         "experiments/multi-model-ablation/runner-registry.example.json"
       ],
       "signatureTag": "doc-promise-undelivered|md|readme-provider-free",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by strengthening the README provider-free invariant to reject hostKind reused as executorSnapshot/reviewerSnapshot, require reviewerSnapshot for same/cross runners, require eligibleForOutcomeRecords=false, and assert budget-lock digest fields.",
+      "resolvedAt": "2026-07-04T16:49:51.892Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
