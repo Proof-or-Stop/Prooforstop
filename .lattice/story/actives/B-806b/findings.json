@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "id": "B-806b:F-001",
+      "desc": "experiments/multi-model-ablation/m1-freeze-check.mjs:149 hard-requires optional cell ④ to exist, and lines 157/160-162/171 also hard-require ④ count and ③-vs-④ metadata. CHK-004 edge says the checker should permit missing optional ④ while still requiring ③/⑥/②, so a required-only valid matrix would fail as a brittle false positive. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T19:32:07.905Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-002",
+      "_hash": "cf60bfab0ea04572e27d3af7532ef9dd697038cc919fbe1eca59b770e855f757",
+      "signatureTag": "edge|unknown|experiments-multi-model",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f70607aed: m1-freeze-check now validates full matrix and a required-only positive control without optional ④; optional ④ checks are conditional when present. Local checker passes: 219 assertions; 8 negative controls rejected.",
+      "resolvedAt": "2026-07-04T19:42:59.984Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-806b:F-002",
+      "desc": "CHK-004:edge:0 and CHK-002:edge:0 claim optional ④ may be absent / the checker permits missing optional ④, but experiments/multi-model-ablation/m1-freeze-check.mjs:149-162 requires ④ to exist, requires optionalCellNumbers=[④], and requires requiredPlusOptionalRows=4608. Current evidence therefore does not cover the required optional-④-absent edge case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T19:32:30.635Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-004",
+      "_hash": "ed7cf4023235638154796027b7779b0b7a44598af21713155cfc444e0d165876",
+      "files": [
+        "experiments/multi-model-ablation/m1-freeze-check.mjs",
+        "experiments/multi-model-ablation/cell-matrix.m1.json"
+      ],
+      "signatureTag": "edge|mjs|edge-edge-claim",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f70607aed: required-only edge case is explicitly covered by an in-memory positive control that removes optional ④, accepts required ③/⑥/② count 3456, and still rejects missing required ②. Local checker passes: 219 assertions; 8 negative controls rejected.",
+      "resolvedAt": "2026-07-04T19:43:33.010Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
   "title": "Freeze Multi-Model Ablation M1 protocol and Phase 1 launch locks",
   "description": "After B-69b8 proved the local M0 smoke harness, freeze the M1 protocol hash, seed manifest, cell matrix, and Phase 1 launch gate before any cost-bearing provider campaign. This prevents later multi-model comparisons from drifting or mixing executor and reviewer factors.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "operator-request-2026-07-04-after-B-69b8",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-07-04T19:02:25.933Z",
   "startedAt": "2026-07-04T19:02:25.933Z",
-  "endedAt": null,
+  "endedAt": "2026-07-04T19:58:20.867Z",
   "events": [
     {
       "phase": "INIT",
@@ -35,11 +35,70 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:07:01.376Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:13:50.347Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:29:17.106Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:33:19.691Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:42:45.891Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:46:44.298Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:58:20.867Z",
+      "branch": "story/B-806b",
+      "user": "Harmonygo",
+      "sessionId": "sess-4ce598e39ca7bfce",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-806b",
-    "branch": "story/B-806b",
-    "createdAt": "2026-07-04T19:06:51.694Z"
-  }
+  "currentReviewRound": "2026-07-04T19:42:45.891Z"
 }

@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Host-neutral research control belongs in deterministic artifacts, not Codex- or Claude-specific prompts.",
+    "Do not optimize for the sake of optimization; freeze only launch inputs needed to prevent invalid comparisons.",
+    "Only fix real correctness issues: required cell ② must be represented, optional ④ must not masquerade as required.",
+    "Consistency of logic: M1 can block Phase 1, but must not claim Phase 1 outcomes.",
+    "Provider-costing execution requires explicit later approval and dated snapshots."
+  ],
+  "drivers": [
+    "Phase 1 comparisons are only meaningful if protocol digest, seed rules, cells, and budget sequencing are frozen first.",
+    "The user wants visible milestone progress without accidentally spending provider budget.",
+    "The checklist must encode the repaired requirement that ③, ⑥, and ② are required while ④ is optional."
+  ],
+  "options": [
+    {
+      "name": "deterministic-m1-lock-artifacts-with-local-checker",
+      "pros": [
+        "Creates machine-checkable launch boundaries before provider execution.",
+        "Keeps M1 provider-free and repeatable across hosts.",
+        "Can reject drift, missing required ②, illegal ② vs ④ confirmatory comparison, and premature launchAllowed=true."
+      ],
+      "cons": [
+        "Does not produce experimental outcome data by itself.",
+        "Requires a later explicit M2 campaign approval to answer model-family questions."
+      ]
+    },
+    {
+      "name": "run-phase1-immediately",
+      "pros": [
+        "Would produce data sooner if all launch inputs were already locked."
+      ],
+      "cons": [
+        "Burns provider budget before human approval and before dated snapshot/task/budget locks are complete.",
+        "Risks invalid comparisons if required ② or A2prime budget sequencing drifts."
+      ]
+    },
+    {
+      "name": "prose-only-status-note",
+      "pros": [
+        "Fastest to write."
+      ],
+      "cons": [
+        "Does not give a mechanical launch gate or negative controls.",
+        "Would let later agents overclaim readiness from stale prose."
+      ]
+    }
+  ],
+  "chosen": "deterministic-m1-lock-artifacts-with-local-checker",
+  "rationale": "This is the smallest correctness-preserving step: it freezes M1 launch inputs and blocks invalid Phase 1 execution without spending provider budget or inventing outcome claims.",
+  "preMortem": [
+    {
+      "scenario": "The M1 matrix omits required cell ② but still appears launch-ready.",
+      "trigger": "Treating ② and ④ as optional together instead of only making ④ optional.",
+      "consequence": "Phase 1 cannot answer the E1 fixed-executor cross-review direction and later analysis is underpowered or misleading.",
+      "mitigation": "Encode ③, ⑥, and ② as required in the matrix and checker; allow only ④ to be absent as budget-permitting."
+    },
+    {
+      "scenario": "A later agent treats M1 DONE as permission to run providers.",
+      "trigger": "launchAllowed or providerCallEnabled accidentally set true in M1 artifacts.",
+      "consequence": "Cost-bearing runs happen without explicit approval or dated snapshots.",
+      "mitigation": "Make launchAllowed=false and providerCallEnabled=false required assertions and add negative controls for premature true values."
+    },
+    {
+      "scenario": "A2prime rows are run before same-family A4 budget calibration.",
+      "trigger": "Seed/cell manifests do not express A4-before-A2prime sequencing.",
+      "consequence": "Budget lock can be backfilled after seeing outcomes, invalidating comparisons.",
+      "mitigation": "Represent A2prime sequencing blockers and reject A2prime execution readiness without budgetLockSource=cell-③/A4 calibration."
+    },
+    {
+      "scenario": "The checker becomes paper theater and misses illegal causal contrasts.",
+      "trigger": "It only validates file presence, not comparison semantics.",
+      "consequence": "② vs ④ could be reported as confirmatory despite both executor and reviewer varying.",
+      "mitigation": "Assert legal confirmatory comparisons explicitly and reject ② vs ④ as confirmatory in negative controls."
+    }
+  ],
+  "timestamp": "2026-07-04T19:08:20.512Z"
+}

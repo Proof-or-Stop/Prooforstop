@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-806b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed for B-806b M1 protocol freeze: provider-free boundary, required ③/⑥/②, optional ④, legal contrasts including ②-vs-④ rejection, A2prime sequencing, and no Phase 1 overclaim were checked with no blocker.",
+      "createdAt": "2026-07-04T19:31:33.890Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-003",
+      "_hash": "ebfb79a6057f25229825a16c4f77203629496f9bb9c49948f41befcaf58aaeaf"
+    },
+    {
+      "id": "B-806b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: 34 changed symbols extracted; 0 Step 2 README/CLAUDE/docs paragraphs referenced those checker-local symbols, so fallback compared the changed M1 status/lock/launch-gate artifacts against docs/requirements/decisions/multi-model-ablation-replication.md. protocol.lock.json digest matches the current protocol SHA-256, the protocol doc was not edited, launch wording keeps launchAllowed/providerCallEnabled/formalPhase1UseAllowed false, and the status text does not claim provider execution, outcome data, Phase 1/2 execution, product gate impact, or proven multi-model results. No docs blockers.",
+      "createdAt": "2026-07-04T19:31:58.727Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-001",
+      "_hash": "235dadc31fec64dccf87efc14f89f47f9fdcb587fe9d7beac82388799247cd91"
+    },
+    {
+      "id": "B-806b:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass, corrected count: 44 changed symbols extracted; 0 Step 2 README/CLAUDE/docs paragraphs referenced those checker-local symbols, so fallback compared the changed M1 status/lock/launch-gate artifacts against docs/requirements/decisions/multi-model-ablation-replication.md. protocol.lock.json digest matches the current protocol SHA-256, the protocol doc was not edited, launch wording keeps launchAllowed/providerCallEnabled/formalPhase1UseAllowed false, and the status text does not claim provider execution, outcome data, Phase 1/2 execution, product gate impact, or proven multi-model results. No docs blockers.",
+      "createdAt": "2026-07-04T19:32:09.132Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-001",
+      "_hash": "637f93cb6b4a9ebbd37c83934fb1b9e33ac9ae633f5c1e5ec243e393900ddad1"
+    },
+    {
+      "id": "B-806b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after f70607aed passes. The checker includes a positive required-only edge case that removes optional ④ and still accepts required ③/⑥/②, plus a negative control that removes optional ④ and required ② and is rejected. Local run passed: node experiments/multi-model-ablation/m1-freeze-check.mjs => M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+      "createdAt": "2026-07-04T19:44:53.769Z",
+      "reviewRound": "2026-07-04T19:42:45.891Z",
+      "reviewRunId": "B-806b:RR-006",
+      "_hash": "5a96cbef07c5b686ef917351c724b2e22666093c334177d56877604a45b5b9ce"
+    },
+    {
+      "id": "B-806b:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality re-review after f70607aed: m1-freeze-check accepts required-only Phase 1 matrix without optional ④, preserves required ③/⑥/② and illegal ②-vs-④ guards, and local checker passes (219 assertions; 8 negative controls rejected). No new quality blockers found.",
+      "createdAt": "2026-07-04T19:44:59.256Z",
+      "reviewRound": "2026-07-04T19:42:45.891Z",
+      "reviewRunId": "B-806b:RR-007",
+      "_hash": "5b89633b30525a37e2b54a92e1d442b6d16bc83554389d4259415a4b2a499701"
+    },
+    {
+      "id": "B-806b:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs/status re-review passed after f70607aed: M1 wording remains provider-free and launch-blocked; no Phase 1/2 execution or outcome/product-gate claim; protocol doc unchanged.",
+      "createdAt": "2026-07-04T19:45:26.342Z",
+      "reviewRound": "2026-07-04T19:42:45.891Z",
+      "reviewRunId": "B-806b:RR-008",
+      "_hash": "23624ee305571d128f6c90bdf1febe31197b913df6a3ac979a0e0ebafa4d6f7a"
+    },
+    {
+      "id": "B-806b:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass after f70607aed: required Phase 1 cells remain ③/⑥/②; optional ④ is budget-permitting and the checker accepts required-only absence; ②-vs-④ remains non-confirmatory; M1 artifacts remain provider-free, outcome-free, launch-blocked, and do not claim provider execution or formal Phase 1 readiness. Local read-only check: node experiments/multi-model-ablation/m1-freeze-check.mjs.",
+      "createdAt": "2026-07-04T19:46:02.881Z",
+      "reviewRound": "2026-07-04T19:42:45.891Z",
+      "reviewRunId": "B-806b:RR-009",
+      "_hash": "73251dcf609bcf728579d530663aee37c8ad8f7b22c6951cc9fdc145c8bd6b64"
+    }
+  ]
+}
