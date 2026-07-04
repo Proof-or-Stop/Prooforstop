@@ -174,7 +174,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User can read docs/CLI.md for milestone_status usage and tests prove JSON, grouped text, missing-ledger, and no-mutation behavior.",
+      "files": {
+        "modify": [
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      }
     }
   ]
 }
