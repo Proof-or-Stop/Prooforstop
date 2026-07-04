@@ -52,10 +52,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test builds a sample confirmed milestone ledger and asserts JSON report fields include every milestone, groups, subObjectives, evidenceRefs, risks, nextActions, and readOnly mode.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers missing milestoneLedger=null and asserts ledger.present=false, completed/current/remaining groups are empty, a missing-ledger blocker is reported, and next action points to milestone_ledger_set.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test calls the handler with runCommands=true against a fake store and verifies it throws before any store read, preserving the read-only boundary.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         }
       ]
     },
@@ -138,10 +138,10 @@
           "command": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7",
           "result": "pass",
           "note": "CLI smoke printed Milestone Status - B-7ba7 with Mode: read-only and grouped Markdown tables for Completed, Current, and Remaining, including Status:, Sub-objectives:, Evidence:, Risks:, and Next action: columns.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused rendering test covers milestones with missing or sparse sub-objectives and verifies fallback rows still render checklist refs, requiredEvidence hints, risks, and next action instead of blank output.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,10 +162,10 @@
           "command": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --runCommands=true",
           "result": "pass",
           "note": "Negative CLI smoke exited non-zero at argument validation with expected never for runCommands; direct handler test also verifies mutation-like flags are rejected before story facts are read.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         }
       ]
     },
@@ -222,10 +222,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test asserts completed M1 is grouped under completed, carries evidenceRefs for CHK-001:happy:0, and has no blocking next action.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -234,10 +234,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test asserts partially complete M2 is the current milestone, includes remaining checklist and verificationIntent sub-objectives, reports risks, and selects the smallest next action.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -246,10 +246,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers missing evidence and missing ledger cases and asserts they are not reported as completed; current real CLI output shows missing evidence remains a risk until verificationEvidence is recorded.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         }
       ]
     },
@@ -305,10 +305,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers JSON report shape, grouped Markdown text rendering, missing-ledger blocker behavior, and direct handler read-only failure before store reads.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -317,10 +317,10 @@
           "command": "rg -n \"milestone_status|read-only|Detail granularity|completion or executor ledgers\" docs/CLI.md",
           "result": "pass",
           "note": "CLI docs explain milestone_status usage, Host Progress Reporting Contract, missing-ledger blocker, ledger/checklist/verificationIntent granularity, and that future completion/executor ledgers can improve detail but are not required for V1.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -329,10 +329,10 @@
           "command": "rg -n \"automatic execution|automatic DONE|production readiness|Authority\" docs/CLI.md",
           "result": "pass",
           "note": "CLI docs state V1 does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution, claim automatic DONE, remote Authority completion, or production readiness.",
-          "headHash": "f1a4a798794c88000decf4281324c94f640513b1",
-          "materialHash": "d7922f0ededec1518ad3e85ed6cfe7bf64c480f77c8332564569ed4197ec0bd3",
-          "storyFilesHash": "7ef5100642c8d8447621f46e4be7572600067f19093b04286051a8c9d635e2ff",
-          "timestamp": "2026-07-04T20:42:30.984Z"
+          "headHash": "2f85f87ea2264a9428c7a4a6b9bd2228bc8e35ea",
+          "materialHash": "265a039ce632f42126248138808b965875ba0ce930fc5ec5481090eb1a1e3fe2",
+          "storyFilesHash": "580441f7c73afea61cafac4d91ca9bf03af0b33a99930b476822550235430be4",
+          "timestamp": "2026-07-04T22:03:38.399Z"
         }
       ]
     }
