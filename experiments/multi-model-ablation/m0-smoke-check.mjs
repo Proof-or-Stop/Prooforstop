@@ -26,6 +26,8 @@ const paths = {
 };
 
 const failures = [];
+let assertionCount = 0;
+let negativeControlRejectCount = 0;
 
 function fail(message) {
   throw new Error(message);
@@ -57,6 +59,7 @@ function includesText(value, pattern) {
 
 function assert(condition, message) {
   if (!condition) fail(message);
+  assertionCount += 1;
 }
 
 function assertBoundary(doc, name) {
@@ -234,6 +237,17 @@ function validateBudgetLock(budgetLock, manifest, registry, { requireM0Ordering 
   const runnersById = new Map((registry.runners || []).map((runner) => [runner.runnerId, runner]));
   const a2PrimeClaimsByCellKey = new Map();
 
+  function assertCellOrder(orderEntries, sourceCell, appliesToCell, lock, label) {
+    if (!Array.isArray(orderEntries)) return;
+    const orderByCell = new Map(orderEntries.map((step) => [step.cellNumber, step.order]));
+    const sourceOrder = orderByCell.get(sourceCell.cellNumber);
+    const lockOrder = orderByCell.get("budget-lock");
+    const appliesToOrder = orderByCell.get(appliesToCell.cellNumber);
+    if (sourceOrder === undefined || lockOrder === undefined || appliesToOrder === undefined) return;
+    assert(sourceOrder < lockOrder, `${label} must order source cell before budget-lock: ${lock.lockKey}`);
+    assert(lockOrder < appliesToOrder, `${label} must order budget-lock before applies-to cell: ${lock.lockKey}`);
+  }
+
   if (requireM0Ordering) {
     const orderByCell = new Map((budgetLock.phase1ExecutionOrder || []).map((step) => [step.cellNumber, step.order]));
     assert(orderByCell.get("③") < orderByCell.get("budget-lock"), "budget lock order must put ③ before budget-lock");
@@ -250,11 +264,38 @@ function validateBudgetLock(budgetLock, manifest, registry, { requireM0Ordering 
     assert(lock.medianSpendFromA4Calibration === null, `M0 budget lock must not include calibration spend: ${lock.lockKey}`);
     assert(Array.isArray(lock.sourceCellKeys), `budget lock missing sourceCellKeys: ${lock.lockKey}`);
     assert(Array.isArray(lock.appliesToCellKeys), `budget lock missing appliesToCellKeys: ${lock.lockKey}`);
+    assert(lock.sourceArm === "A4", `budget lock sourceArm must be A4: ${lock.lockKey}`);
+    assert(lock.appliesToArm === "A2prime", `budget lock appliesToArm must be A2prime: ${lock.lockKey}`);
+    assert(
+      lock.appliesToReviewerFamily === "not_applicable",
+      `budget lock appliesToReviewerFamily must be not_applicable: ${lock.lockKey}`,
+    );
 
+    const appliesToCells = [];
     for (const appliesToKey of lock.appliesToCellKeys) {
       const appliesToCell = cellsByKey.get(appliesToKey);
       assert(appliesToCell, `budget lock appliesToCellKeys references missing manifest row: ${lock.lockKey} -> ${appliesToKey}`);
-      assert(appliesToCell.arm === "A2prime", `budget lock applies to non-A2prime row: ${lock.lockKey} -> ${appliesToKey}`);
+      appliesToCells.push(appliesToCell);
+      assert(
+        appliesToCell.cellNumber === lock.appliesToCellNumber,
+        `budget lock appliesToCellNumber does not match appliesToCellKeys row: ${lock.lockKey} -> ${appliesToKey}`,
+      );
+      assert(
+        appliesToCell.arm === lock.appliesToArm,
+        `budget lock appliesToArm does not match appliesToCellKeys row: ${lock.lockKey} -> ${appliesToKey}`,
+      );
+      assert(
+        appliesToCell.reviewerFamily === lock.appliesToReviewerFamily,
+        `budget lock appliesToReviewerFamily does not match appliesToCellKeys row: ${lock.lockKey} -> ${appliesToKey}`,
+      );
+      assert(
+        appliesToCell.executorFamily === lock.executorFamily,
+        `budget lock executorFamily does not match appliesToCellKeys row: ${lock.lockKey} -> ${appliesToKey}`,
+      );
+      assert(
+        appliesToCell.task === lock.task,
+        `budget lock task does not match appliesToCellKeys row: ${lock.lockKey} -> ${appliesToKey}`,
+      );
       assert(
         appliesToCell.budgetLockDigest === lock.budgetLockDigest,
         `A2prime budgetLockDigest does not match budget lock: ${appliesToKey} -> ${lock.lockKey}`,
@@ -264,9 +305,35 @@ function validateBudgetLock(budgetLock, manifest, registry, { requireM0Ordering 
       a2PrimeClaimsByCellKey.set(appliesToKey, claims);
     }
 
+    const sourceCells = [];
     for (const sourceKey of lock.sourceCellKeys) {
       const sourceCell = cellsByKey.get(sourceKey);
       assert(sourceCell, `budget lock sourceCellKeys references missing manifest row: ${lock.lockKey} -> ${sourceKey}`);
+      sourceCells.push(sourceCell);
+      assert(
+        sourceCell.cellNumber === lock.sourceCellNumber,
+        `budget lock sourceCellNumber does not match sourceCellKeys row: ${lock.lockKey} -> ${sourceKey}`,
+      );
+      assert(
+        sourceCell.arm === lock.sourceArm,
+        `budget lock sourceArm does not match sourceCellKeys row: ${lock.lockKey} -> ${sourceKey}`,
+      );
+      assert(
+        sourceCell.reviewerFamily === lock.sourceReviewerFamily,
+        `budget lock sourceReviewerFamily does not match sourceCellKeys row: ${lock.lockKey} -> ${sourceKey}`,
+      );
+      assert(
+        sourceCell.executorFamily === lock.executorFamily,
+        `budget lock executorFamily does not match sourceCellKeys row: ${lock.lockKey} -> ${sourceKey}`,
+      );
+      assert(
+        sourceCell.task === lock.task,
+        `budget lock task does not match sourceCellKeys row: ${lock.lockKey} -> ${sourceKey}`,
+      );
+      assert(
+        sourceCell.isCalibrationSourceForBudgetLock === true,
+        `budget lock sourceCellKeys row is not an A4 calibration source: ${lock.lockKey} -> ${sourceKey}`,
+      );
       const sourceRunner = runnersById.get(sourceCell.runnerId);
       assert(sourceRunner, `budget lock source missing runner binding: ${sourceKey}`);
       assert(
@@ -279,6 +346,13 @@ function validateBudgetLock(budgetLock, manifest, registry, { requireM0Ordering 
           sourceRunner.reviewerSnapshot === lock.reviewerSnapshot,
           `budget lock reviewerSnapshot does not match source runner: ${lock.lockKey}`,
         );
+      }
+    }
+
+    for (const sourceCell of sourceCells) {
+      for (const appliesToCell of appliesToCells) {
+        assertCellOrder(manifest.phase1ExecutionOrder, sourceCell, appliesToCell, lock, "manifest phase1ExecutionOrder");
+        assertCellOrder(budgetLock.phase1ExecutionOrder, sourceCell, appliesToCell, lock, "budget lock phase1ExecutionOrder");
       }
     }
   }
@@ -311,6 +385,7 @@ function expectReject(label, mutateAndValidate, pattern) {
     mutateAndValidate();
   } catch (error) {
     assert(pattern.test(error.message), `negative control ${label} rejected with wrong error: ${error.message}`);
+    negativeControlRejectCount += 1;
     return;
   }
   fail(`negative control did not reject: ${label}`);
@@ -369,6 +444,39 @@ function runNegativeControls({ registry, manifest, budget }) {
   );
 
   expectReject(
+    "E2 budget lock forged from ⑥/A2prime",
+    () => {
+      const badBudget = deepClone(budget);
+      const lock = badBudget.locks.find((item) => item.executorFamily === "E2");
+      lock.sourceCellNumber = lock.appliesToCellNumber;
+      lock.sourceReviewerFamily = lock.appliesToReviewerFamily;
+      lock.sourceCellKeys = [...lock.appliesToCellKeys];
+      validateBudgetLock(badBudget, manifest, registry, { requireM0Ordering: true });
+    },
+    /sourceArm does not match sourceCellKeys row/,
+  );
+
+  expectReject(
+    "budget lock sourceCellNumber/source key mismatch",
+    () => {
+      const badBudget = deepClone(budget);
+      badBudget.locks.find((lock) => lock.executorFamily === "E2").sourceCellNumber = "②";
+      validateBudgetLock(badBudget, manifest, registry, { requireM0Ordering: true });
+    },
+    /sourceCellNumber does not match sourceCellKeys row/,
+  );
+
+  expectReject(
+    "budget lock sourceArm is not A4",
+    () => {
+      const badBudget = deepClone(budget);
+      badBudget.locks.find((lock) => lock.executorFamily === "E2").sourceArm = "A3";
+      validateBudgetLock(badBudget, manifest, registry, { requireM0Ordering: true });
+    },
+    /sourceArm must be A4/,
+  );
+
+  expectReject(
     "illegal ② vs ④ marked confirmatory",
     () => {
       const badManifest = deepClone(manifest);
@@ -412,6 +520,7 @@ function main() {
   validateCellManifest(exampleManifest, exampleRegistry);
   validateBudgetLock(exampleBudget, exampleManifest, exampleRegistry);
 
+  console.log(`M0 smoke checker passed: ${assertionCount} assertions; ${negativeControlRejectCount} negative controls rejected`);
   console.log("M0 smoke artifacts passed provider-safe local checks");
   console.log("Negative controls rejected as expected");
   console.log("Existing example artifacts passed local invariant checks");
