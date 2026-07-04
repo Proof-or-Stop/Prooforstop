@@ -71,7 +71,7 @@
       "desc": "packages/main/src/core/milestone-status.ts:133 and packages/main/src/core/milestone-status.ts:323: milestone_status still treats any pass or waiver verificationEvidence as covering without checking headHash, materialHash, or storyFilesHash freshness against current story material. A stale pass can move a row into the completed group, violating the no false DONE/completion semantics for this read-only report.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-04T20:47:08.561Z",
@@ -82,7 +82,11 @@
         "packages/main/src/core/milestone-status.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 2f85f87ea/e949aeb50: milestone_status now checks evidence freshness before marking refs covered; stale materialHash/storyFilesHash blocks completion, while head-only metadata drift is accepted when stronger bindings match. Verified by stale-evidence tests, post-refresh milestone_status M1-M4 Completed/Risks none, and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:32.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-005",
