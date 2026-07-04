@@ -188,9 +188,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:19:24.111Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "phase1-launch-gate.m1.json lists blockers and identifies M1 as pre-campaign lock only Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:24.386Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "providerCallEnabled and formalPhase1UseAllowed remain false Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:24.658Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "DONE of this story cannot authorize Phase 1 campaign execution or product gate behavior Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:24.929Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -278,6 +316,15 @@
       "timestamp": "2026-07-04T19:19:22.524Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:24.111Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "done",
