@@ -307,7 +307,7 @@ Host Progress Reporting Contract:
   claim flags before reading story facts.
 - V1 does not run commands, write evidence or summaries, write review passes,
   change phase, launch reviewers, claim automatic execution, claim automatic
-  DONE, or claim production readiness.
+  DONE, remote Authority completion, or claim production readiness.
 
 ### Autopilot (local)
 
