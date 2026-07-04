@@ -69,10 +69,11 @@
       "evidence": "The story is M0-only and the plan/checklist create only the canonical protocol doc plus experiments/multi-model-ablation examples/README, while execution-boundary.json currently allows packages/main/src and packages/main/test even though product gate/playbook/runtime/DONE policy changes are excluded.",
       "sourcePointers": [
         ".lattice/story/actives/B-f8c6/execution-boundary.json",
-        ".lattice/story/actives/B-f8c6/checklist.json",
         ".lattice/story/actives/B-f8c6/plan.md",
-        ".lattice/story/actives/B-f8c6/scope-boundary.json"
-      ]
+        ".lattice/story/actives/B-f8c6/checklist.json"
+      ],
+      "resolution": "Resolved by narrowing execution-boundary.allowedPaths to docs/requirements/decisions and experiments/multi-model-ablation only, and by explicitly excluding packages/main/src and packages/main/test. This matches the M0-only plan/checklist and preserves the no product-code/no provider-call scope.",
+      "resolvedAt": "2026-07-04T16:24:25.360Z"
     }
   ]
 }
