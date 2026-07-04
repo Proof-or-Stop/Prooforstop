@@ -159,7 +159,7 @@
       "desc": "packages/main/src/cli-engine.ts: strict milestone_status validation still reads active story facts before rejecting malformed arguments. Unexpected mutation-like args should fail before story facts/store reads in active-story worktrees.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T22:21:50.690Z",
@@ -170,7 +170,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80: cli-engine now preflights strict milestone_status arguments before active-story detection. Regression uses an active story branch with FIFO index.json and malformed surpriseFlag; test proves the command rejects with Argument validation failed before active-story metadata reads. Verified by node packages/main/tests/milestone-status.test.mjs and negative CLI smoke.",
+      "resolvedAt": "2026-07-04T22:32:18.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
