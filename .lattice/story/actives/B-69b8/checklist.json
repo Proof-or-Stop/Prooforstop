@@ -39,10 +39,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User opens experiments/multi-model-ablation/m0-status.md and sees the Research M0 milestone table plus providerCallsMade=false and phase1OrPhase2CellsRun=false."
+      "endTime": "2026-07-04T17:59:44.154Z",
+      "userSees": "User opens experiments/multi-model-ablation/m0-status.md and sees the Research M0 milestone table plus providerCallsMade=false and phase1OrPhase2CellsRun=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "M0 status records M0.1-M0.7 and explicitly states providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, and productGateImpact=none.",
+          "headHash": "8d3993e00df40ae4223800aa6bf46615719ccb12",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T17:59:44.503Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The checker validates dedicated .m0 artifacts while existing .example artifacts remain example-only and pass their original provider-free invariant checks.",
+          "headHash": "8d3993e00df40ae4223800aa6bf46615719ccb12",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T17:59:44.838Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-research-smoke.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "Research boundary fields and eligibleForOutcomeRecords=false prevent host-only audit output from being mistaken for formal ablation records.",
+          "headHash": "8d3993e00df40ae4223800aa6bf46615719ccb12",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T17:59:45.211Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -209,6 +250,18 @@
       "startTime": null,
       "endTime": null,
       "userSees": "User sees final verification evidence showing M0 readiness/pass-or-blocker status, no Phase 1/2 cells run, and no product gate/playbook/runtime impact."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-04T17:59:44.154Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M0 status and boundary artifacts implemented and smoke-verified.",
+      "agent": "codex-main"
     }
   ]
 }
