@@ -31,9 +31,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-04T19:58:07.491Z",
-      "endTime": null,
+      "endTime": "2026-07-04T20:17:53.822Z",
       "userSees": "User sees JSON fields exactly like \"schemaVersion\", \"storyId\", \"groups\", \"milestones\", \"subObjectives\", \"evidenceRefs\", \"risks\", \"nextActions\", and \"readOnly\": true.",
       "files": {
         "modify": [],
@@ -43,7 +43,45 @@
         "test": [
           "packages/main/tests/milestone-status.test.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused test builds a sample confirmed milestone ledger and asserts JSON report fields include every milestone, groups, subObjectives, evidenceRefs, risks, nextActions, and readOnly mode.",
+          "headHash": "871004c58346265f141d1f3c010c830f04d54a04",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:17:54.182Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused test covers missing milestoneLedger=null and asserts ledger.present=false, completed/current/remaining groups are empty, a missing-ledger blocker is reported, and next action points to milestone_ledger_set.",
+          "headHash": "871004c58346265f141d1f3c010c830f04d54a04",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:17:54.519Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused test calls the handler with runCommands=true against a fake store and verifies it throws before any store read, preserving the read-only boundary.",
+          "headHash": "871004c58346265f141d1f3c010c830f04d54a04",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:17:54.862Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -183,6 +221,17 @@
           "packages/main/tests/milestone-status.test.mjs"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-04T20:17:53.822Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 871004c58; evidence recorded from final HEAD build/test run."
     }
   ]
 }
