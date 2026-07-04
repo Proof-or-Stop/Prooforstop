@@ -70,10 +70,11 @@
       "sourcePointers": [
         ".lattice/story/actives/B-f8c6/execution-boundary.json",
         ".lattice/story/actives/B-f8c6/plan.md",
-        ".lattice/story/actives/B-f8c6/checklist.json"
+        ".lattice/story/actives/B-f8c6/checklist.json",
+        ".lattice/story/actives/B-f8c6/scope-boundary.json"
       ],
-      "resolution": "Resolved by narrowing execution-boundary.allowedPaths to docs/requirements/decisions and experiments/multi-model-ablation only, and by explicitly excluding packages/main/src and packages/main/test. This matches the M0-only plan/checklist and preserves the no product-code/no provider-call scope.",
-      "resolvedAt": "2026-07-04T16:24:25.360Z"
+      "resolution": "Resolved as a PLAN-phase scope interpretation rather than an INIT boundary rewrite: execution_boundary_set is only available in INIT, so the recorded INIT execution boundary cannot be changed in PLAN. The authoritative implementation scope for this story remains the checklist files, scope-boundary exclusions, and plan.md: only docs/requirements/decisions and experiments/multi-model-ablation may be changed. packages/main/src and packages/main/test are not used by any checklist item and remain out of implementation scope despite the stale broad INIT execution-boundary artifact.",
+      "resolvedAt": "2026-07-04T16:24:58.331Z"
     }
   ]
 }
