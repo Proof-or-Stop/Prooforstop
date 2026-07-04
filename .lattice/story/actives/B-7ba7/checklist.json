@@ -203,7 +203,7 @@
       },
       "status": "done",
       "startTime": "2026-07-04T20:19:05.201Z",
-      "endTime": "2026-07-04T20:19:13.090Z",
+      "endTime": "2026-07-04T20:27:56.910Z",
       "userSees": "User sees row details exactly like \"Status:\", \"Sub-objectives:\", \"Evidence:\", \"Risks:\", and \"Next action:\" for the current milestone.",
       "files": {
         "modify": [],
@@ -222,10 +222,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test asserts completed M1 is grouped under completed, carries evidenceRefs for CHK-001:happy:0, and has no blocking next action.",
-          "headHash": "e15be0554150cd58c675c359a3b3357b72987c84",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:13.443Z"
+          "headHash": "7b75e15b970b75b445493791e5ea7185131cc0a8",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:57.094Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -234,10 +234,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test asserts partially complete M2 is the current milestone, includes remaining checklist and verificationIntent sub-objectives, reports risks, and selects the smallest next action.",
-          "headHash": "e15be0554150cd58c675c359a3b3357b72987c84",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:13.787Z"
+          "headHash": "7b75e15b970b75b445493791e5ea7185131cc0a8",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:57.263Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -246,10 +246,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers missing evidence and missing ledger cases and asserts they are not reported as completed; current real CLI output shows missing evidence remains a risk until verificationEvidence is recorded.",
-          "headHash": "e15be0554150cd58c675c359a3b3357b72987c84",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:14.121Z"
+          "headHash": "7b75e15b970b75b445493791e5ea7185131cc0a8",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:57.427Z"
         }
       ]
     },
