@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-806b:F-001",
+      "desc": "experiments/multi-model-ablation/m1-freeze-check.mjs:149 hard-requires optional cell ④ to exist, and lines 157/160-162/171 also hard-require ④ count and ③-vs-④ metadata. CHK-004 edge says the checker should permit missing optional ④ while still requiring ③/⑥/②, so a required-only valid matrix would fail as a brittle false positive. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T19:32:07.905Z",
+      "reviewRound": "2026-07-04T19:29:17.106Z",
+      "reviewRunId": "B-806b:RR-002",
+      "_hash": "cf60bfab0ea04572e27d3af7532ef9dd697038cc919fbe1eca59b770e855f757",
+      "signatureTag": "edge|unknown|experiments-multi-model",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
