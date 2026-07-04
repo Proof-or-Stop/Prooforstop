@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f8c6",
+  "mode": "maintenance",
+  "allowed": [
+    "Add canonical multi-model ablation M0 protocol documentation",
+    "Add documented local readiness checks that do not call providers",
+    "Add lightweight example JSON artifacts under experiments/multi-model-ablation"
+  ],
+  "excluded": [
+    "Call model providers for ablation data collection",
+    "Change Proofbound product gates, playbooks, runtime memory, DONE policy, or active Tier-C stories",
+    "Run Phase 1 or Phase 2 experimental cells",
+    "Treat Codex CLI audit output as ablation outcome data"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved starting M0 only after clarifying runner/model boundaries on 2026-07-04.",
+  "createdAt": "2026-07-04T16:18:02.573Z",
+  "updatedAt": "2026-07-04T16:18:02.573Z",
+  "_hash": "3f3911517deba5bdcfa4bd1c7756010ee805fcf26ec7b6fba4a7aed19b10524b"
+}

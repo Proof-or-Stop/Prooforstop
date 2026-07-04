@@ -1,0 +1,164 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Promote the multi-model ablation protocol into canonical project docs",
+      "context": "Move the reviewed protocol from the Claude output path into docs/requirements/decisions with the M0 execution order, model/host constraints, parallel runner rules, budget-lock ordering, and research-only claim boundary preserved.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/multi-model-ablation-replication.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Protocol exists in canonical docs and contains M0/M1/M2 ordering plus E1/E2 host-model separation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The protocol explicitly says Codex CLI audit output is not ablation outcome unless registered as a formal runner.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The protocol forbids ② vs ④ as confirmatory evidence and blocks research evidence from product gate/playbook/runtime use.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add M0 cell manifest and runner registry examples",
+      "context": "Create lightweight experiment artifacts that show how formal runners are assigned cellKeys before execution, including hostKind versus model snapshot separation.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell-manifest.example.json",
+          "experiments/multi-model-ablation/runner-registry.example.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Examples include ③, ⑥, ②, optional ④ cells with unique cellKeys and runner assignments.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A runner can be Codex CLI, Codex App, CI, or custom harness while model family is determined only by executorSnapshot and reviewerSnapshot.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The examples do not duplicate a cellKey across runners or assign A2 prime before budgetLockDigest is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add A2 prime budget-lock readiness artifact",
+      "context": "Define the phase1-budget-lock artifact shape so M0 freezes the A4 calibration-before-A2-prime rule before Phase 1 can start.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/phase1-budget-lock.example.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The example records executorFamily, task-level A4 calibration medians, snapshot digests, and budgetLockDigest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The artifact makes A2 prime impossible to treat as valid before budget lock.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The artifact disallows post hoc budget edits after A2 prime outcomes are known.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a read-only M0 readiness checker or documented check command",
+      "context": "Provide a lightweight verification path that checks the protocol and examples for required fields without calling providers or running Phase 1 cells.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/README.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A maintainer can verify M0 readiness locally with deterministic file checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The check distinguishes protocol audit evidence from formal ablation outcome evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The check fails or documents failure if A2 prime cells appear without a budget lock or if Codex CLI is treated as a model family.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

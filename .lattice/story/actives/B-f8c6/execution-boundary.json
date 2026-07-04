@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f8c6",
+  "allowedCommands": [
+    "lattice *",
+    "node *",
+    "npm run *",
+    "npm test -- *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "experiments/multi-model-ablation",
+    "packages/main/src",
+    "packages/main/test"
+  ],
+  "excludedCommands": [
+    "curl *provider*",
+    "git push *",
+    "omx *",
+    "python *provider*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "experiments/tier-c-proof"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M0 is limited to docs, examples, and deterministic readiness checks; no provider data collection.",
+  "createdAt": "2026-07-04T16:18:02.573Z",
+  "updatedAt": "2026-07-04T16:18:02.573Z",
+  "_hash": "157264b26d4df4add39894d7b9c7faabe781d779578931cc00aeddbe17ac04c0"
+}
