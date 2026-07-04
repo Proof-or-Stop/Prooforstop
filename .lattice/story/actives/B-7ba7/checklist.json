@@ -286,7 +286,7 @@
       },
       "status": "done",
       "startTime": "2026-07-04T20:19:24.267Z",
-      "endTime": "2026-07-04T20:19:25.032Z",
+      "endTime": "2026-07-04T20:27:57.822Z",
       "userSees": "User sees docs and tests name \"lattice milestone_status --storyId=B-demo\", \"read-only\", \"no automatic execution\", and \"no production readiness claim\".",
       "files": {
         "modify": [
@@ -305,10 +305,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers JSON report shape, grouped Markdown text rendering, missing-ledger blocker behavior, and direct handler read-only failure before store reads.",
-          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:25.386Z"
+          "headHash": "3e6eb744c00becb83643798fb0d7c44f96027869",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:57.991Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -317,10 +317,10 @@
           "command": "rg -n \"milestone_status|read-only|Detail granularity|completion or executor ledgers\" docs/CLI.md",
           "result": "pass",
           "note": "CLI docs explain milestone_status usage, Host Progress Reporting Contract, missing-ledger blocker, ledger/checklist/verificationIntent granularity, and that future completion/executor ledgers can improve detail but are not required for V1.",
-          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:25.719Z"
+          "headHash": "3e6eb744c00becb83643798fb0d7c44f96027869",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:58.167Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -328,11 +328,11 @@
           "file": "docs/CLI.md",
           "command": "rg -n \"automatic execution|automatic DONE|production readiness|Authority\" docs/CLI.md",
           "result": "pass",
-          "note": "CLI docs state V1 does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution, claim automatic DONE, Authority completion, or production readiness.",
-          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
-          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
-          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
-          "timestamp": "2026-07-04T20:19:26.062Z"
+          "note": "CLI docs state V1 does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution, claim automatic DONE, remote Authority completion, or production readiness.",
+          "headHash": "3e6eb744c00becb83643798fb0d7c44f96027869",
+          "materialHash": "f3fcb3047a1ecddb12af552f2d67599d8e09243f1abc7266fcc680d2c0e4c073",
+          "storyFilesHash": "e22ce33037109e1006bdcd33a6be20893858c4da5a5dddbc4a904a29bbc921a3",
+          "timestamp": "2026-07-04T20:27:58.335Z"
         }
       ]
     }
