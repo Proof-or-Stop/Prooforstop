@@ -369,10 +369,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User sees final verification evidence showing M0 readiness/pass-or-blocker status, no Phase 1/2 cells run, and no product gate/playbook/runtime impact."
+      "endTime": "2026-07-04T18:00:27.350Z",
+      "userSees": "User sees final verification evidence showing M0 readiness/pass-or-blocker status, no Phase 1/2 cells run, and no product gate/playbook/runtime impact.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs && node -e 'const fs=require(\"node:fs\"); for (const f of [\"experiments/multi-model-ablation/cell-manifest.example.json\",\"experiments/multi-model-ablation/runner-registry.example.json\",\"experiments/multi-model-ablation/phase1-budget-lock.example.json\"]) { JSON.parse(fs.readFileSync(f,\"utf8\")); }'",
+          "result": "pass",
+          "note": "Local verification proves M0 readiness/pass-or-blocker status and confirms no provider calls or Phase 1/2 cells were run.",
+          "headHash": "486fd47ccb27780bb20e96df84c37d87b0f9f0da",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:27.712Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The artifacts keep productGateImpact=none and state that smoke output does not mutate DONE, playbook, runtime, or default guidance.",
+          "headHash": "486fd47ccb27780bb20e96df84c37d87b0f9f0da",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:28.054Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-status.md",
+          "command": "rg -n \"does not run provider calls|does not grant formal Phase 1 readiness|phase1OrPhase2CellsRun=false|containsOutcomeData=false\" experiments/multi-model-ablation/m0-status.md",
+          "result": "pass",
+          "note": "Status text explicitly prevents overclaiming: H-M1/H-M3 outcome data does not exist yet and Phase 1 still needs human approval plus execution-locked dated snapshots/budget.",
+          "headHash": "486fd47ccb27780bb20e96df84c37d87b0f9f0da",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:28.406Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -414,6 +455,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Budget-lock and contrast mechanics implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T18:00:27.350Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Overall Research M0 verification completed with provider-safe checks.",
       "agent": "codex-main"
     }
   ]
