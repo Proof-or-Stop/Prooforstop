@@ -1,0 +1,71 @@
+{
+  "storyId": "B-bfba",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "docs/CLI.md",
+    ".lattice/story/actives/B-bfba/*.json"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-bfba/*.json"
+  ],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [
+    "README.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "README.md",
+    "unrelated lifecycle rewrites",
+    "Authority production completion claims"
+  ],
+  "scopeChangeReason": "Allow this story's own ProofStory metadata artifacts while keeping implementation scope limited to milestone closeout behavior.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-04T23:53:19.097Z",
+  "updatedAt": "2026-07-04T23:53:44.355Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/core/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0"
+      ]
+    }
+  ]
+}

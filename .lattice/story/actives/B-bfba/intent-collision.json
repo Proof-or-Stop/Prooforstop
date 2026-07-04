@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-bfba",
+  "id": "IC-20260704235258",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a stable DONE closeout snapshot plus a read-only closeout reporting surface. Keep milestone_status as the live current-freshness diagnostic and do not claim Authority or production DONE.",
+  "acceptedInterpretationHash": "sha256:7ae4e9d9908d1609d5f2a2dfcb1a81b1b28de80c6cff473c35c77611214764cb",
+  "notes": "No collision with B-7ba7: B-7ba7 provides live milestone status; B-bfba adds historical closeout capture and read path.",
+  "ledgerHashBeforeDecision": "sha256:afbddc0caaf4e1d101b7f791fa0ef98d71090578bc919866742c326fb506fb53",
+  "confirmedLedgerHash": "sha256:afbddc0caaf4e1d101b7f791fa0ef98d71090578bc919866742c326fb506fb53",
+  "createdAt": "2026-07-04T23:52:58.931Z",
+  "updatedAt": "2026-07-04T23:52:58.931Z"
+}

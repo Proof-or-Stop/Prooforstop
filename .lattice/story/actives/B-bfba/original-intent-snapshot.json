@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-bfba",
+  "sourceText": "User approved implementing a follow-up after B-7ba7: when all milestones are complete, print a final closeout table showing every milestone status, what problem it solved, and what evidence shows, instead of relying only on live milestone_status after DONE drift.",
+  "normalizedOutcome": "A DONE story has a stable closeout snapshot and a read-only command that prints every final milestone with status, solved problem, acceptance rule, evidence, risks, and next action.",
+  "acceptanceClaim": "The CLI can generate and read a DONE milestone closeout snapshot without changing live milestone_status freshness semantics.",
+  "keyRequirementIds": [
+    "REQ-CLOSEOUT-001",
+    "REQ-CLOSEOUT-002",
+    "REQ-CLOSEOUT-003"
+  ],
+  "requestHash": "sha256:ea42116e8805fd1f219cdb1ba9c6608de317e47e11b08a7667c2ef28dcc5aced",
+  "createdAt": "2026-07-04T23:52:58.726Z",
+  "updatedAt": "2026-07-04T23:52:58.726Z"
+}
