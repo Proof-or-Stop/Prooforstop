@@ -1,0 +1,73 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define DONE milestone closeout snapshot schema and read semantics",
+      "context": "Add a stable artifact contract for DONE closeout rows with status, solvedProblem, doneMeans, evidence, risks, nextAction, binding hashes, and source milestone_status digest.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/milestone-status.ts",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Capture closeout snapshot during DONE advancement",
+      "context": "Wire DONE advancement to create milestone-closeout.json from a fresh completed milestone_status projection before DONE metadata/version changes can stale the live view.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/core/milestone-status.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose stable closeout reporting to users and hosts",
+      "context": "Add a read-only way to print the DONE closeout table from the snapshot, keeping live milestone_status available for current diagnostics.",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

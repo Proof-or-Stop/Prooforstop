@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bfba",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/CLI.md",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "README.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Keep implementation scoped to Proofbound CLI milestone closeout behavior; do not touch unrelated README drift or OMX.",
+  "createdAt": "2026-07-04T23:48:40.897Z",
+  "updatedAt": "2026-07-04T23:48:40.897Z",
+  "_hash": "71cb9588467d0eeaca8521193adbcf5de66c09e7863e7591834fe52d2f2ee437"
+}
