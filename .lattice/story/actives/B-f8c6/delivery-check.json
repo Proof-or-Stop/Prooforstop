@@ -1,0 +1,79 @@
+{
+  "storyId": "B-f8c6",
+  "checkedAt": "2026-07-04T17:25:38.529Z",
+  "headHash": "d17d2dc6e5c6a0a92b1c59c09136c4f1a92b14b8",
+  "materialHash": "3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710",
+  "storyFilesHash": "f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07",
+  "reviewRound": "2026-07-04T16:56:22.106Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "promise": "Canonical protocol doc exists and defines M0/M1/M2 order, E1/E2 host-model separation, legal contrasts, and research-only adoption boundary.",
+      "status": "verified",
+      "verifiedBy": "sed and rg boundary read",
+      "evidence": "File exists. rg found research / paper-evidence, M0, Tier-C/M-crypto, cell labels 2/3/4/6, host/model separation via hostKind/executorSnapshot/reviewerSnapshot, and DONE/playbook/runtime non-impact wording."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell-manifest.example.json",
+      "promise": "M0 manifest and runner registry examples exist with unique formal cell rows, runner assignments, host/model separation, and provider-disabled example runners.",
+      "status": "verified",
+      "verifiedBy": "JSON parse plus README invariant",
+      "evidence": "cell-manifest.example.json and runner-registry.example.json parse; invariant passed with no duplicate cellKey, hostKind not reused as executorSnapshot/reviewerSnapshot, reviewer snapshots required for same/cross rows, providerCallEnabled=false, eligibleForOutcomeRecords=false."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+      "promise": "M0 budget-lock example exists and binds A2prime rows to a budgetLockDigest without provider-derived Phase 1 outcomes.",
+      "status": "verified",
+      "verifiedBy": "JSON parse plus README invariant",
+      "evidence": "phase1-budget-lock.example.json parses; README invariant passed and requires each A2prime row to be claimed exactly once by budgetLock.locks[].appliesToCellKeys with a matching budgetLockDigest and example digest fields; medianSpendFromA4Calibration remains null and a2PrimeExecutionAllowed=false."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "README exposes provider-free local checks for parsing, boundary search, and invariants, and those checks do not execute Phase 1/2 cells.",
+      "status": "verified",
+      "verifiedBy": "ran README commands locally",
+      "evidence": "node parse command printed parsed for all three JSON examples; exact README-extracted invariant printed example invariants passed; README states commands are limited to rg and local node and do not contact providers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "promise": "Story remains research-only and M0-only: no provider calls, no Phase 1/2 cells, no product gate/playbook/runtime/DONE policy activation.",
+      "status": "verified",
+      "verifiedBy": "rg boundary search and directory assertion",
+      "evidence": "rg and node boundary checks found only README plus three .example.json files under experiments/multi-model-ablation; formal protocol.lock.json, cell-manifest.json, runner-registry.json, phase1-budget-lock.json, and records-multi-model-ablation.jsonl are absent; JSON researchBoundary fields are providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, productGateImpact=none."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "artifact-json-parse",
+      "transcript": "Ran node JSON.parse over experiments/multi-model-ablation/cell-manifest.example.json, runner-registry.example.json, and phase1-budget-lock.example.json. Output: parsed each of the three files. Exit 0."
+    },
+    {
+      "featureId": "readme-invariant",
+      "transcript": "Ran exact README-extracted invariant: awk /^node <<.../ experiments/multi-model-ablation/README.md | node. Output: example invariants passed. This verifies unique cellKey values, A2prime budgetLockDigest binding, host/model separation, providerCallEnabled=false, eligibleForOutcomeRecords=false, and non-executable budget locks."
+    },
+    {
+      "featureId": "rg-boundary-search",
+      "transcript": "Ran rg boundary search for research / paper-evidence, M0, Tier-C, M-crypto, budgetLockDigest, snapshot digests, hostKind, executorSnapshot, reviewerSnapshot, eligibleForOutcomeRecords, product gates, DONE, playbook, runtime. Matches showed protocol and README boundary wording plus example fields. Separate rg for providerCallEnabled true, eligibleForOutcomeRecords true, outcome fields, records file, protocol lock, phase1 lock, and provider API patterns found only future protocol text and no enabled provider/run artifacts."
+    },
+    {
+      "featureId": "m0-directory-boundary",
+      "transcript": "Ran node directory assertion over experiments/multi-model-ablation. Output: m0 directory boundary passed. The directory contains only README.md, cell-manifest.example.json, runner-registry.example.json, and phase1-budget-lock.example.json; formal protocol.lock.json, cell-manifest.json, runner-registry.json, phase1-budget-lock.json, and records-multi-model-ablation.jsonl are absent."
+    },
+    {
+      "featureId": "validate-and-done-required-evidence",
+      "transcript": "Verified from files without rerunning forbidden lifecycle commands: .lattice/story/actives/B-f8c6/test-evidence.json result PASS at 2026-07-04T17:17:00.721Z with verificationCoverage 12/12 covered and missingRequired 0; .lattice/story/actives/B-f8c6/done-required-evidence.json status PASS at 2026-07-04T17:22:26.425Z with PASS receipts for npm --prefix packages/main run build and npm test. Both bind materialHash 3a25571f3c9ed5c110a1a27c3bc6e6b5d82375af445656858ad44b113ae19710 and storyFilesHash f20763ba334b5cf4173b0da31f997b4728f66fd8e38bbc315ae1b9fd16396a07."
+    },
+    {
+      "featureId": "findings-f001-f005",
+      "transcript": "Parsed .lattice/story/actives/B-f8c6/findings.json. F-001, F-002, F-003, F-004, and F-005 are all status=resolved with evidenceState=verified; F-005 resolution cites commit 6fafe19a4 for the A2prime budget-lock invariant."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises verified on this machine: canonical protocol and M0 examples exist, provider-free README checks pass, boundary scans show no formal Phase 1/2 artifacts or provider enablement, validation and DONE-required evidence are PASS from files, and F-001..F-005 are resolved."
+  },
+  "_hash": "69af575da6a27e7aa84cce79fbc2e30829c383a4dded32658154aa3461b09406"
+}
