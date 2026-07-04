@@ -114,7 +114,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-04T19:19:22.524Z",
+      "endTime": "2026-07-04T19:37:26.206Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
@@ -122,11 +122,11 @@
           "verdict": "success",
           "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
           "result": "pass",
-          "note": "seed and cell matrix manifests include deterministic dimensions and required Phase 1 cells ③, ⑥, and ② plus optional ④ Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
-          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
-          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
-          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
-          "timestamp": "2026-07-04T19:19:22.800Z"
+          "note": "seed and cell matrix manifests include deterministic dimensions and required Phase 1 cells ③, ⑥, and ② plus optional ④ Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:26.490Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,11 +134,11 @@
           "verdict": "success",
           "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
           "result": "pass",
-          "note": "A2prime ⑥ remains blocked behind ③-derived A4 calibration and budget lock sequencing Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
-          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
-          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
-          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
-          "timestamp": "2026-07-04T19:19:23.073Z"
+          "note": "A2prime ⑥ remains blocked behind ③-derived A4 calibration and budget lock sequencing; the checker now also accepts a required-only matrix without optional ④ Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:26.766Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,11 +146,11 @@
           "verdict": "success",
           "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
           "result": "pass",
-          "note": "the checker rejects missing required ② and illegal ②-vs-④ confirmatory use Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
-          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
-          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
-          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
-          "timestamp": "2026-07-04T19:19:23.346Z"
+          "note": "the checker rejects missing required ② and illegal ②-vs-④ confirmatory use while allowing optional ④ absence Evidence: M1 freeze checker passed: 219 assertions; 8 negative controls rejected.",
+          "headHash": "f70607aed6b236c85d7afd159a66fe3ab75d66c9",
+          "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+          "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+          "timestamp": "2026-07-04T19:37:27.037Z"
         }
       ]
     },
