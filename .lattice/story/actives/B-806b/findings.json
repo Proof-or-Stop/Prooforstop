@@ -24,7 +24,7 @@
       "desc": "CHK-004:edge:0 and CHK-002:edge:0 claim optional ④ may be absent / the checker permits missing optional ④, but experiments/multi-model-ablation/m1-freeze-check.mjs:149-162 requires ④ to exist, requires optionalCellNumbers=[④], and requires requiredPlusOptionalRows=4608. Current evidence therefore does not cover the required optional-④-absent edge case.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-04T19:32:30.635Z",
@@ -36,7 +36,11 @@
         "experiments/multi-model-ablation/cell-matrix.m1.json"
       ],
       "signatureTag": "edge|mjs|edge-edge-claim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f70607aed: required-only edge case is explicitly covered by an in-memory positive control that removes optional ④, accepts required ③/⑥/② count 3456, and still rejects missing required ②. Local checker passes: 219 assertions; 8 negative controls rejected.",
+      "resolvedAt": "2026-07-04T19:43:33.010Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
