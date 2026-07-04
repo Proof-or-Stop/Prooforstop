@@ -39,8 +39,8 @@
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed by treating missing checklistRefs as a risk and requiring at least one valid checklistRef for normal non-not_applicable milestone completion. Regression coverage added to packages/main/tests/milestone-status.test.mjs.",
-      "resolvedAt": "2026-07-04T22:11:17.872Z",
+      "resolvedReason": "Fixed by e8bb16fee/2f85f87ea: normal milestones now require at least one valid checklistRef; empty checklistRefs produce missing-checklistRefs risk and cannot complete except not_applicable. Covered by milestone-status test M-no-checklistRefs negative case and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:22.567Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
