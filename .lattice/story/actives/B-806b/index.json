@@ -4,7 +4,7 @@
   "title": "Freeze Multi-Model Ablation M1 protocol and Phase 1 launch locks",
   "description": "After B-69b8 proved the local M0 smoke harness, freeze the M1 protocol hash, seed manifest, cell matrix, and Phase 1 launch gate before any cost-bearing provider campaign. This prevents later multi-model comparisons from drifting or mixing executor and reviewer factors.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "operator-request-2026-07-04-after-B-69b8",
   "keywords": [
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-018a4b2348ee181b",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:06:53.488Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-806b",
+    "branch": "story/B-806b",
+    "createdAt": "2026-07-04T19:06:51.694Z"
+  }
 }

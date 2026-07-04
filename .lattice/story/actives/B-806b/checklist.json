@@ -42,7 +42,7 @@
     {
       "id": "CHK-002",
       "title": "Create deterministic seed and cell matrix manifests",
-      "context": "Represent planned Phase 1 cells for required ③/⑥ and optional ②/④ without running providers or writing outcome records.",
+      "context": "Represent planned Phase 1 cells for required ③/⑥ and required ②, with ④ labeled optional budget-permitting, without running providers or writing outcome records.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
@@ -57,19 +57,19 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "manifests include deterministic seed derivation and valid pairwise comparisons ③ vs ⑥, ① vs ②, and ③ vs ④.",
+            "desc": "manifests include deterministic seed derivation and required Phase 1 cells ③, ⑥, and ②, plus optional budget-permitting ④ as a separately labeled extension.",
             "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "A2prime cells remain blocked until same-family A4 budget calibration exists.",
+            "desc": "A2prime cells remain blocked until same-family A4 budget calibration exists, and ④ may be absent without making M1 incomplete.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "② vs ④ must not be marked as a legal confirmatory comparison because both executor and reviewer vary.",
+            "desc": "② vs ④ must not be marked as a legal confirmatory comparison because both executor and reviewer vary; missing required ② must fail the checker.",
             "type": "logic"
           }
         ]
@@ -141,13 +141,13 @@
         ],
         "edge": [
           {
-            "desc": "the checker handles missing optional cross-review cells while still requiring Phase 1 required cells.",
+            "desc": "the checker permits missing optional ④ while still requiring Phase 1 ③, ⑥, and ② and enforcing A2prime budget sequencing.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "negative controls reject drifted protocol digests, launchAllowed=true, provider calls, outcome fields, A2prime-before-budget, and illegal ② vs ④ confirmatory comparison.",
+            "desc": "negative controls reject drifted protocol digests, launchAllowed=true, provider calls, outcome fields, missing required ②, A2prime-before-budget, and illegal ② vs ④ confirmatory comparison.",
             "type": "logic"
           }
         ]
