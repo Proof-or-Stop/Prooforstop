@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-69b8:F-001",
+      "desc": "Docs/tooling sync drift remains: lattice check reports DRIFT with STALE_SAFE .lattice/Lattice.md, .gitignore, .codex/hooks/lattice-scope-pretool.cjs and STALE_LOCAL_EDIT AGENTS.md requiring manual review. This is not an M0 status overclaim, but docs/assets do need syncing before treating the managed project docs/tooling surface as current.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-04T18:03:47.548Z",
+      "reviewRound": "2026-07-04T18:00:42.246Z",
+      "reviewRunId": "B-69b8:RR-003",
+      "_hash": "003c675f49f04f5b28d2f02f81a2f3458f8270bed0d01d22f8c44d9d833d671b",
+      "files": [
+        ".lattice/Lattice.md",
+        ".gitignore",
+        "AGENTS.md",
+        ".codex/hooks/lattice-scope-pretool.cjs"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-tooling-sync",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
