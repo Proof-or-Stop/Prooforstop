@@ -304,6 +304,9 @@ Host Progress Reporting Contract:
   verificationIntent refs, and verificationEvidence. Future completion or
   executor ledgers can improve state-change deltas, but V1 does not require them
   and reports only current committed story facts.
+- `requiredEvidence` entries are enforced as evidence kinds on fresh covering
+  evidence. Passing evidence and permanent non-failing waivers can cover
+  verification refs; deferred gate-evidence waivers and failed waivers do not.
 - Evidence freshness uses `materialHash` and `storyFilesHash` when both the
   current workspace and the evidence provide them. `headHash` is a hard fallback
   only for legacy or degraded bindings that lack those stronger hashes, so

@@ -114,6 +114,8 @@ interface IntentIndexEntry {
 type IntentIndex = Map<string, IntentIndexEntry[]>;
 type EvidenceIndex = Map<string, VerificationEvidence[]>;
 
+const MIN_HEAD_HASH_PREFIX_LENGTH = 7;
+
 const READ_ONLY_MODE: MilestoneStatusMode = {
   readOnly: true,
   runCommands: false,
@@ -131,10 +133,17 @@ function stringArrayField(value: unknown): string[] {
 }
 
 function evidenceStatus(evidence: VerificationEvidence): MilestoneStatusEvidenceRef['status'] {
+  if (evidence.result === 'fail') return 'fail';
   if (evidence.kind === 'waiver') return 'waived';
   if (evidence.result === 'pass') return 'pass';
-  if (evidence.result === 'fail') return 'fail';
   return 'missing-result';
+}
+
+function evidenceCanCover(evidence: VerificationEvidence): boolean {
+  if (evidence.kind === 'waiver') {
+    return evidence.waiverType === 'permanent' && evidence.result !== 'fail';
+  }
+  return evidence.result === 'pass';
 }
 
 function normalizedBindingValue(value: string | undefined): string | undefined {
@@ -147,7 +156,10 @@ function shortHash(value: string): string {
 }
 
 function headHashMatches(evidenceValue: string, currentValue: string): boolean {
-  return evidenceValue === currentValue || evidenceValue.startsWith(currentValue) || currentValue.startsWith(evidenceValue);
+  if (evidenceValue === currentValue) return true;
+  const shorterLength = Math.min(evidenceValue.length, currentValue.length);
+  return shorterLength >= MIN_HEAD_HASH_PREFIX_LENGTH
+    && (evidenceValue.startsWith(currentValue) || currentValue.startsWith(evidenceValue));
 }
 
 function headHashFreshnessRisks(evidenceHeadHash: string | undefined, currentHeadHash: string): string[] {
@@ -209,8 +221,7 @@ function evidenceIsCovering(
   evidence: VerificationEvidence,
   currentBinding: MilestoneStatusCurrentEvidenceBinding | null | undefined,
 ): boolean {
-  const status = evidenceStatus(evidence);
-  return (status === 'pass' || status === 'waived') && evidenceFreshnessRisks(evidence, currentBinding).length === 0;
+  return evidenceCanCover(evidence) && evidenceFreshnessRisks(evidence, currentBinding).length === 0;
 }
 
 function buildChecklistIndex(checklist: ChecklistData): Map<string, ChecklistItem> {
@@ -294,9 +305,11 @@ function buildMilestoneRow(
   const subObjectives: MilestoneStatusSubObjective[] = [];
   const evidenceRefs: MilestoneStatusEvidenceRef[] = [];
   const seenEvidenceRefs = new Set<string>();
+  const coveringEvidenceByKind = new Map<string, VerificationEvidence[]>();
   const risks: string[] = [];
   const nextActionCandidates: string[] = [];
   let staleEvidenceDetected = false;
+  let nonCoveringEvidenceDetected = false;
   const pushEvidenceRef = (evidence: VerificationEvidence): void => {
     const summarized = summarizeEvidence(evidence);
     const key = evidenceRefKey(summarized);
@@ -354,12 +367,19 @@ function buildMilestoneRow(
       staleRisks: evidenceFreshnessRisks(entry, currentEvidenceBinding),
     }));
     const staleCoveringEvidence = evidenceFreshness.filter(({ entry, staleRisks }) => {
-      const status = evidenceStatus(entry);
-      return (status === 'pass' || status === 'waived') && staleRisks.length > 0;
+      return evidenceCanCover(entry) && staleRisks.length > 0;
     });
     const coveringEvidence = evidence.filter((entry) => evidenceIsCovering(entry, currentEvidenceBinding));
     const intentRisks: string[] = [];
     if (staleCoveringEvidence.length > 0) staleEvidenceDetected = true;
+    if (evidence.length > 0 && coveringEvidence.length === 0 && staleCoveringEvidence.length === 0) {
+      nonCoveringEvidenceDetected = true;
+    }
+    for (const entry of coveringEvidence) {
+      const existing = coveringEvidenceByKind.get(entry.kind) ?? [];
+      existing.push(entry);
+      coveringEvidenceByKind.set(entry.kind, existing);
+    }
 
     if (intentEntries.length === 0) {
       intentRisks.push(`Verification intent ref ${ref} is not present in checklist verificationIntent.`);
@@ -380,11 +400,11 @@ function buildMilestoneRow(
           staleRisks.map((risk) => `${entry.intentRef} ${risk}`)
         ));
         intentRisks.push(
-          `Verification intent ${ref} has stale passing or waived evidence on owning checklist item ${intent.itemId}: ${staleReasons.join('; ')}.`,
+          `Verification intent ${ref} has stale passing or permanent waiver evidence on owning checklist item ${intent.itemId}: ${staleReasons.join('; ')}.`,
         );
         nextActionCandidates.push(`Re-run verificationEvidence for ${ref} on checklist item ${intent.itemId} against the current evidence binding.`);
       } else if (coveringEvidence.length === 0) {
-        intentRisks.push(`Verification intent ${ref} has no passing or waived evidence on owning checklist item ${intent.itemId}.`);
+        intentRisks.push(`Verification intent ${ref} has no passing evidence or permanent non-failing waiver on owning checklist item ${intent.itemId}.`);
         nextActionCandidates.push(`Re-run or replace verificationEvidence for ${ref} on checklist item ${intent.itemId}.`);
       }
     }
@@ -403,14 +423,18 @@ function buildMilestoneRow(
   }
 
   for (const required of requiredEvidence) {
-    const requiredRisks = verificationIntentRefs.length > 0
-      ? []
-      : [`Required evidence "${required}" has no verificationIntentRefs mapping.`];
+    const requiredCovered = (coveringEvidenceByKind.get(required) ?? []).length > 0;
+    const requiredRisks = verificationIntentRefs.length === 0
+      ? [`Required evidence "${required}" has no verificationIntentRefs mapping.`]
+      : requiredCovered ? [] : [`Required evidence kind "${required}" has no fresh covering evidence on mapped verificationIntentRefs.`];
+    if (requiredRisks.length > 0 && verificationIntentRefs.length > 0) {
+      nextActionCandidates.push(`Record fresh passing ${required} verificationEvidence for milestone ${milestone.id}.`);
+    }
     subObjectives.push({
       id: required,
       kind: 'requiredEvidence',
       label: required,
-      status: verificationIntentRefs.length > 0 ? 'mapped' : 'unmapped',
+      status: requiredCovered ? 'covered' : verificationIntentRefs.length > 0 ? 'missing-evidence-kind' : 'unmapped',
       risks: requiredRisks,
     });
     risks.push(...requiredRisks);
@@ -432,12 +456,13 @@ function buildMilestoneRow(
   const referencesValid =
     checklistRefsValid
     && verificationRefsValid;
-  const evidenceRequirementsMapped = requiredEvidence.length === 0 || verificationIntentRefs.length > 0;
+  const evidenceRequirementsCovered = requiredEvidence.length === 0
+    || requiredEvidence.every((required) => (coveringEvidenceByKind.get(required) ?? []).length > 0);
   const complete = milestone.status === 'not_applicable' || (
     referencesValid
     && checklistRefsComplete
     && verificationRefsCovered
-    && evidenceRequirementsMapped
+    && evidenceRequirementsCovered
   );
 
   if (milestone.status === 'planned') {
@@ -457,7 +482,7 @@ function buildMilestoneRow(
     claim: milestone.claim,
     doneMeans: milestone.doneMeans,
     ledgerStatus: milestone.status,
-    statusDetail: `ledger=${milestone.status}; checklist=${milestone.status === 'not_applicable' && checklistRefs.length === 0 ? 'not-required' : checklistRefsComplete ? 'complete' : checklistRefs.length === 0 ? 'missing' : 'incomplete'}; evidence=${verificationRefsCovered ? 'covered' : staleEvidenceDetected ? 'stale' : 'missing'}`,
+    statusDetail: `ledger=${milestone.status}; checklist=${milestone.status === 'not_applicable' && checklistRefs.length === 0 ? 'not-required' : checklistRefsComplete ? 'complete' : checklistRefs.length === 0 ? 'missing' : 'incomplete'}; evidence=${verificationRefsCovered ? 'covered' : staleEvidenceDetected ? 'stale' : nonCoveringEvidenceDetected ? 'not-passing' : 'missing'}; requiredEvidence=${evidenceRequirementsCovered ? 'covered' : 'missing'}`,
     sourceRequirementId: milestone.sourceRequirementId,
     ...(milestone.parentLedgerId ? { parentLedgerId: milestone.parentLedgerId } : {}),
     ...(milestone.assignedStory ? { assignedStory: milestone.assignedStory } : {}),

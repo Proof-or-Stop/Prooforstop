@@ -263,11 +263,13 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(m2.status, 'current');
   assert.equal(m2.ledgerStatus, 'done');
   assert.equal(m2.evidenceRefs[0].status, 'fail');
-  assert.match(m2.risks.join('\n'), /no passing or waived evidence on owning checklist item CHK-002/);
+  assert.match(m2.statusDetail, /evidence=not-passing/);
+  assert.match(m2.risks.join('\n'), /no passing evidence or permanent non-failing waiver on owning checklist item CHK-002/);
+  assert.match(m2.risks.join('\n'), /Required evidence kind "logic_test" has no fresh covering evidence/);
   assert.match(m2.nextAction, /Re-run or replace verificationEvidence/);
   assert.deepEqual(
     m2.subObjectives.filter((sub) => sub.kind === 'requiredEvidence').map((sub) => [sub.id, sub.status]),
-    [['logic_test', 'mapped']],
+    [['logic_test', 'missing-evidence-kind']],
   );
 
   assert.equal(m3.status, 'remaining');
@@ -338,7 +340,7 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(row.status, 'current');
   assert.match(row.statusDetail, /evidence=stale/);
   assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STALE:happy:0')?.status, 'stale-evidence');
-  assert.match(row.risks.join('\n'), /stale passing or waived evidence/);
+  assert.match(row.risks.join('\n'), /stale passing or permanent waiver evidence/);
   assert.doesNotMatch(row.risks.join('\n'), /stale headHash/);
   assert.match(row.risks.join('\n'), /stale materialHash/);
   assert.match(row.risks.join('\n'), /stale storyFilesHash/);
@@ -542,6 +544,125 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  const cl = {
+    items: [
+      checklistItem('CHK-REQ-LOGIC', 'done', [
+        evidence('CHK-REQ-LOGIC:happy:0', 'pass', { kind: 'logic_test' }),
+      ], intent('wrong kind is still scoped intent coverage')),
+      checklistItem('CHK-REQ-BROWSER', 'done', [
+        evidence('CHK-REQ-BROWSER:happy:0', 'pass', { kind: 'browser_test' }),
+      ], intent('required browser evidence is present')),
+    ],
+  };
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-required-missing',
+        sourceRequirementId: 'REQ-required-missing',
+        claim: 'Required evidence kind must be present',
+        doneMeans: 'A browser_test requirement cannot be completed by logic_test evidence',
+        requiredEvidence: ['browser_test'],
+        checklistRefs: ['CHK-REQ-LOGIC'],
+        verificationIntentRefs: ['CHK-REQ-LOGIC:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-required-covered',
+        sourceRequirementId: 'REQ-required-covered',
+        claim: 'Required evidence kind can complete',
+        doneMeans: 'A fresh browser_test evidence item satisfies the required kind',
+        requiredEvidence: ['browser_test'],
+        checklistRefs: ['CHK-REQ-BROWSER'],
+        verificationIntentRefs: ['CHK-REQ-BROWSER:happy:0'],
+        status: 'done',
+      }),
+    ]),
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-required-covered']);
+  assert.deepEqual(report.groups.current, ['M-required-missing']);
+  const missing = report.milestones.find((row) => row.id === 'M-required-missing');
+  assert.ok(missing);
+  assert.equal(missing.subObjectives.find((sub) => sub.id === 'CHK-REQ-LOGIC:happy:0')?.status, 'covered');
+  assert.equal(missing.subObjectives.find((sub) => sub.id === 'browser_test')?.status, 'missing-evidence-kind');
+  assert.match(missing.statusDetail, /requiredEvidence=missing/);
+  assert.match(missing.risks.join('\n'), /Required evidence kind "browser_test" has no fresh covering evidence/);
+
+  const covered = report.milestones.find((row) => row.id === 'M-required-covered');
+  assert.ok(covered);
+  assert.equal(covered.subObjectives.find((sub) => sub.id === 'browser_test')?.status, 'covered');
+  assert.match(covered.statusDetail, /requiredEvidence=covered/);
+}
+
+{
+  const cl = {
+    items: [
+      checklistItem('CHK-WAIVE-PERM', 'done', [
+        evidence('CHK-WAIVE-PERM:happy:0', 'pass', { kind: 'waiver', waiverType: 'permanent' }),
+      ], intent('permanent waiver may cover')),
+      checklistItem('CHK-WAIVE-DEFER', 'done', [
+        evidence('CHK-WAIVE-DEFER:happy:0', 'pass', { kind: 'waiver', waiverType: 'deferred_gate_evidence' }),
+      ], intent('deferred waiver must not cover')),
+      checklistItem('CHK-WAIVE-FAIL', 'done', [
+        evidence('CHK-WAIVE-FAIL:happy:0', 'fail', { kind: 'waiver', waiverType: 'permanent' }),
+      ], intent('failed waiver must not cover')),
+    ],
+  };
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-waiver-permanent',
+        sourceRequirementId: 'REQ-waiver-permanent',
+        claim: 'Permanent waiver can cover',
+        doneMeans: 'Permanent non-failing waiver is explicit coverage',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-WAIVE-PERM'],
+        verificationIntentRefs: ['CHK-WAIVE-PERM:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-waiver-deferred',
+        sourceRequirementId: 'REQ-waiver-deferred',
+        claim: 'Deferred waiver cannot cover',
+        doneMeans: 'Deferred gate evidence must be replaced',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-WAIVE-DEFER'],
+        verificationIntentRefs: ['CHK-WAIVE-DEFER:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-waiver-failed',
+        sourceRequirementId: 'REQ-waiver-failed',
+        claim: 'Failed waiver cannot cover',
+        doneMeans: 'Failed waiver evidence must not complete',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-WAIVE-FAIL'],
+        verificationIntentRefs: ['CHK-WAIVE-FAIL:happy:0'],
+        status: 'done',
+      }),
+    ]),
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-waiver-permanent']);
+  assert.deepEqual(report.groups.current, ['M-waiver-deferred']);
+  assert.deepEqual(report.groups.remaining, ['M-waiver-failed']);
+  const deferred = report.milestones.find((row) => row.id === 'M-waiver-deferred');
+  const failed = report.milestones.find((row) => row.id === 'M-waiver-failed');
+  assert.ok(deferred);
+  assert.ok(failed);
+  assert.equal(deferred.evidenceRefs[0].status, 'waived');
+  assert.equal(deferred.subObjectives.find((sub) => sub.id === 'CHK-WAIVE-DEFER:happy:0')?.status, 'not-passing');
+  assert.match(deferred.risks.join('\n'), /no passing evidence or permanent non-failing waiver/);
+  assert.equal(failed.evidenceRefs[0].status, 'fail');
+  assert.equal(failed.subObjectives.find((sub) => sub.id === 'CHK-WAIVE-FAIL:happy:0')?.status, 'not-passing');
+  assert.match(failed.statusDetail, /evidence=not-passing/);
+}
+
+{
   let readCount = 0;
   const handlers = createMilestoneStatusHandlers({
     root: '/tmp/lattice-milestone-status',
@@ -701,6 +822,46 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.notEqual(unknownFlag.status, 0, 'CLI parser must reject unknown milestone_status flags');
     assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');
     assert.match(unknownFlag.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
+
+    {
+      const activeStoryId = 'B-preflight';
+      const activeRoot = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-preflight-'));
+      try {
+        const activeStoryDir = join(activeRoot, '.lattice', 'story', 'actives', activeStoryId);
+        mkdirSync(activeStoryDir, { recursive: true });
+        writeJson(join(activeRoot, 'lattice.config.json'), {
+          scanRoot: '.',
+          testsDir: 'tests',
+          fixturesDir: 'tests/fixtures',
+          storyDir: '.lattice/story/actives',
+          requirementsDir: 'docs/requirements',
+          storyPrefix: 'B',
+          flows: { defaults: {}, patterns: [] },
+        });
+        execFileSync('git', ['init', '-b', 'main'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['config', 'user.name', 'Milestone Status Test'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['config', 'user.email', 'milestone-status@example.com'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['add', 'lattice.config.json'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['commit', '-m', 'init'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['checkout', '-b', `story/${activeStoryId}`], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('mkfifo', [join(activeStoryDir, 'index.json')], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+
+        const rejectedBeforeActiveRead = spawnSync(process.execPath, [
+          cliPath,
+          'milestone_status',
+          '--root',
+          activeRoot,
+          '--storyId',
+          activeStoryId,
+          '--surpriseFlag=true',
+        ], { cwd: activeRoot, encoding: 'utf8', timeout: 2000 });
+        assert.notEqual(rejectedBeforeActiveRead.error?.code, 'ETIMEDOUT', 'malformed milestone_status args must reject before active-story metadata reads');
+        assert.notEqual(rejectedBeforeActiveRead.status, 0, 'malformed milestone_status args must be rejected');
+        assert.match(rejectedBeforeActiveRead.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
+      } finally {
+        rmSync(activeRoot, { recursive: true, force: true });
+      }
+    }
 
     for (const flag of [
       'runCommands',
