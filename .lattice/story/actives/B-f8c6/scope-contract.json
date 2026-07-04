@@ -1,0 +1,42 @@
+{
+  "storyId": "B-f8c6",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/cell-manifest.example.json",
+    "experiments/multi-model-ablation/runner-registry.example.json",
+    "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate artifacts were created by lattice lifecycle commands for this story; they are story-scoped metadata, not product scope expansion.",
+      "timestamp": "2026-07-04T16:37:18.889Z",
+      "paths": [
+        ".lattice/story/actives/B-f8c6/intent-collision.json",
+        ".lattice/story/actives/B-f8c6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f8c6/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f8c6/intent-collision.json",
+        ".lattice/story/actives/B-f8c6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f8c6/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "c1073d87c88b5b625a41c82c59c616361dde89e6",
+      "materialHash": "41d1f5d26ef8aeb7724654d6741f92de490302fe825a22bda4c463399b223059"
+    }
+  ],
+  "createdAt": "2026-07-04T16:27:43.182Z",
+  "updatedAt": "2026-07-04T16:37:18.889Z"
+}

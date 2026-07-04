@@ -1,0 +1,88 @@
+{
+  "artifact": "phase1-budget-lock.example",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "schema_example_not_a_frozen_budget_lock",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "digestAlgorithm": "sha256",
+  "bindingPolicy": {
+    "bindingState": "example_placeholders_only_not_valid_for_execution",
+    "requiredDigestFields": [
+      "budgetLockDigest",
+      "executorSnapshotDigest",
+      "reviewerSnapshotDigest_or_not_applicable_semantics",
+      "toolSurfaceDigest",
+      "promptDigest",
+      "protocolLockDigest"
+    ],
+    "providerDerivedValuesPresent": false
+  },
+  "orderingRule": "For each executorFamily and task, write the A4 R-same calibration-derived budget lock before any matching A2prime row runs.",
+  "phase1ExecutionOrder": [
+    {
+      "order": 1,
+      "cellNumber": "③",
+      "requiredAction": "collect E2 A4 R-same calibration rows in an approved Phase 1 campaign"
+    },
+    {
+      "order": 2,
+      "cellNumber": "budget-lock",
+      "requiredAction": "freeze the per executorFamily x task budget lock and digest"
+    },
+    {
+      "order": 3,
+      "cellNumber": "⑥",
+      "requiredAction": "allow E2 A2prime rows only when budgetLockDigest matches the frozen lock"
+    }
+  ],
+  "locks": [
+    {
+      "lockKey": "E2|task-stratified-01",
+      "budgetLockDigest": "sha256:example-phase1-budget-lock-e2-task-stratified-01",
+      "lockState": "example_only_not_valid_for_execution",
+      "protocolLockDigest": "sha256:example-protocol-lock-placeholder-not-executable",
+      "calibrationWindow": {
+        "windowId": "example-calibration-window-not-executable",
+        "start": "YYYY-MM-DDT00:00:00Z-placeholder",
+        "end": "YYYY-MM-DDT00:00:00Z-placeholder",
+        "semantics": "placeholder_only_no_phase1_or_phase2_execution"
+      },
+      "snapshotDate": "YYYY-MM-DD-placeholder",
+      "executorFamily": "E2",
+      "executorSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "executorSnapshotDigest": "sha256:example-executor-snapshot-e2-placeholder",
+      "task": "task-stratified-01",
+      "sourceCellNumber": "③",
+      "sourceArm": "A4",
+      "sourceReviewerFamily": "same",
+      "reviewerSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "reviewerSnapshotDigest": "sha256:example-reviewer-snapshot-e2-placeholder",
+      "reviewerSnapshotSemantics": "source A4 R-same calibration binds reviewerSnapshot; the applies-to A2prime row has reviewerFamily not_applicable and no reviewer outcome",
+      "toolSurfaceDigest": "sha256:example-tool-surface-e2",
+      "promptDigest": "sha256:example-shared-prompt",
+      "sourceCellKeys": [
+        "A4|task-stratified-01|B01|r01|E2|same"
+      ],
+      "appliesToCellNumber": "⑥",
+      "appliesToArm": "A2prime",
+      "appliesToReviewerFamily": "not_applicable",
+      "appliesToReviewerSnapshot": null,
+      "appliesToReviewerSnapshotDigest": null,
+      "appliesToReviewerSnapshotSemantics": "not_applicable: A2prime has no reviewer lane and this example contains no outcome record",
+      "appliesToCellKeys": [
+        "A2prime|task-stratified-01|B01|r01|E2|not_applicable"
+      ],
+      "medianSpendFromA4Calibration": null,
+      "spendBand": {
+        "lowerMultiplier": 0.8,
+        "upperMultiplier": 1.2
+      },
+      "a2PrimeExecutionAllowed": false,
+      "reasonNotExecutable": "M0 example only; real values require human-approved Phase 1 calibration, provider snapshots, and protocol lock."
+    }
+  ]
+}

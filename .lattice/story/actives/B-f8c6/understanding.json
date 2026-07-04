@@ -1,0 +1,28 @@
+{
+  "task": "Create the M0 readiness foundation for the multi-model ablation replication campaign without collecting Phase 1 or Phase 2 outcome data.",
+  "outcome": "When the story is done, the user can open docs/requirements/decisions/multi-model-ablation-replication.md and experiments/multi-model-ablation/README.md, see exactly how runners, cell manifests, model snapshots, and A2 prime budget locks must be prepared, and run the documented local checks to confirm M0 readiness without calling any model provider.",
+  "facts": [
+    "Story B-f8c6 is scoped to M0 only and has two independent INIT reviewer passes with zero issues.",
+    "The reviewed protocol already exists in a Claude output directory and must be promoted into canonical project docs.",
+    "Codex CLI, Codex App, CI, or custom harnesses may be runners, but E2 status is determined by executorSnapshot/reviewerSnapshot rather than app name.",
+    "A2 prime cells must not run before an A4-derived phase1 budget lock exists.",
+    "Research evidence from this campaign must not automatically modify Proofbound product gates, playbooks, runtime memory, or DONE policy.",
+    "This M0 story uses documented deterministic checks and example artifacts rather than building a new command-line checker.",
+    "The exact E2 model snapshot is intentionally deferred to the future Phase 1 approval story and is represented here only as a locked snapshot placeholder."
+  ],
+  "constraints": [
+    "Do not run Phase 1 or Phase 2 experimental cells in this story.",
+    "Do not call model providers for ablation data collection.",
+    "Do not change Proofbound product gates, playbooks, runtime memory, DONE policy, or active Tier-C stories.",
+    "Keep all new artifacts within docs/requirements/decisions and experiments/multi-model-ablation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/README.md",
+    "experiments/multi-model-ablation/cell-manifest.example.json",
+    "experiments/multi-model-ablation/runner-registry.example.json",
+    "experiments/multi-model-ablation/phase1-budget-lock.example.json"
+  ],
+  "timestamp": "2026-07-04T16:21:00.673Z"
+}

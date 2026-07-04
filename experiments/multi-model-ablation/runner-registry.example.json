@@ -1,0 +1,82 @@
+{
+  "artifact": "runner-registry.example",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "example_only_m0_not_executable",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "hostModelSeparationRule": "hostKind names the adapter or harness; executorSnapshot and reviewerSnapshot name the locked provider model snapshots used by a formal cell.",
+  "runners": [
+    {
+      "runnerId": "runner-e2-same-example",
+      "hostId": "codex-cli-local-example-01",
+      "hostKind": "Codex CLI",
+      "executorFamily": "E2",
+      "executorSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "reviewerFamily": "same",
+      "reviewerSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "toolSurfaceDigest": "sha256:example-tool-surface-e2",
+      "promptDigest": "sha256:example-shared-prompt",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Codex CLI is the hostKind only; the E2 claim depends on the executorSnapshot and reviewerSnapshot."
+    },
+    {
+      "runnerId": "runner-e2-a2prime-example",
+      "hostId": "custom-harness-local-example-01",
+      "hostKind": "local harness",
+      "executorFamily": "E2",
+      "executorSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "reviewerFamily": "not_applicable",
+      "reviewerSnapshot": null,
+      "toolSurfaceDigest": "sha256:example-tool-surface-e2",
+      "promptDigest": "sha256:example-shared-prompt",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "A2prime has no reviewer; it must still bind the executor snapshot and budget lock."
+    },
+    {
+      "runnerId": "runner-e1-executor-e2-reviewer-example",
+      "hostId": "claude-code-cli-local-example-01",
+      "hostKind": "Claude Code CLI",
+      "executorFamily": "E1",
+      "executorSnapshot": "anthropic-claude-sonnet-YYYYMMDD-locked-example",
+      "reviewerFamily": "cross",
+      "reviewerSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "toolSurfaceDigest": "sha256:example-tool-surface-e1",
+      "promptDigest": "sha256:example-shared-prompt",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ② changes only reviewer family relative to a same-window E1 A4 anchor."
+    },
+    {
+      "runnerId": "runner-e2-executor-e1-reviewer-example",
+      "hostId": "ci-runner-local-example-01",
+      "hostKind": "CI harness",
+      "executorFamily": "E2",
+      "executorSnapshot": "openai-gpt-family-YYYYMMDD-locked-example",
+      "reviewerFamily": "cross",
+      "reviewerSnapshot": "anthropic-claude-sonnet-YYYYMMDD-locked-example",
+      "toolSurfaceDigest": "sha256:example-tool-surface-e2",
+      "promptDigest": "sha256:example-shared-prompt",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ④ is optional and changes only reviewer family relative to cell ③."
+    }
+  ]
+}

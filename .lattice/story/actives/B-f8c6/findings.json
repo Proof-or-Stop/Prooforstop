@@ -1,0 +1,123 @@
+{
+  "findings": [
+    {
+      "id": "B-f8c6:F-001",
+      "desc": "docs/requirements/decisions/multi-model-ablation-replication.md:247 says the multi-model protocol should first do Tier-C M0 as \"multi-key + B-4c65 revalidation\" and directly reuse that M0, but the Tier-C execution plan defines M0 as only the threat model/key-management decision doc (lines 50-58), with cross-host review in M1 and pinned-key/signature provenance deferred to M-crypto (lines 60-107); the Tier-C threat model also says M0 has no implementation (lines 4-8). This blurs the M0/M1/M-crypto/M2 order and can imply already-available multi-key/runtime-ish quorum infrastructure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-04T16:43:02.432Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-002",
+      "_hash": "e3f3c59336af57e447d2e1754d22c3539f452d106860fd5be564181a7eb0f346",
+      "files": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by rewriting the Tier-C relationship paragraph: Tier-C M0 is doc-only decision work, M1 is cross-host/quorum, M-crypto is pinned-key/signature provenance, and this protocol no longer claims existing quorum/runtime reuse.",
+      "resolvedAt": "2026-07-04T16:49:49.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f8c6:F-002",
+      "desc": "phase1-budget-lock.example.json does not bind the budget lock to any executor/reviewer snapshot, prompt digest, tool-surface digest, or protocol lock digest even though the story checklist promises snapshot digests for the budget-lock artifact (.lattice/story/actives/B-f8c6/checklist.json:183-185, :215) and the protocol makes dated snapshots/tool/prompt/budget binding a validity condition (docs/requirements/decisions/multi-model-ablation-replication.md:43, :56, :152, :174-177). The example lock is keyed only by E2|task-stratified-01 with example cell keys (experiments/multi-model-ablation/phase1-budget-lock.example.json:30-56), so a future Phase 1 agent could copy the shape and treat an A2prime budget lock as reusable across provider snapshot or harness changes. Add explicit non-executable placeholder fields such as executorSnapshot, reviewerSnapshot/sourceReviewerFamily, toolSurfaceDigest, promptDigest, protocolLockDigest, and calibrationWindow/snapshotDate to keep the example coherent with the M0 traceability contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T16:43:13.967Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-003",
+      "_hash": "dcbb3900d436c6839687654c466aa443f7798f4cd282de15dfcdf712c53df473",
+      "files": [
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        ".lattice/story/actives/B-f8c6/checklist.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|json|phase1-budget-lock",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by adding explicit example-only bindings to phase1-budget-lock.example.json: executorSnapshot, executorSnapshotDigest, reviewerSnapshot/reviewerSnapshotDigest semantics, toolSurfaceDigest, promptDigest, protocolLockDigest, calibrationWindow, and snapshotDate.",
+      "resolvedAt": "2026-07-04T16:49:50.208Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f8c6:F-003",
+      "desc": "CHK-003 is marked done, but its happy-path verificationIntent requires snapshot digests and the evidence overclaims that they are recorded. The recorded command at .lattice/story/actives/B-f8c6/checklist.json:213 only JSON-parses files, while its note at .lattice/story/actives/B-f8c6/checklist.json:215 says snapshot digests are present. The actual budget-lock lock object at experiments/multi-model-ablation/phase1-budget-lock.example.json:31 records budgetLockDigest/executorFamily/task/source cells/median placeholder but has no executorSnapshotDigest, reviewerSnapshotDigest, providerSnapshotDigest, or equivalent snapshot digest field. Fix by adding the required snapshot digest fields to the budget-lock example and replacing the parse-only evidence/README check with a field-level assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T16:43:23.816Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-004",
+      "_hash": "bbee935ba0f5ce2c6e984ed804f7fbe6267c26a5dfcdc9fea8e109e10bff9035",
+      "files": [
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json",
+        ".lattice/story/actives/B-f8c6/checklist.json"
+      ],
+      "signatureTag": "missing|json|marked-happy-path",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 and reverified with the strengthened README node invariant, which asserts snapshot digest fields and not_applicable reviewer semantics for the budget-lock example instead of relying on parse-only evidence.",
+      "resolvedAt": "2026-07-04T16:49:51.054Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f8c6:F-004",
+      "desc": "The README provider-free invariant command does not actually enforce the host/model-separation failure promised by CHK-004. The checklist says the check should fail or document failure if Codex CLI is treated as a model family (.lattice/story/actives/B-f8c6/checklist.json:277-282), while README.md:27-31 only checks that each runner has a hostKind and an executorSnapshot and that providerCallEnabled is false. A registry where executorSnapshot equals \"Codex CLI\" or reviewerSnapshot is missing for same/cross reviewer rows would still pass that command, despite the protocol requiring model classification by executorSnapshot/reviewerSnapshot rather than app name (docs/requirements/decisions/multi-model-ablation-replication.md:40-43, :56, :66). Strengthen the documented node check to reject hostKind reused as a snapshot, require reviewerSnapshot for same/cross reviewer families, and verify eligibleForOutcomeRecords remains false for examples.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T16:43:50.563Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-003",
+      "_hash": "e80d534957c0e2822e4e96a14407be2bf67c20b28332d602ad5c57670ff2fa11",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        ".lattice/story/actives/B-f8c6/checklist.json",
+        "experiments/multi-model-ablation/runner-registry.example.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|readme-provider-free",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by strengthening the README provider-free invariant to reject hostKind reused as executorSnapshot/reviewerSnapshot, require reviewerSnapshot for same/cross runners, require eligibleForOutcomeRecords=false, and assert budget-lock digest fields.",
+      "resolvedAt": "2026-07-04T16:49:51.892Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f8c6:F-005",
+      "desc": "The strengthened README invariant still does not prove that an A2prime row is bound to the frozen budget-lock record; it only checks that A2prime cells have a non-empty budgetLockDigest (experiments/multi-model-ablation/README.md:65-72) and later validates only budget-lock sourceCellKeys against runner snapshots (README.md:131-140). It never checks that each A2prime cell budgetLockDigest equals a budgetLock.locks[].budgetLockDigest, nor that each lock.appliesToCellKeys entry resolves to the corresponding A2prime manifest row. A manifest with a wrong-but-nonempty A2prime digest or a typo in appliesToCellKeys would still pass the documented command, even though phase1-budget-lock.example.json:37-40 says A2prime rows are allowed only when budgetLockDigest matches the frozen lock. Add cross-binding assertions from A2prime manifest rows to exactly one budget-lock appliesToCellKeys entry with matching budgetLockDigest, and fail on orphaned or mismatched apply keys.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T16:52:58.995Z",
+      "reviewRound": "2026-07-04T16:49:29.474Z",
+      "reviewRunId": "B-f8c6:RR-008",
+      "_hash": "899c05df41ca58bb5d878e7cbeaa9f935007c0a2f6fbef963af15db68ff393dc",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        "experiments/multi-model-ablation/cell-manifest.example.json",
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json"
+      ],
+      "signatureTag": "missing|md|a2prime-budget-lock-cross-binding",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 6fafe19a4 by strengthening the README invariant to require each A2prime manifest row to be claimed exactly once by a budgetLock.locks[].appliesToCellKeys entry and to match that lock budgetLockDigest; duplicate apply keys, orphaned A2prime rows, missing/non-A2prime apply keys, and digest mismatches now fail locally.",
+      "resolvedAt": "2026-07-04T16:56:30.585Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

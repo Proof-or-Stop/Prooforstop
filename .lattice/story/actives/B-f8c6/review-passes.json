@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-f8c6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS: M0 concept review checked docs/requirements/decisions/multi-model-ablation-replication.md and experiments/multi-model-ablation examples. Evidence: host/model separation preserved via hostKind vs executorSnapshot/reviewerSnapshot; causal contrasts keep ③ vs ⑥, ① vs ②, ③ vs ④ and forbid ② vs ④ as confirmatory; research-only boundary excludes DONE/playbook/runtime/product gates; A2prime requires A4-derived budgetLockDigest before execution; protocol audit output is excluded from outcome records unless pre-registered as formal runner/cell. Ran README JSON parse/invariant checks and targeted rg checks; no provider calls or Phase 1/2 records found.",
+      "createdAt": "2026-07-04T16:43:02.486Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-001",
+      "_hash": "dba80ec1d53c1740ebc9be86a90f57777fe84d5fbd7d3a8c372521fe135cf494"
+    },
+    {
+      "id": "B-f8c6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 focused concept review checked commit 23f1f5857 artifacts and current HEAD. Verified M0 remains research/paper-evidence only; examples are provider-free, non-executable, outcome-free, and product-gate neutral; host/model fields stay separated; budget-lock example binds executor/reviewer snapshots, digests, prompt/tool/protocol locks, calibration window, and A2prime not_applicable semantics; Tier-C wording now limits M0 to doc-decision alignment and defers cross-host/quorum/signature provenance to M1/M-crypto; no Phase 1/2 execution or provider-call enabling flags found.",
+      "createdAt": "2026-07-04T16:52:29.209Z",
+      "reviewRound": "2026-07-04T16:49:29.474Z",
+      "reviewRunId": "B-f8c6:RR-005",
+      "_hash": "dfcbf88c7d0030fb49f76642b615c273c9a335fd0db012bde86ab7b19966ec2e"
+    },
+    {
+      "id": "B-f8c6:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 focused quality review checked experiments/multi-model-ablation/phase1-budget-lock.example.json and README provider-free invariants after 23f1f5857. Verified placeholder digest/snapshot/protocol/tool/prompt bindings are explicit example-only/non-executable, A2prime reviewer semantics are not_applicable, no outcome/provider-derived data is present, and documented rg/node checks remain local/provider-free and pass.",
+      "createdAt": "2026-07-04T16:52:30.951Z",
+      "reviewRound": "2026-07-04T16:49:29.474Z",
+      "reviewRunId": "B-f8c6:RR-006",
+      "_hash": "d53809849043ae71400947471f53f517dccee083fba59e58b373ff4f61ac47a2"
+    },
+    {
+      "id": "B-f8c6:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs PASS: checked multi-model protocol, experiments/multi-model-ablation examples/README, Tier-C execution plan, Tier-C threat model, and story metadata for F-001 regression. The docs now keep Tier-C M0 as doc-only threat-model/key-management decision work, put cross-host review/quorum in Tier-C M1, defer pinned-key/signature provenance to M-crypto, and state the multi-model protocol is research/paper evidence only: no runtime quorum dependency, no provider/outcome execution in M0 examples, and no automatic Proofbound gate/playbook/runtime/DONE activation.",
+      "createdAt": "2026-07-04T16:52:43.839Z",
+      "reviewRound": "2026-07-04T16:49:29.474Z",
+      "reviewRunId": "B-f8c6:RR-007",
+      "_hash": "87e1deb9009030ebb809740d367f4c3d76b5d1e21ef5ede890d0b400d1f889e8"
+    },
+    {
+      "id": "B-f8c6:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "RR-009 focused coverage PASS. Reviewed experiments/multi-model-ablation/README.md lines 65-180 and commit 6fafe19a4 diff; confirmed the provider-free Node invariant maps manifest cells by cellKey, collects every A2prime row, checks each budgetLock.locks appliesToCellKeys entry exists, references an A2prime manifest row, has exact budgetLockDigest equality, rejects duplicate apply keys within a lock, and rejects any unclaimed or multiply claimed A2prime row. Reran JSON parsing, the documented README awk-to-node invariant, the protocol rg check, and in-memory negative probes against the extracted README Node block for missing A2prime digest, digest mismatch, unclaimed A2prime, missing/non-A2prime appliesToCellKeys, duplicate apply key, and multiple budget-lock claims. CHK-003/004 assertions still pass at head 6fafe19a4. No blockers found.",
+      "createdAt": "2026-07-04T16:58:51.065Z",
+      "reviewRound": "2026-07-04T16:56:22.106Z",
+      "reviewRunId": "B-f8c6:RR-009",
+      "_hash": "74ef10a4af08cbfdf8d3198f4018a336e810c6989c6b78a8753399fc39d926da"
+    },
+    {
+      "id": "B-f8c6:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Checked experiments/multi-model-ablation/README.md commit 6fafe19a4 against multi-model protocol and Tier-C M0 docs. README stays M0-only/provider-free, does not imply product gate/playbook/runtime activation, and A2prime rows are bound to budget locks via appliesToCellKeys/budgetLockDigest with execution disabled.",
+      "createdAt": "2026-07-04T17:01:18.959Z",
+      "reviewRound": "2026-07-04T16:56:22.106Z",
+      "reviewRunId": "B-f8c6:RR-012",
+      "_hash": "e256cd2f46940de573f21f27f906c232f3a4417c626acb3be34bc0484f37afe6"
+    },
+    {
+      "id": "B-f8c6:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Checked commit 6fafe19a4 README-only A2prime budget-lock invariant. Verified the added appliesToCellKeys checks are local example validation only, do not call providers, do not run Phase 1/2 cells, do not introduce outcome data, keep productGateImpact none / no DONE-playbook-runtime impact, preserve hostKind vs executor/reviewer snapshot separation, and remain research-only M0 scaffolding.",
+      "createdAt": "2026-07-04T17:01:29.132Z",
+      "reviewRound": "2026-07-04T16:56:22.106Z",
+      "reviewRunId": "B-f8c6:RR-011",
+      "_hash": "f194945052bcae427a65d4eab2f740c6d845d352757f1ec0d7f1b8fd62d0a310"
+    },
+    {
+      "id": "B-f8c6:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed README-only commit 6fafe19a4 in experiments/multi-model-ablation/README.md. Checked the new A2prime/budget-lock invariant against the protocol budget-lock ordering and runner/model separation docs, confirmed the documented JSON parse and node invariant snippets pass locally, and verified the README still presents M0 examples as provider-free/non-outcome/non-gate artifacts without misleading Phase 1/2 execution claims or unnecessary complexity beyond the F-005 scope.",
+      "createdAt": "2026-07-04T17:01:49.013Z",
+      "reviewRound": "2026-07-04T16:56:22.106Z",
+      "reviewRunId": "B-f8c6:RR-010",
+      "_hash": "4d13b9ea655d799de7bf20c2d14f95ceed0ab6ded87472aa3a11d6ef62bed111"
+    }
+  ]
+}
