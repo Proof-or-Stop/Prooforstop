@@ -335,9 +335,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-04T19:19:42.598Z",
-      "endTime": null
+      "endTime": "2026-07-04T19:25:40.877Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice done_required_validate --storyId=B-806b --json",
+          "result": "pass",
+          "note": "DONE-required validation passed: packages/main build and root npm test both PASS; M1 artifacts remain frozen locally and provider-free.",
+          "headHash": "f294a1b388c77db795f975c23a2e102a0caa9498",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:25:41.186Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git show --stat --oneline --name-only 2c5a6fea5 && git status --short",
+          "result": "pass",
+          "note": "Business commit 2c5a6fea5 contains only the six experiments/multi-model-ablation M1 files; README.md was not touched in this story worktree and worktree status is clean after metadata commits.",
+          "headHash": "f294a1b388c77db795f975c23a2e102a0caa9498",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:25:41.476Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "M1 freeze checker passed: 111 assertions; 7 negative controls rejected. The artifacts explicitly keep Phase 1 launchAllowed=false and contain no outcome data or multi-model result claim.",
+          "headHash": "f294a1b388c77db795f975c23a2e102a0caa9498",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:25:41.765Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -385,6 +423,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final local verification and Lattice closure checks."
+    },
+    {
+      "timestamp": "2026-07-04T19:25:40.877Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Final closure evidence recorded after local checker, scope check, validate configured commands, and done_required_validate PASS."
     }
   ]
 }
