@@ -406,6 +406,121 @@ function assertEvidenceRefShape(evidenceRef) {
   };
   const cl = {
     items: [
+      checklistItem('CHK-MATERIAL-STALE', 'done', [
+        evidence('CHK-MATERIAL-STALE:happy:0', 'pass', {
+          headHash: 'head-current',
+          materialHash: 'material-old',
+        }),
+      ], intent('stale material-only evidence must not fall back to head')),
+      checklistItem('CHK-STORY-STALE', 'done', [
+        evidence('CHK-STORY-STALE:happy:0', 'pass', {
+          headHash: 'head-current',
+          storyFilesHash: 'story-old',
+        }),
+      ], intent('stale story-only evidence must not fall back to head')),
+      checklistItem('CHK-MATERIAL-FRESH', 'done', [
+        evidence('CHK-MATERIAL-FRESH:happy:0', 'pass', {
+          headHash: 'head-old',
+          materialHash: 'material-current',
+        }),
+      ], intent('fresh material-only evidence ignores head drift')),
+      checklistItem('CHK-STORY-FRESH', 'done', [
+        evidence('CHK-STORY-FRESH:happy:0', 'pass', {
+          headHash: 'head-old',
+          storyFilesHash: 'story-current',
+        }),
+      ], intent('fresh story-only evidence ignores head drift')),
+    ],
+  };
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-material-stale',
+        sourceRequirementId: 'REQ-material-stale',
+        claim: 'Material-only stale evidence must not complete',
+        doneMeans: 'Comparable materialHash drift blocks even when storyFilesHash is absent',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-MATERIAL-STALE'],
+        verificationIntentRefs: ['CHK-MATERIAL-STALE:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-story-stale',
+        sourceRequirementId: 'REQ-story-stale',
+        claim: 'Story-files-only stale evidence must not complete',
+        doneMeans: 'Comparable storyFilesHash drift blocks even when materialHash is absent',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-STORY-STALE'],
+        verificationIntentRefs: ['CHK-STORY-STALE:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-material-fresh',
+        sourceRequirementId: 'REQ-material-fresh',
+        claim: 'Material-only fresh evidence can complete',
+        doneMeans: 'Comparable materialHash freshness is checked before head fallback',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-MATERIAL-FRESH'],
+        verificationIntentRefs: ['CHK-MATERIAL-FRESH:happy:0'],
+        status: 'done',
+      }),
+      milestone({
+        id: 'M-story-fresh',
+        sourceRequirementId: 'REQ-story-fresh',
+        claim: 'Story-files-only fresh evidence can complete',
+        doneMeans: 'Comparable storyFilesHash freshness is checked before head fallback',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-STORY-FRESH'],
+        verificationIntentRefs: ['CHK-STORY-FRESH:happy:0'],
+        status: 'done',
+      }),
+    ]),
+    currentEvidenceBinding,
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-material-fresh', 'M-story-fresh']);
+  assert.deepEqual(report.groups.current, ['M-material-stale']);
+  assert.deepEqual(report.groups.remaining, ['M-story-stale']);
+
+  const materialStale = report.milestones.find((candidate) => candidate.id === 'M-material-stale');
+  const storyStale = report.milestones.find((candidate) => candidate.id === 'M-story-stale');
+  const materialFresh = report.milestones.find((candidate) => candidate.id === 'M-material-fresh');
+  const storyFresh = report.milestones.find((candidate) => candidate.id === 'M-story-fresh');
+  assert.ok(materialStale);
+  assert.ok(storyStale);
+  assert.ok(materialFresh);
+  assert.ok(storyFresh);
+
+  assert.equal(materialStale.subObjectives.find((sub) => sub.id === 'CHK-MATERIAL-STALE:happy:0')?.status, 'stale-evidence');
+  assert.match(materialStale.risks.join('\n'), /stale materialHash/);
+  assert.doesNotMatch(materialStale.risks.join('\n'), /headHash/);
+  assert.doesNotMatch(materialStale.risks.join('\n'), /storyFilesHash/);
+
+  assert.equal(storyStale.subObjectives.find((sub) => sub.id === 'CHK-STORY-STALE:happy:0')?.status, 'stale-evidence');
+  assert.match(storyStale.risks.join('\n'), /stale storyFilesHash/);
+  assert.doesNotMatch(storyStale.risks.join('\n'), /headHash/);
+  assert.doesNotMatch(storyStale.risks.join('\n'), /materialHash/);
+
+  assert.equal(materialFresh.status, 'completed');
+  assert.equal(materialFresh.subObjectives.find((sub) => sub.id === 'CHK-MATERIAL-FRESH:happy:0')?.status, 'covered');
+  assert.doesNotMatch(materialFresh.risks.join('\n'), /headHash/);
+
+  assert.equal(storyFresh.status, 'completed');
+  assert.equal(storyFresh.subObjectives.find((sub) => sub.id === 'CHK-STORY-FRESH:happy:0')?.status, 'covered');
+  assert.doesNotMatch(storyFresh.risks.join('\n'), /headHash/);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-current',
+  };
+  const cl = {
+    items: [
       checklistItem('CHK-LEGACY-FRESH', 'done', [
         evidence('CHK-LEGACY-FRESH:happy:0', 'pass', {
           headHash: 'head-current',
