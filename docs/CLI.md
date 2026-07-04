@@ -297,6 +297,10 @@ Host Progress Reporting Contract:
   responses when milestone progress is relevant.
 - Missing `milestone-ledger.json` is a blocker. The command reports a clear next
   action and does not infer completion from checklist text alone.
+- Detail granularity comes from the authored milestone ledger, checklist refs,
+  verificationIntent refs, and verificationEvidence. Future completion or
+  executor ledgers can improve state-change deltas, but V1 does not require them
+  and reports only current committed story facts.
 - V1 is read-only. It rejects mutation-like flags such as `runCommands`,
   `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
   `execute`, `run`, `launch`, `capture`, `refresh`, `authorityDone`,
