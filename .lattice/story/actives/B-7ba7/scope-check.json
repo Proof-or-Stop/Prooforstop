@@ -1,0 +1,58 @@
+{
+  "storyId": "B-7ba7",
+  "checkedAt": "2026-07-04T19:53:58.788Z",
+  "features": [
+    {
+      "feature": "V1 user-visible milestone_status report over existing ProofStory facts: JSON/text visibility with completed/current/remaining grouping, active sub-objectives, evidence refs, risks, and next actions.",
+      "covered_by": "story_get/checklist_get CHK-001..CHK-004 userSees and verificationIntent cover schema, grouped text, missing-ledger behavior, evidence detail, and docs/tests; plan_get Scope and CHK plans define report model, CLI command, row projection, grouped workflow; original_intent_snapshot_get, milestone_ledger_get, and proofstory_contract_get bind the same acceptance claim across M1-M4 and all 12 verificationIntent refs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get; checklist_get; plan_get; original_intent_snapshot_get; milestone_ledger_get; proofstory_contract_get"
+    },
+    {
+      "feature": "Missing-ledger, missing-detail, partial-progress, and stale/missing evidence truthfulness in V1 milestone rows.",
+      "covered_by": "CHK-001 edge requires missing-ledger blocker and next action; CHK-003 edge/adversarial require partial rows and missing/stale evidence not reported as DONE; plan_get CHK-001/CHK-003 says unavailable transition detail is reported rather than invented and done-like status without evidence gets warning/next action; decision_get requires missing evidence or ledger detail to be explicit.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get; checklist_get; plan_get; decision_get"
+    },
+    {
+      "feature": "ProofStory intent interpretation and coverage for read-only milestone_status V1.",
+      "covered_by": "intent_collision_get acceptedInterpretation limits V1 to read-only report over existing ledger/checklist/evidence facts; intent_coverage_check and proofstory_gate_check report pass, not blocking, diagnostic gaps 0; proofstory_contract_get diagnosticGaps is empty and confirms the ledger hash binding.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "intent_collision_get; intent_coverage_check; proofstory_gate_check; proofstory_contract_get"
+    },
+    {
+      "feature": "Out-of-scope mutation and lifecycle authority: runCommands, writeEvidence, reviewer launch, phase advancement, milestone completion writer, automatic DONE, Authority completion, and production readiness.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Scope excludes writing milestone completion state, running commands, launching reviewers, advancing lifecycle phase, or claiming production/Authority completion; CHK-001/CHK-002 adversarial intents require fail-closed mutation flags and no state mutation; CHK-004 adversarial docs intent forbids automatic execution, automatic DONE, Authority completion, or production readiness; decision_get rejects new milestone execution ledger and full automatic lifecycle pipeline; intent_collision_get excludes automatic executor, phase advancement, reviewer launcher, and separate milestone completion writer.",
+      "source": "plan_get; checklist_get; decision_get; intent_collision_get"
+    },
+    {
+      "feature": "Protected README boundary.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract_show protectedFiles and explicitExcludes include README.md; scope_contract_show scopeChangeReason says README is already dirty outside this story and must not be touched; understanding_get constraints say not to modify the existing dirty README.md change from main.",
+      "source": "scope_contract_show; understanding_get"
+    },
+    {
+      "feature": "Scope contract path coverage for changed ProofStory PLAN artifacts.",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "scope_contract_check reports Scope gate: fail with OUT_OF_SCOPE for .lattice/story/actives/B-7ba7/intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, and proofstory.json, while semantic scope gate passes"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b862fb81f653c6e929c897b4a3511a75ef69fc70ee6df2ec8e9f44ad7d13b38a"
+}
