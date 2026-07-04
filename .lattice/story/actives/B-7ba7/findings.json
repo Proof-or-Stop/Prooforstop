@@ -109,6 +109,24 @@
       "resolvedAt": "2026-07-04T22:11:39.212Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-006",
+      "desc": "packages/main/src/core/milestone-status.ts: Deferred or failed waivers can complete milestones. milestone_status maps waiver evidence to waived and accepts waived evidence as covering, so deferred_gate_evidence or failed waivers can make a milestone appear completed. Must reject deferred/failed waivers for covering semantics and only allow permanent non-failing waivers.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:49.485Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "f051d84699428b1d61b9a5f1ce67f85e28fe77ecef64dd0943891cfe7e3acef5",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
