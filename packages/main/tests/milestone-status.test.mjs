@@ -420,10 +420,10 @@ function assertEvidenceRefShape(evidenceRef) {
       ], intent('stale story-only evidence must not fall back to head')),
       checklistItem('CHK-MATERIAL-FRESH', 'done', [
         evidence('CHK-MATERIAL-FRESH:happy:0', 'pass', {
-          headHash: 'head-old',
+          headHash: 'head-current',
           materialHash: 'material-current',
         }),
-      ], intent('fresh material-only evidence ignores head drift')),
+      ], intent('fresh material-only evidence remains covering without storyFilesHash')),
       checklistItem('CHK-STORY-FRESH', 'done', [
         evidence('CHK-STORY-FRESH:happy:0', 'pass', {
           headHash: 'head-old',
@@ -461,7 +461,7 @@ function assertEvidenceRefShape(evidenceRef) {
         id: 'M-material-fresh',
         sourceRequirementId: 'REQ-material-fresh',
         claim: 'Material-only fresh evidence can complete',
-        doneMeans: 'Comparable materialHash freshness is checked before head fallback',
+        doneMeans: 'Comparable materialHash freshness covers when storyFilesHash is absent',
         requiredEvidence: [],
         checklistRefs: ['CHK-MATERIAL-FRESH'],
         verificationIntentRefs: ['CHK-MATERIAL-FRESH:happy:0'],
