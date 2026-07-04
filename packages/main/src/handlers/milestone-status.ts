@@ -5,7 +5,7 @@ import {
   type MilestoneStatusCurrentEvidenceBinding,
   type MilestoneStatusReport,
 } from '../core/milestone-status.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 interface MilestoneStatusArgs {
@@ -29,11 +29,9 @@ function currentEvidenceBinding(ctx: HandlerContext, storyId: string): Milestone
     projectRoot: ctx.root,
     cwd: process.cwd(),
   });
-  const headHash = currentGitHead(gitCwd);
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
   const binding: MilestoneStatusCurrentEvidenceBinding = {
-    ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
   };
