@@ -1,6 +1,6 @@
 {
   "task": "Add a read-only CLI report that shows a story milestone ledger as a grouped progress table with sub-objective detail.",
-  "outcome": "When the user runs `lattice milestone_status --storyId=B-demo`, the terminal shows `Milestone Status — B-demo`, then a Completed section, a Current section with expanded sub-objectives/evidence/risks/next action, and a Remaining section; the output explicitly says read-only and does not claim it advanced the story.",
+  "outcome": "When the user runs `lattice milestone_status --storyId=B-demo`, the terminal shows `Milestone Status - B-demo`, `Mode: read-only`, `Completed`, `Current`, `Remaining`, and `Next action`; it does not claim it advanced the story.",
   "facts": [
     "ProofStory already has milestone_ledger_set/add/get and stores milestone-ledger.json.",
     "The current milestone ledger is an intent coverage contract, not an executor state machine or separate storage layer.",
@@ -23,7 +23,7 @@
     "packages/main/src/registry.ts",
     "packages/main/src/cli/command-catalog.ts",
     "docs/CLI.md",
-    "packages/main/tests"
+    "packages/main/tests/milestone-status.test.mjs"
   ],
-  "timestamp": "2026-07-04T19:48:36.265Z"
+  "timestamp": "2026-07-04T19:57:37.448Z"
 }
