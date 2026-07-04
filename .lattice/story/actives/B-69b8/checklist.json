@@ -208,10 +208,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User opens runner-registry.m0.json and model-snapshot-lock.m0.json and sees hostKind recorded separately from executorSnapshot/reviewerSnapshot for E1 and E2."
+      "endTime": "2026-07-04T18:00:04.815Z",
+      "userSees": "User opens runner-registry.m0.json and model-snapshot-lock.m0.json and sees hostKind recorded separately from executorSnapshot/reviewerSnapshot for E1 and E2.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/runner-registry.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "runner-registry.m0.json records codex-cli, Claude Code, and agy as host_or_adapter_not_model_family and keeps hostKind separate from executorSnapshot/reviewerSnapshot for E1/E2 runners.",
+          "headHash": "626e668b8c4935516587029b35ed51d4339fcfe2",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:05.183Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "model-snapshot-lock.m0.json records E1=Anthropic/Claude and E2=OpenAI/GPT but marks exact dated execution snapshots as blocked pending human approval/provider execution lock instead of silently passing.",
+          "headHash": "626e668b8c4935516587029b35ed51d4339fcfe2",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:05.553Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "result": "pass",
+          "note": "The checker negative control rejects a runner whose hostKind is reused as executorSnapshot, proving Codex CLI host alone cannot satisfy E2.",
+          "headHash": "626e668b8c4935516587029b35ed51d4339fcfe2",
+          "materialHash": "17f8c6bd5f8ff5304712057e631d48d594539d26bdf0f30600696003b7a7d78d",
+          "storyFilesHash": "e142e35a95e1e54ed374ba3dd13bbfb1128af1d2a6754127fb327a0cea82ad67",
+          "timestamp": "2026-07-04T18:00:05.918Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -312,6 +353,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Provider-safe checker implemented and smoke-verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-04T18:00:04.815Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Runner/host and snapshot readiness artifacts implemented and smoke-verified.",
       "agent": "codex-main"
     }
   ]
