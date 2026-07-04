@@ -335,8 +335,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-04T19:19:42.598Z",
       "endTime": null
     }
   ],
@@ -376,6 +376,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:42.598Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final local verification and Lattice closure checks."
     }
   ]
 }
