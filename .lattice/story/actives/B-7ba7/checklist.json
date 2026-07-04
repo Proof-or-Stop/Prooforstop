@@ -114,8 +114,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-04T20:18:24.264Z",
       "endTime": null,
       "userSees": "User sees text headings exactly like \"Milestone Status - B-demo\", \"Mode: read-only\", \"Completed\", \"Current\", and \"Remaining\".",
       "files": {
@@ -232,6 +232,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed in 871004c58; evidence recorded from final HEAD build/test run."
+    },
+    {
+      "timestamp": "2026-07-04T20:18:24.264Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting CLI command completion evidence after implementation commit."
     }
   ]
 }
