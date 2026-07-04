@@ -29,7 +29,7 @@
       "desc": "phase1-budget-lock.example.json does not bind the budget lock to any executor/reviewer snapshot, prompt digest, tool-surface digest, or protocol lock digest even though the story checklist promises snapshot digests for the budget-lock artifact (.lattice/story/actives/B-f8c6/checklist.json:183-185, :215) and the protocol makes dated snapshots/tool/prompt/budget binding a validity condition (docs/requirements/decisions/multi-model-ablation-replication.md:43, :56, :152, :174-177). The example lock is keyed only by E2|task-stratified-01 with example cell keys (experiments/multi-model-ablation/phase1-budget-lock.example.json:30-56), so a future Phase 1 agent could copy the shape and treat an A2prime budget lock as reusable across provider snapshot or harness changes. Add explicit non-executable placeholder fields such as executorSnapshot, reviewerSnapshot/sourceReviewerFamily, toolSurfaceDigest, promptDigest, protocolLockDigest, and calibrationWindow/snapshotDate to keep the example coherent with the M0 traceability contract.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T16:43:13.967Z",
@@ -42,7 +42,11 @@
         ".lattice/story/actives/B-f8c6/checklist.json"
       ],
       "signatureTag": "doc-promise-undelivered|json|phase1-budget-lock",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f1f5857 by adding explicit example-only bindings to phase1-budget-lock.example.json: executorSnapshot, executorSnapshotDigest, reviewerSnapshot/reviewerSnapshotDigest semantics, toolSurfaceDigest, promptDigest, protocolLockDigest, calibrationWindow, and snapshotDate.",
+      "resolvedAt": "2026-07-04T16:49:50.208Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f8c6:F-003",
