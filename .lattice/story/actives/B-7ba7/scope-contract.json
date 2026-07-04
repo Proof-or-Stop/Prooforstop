@@ -36,10 +36,10 @@
     ".omx/**",
     "README.md"
   ],
-  "scopeChangeReason": "Semantic scope refined: read-only milestone_status registration changes add rows to existing command/policy arrays, so add+modify are both allowed only for the explicitly scoped files.",
+  "scopeChangeReason": "Allow the narrow remove hunk that deletes retired vocabulary from milestone-status handler after the guard caught it; docs change remains within read-only status documentation scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-04T19:49:53.056Z",
-  "updatedAt": "2026-07-04T20:16:20.215Z",
+  "updatedAt": "2026-07-04T20:23:38.983Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
@@ -57,7 +57,8 @@
       "path": "packages/main/src/handlers/milestone-status.ts",
       "allowedChangeKinds": [
         "add",
-        "modify"
+        "modify",
+        "remove"
       ],
       "intentRefs": [
         "CHK-002:happy:0",
@@ -132,7 +133,8 @@
         "modify"
       ],
       "intentRefs": [
-        "CHK-004:edge:0"
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
       ]
     }
   ]

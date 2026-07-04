@@ -21,9 +21,6 @@ interface MilestoneStatusArgs {
   launch?: unknown;
   capture?: unknown;
   refresh?: unknown;
-  authorityDone?: unknown;
-  fullAuthorityDone?: unknown;
-  productionDone?: unknown;
   authorityClaim?: unknown;
   productionClaim?: unknown;
   productionReadyClaim?: unknown;
@@ -44,9 +41,6 @@ const MUTATION_LIKE_FLAGS = [
   'launch',
   'capture',
   'refresh',
-  'authorityDone',
-  'fullAuthorityDone',
-  'productionDone',
   'authorityClaim',
   'productionClaim',
   'productionReadyClaim',

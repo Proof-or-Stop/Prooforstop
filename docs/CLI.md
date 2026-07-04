@@ -303,8 +303,8 @@ Host Progress Reporting Contract:
   and reports only current committed story facts.
 - V1 is read-only. It rejects mutation-like flags such as `runCommands`,
   `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
-  `execute`, `run`, `launch`, `capture`, `refresh`, `authorityDone`,
-  `fullAuthorityDone`, and `productionDone` before reading story facts.
+  `execute`, `run`, `launch`, `capture`, `refresh`, and local/remote completion
+  claim flags before reading story facts.
 - V1 does not run commands, write evidence or summaries, write review passes,
   change phase, launch reviewers, claim automatic execution, claim automatic
   DONE, or claim production readiness.
