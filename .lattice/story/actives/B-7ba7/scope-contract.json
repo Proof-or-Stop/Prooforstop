@@ -5,6 +5,7 @@
     "packages/main/src/registry.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli-engine.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts",
@@ -37,10 +38,28 @@
     ".omx/**",
     "README.md"
   ],
-  "scopeChangeReason": "Review fixes require hardening milestone_status tests and adding the focused test to lattice.config validate.commands; all changes remain within B-7ba7 read-only milestone status scope.",
-  "acknowledgements": [],
+  "scopeChangeReason": "Review finding requires strict milestone_status argument validation at the CLI boundary; additive cli-engine hunk is within the approved read-only command boundary fix.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Review finding requires strict milestone_status argument validation at the CLI boundary without changing unrelated commands.",
+      "timestamp": "2026-07-04T20:54:09.567Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e8bb16feeffad79bb12f7ec0f86beafafcf0c5ec",
+      "materialHash": "315ee8572fe05485c742eba47a34be844e5a9e28b9152befed0a7865338b3497",
+      "hunkDigest": "99bb107f85e8973939fa3b7e1f19da83f649253069dc0095ea30ba1cc14ddf4e"
+    }
+  ],
   "createdAt": "2026-07-04T19:49:53.056Z",
-  "updatedAt": "2026-07-04T20:34:07.725Z",
+  "updatedAt": "2026-07-04T20:54:58.378Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
@@ -115,6 +134,16 @@
       ]
     },
     {
+      "path": "packages/main/src/cli-engine.ts",
+      "allowedChangeKinds": [
+        "modify",
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
       "path": "packages/main/src/cli/activity-policy.ts",
       "allowedChangeKinds": [
         "add",
@@ -165,5 +194,6 @@
         "CHK-004:adversarial:0"
       ]
     }
-  ]
+  ],
+  "protectedAnchors": []
 }

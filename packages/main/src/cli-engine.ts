@@ -459,6 +459,10 @@ const STRICT_OWNER_META_COMMANDS = new Set([
   'autopilot_resume',
 ]);
 
+const STRICT_COMMAND_ARG_COMMANDS = new Set([
+  'milestone_status',
+]);
+
 const CLI_META_SCHEMA = {
   takeover: z.boolean().optional(),
   forceTakeover: z.boolean().optional(),
@@ -473,6 +477,9 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
   if (isAutopilotCommand(cmd)) {
     const schema = STRICT_OWNER_META_COMMANDS.has(cmd) ? schemaWithCliMeta : tool.schema;
     return z.object(schema).strict();
+  }
+  if (STRICT_COMMAND_ARG_COMMANDS.has(cmd)) {
+    return z.object(tool.schema).strict();
   }
   return z.object(schemaWithCliMeta);
 }
