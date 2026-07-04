@@ -215,6 +215,24 @@
       ],
       "signatureTag": "missing|mjs|test-coverage-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-011",
+      "desc": "F-009 regression coverage is still incomplete: packages/main/tests/milestone-status.test.mjs exercises stale material-only evidence with current headHash and fresh storyFiles-only evidence with stale headHash, but CHK-MATERIAL-FRESH uses headHash=head-current with materialHash=material-current. That does not cover the required material-only metadata-drift case where a comparable materialHash pair exists and headHash is stale, so head fallback ordering can regress for material-only fresh evidence without a failing test. Add a material-only fresh evidence case with stale headHash/current materialHash and no storyFilesHash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:45:22.691Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-028",
+      "_hash": "5c01a454a0941e51b0a6d939f6ac51a6ccf0f1e1f55a802b98e656746d1dc603",
+      "files": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|regression-coverage-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
