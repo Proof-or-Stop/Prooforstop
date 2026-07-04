@@ -9,6 +9,7 @@
     "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "docs/CLI.md",
+    "lattice.config.json",
     "package.json",
     "package-lock.json",
     "packages/main/package.json",
@@ -36,10 +37,10 @@
     ".omx/**",
     "README.md"
   ],
-  "scopeChangeReason": "Allow the narrow remove hunk that deletes retired vocabulary from milestone-status handler after the guard caught it; docs change remains within read-only status documentation scope.",
+  "scopeChangeReason": "Review fixes require hardening milestone_status tests and adding the focused test to lattice.config validate.commands; all changes remain within B-7ba7 read-only milestone status scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-04T19:49:53.056Z",
-  "updatedAt": "2026-07-04T20:23:38.983Z",
+  "updatedAt": "2026-07-04T20:34:07.725Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
@@ -63,6 +64,33 @@
       "intentRefs": [
         "CHK-002:happy:0",
         "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/tests/milestone-status.test.mjs",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0"
+      ]
+    },
+    {
+      "path": "lattice.config.json",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-004:happy:0"
       ]
     },
     {
