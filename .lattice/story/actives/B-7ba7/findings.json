@@ -71,6 +71,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-005",
+      "desc": "packages/main/src/core/milestone-status.ts:317 and packages/main/src/core/milestone-status.ts:334: checklistRefsComplete and checklistRefsValid are vacuously true for milestones with no checklistRefs, while verificationRefsCovered can be true from a standalone verificationIntentRef. That lets a ledger row with no checklist mapping appear completed, which makes milestone_status a second inferred completion system instead of a strict projection of authored milestone/checklist bindings.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-04T20:47:13.548Z",
+      "reviewRound": "2026-07-04T20:45:07.958Z",
+      "reviewRunId": "B-7ba7:RR-005",
+      "_hash": "3ab91fcc929a1059a68539992e98ec5ffe8637d0679a6f7fb9e073692719ad6c",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
