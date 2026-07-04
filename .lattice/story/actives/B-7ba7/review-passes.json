@@ -1,0 +1,265 @@
+{
+  "passes": [
+    {
+      "id": "B-7ba7:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "docs pass: reviewed current B-7ba7 CLI docs, no blockers",
+      "createdAt": "2026-07-04T22:13:28.392Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-016",
+      "_hash": "144c58de573a5630678246fcaf811631426f43cc3cdc33646758ce12d83cffe0"
+    },
+    {
+      "id": "B-7ba7:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage pass: reviewed current B-7ba7 tests and validation, no blockers",
+      "createdAt": "2026-07-04T22:14:43.185Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-015",
+      "_hash": "32b33f9a7c01b24393b2e18fd9e523e92c327cb88a25756a2d62c68a491f951a"
+    },
+    {
+      "id": "B-7ba7:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: reviewed current B-7ba7 fixes, no blockers",
+      "createdAt": "2026-07-04T22:14:46.967Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-013",
+      "_hash": "afaffa1f595b46f162b932db0b6794b77ca8077af30fa8a71a555e9c35e849ad"
+    },
+    {
+      "id": "B-7ba7:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "quality pass: reviewed current B-7ba7 fixes, no blockers",
+      "createdAt": "2026-07-04T22:15:20.747Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-014",
+      "_hash": "7619a3f43dc489a3d800ae99df0f529d9777c7fb951fb74ac4be6c4dfe0bb6e3"
+    },
+    {
+      "id": "B-7ba7:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: packages/main/tests/milestone-status.test.mjs covers permanent vs deferred/failed waiver semantics, requiredEvidence known-kind mismatch, custom-label compatibility, missing-ledger behavior/read order, strict CLI unknown and mutation-like args, and active-story pre-read validation; focused suite passed via node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-04T22:34:23.386Z",
+      "reviewRound": "2026-07-04T22:32:08.727Z",
+      "reviewRunId": "B-7ba7:RR-022",
+      "_hash": "c1fac0124035e8c10ebd61996dd5a1c7021b528451877bd26ff50703432d8c74"
+    },
+    {
+      "id": "B-7ba7:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed docs/CLI.md Milestone Status section plus local CLI help/output for milestone_status, milestone_ledger_get, and verification_evidence_add. Docs/help preserve read-only boundary, reject mutation/Authority/production claim flags, document requiredEvidence exact-kind semantics, permanent-only waiver coverage, and host progress reporting workflow without automatic execution/DONE/Authority/production claims.",
+      "createdAt": "2026-07-04T22:35:01.598Z",
+      "reviewRound": "2026-07-04T22:32:08.727Z",
+      "reviewRunId": "B-7ba7:RR-024",
+      "_hash": "eb3e9a153321f8ba776e13427e0b77a875ac61e82874a3025b3d14ce10df7cc1"
+    },
+    {
+      "id": "B-7ba7:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: reviewed milestone_status semantics after F-006/F-007/F-008 fixes; no blockers",
+      "createdAt": "2026-07-04T22:35:34.975Z",
+      "reviewRound": "2026-07-04T22:32:08.727Z",
+      "reviewRunId": "B-7ba7:RR-017",
+      "_hash": "5cbaba167ddf53b650bb167f6e0226c378df2e1dbddc6c26ce596f7411b03794"
+    },
+    {
+      "id": "B-7ba7:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "PASS targeted F-009 re-review. evidenceFreshnessRisks compares any comparable materialHash or storyFilesHash before headHash fallback; material-only/storyFiles-only stale evidence is rejected, fresh partial strong bindings remain covering, and no regression to waiver/requiredEvidence/pre-read semantics. Reviewer ran focused milestone-status test.",
+      "createdAt": "2026-07-04T22:43:40.074Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-028",
+      "_hash": "ffa1aa548e4c694c097ae9cc9e60b3eb0341ac9af73dea2ef819bd3a3b1e03ea"
+    },
+    {
+      "id": "B-7ba7:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS targeted F-009 coverage review. milestone-status tests cover material-only stale with matching head, storyFiles-only stale with matching head, material-only/storyFiles-only fresh coverage, legacy head-only fallback, plus waiver/requiredEvidence/pre-read regressions. Focused test passed.",
+      "createdAt": "2026-07-04T22:43:40.729Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-029",
+      "_hash": "dd4a72f9b755b3d900972ffa1336a196d0640ecfc5c5d1dc55e7f6ebd4b31387"
+    },
+    {
+      "id": "B-7ba7:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "PASS targeted post-F-009 concept review. milestone_status remains read-only, pure projection over existing story facts, no second storage path, no false completion, waiver semantics remain sound, and live milestone_status returns M1-M4 completed with no risks.",
+      "createdAt": "2026-07-04T22:43:58.498Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-027",
+      "_hash": "4770d1599c9d64cc05b6abe6f92f4a2a463c490024c0169ca383b351b9d99623"
+    },
+    {
+      "id": "B-7ba7:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "PASS targeted post-F-009 docs review. docs/CLI.md still matches final behavior for read-only boundary, grouped output, evidence freshness, requiredEvidence kind/custom-label semantics, waiver semantics, and no DONE/Authority/production overclaim.",
+      "createdAt": "2026-07-04T22:43:59.118Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-030",
+      "_hash": "2c8e28ae3b4cdd320436e3e613361ae4dddc426e27d5cf567102521b0eb31694"
+    },
+    {
+      "id": "B-7ba7:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: milestone_status preserves proof-or-stop boundaries; comparable material/storyFiles freshness is evaluated before head fallback, permanent-waiver-only coverage is explicit, requiredEvidence enforces known evidence kinds while preserving custom labels as mapping hints, and the command remains read-only with no DONE/production claims.",
+      "createdAt": "2026-07-04T22:44:39.198Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-027",
+      "_hash": "ef5f2f15496e1d3245036ecb19f1e3025b4dcec3de651725ff9635d5482ac5ac"
+    },
+    {
+      "id": "B-7ba7:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed docs/CLI.md and local CLI help/output for milestone_status read-only boundary, requiredEvidence, waiver, freshness, and no overclaim semantics; no blocking docs issue found.",
+      "createdAt": "2026-07-04T22:44:52.413Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-030",
+      "_hash": "867c8a7391343f1d4290895a4008d0ec2a28f5b38bc8cd93760e652a5591316f"
+    },
+    {
+      "id": "B-7ba7:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-010 is resolved. milestone-status.test.mjs includes CHK-MATERIAL-FRESH with stale headHash, current materialHash, and no storyFilesHash; focused test passed with ok milestone-status.",
+      "createdAt": "2026-07-04T22:50:13.391Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-034",
+      "_hash": "bc5825364a935f167634338d09a590f74509aa944c3313addbfd075b9dbb4a47"
+    },
+    {
+      "id": "B-7ba7:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: milestone_status delivers read-only grouped progress reporting from existing ledger/checklist/evidence facts and explicitly avoids execution, evidence writes, phase advancement, automatic DONE, Authority, or production-readiness claims.",
+      "createdAt": "2026-07-04T22:50:14.217Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-031",
+      "_hash": "48d3f590610e1aafa408d073f31d1aaf463ed46e2ed1239abab6d5b3563ee479"
+    },
+    {
+      "id": "B-7ba7:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "PASS: F-011 is resolved. milestone-status.ts checks comparable materialHash/storyFilesHash before headHash fallback, and the regression covers stale headHash with current materialHash and no storyFilesHash; focused test passed.",
+      "createdAt": "2026-07-04T22:50:26.415Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-036",
+      "_hash": "4ea0b9507df1125d0ca3875d303da5b408be336408b7a47634bbd02ae0c05198"
+    },
+    {
+      "id": "B-7ba7:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "milestone_status tests cover grouped output, read-only guard, evidence freshness, waivers, and required evidence semantics",
+      "createdAt": "2026-07-04T22:50:37.036Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-033",
+      "_hash": "2a8eedcf94a876fe5e22346435ce9fdbbb0bfd1a0ecbdb16f9cd713e7f719ac5"
+    },
+    {
+      "id": "B-7ba7:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS: milestone_status completion requires valid checklist refs plus fresh scoped covering evidence, rejects stale material/story/head-only evidence as designed, enforces known requiredEvidence kinds, limits waiver coverage to permanent non-failing waivers, and strict CLI validation/read-only policy block mutation-like args before active-story reads. Focused milestone-status test passed.",
+      "createdAt": "2026-07-04T22:50:46.627Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-032",
+      "_hash": "82268de386ea88277d3d17596b2e708c802eee2e82d3c6f15e280d3637b3ba88"
+    },
+    {
+      "id": "B-7ba7:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Docs state milestone_status is read-only, ledger-dependent, detailed by subObjectives/evidence/risks/nextActions, and avoid execution DONE Authority readiness overclaims.",
+      "createdAt": "2026-07-04T22:50:47.601Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "reviewRunId": "B-7ba7:RR-035",
+      "_hash": "f372480c13179ab2f3a47e343d7669e705329cdac72be24b6f2747e4a413294a"
+    },
+    {
+      "id": "B-7ba7:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: milestone_status remains read-only grouped progress reporting, avoids execution or DONE claims, and storyFilesHash-authoritative drift semantics fit the requested capability.",
+      "createdAt": "2026-07-04T23:04:48.017Z",
+      "reviewRound": "2026-07-04T23:01:13.707Z",
+      "reviewRunId": "B-7ba7:RR-037",
+      "_hash": "6ba9557adb99268cee9cb1c12ee759a3b1ccf2a8a993d77b0c0cf8a07caa816a"
+    },
+    {
+      "id": "B-7ba7:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "CLI milestone_status docs cover read-only grouped progress and freshness semantics without blocker",
+      "createdAt": "2026-07-04T23:05:02.405Z",
+      "reviewRound": "2026-07-04T23:01:13.707Z",
+      "reviewRunId": "B-7ba7:RR-040",
+      "_hash": "5b2b345bfc7c42c0650e7a1dd7a4c7c3f8cab981551e9bf7f44b043020c070bf"
+    },
+    {
+      "id": "B-7ba7:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "milestone_status F-012 coverage verified: grouped output, read-only guards, ledger/evidence freshness, requiredEvidence, waiver rejection",
+      "createdAt": "2026-07-04T23:05:09.148Z",
+      "reviewRound": "2026-07-04T23:01:13.707Z",
+      "reviewRunId": "B-7ba7:RR-039",
+      "_hash": "04e60dff5775dc79b87e8e915dd830b897f69ceca6d36783196d1a1093bb24a6"
+    },
+    {
+      "id": "B-7ba7:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "PASS: EMPTY_STORY_FILES_HASH is no story-scoped freshness signal; matching empty story hash falls through to materialHash, material-only stale still blocks, head fallback remains legacy-only, focused test passed.",
+      "createdAt": "2026-07-04T23:09:51.356Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-042",
+      "_hash": "3a573efab28d726528bb7ebc2c53f4c997781c50697ef568beebc3ba06d90bf9"
+    },
+    {
+      "id": "B-7ba7:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: tests cover EMPTY_STORY_FILES_HASH on current/evidence with stale materialHash, assert current/stale status and stale material risk, and keep story-fresh material-drift plus material-only/head fallback regressions passing.",
+      "createdAt": "2026-07-04T23:10:00.926Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-046",
+      "_hash": "5749bed62e1a7af1d9f5fd80495ce1866b269bc10d18bd43928b7f6a91b20e71"
+    },
+    {
+      "id": "B-7ba7:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed docs/CLI.md Milestone Status section for read-only grouped progress, detail granularity, requiredEvidence semantics, storyFilesHash/materialHash freshness priority including empty story-files hash no-signal, and no automatic execution/DONE/Authority/production readiness overclaims; no blocking documentation issue found.",
+      "createdAt": "2026-07-04T23:10:08.719Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-045",
+      "_hash": "b787ca214078f6b6bd70747bc0a38ca7103bd7768d4c34d52c5a7dd9850f4062"
+    },
+    {
+      "id": "B-7ba7:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed packages/main/tests/milestone-status.test.mjs for grouped output, read-only guard, missing ledger, requiredEvidence, waiver rejection, stale/fresh material/story hash cases, non-empty matching storyFilesHash material drift, and EMPTY_STORY_FILES_HASH no-signal regression; focused node test passed with no blocker.",
+      "createdAt": "2026-07-04T23:10:09.132Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-041",
+      "_hash": "dd5d52492eb8756712959db905c32ae7d67156adfb33887622b584008e845b8f"
+    },
+    {
+      "id": "B-7ba7:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs/CLI.md documents non-empty storyFilesHash priority, empty story-files hash as no-signal, materialHash fallback, headHash legacy/degraded fallback, and read-only/no DONE/Authority/production overclaim boundaries.",
+      "createdAt": "2026-07-04T23:10:13.698Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-047",
+      "_hash": "8d30194ed631f2c0a86d3ecdb10b7f2bcd022e3fe7b0b07106f202923e2b0448"
+    },
+    {
+      "id": "B-7ba7:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after F-013: milestone_status remains a read-only grouped progress reporter over existing ledger/checklist/evidence facts, with mutation/overclaim flags rejected before story reads. Docs and command schema avoid execution, automatic DONE, Authority, and production-readiness claims. Empty storyFilesHash is treated as no story-scoped freshness signal and falls through to materialHash/head fallback semantics instead of completing stale evidence.",
+      "createdAt": "2026-07-04T23:10:30.825Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-044",
+      "_hash": "07afdee64c1d750a2dfa55d4a35a0533d94ad6b5d0291575ee371fbb9d2a14fa"
+    },
+    {
+      "id": "B-7ba7:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker in milestone_status freshness handling: matching non-empty storyFilesHash accepts material-only drift; EMPTY_STORY_FILES_HASH is treated as no signal and falls through to strict materialHash; mismatched storyFilesHash blocks; material-only and legacy head fallback paths remain covered. Verified with node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-04T23:10:34.677Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-043",
+      "_hash": "84681f76289c77f7a85acc9be6686d370c2bb83fde28f90a9abf9ff2229d06a9"
+    }
+  ]
+}

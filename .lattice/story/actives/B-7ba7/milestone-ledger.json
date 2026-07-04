@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7ba7",
+  "state": "confirmed",
+  "ledgerHash": "sha256:7e92682a9a2237a1433c8c7f1cda677e4e0567eac7d93d9efcb6e92e5083e33a",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Define a machine-readable milestone status report model over existing story facts.",
+      "doneMeans": "Report schema exposes story id, phase, milestone rows, grouped status, sub-objectives, evidence refs, risks, and next actions without creating new storage.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli_negative_control"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-002",
+      "claim": "Expose a read-only lattice milestone_status CLI command.",
+      "doneMeans": "Command supports text and JSON output, rejects mutation-like flags, and prints completed/current/remaining groups.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "cli_negative_control"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-003",
+      "claim": "Project checklist completion and verification detail into milestone rows.",
+      "doneMeans": "Rows derive status and next actions from milestone ledger, checklist refs, verificationIntent, verificationEvidence, and summary facts where available.",
+      "requiredEvidence": [
+        "logic_test",
+        "stale_or_missing_evidence_negative_control"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-004",
+      "claim": "Document and test the grouped progress reporting workflow.",
+      "doneMeans": "Tests cover JSON/text/missing-ledger behavior and docs explain host reporting contract without claiming automatic execution or production readiness.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check",
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-04T19:49:06.311Z",
+  "updatedAt": "2026-07-04T19:49:11.797Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260704194911",
+    "acceptedInterpretationHash": "sha256:8eb144bd934f19340a8ada6378222c75140765c193a92245b540600b22e4a170",
+    "acceptedAt": "2026-07-04T19:49:11.797Z"
+  }
+}

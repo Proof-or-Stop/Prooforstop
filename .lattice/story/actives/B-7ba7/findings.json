@@ -1,0 +1,291 @@
+{
+  "findings": [
+    {
+      "id": "B-7ba7:F-001",
+      "desc": "review-discovered issue: stale passing verification evidence can mark a milestone completed. milestone_status currently accepts pass/waiver evidence without verifying the evidence head/material/storyFiles binding against the current story state, so old evidence can produce a false completed group.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.013Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "372a8a27ddf0f90e027a1bbcdf1fc1730350b5d8ee8cff3c76a07b8f9876fca7",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|review-discovered-issue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by requiring covering evidence to be fresh against current materialHash/storyFilesHash when strong bindings exist, with stale-evidence status/risks and regression coverage in packages/main/tests/milestone-status.test.mjs. Full validate passed 33/33 commands.",
+      "resolvedAt": "2026-07-04T22:11:17.438Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-002",
+      "desc": "review-discovered issue: milestones with no checklistRefs can still be reported completed. Empty checklistRefs pass vacuous every checks, letting a milestone with evidence but no checklist mapping hide a broken ledger mapping.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.449Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "f90a8e64e94984c8db2aea34bdff2787ba4a6f14c9d1af4c19fc8c7801851557",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|review-discovered-issue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e8bb16fee/2f85f87ea: normal milestones now require at least one valid checklistRef; empty checklistRefs produce missing-checklistRefs risk and cannot complete except not_applicable. Covered by milestone-status test M-no-checklistRefs negative case and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:22.567Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-003",
+      "desc": "review-discovered issue: missing-ledger reporting can be preempted by checklist reads. A story with index metadata but no checklist throws before milestone_status can return its documented missing-ledger blocker.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.883Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "0bc3fe9bda55c94ab384ed69d5cf295591f42bc3393aedc3d3adb3b144e4a8a4",
+      "files": [
+        "packages/main/src/handlers/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|review-discovered-issue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e8bb16fee: milestone_status reads story, milestone ledger, and summary first; when the ledger is missing it returns the documented missing-ledger blocker without requiring checklist reads. Covered by handler test asserting reads are story/ledger/summary only and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:27.226Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-004",
+      "desc": "packages/main/src/core/milestone-status.ts:133 and packages/main/src/core/milestone-status.ts:323: milestone_status still treats any pass or waiver verificationEvidence as covering without checking headHash, materialHash, or storyFilesHash freshness against current story material. A stale pass can move a row into the completed group, violating the no false DONE/completion semantics for this read-only report.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-04T20:47:08.561Z",
+      "reviewRound": "2026-07-04T20:45:07.958Z",
+      "reviewRunId": "B-7ba7:RR-005",
+      "_hash": "47425f275167dc8d5d1a5fa5ad0175237253fec2a14b7115d375f86bb48c1094",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 2f85f87ea/e949aeb50: milestone_status now checks evidence freshness before marking refs covered; stale materialHash/storyFilesHash blocks completion, while head-only metadata drift is accepted when stronger bindings match. Verified by stale-evidence tests, post-refresh milestone_status M1-M4 Completed/Risks none, and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:32.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-005",
+      "desc": "packages/main/src/core/milestone-status.ts:317 and packages/main/src/core/milestone-status.ts:334: checklistRefsComplete and checklistRefsValid are vacuously true for milestones with no checklistRefs, while verificationRefsCovered can be true from a standalone verificationIntentRef. That lets a ledger row with no checklist mapping appear completed, which makes milestone_status a second inferred completion system instead of a strict projection of authored milestone/checklist bindings.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-04T20:47:13.548Z",
+      "reviewRound": "2026-07-04T20:45:07.958Z",
+      "reviewRunId": "B-7ba7:RR-005",
+      "_hash": "3ab91fcc929a1059a68539992e98ec5ffe8637d0679a6f7fb9e073692719ad6c",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e8bb16fee/2f85f87ea: checklistRefsComplete/checklistRefsValid no longer pass vacuously; a normal milestone without checklistRefs is current with missing-checklistRefs risk and cannot be Completed. Covered by M-no-checklistRefs test and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:39.212Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-006",
+      "desc": "packages/main/src/core/milestone-status.ts: Deferred or failed waivers can complete milestones. milestone_status maps waiver evidence to waived and accepts waived evidence as covering, so deferred_gate_evidence or failed waivers can make a milestone appear completed. Must reject deferred/failed waivers for covering semantics and only allow permanent non-failing waivers.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:49.485Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "f051d84699428b1d61b9a5f1ce67f85e28fe77ecef64dd0943891cfe7e3acef5",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80/e74b74e3a: milestone_status now treats waiver evidence as covering only when kind=waiver, waiverType=permanent, and result is not fail; deferred_gate_evidence and failed waivers remain not-passing. Verified by node packages/main/tests/milestone-status.test.mjs waiver regression and full build PASS.",
+      "resolvedAt": "2026-07-04T22:32:17.635Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-007",
+      "desc": "packages/main/src/core/milestone-status.ts: requiredEvidence is treated as mapped, not required. A milestone requiring browser_test can complete with any verificationIntentRef/evidence kind, so required evidence kinds are not enforced before completion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:50.086Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "7730561f38cb57f0713f97e7dddcec4a6fab8ab54caf9e8f7caf173fe71a007c",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80/e74b74e3a: requiredEvidence values matching supported evidence kinds are enforced against fresh covering evidence of that exact kind, so browser_test cannot be satisfied by logic_test. Historical custom labels are mapped hints to avoid illegal DEV-phase ledger rewrites. Verified by requiredEvidence mismatch regression and milestone_status B-7ba7 showing M1-M4 completed with no risks after evidence refresh.",
+      "resolvedAt": "2026-07-04T22:32:18.049Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-008",
+      "desc": "packages/main/src/cli-engine.ts: strict milestone_status validation still reads active story facts before rejecting malformed arguments. Unexpected mutation-like args should fail before story facts/store reads in active-story worktrees.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:50.690Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "d153643de8ac2bc1422b15f4a03956fdf79eb15578702ee48f935b96e0041bba",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-engine",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80: cli-engine now preflights strict milestone_status arguments before active-story detection. Regression uses an active story branch with FIFO index.json and malformed surpriseFlag; test proves the command rejects with Argument validation failed before active-story metadata reads. Verified by node packages/main/tests/milestone-status.test.mjs and negative CLI smoke.",
+      "resolvedAt": "2026-07-04T22:32:18.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-009",
+      "desc": "packages/main/src/core/milestone-status.ts:201-217: evidenceFreshnessRisks only compares materialHash/storyFilesHash when both evidence hashes are present; otherwise it returns immediately after headHash validation. A material-bound legacy or tampered evidence row with current headHash but stale materialHash and missing storyFilesHash can still be treated as fresh, letting stale passing evidence complete a milestone. Compare each available stronger binding before falling back to headHash, and add regressions for material-only stale and material-only metadata-drift cases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:36:18.291Z",
+      "reviewRound": "2026-07-04T22:32:08.727Z",
+      "reviewRunId": "B-7ba7:RR-020",
+      "_hash": "f62e7e4bccd87586d54c02825643e55da7f198ceacb2e605a20c354346c508b9",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-04T22:40:52.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-010",
+      "desc": "F-009 test coverage still misses the fresh material-only evidence with head drift case. In packages/main/tests/milestone-status.test.mjs lines 421-426, CHK-MATERIAL-FRESH binds headHash=head-current with materialHash=material-current, so the test only proves fresh material-only evidence covers when storyFilesHash is absent. It does not exercise the required regression that fresh material-only evidence ignores stale headHash/head drift, unlike the story-only fresh case at lines 427-432.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-04T22:44:13.969Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-029",
+      "_hash": "0a9a9e7be50140cfb71066e769e55842f1c94248d9ff10ed4277bd2a88acbd19",
+      "files": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|test-coverage-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current regression covers material-only fresh evidence with stale headHash: CHK-MATERIAL-FRESH uses headHash=head-old, materialHash=material-current, and no storyFilesHash. node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T22:48:03.146Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-011",
+      "desc": "F-009 regression coverage is still incomplete: packages/main/tests/milestone-status.test.mjs exercises stale material-only evidence with current headHash and fresh storyFiles-only evidence with stale headHash, but CHK-MATERIAL-FRESH uses headHash=head-current with materialHash=material-current. That does not cover the required material-only metadata-drift case where a comparable materialHash pair exists and headHash is stale, so head fallback ordering can regress for material-only fresh evidence without a failing test. Add a material-only fresh evidence case with stale headHash/current materialHash and no storyFilesHash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:45:22.691Z",
+      "reviewRound": "2026-07-04T22:40:43.422Z",
+      "reviewRunId": "B-7ba7:RR-028",
+      "_hash": "5c01a454a0941e51b0a6d939f6ac51a6ccf0f1e1f55a802b98e656746d1dc603",
+      "files": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|regression-coverage-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current regression covers the requested material-only metadata-drift case: CHK-MATERIAL-FRESH has stale headHash and current materialHash with no storyFilesHash, proving comparable materialHash is preferred before headHash fallback. node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T22:48:03.267Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-012",
+      "desc": "milestone_status marks verificationEvidence stale on materialHash-only drift even when storyFilesHash is unchanged, conflicting with the core story_files_hash_freshness_gate and making the read-only progress report fail to converge after Lattice metadata commits.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-04T22:58:57.795Z",
+      "reviewRound": "2026-07-04T22:47:51.858Z",
+      "_hash": "92f6914f2aea0d509fb1f2a12217a1b3235dcda12c72689b9d22f368f0902fe2",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|milestone-status-marks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed milestone_status freshness semantics so matching storyFilesHash accepts materialHash-only drift without stale materialHash risks; focused milestone-status tests and build pass, and milestone_status now reports all four milestones completed with no risks.",
+      "resolvedAt": "2026-07-04T23:02:49.478Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-013",
+      "desc": "milestone-status freshness treats EMPTY_STORY_FILES_HASH as a positive storyFilesHash signal. In evidenceFreshnessRisks, any matching evidence/current storyFilesHash returns no risk before materialHash comparison, so stale materialHash evidence with both storyFilesHash values equal to sha256(\"\") is marked covering. Core checkEvidenceFreshnessForGit explicitly treats that empty-diff hash as no-signal on both sides and falls through to strict materialHash; milestone status must mirror that to avoid unsafely broadening no-story-diff evidence. Existing focused tests pass but do not cover the empty sentinel case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T23:05:19.833Z",
+      "reviewRound": "2026-07-04T23:01:13.707Z",
+      "reviewRunId": "B-7ba7:RR-038",
+      "_hash": "14a0fbb41ef23e15d3dcf4c8153c0a1e42ad312b8d4fdc3c7687ef86be7dd7e7",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|milestone-status-freshness",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by treating EMPTY_STORY_FILES_HASH as no story-scoped freshness signal in milestone_status, falling through to materialHash freshness instead of accepting the empty hash as authoritative. Added regression where matching empty storyFilesHash plus stale materialHash remains stale and requiredEvidence missing. Docs now state empty story-files hash is no-signal. npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T23:07:28.143Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -459,6 +459,10 @@ const STRICT_OWNER_META_COMMANDS = new Set([
   'autopilot_resume',
 ]);
 
+const STRICT_COMMAND_ARG_COMMANDS = new Set([
+  'milestone_status',
+]);
+
 const CLI_META_SCHEMA = {
   takeover: z.boolean().optional(),
   forceTakeover: z.boolean().optional(),
@@ -474,7 +478,44 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
     const schema = STRICT_OWNER_META_COMMANDS.has(cmd) ? schemaWithCliMeta : tool.schema;
     return z.object(schema).strict();
   }
+  if (STRICT_COMMAND_ARG_COMMANDS.has(cmd)) {
+    return z.object(tool.schema).strict();
+  }
   return z.object(schemaWithCliMeta);
+}
+
+function parseCommandArgs(rawArgs: string[], tool: ToolDef): Record<string, unknown> {
+  if (rawArgs.length === 0) {
+    return {};
+  }
+  if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
+    try {
+      return JSON.parse(rawArgs[0]) as Record<string, unknown>;
+    } catch (e) {
+      throw new Error(`JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}`);
+    }
+  }
+  return parseFlags(rawArgs, tool.schema);
+}
+
+function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[]): void {
+  if (!cmd || !STRICT_COMMAND_ARG_COMMANDS.has(cmd)) return;
+  if (argv[1] === '--help' || argv[1] === '-h') return;
+  const tool = TOOLS.find(t => t.name === cmd);
+  if (!tool) return;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = parseCommandArgs(argv.slice(1), tool);
+  } catch (e) {
+    console.error((e as Error).message);
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    process.exit(1);
+  }
+  const v = validationSchemaForCommand(cmd, tool).safeParse(parsed);
+  if (!v.success) {
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
+    process.exit(1);
+  }
 }
 
 function gitCli(cwd: string, args: string[]): string {
@@ -643,6 +684,20 @@ export async function runCli(opts?: {
   let cmd = argv[0];
   let arg = argv[1];
 
+  // Normalize nested space aliases into the flat underscore commands used by
+  // the registry before command-specific preflight or active-story reads.
+  const normalizedAlias = normalizeNestedSpaceAlias(argv);
+  if (normalizedAlias.matched) {
+    argv.splice(0, argv.length, ...normalizedAlias.argv);
+    cmd = normalizedAlias.canonicalAlias!;
+    arg = argv[1];
+  } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    return;
+  }
+
+  preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
+
   // Detect active story from git branch
   const root0 = resolveRootForCommand(cmd, rootOverride);
   const activeStory = detectActiveStory(root0);
@@ -679,18 +734,6 @@ export async function runCli(opts?: {
     if (!dashArgs.roots) dashArgs.roots = root0;
     const { runDashboard } = await import('./dashboard.js');
     await runDashboard(dashArgs as { roots?: string; interval?: number });
-    return;
-  }
-
-  // Normalize nested space aliases into the flat underscore commands used by
-  // the registry.
-  const normalizedAlias = normalizeNestedSpaceAlias(argv);
-  if (normalizedAlias.matched) {
-    argv.splice(0, argv.length, ...normalizedAlias.argv);
-    cmd = normalizedAlias.canonicalAlias!;
-    arg = argv[1];
-  } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
-    process.stdout.write(`${formatLatticeVersionLine()}\n`);
     return;
   }
 
@@ -731,22 +774,12 @@ export async function runCli(opts?: {
   // 2. key=value (shorthand flag)
   // 3. '{"key":"value"}'  (JSON body, compatible with legacy usage)
   let parsed: Record<string, unknown> = {};
-  {
-    const rawArgs = argv.slice(1);
-    if (rawArgs.length === 0) {
-      // No arguments; empty object.
-    } else if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
-      // JSON body format (compatible with legacy usage).
-      try { parsed = JSON.parse(rawArgs[0]); }
-      catch (e) {
-        console.error(`JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}`);
-        printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
-        process.exit(1);
-      }
-    } else {
-      // Flag-format parsing.
-      parsed = parseFlags(rawArgs, tool.schema);
-    }
+  try {
+    parsed = parseCommandArgs(argv.slice(1), tool);
+  } catch (e) {
+    console.error((e as Error).message);
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    process.exit(1);
   }
 
   if (cmd === 'dev_memory_finish' && activeStory) {

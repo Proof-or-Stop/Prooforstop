@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Use existing ProofStory ledger facts as the source of truth.",
+    "Keep milestone_status read-only and fail closed on mutation-like flags.",
+    "Show complete/current/remaining progress in one stable table after each material status change.",
+    "Expose missing evidence or missing ledger detail explicitly instead of inventing completion state."
+  ],
+  "drivers": [
+    "The user needs visible milestone progress with sub-objective detail.",
+    "The existing ProofStory contract says milestone ledgers are intent coverage, not a second execution machine.",
+    "Lifecycle gates must remain owned by existing validate/review/DONE handlers."
+  ],
+  "options": [
+    {
+      "name": "Read-only projection over existing ProofStory ledger",
+      "pros": [
+        "Reuses existing milestone-ledger storage and checklist/evidence facts.",
+        "Lowest risk because it does not advance phases or write evidence.",
+        "Gives hosts a stable table immediately while preserving future writer integration."
+      ],
+      "cons": [
+        "Transition details are limited until future completion-writer or executor-ledger artifacts exist."
+      ]
+    },
+    {
+      "name": "New milestone execution ledger",
+      "pros": [
+        "Could store rich sub-objective transition history immediately."
+      ],
+      "cons": [
+        "Creates a second source of truth and conflicts with the ProofStory contract.",
+        "Higher risk of hosts treating report rows as lifecycle authority."
+      ]
+    },
+    {
+      "name": "Full automatic lifecycle pipeline",
+      "pros": [
+        "Could eventually reduce host manual steps across execution, validation, review, and DONE."
+      ],
+      "cons": [
+        "Too broad for V1 and risks duplicating lifecycle gates, reviewer lanes, and evidence writers."
+      ]
+    }
+  ],
+  "chosen": "Read-only projection over existing ProofStory ledger",
+  "rationale": "Choose a read-only projection because the immediate problem is progress visibility, not new execution authority. This preserves existing ProofStory ledger semantics and makes later completion-writer integration additive rather than a competing truth source.",
+  "preMortem": [
+    {
+      "scenario": "milestone_status is mistaken for a command that marks milestones done",
+      "trigger": "The text renderer uses DONE-like wording without explaining read-only status.",
+      "consequence": "Hosts may overclaim progress and bypass evidence gates.",
+      "mitigation": "Renderer includes read-only/no mutation language and next action rows instead of mutating state."
+    },
+    {
+      "scenario": "The implementation creates a parallel milestone schema",
+      "trigger": "Sub-objective detail is stored outside the existing ProofStory ledger/checklist/evidence facts.",
+      "consequence": "Milestone facts drift and reviewers cannot tell which source is authoritative.",
+      "mitigation": "V1 only projects existing ledger/checklist/evidence facts and treats richer completion writer artifacts as future extension."
+    },
+    {
+      "scenario": "Missing or stale evidence is shown as complete",
+      "trigger": "Classifier trusts checklist or ledger status without checking verificationEvidence presence.",
+      "consequence": "The report becomes a false-DONE surface.",
+      "mitigation": "Rows with done-like ledger status but missing evidence get warnings/next actions and are not silently treated as complete."
+    }
+  ],
+  "timestamp": "2026-07-04T19:48:48.789Z"
+}

@@ -1,0 +1,29 @@
+{
+  "task": "Add a read-only CLI report that shows a story milestone ledger as a grouped progress table with sub-objective detail.",
+  "outcome": "When the user runs `lattice milestone_status --storyId=B-demo`, the terminal shows `Milestone Status - B-demo`, `Mode: read-only`, `Completed`, `Current`, `Remaining`, and `Next action`; it does not claim it advanced the story.",
+  "facts": [
+    "ProofStory already has milestone_ledger_set/add/get and stores milestone-ledger.json.",
+    "The current milestone ledger is an intent coverage contract, not an executor state machine or separate storage layer.",
+    "Existing checklist items carry verificationIntent and verificationEvidence that can be projected into report rows.",
+    "Read-only status commands use unsupported mutation flags to fail closed in command-catalog.ts.",
+    "The user specifically wants every milestone and the active milestone details visible after milestone or sub-objective status changes.",
+    "V1 will not have future completion-writer transition artifacts; it must degrade gracefully and show unavailable transition detail as a limitation."
+  ],
+  "constraints": [
+    "Do not create a second milestone storage system.",
+    "Do not run commands, write evidence, launch reviewers, or advance phases from milestone_status.",
+    "Do not modify the existing dirty README.md change from main.",
+    "Do not use OMX or .omx.",
+    "Keep V1 report truthful when ledger detail is missing: report missing detail rather than inventing it."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "timestamp": "2026-07-04T19:57:37.448Z"
+}

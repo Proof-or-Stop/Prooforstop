@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7ba7",
+  "id": "IC-20260704194911",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a read-only milestone status report command over the existing ProofStory milestone ledger/checklist/evidence facts. The story does not implement an automatic executor, phase advancement, reviewer launcher, or separate milestone completion writer in V1.",
+  "acceptedInterpretationHash": "sha256:8eb144bd934f19340a8ada6378222c75140765c193a92245b540600b22e4a170",
+  "notes": "This interpretation follows proofstory-intent-collision-execution-plan.md: milestone ledgers are countable intent-coverage contracts. Active milestone sub-objective detail is projected from checklist refs, verification intents, requiredEvidence hints, and future writer artifacts when present; it is not a new storage authority.",
+  "ledgerHashBeforeDecision": "sha256:7e92682a9a2237a1433c8c7f1cda677e4e0567eac7d93d9efcb6e92e5083e33a",
+  "confirmedLedgerHash": "sha256:7e92682a9a2237a1433c8c7f1cda677e4e0567eac7d93d9efcb6e92e5083e33a",
+  "createdAt": "2026-07-04T19:49:11.796Z",
+  "updatedAt": "2026-07-04T19:49:11.796Z"
+}

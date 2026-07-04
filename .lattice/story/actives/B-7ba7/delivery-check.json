@@ -1,0 +1,64 @@
+{
+  "storyId": "B-7ba7",
+  "checkedAt": "2026-07-04T23:14:12.672Z",
+  "headHash": "4f24acd60977bb8e29e32b30ed3b68cc0ae10b67",
+  "materialHash": "a866756979308d7c43a50befc4570452450308110531522fe7382502e17f264e",
+  "storyFilesHash": "34a345a597dafba5e2d5afb8a1cbaaf5ea91c465155f10a9bd09831a65ae1422",
+  "reviewRound": "2026-07-04T23:07:20.631Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "milestone_status is a read-only progress reporter over existing ProofStory facts and does not create milestone storage or mutate workflow state.",
+      "status": "verified",
+      "verifiedBy": "source and docs review",
+      "evidence": "docs/CLI.md documents V1 read-only boundaries; command policy/handler expose read-only mode and reject mutation-like flags before story facts."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "Freshness semantics prefer non-empty storyFilesHash, treat empty story-files hash as no-signal, then use materialHash, then headHash fallback.",
+      "status": "verified",
+      "verifiedBy": "source, tests, docs review",
+      "evidence": "packages/main/src/core/milestone-status.ts imports EMPTY_STORY_FILES_HASH and only lets non-empty storyFilesHash short-circuit; tests cover story-fresh/material-drift, empty story hash stale-material, material-only stale/fresh, and head-only fallback."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "Text and JSON output expose grouped Completed, Current, and Remaining milestones with risks and next actions.",
+      "status": "verified",
+      "verifiedBy": "real-machine CLI transcript",
+      "evidence": ".lattice/story/actives/B-7ba7/evidence/transcript-diff.md records milestone_status text output with M1-M4 completed, Current/Remaining none, Risks none; JSON smoke reports groups, risks, and nextActions."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "V1 does not run commands, write evidence or summaries, write review passes, change phase, launch reviewers, claim automatic DONE, claim remote Authority completion, or claim production readiness.",
+      "status": "verified",
+      "verifiedBy": "docs and tests review",
+      "evidence": "docs/CLI.md states non-claims; command-catalog and milestone-status tests reject mutation, DONE, Authority, and production-like flags."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002:happy:0",
+      "transcript": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 printed read-only grouped tables with M1-M4 completed, Current none, Remaining none, Risks none, and no remaining milestone action."
+    },
+    {
+      "featureId": "CHK-002:adversarial:0",
+      "transcript": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --format=json --surpriseFlag=true failed with Argument validation failed before story facts."
+    },
+    {
+      "featureId": "F-013-regression",
+      "transcript": "npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs passed; tests cover EMPTY_STORY_FILES_HASH no-signal with stale materialHash and existing freshness cases."
+    },
+    {
+      "featureId": "validation",
+      "transcript": "lattice story_advance --phase=TEST ran 33 configured validate commands and wrote PASS test-evidence at 2026-07-04T23:12:19.476Z."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS: read-only milestone_status reporting is implemented, freshness semantics are documented and tested including EMPTY_STORY_FILES_HASH, full validate passed, reviews are complete, and no execution/DONE/Authority/production overclaim remains."
+  },
+  "_hash": "511ac61d75c967b76d7feade12e8582d4de3341e86d29fd08fd19539368ba706"
+}

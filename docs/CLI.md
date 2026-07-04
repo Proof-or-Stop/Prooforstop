@@ -271,6 +271,62 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+### Milestone Status
+
+`lattice milestone_status` is a read-only progress reporter over existing
+ProofStory facts. It does not create milestone storage; it projects the current
+story phase, milestone ledger state/hash, checklist refs, verificationIntent
+refs, verificationEvidence, and optional summary facts.
+
+```bash
+lattice milestone_status --storyId=B-xxxx
+lattice milestone_status --storyId=B-xxxx --format=json
+lattice milestone_status --storyId=B-xxxx --json
+```
+
+The command accepts only `storyId`, `format`, and `json`. Every other key is
+rejected before story facts are read.
+
+Text output includes grouped Markdown tables for completed, current, and
+remaining milestones. JSON output includes `storyId`, `phase`, `ledger`, `mode`,
+`milestones`, `groups`, `risks`, and `nextActions`. `mode.readOnly` is `true`;
+`runCommands`, `writeEvidence`, `advancePhase`, and `launchReviewers` are always
+`false`.
+
+Host Progress Reporting Contract:
+
+- Hosts should print or attach the full `milestone_status` table after a
+  milestone or sub-objective status change, at handoff, and before final
+  responses when milestone progress is relevant.
+- Missing `milestone-ledger.json` is a blocker. The command reports a clear next
+  action and does not infer completion from checklist text alone.
+- Detail granularity comes from the authored milestone ledger, checklist refs,
+  verificationIntent refs, and verificationEvidence. Future completion or
+  executor ledgers can improve state-change deltas, but V1 does not require them
+  and reports only current committed story facts.
+- `requiredEvidence` entries that match supported verification evidence kinds
+  (`logic_test`, `integration_test`, `browser_test`, `manual_transcript`,
+  `docs_check`, or `waiver`) are enforced against fresh covering evidence of
+  that exact kind. Historical custom labels are displayed as mapped hints, not
+  evidence-kind gates. Passing evidence and permanent non-failing waivers can
+  cover verification refs; deferred gate-evidence waivers and failed waivers do
+  not.
+- Evidence freshness prefers the strongest comparable story-scoped binding:
+  matching `storyFilesHash` is authoritative when both the current workspace and
+  the evidence provide it, so metadata-only `materialHash` drift does not block
+  progress reporting. The empty story-files hash is treated as no story-scoped
+  signal, not as freshness proof. If no comparable non-empty `storyFilesHash`
+  exists, comparable `materialHash` is checked. `headHash` is a hard fallback
+  only for legacy or degraded bindings that lack those stronger hashes, so
+  metadata-only HEAD movement does not block completion by itself.
+- V1 is read-only. It rejects mutation-like flags such as `runCommands`,
+  `writeEvidence`, `advancePhase`, `launchReviewers`, `write`, `apply`,
+  `execute`, `run`, `launch`, `capture`, `refresh`, and flags that claim local
+  completion or claim remote Authority completion before reading story facts.
+- V1 does not run commands, write evidence or summaries, write review passes,
+  change phase, launch reviewers, claim automatic execution, claim automatic
+  DONE, claim remote Authority completion, or claim production readiness.
+
 ### Autopilot (local)
 
 `lattice autopilot ...` exposes a bounded unattended-development control plane.

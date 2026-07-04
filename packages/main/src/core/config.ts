@@ -184,6 +184,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'next',          // read-only single next action, shares session_brief authority rules
     'done_closure',  // read-only DONE closure projection; local readiness only
     'lifecycle_check', // read-only proof-or-stop readiness projection; no command execution or evidence writes
+    'milestone_status', // read-only grouped ProofStory milestone status report; no execution, evidence writes, reviewer launch, or phase changes
     'global_control_status', 'runtime_closure_status', 'admissibility_waterline', 'queue_governance_status', // B-eb18: read-only global lifecycle control plane projections
     'queue_exception_set', // B-eb18: guarded project-level queue exception writer; preserve-only, does not grant readiness
     'plan_skeleton', // read-only PLAN skeleton preview; --write delegates only to understanding_set/checklist_add

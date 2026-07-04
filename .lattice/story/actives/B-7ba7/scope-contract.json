@@ -1,0 +1,219 @@
+{
+  "storyId": "B-7ba7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "docs/CLI.md",
+    "lattice.config.json",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    ".lattice/story/actives/B-7ba7/original-intent-snapshot.json",
+    ".lattice/story/actives/B-7ba7/milestone-ledger.json",
+    ".lattice/story/actives/B-7ba7/intent-collision.json",
+    ".lattice/story/actives/B-7ba7/proofstory.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    ".lattice/story/actives/B-7ba7/original-intent-snapshot.json",
+    ".lattice/story/actives/B-7ba7/milestone-ledger.json",
+    ".lattice/story/actives/B-7ba7/intent-collision.json",
+    ".lattice/story/actives/B-7ba7/proofstory.json"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**"
+  ],
+  "protectedFiles": [
+    "README.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "README.md"
+  ],
+  "scopeChangeReason": "Review finding requires strict milestone_status argument validation at the CLI boundary; additive cli-engine hunk is within the approved read-only command boundary fix.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Review finding requires strict milestone_status argument validation at the CLI boundary without changing unrelated commands.",
+      "timestamp": "2026-07-04T20:54:09.567Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e8bb16feeffad79bb12f7ec0f86beafafcf0c5ec",
+      "materialHash": "315ee8572fe05485c742eba47a34be844e5a9e28b9152befed0a7865338b3497",
+      "hunkDigest": "99bb107f85e8973939fa3b7e1f19da83f649253069dc0095ea30ba1cc14ddf4e"
+    },
+    {
+      "actor": "codex-main",
+      "reason": "F-012 exposed a real convergence correctness issue: milestone_status must prefer matching storyFilesHash over material-only metadata drift so read-only progress reporting does not become stale after Lattice metadata commits while material-only evidence without storyFilesHash remains protected.",
+      "timestamp": "2026-07-04T23:01:07.566Z",
+      "paths": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b65f164dbd3ab8525b5054eef749c6ff878036fe",
+      "materialHash": "383d1c9bcfe86d71329b4d6d0de72cce9354e2af218e23c595a089d288150e04",
+      "anchors": [
+        "if"
+      ],
+      "hunkDigest": "7d4fda277fd77c47566e5a9d10bc49f032cf1dd0111fddcb06e891e43fc8f2e1"
+    }
+  ],
+  "createdAt": "2026-07-04T19:49:53.056Z",
+  "updatedAt": "2026-07-04T23:01:07.566Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/core/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-003:happy:0",
+        "CHK-004:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify",
+        "remove"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/tests/milestone-status.test.mjs",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0"
+      ]
+    },
+    {
+      "path": "lattice.config.json",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-004:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/registry.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli/command-catalog.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli-engine.ts",
+      "allowedChangeKinds": [
+        "modify",
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli/activity-policy.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/command-policy.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/config.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/process-fact-levels.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ]
+    }
+  ],
+  "protectedAnchors": []
+}

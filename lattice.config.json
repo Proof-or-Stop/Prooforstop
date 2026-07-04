@@ -23,6 +23,7 @@
   "validate": {
     "commands": [
       { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "focus": ["fast"] },
+      "node packages/main/tests/milestone-status.test.mjs",
       "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
       "node packages/main/dist/tasks/capability-list-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
