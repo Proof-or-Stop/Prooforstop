@@ -35,7 +35,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees milestone_status JSON include schemaVersion, storyId, phase, grouping, milestone rows, subObjectives, evidenceRefs, risks, and next actions, with mode.readOnly=true.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/milestone-status.ts"
+        ],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
