@@ -27,7 +27,7 @@
       "desc": "review-discovered issue: milestones with no checklistRefs can still be reported completed. Empty checklistRefs pass vacuous every checks, letting a milestone with evidence but no checklist mapping hide a broken ledger mapping.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-main",
       "createdAt": "2026-07-04T20:43:09.449Z",
@@ -38,7 +38,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by treating missing checklistRefs as a risk and requiring at least one valid checklistRef for normal non-not_applicable milestone completion. Regression coverage added to packages/main/tests/milestone-status.test.mjs.",
+      "resolvedAt": "2026-07-04T22:11:17.872Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-003",
