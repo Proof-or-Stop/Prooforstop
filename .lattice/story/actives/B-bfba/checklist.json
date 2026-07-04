@@ -115,7 +115,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the closeout command prints the final milestone table instead of a stale live diagnostic.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A read-only closeout command prints all milestones with Milestone, Status, Solved Problem, Acceptance, Evidence, Risks, and Next Action columns.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If no closeout snapshot exists, the command returns a clear missing-snapshot diagnostic and next action.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The closeout command rejects mutation-like flags before reading story facts or writing anything.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
