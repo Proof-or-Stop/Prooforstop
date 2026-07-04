@@ -4,7 +4,7 @@
   "title": "Add read-only milestone status reporting with grouped progress tables",
   "description": "Implement a Lattice CLI readiness view that turns a story milestone ledger into a user-facing progress report with completed, current, and remaining groups, including sub-objective detail, status transitions, evidence references, risks, and next actions without mutating story state.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "milestone-status",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-04T19:47:09.089Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7ba7",
+    "branch": "story/B-7ba7",
+    "createdAt": "2026-07-04T19:47:07.304Z"
+  }
 }
