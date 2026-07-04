@@ -11,6 +11,9 @@ const CHECKER_RESEARCH_BOUNDARY = Object.freeze({
   productGateImpact: "none",
 });
 
+const REQUIRED_PHASE1_CELL_NUMBERS = Object.freeze(["③", "⑥", "②"]);
+const OPTIONAL_CELL_4 = "④";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..", "..");
@@ -80,6 +83,16 @@ function byId(entries, idKey) {
   return new Map((entries || []).map((entry) => [entry[idKey], entry]));
 }
 
+function removeOptionalCell4(matrix) {
+  matrix.phase1Cells = matrix.phase1Cells.filter((cell) => cell.cellNumber !== OPTIONAL_CELL_4);
+  matrix.plannedCounts.optionalCellNumbers = [];
+  matrix.plannedCounts.optionalRowsAddedByCell4 = 0;
+  matrix.plannedCounts.requiredPlusOptionalRows = matrix.plannedCounts.requiredRows;
+  matrix.confirmatoryContrasts = matrix.confirmatoryContrasts.filter(
+    (contrast) => !["③-vs-④", "②-vs-④"].includes(contrast.contrastId),
+  );
+}
+
 function validateProtocolLock(lock, expectedSha) {
   assert(lock.artifact === "protocol.lock.m1", "protocol lock artifact mismatch");
   assert(lock.storyId === "B-806b", "protocol lock storyId must be B-806b");
@@ -143,23 +156,30 @@ function validateCellMatrix(matrix, expectedDigest) {
 
   const cells = matrix.phase1Cells || [];
   const cellsByNumber = byId(cells, "cellNumber");
-  for (const requiredCell of ["③", "⑥", "②"]) {
+  for (const requiredCell of REQUIRED_PHASE1_CELL_NUMBERS) {
     assert(cellsByNumber.get(requiredCell)?.phase1Status === "required", `${requiredCell} must be a required Phase 1 cell`);
   }
-  assert(cellsByNumber.get("④")?.phase1Status === "optional_budget_permitting", "④ must be optional budget-permitting");
+  const optionalCell4 = cellsByNumber.get(OPTIONAL_CELL_4);
+  const optionalCell4Present = optionalCell4 !== undefined;
+  if (optionalCell4Present) {
+    assert(optionalCell4.phase1Status === "optional_budget_permitting", "④ must be optional budget-permitting when present");
+  }
   const requiredCells = cells.filter((cell) => cell.phase1Status === "required");
   assert(requiredCells.length === 3, "required Phase 1 cell count must be 3");
   assert(!requiredCells.some((cell) => cell.cellNumber === "④"), "④ must not be required");
 
   const counts = matrix.plannedCounts || {};
+  const expectedOptionalCellNumbers = optionalCell4Present ? [OPTIONAL_CELL_4] : [];
+  const expectedOptionalRowsAddedByCell4 = optionalCell4Present ? rowsPerCell : 0;
+  const expectedRequiredPlusOptionalRows = counts.requiredRows + expectedOptionalRowsAddedByCell4;
   assert(counts.requiredCells === 3, "plannedCounts.requiredCells must be 3");
-  assert(JSON.stringify(counts.requiredCellNumbers) === JSON.stringify(["③", "⑥", "②"]), "required cell number order must be frozen");
-  assert(JSON.stringify(counts.optionalCellNumbers) === JSON.stringify(["④"]), "optional cell number set must be ④ only");
+  assert(JSON.stringify(counts.requiredCellNumbers) === JSON.stringify(REQUIRED_PHASE1_CELL_NUMBERS), "required cell number order must be frozen");
+  assert(JSON.stringify(counts.optionalCellNumbers) === JSON.stringify(expectedOptionalCellNumbers), "optional cell number set must match optional ④ presence");
   assert(counts.requiredRows === requiredCells.length * rowsPerCell, "requiredRows must derive from required cells and dimensions");
   assert(counts.requiredRows === 3456, "required Phase 1 rows must be 3,456");
-  assert(counts.optionalRowsAddedByCell4 === rowsPerCell, "optional ④ rows must add 1,152");
+  assert(counts.optionalRowsAddedByCell4 === expectedOptionalRowsAddedByCell4, "optional ④ rows must be 1,152 when present and 0 when absent");
   assert(counts.requiredPlusOptionalRows === counts.requiredRows + counts.optionalRowsAddedByCell4, "required plus optional count must derive");
-  assert(counts.requiredPlusOptionalRows === 4608, "required plus optional rows must be 4,608");
+  assert(counts.requiredPlusOptionalRows === expectedRequiredPlusOptionalRows, "required plus optional rows must match optional ④ presence");
 
   const contrasts = byId(matrix.confirmatoryContrasts, "contrastId");
   assert(contrasts.get("③-vs-⑥")?.legalConfirmatory === true, "③-vs-⑥ must be legal confirmatory");
@@ -168,8 +188,19 @@ function validateCellMatrix(matrix, expectedDigest) {
     (contrasts.get("①-vs-②")?.conditions || []).some((condition) => /same-window ① anchor/.test(condition)),
     "①-vs-② must require same-window ① anchor",
   );
-  assert(contrasts.get("③-vs-④")?.legalConfirmatory === true, "③-vs-④ must be legal confirmatory when ④ exists");
-  assert(contrasts.get("②-vs-④")?.legalConfirmatory === false, "②-vs-④ must be illegal as confirmatory");
+  const optionalCell4Contrast = contrasts.get("③-vs-④");
+  const illegalCell2Vs4Contrast = contrasts.get("②-vs-④");
+  if (optionalCell4Present) {
+    assert(optionalCell4Contrast?.legalConfirmatory === true, "③-vs-④ must be legal confirmatory when ④ exists");
+    assert(illegalCell2Vs4Contrast?.legalConfirmatory === false, "②-vs-④ must be illegal as confirmatory");
+  } else {
+    if (optionalCell4Contrast) {
+      assert(optionalCell4Contrast.legalConfirmatory === false, "③-vs-④ must not be confirmatory when optional ④ is absent");
+    }
+    if (illegalCell2Vs4Contrast) {
+      assert(illegalCell2Vs4Contrast.legalConfirmatory === false, "②-vs-④ must remain illegal as confirmatory when present");
+    }
+  }
 
   const gate = matrix.a2PrimeCell6Gate || {};
   assert(gate.cellNumber === "⑥", "A2prime gate must apply to ⑥");
@@ -261,10 +292,24 @@ function expectReject(label, mutate) {
   fail(`negative control was not rejected: ${label}`);
 }
 
+function expectPass(label, mutate) {
+  const artifacts = deepClone(baseArtifacts);
+  mutate(artifacts);
+  try {
+    validateAll(artifacts, baseProtocolSha);
+  } catch (error) {
+    fail(`positive control was rejected: ${label}: ${error.message}`);
+  }
+}
+
 const baseProtocolSha = protocolSha256();
 const baseArtifacts = loadArtifacts();
 
 validateAll(baseArtifacts, baseProtocolSha);
+
+expectPass("required-only Phase 1 matrix without optional ④", (artifacts) => {
+  removeOptionalCell4(artifacts.cellMatrix);
+});
 
 expectReject("drifted protocol digest", (artifacts) => {
   artifacts.protocolLock.protocolSha256 = "0".repeat(64);
@@ -285,6 +330,13 @@ expectReject("forbidden outcome field", (artifacts) => {
 
 expectReject("missing required ②", (artifacts) => {
   artifacts.cellMatrix.phase1Cells = artifacts.cellMatrix.phase1Cells.filter((cell) => cell.cellNumber !== "②");
+});
+
+expectReject("required-only matrix missing required ②", (artifacts) => {
+  removeOptionalCell4(artifacts.cellMatrix);
+  artifacts.cellMatrix.phase1Cells = artifacts.cellMatrix.phase1Cells.filter((cell) => cell.cellNumber !== "②");
+  artifacts.cellMatrix.plannedCounts.requiredRows -= artifacts.cellMatrix.dimensions.rowsPerPhase1Cell;
+  artifacts.cellMatrix.plannedCounts.requiredPlusOptionalRows = artifacts.cellMatrix.plannedCounts.requiredRows;
 });
 
 expectReject("A2prime allowed before budget", (artifacts) => {
