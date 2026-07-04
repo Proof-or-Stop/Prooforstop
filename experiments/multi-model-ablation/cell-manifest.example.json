@@ -1,0 +1,111 @@
+{
+  "artifact": "cell-manifest.example",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "example_only_m0_not_executable",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "cellKeyFormat": "arm|task|scenario|repeat|executorFamily|reviewerFamily",
+  "phase1ExecutionOrder": [
+    {
+      "order": 1,
+      "cellNumber": "③",
+      "description": "Run E2 A4 R-same calibration cells first in an approved Phase 1 campaign."
+    },
+    {
+      "order": 2,
+      "cellNumber": "budget-lock",
+      "description": "Write and freeze phase1-budget-lock.json from ③ before any A2prime cell starts."
+    },
+    {
+      "order": 3,
+      "cellNumber": "⑥",
+      "description": "Run E2 A2prime only with a matching budgetLockDigest."
+    },
+    {
+      "order": 4,
+      "cellNumber": "②",
+      "description": "Run E1 executor plus E2 reviewer A4 R-cross for descriptive E1 H-M3 direction unless same-window ① is also run."
+    },
+    {
+      "order": 5,
+      "cellNumber": "④",
+      "description": "Optional budget-permitting E2 executor plus E1 reviewer A4 R-cross."
+    }
+  ],
+  "duplicatePolicy": {
+    "key": "cellKey",
+    "policy": "void_or_pre_registered_duplicate_handling_only",
+    "forbidden": "do_not_choose_the_better_outcome"
+  },
+  "cells": [
+    {
+      "cellNumber": "③",
+      "cellKey": "A4|task-stratified-01|B01|r01|E2|same",
+      "phase": "phase1",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "runnerId": "runner-e2-same-example",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": true,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null
+    },
+    {
+      "cellNumber": "⑥",
+      "cellKey": "A2prime|task-stratified-01|B01|r01|E2|not_applicable",
+      "phase": "phase1",
+      "arm": "A2prime",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "runnerId": "runner-e2-a2prime-example",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": true,
+      "budgetLockDigest": "sha256:example-phase1-budget-lock-e2-task-stratified-01"
+    },
+    {
+      "cellNumber": "②",
+      "cellKey": "A4|task-stratified-01|B01|r01|E1|cross",
+      "phase": "phase1",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E1",
+      "reviewerFamily": "cross",
+      "runnerId": "runner-e1-executor-e2-reviewer-example",
+      "isOptional": false,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null,
+      "phase1Interpretation": "descriptive_unless_same_window_cell_1_exists"
+    },
+    {
+      "cellNumber": "④",
+      "cellKey": "A4|task-stratified-01|B01|r01|E2|cross",
+      "phase": "phase1",
+      "arm": "A4",
+      "task": "task-stratified-01",
+      "scenario": "B01",
+      "repeat": "r01",
+      "executorFamily": "E2",
+      "reviewerFamily": "cross",
+      "runnerId": "runner-e2-executor-e1-reviewer-example",
+      "isOptional": true,
+      "isCalibrationSourceForBudgetLock": false,
+      "requiresBudgetLockDigest": false,
+      "budgetLockDigest": null
+    }
+  ]
+}
