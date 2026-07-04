@@ -552,6 +552,9 @@ function assertEvidenceRefShape(evidenceRef) {
       checklistItem('CHK-REQ-BROWSER', 'done', [
         evidence('CHK-REQ-BROWSER:happy:0', 'pass', { kind: 'browser_test' }),
       ], intent('required browser evidence is present')),
+      checklistItem('CHK-REQ-CUSTOM', 'done', [
+        evidence('CHK-REQ-CUSTOM:happy:0', 'pass', { kind: 'logic_test' }),
+      ], intent('custom required evidence label is advisory')),
     ],
   };
   const report = buildMilestoneStatusReport({
@@ -578,10 +581,20 @@ function assertEvidenceRefShape(evidenceRef) {
         verificationIntentRefs: ['CHK-REQ-BROWSER:happy:0'],
         status: 'done',
       }),
+      milestone({
+        id: 'M-required-custom-label',
+        sourceRequirementId: 'REQ-required-custom-label',
+        claim: 'Custom requiredEvidence labels remain mapping hints',
+        doneMeans: 'Historical non-kind labels do not block when mapped verification refs are covered',
+        requiredEvidence: ['cli_smoke'],
+        checklistRefs: ['CHK-REQ-CUSTOM'],
+        verificationIntentRefs: ['CHK-REQ-CUSTOM:happy:0'],
+        status: 'done',
+      }),
     ]),
   });
 
-  assert.deepEqual(report.groups.completed, ['M-required-covered']);
+  assert.deepEqual(report.groups.completed, ['M-required-covered', 'M-required-custom-label']);
   assert.deepEqual(report.groups.current, ['M-required-missing']);
   const missing = report.milestones.find((row) => row.id === 'M-required-missing');
   assert.ok(missing);
@@ -594,6 +607,11 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.ok(covered);
   assert.equal(covered.subObjectives.find((sub) => sub.id === 'browser_test')?.status, 'covered');
   assert.match(covered.statusDetail, /requiredEvidence=covered/);
+
+  const custom = report.milestones.find((row) => row.id === 'M-required-custom-label');
+  assert.ok(custom);
+  assert.equal(custom.subObjectives.find((sub) => sub.id === 'cli_smoke')?.status, 'mapped');
+  assert.match(custom.statusDetail, /requiredEvidence=covered/);
 }
 
 {

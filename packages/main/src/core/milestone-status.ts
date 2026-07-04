@@ -115,6 +115,14 @@ type IntentIndex = Map<string, IntentIndexEntry[]>;
 type EvidenceIndex = Map<string, VerificationEvidence[]>;
 
 const MIN_HEAD_HASH_PREFIX_LENGTH = 7;
+const VERIFICATION_EVIDENCE_KINDS = new Set<string>([
+  'logic_test',
+  'integration_test',
+  'browser_test',
+  'manual_transcript',
+  'docs_check',
+  'waiver',
+]);
 
 const READ_ONLY_MODE: MilestoneStatusMode = {
   readOnly: true,
@@ -144,6 +152,10 @@ function evidenceCanCover(evidence: VerificationEvidence): boolean {
     return evidence.waiverType === 'permanent' && evidence.result !== 'fail';
   }
   return evidence.result === 'pass';
+}
+
+function isKnownEvidenceKind(value: string): boolean {
+  return VERIFICATION_EVIDENCE_KINDS.has(value);
 }
 
 function normalizedBindingValue(value: string | undefined): string | undefined {
@@ -423,7 +435,8 @@ function buildMilestoneRow(
   }
 
   for (const required of requiredEvidence) {
-    const requiredCovered = (coveringEvidenceByKind.get(required) ?? []).length > 0;
+    const knownEvidenceKind = isKnownEvidenceKind(required);
+    const requiredCovered = !knownEvidenceKind || (coveringEvidenceByKind.get(required) ?? []).length > 0;
     const requiredRisks = verificationIntentRefs.length === 0
       ? [`Required evidence "${required}" has no verificationIntentRefs mapping.`]
       : requiredCovered ? [] : [`Required evidence kind "${required}" has no fresh covering evidence on mapped verificationIntentRefs.`];
@@ -434,7 +447,9 @@ function buildMilestoneRow(
       id: required,
       kind: 'requiredEvidence',
       label: required,
-      status: requiredCovered ? 'covered' : verificationIntentRefs.length > 0 ? 'missing-evidence-kind' : 'unmapped',
+      status: requiredCovered
+        ? (knownEvidenceKind ? 'covered' : 'mapped')
+        : verificationIntentRefs.length > 0 ? 'missing-evidence-kind' : 'unmapped',
       risks: requiredRisks,
     });
     risks.push(...requiredRisks);
@@ -457,7 +472,7 @@ function buildMilestoneRow(
     checklistRefsValid
     && verificationRefsValid;
   const evidenceRequirementsCovered = requiredEvidence.length === 0
-    || requiredEvidence.every((required) => (coveringEvidenceByKind.get(required) ?? []).length > 0);
+    || requiredEvidence.every((required) => !isKnownEvidenceKind(required) || (coveringEvidenceByKind.get(required) ?? []).length > 0);
   const complete = milestone.status === 'not_applicable' || (
     referencesValid
     && checklistRefsComplete
