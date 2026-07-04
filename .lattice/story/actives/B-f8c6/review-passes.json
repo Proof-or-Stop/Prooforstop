@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f8c6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS: M0 concept review checked docs/requirements/decisions/multi-model-ablation-replication.md and experiments/multi-model-ablation examples. Evidence: host/model separation preserved via hostKind vs executorSnapshot/reviewerSnapshot; causal contrasts keep ③ vs ⑥, ① vs ②, ③ vs ④ and forbid ② vs ④ as confirmatory; research-only boundary excludes DONE/playbook/runtime/product gates; A2prime requires A4-derived budgetLockDigest before execution; protocol audit output is excluded from outcome records unless pre-registered as formal runner/cell. Ran README JSON parse/invariant checks and targeted rg checks; no provider calls or Phase 1/2 records found.",
+      "createdAt": "2026-07-04T16:43:02.486Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-001",
+      "_hash": "dba80ec1d53c1740ebc9be86a90f57777fe84d5fbd7d3a8c372521fe135cf494"
+    }
+  ]
+}
