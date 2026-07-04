@@ -420,7 +420,7 @@ function assertEvidenceRefShape(evidenceRef) {
       ], intent('stale story-only evidence must not fall back to head')),
       checklistItem('CHK-MATERIAL-FRESH', 'done', [
         evidence('CHK-MATERIAL-FRESH:happy:0', 'pass', {
-          headHash: 'head-current',
+          headHash: 'head-old',
           materialHash: 'material-current',
         }),
       ], intent('fresh material-only evidence remains covering without storyFilesHash')),
