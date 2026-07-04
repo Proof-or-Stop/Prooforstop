@@ -5,10 +5,8 @@
       "title": "Define the milestone status report contract and data model",
       "context": "Add a machine-readable report model that projects milestone rows, subObjectives, evidence refs, risks, status transitions, and next actions from existing story facts. The report must be read-only and must not become a second milestone storage system.",
       "relatedDocs": [
-        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
-        "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
-        "docs/requirements/decisions/story-lifecycle.md",
-        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+        "docs/CLI.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "verificationIntent": {
         "happy": [
