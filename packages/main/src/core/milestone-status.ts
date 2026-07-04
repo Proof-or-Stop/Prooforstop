@@ -195,15 +195,20 @@ function evidenceFreshnessRisks(
   const evidenceHeadHash = normalizedBindingValue(evidence.headHash);
   const evidenceMaterialHash = normalizedBindingValue(evidence.materialHash);
   const evidenceStoryFilesHash = normalizedBindingValue(evidence.storyFilesHash);
-  const hasComparableMaterialHash = Boolean(materialHash && evidenceMaterialHash);
-  const hasComparableStoryFilesHash = Boolean(storyFilesHash && evidenceStoryFilesHash);
 
-  if (hasComparableMaterialHash || hasComparableStoryFilesHash) {
-    if (materialHash && evidenceMaterialHash && evidenceMaterialHash !== materialHash) {
-      risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
-    }
-    if (storyFilesHash && evidenceStoryFilesHash && evidenceStoryFilesHash !== storyFilesHash) {
+  if (storyFilesHash && evidenceStoryFilesHash) {
+    if (evidenceStoryFilesHash !== storyFilesHash) {
       risks.push(`stale storyFilesHash ${shortHash(evidenceStoryFilesHash)} (current ${shortHash(storyFilesHash)})`);
+      if (materialHash && evidenceMaterialHash && evidenceMaterialHash !== materialHash) {
+        risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
+      }
+    }
+    return risks;
+  }
+
+  if (materialHash && evidenceMaterialHash) {
+    if (evidenceMaterialHash !== materialHash) {
+      risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
     }
     return risks;
   }

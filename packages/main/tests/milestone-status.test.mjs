@@ -342,8 +342,8 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STALE:happy:0')?.status, 'stale-evidence');
   assert.match(row.risks.join('\n'), /stale passing or permanent waiver evidence/);
   assert.doesNotMatch(row.risks.join('\n'), /stale headHash/);
-  assert.match(row.risks.join('\n'), /stale materialHash/);
   assert.match(row.risks.join('\n'), /stale storyFilesHash/);
+  assert.doesNotMatch(row.risks.join('\n'), /stale materialHash/);
   assert.match(row.nextAction, /current evidence binding/);
 
   const text = renderMilestoneStatusReport(report);
@@ -396,6 +396,58 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.match(row.statusDetail, /evidence=covered/);
   assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-HEAD-DRIFT:happy:0')?.status, 'covered');
   assert.doesNotMatch(row.risks.join('\n'), /headHash/);
+}
+
+{
+  const currentEvidenceBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-after-metadata-commit',
+    storyFilesHash: 'story-current',
+  };
+  const cl = {
+    items: [
+      checklistItem('CHK-STORY-FRESH-MATERIAL-DRIFT', 'done', [
+        evidence('CHK-STORY-FRESH-MATERIAL-DRIFT:happy:0', 'pass', {
+          headHash: 'head-before-metadata-commit',
+          materialHash: 'material-before-metadata-commit',
+          storyFilesHash: 'story-current',
+        }),
+      ], intent('story files freshness accepts material-only drift')),
+    ],
+  };
+
+  const report = buildMilestoneStatusReport({
+    story: story(),
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-story-fresh-material-drift',
+        sourceRequirementId: 'REQ-story-fresh-material-drift',
+        claim: 'Material-only drift with matching story files does not block status convergence',
+        doneMeans: 'Comparable matching storyFilesHash is blocking-fresh even when materialHash changed',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-STORY-FRESH-MATERIAL-DRIFT'],
+        verificationIntentRefs: ['CHK-STORY-FRESH-MATERIAL-DRIFT:happy:0'],
+        status: 'done',
+      }),
+    ]),
+    currentEvidenceBinding,
+  });
+
+  assert.deepEqual(report.groups.completed, ['M-story-fresh-material-drift']);
+  assert.deepEqual(report.groups.current, []);
+  assert.deepEqual(report.groups.remaining, []);
+  assert.doesNotMatch(report.risks.join('\n'), /stale materialHash/);
+  assert.doesNotMatch(report.risks.join('\n'), /stale storyFilesHash/);
+
+  const row = report.milestones.find((candidate) => candidate.id === 'M-story-fresh-material-drift');
+  assert.ok(row);
+  assert.equal(row.status, 'completed');
+  assert.match(row.statusDetail, /evidence=covered/);
+  assert.match(row.statusDetail, /requiredEvidence=covered/);
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'CHK-STORY-FRESH-MATERIAL-DRIFT:happy:0')?.status, 'covered');
+  assert.equal(row.subObjectives.find((sub) => sub.id === 'logic_test')?.status, 'covered');
+  assert.deepEqual(row.risks, []);
 }
 
 {
