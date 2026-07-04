@@ -17,8 +17,8 @@
       ],
       "signatureTag": "adversarial|ts|review-discovered-issue",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed by e8bb16fee/2f85f87ea/e949aeb50: milestone completion now requires fresh covering evidence; stale materialHash/storyFilesHash blocks completion, head-only metadata drift does not. Verified by milestone-status test, CLI output with M1-M4 completed, and validate PASS 2026-07-04T22:10:35Z.",
-      "resolvedAt": "2026-07-04T22:11:12.725Z",
+      "resolvedReason": "Fixed by requiring covering evidence to be fresh against current materialHash/storyFilesHash when strong bindings exist, with stale-evidence status/risks and regression coverage in packages/main/tests/milestone-status.test.mjs. Full validate passed 33/33 commands.",
+      "resolvedAt": "2026-07-04T22:11:17.438Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
