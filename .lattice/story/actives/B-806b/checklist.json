@@ -112,9 +112,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-04T19:19:22.524Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "seed and cell matrix manifests include deterministic dimensions and required Phase 1 cells ③, ⑥, and ② plus optional ④ Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:22.800Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "A2prime ⑥ remains blocked behind ③-derived A4 calibration and budget lock sequencing Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:23.073Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "result": "pass",
+          "note": "the checker rejects missing required ② and illegal ②-vs-④ confirmatory use Evidence: M1 freeze checker passed: 111 assertions; 7 negative controls rejected.",
+          "headHash": "2c5a6fea522827e21ce5155cb4c354b3b2c16c7e",
+          "materialHash": "b17c618d35a7ec811f1b1da8724a5e29c90f290bcea26b3dcc4e190e4d14278b",
+          "storyFilesHash": "80fac48edb7ad6eaa7b38aa813f8d6b429b04a59152b3215ae304d3699477e2b",
+          "timestamp": "2026-07-04T19:19:23.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -231,6 +269,15 @@
       "timestamp": "2026-07-04T19:19:20.857Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Business artifacts committed in 2c5a6fea5 and local M1 checker passed."
+    },
+    {
+      "timestamp": "2026-07-04T19:19:22.524Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
