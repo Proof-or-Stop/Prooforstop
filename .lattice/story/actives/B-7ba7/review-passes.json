@@ -242,6 +242,15 @@
       "reviewRound": "2026-07-04T23:07:20.631Z",
       "reviewRunId": "B-7ba7:RR-047",
       "_hash": "8d30194ed631f2c0a86d3ecdb10b7f2bcd022e3fe7b0b07106f202923e2b0448"
+    },
+    {
+      "id": "B-7ba7:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after F-013: milestone_status remains a read-only grouped progress reporter over existing ledger/checklist/evidence facts, with mutation/overclaim flags rejected before story reads. Docs and command schema avoid execution, automatic DONE, Authority, and production-readiness claims. Empty storyFilesHash is treated as no story-scoped freshness signal and falls through to materialHash/head fallback semantics instead of completing stale evidence.",
+      "createdAt": "2026-07-04T23:10:30.825Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-044",
+      "_hash": "07afdee64c1d750a2dfa55d4a35a0533d94ad6b5d0291575ee371fbb9d2a14fa"
     }
   ]
 }
