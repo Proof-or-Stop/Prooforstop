@@ -127,6 +127,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-007",
+      "desc": "packages/main/src/core/milestone-status.ts: requiredEvidence is treated as mapped, not required. A milestone requiring browser_test can complete with any verificationIntentRef/evidence kind, so required evidence kinds are not enforced before completion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:21:50.086Z",
+      "reviewRound": "2026-07-04T22:11:09.260Z",
+      "reviewRunId": "B-7ba7:RR-010",
+      "_hash": "7730561f38cb57f0713f97e7dddcec4a6fab8ab54caf9e8f7caf173fe71a007c",
+      "files": [
+        "packages/main/src/core/milestone-status.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
