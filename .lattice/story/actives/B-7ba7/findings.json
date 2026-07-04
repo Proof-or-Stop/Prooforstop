@@ -175,6 +175,25 @@
       "resolvedAt": "2026-07-04T22:32:18.452Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-009",
+      "desc": "packages/main/src/core/milestone-status.ts:201-217: evidenceFreshnessRisks only compares materialHash/storyFilesHash when both evidence hashes are present; otherwise it returns immediately after headHash validation. A material-bound legacy or tampered evidence row with current headHash but stale materialHash and missing storyFilesHash can still be treated as fresh, letting stale passing evidence complete a milestone. Compare each available stronger binding before falling back to headHash, and add regressions for material-only stale and material-only metadata-drift cases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T22:36:18.291Z",
+      "reviewRound": "2026-07-04T22:32:08.727Z",
+      "reviewRunId": "B-7ba7:RR-020",
+      "_hash": "f62e7e4bccd87586d54c02825643e55da7f198ceacb2e605a20c354346c508b9",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
