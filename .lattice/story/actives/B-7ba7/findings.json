@@ -35,6 +35,24 @@
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7ba7:F-003",
+      "desc": "review-discovered issue: missing-ledger reporting can be preempted by checklist reads. A story with index metadata but no checklist throws before milestone_status can return its documented missing-ledger blocker.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-main",
+      "createdAt": "2026-07-04T20:43:09.883Z",
+      "reviewRound": "2026-07-04T20:35:30.257Z",
+      "_hash": "0bc3fe9bda55c94ab384ed69d5cf295591f42bc3393aedc3d3adb3b144e4a8a4",
+      "files": [
+        "packages/main/src/handlers/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|review-discovered-issue",
+      "signatureTagSource": "auto"
     }
   ]
 }
