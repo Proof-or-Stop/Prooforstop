@@ -1,0 +1,171 @@
+{
+  "artifact": "runner-registry.m0",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "m0_runner_registry_not_executable",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "hostModelSeparationRule": "hostKind names the local adapter or harness; executorSnapshot and reviewerSnapshot name provider model snapshots. Host kind is never a model family.",
+  "localHostAvailabilityObservedByMain": [
+    {
+      "hostKind": "codex-cli",
+      "observedVersion": "0.141.0",
+      "availability": "available",
+      "hostKindClassification": "host_or_adapter_not_model_family"
+    },
+    {
+      "hostKind": "Claude Code",
+      "observedVersion": "2.1.201",
+      "availability": "available",
+      "hostKindClassification": "host_or_adapter_not_model_family"
+    },
+    {
+      "hostKind": "agy",
+      "observedVersion": "1.0.16",
+      "availability": "available",
+      "hostKindClassification": "host_or_adapter_not_model_family"
+    }
+  ],
+  "snapshotReadiness": {
+    "providerExecutionLocked": false,
+    "formalPhase1Readiness": false,
+    "reason": "M0 records provider families and host availability only; dated execution snapshots are not locked in this provider-safe story."
+  },
+  "runners": [
+    {
+      "runnerId": "runner-e1-same-m0",
+      "hostId": "claude-code-local-m0-01",
+      "hostKind": "Claude Code",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E1",
+      "executorProviderFamily": "Anthropic/Claude",
+      "executorSnapshot": "anthropic-claude-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "same",
+      "reviewerProviderFamily": "Anthropic/Claude",
+      "reviewerSnapshot": "anthropic-claude-family-candidate-not-execution-locked",
+      "reviewerSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e1-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ① semantics only. Claude Code is the host; Anthropic/Claude is the provider family."
+    },
+    {
+      "runnerId": "runner-e1-executor-e2-reviewer-m0",
+      "hostId": "agy-local-m0-01",
+      "hostKind": "agy",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E1",
+      "executorProviderFamily": "Anthropic/Claude",
+      "executorSnapshot": "anthropic-claude-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "cross",
+      "reviewerProviderFamily": "OpenAI/GPT",
+      "reviewerSnapshot": "openai-gpt-family-candidate-not-execution-locked",
+      "reviewerSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e1-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ② semantics only. The host is not counted as E1 or E2."
+    },
+    {
+      "runnerId": "runner-e2-same-m0",
+      "hostId": "codex-cli-local-m0-01",
+      "hostKind": "codex-cli",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E2",
+      "executorProviderFamily": "OpenAI/GPT",
+      "executorSnapshot": "openai-gpt-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "same",
+      "reviewerProviderFamily": "OpenAI/GPT",
+      "reviewerSnapshot": "openai-gpt-family-candidate-not-execution-locked",
+      "reviewerSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e2-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ③ semantics only. Codex CLI is the host; OpenAI/GPT is the provider family."
+    },
+    {
+      "runnerId": "runner-e2-executor-e1-reviewer-m0",
+      "hostId": "codex-cli-local-m0-02",
+      "hostKind": "codex-cli",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E2",
+      "executorProviderFamily": "OpenAI/GPT",
+      "executorSnapshot": "openai-gpt-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "cross",
+      "reviewerProviderFamily": "Anthropic/Claude",
+      "reviewerSnapshot": "anthropic-claude-family-candidate-not-execution-locked",
+      "reviewerSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e2-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ④ semantics only. It changes reviewer family relative to cell ③."
+    },
+    {
+      "runnerId": "runner-e1-a2prime-m0",
+      "hostId": "claude-code-local-m0-02",
+      "hostKind": "Claude Code",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E1",
+      "executorProviderFamily": "Anthropic/Claude",
+      "executorSnapshot": "anthropic-claude-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "not_applicable",
+      "reviewerProviderFamily": null,
+      "reviewerSnapshot": null,
+      "reviewerSnapshotLockState": "not_applicable",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e1-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ⑤ semantics only. A2prime has no reviewer."
+    },
+    {
+      "runnerId": "runner-e2-a2prime-m0",
+      "hostId": "codex-cli-local-m0-03",
+      "hostKind": "codex-cli",
+      "hostKindClassification": "host_or_adapter_not_model_family",
+      "executorFamily": "E2",
+      "executorProviderFamily": "OpenAI/GPT",
+      "executorSnapshot": "openai-gpt-family-candidate-not-execution-locked",
+      "executorSnapshotLockState": "candidate_family_only_not_dated_execution_lock",
+      "reviewerFamily": "not_applicable",
+      "reviewerProviderFamily": null,
+      "reviewerSnapshot": null,
+      "reviewerSnapshotLockState": "not_applicable",
+      "toolSurfaceDigest": "sha256:m0-tool-surface-e2-placeholder",
+      "promptDigest": "sha256:m0-shared-prompt-placeholder",
+      "budgetLockDigestRequiredForArms": [
+        "A2prime"
+      ],
+      "providerCallEnabled": false,
+      "eligibleForOutcomeRecords": false,
+      "notes": "Cell ⑥ semantics only. It cannot run until a matching E2 budgetLockDigest is frozen."
+    }
+  ]
+}

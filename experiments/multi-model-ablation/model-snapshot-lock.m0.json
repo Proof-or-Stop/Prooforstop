@@ -1,0 +1,49 @@
+{
+  "artifact": "model-snapshot-lock.m0",
+  "protocolDoc": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "status": "m0_provider_family_selection_not_execution_lock",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "phase1FormalReadiness": false,
+  "providerExecutionLocked": false,
+  "readinessBlockers": [
+    "human approval missing",
+    "exact dated E1 executor/reviewer snapshots not execution-locked",
+    "exact dated E2 executor/reviewer snapshots not execution-locked",
+    "protocol lock not frozen for campaign execution",
+    "budget lock contains M0 placeholders only"
+  ],
+  "modelFamilies": [
+    {
+      "familyId": "E1",
+      "providerFamily": "Anthropic/Claude",
+      "hostKindIsModelFamily": false,
+      "selectedForM0": true,
+      "candidateExecutionSnapshot": null,
+      "candidateReviewerSnapshot": null,
+      "datedExecutionSnapshotLockState": "blocked_pending_human_approval_and_provider_execution_lock",
+      "formalPhase1UseAllowed": false,
+      "notes": "E1 is the Claude/Anthropic family. Claude Code is only a possible host."
+    },
+    {
+      "familyId": "E2",
+      "providerFamily": "OpenAI/GPT",
+      "hostKindIsModelFamily": false,
+      "selectedForM0": true,
+      "candidateExecutionSnapshot": null,
+      "candidateReviewerSnapshot": null,
+      "datedExecutionSnapshotLockState": "blocked_pending_human_approval_and_provider_execution_lock",
+      "formalPhase1UseAllowed": false,
+      "notes": "E2 is the OpenAI/GPT family. Codex CLI is only a possible host."
+    }
+  ],
+  "separationAssertion": {
+    "E1ProviderFamilyDistinctFromE2ProviderFamily": true,
+    "hostKindMayNotSubstituteForProviderFamily": true,
+    "claim": "M0 selects distinct provider families but does not lock exact dated execution snapshots."
+  }
+}
