@@ -26,7 +26,7 @@
       "desc": "Checker does not verify that budget-lock sourceCellKeys are A4 calibration rows or the declared sourceCellNumber/sourceArm. In validateBudgetLock it only checks that each source key exists and that the source runner snapshot matches the lock. A mutated in-memory budget lock that changes the E2 source from ③/A4 to ⑥/A2prime still passes node experiments/multi-model-ablation/m0-smoke-check.mjs, so the M0 checker can silently accept a circular/post-treatment A2prime budget source and overstate CHK-004 budget-order evidence. Repro: monkeypatch fs.readFileSync for phase1-budget-lock.m0.json to return an E2 lock with sourceCellNumber=⑥, sourceArm=A2prime, sourceReviewerFamily=not_applicable, and sourceCellKeys=[\"A2prime|task-stratified-01|B01|r01|E2|not_applicable\"]; the checker still prints all three pass lines.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T18:03:53.459Z",
@@ -39,14 +39,18 @@
         "experiments/multi-model-ablation/cell-manifest.m0.json"
       ],
       "signatureTag": "adversarial|mjs|checker-verify-budget",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 4394a229: validateBudgetLock now requires sourceCellKeys to match declared sourceCellNumber/sourceArm/sourceReviewerFamily/executorFamily/task and isCalibrationSourceForBudgetLock=true, while appliesTo rows must remain matching A2prime/not_applicable rows. Verified by node experiments/multi-model-ablation/m0-smoke-check.mjs, which now rejects forged E2 source from ⑥/A2prime plus source mismatch/sourceArm negative controls.",
+      "resolvedAt": "2026-07-04T18:11:21.812Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-69b8:F-003",
       "desc": "CHK-002:happy:0 requires the M0 smoke checker to pass and print assertion counts, but node experiments/multi-model-ablation/m0-smoke-check.mjs prints only three status lines and rg found no assertion/count reporting in m0-smoke-check.mjs. The evidence therefore does not cover the asserted count-output portion of this must verification intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-04T18:04:13.436Z",
@@ -57,7 +61,11 @@
         "experiments/multi-model-ablation/m0-smoke-check.mjs"
       ],
       "signatureTag": "missing|mjs|happy-requires-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 4394a229: m0-smoke-check.mjs now counts assertions and rejected negative controls and prints M0 smoke checker passed: 743 assertions; 9 negative controls rejected. Verified by node experiments/multi-model-ablation/m0-smoke-check.mjs and refreshed CHK-002 evidence.",
+      "resolvedAt": "2026-07-04T18:11:21.828Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
