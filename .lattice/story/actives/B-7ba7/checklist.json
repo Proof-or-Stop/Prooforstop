@@ -201,8 +201,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-04T20:19:05.201Z",
       "endTime": null,
       "userSees": "User sees row details exactly like \"Status:\", \"Sub-objectives:\", \"Evidence:\", \"Risks:\", and \"Next action:\" for the current milestone.",
       "files": {
@@ -288,6 +288,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CLI command behavior verified from final HEAD with text, JSON, and mutation-flag negative controls."
+    },
+    {
+      "timestamp": "2026-07-04T20:19:05.201Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting projection/detail completion evidence."
     }
   ]
 }
