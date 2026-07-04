@@ -1,0 +1,30 @@
+{
+  "artifact": "protocol.lock.m1",
+  "storyId": "B-806b",
+  "status": "m1_done_provider_free_launch_blocked",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "digestAlgorithm": "sha256",
+  "protocolSha256": "4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "storyHeadAtFreeze": "8aa56710d1cb2f7ff525db12d76e1e23c06414d8",
+  "storyHeadNote": "Pre-artifact HEAD reference only; not a provider snapshot, launch credential, or Phase 1 readiness claim.",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "freezeScope": {
+    "providerFreeProtocolFreeze": true,
+    "datedProviderSnapshotsLocked": false,
+    "formalPhase1ReadinessClaimed": false,
+    "phase1LaunchAllowed": false,
+    "providerCallEnabled": false,
+    "containsDatedSnapshotClaim": false,
+    "containsPhase1ReadinessClaim": false
+  },
+  "m1Boundary": {
+    "m1DoneMeans": "Protocol digest and provider-free planning artifacts are frozen for review.",
+    "m1DoneDoesNotMean": "No dated provider snapshots are locked; no provider execution, Phase 1 campaign, Phase 2 campaign, result collection, or product gate change is authorized."
+  }
+}

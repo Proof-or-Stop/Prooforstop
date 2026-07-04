@@ -1,0 +1,156 @@
+{
+  "artifact": "cell-matrix.m1",
+  "storyId": "B-806b",
+  "status": "m1_provider_free_phase1_matrix_frozen_launch_blocked",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "providerFree": true,
+  "outcomeFree": true,
+  "enumerationPolicy": {
+    "materializesAllRows": false,
+    "manifestType": "dimension_count_manifest",
+    "cellKeyFormat": "cellNumber|arm|taskSlot|scenarioSlot|repeatSlot|executorFamily|reviewerFamily",
+    "duplicatePolicy": "pre_registered_duplicate_handling_only_no_selecting_prettier_results"
+  },
+  "dimensions": {
+    "taskSlots": 24,
+    "scenarioSlots": 16,
+    "repeatSlots": 3,
+    "rowsPerPhase1Cell": 1152
+  },
+  "phase1Cells": [
+    {
+      "cellNumber": "③",
+      "phase1Status": "required",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "requiredFor": [
+        "H-M1 E2 family A4 calibration",
+        "A2prime ⑥ budget calibration source"
+      ],
+      "providerExecutionAllowedInM1": false
+    },
+    {
+      "cellNumber": "⑥",
+      "phase1Status": "required",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "requiredFor": [
+        "H-M1 E2 family A2prime contrast"
+      ],
+      "executionStatus": "blocked_until_matching_③_A4_budget_lock",
+      "providerExecutionAllowedInM1": false
+    },
+    {
+      "cellNumber": "②",
+      "phase1Status": "required",
+      "arm": "A4",
+      "executorFamily": "E1",
+      "reviewerFamily": "cross",
+      "requiredFor": [
+        "H-M3 E1 fixed-executor descriptive direction unless same-window ① anchor exists"
+      ],
+      "providerExecutionAllowedInM1": false
+    },
+    {
+      "cellNumber": "④",
+      "phase1Status": "optional_budget_permitting",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "cross",
+      "requiredFor": [
+        "H-M3 E2 fixed-executor symmetric direction when budget permits"
+      ],
+      "providerExecutionAllowedInM1": false
+    }
+  ],
+  "plannedCounts": {
+    "requiredCells": 3,
+    "requiredCellNumbers": [
+      "③",
+      "⑥",
+      "②"
+    ],
+    "optionalCellNumbers": [
+      "④"
+    ],
+    "requiredRows": 3456,
+    "optionalRowsAddedByCell4": 1152,
+    "requiredPlusOptionalRows": 4608,
+    "countFormula": "phase1CellCount * 24 task slots * 16 scenario slots * 3 repeats"
+  },
+  "confirmatoryContrasts": [
+    {
+      "contrastId": "③-vs-⑥",
+      "leftCellNumber": "③",
+      "rightCellNumber": "⑥",
+      "legalConfirmatory": true,
+      "conditions": [
+        "matching E2 ③ A4 calibration budget lock exists before ⑥",
+        "same executor family E2",
+        "A2prime not_applicable reviewer is structural and excluded from reviewer-family effects"
+      ]
+    },
+    {
+      "contrastId": "①-vs-②",
+      "leftCellNumber": "①",
+      "rightCellNumber": "②",
+      "legalConfirmatory": true,
+      "conditions": [
+        "same-window ① anchor exists",
+        "fixed E1 executor",
+        "reviewer family is the only changed factor"
+      ],
+      "m1Phase1Note": "Without a same-window ① anchor, M1 permits descriptive labeling only."
+    },
+    {
+      "contrastId": "③-vs-④",
+      "leftCellNumber": "③",
+      "rightCellNumber": "④",
+      "legalConfirmatory": true,
+      "conditions": [
+        "optional ④ exists in the same approved window",
+        "fixed E2 executor",
+        "reviewer family is the only changed factor"
+      ]
+    },
+    {
+      "contrastId": "②-vs-④",
+      "leftCellNumber": "②",
+      "rightCellNumber": "④",
+      "legalConfirmatory": false,
+      "rejection": "Illegal as confirmatory because executor family and reviewer family both change.",
+      "descriptiveOnly": true
+    }
+  ],
+  "a2PrimeCell6Gate": {
+    "cellNumber": "⑥",
+    "arm": "A2prime",
+    "currentlyBlocked": true,
+    "executionAllowedBeforeBudgetLock": false,
+    "matchingBudgetLockPresent": false,
+    "budgetLockRequired": true,
+    "requiredSourceCalibration": {
+      "cellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "sameFamilyCalibrationRequired": true
+    },
+    "appliesTo": {
+      "cellNumber": "⑥",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable"
+    },
+    "rule": "Run ③ first in an approved Phase 1 campaign, freeze the matching E2 executor-family x task A4 budget lock, then and only then may matching ⑥ rows run."
+  }
+}

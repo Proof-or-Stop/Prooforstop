@@ -1,0 +1,97 @@
+{
+  "artifact": "seed-manifest.m1",
+  "storyId": "B-806b",
+  "status": "m1_seed_plan_frozen_provider_free_launch_blocked",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "providerFree": true,
+  "outcomeFree": true,
+  "planningDimensions": {
+    "taskSlots": {
+      "count": 24,
+      "slotIds": [
+        "task-slot-01",
+        "task-slot-02",
+        "task-slot-03",
+        "task-slot-04",
+        "task-slot-05",
+        "task-slot-06",
+        "task-slot-07",
+        "task-slot-08",
+        "task-slot-09",
+        "task-slot-10",
+        "task-slot-11",
+        "task-slot-12",
+        "task-slot-13",
+        "task-slot-14",
+        "task-slot-15",
+        "task-slot-16",
+        "task-slot-17",
+        "task-slot-18",
+        "task-slot-19",
+        "task-slot-20",
+        "task-slot-21",
+        "task-slot-22",
+        "task-slot-23",
+        "task-slot-24"
+      ],
+      "concreteInventoryLocked": false
+    },
+    "scenarioSlots": {
+      "count": 16,
+      "slotIds": [
+        "scenario-null",
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15"
+      ]
+    },
+    "repeatSlots": {
+      "count": 3,
+      "slotIds": [
+        "r01",
+        "r02",
+        "r03"
+      ]
+    }
+  },
+  "seedDerivationPolicy": {
+    "algorithm": "sha256",
+    "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+    "fieldsInOrder": [
+      "protocolDigest",
+      "cellNumber",
+      "taskSlot",
+      "scenarioSlot",
+      "repeatSlot"
+    ],
+    "inputFormat": "${protocolDigest}|${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}",
+    "normalization": "UTF-8 exact slot identifiers from this manifest and cell-matrix.m1.json; no provider output, execution telemetry, or result data may enter seed material.",
+    "derivedSeedUse": "planning order, deterministic row identifiers, and analysis bootstrap seeding only after a separately approved campaign exists"
+  },
+  "taskCorpusInventory": {
+    "status": "not_locked",
+    "concreteTasksLocked": false,
+    "launchBlocker": true,
+    "blockerId": "concrete-task-inventory-absent",
+    "requiredBeforeProviderExecution": "Bind the 24 concrete v1 stratified tasks without changing task definitions."
+  }
+}
