@@ -263,6 +263,25 @@
       "resolvedAt": "2026-07-04T23:02:49.478Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7ba7:F-013",
+      "desc": "milestone-status freshness treats EMPTY_STORY_FILES_HASH as a positive storyFilesHash signal. In evidenceFreshnessRisks, any matching evidence/current storyFilesHash returns no risk before materialHash comparison, so stale materialHash evidence with both storyFilesHash values equal to sha256(\"\") is marked covering. Core checkEvidenceFreshnessForGit explicitly treats that empty-diff hash as no-signal on both sides and falls through to strict materialHash; milestone status must mirror that to avoid unsafely broadening no-story-diff evidence. Existing focused tests pass but do not cover the empty sentinel case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T23:05:19.833Z",
+      "reviewRound": "2026-07-04T23:01:13.707Z",
+      "reviewRunId": "B-7ba7:RR-038",
+      "_hash": "14a0fbb41ef23e15d3dcf4c8153c0a1e42ad312b8d4fdc3c7687ef86be7dd7e7",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "edge|ts|milestone-status-freshness",
+      "signatureTagSource": "auto"
     }
   ]
 }
