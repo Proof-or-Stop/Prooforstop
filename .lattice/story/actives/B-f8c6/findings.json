@@ -58,6 +58,26 @@
       ],
       "signatureTag": "missing|json|marked-happy-path",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f8c6:F-004",
+      "desc": "The README provider-free invariant command does not actually enforce the host/model-separation failure promised by CHK-004. The checklist says the check should fail or document failure if Codex CLI is treated as a model family (.lattice/story/actives/B-f8c6/checklist.json:277-282), while README.md:27-31 only checks that each runner has a hostKind and an executorSnapshot and that providerCallEnabled is false. A registry where executorSnapshot equals \"Codex CLI\" or reviewerSnapshot is missing for same/cross reviewer rows would still pass that command, despite the protocol requiring model classification by executorSnapshot/reviewerSnapshot rather than app name (docs/requirements/decisions/multi-model-ablation-replication.md:40-43, :56, :66). Strengthen the documented node check to reject hostKind reused as a snapshot, require reviewerSnapshot for same/cross reviewer families, and verify eligibleForOutcomeRecords remains false for examples.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-04T16:43:50.563Z",
+      "reviewRound": "2026-07-04T16:40:23.856Z",
+      "reviewRunId": "B-f8c6:RR-003",
+      "_hash": "e80d534957c0e2822e4e96a14407be2bf67c20b28332d602ad5c57670ff2fa11",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        ".lattice/story/actives/B-f8c6/checklist.json",
+        "experiments/multi-model-ablation/runner-registry.example.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|readme-provider-free",
+      "signatureTagSource": "auto"
     }
   ]
 }
