@@ -6,7 +6,10 @@
     "Research M0 is paper-evidence readiness work, not a Proofbound product gate or runtime policy.",
     "Current host CLIs available locally are codex 0.141.0, Claude Code 2.1.201, and agy 1.0.16.",
     "The protocol requires E1/E2 model snapshots to be distinct provider families and requires host identity to be recorded separately from model snapshot identity.",
-    "The selected scope excludes large Phase 1/2 provider campaigns and excludes product gate/playbook/runtime changes."
+    "The selected scope excludes large Phase 1/2 provider campaigns and excludes product gate/playbook/runtime changes.",
+    "Resolved: this story creates dedicated .m0 artifacts rather than mutating example-only artifacts into formal outcomes.",
+    "Resolved: missing live provider credentials are not a blocker for provider-safe M0; formal dated snapshot execution readiness is recorded as candidate/blocked for later human-approved Phase 1.",
+    "Resolved: docs/requirements/decisions/multi-model-ablation-replication.md remains a related truth source, not an implementation touchpoint for this story unless a later scoped review requires wording clarification."
   ],
   "constraints": [
     "Do not run provider model cells or large Phase 1/2 campaigns in this story.",
@@ -15,11 +18,7 @@
     "Use host-neutral Proofbound/Lattice concepts: host adapters are not model families.",
     "Do not write ablation outcome records from audit-only or smoke-only output."
   ],
-  "unknowns": [
-    "Whether dated provider snapshot IDs are fully lockable today or must be recorded as Phase 1 blockers.",
-    "Whether the existing examples need a dedicated real-M0 artifact set rather than example-only files.",
-    "Whether the smoke checker should treat missing provider credentials as blocker or non-goal; for this story it records readiness without making provider calls."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "experiments/multi-model-ablation/m0-smoke-check.mjs",
     "experiments/multi-model-ablation/m0-research-smoke.json",
@@ -27,8 +26,7 @@
     "experiments/multi-model-ablation/runner-registry.m0.json",
     "experiments/multi-model-ablation/model-snapshot-lock.m0.json",
     "experiments/multi-model-ablation/cell-manifest.m0.json",
-    "experiments/multi-model-ablation/phase1-budget-lock.m0.json",
-    "docs/requirements/decisions/multi-model-ablation-replication.md"
+    "experiments/multi-model-ablation/phase1-budget-lock.m0.json"
   ],
-  "timestamp": "2026-07-04T17:45:15.685Z"
+  "timestamp": "2026-07-04T17:48:05.108Z"
 }
