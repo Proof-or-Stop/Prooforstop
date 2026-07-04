@@ -137,7 +137,7 @@
       "desc": "packages/main/src/core/milestone-status.ts: requiredEvidence is treated as mapped, not required. A milestone requiring browser_test can complete with any verificationIntentRef/evidence kind, so required evidence kinds are not enforced before completion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T22:21:50.086Z",
@@ -148,7 +148,11 @@
         "packages/main/src/core/milestone-status.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80/e74b74e3a: requiredEvidence values matching supported evidence kinds are enforced against fresh covering evidence of that exact kind, so browser_test cannot be satisfied by logic_test. Historical custom labels are mapped hints to avoid illegal DEV-phase ledger rewrites. Verified by requiredEvidence mismatch regression and milestone_status B-7ba7 showing M1-M4 completed with no risks after evidence refresh.",
+      "resolvedAt": "2026-07-04T22:32:18.049Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-008",
