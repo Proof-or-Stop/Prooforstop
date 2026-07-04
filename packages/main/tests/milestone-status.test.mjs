@@ -437,6 +437,7 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.deepEqual(report.groups.completed, ['M-story-fresh-material-drift']);
   assert.deepEqual(report.groups.current, []);
   assert.deepEqual(report.groups.remaining, []);
+  assert.deepEqual(report.risks, []);
   assert.doesNotMatch(report.risks.join('\n'), /stale materialHash/);
   assert.doesNotMatch(report.risks.join('\n'), /stale storyFilesHash/);
 

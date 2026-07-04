@@ -199,9 +199,6 @@ function evidenceFreshnessRisks(
   if (storyFilesHash && evidenceStoryFilesHash) {
     if (evidenceStoryFilesHash !== storyFilesHash) {
       risks.push(`stale storyFilesHash ${shortHash(evidenceStoryFilesHash)} (current ${shortHash(storyFilesHash)})`);
-      if (materialHash && evidenceMaterialHash && evidenceMaterialHash !== materialHash) {
-        risks.push(`stale materialHash ${shortHash(evidenceMaterialHash)} (current ${shortHash(materialHash)})`);
-      }
     }
     return risks;
   }
