@@ -61,8 +61,8 @@
       ],
       "signatureTag": "edge|ts|review-discovered-issue",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed by reading story, milestone ledger, and summary before checklist; missing ledger now returns the documented read-only missing-ledger report without requiring checklist data. Corrupt checklist still surfaces when a ledger exists. Regression coverage added.",
-      "resolvedAt": "2026-07-04T22:11:18.289Z",
+      "resolvedReason": "Fixed by e8bb16fee: milestone_status reads story, milestone ledger, and summary first; when the ledger is missing it returns the documented missing-ledger blocker without requiring checklist reads. Covered by handler test asserting reads are story/ledger/summary only and validate PASS.",
+      "resolvedAt": "2026-07-04T22:11:27.226Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
