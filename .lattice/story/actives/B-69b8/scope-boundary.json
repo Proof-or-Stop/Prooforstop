@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-69b8",
+  "mode": "maintenance",
+  "allowed": [
+    "experiments/multi-model-ablation M0 smoke artifacts and checker",
+    "optional protocol wording only if needed to clarify M0 blocker semantics",
+    "story-scoped Lattice metadata/evidence"
+  ],
+  "excluded": [
+    "changing Proofbound product gates, playbook activation, DONE policy, or runtime memory guidance",
+    "large Phase 1 or Phase 2 provider campaign",
+    "touching unrelated dirty files in README.md, docs/CLI.md, docs/assets",
+    "writing ablation outcome records from audit-only output"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly asked to execute Research M0 and requested milestone status updates; selected text says still do not run large Phase 1.",
+  "createdAt": "2026-07-04T17:42:53.729Z",
+  "updatedAt": "2026-07-04T17:42:53.729Z",
+  "_hash": "664aaec1ef67755af042cf827d789d2105fa9d2725ab9f9eecf0ad30afcb2166"
+}

@@ -1,0 +1,209 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create Research M0 execution artifacts and status table",
+      "context": "Add M0-only artifacts under experiments/multi-model-ablation that record the story scope, milestone table, provider-call boundary, and formal pass/blocker states.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/m0-research-smoke.json",
+          "experiments/multi-model-ablation/m0-status.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "M0 status records all requested milestones and says Phase 1/2 cells were not run.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing example artifacts remain example-only and are not overwritten as real outcomes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A host-only audit cannot be mistaken for a formal ablation record.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement provider-safe M0 smoke checker",
+      "context": "Add a local Node checker that validates runner registration, host/model separation, tool-surface digest binding, prompt digest binding, A2prime budget lock ordering, and legal/illegal contrast rules.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/m0-smoke-check.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m0-smoke-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The checker passes on the M0 artifacts and prints assertion counts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The checker rejects missing budgetLockDigest or missing reviewerSnapshot where required.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The checker rejects illegal ② vs ④ as a confirmatory contrast.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record runner and snapshot readiness evidence",
+      "context": "Capture CLI host availability and selected E1/E2 provider family snapshot candidates without conflating Codex/Claude hosts with model families.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#02-模型host-与并行验证约束"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/runner-registry.m0.json",
+          "experiments/multi-model-ablation/model-snapshot-lock.m0.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "E1 and E2 families are distinct and each runner separates hostKind from executorSnapshot/reviewerSnapshot.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If dated snapshot binding is unavailable, the artifact records a blocker instead of silently passing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Using Codex CLI as host without an OpenAI/GPT snapshot cannot satisfy E2.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify budget-lock and analysis contrast mechanics",
+      "context": "Create or validate M0 cells and budget lock fixtures that prove ③ precedes ⑥ and that only ③ vs ⑥, ① vs ②, and ③ vs ④ are legal confirmatory contrasts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#311-2x2-因果对比矩阵每次只允许一个因子变"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell-manifest.m0.json",
+          "experiments/multi-model-ablation/phase1-budget-lock.m0.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A2prime rows bind to a previously frozen budget lock and legal contrasts are enumerated.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Descriptive-only contrasts are kept separate from confirmatory contrasts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "② vs ④ is detected as invalid because executor and reviewer both change.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run verification and close the Research M0 story",
+      "context": "Run the M0 smoke checker, provider-free example checks, relevant Lattice validation, then record summary/delivery evidence and advance to DONE if gates pass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md#6-milestones"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verification evidence proves M0 readiness or explicit blockers and no Phase 1/2 campaign was run.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Validation remains provider-safe and does not mutate product gates/playbooks/runtime guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary cannot overclaim that H-M1/H-M3 research outcomes exist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

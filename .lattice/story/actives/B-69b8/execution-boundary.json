@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-69b8",
+  "allowedCommands": [
+    "agy --version*",
+    "claude --version*",
+    "codex --version*",
+    "find *",
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node *",
+    "npm run *",
+    "npm test*",
+    "rg *",
+    "sed *",
+    "shasum *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell",
+    "web official model docs lookup"
+  ],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "agy -p *",
+    "claude -p *",
+    "codex exec *",
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "node experiments/recovery-runner/powered/run-campaign.mjs*",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/assets",
+    "docs/CLI.md",
+    "README.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Provider model CLI execution and large campaign commands are excluded from this M0 story unless a later human approval starts a separate campaign.",
+  "createdAt": "2026-07-04T17:42:53.729Z",
+  "updatedAt": "2026-07-04T17:42:53.729Z",
+  "_hash": "a463a58080db843b5f83cfa306121b570a33c4ca2adaa604309ce82a40f022b8"
+}
