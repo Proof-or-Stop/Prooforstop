@@ -115,7 +115,7 @@
       "desc": "packages/main/src/core/milestone-status.ts: Deferred or failed waivers can complete milestones. milestone_status maps waiver evidence to waived and accepts waived evidence as covering, so deferred_gate_evidence or failed waivers can make a milestone appear completed. Must reject deferred/failed waivers for covering semantics and only allow permanent non-failing waivers.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T22:21:49.485Z",
@@ -126,7 +126,11 @@
         "packages/main/src/core/milestone-status.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 32da7fc80/e74b74e3a: milestone_status now treats waiver evidence as covering only when kind=waiver, waiverType=permanent, and result is not fail; deferred_gate_evidence and failed waivers remain not-passing. Verified by node packages/main/tests/milestone-status.test.mjs waiver regression and full build PASS.",
+      "resolvedAt": "2026-07-04T22:32:17.635Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-007",
