@@ -1,0 +1,94 @@
+{
+  "storyId": "B-806b",
+  "checkedAt": "2026-07-04T19:10:18.067Z",
+  "features": [
+    {
+      "feature": "M1 protocol lock and status table",
+      "covered_by": "plan.md:21-33; checklist.json:4-40; understanding.json:21-28",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Deterministic seed manifest",
+      "covered_by": "plan.md:35-49; checklist.json:43-79; understanding.json:21-28",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Required Phase 1 cells ③/⑥/② with optional budget-permitting ④",
+      "covered_by": "plan.md:38-49; checklist.json:45-75; decision.json:50-55; understanding.json:6",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Phase 1 launch gate and budget sequencing locks",
+      "covered_by": "plan.md:51-63; checklist.json:82-113; understanding.json:24-26",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Local M1 freeze checker with negative controls",
+      "covered_by": "plan.md:65-78; checklist.json:120-153; scope-contract.json:13-15",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Scope and execution boundaries limit file creation to M1 artifacts under experiments/multi-model-ablation",
+      "covered_by": "scope-contract.json:5-15; scope-boundary.json:5-12; execution-boundary.json:17-20",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope/execution boundaries"
+    },
+    {
+      "feature": "Provider and campaign execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md:8; scope-contract.json:21-28; execution-boundary.json:21-30",
+      "source": "scope/execution boundaries"
+    },
+    {
+      "feature": "Outcome records and Phase 1 findings",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md:9; scope-contract.json:16-19; scope-boundary.json:13-20; checklist.json:179-182",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "README.md edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md:10; checklist.json:25-29; scope-contract.json:16-20",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Protocol document edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md:7; understanding.json:12-18; scope-contract.json:16-20",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Product gate, playbook, DONE behavior, and publication claim changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md:11; scope-contract.json:21-28; scope-boundary.json:13-20",
+      "source": "scope/execution boundaries"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 6,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "07bd01552f064399d011613c77a8c70d98f8cb9bfd123803070f7e4dbd942450",
+  "openQuestions": []
+}

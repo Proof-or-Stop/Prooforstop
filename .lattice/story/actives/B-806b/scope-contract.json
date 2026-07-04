@@ -1,0 +1,33 @@
+{
+  "storyId": "B-806b",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/protocol.lock.json",
+    "experiments/multi-model-ablation/m1-status.md",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/cell-matrix.m1.json",
+    "experiments/multi-model-ablation/phase1-launch-gate.m1.json",
+    "experiments/multi-model-ablation/m1-freeze-check.mjs"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m1-freeze-check.mjs"
+  ],
+  "protectedFiles": [
+    "README.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl"
+  ],
+  "explicitExcludes": [
+    "provider execution",
+    "Phase 1 campaign execution",
+    "Phase 2 campaign execution",
+    "product runtime gates",
+    "playbook runtime behavior",
+    "DONE behavior changes"
+  ],
+  "scopeChangeReason": "Initialize M1 provider-free scope contract from PLAN checklist.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-04T19:08:48.738Z",
+  "updatedAt": "2026-07-04T19:08:48.738Z"
+}
