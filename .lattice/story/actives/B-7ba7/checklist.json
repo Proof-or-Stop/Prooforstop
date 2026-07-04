@@ -284,9 +284,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-04T20:19:24.267Z",
-      "endTime": null,
+      "endTime": "2026-07-04T20:19:25.032Z",
       "userSees": "User sees docs and tests name \"lattice milestone_status --storyId=B-demo\", \"read-only\", \"no automatic execution\", and \"no production readiness claim\".",
       "files": {
         "modify": [
@@ -296,7 +296,45 @@
         "test": [
           "packages/main/tests/milestone-status.test.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused test covers JSON report shape, grouped Markdown text rendering, missing-ledger blocker behavior, and direct handler read-only failure before store reads.",
+          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:19:25.386Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"milestone_status|read-only|Detail granularity|completion or executor ledgers\" docs/CLI.md",
+          "result": "pass",
+          "note": "CLI docs explain milestone_status usage, Host Progress Reporting Contract, missing-ledger blocker, ledger/checklist/verificationIntent granularity, and that future completion/executor ledgers can improve detail but are not required for V1.",
+          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:19:25.719Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"automatic execution|automatic DONE|production readiness|Authority\" docs/CLI.md",
+          "result": "pass",
+          "note": "CLI docs state V1 does not run commands, write evidence/summaries/review passes, change phase, launch reviewers, claim automatic execution, claim automatic DONE, Authority completion, or production readiness.",
+          "headHash": "93fb8c4c3f82f374a1efce905ecedfd8b18e6e4f",
+          "materialHash": "1a16cf3511d0638bbdea3ccd9f1cf5e55aece3789656e97cd702feb6c31c2337",
+          "storyFilesHash": "18db288f9214ad5054b66f9de9dc17dbe9ee53bd6dc0b7a86c86e60e06276c5a",
+          "timestamp": "2026-07-04T20:19:26.062Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -353,6 +391,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting documentation and reporting workflow evidence."
+    },
+    {
+      "timestamp": "2026-07-04T20:19:25.032Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs and tests now describe grouped progress reporting workflow and explicit non-claiming read-only boundaries."
     }
   ]
 }
