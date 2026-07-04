@@ -52,10 +52,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test verifies JSON report fields include all milestones, groups, subObjectives, evidenceRefs, risks, nextActions, and readOnly mode after hardened coverage and freshness fallback semantics.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused test covers missing milestoneLedger=null and asserts a missing-ledger blocker plus milestone_ledger_set next action without checklist reads.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused tests verify mutation-like args are rejected before store reads and active-story malformed CLI args fail before active-story metadata reads.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         }
       ]
     },
@@ -138,10 +138,10 @@
           "command": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7",
           "result": "pass",
           "note": "CLI smoke prints Milestone Status - B-7ba7 with Mode: read-only and Completed, Current, Remaining grouped Markdown tables.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused rendering tests cover sparse subObjectives and historical custom requiredEvidence labels while preserving useful table output.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,10 +162,10 @@
           "command": "node packages/main/dist/cli.js milestone_status --storyId=B-7ba7 --format=json --surpriseFlag=true",
           "result": "pass",
           "note": "Negative CLI smoke exits non-zero with Argument validation failed for surpriseFlag before printing story facts; active-story FIFO regression proves validation happens before active-story reads.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         }
       ]
     },
@@ -222,10 +222,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused tests assert completed milestones require checklist refs, fresh covering evidence, and required evidence kind coverage before entering the completed group.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -234,10 +234,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused tests assert partial milestones remain current with risks and smallest next action, including requiredEvidence kind mismatch reporting.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -246,10 +246,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Focused tests reject stale evidence, misplaced scoped evidence, duplicate intent ids, deferred waivers, failed waivers, wrong evidence kinds, and stale material-only/storyFiles-only evidence from completing milestones.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         }
       ]
     },
@@ -305,10 +305,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Automated tests cover JSON shape, grouped text rendering, missing-ledger behavior, waiver coverage semantics, requiredEvidence kind enforcement, comparable hash freshness fallback, and strict CLI argument preflight.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -317,10 +317,10 @@
           "command": "rg -n \"milestone_status|read-only|Detail granularity|completion or executor ledgers|requiredEvidence\" docs/CLI.md",
           "result": "pass",
           "note": "Docs describe milestone_status read-only usage, detail granularity, completion/executor ledger dependency, enforced built-in requiredEvidence kind semantics, and historical custom labels as mapped hints.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -329,10 +329,10 @@
           "command": "rg -n \"automatic execution|automatic DONE|production readiness|Authority\" docs/CLI.md",
           "result": "pass",
           "note": "Docs explicitly avoid claiming automatic execution, automatic DONE, production readiness, or Authority completion for milestone_status.",
-          "headHash": "92c3934babb35c6596b1a1d995c174c117992b2e",
-          "materialHash": "f037389eb6421bc5d0c541a51892f9d36e8e6202aedda2846a3ec41366873c37",
+          "headHash": "7f63167be12ec05225c2a152e5f5c48fafe68a1c",
+          "materialHash": "220a668dbff45afa52610eff29509b6a5e7b72fe64198129ca40f42dcc690b90",
           "storyFilesHash": "c07e20a0623659c6205d3e1d486de3835a9ff4035825fd8a6b3a53195b156264",
-          "timestamp": "2026-07-04T22:51:48.798Z"
+          "timestamp": "2026-07-04T22:58:35.349Z"
         }
       ]
     }
