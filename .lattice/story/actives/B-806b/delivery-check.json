@@ -1,0 +1,47 @@
+{
+  "storyId": "B-806b",
+  "checkedAt": "2026-07-04T19:57:16.891Z",
+  "headHash": "5e65ab54a32b44064a8f12fcd6ccb73e520330b5",
+  "materialHash": "7677bf61a91eff27fbfce7846a84cd3d4d0787c92cfaf5da705611515cfc1494",
+  "storyFilesHash": "d114e7cb63fa429cb2350d9e89a8794f68012c8d80349c94e1763d880931629c",
+  "reviewRound": "2026-07-04T19:42:45.891Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "promise": "M1 must freeze protocol planning artifacts without authorizing provider execution, Phase 1 launch, outcome collection, or product gate behavior.",
+      "status": "verified",
+      "verifiedBy": "Claude CLI and Codex CLI read-only delivery review plus local checker",
+      "evidence": "Both host reviews passed; phase1-launch-gate.m1.json keeps launchAllowed=false, providerCallEnabled=false, formalPhase1UseAllowed=false; m1-status.md marks M2 provider execution BLOCKED, Provider execution OFF, Outcome data ABSENT."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/multi-model-ablation/m1-freeze-check.mjs passed and confirmed protocol.lock.json digest/status and provider-free status table boundaries."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/multi-model-ablation/m1-freeze-check.mjs passed and confirmed required cells ③/⑥/②, optional ④, requiredRows=3456, requiredPlusOptionalRows=4608, and illegal ②-vs-④ rejection."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node experiments/multi-model-ablation/m1-freeze-check.mjs passed and confirmed launchAllowed=false, providerCallEnabled=false, formalPhase1UseAllowed=false, M2 blocked."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node experiments/multi-model-ablation/m1-freeze-check.mjs reported M1 freeze checker passed: 219 assertions; 8 negative controls rejected."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "lattice done_prepare passed main sync, stale evidence refresh, and validate; Codex CLI and Claude CLI read-only delivery reviews passed with no blocking findings."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirms B-806b only freezes provider-free M1 protocol artifacts, keeps Phase 1 and provider execution blocked, preserves optional ④ semantics, and makes no outcome or multi-model result claim."
+  },
+  "_hash": "59e28ed155db2712db66c41e7cb0b73ea840f69c59bbba082e6dfa98c9014a03"
+}
