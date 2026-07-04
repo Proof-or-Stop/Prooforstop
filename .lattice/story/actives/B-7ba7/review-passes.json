@@ -251,6 +251,15 @@
       "reviewRound": "2026-07-04T23:07:20.631Z",
       "reviewRunId": "B-7ba7:RR-044",
       "_hash": "07afdee64c1d750a2dfa55d4a35a0533d94ad6b5d0291575ee371fbb9d2a14fa"
+    },
+    {
+      "id": "B-7ba7:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker in milestone_status freshness handling: matching non-empty storyFilesHash accepts material-only drift; EMPTY_STORY_FILES_HASH is treated as no signal and falls through to strict materialHash; mismatched storyFilesHash blocks; material-only and legacy head fallback paths remain covered. Verified with node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-04T23:10:34.677Z",
+      "reviewRound": "2026-07-04T23:07:20.631Z",
+      "reviewRunId": "B-7ba7:RR-043",
+      "_hash": "84681f76289c77f7a85acc9be6686d370c2bb83fde28f90a9abf9ff2229d06a9"
     }
   ]
 }
