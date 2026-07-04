@@ -203,7 +203,7 @@
       "desc": "F-009 test coverage still misses the fresh material-only evidence with head drift case. In packages/main/tests/milestone-status.test.mjs lines 421-426, CHK-MATERIAL-FRESH binds headHash=head-current with materialHash=material-current, so the test only proves fresh material-only evidence covers when storyFilesHash is absent. It does not exercise the required regression that fresh material-only evidence ignores stale headHash/head drift, unlike the story-only fresh case at lines 427-432.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-04T22:44:13.969Z",
@@ -214,14 +214,18 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "missing|mjs|test-coverage-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current regression covers material-only fresh evidence with stale headHash: CHK-MATERIAL-FRESH uses headHash=head-old, materialHash=material-current, and no storyFilesHash. node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T22:48:03.146Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7ba7:F-011",
       "desc": "F-009 regression coverage is still incomplete: packages/main/tests/milestone-status.test.mjs exercises stale material-only evidence with current headHash and fresh storyFiles-only evidence with stale headHash, but CHK-MATERIAL-FRESH uses headHash=head-current with materialHash=material-current. That does not cover the required material-only metadata-drift case where a comparable materialHash pair exists and headHash is stale, so head fallback ordering can regress for material-only fresh evidence without a failing test. Add a material-only fresh evidence case with stale headHash/current materialHash and no storyFilesHash.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-04T22:45:22.691Z",
@@ -232,7 +236,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "missing|mjs|regression-coverage-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current regression covers the requested material-only metadata-drift case: CHK-MATERIAL-FRESH has stale headHash and current materialHash with no storyFilesHash, proving comparable materialHash is preferred before headHash fallback. node packages/main/tests/milestone-status.test.mjs passed.",
+      "resolvedAt": "2026-07-04T22:48:03.267Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
