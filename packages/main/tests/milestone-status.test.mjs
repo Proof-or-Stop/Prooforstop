@@ -584,8 +584,8 @@ function assertEvidenceRefShape(evidenceRef) {
       milestone({
         id: 'M-required-custom-label',
         sourceRequirementId: 'REQ-required-custom-label',
-        claim: 'Unsupported requiredEvidence labels must not complete',
-        doneMeans: 'Non-kind labels block until the ledger uses a supported evidence kind',
+        claim: 'Custom requiredEvidence labels remain mapping hints',
+        doneMeans: 'Historical non-kind labels do not block when mapped verification refs are covered',
         requiredEvidence: ['cli_smoke'],
         checklistRefs: ['CHK-REQ-CUSTOM'],
         verificationIntentRefs: ['CHK-REQ-CUSTOM:happy:0'],
@@ -594,9 +594,8 @@ function assertEvidenceRefShape(evidenceRef) {
     ]),
   });
 
-  assert.deepEqual(report.groups.completed, ['M-required-covered']);
+  assert.deepEqual(report.groups.completed, ['M-required-covered', 'M-required-custom-label']);
   assert.deepEqual(report.groups.current, ['M-required-missing']);
-  assert.deepEqual(report.groups.remaining, ['M-required-custom-label']);
   const missing = report.milestones.find((row) => row.id === 'M-required-missing');
   assert.ok(missing);
   assert.equal(missing.subObjectives.find((sub) => sub.id === 'CHK-REQ-LOGIC:happy:0')?.status, 'covered');
@@ -611,11 +610,8 @@ function assertEvidenceRefShape(evidenceRef) {
 
   const custom = report.milestones.find((row) => row.id === 'M-required-custom-label');
   assert.ok(custom);
-  assert.equal(custom.subObjectives.find((sub) => sub.id === 'CHK-REQ-CUSTOM:happy:0')?.status, 'covered');
-  assert.equal(custom.subObjectives.find((sub) => sub.id === 'cli_smoke')?.status, 'invalid-required-evidence-kind');
-  assert.match(custom.risks.join('\n'), /Required evidence kind "cli_smoke" is unsupported/);
-  assert.match(custom.nextAction, /Fix milestone M-required-custom-label requiredEvidence "cli_smoke"/);
-  assert.match(custom.statusDetail, /requiredEvidence=missing/);
+  assert.equal(custom.subObjectives.find((sub) => sub.id === 'cli_smoke')?.status, 'mapped');
+  assert.match(custom.statusDetail, /requiredEvidence=covered/);
 }
 
 {
