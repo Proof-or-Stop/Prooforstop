@@ -147,11 +147,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
-          "note": "selfcheck-m2 (b): a lock-blocked concurrent driver records precondition_failed to a SEPARATE batch-ledger.blocked.jsonl (NOT the shared campaign ledger, which stays clean) and exits 3; the end-of-run guard now validates the EXACT expected identity multiset (rejects missing/dup/EXTRA); (c) recordless -> exit 1. Ledger contamination (F-002) and generate-crash bypass (F-001) both closed.",
-          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "note": "The proof-or-stop discipline is now structurally un-gameable: runIteration guards the ENTIRE lifecycle (mkdtemp+generate+verify+build+append+cleanup) -> any throw becomes a verify_crash stop; main() runs the STRICT exact-multiset end-of-run guard in a finally-backstop so an escaped crash still forces a named NONZERO exit (never exit-0 with a missing record). selfcheck (e) confirms both a pre-body mkdtemp crash and a post-body append crash map to a verify_crash stop. Lock-blocked driver -> separate blocked-ledger; guard rejects extra/missing/dup.",
+          "headHash": "d24ef1d04b6088c75a5e84be5d2abceb093a4bd4",
           "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
           "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
-          "timestamp": "2026-07-05T19:51:56.951Z"
+          "timestamp": "2026-07-05T19:51:57.589Z"
         }
       ]
     },
