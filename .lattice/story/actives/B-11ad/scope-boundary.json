@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-11ad",
+  "mode": "feature",
+  "allowed": [
+    "Add non-runtime artifact release/provenance ledger and read-only inspection commands.",
+    "Add smoke coverage and docs for semver/provenance boundary.",
+    "Wire DONE post-merge effects to record artifact provenance for releasable non-runtime changed paths."
+  ],
+  "excluded": [
+    "Do not change package release or remote publish policy.",
+    "Do not expand CLI patch-version bumps to arbitrary docs, experiments, or metadata.",
+    "Do not reinterpret .lattice story metadata as product artifact releases."
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved implementing artifact provenance/version records instead of treating non-runtime DONE version-bump skip as a semver bug.",
+  "createdAt": "2026-07-05T09:38:54.712Z",
+  "updatedAt": "2026-07-05T09:38:54.712Z",
+  "_hash": "6646961548d5d7a56438f3e50b2251f3b4040ef8a25f6760c8863f4ed982e0e2"
+}

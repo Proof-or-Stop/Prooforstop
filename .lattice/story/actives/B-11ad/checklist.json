@@ -1,0 +1,145 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add artifact release ledger and non-runtime artifact digest classification",
+      "context": "Create a deterministic append-only record for non-runtime deliverable path sets changed by DONE merges, excluding .lattice lifecycle metadata and watched CLI/runtime inputs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A non-runtime DONE merge can produce an artifact release id and digest without bumping CLI semver.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [
+          "packages/main/src/core/artifact-release.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "experiments/** changed paths classify as non-runtime releasable artifacts and produce a stable digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".lattice story metadata and packages/main runtime inputs do not become non-runtime artifact release rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "mixed runtime plus non-runtime changes keep semver bump semantics separate from artifact ledger records.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose artifact release inspection commands and DONE post-merge report line",
+      "context": "Add CLI handlers for listing/status inspection and call the ledger from DONE post-merge effects after the story branch merges into main.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/CLI.md"
+      ],
+      "userSees": "DONE output says when an artifact release record was written, and users can inspect releases by story id or latest list.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "docs/CLI.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/artifact-release.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "artifact_release_list returns recent records as JSON/text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "artifact_release_status can filter by story id and clearly reports none when absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE ledger write is idempotent for the same story/commit/digest and does not duplicate rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the semver/provenance boundary and validate with smoke coverage",
+      "context": "Update lifecycle documentation to state CLI semver remains runtime-bound and non-runtime DONE artifacts use the artifact release ledger.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Developers know why version bump may skip while artifact release provenance still exists.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "new smoke passes and is wired into validate commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "existing version-bump smoke still proves experiments do not trigger CLI semver bump.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs state artifact release records are provenance, not runtime activation or package semver.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

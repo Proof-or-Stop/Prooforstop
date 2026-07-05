@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-11ad",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/**",
+    "docs/CLI.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "lattice.config.json",
+    "packages/main/package.json",
+    "packages/main/src/**"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implement with native Proofbound story workflow and no OMX usage.",
+  "createdAt": "2026-07-05T09:38:54.712Z",
+  "updatedAt": "2026-07-05T09:38:54.712Z",
+  "_hash": "d4bdda2d2d6ac01634547c3f0afaeabd42b960514946f4ef6c15b0d3681e6509"
+}

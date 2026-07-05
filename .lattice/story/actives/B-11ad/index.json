@@ -1,0 +1,29 @@
+{
+  "storyId": "B-11ad",
+  "name": "artifact-release-provenance-ledger",
+  "title": "Record non-runtime artifact provenance at DONE without CLI semver noise",
+  "description": "DONE currently skips the CLI patch version when a story changes only non-runtime artifacts such as experiment protocol outputs. That skip is correct for CLI/runtime semver, but users still need a durable provenance/version record for delivered non-runtime artifacts.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "artifact-release",
+    "done-merge",
+    "provenance",
+    "version-boundary"
+  ],
+  "createdAt": "2026-07-05T09:38:54.712Z",
+  "startedAt": "2026-07-05T09:38:54.712Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T09:38:55.093Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}
