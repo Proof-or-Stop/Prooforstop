@@ -1,0 +1,394 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0 update existing execution plan with Cell 03 real-run milestones",
+      "context": "Append the real Cell 03 execution sequence to the existing M2 provider execution plan instead of creating a new large document. The section must distinguish readiness artifacts from real result rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "userSees": "A single existing M2 plan shows M0-M9 for Cell 03 real execution.",
+      "excludes": [
+        "new standalone mega-document",
+        "provider calls in the planning-only edit"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The plan contains a Cell 03 real execution section with M0-M9 and says provider calls remain disabled until the execution gate opens.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan explicitly says pre-run dollar guesses are not launch gates and postflight provider-reported usage is required.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan must not claim Cell 06, Phase 2, paper wording, product gates, or playbook activation are unlocked by Cell 03 readiness.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1 preflight freeze check for current Cell 03 envelope",
+      "context": "Before any provider call, rerun the local readiness checker and verify prompt digest, tool-surface digest, target snapshots, runner ownership, duplicate policy, and task inventory are unchanged.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      ],
+      "userSees": "m2-provider-execution-check.mjs still passes before execution.",
+      "excludes": [
+        "modifying the frozen prompt without digest refresh"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The checker passes and reports Cell 03 execution envelope frozen.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any drift in prompt or tool digest requires re-freeze before provider execution.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host labels such as Codex CLI cannot substitute for provider snapshots.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2 define execution receipts and result-row contract",
+      "context": "Create or update result schema and manifest requirements so every future row binds cellKey, task, scenario, repeat, executor snapshot, reviewer snapshot, prompt digest, tool digest, provider usage, and supersession metadata.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-cell03-result-write-policy.json"
+      ],
+      "userSees": "Every future Cell 03 row has a machine-checkable receipt contract.",
+      "excludes": [
+        "unstructured logs as formal rows"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-cell03-result-write-policy.json"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/README.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A row contract describes all required binding fields.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Failed or retried rows remain auditable and cannot count twice.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Rows missing provider-reported usage or digest bindings are not formally usable.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3 open Cell 03-only execution window",
+      "context": "Record a bounded execution window for Cell 03 only. It may allow provider calls for ③ A4 E2 same-family rows only and must keep Cell 02, Cell 04, Cell 06, Phase 2, product gates, and paper claims disabled.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+        "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+      ],
+      "userSees": "Cell 03 execution window is open; all other cells remain disabled.",
+      "excludes": [
+        "Cell 06 execution",
+        "Phase 2 execution",
+        "provider fallback"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Provider calls are enabled only for Cell 03 under the frozen envelope.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expired windows or model drift void affected rows.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any attempt to enable other cells fails local checks.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4 run a small probe batch before full execution",
+      "context": "Run a tiny bounded probe, such as 2-5 Cell 03 rows, to prove provider invocation, receipt capture, result writing, duplicate handling, and postflight usage accounting before the 1,152-row run.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-cell03-execution-prompt.md"
+      ],
+      "userSees": "A small probe creates valid rows with usage and receipts.",
+      "excludes": [
+        "counting probe rows twice",
+        "skipping usage accounting"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/probe/README.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Probe rows validate against the row contract.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A failed probe is recorded as failed and does not unlock full run.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fallback provider or missing snapshot makes the row unusable.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5 run full Cell 03 1,152-row execution",
+      "context": "Execute the full 24 task x 16 scenario x 3 repeat Cell 03 matrix only after the probe passes, preserving one formal row per cell key and auditable retry supersession.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "userSees": "1,152 Cell 03 rows are present or each missing or failed key is explicitly accounted for.",
+      "excludes": [
+        "unbounded retries",
+        "duplicate independent rows"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/full/README.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All 1,152 expected cell keys have valid final status.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Timeouts and failures are represented without corrupting row counts.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate or unbound rows are rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M6 postflight provider usage and cost accounting",
+      "context": "Calculate actual usage and derived cost from provider-reported usage after execution. Estimates remain diagnostics only and cannot substitute for final usage.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json"
+      ],
+      "userSees": "Actual provider-reported usage and derived cost are summarized after the run.",
+      "excludes": [
+        "pre-run dollar caps as launch gates",
+        "estimate-as-final accounting"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/usage-summary.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Usage summary is derived from provider-reported fields.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing provider usage keeps affected rows non-formal.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostic estimates cannot unlock Cell 06.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M7 derive Cell 03 usage lock for downstream A2prime sequencing",
+      "context": "After Cell 03 records are complete, derive the real usage or baseline lock needed by Cell 06 A2prime. This creates a dependency artifact but does not execute Cell 06.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "userSees": "Cell 06 has a real dependency lock but remains a separate story.",
+      "excludes": [
+        "automatic Cell 06 launch"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A lock artifact is derived from actual Cell 03 rows and usage.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Incomplete Cell 03 rows prevent lock finalization.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Example or declaration-only locks are rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "M8 analysis readiness without paper overclaiming",
+      "context": "Make Cell 03 results analyzable while preserving claim boundaries: no model-agnostic, H-M1, H-M3, or Phase 2 claim is unlocked by this story alone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "userSees": "Cell 03 data is ready for later analysis, not overstated as a paper conclusion.",
+      "excludes": [
+        "paper wording changes unsupported by full Phase 1 analysis"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/analysis-readiness.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Analysis readiness states exactly what Cell 03 can and cannot support.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial rows are labeled partial and excluded from confirmatory claims.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runtime, product, and playbook gates remain unaffected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
