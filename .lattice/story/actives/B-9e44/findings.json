@@ -93,7 +93,7 @@
       "desc": "[codex-host-2 re-check, verified] Oracle-weaken is under-enumerated: gold-semantic-weaken only mutates expectedIds, but the verifier derives obligations from the tampered gold file for mustNotSurfaceIds, expectedSuppressedIds, expectedDeprecatedTermHits, supersededPreference too. Empirically confirmed: weakening expectedSuppressedIds (truth-first query) and mustNotSurfaceIds (host-policy query), refresh -> status:pass. These refreshed oracle-weaken variants are malicious passes not covered. Root family = digest-recompute defeats detection (Tier-C).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T16:29:27.298Z",
@@ -104,7 +104,11 @@
         "experiments/pos-instrument-replay/protocol.json"
       ],
       "signatureTag": "adversarial|mjs|codex-host-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 08e74dc7. Added representative oracle-weaken classes gold-weaken-suppressed[refreshed] + gold-weaken-mustnotsurface[refreshed] (alongside gold-weaken-expectedids); protocol.limitationFamily.families[oracle-weaken] lists all 5 obligations (expectedIds/expectedSuppressedIds/mustNotSurfaceIds/expectedDeprecatedTermHits/supersededPreference) and declares the family representative-not-exhaustive, Tier-C, out of H2 scope.",
+      "resolvedAt": "2026-07-05T16:37:36.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9e44:F-006",
