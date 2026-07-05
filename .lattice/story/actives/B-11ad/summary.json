@@ -1,0 +1,56 @@
+{
+  "storyId": "B-11ad",
+  "changes": "Added a non-runtime artifact release provenance ledger at .lattice/artifact-releases.jsonl, read-only artifact_release_list/status commands, DONE post-merge recording, command policy/catalog wiring, docs, and validate smoke coverage. The ledger records docs/** and experiments/** provenance without broadening CLI semver bumps.",
+  "usage": "Run `lattice artifact_release_list --format=json --limit=20` to inspect recent artifact release records, or `lattice artifact_release_status --storyId=B-xxxx --format=text` to inspect one story. DONE emits `artifact release recorded` when non-runtime releasable paths are merged.",
+  "expectedOutcome": "A user can inspect non-runtime DONE artifact provenance independently from CLI package semver. Empty ledgers return [] or a clear no-records message; simulated docs/experiments DONE paths produce deterministic sha256 artifact-set provenance.",
+  "actualTranscript": "`artifact_release_list --format=json --limit=3` returned []; `artifact_release_status --storyId=B-none --format=text` returned `No artifact release records found for B-none`; artifact-release-ledger smoke passed 8 assertions including dirty already-recorded retry durability.",
+  "outcomeDiff": "No user-visible mismatch. The live ledger is empty in this worktree, as expected before a DONE merge records an artifact release; the smoke proves the DONE-like recording path.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The ledger is provenance only. It does not activate a package release, does not publish remotely, and does not broaden CLI patch semver rules. Live records appear only after future DONE merges with releasable non-runtime paths.",
+  "pitfalls": "Review found a real high bug: already_recorded could skip committing an uncommitted ledger row after a failed/interrupted commit. Commit b70d2738 fixed this by force-adding and committing dirty already-recorded ledgers, with smoke coverage. Scope also required explicit acknowledgements for command-policy/config/process-fact files and ProofStory intent artifacts.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 67251
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16819
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 240526
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 840539
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 636166
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 56885
+    }
+  },
+  "totalDurationMs": 1858567,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T10:09:53.279Z",
+  "updatedAt": "2026-07-05T10:09:53.279Z"
+}
