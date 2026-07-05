@@ -18,26 +18,51 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Committed file exists at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md and its sha256 matches the reviewed rev 3 text (scratchpad backup digest recorded in evidence)",
+            "desc": "Committed file exists at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md and its sha256 matches the reviewed rev 3 text (scratchpad backup digest recorded in evidence before commit) -> match confirms verbatim-in-substance; WHY: primary content-integrity gate for pre-registration discipline",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "All 12 top-level sections and subsections 6.1-6.5 present in committed content (grep section headers)",
+            "desc": "grep all 12 top-level section headers (## 1 through ## 12) plus subsections 6.1-6.5 in the committed file -> all 17 headers present; WHY: structural completeness ensures no section was accidentally truncated or dropped during the file move from untracked to committed",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Doc-only diff: git diff main...HEAD touches exactly one path (the plan md); no code, experiments/, or package files",
+            "desc": "git diff main...HEAD --name-only lists exactly one path (the plan md); no .ts/.js/.mjs files, no experiments/ paths, no package.json changes -> doc-only diff confirmed; WHY: scope-boundary enforcement, the story must not leak any code or non-doc artifacts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The committed file contains the exact string 'Status: DRAFT rev 3' in its header and 'Revision provenance: rev 2 resolved 21 surviving findings' in its provenance block -> rev identity confirmed; WHY: guards against accidentally landing an older rev (rev 1 or rev 2) or a post-story edit that changes the revision marker",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Content-integrity spot-checks that the landed text preserves the load-bearing rev 2/3 corrections: no seed-swap tamper class anywhere; 'content-inert' seed annotation present; per-class 'fingerprint' discipline present; 'never outcome-judging' present in 6.5; ledger-integrity claim scoped with the Tier-C disclaimer",
+            "desc": "Adversarial spot-check 1: the tamper matrix in section 6.1 does NOT list seed-swap as an active class (historical references in rev provenance and viability explanation are expected, not defects) -> no no-op class in the frozen matrix; WHY: seed-swap was the load-bearing rev 2 correction, a content-inert class cannot be a valid tamper and would spuriously falsify H2",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Adversarial spot-check 2: grep for 'content-inert' finds at least 3 occurrences (rev provenance, section 5 reuse inventory, section 6.1 seed annotation) AND 'contentInert: true' annotation present -> seed inertness documented at all relevant touchpoints; WHY: this is the factual basis for dropping seed-swap; if any reference is missing the plan internal consistency is broken",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Adversarial spot-check 3: section 6.5 header contains the exact phrase 'never outcome-judging' AND section 6.5 body states 'no model' ever judges a hypothesis -> cross-vendor fairness rule intact; WHY: this was the rev 3 addition responding to the operator fairness question; weakening it changes the protocol semantics",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Adversarial spot-check 4: section 6.2 specifies sha256 of canonical JSON with the recordDigest field absent AND sections 3/6.2 include the Tier-C disclaimer (accidental corruption and naive edits only / signing is Tier-C out of scope) -> no overclaim on ledger security; WHY: unsigned self-digests without the disclaimer would be a false security claim contradicting the no-overclaim rule",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Adversarial spot-check 5: section 4 hypothesis table uses exactly three verdict states (supported / falsified / not-evaluable) with a Not-evaluable trigger column AND section 10 conditions the claim on all four SUPPORTED -> three-state discipline end-to-end; WHY: rev 2 changed from binary to three-state; a regression to two-state would silently weaken the protocol by hiding not-evaluable outcomes",
             "type": "cli",
             "priority": "must"
           }
