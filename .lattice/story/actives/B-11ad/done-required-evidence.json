@@ -2,13 +2,13 @@
   "schema": "lattice.done-required-evidence",
   "version": 1,
   "storyId": "B-11ad",
-  "status": "FAIL",
-  "startedAt": "2026-07-05T10:12:29.652Z",
-  "endedAt": "2026-07-05T10:12:41.339Z",
-  "durationMs": 11687,
-  "headHash": "21b26f8f0ed5aead8eea7c6c9d86413819a7b090",
-  "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
-  "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+  "status": "PASS",
+  "startedAt": "2026-07-05T11:03:43.618Z",
+  "endedAt": "2026-07-05T11:04:52.728Z",
+  "durationMs": 69110,
+  "headHash": "4f2fede4b1c70adbf5706f2269a299be62d1da09",
+  "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+  "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
   "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
   "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
   "receipts": [
@@ -39,14 +39,14 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-11ad",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 8520,
-      "outputDigest": "549eddf8bae726602fab03e7cc7144f94755eaa02d2e57d2a2d75350f2a216f4",
-      "outputTail": "\n> @lattice/core@0.3.157 build\n> tsc\n\n",
-      "startedAt": "2026-07-05T10:12:29.652Z",
-      "endedAt": "2026-07-05T10:12:38.172Z",
-      "headHash": "21b26f8f0ed5aead8eea7c6c9d86413819a7b090",
-      "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
-      "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602"
+      "durationMs": 8656,
+      "outputDigest": "a118ef97ad88e13f9f0120578f935fd9876691844e227fe1b7ef335d5c338caf",
+      "outputTail": "\n> @lattice/core@0.3.158 build\n> tsc\n\n",
+      "startedAt": "2026-07-05T11:03:43.618Z",
+      "endedAt": "2026-07-05T11:03:52.274Z",
+      "headHash": "4f2fede4b1c70adbf5706f2269a299be62d1da09",
+      "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+      "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42"
     },
     {
       "label": "root full test suite",
@@ -67,19 +67,17 @@
         "timeoutMs": 1200000
       },
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-11ad",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 2758,
-      "outputDigest": "a28ff0f470b44e41d43bc3aa5461ce6be2ba68ac198742fe6c4ba3f8c827d629",
-      "outputTail": "d binding (round 1) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\n\n> lattice@0.3.157 test:review-assurance-floor-storyfileshash-smoke\n> node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js\n\n  ✓ (a) unrelated whole-tree drift keeps rounds valid with advisory\n  ✓ (a2) full three-part re-attestation advisory pattern\n  ✓ (b) truly-stale prior verdict does not duplicate-poison the round\n  ✓ (b2) cross-runId re-bind => only new round valid, old ignored\n  ✓ (c) real story-file change stales the rounds (anti-gaming)\n  ✓ (d) degraded fallback: storyFilesHash match => valid with advisory\n  ✓ (d) degraded fallback: real story-file change => materialHash is stale\n  ✓ baseline: no drift => valid, no re-attestation advisory\n  ✓ (1) two different-runId drifted rounds both downgraded valid\n  ✓ (2) legacy verdict (no storyFilesHash) is never downgraded\n  ✓ (3) null current storyFilesHash => no downgrade, stale, no crash\n  ✓ (4) three eras same identity diff runIds => 2 valid, no dup-identity\n  ✓ (5) two truly-stale dup-identity verdicts => ignored, no dup-identity\n  ✓ (6) one advisory per downgraded verdict (not deduplicated)\n\nreview-assurance-floor storyFilesHash smoke passed (14 checks)\n\n> lattice@0.3.157 test:docs-drift-smoke\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.157 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.157 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.157 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n\n✗ gitroot-cwd-contract smoke FAILED\nFound 2 bare-cwd git call site(s):\n  /Users/jek/Documents/Work/proofbound/.worktrees/B-11ad/packages/main/src/core/artifact-release.ts:86: bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd (packages/main/src/core/story-signed-workspace-resolution.ts)\n  /Users/jek/Documents/Work/proofbound/.worktrees/B-11ad/packages/main/src/core/artifact-release.ts:96: bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd (packages/main/src/core/story-signed-workspace-resolution.ts)\n\nFix: at each site, replace the bare projectRoot/root/metadataRoot cwd\nwith the value of resolveGitCwd(...) (story-keyed) or with an already-\nresolved gitCwd local variable. Allowlist policy is at the top of\npackages/main/src/tasks/gitroot-cwd-contract-smoke.ts.\n",
-      "startedAt": "2026-07-05T10:12:38.395Z",
-      "endedAt": "2026-07-05T10:12:41.153Z",
-      "headHash": "21b26f8f0ed5aead8eea7c6c9d86413819a7b090",
-      "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
-      "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602"
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 59859,
+      "outputDigest": "cbdf037b1ec35b23f734e127a3de43456a5ce88f03d8bd0b3532617173093428",
+      "outputTail": "ecks)\n\n> lattice@0.3.158 test:docs-drift-smoke\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.158 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.158 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.158 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n✓ repo scan clean: 686 .ts files inspected, 0 bare-cwd violations\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\n\n✓ gitroot-cwd-contract smoke passed\n\n> lattice@0.3.158 test:process-fact-contract\n> node scripts/verify-process-fact-contract.mjs\n\nProcess Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 382 (316 CLI, 16 runtime, 10 reviewer lanes, 33 artifacts)\n- levels: L0=153, L1=39, L2=64, L3=4, L4=122\n- kinds: artifact=21, command=254, execution-status=5, finding=3, flow-policy=7, gate-evidence=48, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=16, signed-artifact=12, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\n- registry entries:\n- admissibility_waterline [L0/command] producer=handlers/lifecycle-control\n- agent_prompt [L0/command] producer=handlers/agent-prompt\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact_release_list [L0/command] producer=handlers/artifact-release\n- artifact_release_status [L0/command] producer=handlers/artifact-release\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\n- artifact:decision-doc-proposals.json [L4/artifact] pro\n...[truncated 54613 chars]",
+      "startedAt": "2026-07-05T11:03:52.538Z",
+      "endedAt": "2026-07-05T11:04:52.397Z",
+      "headHash": "4f2fede4b1c70adbf5706f2269a299be62d1da09",
+      "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+      "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42"
     }
   ],
-  "reasons": [
-    "command-failed: FAIL root full test suite: npm test exitCode=1"
-  ]
+  "reasons": []
 }
