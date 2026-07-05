@@ -90,11 +90,18 @@ const SMOKE_OVERLAP = {
   // All net-new -> covered:false; the two gold-structural / gold-semantic
   // classes relate to gold-queries.json but are still net-new (no smoke case
   // exercises a semantic-weaken or a structural-corruption of gold).
-  'gold-semantic-weaken': { covered: false },
+  'gold-weaken-expectedids': { covered: false },
   'corruptRows-lie': { covered: false },
   'duplicate-gold-id': { covered: false },
   'manifest-structural-corruption': { covered: false },
   'gold-structural-corruption': { covered: false },
+  // Net-net representative classes for the digest-recompute blind-spot family
+  // (Codex re-check F-005/F-006). The family is UNBOUNDED (every gold-derived
+  // oracle obligation + every unasserted manifest metadata field is a
+  // refreshed-lie blind spot); these are representative confirmed instances.
+  'gold-weaken-suppressed': { covered: false },
+  'gold-weaken-mustnotsurface': { covered: false },
+  'manifest-metadata-lie': { covered: false },
 };
 
 // ---------------------------------------------------------------------------
@@ -251,15 +258,18 @@ addRefreshed('seed-swap', 'benign', (_d) => {}, { seed: 99 });
 // ---------------------------------------------------------------------------
 // Net-new tamper classes enumerated from Codex host-2 findings F-001..F-004.
 // Each is a MALICIOUS refresh/structural attack. The refreshed digest-recompute
-// ones (gold-semantic-weaken, corruptRows-lie, duplicate-gold-id) are the honest
-// blind spots: an editor who recomputes the digests defeats the digest mechanism.
-// The structural-corruption ones make the instrument THROW (crash sentinel).
+// ones (gold-weaken-expectedids, corruptRows-lie, duplicate-gold-id) are the
+// honest blind spots: an editor who recomputes the digests defeats the digest
+// mechanism. The structural-corruption ones make the instrument THROW (crash
+// sentinel).
 // ---------------------------------------------------------------------------
 
-// F1 gold-semantic-weaken (refreshed): drop the LAST expectedId of the FIRST
+// F1 gold-weaken-expectedids (refreshed): drop the LAST expectedId of the FIRST
 // gold query that has >1 expectedId, then refresh the manifest. The tampered
 // gold silently weakens the acceptance criteria yet verify still passes.
-addRefreshed('gold-semantic-weaken', 'malicious', (d) => {
+// (Renamed from gold-semantic-weaken for family clarity: it is the expectedIds
+// representative of the unbounded oracle-weaken family — see F-005/F-006.)
+addRefreshed('gold-weaken-expectedids', 'malicious', (d) => {
   const g = JSON.parse(readFileSync(goldPath(d), 'utf8'));
   for (const q of g.queries) {
     if (Array.isArray(q.expectedIds) && q.expectedIds.length > 1) {
@@ -320,6 +330,56 @@ addRaw('manifest-structural-corruption', 'malicious', (d) => {
 addRaw('gold-structural-corruption', 'malicious', (d) => {
   writeFileSync(goldPath(d), '{ invalid');
 });
+
+// ---------------------------------------------------------------------------
+// Representative coverage of the digest-recompute blind-spot family (Codex
+// re-check F-005/F-006). The family is UNBOUNDED: every gold-derived oracle
+// obligation (expectedIds, expectedSuppressedIds, mustNotSurfaceIds,
+// expectedDeprecatedTermHits, supersededPreference, ...) AND every unasserted
+// manifest metadata field (corruptRows, authority, gateEvidence, ...) is a
+// refreshed-lie blind spot. We add REPRESENTATIVE confirmed instances (not an
+// exhaustive enumeration) plus an explicit general statement in protocol.json.
+// Each is expected status:pass -> acknowledged-limitation.
+// ---------------------------------------------------------------------------
+
+// F5a gold-weaken-suppressed (refreshed): drop the LAST entry of the FIRST gold
+// query with >=1 expectedSuppressedIds, then refresh. The truth-first-query
+// suppression obligation is silently weakened yet verify still passes — the
+// expectedSuppressedIds representative of the oracle-weaken family.
+addRefreshed('gold-weaken-suppressed', 'malicious', (d) => {
+  const g = JSON.parse(readFileSync(goldPath(d), 'utf8'));
+  for (const q of g.queries) {
+    if (Array.isArray(q.expectedSuppressedIds) && q.expectedSuppressedIds.length >= 1) {
+      q.expectedSuppressedIds = q.expectedSuppressedIds.slice(
+        0,
+        q.expectedSuppressedIds.length - 1,
+      );
+      break;
+    }
+  }
+  writeFileSync(goldPath(d), JSON.stringify(g, null, 2));
+});
+
+// F5b gold-weaken-mustnotsurface (refreshed): drop the LAST entry of the FIRST
+// gold query with >=1 mustNotSurfaceIds, then refresh. The host-policy
+// must-not-surface obligation is silently weakened yet verify still passes —
+// the mustNotSurfaceIds representative of the oracle-weaken family.
+addRefreshed('gold-weaken-mustnotsurface', 'malicious', (d) => {
+  const g = JSON.parse(readFileSync(goldPath(d), 'utf8'));
+  for (const q of g.queries) {
+    if (Array.isArray(q.mustNotSurfaceIds) && q.mustNotSurfaceIds.length >= 1) {
+      q.mustNotSurfaceIds = q.mustNotSurfaceIds.slice(0, q.mustNotSurfaceIds.length - 1);
+      break;
+    }
+  }
+  writeFileSync(goldPath(d), JSON.stringify(g, null, 2));
+});
+
+// F6 manifest-metadata-lie (refreshed): records + gold UNCHANGED, but the
+// manifest claims gateEvidence:true (an unasserted metadata field), digests
+// refreshed. Verify passes — the gateEvidence representative of the
+// manifest-metadata-lie family (sibling of corruptRows-lie).
+addRefreshed('manifest-metadata-lie', 'malicious', (_d) => {}, { gateEvidence: true });
 
 // ---------------------------------------------------------------------------
 // Run: one clean baseline, then every candidate on an isolated copy.

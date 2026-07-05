@@ -140,6 +140,56 @@ function main() {
     }
   }
 
+  // (d2) The explicit general statement that structurally closes the
+  // digest-recompute blind-spot family (Codex re-check F-005/F-006):
+  // protocol.json.limitationFamily must exist, be marked
+  // representative-not-exhaustive, carry a non-empty rootCause, and enumerate
+  // >=2 families; and the acknowledgedLimitations must contain at least one
+  // oracle-weaken class AND at least one manifest-metadata-lie class (the two
+  // representative family branches).
+  const lf = protocol.limitationFamily;
+  if (!lf || typeof lf !== 'object') {
+    fail('protocol.json.limitationFamily is missing.');
+  }
+  if (lf.exhaustiveness !== 'representative-not-exhaustive') {
+    fail(
+      `protocol.json.limitationFamily.exhaustiveness is ${JSON.stringify(
+        lf.exhaustiveness,
+      )} (expected "representative-not-exhaustive").`,
+    );
+  }
+  if (typeof lf.rootCause !== 'string' || lf.rootCause.trim().length === 0) {
+    fail('protocol.json.limitationFamily.rootCause is empty.');
+  }
+  if (!Array.isArray(lf.families) || lf.families.length < 2) {
+    fail(
+      `protocol.json.limitationFamily.families has ${
+        Array.isArray(lf.families) ? lf.families.length : 'no'
+      } entries (expected >=2).`,
+    );
+  }
+  const ackClasses = new Set(acknowledgedLimitations.map((e) => e.class));
+  const ORACLE_WEAKEN_CLASSES = [
+    'gold-weaken-expectedids',
+    'gold-weaken-suppressed',
+    'gold-weaken-mustnotsurface',
+  ];
+  const MANIFEST_METADATA_LIE_CLASSES = ['corruptRows-lie', 'manifest-metadata-lie'];
+  if (!ORACLE_WEAKEN_CLASSES.some((c) => ackClasses.has(c))) {
+    fail(
+      'acknowledgedLimitations contains no oracle-weaken class (expected one of ' +
+        ORACLE_WEAKEN_CLASSES.join(', ') +
+        ').',
+    );
+  }
+  if (!MANIFEST_METADATA_LIE_CLASSES.some((c) => ackClasses.has(c))) {
+    fail(
+      'acknowledgedLimitations contains no manifest-metadata-lie class (expected one of ' +
+        MANIFEST_METADATA_LIE_CLASSES.join(', ') +
+        ').',
+    );
+  }
+
   // (e) No candidate in the committed viability-results.json is disposed
   // 'false-positive' (a benign change the instrument wrongly rejected).
   const viability = JSON.parse(readFileSync(join(HERE, 'viability-results.json'), 'utf8'));
@@ -158,6 +208,8 @@ function main() {
       `${failClosed.length} failClosed all carry a failure signal (fail or crash); ` +
       `${acceptanceBucket.length} acceptanceBucket all status:pass; ` +
       `${acknowledgedLimitations.length} acknowledgedLimitations all malicious+pass with a limitationNote; ` +
+      `limitationFamily representative-not-exhaustive with ${lf.families.length} families ` +
+      `(oracle-weaken + manifest-metadata-lie both represented in acknowledgedLimitations); ` +
       `no false-positive.`,
   );
   console.log('selfcheck PASS');

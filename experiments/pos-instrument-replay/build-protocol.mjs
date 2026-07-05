@@ -33,6 +33,48 @@ const STOP_REASON_ENUM = [
   'operator_abort',
 ];
 
+// ---------------------------------------------------------------------------
+// limitationFamily — the explicit GENERAL statement that structurally closes
+// the digest-recompute blind-spot family (Codex re-check F-005/F-006).
+//
+// The enumerated acknowledgedLimitations entries are REPRESENTATIVE confirmed
+// instances, not an exhaustive list: the family is UNBOUNDED. Every gold-derived
+// oracle obligation and every unasserted manifest metadata field is a
+// refreshed-lie blind spot. H2 makes NO claim over this family; the boundary is
+// Tier-C cryptographic signing (an editor who recomputes digests defeats the
+// self-digests). This object is frozen into protocol.json.
+// ---------------------------------------------------------------------------
+const LIMITATION_FAMILY = {
+  rootCause:
+    'the manifest is the sole integrity anchor; any self-consistent refreshed edit that recomputes the digests defeats detection',
+  exhaustiveness: 'representative-not-exhaustive',
+  scope:
+    "Tier-C cryptographic signing; explicitly outside H2's fail-closed set per the plan claim boundary (an editor who recomputes digests defeats the self-digests)",
+  families: [
+    {
+      name: 'oracle-weaken',
+      obligations: [
+        'expectedIds',
+        'expectedSuppressedIds',
+        'mustNotSurfaceIds',
+        'expectedDeprecatedTermHits',
+        'supersededPreference',
+      ],
+      representativeClasses: [
+        'gold-weaken-expectedids',
+        'gold-weaken-suppressed',
+        'gold-weaken-mustnotsurface',
+      ],
+    },
+    {
+      name: 'manifest-metadata-lie',
+      fields: ['corruptRows', 'authority', 'gateEvidence', 'schemaVersion'],
+      representativeClasses: ['corruptRows-lie', 'manifest-metadata-lie'],
+    },
+  ],
+  note: 'H2 makes NO claim over this family; the acknowledgedLimitations entries are representative confirmed instances, not an exhaustive list.',
+};
+
 // iterationId rules (documented, not free-form): replay arms use
 // <arm>/<scale>/<index> for index 1..N; tamper iterations use
 // tamper/<scale>/<class>/<manifestHandling>.
@@ -223,6 +265,7 @@ function main() {
       acknowledgedLimitations,
       dropped,
     },
+    limitationFamily: LIMITATION_FAMILY,
     iterationIdRule: ITERATION_ID_RULE,
     recordDigestPreimageRule: RECORD_DIGEST_PREIMAGE_RULE,
     metricGold: METRIC_GOLD,

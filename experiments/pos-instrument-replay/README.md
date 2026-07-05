@@ -44,13 +44,18 @@ The disposition rule is evaluated **in this order**:
    (`status === 'pass'`). These are the instrument's **documented blind spots**:
    an editor who recomputes the digests (a *refreshed* tamper) defeats the
    digest mechanism — e.g. silently weakening a gold query's `expectedIds`
-   (`gold-semantic-weaken`), lying about `corruptRows` in the manifest
-   (`corruptRows-lie`), or colliding a noise-row id with a gold-record id
+   (`gold-weaken-expectedids`), its `expectedSuppressedIds`
+   (`gold-weaken-suppressed`) or its `mustNotSurfaceIds`
+   (`gold-weaken-mustnotsurface`), lying about `corruptRows`
+   (`corruptRows-lie`) or `gateEvidence` (`manifest-metadata-lie`) in the
+   manifest, or colliding a noise-row id with a gold-record id
    (`duplicate-gold-id`). Making these **explicit and honest** is the whole
    point of the fix: the instrument's real detection boundary is the digest, and
    digest-recompute is *out of H2 scope*. **Tier-C signing would address this**
    (the plan claim boundary: "an editor who recomputes digests defeats them —
-   Tier-C").
+   Tier-C"). The enumerated entries are **representative**, not exhaustive — the
+   blind-spot family is unbounded (see
+   [The digest-recompute blind-spot family](#the-digest-recompute-blind-spot-family-limitationfamily)).
 3. **dropped** — `status === 'pass'` AND both `records.jsonl` and
    `gold-queries.json` are byte-identical to clean (only manifest/metadata
    changed; the content-inert seed-swap no-op).
@@ -61,6 +66,40 @@ The disposition rule is evaluated **in this order**:
 it is disposed **false-positive** and the harness **exits nonzero**. The
 instrument must never reject a benign change; a false-positive is a hard
 honesty failure.
+
+### The digest-recompute blind-spot family (`limitationFamily`)
+
+The `acknowledged-limitation` entries are **not** an exhaustive list of what the
+instrument fails to detect — the blind-spot family is **unbounded**. `protocol.json`
+records this explicitly under a top-level `limitationFamily` object, which is the
+general statement that structurally closes the family (rather than chasing every
+instance, which is endless).
+
+- **Root cause** — the manifest is the **sole integrity anchor**. Any
+  self-consistent *refreshed* edit that recomputes the digests defeats
+  detection: the on-disk bytes and the pinned digests agree, so verify passes.
+- **Exhaustiveness** — `representative-not-exhaustive`. The enumerated
+  `acknowledgedLimitations` classes are **representative confirmed instances**,
+  one per family branch, not a complete enumeration.
+- **Scope** — the whole family is **out of H2 scope**; the boundary is **Tier-C
+  cryptographic signing** (an editor who recomputes the self-digests defeats
+  them). **H2 makes no claim over this family.**
+- **Families** (each has an open-ended member set; the classes below are just
+  the representatives the harness actually exercises):
+  - **`oracle-weaken`** — every gold-derived oracle obligation
+    (`expectedIds`, `expectedSuppressedIds`, `mustNotSurfaceIds`,
+    `expectedDeprecatedTermHits`, `supersededPreference`, …) can be silently
+    weakened and refreshed. Representatives: `gold-weaken-expectedids`,
+    `gold-weaken-suppressed`, `gold-weaken-mustnotsurface`.
+  - **`manifest-metadata-lie`** — every unasserted manifest metadata field
+    (`corruptRows`, `authority`, `gateEvidence`, `schemaVersion`, …) can be
+    set to a lie and refreshed. Representatives: `corruptRows-lie`,
+    `manifest-metadata-lie`.
+
+`selfcheck.mjs` asserts `limitationFamily` exists, is
+`representative-not-exhaustive`, carries a non-empty `rootCause`, enumerates
+`>=2` families, and that `acknowledgedLimitations` contains at least one
+`oracle-weaken` class **and** at least one `manifest-metadata-lie` class.
 
 - **`calibrate-full.mjs`** — the sole heavy compute in M0. Runs ONE full-profile
   (1,000,000-record) generate+verify in mkdtemp, captures `elapsedMs` +
@@ -109,7 +148,12 @@ for structural-corruption classes; `acceptanceBucket`;
 `acknowledgedLimitations` — each `{class, handling, intent:'malicious',
 fingerprint, limitationNote}` recording a documented instrument blind spot that
 digest-recompute defeats and Tier-C signing would address; `dropped`); the
-`iterationIdRule`
+`limitationFamily` general statement
+(`{rootCause, exhaustiveness:'representative-not-exhaustive', scope, families,
+note}`) that structurally closes the unbounded digest-recompute blind-spot
+family — see
+[The digest-recompute blind-spot family](#the-digest-recompute-blind-spot-family-limitationfamily);
+the `iterationIdRule`
 (replay `<arm>/<scale>/<index>` and tamper
 `tamper/<scale>/<class>/<manifestHandling>`); the `recordDigestPreimageRule`
 (sha256 of canonical JSON of the record with the `recordDigest` field absent);
@@ -131,12 +175,18 @@ against `packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts`:
   `manifest-recordCount-edit`, `manifest-profile-edit`, `manifest-digest-edit`,
   `cross-profile-swap`, `seed-swap` → **net-new** (`covered:false`); no
   equivalent smoke case exists.
-- `gold-semantic-weaken`, `corruptRows-lie`, `duplicate-gold-id`,
+- `gold-weaken-expectedids` (renamed from `gold-semantic-weaken` for family
+  clarity), `corruptRows-lie`, `duplicate-gold-id`,
   `manifest-structural-corruption`, `gold-structural-corruption` → **net-new**
   (`covered:false`), enumerated from Codex host-2 findings F-001..F-004. The two
   gold-* structural/semantic classes touch `gold-queries.json` but are still
   net-new: no smoke case exercises a semantic weaken or a structural corruption
   of gold.
+- `gold-weaken-suppressed`, `gold-weaken-mustnotsurface`,
+  `manifest-metadata-lie` → **net-new** (`covered:false`), representative
+  members of the digest-recompute blind-spot family (Codex re-check
+  F-005/F-006). See
+  [The digest-recompute blind-spot family](#the-digest-recompute-blind-spot-family-limitationfamily).
 
 Smoke-covered classes are re-asserted through the harness for ledger
 completeness (cheap), not re-engineered.
