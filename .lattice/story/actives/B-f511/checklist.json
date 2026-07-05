@@ -49,7 +49,41 @@
       "context": "iterationId identity-multiset must equal the protocol replay cross-product exactly. The mid-iteration casualty must resolve to a stop record OR a clean re-run, never a silent half-record. resume-reconciliation.json is the H3 evidence artifact (plan section 7).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/resume-probe.mjs kills run-batch at a boundary (SIGKILL) and mid-iteration (POS_FAIL_APPEND_AT), restarts in --resume, and writes resume-reconciliation.json showing dup=0 gap=0, identity-multiset == protocol cross-product, casualty=stop-or-rerun; prints 'H3: 0 dup / 0 gap'.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/resume-probe.mjs",
+          "experiments/pos-instrument-replay/resume-reconciliation.json"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resume-probe.mjs spawns run-batch (small), kills it at a boundary + mid-iteration via POS_FAIL_APPEND_AT, restarts in --resume, and writes resume-reconciliation.json with pre/post-kill ledger diff + identity-multiset comparison + dup/gap counts (0/0) + casualty disposition",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "after both kills+resume the ledger has exactly one record per protocol iterationId (identity-multiset == cross-product)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the mid-iteration casualty resolves to a stop record OR a clean re-run — never a silent half-record; dup=0 gap=0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
