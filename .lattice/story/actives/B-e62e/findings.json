@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-e62e:F-001",
+      "desc": "packages/main/src/cli-engine.ts:847 story_advance is configured for post-command milestone_status append, but DONE cleanup removes the story worktree before the append hook reads milestone-ledger.json, so story_advance --phase=DONE can succeed without printing Milestone Status. Render before cleanup or read the durable main-root store after DONE, and add a DONE regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:04:08.429Z",
+      "reviewRound": "2026-07-05T11:59:11.671Z",
+      "reviewRunId": "B-e62e:RR-010",
+      "_hash": "8bf015041c40d5aac785416b8607e205ab56cc090c8b9292b3c290da15fe42cd",
+      "signatureTag": "edge|unknown|packages-main-engine",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
