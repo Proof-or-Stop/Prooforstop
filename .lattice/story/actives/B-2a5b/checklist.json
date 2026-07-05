@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build experiments/pos-instrument-replay/run-batch.mjs: for each scale in {small,full}, run N (from protocol.json) independent generate+verify cycles into fresh mkdtemp dirs, appending one identity-keyed proof-or-stop record per iteration to batch-ledger.jsonl (proof: iterationId/arm/scale/verifyStatus/verifyFlags/digests{records,gold,manifest}/goldMetrics/elapsedMs/endOfRunRss/env/recordDigest; stop: iterationId/stopReason/rawError?/env/recordDigest). recordDigest = sha256 of canonical JSON with recordDigest absent",
+      "context": "iterationId = replay/<scale>/<index> (index 1..N) per protocol.iterationIdRule. Digests sourced from the generation-side result. Reuse lib/instrument.mjs. A verify crash maps to a stop record with stopReason=verify_crash. Append-only: never rewrite an existing ledger line.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Proof-or-stop + lockfile discipline: every iteration ends in EXACTLY one record (proof XOR stop); the driver takes a lockfile so a concurrent second driver records precondition_failed instead of corrupting the ledger; run-batch.mjs exits nonzero if any iteration ends recordless",
+      "context": "The lockfile is released on clean exit. The recordless-exit-nonzero property is load-bearing (a missing record must never be silently tolerated). H1 evidence = pairwise records/gold/manifest digest + gold-metric equality across the proof records at each scale; H4 evidence = each proof record elapsedMs within budgetCapMsPerVerify OR a budget_cap stop.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m2.mjs) that exercises the budget_cap stop path with an injected sub-second cap, asserts a concurrent second driver gets precondition_failed via the lockfile, and asserts a recordless iteration forces a nonzero exit",
+      "context": "Per plan section 7 selfchecks: the M2 selfcheck exercises the budget_cap stop path with an injected sub-second cap. Also negative-tests the lockfile (second driver -> precondition_failed) and the recordless-exit-nonzero guard. Hermetic: mkdtemp isolation, run by node <file>, small scale only for speed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
