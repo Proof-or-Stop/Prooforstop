@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Scaffold experiments/pos-instrument-replay/ and a committed viability harness (viability-check.mjs) that applies each candidate tamper class (x raw|refreshed) to an mkdtemp-isolated copy of a small baseline, runs verify, and records the observed fingerprint over the explicit domain plus a disposition (fail-closed|accepted|dropped)",
       "context": "Candidate classes from plan section 6.1: records.jsonl byte-flip / row drop / row duplicate / row reorder / field rename / truncation (raw + selected refreshed); gold-queries.json edit (raw + refreshed); manifest.json recordCount/profile/digest edit (raw only); cross-PROFILE swap. Mutation-in-isolated-copy only; never touch the source baseline. refreshManifest logic (recompute recordsDigest/goldDigest, rebuild manifestDigest) is replicated from the smoke.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T15:18:19.676Z",
-      "endTime": null,
+      "endTime": "2026-07-05T15:32:47.795Z",
       "userSees": "node experiments/pos-instrument-replay/viability-check.mjs prints a disposition table: each candidate (class x raw|refreshed) tagged fail-closed | accepted | dropped, ending with counts e.g. 'fail-closed=15 accepted=2 dropped=0'.",
       "verificationIntent": {
         "happy": [
