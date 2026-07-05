@@ -221,7 +221,48 @@
       "context": "capability_release_list, capability_release_status --storyId; extend playbook_promotion_status candidate display. Status separates runtimeVersion/artifactRelease/productCapabilityRelease/playbookCandidate/activePlaybook. L0 read-only facts, registered in catalog+policy+process-fact-levels.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice capability_release_status --storyId=B-785e --json renders the PCR record; capability_release_list --json shows the ledger",
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-catalog.ts",
+          "packages/main/src/core/command-registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/playbook.ts",
+          "docs/CLI.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/capability-release.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capability_release_list and capability_release_status render the ledger read-only (json/text), mirroring handlers/artifact-release.ts; playbook_promotion_status shows candidate capability lineage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Both commands are registered across all five sites (command-catalog, registry, handler, command-policy readOnly/none/all, config.ts DEFAULT_PHASE_TOOLS wildcard) plus process-fact-levels L0.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The read commands never mutate state and are a distinct capability_release_* namespace, not the pre-existing host capability_list/probe/claim family.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-010",
