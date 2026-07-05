@@ -184,6 +184,17 @@
           "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
           "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
           "timestamp": "2026-07-05T17:33:00.815Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
+          "result": "pass",
+          "note": "selfcheck-m1 (a): two tamper.mjs runs produce byte-identical tamper-verdicts.jsonl (27 verdict lines) modulo volatile fields — determinism confirmed.",
+          "headHash": "b9360d5285fa5afc2b3a0e557b7248344f919a71",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:33:01.526Z"
         }
       ]
     }
