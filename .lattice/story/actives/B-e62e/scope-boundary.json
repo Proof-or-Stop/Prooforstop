@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e62e",
+  "mode": "feature",
+  "allowed": [
+    "Add CLI-level post-command milestone_status table output for story-scoped mutating commands when the target story has a milestone ledger.",
+    "Add regression coverage for representative state-change command output.",
+    "Ensure stdout contains the consumed table sections: Milestone Status - <storyId>, Completed, Current, Remaining."
+  ],
+  "excluded": [
+    "Do not alter remote publish or release behavior.",
+    "Do not change DONE closeout freezing to consume completion records in this story.",
+    "Do not implement milestone_completion_set or completion ledger in this story."
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User confirmed the next deliverable is acceptable but clarified: \"需要把消费的milestone表格输出出来\".",
+  "createdAt": "2026-07-05T10:14:03.709Z",
+  "updatedAt": "2026-07-05T10:14:03.709Z",
+  "_hash": "5afec93639567c5911df54b597f201879304e6fda319ca5a64aec74505c639ca"
+}

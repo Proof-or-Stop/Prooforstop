@@ -1,0 +1,34 @@
+{
+  "storyId": "B-e62e",
+  "checkedAt": "2026-07-05T10:14:54.127Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-05T10:14:54.127Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-05T10:14:54.127Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex multi-agent tool policy does not allow spawning independent subagents unless the user explicitly asks for delegation; manually checked that B-e62e background, checklist, scope boundary, execution boundary, understanding, and decision records are focused on printing the consumed milestone_status table to stdout and exclude completion-ledger and closeout-freezing work.",
+    "evidenceRefs": [
+      "scope_boundary_set: allowed stdout milestone table output and excluded completion ledger/closeout freezing",
+      "execution_boundary_set: limited paths to CLI source, milestone-status tests, docs/CLI.md, and build/test commands",
+      "decision_set: central CLI post-command renderer with JSON-output pre-mortem mitigation"
+    ],
+    "actor": "main-agent",
+    "session": "sess-3f3045fee8f99f65",
+    "attestedAt": "2026-07-05T10:14:54.127Z",
+    "headHash": "06d35f7356ba88003d7cb0af49807be00a9edfce",
+    "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7"
+  },
+  "_hash": "ce56d95f3ee457869944a6bbc47ee17a8bd4f8f8d887290a77964cac09f39a8b"
+}
