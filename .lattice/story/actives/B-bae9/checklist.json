@@ -89,7 +89,40 @@
       "context": "Negative test: flip one expected flag in a copy of protocol.json and confirm tamper.mjs reports fingerprintMatch=false and exits nonzero — proving the conformance check is real, not a tautology. Volatile fields (elapsedMs, rss, absolute paths) excluded from the determinism comparison.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m1.mjs exits 0 with 'selfcheck-m1 PASS': re-running tamper.mjs reproduces tamper-verdicts.jsonl (modulo volatile fields) AND a deliberately corrupted frozen fingerprint is detected (tamper.mjs reports fingerprintMatch:false + exits nonzero).",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m1.mjs runs hermetically (mkdtemp) and exits 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selfcheck asserts tamper.mjs is deterministic: two runs produce identical tamper-verdicts.jsonl modulo volatile fields (elapsedMs/rss/paths)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "negative test: flipping one frozen expected flag in a copy of protocol.json makes tamper.mjs report fingerprintMatch:false + exit nonzero — proving the conformance check is not a tautology",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
