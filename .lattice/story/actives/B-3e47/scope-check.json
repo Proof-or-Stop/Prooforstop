@@ -1,6 +1,6 @@
 {
   "storyId": "B-3e47",
-  "checkedAt": "2026-07-05T13:07:10.304Z",
+  "checkedAt": "2026-07-05T13:08:46.207Z",
   "features": [
     {
       "feature": "DONE milestone_status uses the frozen milestone-closeout snapshot only for DONE stories with a valid closeout",
@@ -31,29 +31,29 @@
       "source": "scope contract and checklist"
     },
     {
+      "feature": "B-3e47 lifecycle metadata is allowed and bounded to the active story metadata paths currently in the PLAN diff",
+      "covered_by": "scope-boundary.json allows .lattice/story/actives/<storyId>/**; execution-boundary.json allows .lattice/story/actives/<storyId>/**; scope-contract.json explicitly allows the current B-3e47 metadata files; scope_contract_check reports pass with 0 violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope contract, boundaries, and scope_contract_check"
+    },
+    {
       "feature": "Exclude milestone_completion_set writer, completion ledger schema, remote publish, unrelated docs, and .omx",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope-contract.json explicitExcludes; scope-boundary.json excluded; execution-boundary.json excludedCommands/excludedPaths; plan.md CHK-002 step 3",
-      "source": "scope contract and plan"
-    },
-    {
-      "feature": "B-3e47 lifecycle metadata is allowed as intended by main",
-      "covered_by": "scope-boundary.json and execution-boundary.json allow .lattice/story/actives/<storyId>/**",
-      "status": "drift",
-      "excluded_by": "",
-      "source": "scope_contract_check reports OUT_OF_SCOPE for intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, proofstory.json, and red-evidence.json because scope-contract/lifecycle registry does not match them"
+      "excluded_by": "scope-contract.json explicitExcludes for milestone_completion_set writer, completion ledger schema, unrelated docs, and .omx; scope-boundary.json excludes remote publish and unrelated docs; execution-boundary.json excludes git push and omx; plan.md CHK-002 step 3 avoids milestone_completion_set and completion ledger support",
+      "source": "scope contract, boundaries, and plan"
     }
   ],
   "summary": {
     "total": 6,
-    "covered": 4,
+    "covered": 5,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "f3bfefc217c5bcab1ec48d48ec020998fa413a1951258601ad67b277dbe3aaca",
+  "_hash": "c376652144e77779ec8d2e29b93b081f7e17f35d1c908793e70e19b00109305d",
   "openQuestions": []
 }
