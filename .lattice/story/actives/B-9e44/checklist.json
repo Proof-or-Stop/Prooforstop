@@ -48,11 +48,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/viability-check.mjs",
           "result": "pass",
-          "note": "viability-results.json: 24 candidates dispositioned — 18 fail-closed, 2 accepted (records-row-reorder[refreshed], gold-additive-field[refreshed]), 3 acknowledged-limitation (corruptRows-lie/duplicate-gold-id/gold-semantic-weaken [refreshed] — real tampers the instrument does not detect once digests are refreshed), 1 dropped (seed-swap[refreshed]), 0 false-positive.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "viability-results.json: 27 candidates — 18 fail-closed, 2 accepted, 6 acknowledged-limitation (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids/mustnotsurface/suppressed, manifest-metadata-lie — representative of the digest-recompute blind-spot family), 1 dropped, 0 false-positive.",
+          "headHash": "661531e3f51262df93d7f896202b31ba3643bc79",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:07.580Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
