@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Keep CLI semver as a runtime/capability marker, not a repository-wide artifact counter.",
+    "Record provenance as append-only evidence metadata with deterministic digest and idempotent write behavior.",
+    "Keep workflow commands host-neutral and read-only for inspection surfaces.",
+    "Only fix the real correctness gap: non-runtime DONE artifacts lack provenance, not all version skips are bugs."
+  ],
+  "drivers": [
+    "DONE post-merge already has exact changed paths and before/after main commits.",
+    "Existing version-bump policy intentionally excludes experiments and general docs.",
+    "Users need a durable queryable record for delivered non-runtime artifacts after DONE."
+  ],
+  "options": [
+    {
+      "name": "separate-artifact-release-ledger",
+      "pros": [
+        "Preserves semver boundary while giving users queryable provenance.",
+        "Works for experiments/docs/declared non-runtime artifacts without package-version churn.",
+        "Can be smoke-tested through pure digest and append-idempotency logic."
+      ],
+      "cons": [
+        "Adds a new ledger and two inspection commands."
+      ]
+    },
+    {
+      "name": "broaden-cli-version-bump-predicate",
+      "pros": [
+        "Uses existing version bump output and no new ledger."
+      ],
+      "cons": [
+        "Turns semver into noisy repository-wide churn.",
+        "Contradicts existing experiment/docs exclusions and B-11ad scope.",
+        "Would not record artifact path/digest provenance."
+      ]
+    },
+    {
+      "name": "manual-summary-only",
+      "pros": [
+        "No code changes."
+      ],
+      "cons": [
+        "Future non-runtime DONE stories remain ambiguous unless humans remember to explain the skip.",
+        "No durable machine-readable artifact provenance."
+      ]
+    }
+  ],
+  "chosen": "separate-artifact-release-ledger",
+  "rationale": "Choose a separate artifact release ledger because it directly records provenance for non-runtime DONE deliverables while leaving CLI/runtime semver rules intact.",
+  "preMortem": [
+    {
+      "scenario": "Ledger records .lattice lifecycle metadata as released artifacts.",
+      "trigger": "DONE merge changed only story metadata files.",
+      "consequence": "Users see fake product artifact releases and the ledger becomes noisy.",
+      "mitigation": "Classifier excludes .lattice/**, runtime inputs, package lock/version files, and empty releasable path sets."
+    },
+    {
+      "scenario": "DONE writes duplicate release rows on retry.",
+      "trigger": "Partial DONE recovery or repeated helper call sees same story/commit/digest.",
+      "consequence": "artifact_release_list shows multiple identical releases and audit trails become confusing.",
+      "mitigation": "Use a stable idempotency key from storyId, commit, and artifactSetDigest; append only when no existing row matches."
+    },
+    {
+      "scenario": "Artifact release is confused with CLI version activation.",
+      "trigger": "Output/docs use version-like language without boundary text.",
+      "consequence": "Users expect package semver to change or runtime behavior to activate.",
+      "mitigation": "Render and document the row as provenance only; keep version-bump smoke proving experiments do not trigger CLI semver."
+    }
+  ],
+  "timestamp": "2026-07-05T09:40:57.159Z"
+}

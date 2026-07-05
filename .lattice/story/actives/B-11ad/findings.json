@@ -1,0 +1,94 @@
+{
+  "findings": [
+    {
+      "id": "B-11ad:F-001",
+      "desc": "packages/main/src/core/artifact-release.ts:181 and packages/main/src/handlers/done-effects.ts:241 make artifact-release idempotency stop before durable commit: if DONE appends .lattice/artifact-releases.jsonl then commitArtifactReleaseLedgerIfNeeded fails or the process dies before the git commit, a retry sees status=already_recorded and returns at line 241 without staging/committing the dirty ledger. That violates the artifact provenance durability/idempotency boundary and can leave DONE reporting an already-recorded release with no committed provenance row. Severity high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-05T09:56:54.840Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-001",
+      "_hash": "e3a7fa1bdbb1a644869f370f6ed997545273654d6cce2dc435d30169c4f95e69",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b70d2738: commitArtifactReleaseLedgerIfNeeded now handles already_recorded by force-adding .lattice/artifact-releases.jsonl and committing when the ledger differs from HEAD/index; clean already-recorded retries remain no-op. Verified by artifact-release-ledger smoke assertion already-recorded dirty ledger retry commits the existing row durably.",
+      "resolvedAt": "2026-07-05T10:02:03.625Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-11ad:F-002",
+      "desc": "packages/main/src/core/artifact-release.ts:181 and packages/main/src/handlers/done-effects.ts:241 make artifact-release idempotency stop before durable commit: if DONE appends .lattice/artifact-releases.jsonl but commitArtifactReleaseLedgerIfNeeded fails or the process dies before the git commit, a retry reads the dirty ledger as already_recorded and returns without staging/committing it. This can leave DONE reporting an already-recorded artifact release with no committed provenance row.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T09:58:03.115Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-002",
+      "_hash": "5c206321ccf8ab56d7a81e05ea5230703c914974a37cf1e546de0e964c340791",
+      "files": [
+        "packages/main/src/core/artifact-release.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b70d2738 with the same durability repair: already_recorded no longer suppresses a needed ledger commit. The smoke now simulates an appended-but-uncommitted row, retries through already_recorded, commits it, and proves a clean retry does not add another commit.",
+      "resolvedAt": "2026-07-05T10:02:04.321Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-11ad:F-003",
+      "desc": "Partial-DONE recovery can complete a DONE merge without artifact release provenance. The new DONE path records .lattice/artifact-releases.jsonl from applyDoneMergeEffects after merging story/<id> into main, but done_recover is the recovery command that can perform that same main merge for a phase=DONE story and it only runs the package build effect. A docs/** or experiments/** story recovered this way will reach main with no artifact release ledger row, violating the new story-lifecycle promise that non-runtime DONE artifacts are recorded at the DONE merge commit. Share the artifact-release post-merge effect between applyDoneMergeEffects and done_recover, computing changed paths between the recovery before/after SHAs and using the main worktree as gitCwd.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-05T10:26:41.510Z",
+      "reviewRound": "2026-07-05T10:23:30.242Z",
+      "reviewRunId": "B-11ad:RR-008",
+      "_hash": "a36e745864d1908f4d533ed4ffbc1bd1f147f2f5f7cd1ddd84dad7308d5a7301",
+      "files": [
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "missing|ts|partial-recovery-complete",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: done_recover now computes recovery before/after main SHAs, derives recoveryMergeChangedPaths once, reuses runArtifactReleaseLedgerAfterDoneMerge with mainMergeRoot as gitCwd, and targeted artifact-release-ledger smoke proves partial-DONE recovery writes and commits docs/experiments provenance.",
+      "resolvedAt": "2026-07-05T10:49:33.558Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-11ad:F-004",
+      "desc": "packages/main/src/handlers/done-effects.ts:1135-1144 records and commits .lattice/artifact-releases.jsonl under mainMergeRoot, the resolved git root. But packages/main/src/handlers/artifact-release.ts:49-58 reads the ledger from ctx.root, and cli/runtime-root.ts:6-15 resolves ctx.root to the metadata root containing lattice.config.json. In a wrapper-root layout with metadataRoot != gitRoot, DONE will commit repo/.lattice/artifact-releases.jsonl while artifact_release_list/status look at metadataRoot/.lattice/artifact-releases.jsonl and report no records. This breaks the promised read-after-DONE provenance inspection for wrapper-root projects and is an unexpected side effect of using the git cwd as the ledger root instead of routing read commands to the same root or making the ledger root explicit.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T10:27:06.950Z",
+      "reviewRound": "2026-07-05T10:23:30.242Z",
+      "reviewRunId": "B-11ad:RR-009",
+      "_hash": "03010d5f66217b6ca1758ac53e22350d69f7a021d112d7bd60b7a37fba4467be",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/artifact-release.ts",
+        "packages/main/src/cli/runtime-root.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c0e6271f2/f21105eff: artifact_release_list/status now read from resolveArtifactReleaseLedgerRoot(ctx.root), DONE and done_recover share runArtifactReleaseLedgerAfterDoneMerge, done_recover passes mainMergeRoot into acquireDoneMainMergeLock, and focused verification passed: npm exec -- tsc --noEmit -p tsconfig.json plus node packages/main/dist/tasks/artifact-release-ledger-smoke.js (10 assertions).",
+      "resolvedAt": "2026-07-05T10:47:25.045Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

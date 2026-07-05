@@ -1,0 +1,31 @@
+{
+  "task": "Add a separate artifact release provenance ledger for non-runtime DONE artifacts without expanding CLI patch-version bump rules.",
+  "outcome": "After a story like B-fe25 reaches DONE, the terminal shows an artifact release record with story id, main commit, changed artifact paths, and artifactSetDigest; running lattice artifact_release_list --format=json or lattice artifact_release_status --storyId=<story> shows the same provenance even though the CLI package version did not increase.",
+  "facts": [
+    "Commit d3d8b3b83 changed non-runtime experiment/protocol artifacts and correctly skipped CLI patch semver because packages/main runtime inputs did not change.",
+    "done-effects.ts already computes DONE merge changed paths after merging the story branch to main.",
+    "version-bump-smoke currently asserts experiments/** does not trigger the CLI semver bump, and that behavior must remain true.",
+    "docs/requirements/decisions/story-lifecycle.md already states CLI patch version is not a repository-wide artifact ledger.",
+    "Command registration should sit with other artifact/evidence workflow commands, near artifact_declare/evidence_manifest.",
+    "The ledger storage path will be project-level .lattice/artifact-releases.jsonl, outside per-story lifecycle metadata."
+  ],
+  "constraints": [
+    "Do not broaden CLI patch-version bump policy to arbitrary docs, experiments, or story metadata.",
+    "Do not treat .lattice story lifecycle metadata as product artifact release contents.",
+    "Records must be deterministic/idempotent for the same story, commit, and artifact digest.",
+    "Inspection commands must be host-neutral read-only workflow commands, not Codex-specific commands."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/artifact-release.ts",
+    "packages/main/src/handlers/artifact-release.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+    "lattice.config.json",
+    "docs/CLI.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-07-05T09:41:11.596Z"
+}
