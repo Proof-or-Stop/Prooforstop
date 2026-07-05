@@ -289,9 +289,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:45:13.277Z",
-      "endTime": null
+      "endTime": "2026-07-05T23:52:43.953Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker passes and reports B-991d Cell 03 execution window open for Cell 03 only, B-6529 no-provider-call readiness evidence preserved, postflight provider-reported usage required, and Cell 06 blocked.",
+          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
+          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
+          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
+          "timestamp": "2026-07-05T23:52:44.460Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node -e <parse B-991d window drift and supersession policies>",
+          "result": "pass",
+          "note": "Both launch and guardrail artifacts bind the B-991d window, preserve B-6529 readiness evidence, deny non-Cell03 cells and fallback, and make drift/missing-provenance rows nonformal.",
+          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
+          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
+          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
+          "timestamp": "2026-07-05T23:52:44.840Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker rejected 17 negative controls, including attempts to add Cell 06 to the B-991d window, remove B-991d provenance, allow provider fallback, retarget the runner to Cell 06, unlock Cell 06 sequencing, drift prompt/tool digests, or add result rows.",
+          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
+          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
+          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
+          "timestamp": "2026-07-05T23:52:45.228Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "lattice scope_contract_check --storyId=B-991d --json",
+          "result": "pass",
+          "note": "Scope contract check is non-blocking: business artifacts are allowed by the contract; only acknowledged ProofStory lifecycle metadata remains as reviewer-visible warning.",
+          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
+          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
+          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
+          "timestamp": "2026-07-05T23:52:45.582Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -623,6 +669,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Open Cell 03-only execution window under B-991d provenance while preserving B-6529 readiness evidence.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:52:43.953Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Cell 03-only execution window opened under B-991d provenance while preserving B-6529 no-provider-call readiness evidence.",
       "agent": "codex-main"
     }
   ]
