@@ -6,9 +6,10 @@
  *
  * Proves: nextPatch is patch-only; applyPatchBump syncs all 3 points to the same new
  * patch and verifies the result; drift across the 3 points fails loud; the bump gate
- * (shouldBuildDoneMainPackageForChangedPaths) fires on watched CLI/runtime inputs but NOT
- * on metadata-only or offline experiment-harness changes; bumpVersionOnDoneMerge skips
- * cleanly when not qualifying and commits when it does; and the bump is idempotent
+ * (shouldBuildDoneMainPackageForChangedPaths) fires on watched CLI/runtime or bounded
+ * capability contract/proof inputs but NOT on metadata-only, arbitrary-doc, or offline
+ * experiment-harness changes; bumpVersionOnDoneMerge skips cleanly when not qualifying
+ * and commits when it does; and the bump is idempotent
  * (exactly +1 per call).
  *
  * Run: node packages/main/dist/tasks/version-bump-smoke.js
@@ -109,8 +110,8 @@ void (async () => {
     const f5 = fixture('0.9.9');
     let f5GitCalls = 0;
     const skipLine = bumpVersionOnDoneMerge({ mainMergeRoot: f5, shouldBump: false, runGit: () => { f5GitCalls += 1; return ''; } });
-    check('skip returns the watched-runtime-input skip line', skipLine === VERSION_BUMP_SKIPPED_LINE);
-    check('skip line says no watched CLI/runtime inputs changed', skipLine.includes('no watched CLI/runtime inputs changed'));
+    check('skip returns the watched-runtime-or-capability-input skip line', skipLine === VERSION_BUMP_SKIPPED_LINE);
+    check('skip line says no watched CLI/runtime or capability contract inputs changed', skipLine.includes('no watched CLI/runtime or capability contract inputs changed'));
     check('skip line no longer uses the retired material-code clause', !skipLine.includes(['no material', 'code change'].join(' ')));
     check('skip made no git calls', f5GitCalls === 0);
     check('skip left the version unchanged', readSyncedVersion(f5) === '0.9.9');
