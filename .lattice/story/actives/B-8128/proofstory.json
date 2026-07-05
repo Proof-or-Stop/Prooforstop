@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-8128",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:a17e8956515f288aaeb65f784748efb3fdd62acdcad7e61cf5c3fe0b904f256d",
+  "confirmedMilestoneLedgerHash": "sha256:b21a825ed7ed4151fe268160576ac38efeaea771f97d58233f0691bc22513304",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-RED-SCHEMA",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": []
+    },
+    {
+      "id": "ACCEPT-DONE-BIND",
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": []
+    },
+    {
+      "id": "ACCEPT-LINEAGE",
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "milestoneIds": []
+    },
+    {
+      "id": "ACCEPT-CLI",
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "milestoneIds": []
+    },
+    {
+      "id": "ACCEPT-INVARIANTS",
+      "checklistRefs": [
+        "CHK-011",
+        "CHK-012",
+        "CHK-013",
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-011:happy:0",
+        "CHK-011:edge:0",
+        "CHK-011:adversarial:0",
+        "CHK-012:happy:0",
+        "CHK-012:edge:0",
+        "CHK-012:adversarial:0",
+        "CHK-013:happy:0",
+        "CHK-013:edge:0",
+        "CHK-013:adversarial:0",
+        "CHK-010:happy:0",
+        "CHK-010:edge:0",
+        "CHK-010:adversarial:0"
+      ],
+      "milestoneIds": []
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M-ASSERT-VALIDATE references sourceRequirementId REQ-INVARIANTS, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    }
+  ],
+  "note": "V1 acceptance bindings (re-set after snapshot keyRequirementIds update).",
+  "createdAt": "2026-07-05T16:29:37.909Z",
+  "updatedAt": "2026-07-05T16:31:49.588Z"
+}

@@ -1,0 +1,102 @@
+{
+  "storyId": "B-8128",
+  "checkedAt": "2026-07-05T18:16:29.921Z",
+  "headHash": "8a890a82d5621c7bc4850e676e3e833e95bb67c3",
+  "materialHash": "655ec6ece9b7d4ec8a537d49e8bda04fa2bfcd161a7b96bbba26f3cd0cf94fa3",
+  "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+  "reviewRound": "2026-07-05T17:34:07.372Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#capability-release-read",
+      "promise": "DONE merges maintain a non-runtime product capability release provenance ledger at .lattice/capability-releases.jsonl, keyed by a merge-stable capabilityDigest/capabilityVersion derived only from capability-declaring docs/**+experiments/** paths (no mainCommit/timestamp/counter), non-authoritative and never gate evidence, fail-closed enforced at read time.",
+      "verifiedBy": "diff/grep + node dist smoke run",
+      "evidence": "packages/main/src/core/capability-release.ts defines ProductCapabilityReleaseRecord with authority:non_authoritative/gateEvidence:false; computeCapabilityDigest excludes mainCommit/timestamps; product-capability-release-smoke.js 23/23 checks pass incl. reader fail-closed on authority/gateEvidence violations and a negative-invariant guard proving no gate/DONE/validate/delivery module imports the reader."
+    },
+    {
+      "docPath": "docs/CLI.md#capability-release-read",
+      "promise": "lattice capability_release_list --format=json --limit=20 and lattice capability_release_status --storyId=B-xxxx --format=text are read-only commands; text is one line per record (storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>); JSON returns plain records or {storyId,count,latest,records}.",
+      "verifiedBy": "direct CLI execution",
+      "evidence": "node packages/main/dist/cli.js capability_release_list --format=json -> [] ; node packages/main/dist/cli.js capability_release_status --storyId=B-785e --format=json -> {storyId:B-785e,count:0,latest:null,records:[]}; text format returns No product capability release records found (for B-785e); renderRecordLine in handlers/capability-release.ts matches the documented line shape exactly; command-policy.ts marks both readOnly/none/all."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#scope",
+      "promise": "V1 (story B-8128) ships M0-M5 plus M6/M7 as assert-only invariants (no new mechanism) and a hermetic backfill proof; the standalone capability_release_backfill CLI command, M6 candidate-exposure surfaces, and M7 promotion command surfaces are explicitly DEFERRED to a follow-up story and must not be claimed as shipped in V1.",
+      "verifiedBy": "CLI negative-check + grep",
+      "evidence": "node packages/main/dist/cli.js capability_release_backfill exits 1 with Unknown command: capability_release_backfill; grep for the string across packages/main/src and dist only finds one comment in capability-release-invariants-smoke.ts explicitly noting the deferral; no handler/registry/command-catalog/command-policy entry exists for it."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#m5",
+      "promise": "playbook_promotion_status gains a candidate-lineage display column surfacing capabilityReleaseId/capabilityId/capabilityVersion for pending-learning candidates.",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "handlers/playbook.ts:1130-1151 attaches an optional capabilityRelease object (capabilityReleaseId/capabilityId/capabilityVersion) to each pendingLearning row from row.playbook.lineage; text renderer at :1238-1239 appends capabilityRelease=<id> (<capabilityId> v<capabilityVersion>) when present; exercised directly by capability-release-invariants-smoke.js check M5: playbook_promotion_status surfaces a candidates capability-release lineage (text + json) (passing); live playbook_promotion_status --format=json run confirms the command executes without error (no live candidate currently carries capability lineage, which is expected since no capability release has yet been recorded against a live candidate)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#durability-model",
+      "promise": "The capability ledger is git-tracked and committed at DONE, mirroring the artifact-release pattern: a .gitignore un-ignore rule (!.lattice/capability-releases.jsonl) plus git add -f staging in the DONE commit path, invoked from both DONE completion sites (handlers/done-effects.ts and handlers/done-recover.ts).",
+      "verifiedBy": "diff/grep",
+      "evidence": ".gitignore diff adds !.lattice/capability-releases.jsonl immediately after the artifact-releases.jsonl un-ignore line; commitCapabilityReleaseLedgerIfNeeded in handlers/done-effects.ts:313-337 runs git add -f on CAPABILITY_RELEASE_LEDGER_REL_PATH; runCapabilityReleaseLedgerAfterDoneMerge is called at done-effects.ts:1265 and done-recover.ts:133, satisfying the both-completion-sites requirement (M2/M3)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#m4",
+      "promise": "PlaybookLineage gains 5 OPTIONAL capability fields (capabilityReleaseId, capabilityId, capabilityVersion, artifactReleaseId, artifactSetDigest); existing 3-field lineage rows remain valid; DONE candidate ingest attaches these fields when a capability release exists; re-apply is idempotent (a no-op) and does not trip stale-proposal digest rejection.",
+      "verifiedBy": "diff/grep + node dist smoke run",
+      "evidence": "core/experience-layer-types.ts:137-151 adds exactly the 5 fields, all optional, additive to the existing 3-field PlaybookLineage; playbook-capability-lineage-smoke.js passes 6/6 checks including a legacy 3-field PlaybookLineage still parses, enrichSeedWithCapabilityLineage is a no-op with no matching release, and adversarial: re-apply produces no duplicate and trips no stale/drift rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#validation-checklist",
+      "promise": "Four new smokes exist and pass: product-capability-release-smoke (M1-M3), product-capability-release-red-smoke (M0, hermetic red-to-green), playbook-capability-lineage-smoke (M4), capability-release-invariants-smoke (M6/M7 assert + hermetic backfill proof); all are wired into lattice validate.",
+      "verifiedBy": "direct node execution + lattice validate --json",
+      "evidence": "node dist/tasks/product-capability-release-smoke.js -> ok product-capability-release (23 checks); node dist/tasks/product-capability-release-red-smoke.js -> ok product-capability-release M4 lineage binding; node dist/tasks/playbook-capability-lineage-smoke.js -> 6/6 checks; node dist/tasks/capability-release-invariants-smoke.js -> 8 checks all passing; lattice validate --json ran all 38 configured commands with allPass:true and code 0, including all four new smokes (confirmed present in the command list at positions 35-38)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "product-capability-release-red-smoke.js: hermetic mkdtemp .lattice fixture models a PBP-882-shaped candidate lacking capabilityReleaseId; asserts the gap on the fixture, then asserts it goes green once M4 binding is applied to the SAME fixture (no live-repo read). Passing."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "product-capability-release-smoke.js covers: capabilityDigest determinism/merge-stability, digest changes on differing capability inputs, artifact-less digest stability, capabilityVersion=12-hex slice, capabilityId slug derivation, PCR-24hex id/idempotencyKey shape, reader schemaVersion filter, and 3 fail-closed reader checks (authority not non_authoritative, gateEvidence not false, malformed JSON) plus the negative gate-import guard. 23 assertions total, all passing."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "product-capability-release-smoke.js M2 classifier checks: experiment+doc paths => experiment-launch-control (capability subset only); docs-only => documentation-control; typo-only single doc edge case; packages/main/src runtime-only edge => NO capability release; .lattice/docs/story/root-manifest-only edge => NO capability release. All passing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "product-capability-release-smoke.js M3 checks: recordCapabilityReleaseForDoneMerge skips empty input; adversarial re-run with a DIFFERENT mainCommit yields already_recorded with no duplicate row in the ledger (readCapabilityReleaseLedger length stays 1); done_recover path records exactly one PCR for experiment+doc changes and commits the ledger; done_recover with .lattice-metadata-only changes records NO PCR. All passing."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "playbook-capability-lineage-smoke.js: happy path binds candidate lineage to a capability release; edge - no capability release keeps the 3-field lineage valid; edge - legacy 3-field PlaybookLineage still parses; edge - enrichSeedWithCapabilityLineage is a no-op absent a match; adversarial - re-apply produces no duplicate and trips no stale/drift rejection; adversarial - a tampered capability ledger fails open (lineage stays 3-field). 6/6 passing."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "product-capability-release-smoke.js M5 CLI check: list/status render a written ledger read-only in both json and text, and reject a missing storyId. Also directly executed node dist/cli.js capability_release_list/status against the live repo state (empty ledger) with format=json and format=text, confirming exact output shapes match docs/CLI.md."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "lattice validate --json executed end-to-end: 38 configured commands, allPass:true, all code 0, including product-capability-release-smoke, product-capability-release-red-smoke, playbook-capability-lineage-smoke, and capability-release-invariants-smoke (the M0 red test is asserted to go green post-M4, matching M0 red test now passes)."
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "capability-release-invariants-smoke.js M6 checks: a capability-flavored candidate playbook is excluded from matchRuntimePlaybooks; a candidate capability playbook is absent from MemoryFreshnessPack.results.playbookIds; flipping the SAME playbook to active proves status===active is the actual gate (not an unrelated field). All passing."
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "capability-release-invariants-smoke.js M7 checks: a done-settlement helped outcome is NOT counted as a positive helped outcome; a structured non-done helped outcome IS counted; aggregatePlaybookPromotion.decisiveSamples excludes done-settlement/neutral/unknown events. All passing."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "capability-release-invariants-smoke.js backfill proof check: fixture dry-run detects exactly one eligible seed lacking capability lineage (B-785e-shaped, hermetic, not the live PBP-882). Passing as part of the same 8-check smoke run."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docs promises independently verified against source and live CLI execution: the read-only capability_release_list/status commands return the exact documented shapes, capability_release_backfill genuinely does not exist (only a deferral comment), the git-tracking/dual-DONE-site wiring matches the doc, and the 4 required smokes exist and pass with exactly the promised counts (23, green red-smoke, 6/6, 8) plus a full green lattice validate run. No TODO/FIXME/HACK found in the new/changed source. This is a well-scoped, honestly-delivered V1 slice."
+  },
+  "_hash": "83bffc18f04de7b25a47272a737ec5d3ce5a2a64b1ea0a3e24574473dc7891f4"
+}
