@@ -190,11 +190,11 @@
           "kind": "manual_transcript",
           "command": "node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(c.fullProfile.elapsedMs,c.fullProfile.peakRssBytes,JSON.stringify(c.chosenN),c.budgetCapMsPerVerify)\"",
           "result": "pass",
-          "note": "calibration.json records the measured full-profile (1,000,000-record) generate+verify: elapsedMs=42739, peakRssBytes=419332096 (~400MB); chosenN {small:30, full:3}; budgetCapMsPerVerify=128217 (3x safety).",
-          "headHash": "ed6dedeccef77f3883406fc9eccf8b878c52faaf",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:42:19.824Z"
+          "note": "calibration.json (unchanged this round): full-profile elapsedMs=42739, peakRssBytes=419332096; chosenN{small:30,full:3}; budgetCapMsPerVerify=128217.",
+          "headHash": "0ef7df2fd0068c61f91eb6ef24a03d7d76639578",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:49.996Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
