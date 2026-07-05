@@ -5,7 +5,7 @@
       "desc": "[codex-host-2, verified] --resume breaks a LIVE lock and can let two writers corrupt the ledger. The resume-only stale-lock break deletes any existing .batch-ledger.lock WITHOUT checking whether the holder process is still alive. Scenario: driver A is still running and holds the lock; driver B starts --resume, removes A's LIVE lock, acquires its own, skips A's already-written records, and appends the rest while A keeps appending too -> duplicate/corrupt ledger, and B may exit 0 before A appends later duplicates. Fix: the stale-lock break must check the holder PID liveness (read the lock's holder.json/pid; break ONLY if the process is dead). A live holder means a genuine concurrent driver -> precondition_failed, not a break.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T21:15:43.427Z",
@@ -15,7 +15,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in aad1db055. acquireLock() now stamps LOCK_DIR/holder.json{pid}; the resume-only lock break probes holder liveness (process.kill(pid,0)) and breaks ONLY a dead/missing holder — a LIVE holder records precondition_failed to the blocked-ledger and exits 3. selfcheck-m3 (H) confirms: --resume refuses to break a live lock (exit 3) and breaks it only after the holder dies (discriminating).",
+      "resolvedAt": "2026-07-05T23:23:31.105Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-002",
