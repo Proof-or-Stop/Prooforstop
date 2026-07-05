@@ -50,7 +50,40 @@
       "context": "The lockfile is released on clean exit. The recordless-exit-nonzero property is load-bearing (a missing record must never be silently tolerated). H1 evidence = pairwise records/gold/manifest digest + gold-metric equality across the proof records at each scale; H4 evidence = each proof record elapsedMs within budgetCapMsPerVerify OR a budget_cap stop.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "run-batch.mjs exits 0 only when every iteration produced exactly one record (prints '0 recordless'); H1: replay proof records per scale are pairwise digest+metric identical; a concurrent second run-batch prints 'precondition_failed (lock held)' and records that stop; a recordless iteration forces nonzero exit.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/run-batch.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "every iteration ends in EXACTLY one record (proof XOR stop); H1 = pairwise records/gold/manifest digest + gold-metric equality across the replay proof records at each scale (0 drift)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "H4 = every proof record elapsedMs within budgetCapMsPerVerify OR an explicit budget_cap stop; the driver holds a lockfile released on clean exit",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a concurrent second driver records precondition_failed via the lockfile (does not corrupt the ledger); a recordless iteration makes run-batch exit nonzero",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
