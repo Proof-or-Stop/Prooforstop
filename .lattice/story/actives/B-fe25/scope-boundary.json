@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fe25",
+  "mode": "feature",
+  "allowed": [
+    "experiments/multi-model-ablation provider-free M2 launch-readiness artifacts",
+    "M2 readiness checker and status documentation",
+    "No formal provider execution or outcome data",
+    "Read-only binding to canonical v1 task definitions under experiments/recovery-runner/tasks"
+  ],
+  "excluded": [
+    "Modifying experiments/recovery-runner/tasks task definitions",
+    "paper wording changes",
+    "Phase 1 provider calls",
+    "Phase 2 execution",
+    "Proofbound product gate/playbook/runtime changes",
+    "records-multi-model-ablation.jsonl outcome generation"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Follow-up to INIT reviewer issue: include experiments/recovery-runner/tasks as the read-only canonical source for the 24 v1 task definitions; do not modify task definitions.",
+  "createdAt": "2026-07-05T02:11:51.677Z",
+  "updatedAt": "2026-07-05T02:11:51.677Z",
+  "_hash": "61770a6c2a6f8b05e395bfae059e4ce2314e37ca5f29210c0676185afecaa11e"
+}
