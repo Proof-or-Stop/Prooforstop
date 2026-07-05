@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Add an ADDITIVE resume mode to experiments/pos-instrument-replay/run-batch.mjs: on --resume (or POS_RESUME=1), read the existing batch-ledger.jsonl, skip iterationIds already recorded (proof OR stop), run only the remaining iterations, ignore/repair a truncated trailing line, and have the strict exact-multiset end-of-run guard reconcile the FINAL ledger (== protocol cross-product, 0 dup / 0 gap). The fresh-campaign path (empty/no ledger) must be UNCHANGED so M2 batch-ledger.jsonl + selfcheck-m2 stay valid",
       "context": "Additive only: resume activates only when a ledger already exists and --resume is passed. A duplicate iterationId on resume is a bug (the strict guard already rejects dups). A kill before the atomic append = no record = clean re-run; a kill mid-append = a truncated last JSONL line the resume must skip/repair. Reuse lib/instrument.mjs.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T20:26:44.864Z",
       "endTime": null,
       "userSees": "node experiments/pos-instrument-replay/run-batch.mjs --resume (with a partial batch-ledger.jsonl present) skips already-recorded iterationIds, runs only the remaining, and the strict guard reconciles the full multiset; a fresh run (no --resume / empty ledger) behaves exactly as M2 (unchanged).",
       "files": {

@@ -1,0 +1,34 @@
+{
+  "storyId": "B-f511",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/run-batch.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/protocol.json.sha256",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/viability-check.mjs",
+    "experiments/pos-instrument-replay/build-protocol.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m1.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "scopeChangeReason": "M3 creates resume-probe.mjs + selfcheck-m3.mjs + resume-reconciliation.json and MODIFIES run-batch.mjs (additive resume); frozen protocol + M0/M1 + M2 selfchecks protected; M4 analyzer excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T20:25:05.188Z",
+  "updatedAt": "2026-07-05T20:25:05.188Z"
+}
