@@ -71,7 +71,7 @@
       "desc": "[codex-host-2, verified] JSON structural corruption crashes verifyDir instead of recording a verify_crash outcome. Truncating manifest.json (or gold-queries.json) to invalid JSON makes the verifier throw a JSON parse error; lib/instrument.mjs verifyDir lets execFileSync/JSON.parse abort (empirically confirmed: CRASH) rather than returning a fail-closed/stop fingerprint. The plan's stopReason enum includes verify_crash; verifyDir must catch the crash and the matrix must enumerate a structural-corruption class dispositioned fail-closed-via-crash.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T15:55:01.747Z",
@@ -82,7 +82,11 @@
         "experiments/pos-instrument-replay/protocol.json"
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c6ac020c1. verifyDir catches the verifier crash -> {status:'crash'} sentinel; added manifest/gold-structural-corruption[raw] -> fail-closed via crash; selfcheck treats crash as a failure signal.",
+      "resolvedAt": "2026-07-05T16:11:24.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
