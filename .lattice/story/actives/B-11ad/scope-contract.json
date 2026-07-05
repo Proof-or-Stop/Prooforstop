@@ -1,0 +1,78 @@
+{
+  "storyId": "B-11ad",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/artifact-release.ts",
+    "packages/main/src/handlers/artifact-release.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Artifact release inspection commands require command policy/config/process fact registration, and the tracked provenance ledger requires a .gitignore exception for .lattice/artifact-releases.jsonl.",
+      "timestamp": "2026-07-05T09:54:56.601Z",
+      "paths": [
+        ".gitignore",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".gitignore",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "273c5ebf19ca0bc06becfc3ef3e62088e22faf27",
+      "materialHash": "714abc304b103f041045d3ef8f798814dbdcb87fe44230eb55eea9e5f2d17818",
+      "anchors": [
+        "artifact_release_list.command_registration",
+        "artifact_release_status.command_registration",
+        "artifact_release_ledger.gitignore_exception"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV enforcement required these CLI-generated intent artifacts to bind the accepted provenance-not-semver interpretation to checklist verification refs.",
+      "timestamp": "2026-07-05T09:54:56.881Z",
+      "paths": [
+        ".lattice/story/actives/B-11ad/intent-collision.json",
+        ".lattice/story/actives/B-11ad/original-intent-snapshot.json",
+        ".lattice/story/actives/B-11ad/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-11ad/intent-collision.json",
+        ".lattice/story/actives/B-11ad/original-intent-snapshot.json",
+        ".lattice/story/actives/B-11ad/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "273c5ebf19ca0bc06becfc3ef3e62088e22faf27",
+      "materialHash": "714abc304b103f041045d3ef8f798814dbdcb87fe44230eb55eea9e5f2d17818",
+      "anchors": [
+        "proofstory.intent_snapshot",
+        "proofstory.intent_collision",
+        "proofstory.acceptance_binding"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-05T09:54:33.798Z",
+  "updatedAt": "2026-07-05T09:54:56.881Z"
+}
