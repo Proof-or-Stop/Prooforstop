@@ -935,10 +935,10 @@ function rowHasBlockingGap(row: MilestoneStatusRow): boolean {
 }
 
 function rowAppearsPendingReview(row: MilestoneStatusRow): boolean {
+  if (row.ledgerStatus === 'done' || row.ledgerStatus === 'not_applicable') return false;
   return (row.ledgerStatus === 'covered' && row.risks.length === 0)
     || (
-      row.status !== 'completed'
-      && /\bchecklist=complete\b/.test(row.statusDetail)
+      /\bchecklist=complete\b/.test(row.statusDetail)
       && /\bevidence=covered\b/.test(row.statusDetail)
       && /\brequiredEvidence=covered\b/.test(row.statusDetail)
     );

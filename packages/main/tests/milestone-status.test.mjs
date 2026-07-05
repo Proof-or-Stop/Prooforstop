@@ -111,6 +111,7 @@ function writeTestConfig(root) {
     items: [
       checklistItem('CHK-MARKER-DONE', 'done', [evidence('CHK-MARKER-DONE:happy:0')], intent('marker completed intent')),
       checklistItem('CHK-MARKER-REVIEW', 'done', [evidence('CHK-MARKER-REVIEW:happy:0')], intent('marker review intent')),
+      checklistItem('CHK-MARKER-PLANNED-REVIEW', 'done', [evidence('CHK-MARKER-PLANNED-REVIEW:happy:0')], intent('marker planned review intent')),
       checklistItem('CHK-MARKER-CURRENT', 'in_progress', [], intent('marker current intent')),
       checklistItem('CHK-MARKER-REMAINING', 'pending', [], intent('marker remaining intent')),
       checklistItem('CHK-MARKER-FAILED', 'done', [evidence('CHK-MARKER-FAILED:happy:0', 'fail')], intent('marker failed intent')),
@@ -136,6 +137,16 @@ function writeTestConfig(root) {
       checklistRefs: ['CHK-MARKER-REVIEW'],
       verificationIntentRefs: ['CHK-MARKER-REVIEW:happy:0'],
       status: 'covered',
+    }),
+    milestone({
+      id: 'M-marker-planned-review',
+      sourceRequirementId: 'REQ-marker-planned-review',
+      claim: 'Marker planned pending review milestone',
+      doneMeans: 'Implementation-complete planned rows awaiting ledger acceptance show pending review',
+      requiredEvidence: ['logic_test'],
+      checklistRefs: ['CHK-MARKER-PLANNED-REVIEW'],
+      verificationIntentRefs: ['CHK-MARKER-PLANNED-REVIEW:happy:0'],
+      status: 'planned',
     }),
     milestone({
       id: 'M-marker-current',
@@ -186,6 +197,7 @@ function writeTestConfig(root) {
   const markerText = renderMilestoneStatusReport(markerReport);
   assert.match(markerText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
   assert.match(markerText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+  assert.match(markerText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
   assert.match(markerText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
   assert.match(markerText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
   assert.match(markerText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
@@ -227,6 +239,7 @@ function writeTestConfig(root) {
     ], { cwd: root, encoding: 'utf8' });
     assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
     assert.match(cliText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(cliText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
     assert.match(cliText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
     assert.match(cliText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
     assert.match(cliText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
@@ -252,6 +265,7 @@ function writeTestConfig(root) {
     assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
     assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
     assert.match(autoAppendText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(autoAppendText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
     assert.match(autoAppendText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
     assert.match(autoAppendText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
     assert.match(autoAppendText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
