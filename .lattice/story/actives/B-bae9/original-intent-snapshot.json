@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-bae9",
+  "sourceText": "Operator directive 2026-07-05: execute the frozen plan in strict milestone order until all DONE. M0 done; this is M1 (tamper matrix harness).",
+  "normalizedOutcome": "A committed tamper.mjs campaign harness produces tamper-verdicts.jsonl proving H2 conformance (every fail-closed class fails closed + matches its frozen fingerprint; acceptance/acknowledged-limitation match their status:pass fingerprints), with a hermetic selfcheck.",
+  "acceptanceClaim": "node selfcheck-m1.mjs passes: tamper.mjs is deterministic AND a corrupted frozen fingerprint is detected (exit nonzero); tamper-verdicts.jsonl shows fingerprintMatch=true for all frozen classes.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:7257c508fdbbec19eeaf245d61d16ffbbc95ae7cb3e637a24ef2c34d10e021fc",
+  "createdAt": "2026-07-05T17:07:11.755Z",
+  "updatedAt": "2026-07-05T17:07:11.755Z"
+}

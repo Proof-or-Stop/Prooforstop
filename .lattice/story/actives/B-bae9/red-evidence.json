@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-bae9",
+  "records": [
+    {
+      "id": "RED-20260705170824",
+      "trigger": "M1 material-code: build tamper.mjs conformance harness + selfcheck; none exists yet.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "455d71a45cc2b2d95cca26c5e51d90f0f7982739",
+      "baselineMaterialHash": "5d3a3ecff854e8cd4b2ed7cede8bcb1a12f69c247016ef88997c085cd209a509",
+      "observedFailure": "node experiments/pos-instrument-replay/selfcheck-m1.mjs fails with ERR_MODULE_NOT_FOUND: tamper.mjs, tamper-verdicts.jsonl and selfcheck-m1.mjs do not exist, so H2 conformance + determinism + the corrupted-fingerprint negative test cannot be checked.",
+      "failingCommand": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
+      "expectedGreenCommand": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs"
+      },
+      "note": "Green after DEV: selfcheck-m1 exits 0 (tamper.mjs deterministic + corrupted-fingerprint detected).",
+      "createdAt": "2026-07-05T17:08:24.151Z"
+    }
+  ],
+  "createdAt": "2026-07-05T17:08:24.151Z",
+  "updatedAt": "2026-07-05T17:08:24.151Z"
+}
