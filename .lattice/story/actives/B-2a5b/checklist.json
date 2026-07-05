@@ -201,11 +201,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
-          "note": "node selfcheck-m2.mjs exits 0 'selfcheck-m2 PASS' (hermetic, small): 4 sub-checks (a) budget_cap, (b) lockfile->separate blocked-ledger, (c) recordless, (d) generate-crash->verify_crash-stop all pass.",
-          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "note": "node selfcheck-m2.mjs exits 0 'selfcheck-m2 PASS' with 5 sub-checks: (a) budget_cap, (b) lockfile->separate blocked-ledger, (c) recordless, (d) generate-crash->verify_crash-stop, (e) pre-body-crash (mkdtemp + append injections) -> verify_crash-stop with no silent miss.",
+          "headHash": "c2653d4007266b4a47c6507b76e05e1b77dfb3ec",
           "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
           "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
-          "timestamp": "2026-07-05T19:51:56.951Z"
+          "timestamp": "2026-07-05T19:51:58.183Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
