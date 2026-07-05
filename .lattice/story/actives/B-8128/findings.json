@@ -29,6 +29,21 @@
       "_hash": "4a1878506aadbfd40d81dd0ef35241a45129851931e4e3483951fdf4f9239dc8",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8128:F-003",
+      "desc": "quality-cleanup: packages/main/src/tasks/playbook-capability-lineage-smoke.ts:49 imports readPlaybooks from core/learning-store.js but never uses it (confirmed with --noUnusedLocals tsc pass and grep count=1, the import line itself).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T17:23:57.679Z",
+      "reviewRound": "2026-07-05T17:20:20.090Z",
+      "reviewRunId": "B-8128:RR-002",
+      "_hash": "eb59880d9c0b7bb02042a81dabac35a3a10ad0a7071be6906081925268247f5e",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
