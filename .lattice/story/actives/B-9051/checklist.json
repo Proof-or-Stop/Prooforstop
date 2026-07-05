@@ -242,9 +242,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T11:01:06.521Z",
-      "endTime": null
+      "endTime": "2026-07-05T11:01:15.746Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Build passes and the dedicated milestone-status suite passes, covering missing-ledger diagnostics, read-only mode, mutation-like flag rejection, closeout safety, and no fabricated completion.",
+          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:15.894Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "result": "pass",
+          "note": "The document states the capability impact as structured progress, safer execution admission, cleaner handoff, and less false DONE risk, which matches the source/test evidence.",
+          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:16.021Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/milestone-status.ts",
+          "result": "pass",
+          "note": "The document explicitly says milestone completion stays distinct from lifecycle DONE and that the capability is not agents declaring themselves done; closeout code also refuses to fabricate success without a ledger.",
+          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:16.158Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -316,6 +351,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting tests and agent capability claims review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:01:15.746Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Tests and agent capability claims review completed.",
       "agent": "codex-main"
     }
   ]
