@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2a5b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Checked git diff main...HEAD full-repo stat + summary: 100% additions (create mode only), zero deletions/renames anywhere in the diff, including outside experiments/pos-instrument-replay/. Verified M0/M1 files (protocol.json, protocol.json.sha256, lib/instrument.mjs, tamper.mjs, viability-check.mjs, build-protocol.mjs, selfcheck-m1.mjs, selfcheck.mjs, calibrate-full.mjs, calibration.json, README.md, tamper-verdicts.jsonl, viability-results.json) all have empty git diff main...HEAD (byte-identical, untouched). Verified run-batch.mjs imports {sha256, canonicalJson, verifyDir} from ./lib/instrument.mjs -- all three exist as real exports. selfcheck-m2.mjs imports only node builtins and instead cpSync-copies lib/instrument.mjs + run-batch.mjs + protocol.json into a mkdtemp sandbox then execFileSync's run-batch.mjs there -- all three source paths exist and are unchanged. No concept deletion/replacement this round; no dangling imports; no blocker.",
+      "createdAt": "2026-07-05T18:57:16.204Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-001",
+      "_hash": "9d3107ba4f4367118e2d74b211751dce25a717d53b4fc5f4c8f2577a2d373d71"
+    }
+  ]
+}
