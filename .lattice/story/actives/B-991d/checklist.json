@@ -120,7 +120,42 @@
       },
       "status": "done",
       "startTime": "2026-07-05T23:37:25.998Z",
-      "endTime": "2026-07-05T23:37:45.559Z"
+      "endTime": "2026-07-05T23:37:45.559Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker passed and reported Cell 03 execution envelope: frozen.",
+          "headHash": "ebe452a2e457ac44477027e5b72df3ccd06df981",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:46.526Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker output confirms frozen prompt/tool/execution envelope semantics and says pre-run dollar guess is not required while postflight provider-reported usage is required after execution.",
+          "headHash": "ebe452a2e457ac44477027e5b72df3ccd06df981",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:46.846Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker output rejects host-label substitution by requiring provider execution to remain disabled until the frozen envelope and dated provider-target metadata are used; Cell 06 remains blocked and no provider calls/outcome rows exist.",
+          "headHash": "ebe452a2e457ac44477027e5b72df3ccd06df981",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:47.116Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
