@@ -58,10 +58,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression verifies ledger-backed state-changing commands append the shared milestone_status table, now with six developer-facing status labels.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression verifies JSON mode remains parseable and is not contaminated by appended human milestone tables.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -84,10 +84,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression verifies missing-ledger mutations do not fabricate milestone status tables.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -97,10 +97,10 @@
           "command": "rg -n '✅ Done|⏳ In Progress|🟡 Pending Review|⬜ Not Started|🔴 Blocked|❌ Failed|must not be used for Not Started' docs/CLI.md",
           "result": "pass",
           "note": "Host Progress Reporting Contract documents the six status labels and states that Failed is not used for Not Started.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         }
       ]
     },
@@ -156,10 +156,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression asserts auto-appended checklist_update output includes the richer milestone status table labels.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -169,10 +169,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression asserts JSON output remains parseable while human milestone status labels are skipped in machine mode.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -182,10 +182,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Regression asserts no fabricated table appears for no-ledger stories and verifies Not Started is rendered separately from Failed.",
-          "headHash": "4728ebff54928478800fd9390113b92a495fd3e5",
-          "materialHash": "aa6525d3c1dcf0870c840bfdbe4b38affe815fc3d3c8129893da8fbbbc74710c",
-          "storyFilesHash": "2b41e273559adb4201b60319aef339ec4f793d0f2ac2264a83b74a2146acdf01",
-          "timestamp": "2026-07-05T12:16:59.042Z"
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
         }
       ]
     }
