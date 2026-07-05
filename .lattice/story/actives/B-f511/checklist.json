@@ -106,6 +106,17 @@
           "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
           "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
           "timestamp": "2026-07-05T21:01:23.213Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.killA.postResume.casualtyDisposition,r.killB.postResume.casualtyDisposition)\"",
+          "result": "pass",
+          "note": "Each mid-iteration casualty (replay/small/6 and /18) resolved to proof:pass on the clean re-run — never a silent half-record; dup=0 across both kills (the resume skips already-recorded iterationIds, the strict guard rejects any dup).",
+          "headHash": "f9f65b63e4b9a48c789b1b2c385d93ae3653bcd7",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:01:23.900Z"
         }
       ]
     },
