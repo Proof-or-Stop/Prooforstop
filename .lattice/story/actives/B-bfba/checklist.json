@@ -189,9 +189,9 @@
           "packages/main/tests/milestone-status.test.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T00:04:35.516Z",
-      "endTime": null,
+      "endTime": "2026-07-05T00:04:43.073Z",
       "userSees": "Running the closeout command prints the final milestone table instead of a stale live diagnostic.",
       "verificationIntent": {
         "happy": [
@@ -215,7 +215,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "CLI fixture writes milestone-closeout.json and verifies milestone_closeout text columns plus JSON schema, source digest, bindings, and row content.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:43.272Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "CLI fixture verifies missing milestone-closeout snapshot returns a text diagnostic table, next action, and proofbound.milestone_closeout_missing.v1 JSON diagnostic.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:43.462Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "CLI tests reject unknown and mutation-like milestone_closeout flags, including active-story FIFO preflight coverage proving rejection happens before story fact reads.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:43.650Z"
+        }
+      ]
     }
   ]
 }
