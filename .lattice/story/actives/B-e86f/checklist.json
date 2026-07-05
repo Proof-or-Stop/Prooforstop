@@ -127,13 +127,13 @@
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "manual_transcript",
-          "command": "git show HEAD:...plan.md | grep -c 'content-inert'; | grep -n 'contentInert: true'",
+          "command": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -c 'content-inert'; git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'contentInert: true'",
           "result": "pass",
-          "note": "content-inert appears 3 times (rev provenance L9-area, section 5 reuse inventory instrument-fact, section 6.1 seed annotation) and the machine annotation 'contentInert: true' is at L182 in the protocol.json spec. Seed inertness documented at all touchpoints.",
-          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
-          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
-          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
-          "timestamp": "2026-07-05T13:57:00.528Z"
+          "note": "'content-inert' present (3x) and the seed-constant annotation 'contentInert: true' present in the replay arm at HEAD a14555248 — seed is documented content-inert, so seed-swap correctly excluded as a tamper class.",
+          "headHash": "1adc8e4a7d8ae86bd4ff1b0e46cde405626e8b50",
+          "materialHash": "c8ee02838c0e62f0f4020fa4efcfc4aa454a44def31c59ab8459ff37b2a2d676",
+          "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
+          "timestamp": "2026-07-05T14:08:31.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
