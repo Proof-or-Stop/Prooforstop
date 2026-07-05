@@ -101,9 +101,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T11:00:38.657Z",
-      "endTime": null
+      "endTime": "2026-07-05T11:00:46.518Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/milestone-status.ts",
+          "result": "pass",
+          "note": "milestone_status validates allowed args before store reads, returns READ_ONLY_MODE, and command policy classifies it as readOnly with no evidence, summary, reviewer, phase, DONE, or production side effects.",
+          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:46.679Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice milestone_status --storyId=B-9051 --format=json",
+          "result": "pass",
+          "note": "Live B-9051 milestone_status output has ledger.present=false, readOnly=true, runCommands=false, writeEvidence=false, advancePhase=false, launchReviewers=false, and a nextAction saying status will not create the ledger.",
+          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:46.844Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Dedicated milestone-status tests cover unknown and mutation-like flags, rejection before story reads, missing-ledger reporting without checklist reads, and no fabricated completion.",
+          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:46.999Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -206,6 +241,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting read-only status and ledger write boundary review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:46.518Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Read-only status and write boundary review completed.",
       "agent": "codex-main"
     }
   ]
