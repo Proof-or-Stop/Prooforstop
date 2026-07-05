@@ -1,0 +1,83 @@
+{
+  "storyId": "B-0315",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "explicitExcludes": [
+    "experiments/**",
+    "lattice-Paper/**",
+    "docs/requirements/** except docs/requirements/decisions/story-lifecycle.md",
+    "docs/** except docs/CLI.md policy reference and story-lifecycle docs text"
+  ],
+  "scopeChangeReason": "Bounded version bump strategy for CLI capability contract/proof inputs only.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T09:42:24.280Z",
+  "updatedAt": "2026-07-05T09:42:24.280Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/done-effects.ts",
+      "allowedAnchors": [
+        "isDoneMainRuntimeBuildInput",
+        "shouldBuildDoneMainPackageForChangedPaths"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/version-bump.ts",
+      "allowedAnchors": [
+        "VERSION_BUMP_SKIPPED_LINE"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/version-bump-smoke.ts",
+      "allowedAnchors": [
+        "gate",
+        "skipLine"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001",
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/story-lifecycle.md",
+      "allowedAnchors": [
+        "DoneMergeSemantics",
+        "CliPatchVersion"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    }
+  ]
+}

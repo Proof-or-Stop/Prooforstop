@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Bound version bumps to user-visible CLI capability surfaces, not arbitrary repository activity.",
+    "Keep skip/build/version wording mechanically consistent with the predicate.",
+    "Preserve fail-closed exclusions for experiments, paper artifacts, and general docs.",
+    "Do not manually bump semver in DEV; the DONE merge effect owns version mutation."
+  ],
+  "drivers": [
+    "B-3a4d-like proof/test/doc-only CLI capability work must no longer look invisible to users.",
+    "The existing DONE build and version bump path share one changed-path predicate.",
+    "Over-bumping on every docs/** change would create noisy semver and false release signals."
+  ],
+  "options": [
+    {
+      "name": "watch-only-runtime-inputs",
+      "pros": [
+        "No policy change risk",
+        "No extra build triggers"
+      ],
+      "cons": [
+        "B-3a4d-like CLI proof capabilities still skip versions",
+        "Users cannot see capability proof changes through CLI semver"
+      ]
+    },
+    {
+      "name": "watch-bounded-capability-contract-inputs",
+      "pros": [
+        "docs/CLI.md and packages/main/tests/** now count as CLI capability/proof inputs",
+        "Keeps experiments and arbitrary docs out",
+        "Reuses existing DONE build/version path"
+      ],
+      "cons": [
+        "Some docs/CLI.md-only changes will also trigger packages/main build because the predicate is shared"
+      ]
+    },
+    {
+      "name": "watch-all-docs",
+      "pros": [
+        "Simple rule"
+      ],
+      "cons": [
+        "Too noisy",
+        "Violates scope by bumping unrelated requirements and paper docs"
+      ]
+    }
+  ],
+  "chosen": "watch-bounded-capability-contract-inputs",
+  "rationale": "The bounded policy matches the user-requested capability proof strategy without converting Proof-or-Stop semver into a repository-wide documentation ledger.",
+  "preMortem": [
+    {
+      "scenario": "Over-bump noise",
+      "trigger": "Predicate includes docs/** broadly",
+      "consequence": "Every requirement or paper edit creates CLI patch versions",
+      "mitigation": "Only add docs/CLI.md and packages/main/tests/**; keep docs/requirements and experiments false in smoke"
+    },
+    {
+      "scenario": "Misleading skip text",
+      "trigger": "Predicate changes but VERSION_BUMP_SKIPPED_LINE still says runtime only",
+      "consequence": "Host cannot tell why capability proof inputs are watched",
+      "mitigation": "Update version-bump skip wording and docs together"
+    },
+    {
+      "scenario": "Manual version drift",
+      "trigger": "Developer edits package.json versions in DEV",
+      "consequence": "Version sync points drift outside DONE merge effect",
+      "mitigation": "Keep package version files excluded and rely on DONE merge policy"
+    }
+  ],
+  "timestamp": "2026-07-05T09:42:06.720Z"
+}
