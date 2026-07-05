@@ -5,7 +5,7 @@
       "desc": "docs/requirements/NAV.md:3 declares \"> 74 files\", but the file currently contains 76 local markdown links and link verification found 0 broken links. The navigation count is stale/inaccurate; update the count or regenerate NAV so readers can trust the source-of-truth index.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-05T11:04:37.100Z",
@@ -16,7 +16,11 @@
         "docs/requirements/NAV.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-declares",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 13d38f5dc: docs/requirements/NAV.md now declares > 76 files, matching the 76 markdown list entries verified with rg -n ^- docs/requirements/NAV.md | wc -l; git diff --check passes.",
+      "resolvedAt": "2026-07-05T11:07:43.485Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9051:F-002",
