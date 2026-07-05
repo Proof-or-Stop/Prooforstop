@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fbbb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001 + CHK-002: verified both allowed sets in experience-layer-playbook-smoke.ts widened identically (direct fence + non-vacuous planted-import check), negative finding/advisory/gate assertion untouched, guardrail comment in handlers/playbook.ts matches actual imports (source-lineage-audit.js, playbook-seed.js confirmed present), decision-doc-promotion-smoke.ts substring matches the live authorityBoundary string in decision-doc-promotion.ts:507 (from commit 8892270bf), confirmed no other file duplicates the playbook.ts fence allowlist. Rebuilt + ran experience-layer-playbook-smoke.js: TOTAL 31 | PASS 31 | FAIL 0. No dead code, no type-safety or I/O-isolation issues; test-maintenance + comment only, no blocker.",
+      "createdAt": "2026-07-05T22:00:57.901Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-001",
+      "_hash": "381b5799f2036ab53bb830068cac86a775a00ad82f2209a5f0552473fafb2c17"
+    }
+  ]
+}
