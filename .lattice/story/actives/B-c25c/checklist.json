@@ -120,9 +120,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:08:20.681Z",
       "userSees": "Cell 03 guardrail artifact is present: exact budget approval is absent, providerCallEnabled=false, and the artifact is traceable to B-c25c.",
       "verificationEvidence": [
         {
@@ -442,6 +442,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Baseline/red status evidence recorded and covered."
+    },
+    {
+      "timestamp": "2026-07-05T17:08:20.681Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Cell 03 guardrail artifact added and covered by evidence."
     }
   ]
 }
