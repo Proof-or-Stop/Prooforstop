@@ -844,22 +844,59 @@ export async function runCli(opts?: {
     const storyId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
     if (!storyId) return output;
 
+    const renderFromHandlers = (sourceHandlers: Record<string, Function>): string | null => {
+      const milestoneStatus = sourceHandlers.milestone_status;
+      if (typeof milestoneStatus !== 'function') {
+        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: handler not found\n`);
+        return null;
+      }
+      const rendered = milestoneStatus({ storyId });
+      const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
+      return milestoneOutput.trim() ? milestoneOutput : null;
+    };
+
+    let hasWorktreeLedger = false;
+    let worktreeLedgerError: Error | null = null;
     try {
-      if (!store.readMilestoneLedger(storyId)) return output;
+      hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
     } catch (e) {
-      process.stderr.write(`[milestone-status] post-command ledger check skipped for ${storyId}: ${(e as Error).message}\n`);
+      worktreeLedgerError = e as Error;
+    }
+
+    if (hasWorktreeLedger) {
+      try {
+        const milestoneOutput = renderFromHandlers(handlers);
+        if (!milestoneOutput) return output;
+        if (output.includes(`Milestone Status - ${storyId}`)) return output;
+        return `${output}\n\n${milestoneOutput}`;
+      } catch (e) {
+        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: ${(e as Error).message}\n`);
+        return output;
+      }
+    }
+
+    if (cmd !== 'story_advance' || parsed.phase !== 'DONE' || hasProjectConfigFile(root) || !mainRootFallback) {
+      if (worktreeLedgerError) {
+        process.stderr.write(`[milestone-status] post-command ledger check skipped for ${storyId}: ${worktreeLedgerError.message}\n`);
+      }
       return output;
     }
 
     try {
-      const milestoneStatus = handlers.milestone_status;
-      if (typeof milestoneStatus !== 'function') {
-        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: handler not found\n`);
-        return output;
-      }
-      const rendered = milestoneStatus({ storyId });
-      const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
-      if (!milestoneOutput.trim()) return output;
+      if (!hasProjectConfigFile(mainRootFallback)) return output;
+      const mainStore = new StoryStore(mainRootFallback);
+      if (!mainStore.readMilestoneLedger(storyId)) return output;
+      const mainConfig = loadConfig(mainRootFallback);
+      const mainCtx: HandlerContext = {
+        store: mainStore,
+        root: mainRootFallback,
+        scanRoot: join(mainRootFallback, mainConfig.scanRoot),
+        log,
+      };
+      const mainRegistry = createMainRegistry(mainCtx);
+      if (opts?.extraRegister) opts.extraRegister(mainRegistry, mainCtx);
+      const milestoneOutput = renderFromHandlers(mainRegistry.toObject() as Record<string, Function>);
+      if (!milestoneOutput) return output;
       if (output.includes(`Milestone Status - ${storyId}`)) return output;
       return `${output}\n\n${milestoneOutput}`;
     } catch (e) {

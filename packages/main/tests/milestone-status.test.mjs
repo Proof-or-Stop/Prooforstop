@@ -1906,6 +1906,169 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  const storyId = 'B-done-cli-append';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-cli-append-'));
+  const mainRoot = join(root, 'main');
+  const worktreeRoot = join(root, 'story-worktree');
+  const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+  const originalCandidateIngestEnabled = process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+  const gitMain = (args) => execFileSync('git', args, {
+    cwd: mainRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const gitWorktree = (args) => execFileSync('git', args, {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+
+  try {
+    process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = '0';
+    process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = '0';
+    mkdirSync(mainRoot, { recursive: true });
+    gitMain(['init', '-b', 'main']);
+    gitMain(['config', 'user.name', 'Milestone Status Test']);
+    gitMain(['config', 'user.email', 'milestone-status@example.com']);
+    writeJson(join(mainRoot, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      workflow: { profile: 'light' },
+      proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
+      flows: { defaults: {}, patterns: [] },
+    });
+    writeFileSync(join(mainRoot, '.gitignore'), '**/owner-lease.json\n', 'utf8');
+    gitMain(['add', 'lattice.config.json', '.gitignore']);
+    gitMain(['commit', '-m', 'init']);
+    gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
+
+    const store = new StoryStore(worktreeRoot);
+    const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
+    const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
+    assert.ok(preEvidenceMaterialHash, 'CLI worktree fixture must be able to compute a material hash');
+    const doneStory = {
+      ...story(storyId),
+      phase: 'TEST',
+      priority: 'low',
+      currentReviewRound: '2026-07-04T10:00:00.000Z',
+      worktree: {
+        path: worktreeRoot,
+        branch: `story/${storyId}`,
+        createdAt: '2026-07-04T09:00:00.000Z',
+      },
+    };
+    const closeoutChecklist = {
+      items: [
+        checklistItem('CHK-DONE-CLI-APPEND', 'done', [
+          evidence('CHK-DONE-CLI-APPEND:happy:0', 'pass', {
+            headHash: preEvidenceHead,
+            materialHash: preEvidenceMaterialHash,
+          }),
+        ], intent('DONE CLI append evidence')),
+      ],
+    };
+    const docsPromises = [];
+    const realMachineTests = [
+      {
+        featureId: 'milestone-status-done-cli-append',
+        transcript: 'Built CLI story_advance DONE fixture removed the story worktree and still printed milestone_status.',
+      },
+    ];
+    const closingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'The runCli DONE fixture has enough signed delivery context for the orchestrator gate.',
+    };
+    const reviewRound = doneStory.currentReviewRound;
+
+    store.writeStory(storyId, doneStory);
+    store.writeChecklist(storyId, closeoutChecklist);
+    store.writeMilestoneLedger(storyId, ledger([
+      milestone({
+        id: 'M-done-cli-append',
+        sourceRequirementId: 'REQ-done-cli-append',
+        claim: 'The built CLI appends milestone status after DONE worktree cleanup',
+        doneMeans: 'story_advance DONE stdout includes milestone_status even after the story worktree is removed',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-DONE-CLI-APPEND'],
+        verificationIntentRefs: ['CHK-DONE-CLI-APPEND:happy:0'],
+        status: 'done',
+      }),
+    ], storyId));
+    store.writeTestEvidence(storyId, {
+      command: `lattice validate --story=${storyId} --json`,
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-07-04T11:00:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+    });
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-07-04T11:30:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+      reviewRound,
+      agentId: 'lattice-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(
+        storyId,
+        docsPromises,
+        realMachineTests,
+        closingSelfCheck,
+        reviewRound,
+        preEvidenceMaterialHash,
+      ),
+    });
+    gitWorktree(['add', '.']);
+    gitWorktree(['commit', '-m', 'ready for CLI DONE append']);
+    assert.equal(gitWorktree(['status', '--porcelain']), '', 'CLI story worktree fixture must be clean before DONE');
+    assert.equal(gitMain(['status', '--porcelain']), '', 'CLI main fixture must be clean before DONE');
+    assert.equal(currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot), preEvidenceMaterialHash);
+
+    const result = spawnSync(process.execPath, [
+      cliPath,
+      'story_advance',
+      '--root',
+      worktreeRoot,
+      '--storyId',
+      storyId,
+      '--phase',
+      'DONE',
+    ], { cwd: worktreeRoot, encoding: 'utf8' });
+
+    assert.equal(result.status, 0, `story_advance DONE should succeed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
+    assert.ok(
+      !existsSync(worktreeRoot),
+      `runCli story_advance DONE should remove the story worktree\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+    );
+    assert.match(result.stdout, new RegExp(`Story ${storyId} advanced to DONE`));
+    assert.match(result.stdout, new RegExp(`Milestone Status - ${storyId}`));
+    assert.match(result.stdout, /\| M-done-cli-append \| The built CLI appends milestone status after DONE worktree cleanup \|/);
+    assert.doesNotMatch(result.stdout, /milestone ledger required/);
+  } finally {
+    if (originalSettlementEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = originalSettlementEnabled;
+    }
+    if (originalCandidateIngestEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = originalCandidateIngestEnabled;
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
   const storyId = 'B-cli-ms';
   const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-'));
   try {
