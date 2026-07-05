@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 73 files
+> 74 files
 
 ## evidence
 
@@ -42,6 +42,7 @@
 - [Proofbound Experience Layer -- Effectiveness-Proof Development Record](decisions/lattice-experience-layer-effectiveness-record.md)
 - [Proofbound Experience Layer Execution Plan](decisions/lattice-experience-layer-execution-plan.md)
 - [Proofbound LLM Usage Ledger Execution Plan](decisions/lattice-llm-usage-ledger-execution-plan.md)
+- [Milestone Ledger Status Review And Hardening Plan](decisions/milestone-ledger-status-review-and-hardening-plan.md)
 - [Proofbound Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan](decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md)
 - [Proofbound Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Playbook Runtime Memory Consumption Execution Plan](decisions/playbook-runtime-memory-consumption-execution-plan.md)
