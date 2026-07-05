@@ -30,21 +30,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "capability_release_backfill --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. Live-run against real B-785e/PBP-882 binds PBP-882.",
+            "desc": "capability_release_backfill --dryRun detects under-bound candidates; --apply enriches lineage with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. For a story with an artifact release but no capability release, the record-then-bind plan first records the missing capability release (classify from artifact paths) then binds. Live-run binds real B-785e/PBP-882.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "--apply requires a --digest matching the dry-run plan; re-running apply is idempotent (0 eligible, no duplicate candidate); a story with no capability release yields 0 eligible.",
+            "desc": "--apply requires a --digest matching the dry-run plan; re-running apply is idempotent (0 eligible, no duplicate); a story with no artifact release and no capability release yields 0 eligible.",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Backfill never activates a candidate (status stays candidate), never infers a helped outcome, and never mutates the capability-releases ledger authority/gateEvidence.",
+            "desc": "Backfill records only non-authoritative capability releases (authority=non_authoritative, gateEvidence=false), never activates a candidate (status stays candidate), never changes usage.surfacedCount, and never writes a playbook-outcome.",
             "type": "logic",
             "priority": "must"
           }
