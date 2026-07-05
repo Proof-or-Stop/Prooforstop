@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
-          "note": "Un-gameable: (b) lockfile (separate blocked-ledger, campaign clean, exit 3), (c) recordless (exit 1 naming replay/small/1), (d) generate-crash (verify_crash stop) all fail loudly if the proof-or-stop/lockfile/crash discipline regresses. Strict exact-multiset guard rejects any extra/missing/dup record.",
-          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "note": "Un-gameable proof-or-stop: (b) lockfile (separate ledger, exit 3), (c) recordless (exit 1 named), (d) generate-crash, (e) pre-body-crash (mkdtemp/append) all fail loudly if the discipline regresses; the finally-backstop end-of-run guard guarantees the driver NEVER exits 0 with a missing/extra/dup record.",
+          "headHash": "d0a1fc02214eb19827993c9dda31c287d2143ed8",
           "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
           "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
-          "timestamp": "2026-07-05T19:51:56.951Z"
+          "timestamp": "2026-07-05T19:51:58.782Z"
         }
       ]
     }
