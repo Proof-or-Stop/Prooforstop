@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6529",
+  "sourceText": "User clarified: remove dollar amount as a limiting condition. The goal is to complete the validation task, then compute and compare actual provider spend after completion; do not make a guessed amount a pre-run condition.",
+  "normalizedOutcome": "Cell 03 provider execution readiness no longer requires a pre-run dollar amount. It is controlled by a frozen execution envelope, and actual provider-reported usage/cost is recorded after execution.",
+  "acceptanceClaim": "The M2 provider execution checker reports Cell 03 execution envelope frozen, pre-run dollar guess not required, provider calls disabled in this authorization story, postflight provider-reported usage required after execution, and Cell 06 A2prime still blocked.",
+  "keyRequirementIds": [
+    "B-6529:REQ-001",
+    "B-6529:REQ-002",
+    "B-6529:REQ-003"
+  ],
+  "requestHash": "sha256:be8cd68e6fa78a689a9b2f8b5195fd3debc84598d57d7592ca9b244fb01da1f3",
+  "createdAt": "2026-07-05T21:39:47.625Z",
+  "updatedAt": "2026-07-05T21:39:47.625Z"
+}
