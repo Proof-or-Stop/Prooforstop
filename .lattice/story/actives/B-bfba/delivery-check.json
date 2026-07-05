@@ -1,0 +1,53 @@
+{
+  "storyId": "B-bfba",
+  "checkedAt": "2026-07-05T01:44:51.080Z",
+  "headHash": "928eb2eb5b59427ef8b5d7cd29dd750218c63645",
+  "materialHash": "c21d881b7c8c5b05ac238062f88be3f909acc14106dbb6c71d70e47a8ae744b5",
+  "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+  "reviewRound": "2026-07-05T00:17:44.038Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#milestone-closeout-reader",
+      "promise": "milestone_closeout is a read-only historical DONE closeout reader for .lattice/story/actives/<storyId>/milestone-closeout.json and does not recompute or weaken live milestone_status freshness.",
+      "status": "verified",
+      "verifiedBy": "reverse diff scan: docs/CLI.md, command catalog, command policy, handler read-only boundary",
+      "evidence": "docs/CLI.md documents the reader and path; milestone_closeout is registered as readOnly; handler rejects unexpected args before reads and only reads the snapshot or missing report."
+    },
+    {
+      "docPath": "docs/CLI.md#milestone-closeout-capture",
+      "promise": "DONE capture writes milestone-closeout.json only from a completed risk-free live milestone_status report, skips no-ledger stories, and blocks incomplete or risk-bearing reports rather than fabricating success.",
+      "status": "verified",
+      "verifiedBy": "source and regression test scan",
+      "evidence": "buildMilestoneCloseoutSnapshot rejects missing rows, incomplete rows, and risks; transition-orchestrator calls captureMilestoneCloseoutSnapshotFromStore before persisting DONE phase; milestone-status.test.mjs covers write, skip, and refusal cases."
+    },
+    {
+      "docPath": "docs/CLI.md#milestone-closeout-output",
+      "promise": "milestone_closeout prints text or JSON closeout rows with Milestone, Status, Solved Problem, Acceptance, Evidence, Risks, and Next Action, and missing snapshots return a diagnostic plus next action.",
+      "status": "verified",
+      "verifiedBy": "docs check, transcript diff, local milestone-status test",
+      "evidence": "docs/CLI.md lists the columns and missing-snapshot behavior; transcript-diff.md shows Snapshot: missing without success fabrication; node packages/main/tests/milestone-status.test.mjs passed locally."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001-CHK-003",
+      "transcript": "Existing story evidence records lattice validate --story=B-bfba --json passing all 33 configured commands at 2026-07-05T01:41:03.455Z with verification coverage 9/9."
+    },
+    {
+      "featureId": "milestone-closeout-done-transition",
+      "transcript": "Ran node packages/main/tests/milestone-status.test.mjs locally; output ended with ok milestone-status. The test includes a temp-repo createStoryAdvanceHandlers(...).story_advance({ phase: DONE }) path asserting milestone-closeout.json is written before DONE phase metadata persistence."
+    },
+    {
+      "featureId": "milestone-closeout-missing-snapshot",
+      "transcript": "Reviewed .lattice/story/actives/B-bfba/evidence/transcript-diff.md: milestone_status reports M1/M2/M3 completed with no risks, while milestone_closeout before DONE reports Snapshot: missing, expected path, diagnostic, and next action without claiming closeout success."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review acceptable: docs promises match implementation, real-machine milestone-status coverage is present, edge/adversarial cases are covered, and no unresolved TODO-style markers were found in the changed delivery surface. Non-delivery DONE blockers remain tracked separately."
+  },
+  "_hash": "45fed3ac23bada66c0108770dc7878e498ddc952738baec9918b194fcdb5267c"
+}
