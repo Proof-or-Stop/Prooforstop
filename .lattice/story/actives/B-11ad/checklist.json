@@ -103,7 +103,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Developers know why version bump may skip while artifact release provenance still exists.",
+      "userSees": "Docs say: `CLI patch version remains a runtime/capability marker; non-runtime DONE artifacts are recorded in artifact-releases.jsonl as provenance, not package semver.`",
       "files": {
         "modify": [
           "docs/requirements/decisions/story-lifecycle.md",
