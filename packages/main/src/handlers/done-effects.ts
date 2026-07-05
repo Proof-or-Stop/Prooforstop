@@ -55,11 +55,18 @@ import { acquireMainWriteLockRegistered, mainWriteLockPath, withReentrantMainWri
 import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
 import {
   ARTIFACT_RELEASE_LEDGER_REL_PATH,
+  type ArtifactReleaseRecordV1,
   type RecordArtifactReleaseResult,
   recordArtifactReleaseForDoneMerge,
   resolveArtifactReleaseLedgerRoot,
   selectArtifactReleasePathsV1,
 } from '../core/artifact-release.js';
+import {
+  CAPABILITY_RELEASE_LEDGER_REL_PATH,
+  type RecordCapabilityReleaseForDoneMergeResult,
+  recordCapabilityReleaseForDoneMerge,
+  resolveCapabilityReleaseLedgerRoot,
+} from '../core/capability-release.js';
 import {
   cleanupAuxiliaryWorktreeResidues,
   renderAuxiliaryClassification,
@@ -272,9 +279,29 @@ export function runArtifactReleaseLedgerAfterDoneMerge(
     runGit: (gitArgs: string[], cwd: string) => string;
   },
 ): string | null {
+  return runArtifactReleaseLedgerAfterDoneMergeDetailed(mainMergeRoot, storyId, beforeMainSha, afterMainSha, opts).line;
+}
+
+/**
+ * Same as {@link runArtifactReleaseLedgerAfterDoneMerge} but also returns the
+ * recorded/already-recorded artifact release record so the caller can forward its
+ * id + artifactSetDigest into the capability release ledger (B-8128 M3). Behavior
+ * of the artifact release itself is UNCHANGED.
+ */
+export function runArtifactReleaseLedgerAfterDoneMergeDetailed(
+  mainMergeRoot: string,
+  storyId: string,
+  beforeMainSha: string,
+  afterMainSha: string,
+  opts: {
+    changedPaths?: string[];
+    runtimeSemverChanged?: boolean;
+    runGit: (gitArgs: string[], cwd: string) => string;
+  },
+): { line: string | null; record?: ArtifactReleaseRecordV1 } {
   const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
   if (selectArtifactReleasePathsV1(changedPaths, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }).length === 0) {
-    return null;
+    return { line: null };
   }
 
   const ledgerRoot = resolveArtifactReleaseLedgerRoot(mainMergeRoot);
@@ -288,7 +315,77 @@ export function runArtifactReleaseLedgerAfterDoneMerge(
     isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
   });
   commitArtifactReleaseLedgerIfNeeded(ledgerRoot, storyId, artifactReleaseResult, opts.runGit);
-  return renderArtifactReleaseDoneLine(artifactReleaseResult);
+  return { line: renderArtifactReleaseDoneLine(artifactReleaseResult), record: artifactReleaseResult.record };
+}
+
+function renderCapabilityReleaseDoneLine(result: RecordCapabilityReleaseForDoneMergeResult): string | null {
+  if (result.status === 'skipped_empty' || !result.record) return null;
+  const verb = result.status === 'already_recorded' ? 'already recorded' : 'recorded';
+  return `✓ product capability release ${verb}: story=${result.record.storyId} capabilityId=${result.record.capabilityId} capabilityVersion=${result.record.capabilityVersion} kind=${result.record.capabilityKind}`;
+}
+
+export function commitCapabilityReleaseLedgerIfNeeded(
+  mainMergeRoot: string,
+  storyId: string,
+  result: RecordCapabilityReleaseForDoneMergeResult,
+  runGit: (gitArgs: string[], cwd: string) => string,
+): void {
+  if (result.status === 'skipped_empty' || !result.record) return;
+  try {
+    runGit(['add', '-f', CAPABILITY_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    const staged = runGit(['diff', '--cached', '--name-only', '--', CAPABILITY_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    if (!staged) {
+      if (result.status === 'already_recorded') return;
+      throw new Error(`${CAPABILITY_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
+    }
+    runGit(
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: record product capability release for ${storyId}`],
+      mainMergeRoot,
+    );
+  } catch (e: any) {
+    throw new Error(
+      `DONE post-merge capability release ledger commit failed: ${e?.message ?? e}\n` +
+      `Recovery: git add ${CAPABILITY_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: record product capability release for ${storyId}"`,
+    );
+  }
+}
+
+/**
+ * B-8128 M3: mirror {@link runArtifactReleaseLedgerAfterDoneMerge} for the product
+ * capability release ledger. Runs the pure classifier (in core/) over the SAME
+ * DONE-time changed paths, passing the artifact release id/digest through so an
+ * identical content re-merge/recovery dedups, then commits
+ * `.lattice/capability-releases.jsonl` the same `git add -f` way. Returns null
+ * (no line) when the classifier declines — the DONE merge is unchanged.
+ */
+export function runCapabilityReleaseLedgerAfterDoneMerge(
+  mainMergeRoot: string,
+  storyId: string,
+  beforeMainSha: string,
+  afterMainSha: string,
+  opts: {
+    changedPaths?: string[];
+    runtimeSemverChanged?: boolean;
+    artifactReleaseId?: string;
+    artifactSetDigest?: string;
+    runGit: (gitArgs: string[], cwd: string) => string;
+  },
+): string | null {
+  const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
+  const ledgerRoot = resolveCapabilityReleaseLedgerRoot(mainMergeRoot);
+  const capabilityReleaseResult = recordCapabilityReleaseForDoneMerge({
+    root: ledgerRoot,
+    storyId,
+    mainCommit: afterMainSha,
+    changedPaths,
+    runtimeSemverChanged: opts.runtimeSemverChanged ?? shouldBuildDoneMainPackageForChangedPaths(changedPaths),
+    artifactReleaseId: opts.artifactReleaseId,
+    artifactSetDigest: opts.artifactSetDigest,
+    isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+  });
+  if (capabilityReleaseResult.status === 'skipped_empty') return null;
+  commitCapabilityReleaseLedgerIfNeeded(ledgerRoot, storyId, capabilityReleaseResult, opts.runGit);
+  return renderCapabilityReleaseDoneLine(capabilityReleaseResult);
 }
 
 export type PostDoneLearningSettlementResult = {
@@ -1164,7 +1261,7 @@ export async function applyDoneMergeEffects(
         { changedPaths: doneMergeChangedPaths },
       ));
 
-      const artifactReleaseLine = runArtifactReleaseLedgerAfterDoneMerge(
+      const artifactRelease = runArtifactReleaseLedgerAfterDoneMergeDetailed(
         mainMergeRoot,
         storyId,
         mainShaBeforeDoneMerge,
@@ -1175,7 +1272,24 @@ export async function applyDoneMergeEffects(
           runGit: runGitArgs,
         },
       );
-      if (artifactReleaseLine) mergeLines.push(artifactReleaseLine);
+      if (artifactRelease.line) mergeLines.push(artifactRelease.line);
+
+      // B-8128 M3: also record the product capability release from the SAME DONE-time
+      // changed paths, forwarding the artifact release id/digest when one was recorded.
+      const capabilityReleaseLine = runCapabilityReleaseLedgerAfterDoneMerge(
+        mainMergeRoot,
+        storyId,
+        mainShaBeforeDoneMerge,
+        mainShaAfterDoneMerge,
+        {
+          changedPaths: doneMergeChangedPaths,
+          runtimeSemverChanged,
+          artifactReleaseId: artifactRelease.record?.id,
+          artifactSetDigest: artifactRelease.record?.artifactSetDigest,
+          runGit: runGitArgs,
+        },
+      );
+      if (capabilityReleaseLine) mergeLines.push(capabilityReleaseLine);
 
       // B-1a91 CHK-001: auto-refresh the Experience Layer finding-signals cache.
       // The cache only ever updated via an explicit out-of-band `learning_scan`,

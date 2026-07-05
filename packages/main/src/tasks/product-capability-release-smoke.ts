@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
@@ -18,13 +18,19 @@ import {
   buildCapabilityReleaseRecord,
   capabilityReleaseLedgerPath,
   capabilityVersionFromDigest,
+  classifyCapabilityRelease,
   computeCapabilityDigest,
   createCapabilityReleaseRecordForTest,
   deriveCapabilityIdSlug,
   readCapabilityReleaseLedger,
+  recordCapabilityReleaseForDoneMerge,
+  resolveCapabilityReleaseLedgerRoot,
   writeCapabilityReleaseLedgerForTest,
   type CapabilityReleaseRecordOptions,
 } from '../core/capability-release.js';
+import { StoryStore } from '../core/store.js';
+import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
+import { isDoneMainRuntimeBuildInput } from '../handlers/done-effects.js';
 
 function mkdtemp(prefix: string): string {
   return execFileSync('mktemp', ['-d', join(tmpdir(), `${prefix}XXXXXX`)], {
@@ -37,6 +43,73 @@ function write(root: string, path: string, content: string): void {
   const abs = join(root, path);
   mkdirSync(dirname(abs), { recursive: true });
   writeFileSync(abs, content, 'utf-8');
+}
+
+function git(cwd: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function writeLatticeConfig(root: string): void {
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({}, null, 2), 'utf-8');
+}
+
+/**
+ * A partial-DONE story on its own branch with the given capability-declaring
+ * changed paths staged, ready for `done_recover` to merge into main and fire the
+ * capability release binding. Mirrors makePartialDoneRecoveryFixture in
+ * artifact-release-ledger-smoke.ts.
+ */
+function makePartialDoneRecoveryFixture(capabilityFiles: Record<string, string>): { root: string; storyId: string } {
+  const root = mkdtemp('capability-release-recover-');
+  const storyId = 'B-recover';
+  const now = '2026-07-05T00:06:00.000Z';
+  writeLatticeConfig(root);
+  git(root, ['init', '-b', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Capability Release Recovery Smoke']);
+  write(root, '.gitignore', '.lattice/locks/\n');
+  write(root, 'README.md', '# fixture\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'initial']);
+
+  git(root, ['checkout', '-b', `story/${storyId}`]);
+  for (const [path, content] of Object.entries(capabilityFiles)) {
+    write(root, path, content);
+  }
+  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+    storyId,
+    name: 'recover-capability-release',
+    title: 'Recover capability release',
+    description: 'partial DONE recovery fixture',
+    type: 'feature',
+    phase: 'DONE',
+    priority: 'high',
+    createdAt: now,
+    startedAt: now,
+    endedAt: now,
+    events: [{ phase: 'DONE', action: 'advance', timestamp: now }],
+  }, null, 2) + '\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'story done']);
+  git(root, ['checkout', 'main']);
+  return { root, storyId };
+}
+
+function runDoneRecover(root: string, storyId: string): string {
+  const store = new StoryStore(root);
+  const handlers = createDoneRecoverHandlers({
+    root,
+    store,
+    scanRoot: join(root, 'packages/main'),
+    doneMainBuildRunner: () => {
+      throw new Error('docs/experiments-only recovery must not run the runtime package build');
+    },
+  });
+  return handlers.done_recover({ storyId });
 }
 
 const B785E_OPTS: CapabilityReleaseRecordOptions = {
@@ -66,6 +139,8 @@ function check(name: string, fn: () => void): void {
   passed += 1;
   console.log(`✓ ${name}`);
 }
+
+const cleanup: string[] = [];
 
 console.log('running product-capability-release-smoke...');
 
@@ -186,4 +261,162 @@ check('no gate/DONE/validate/delivery module imports the capability-release read
   }
 });
 
+try {
+
+// ---- M2 classifier (pure, deterministic) ------------------------------------
+
+check('M2 classifier: experiment+doc changed paths => experiment-launch-control, capability subset only', () => {
+  const changedPaths = [
+    'experiments/multi-model-ablation/m2-provider-execution-check.mjs',
+    'experiments/multi-model-ablation/launch-artifact.json',
+    'docs/requirements/decisions/multi-model-ablation-execution-plan.md',
+    '.lattice/story/actives/B-recover/index.json',
+    'packages/main/src/runtime.ts',
+    'package.json',
+    'docs/story/legacy.json',
+  ];
+  const classified = classifyCapabilityRelease(changedPaths, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput });
+  assert.ok(classified, 'expected a capability release for experiment+doc changes');
+  assert.equal(classified!.capabilityKind, 'experiment-launch-control');
+  assert.deepEqual(classified!.capabilityPaths, [
+    'docs/requirements/decisions/multi-model-ablation-execution-plan.md',
+    'experiments/multi-model-ablation/launch-artifact.json',
+    'experiments/multi-model-ablation/m2-provider-execution-check.mjs',
+  ]);
+  assert.match(classified!.capabilityId, /^[a-z0-9-]+$/);
+});
+
+check('M2 classifier: docs-only => documentation-control', () => {
+  const classified = classifyCapabilityRelease(
+    ['docs/requirements/decisions/plan.md', 'docs/requirements/decisions/threat.md'],
+    { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
+  );
+  assert.ok(classified);
+  assert.equal(classified!.capabilityKind, 'documentation-control');
+});
+
+check('M2 classifier (edge): typo-only single doc still classifies but as documentation-control', () => {
+  const classified = classifyCapabilityRelease(['docs/readme.md'], { isRuntimeBuildInput: isDoneMainRuntimeBuildInput });
+  assert.ok(classified);
+  assert.equal(classified!.capabilityKind, 'documentation-control');
+});
+
+check('M2 classifier (edge): packages/main/src runtime-only => NO capability release', () => {
+  const classified = classifyCapabilityRelease(
+    ['packages/main/src/runtime.ts', 'packages/main/src/core/x.ts'],
+    { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
+  );
+  assert.equal(classified, null);
+});
+
+check('M2 classifier (edge): .lattice / docs/story / root-manifest-only => NO capability release', () => {
+  const classified = classifyCapabilityRelease(
+    ['.lattice/story/actives/B-x/index.json', 'docs/story/legacy.json', 'package.json', 'package-lock.json'],
+    { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
+  );
+  assert.equal(classified, null);
+});
+
+// ---- M2 recordCapabilityReleaseForDoneMerge ---------------------------------
+
+check('recordCapabilityReleaseForDoneMerge skips empty (no capability-declaring path)', () => {
+  const root = mkdtemp('capability-release-skip-');
+  cleanup.push(root);
+  const result = recordCapabilityReleaseForDoneMerge({
+    root,
+    storyId: 'B-empty',
+    mainCommit: 'a'.repeat(40),
+    changedPaths: ['.lattice/story/actives/B-empty/index.json', 'packages/main/src/x.ts'],
+    runtimeSemverChanged: true,
+    isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+  });
+  assert.equal(result.status, 'skipped_empty');
+  assert.equal(existsSync(join(root, CAPABILITY_RELEASE_LEDGER_REL_PATH)), false);
+});
+
+check('recordCapabilityReleaseForDoneMerge (adversarial): different mainCommit => already_recorded, no duplicate', () => {
+  const root = mkdtemp('capability-release-idem-');
+  cleanup.push(root);
+  const changedPaths = [
+    'experiments/multi-model-ablation/launch-artifact.json',
+    'docs/requirements/decisions/multi-model-ablation-execution-plan.md',
+  ];
+  const first = recordCapabilityReleaseForDoneMerge({
+    root,
+    storyId: 'B-idem',
+    mainCommit: 'a'.repeat(40),
+    changedPaths,
+    runtimeSemverChanged: false,
+    artifactReleaseId: 'AR-deadbeefdeadbeefdeadbeef',
+    artifactSetDigest: 'sha256:9896bd874641b73c2f1e11bec561d1769d974d12cc2c5fc75592991c212d7bc9',
+    isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+    now: '2026-07-05T00:00:00.000Z',
+  });
+  assert.equal(first.status, 'recorded');
+  const second = recordCapabilityReleaseForDoneMerge({
+    root,
+    storyId: 'B-idem',
+    mainCommit: 'b'.repeat(40),
+    changedPaths,
+    runtimeSemverChanged: false,
+    artifactReleaseId: 'AR-deadbeefdeadbeefdeadbeef',
+    artifactSetDigest: 'sha256:9896bd874641b73c2f1e11bec561d1769d974d12cc2c5fc75592991c212d7bc9',
+    isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+    now: '2026-07-05T01:00:00.000Z',
+  });
+  assert.equal(second.status, 'already_recorded');
+  assert.equal(second.record?.id, first.record?.id);
+  assert.equal(readCapabilityReleaseLedger(root).length, 1);
+});
+
+// ---- M3 binding via done_recover (real DONE-merge path) ---------------------
+
+check('M3 (happy): done_recover with experiment+doc changes records exactly one PCR and commits the ledger', () => {
+  const { root, storyId } = makePartialDoneRecoveryFixture({
+    'docs/recovered.md': '# Recovered doc\n',
+    'experiments/recovery/result.txt': 'observed\n',
+  });
+  cleanup.push(root);
+  const output = runDoneRecover(root, storyId);
+  assert.match(output, /partial-DONE recovered: B-recover/);
+  assert.match(output, /product capability release recorded: story=B-recover/);
+  assert.match(output, /kind=experiment-launch-control/);
+
+  const ledgerRoot = resolveCapabilityReleaseLedgerRoot(root);
+  const records = readCapabilityReleaseLedger(ledgerRoot);
+  assert.equal(records.length, 1);
+  assert.equal(records[0].storyId, storyId);
+  assert.equal(records[0].capabilityKind, 'experiment-launch-control');
+  // changedPaths persists the FULL DONE-time list (incl. lifecycle metadata);
+  // the capability identity is derived only from the docs/experiments subset.
+  assert.ok(records[0].changedPaths.includes('docs/recovered.md'));
+  assert.ok(records[0].changedPaths.includes('experiments/recovery/result.txt'));
+  assert.equal(records[0].authority, 'non_authoritative');
+  assert.equal(records[0].gateEvidence, false);
+  // The ledger is committed on main and the tree is clean afterwards.
+  assert.ok(git(root, ['show', `HEAD:${CAPABILITY_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-recover"'));
+  assert.equal(git(root, ['status', '--short']), '');
+});
+
+check('M3 (edge): done_recover with .lattice-metadata-only material change records NO PCR', () => {
+  // A story whose only non-lifecycle change is a runtime source file: no
+  // capability-declaring docs/experiments path => classifier declines => no PCR.
+  const { root, storyId } = makePartialDoneRecoveryFixture({
+    'docs/story/legacy.json': '{"note":"lifecycle-shaped path, excluded"}\n',
+  });
+  cleanup.push(root);
+  const output = runDoneRecover(root, storyId);
+  assert.match(output, /partial-DONE recovered: B-recover/);
+  assert.doesNotMatch(output, /product capability release recorded/);
+
+  const ledgerRoot = resolveCapabilityReleaseLedgerRoot(root);
+  assert.equal(existsSync(capabilityReleaseLedgerPath(ledgerRoot)), false);
+  assert.equal(readCapabilityReleaseLedger(ledgerRoot).length, 0);
+});
+
 console.log(`\nok product-capability-release (${passed} checks)`);
+} finally {
+  for (const dir of cleanup.reverse()) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
