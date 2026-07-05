@@ -175,8 +175,8 @@
       "id": "CHK-003",
       "title": "M7: structured-outcome recording + evidence-based promotion recommendation commands",
       "context": "Command surface to record a structured outcome (helped/dismissed/harmful) bound to a concrete exposureMode + structured verdictSource, and a command to emit promotion recommendations when decisiveSamples suffice. DONE-success != helped and the decisiveSamples exclusions are already enforced in learning-store.ts (B-8128 asserts); build the user-facing commands on top without changing those rules.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:38:18.143Z",
       "endTime": null,
       "userSees": "playbook_outcome_record accepts a structured capability-candidate outcome; playbook_promotion_sweep emits a recommendation only on decisive evidence; DONE-success never counts as helped",
       "files": {
