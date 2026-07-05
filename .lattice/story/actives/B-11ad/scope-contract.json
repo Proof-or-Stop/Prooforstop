@@ -71,8 +71,24 @@
         "proofstory.intent_collision",
         "proofstory.acceptance_binding"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to fix verified high finding B-11ad:F-003: done_recover is a DONE merge path and must share artifact release provenance ledger behavior with normal DONE so recovered docs/experiments merges cannot skip release records.",
+      "timestamp": "2026-07-05T10:44:14.264Z",
+      "paths": [
+        "packages/main/src/handlers/done-recover.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/done-recover.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aa3c2c8b56290a6b3ffff1a0913351e90cd217e4",
+      "materialHash": "8e8c8356e5598330150202694e8ba79bfd78f21fd23ebd183f283cc9e6facadf"
     }
   ],
   "createdAt": "2026-07-05T09:54:33.798Z",
-  "updatedAt": "2026-07-05T09:54:56.881Z"
+  "updatedAt": "2026-07-05T10:44:14.264Z"
 }
