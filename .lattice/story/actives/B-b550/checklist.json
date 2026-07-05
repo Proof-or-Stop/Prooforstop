@@ -44,10 +44,10 @@
           "command": "rg -n '^## M0. Source Inventory' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M0 Source Inventory section present with the authoritative implementation source refs",
-          "headHash": "e90d08349566c357e2e7db0879754080327875ae",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:44.718Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -57,10 +57,10 @@
           "command": "rg -n 'session_brief|canonical' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M0 records the canonical worktree root via session_brief; retired Orchestrate root excluded as truth",
-          "headHash": "d151569c9a0b13cb9a94b7f9632ab76d1aec5841",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:46.050Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -70,10 +70,10 @@
           "command": "rg -n 'milestone_ledger_set|milestone_ledger_add|milestone_status|milestone_closeout' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "All five milestone command surfaces inventoried in M0",
-          "headHash": "5d26cc941219ea0f445d1e72f313b12dd7e1a213",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:47.368Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -83,10 +83,10 @@
           "command": "rg -n 'stale|retired' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M0 stale/retired-root note: no Orchestrate path treated as authoritative",
-          "headHash": "02ab4f59202b83bbd5c38ea7fa4f3d0d98584e84",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:48.670Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -96,10 +96,10 @@
           "command": "rg -n 'Orchestrate' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M0 references Orchestrate only negatively (not authoritative); no positive authoritative citation to the retired root",
-          "headHash": "514aa2b61f4326913d8881909b51bdf4680f4be9",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:50.123Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -150,10 +150,10 @@
           "command": "lattice milestone_status --storyId=B-b550",
           "result": "pass",
           "note": "Live milestone_status renders Mode: read-only status table with no error",
-          "headHash": "72f4749b62a90b488adb6e14a37504e3c7f57da7",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:51.625Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -163,10 +163,10 @@
           "command": "rg -n '^## M1. Read-Only Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M1 section records pass per M1.a-M1.f plus the read-only git-subprocess clarification",
-          "headHash": "5795d42c7ed7cbe726b1e68e1cee50768a184400",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:52.979Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -176,10 +176,10 @@
           "command": "lattice milestone_status --storyId=B-b550 --writeEvidence=true",
           "result": "pass",
           "note": "Unknown key rejected before any story read; pass = the expected rejection occurred (see evidence artifact)",
-          "headHash": "7462da16f4eaa54399cd65bd397cfd6a6ab394f9",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:54.368Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -189,10 +189,10 @@
           "command": "cat .lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
           "result": "pass",
           "note": "Evidence artifact exists and contains the unexpected-key rejection output",
-          "headHash": "c59c9381950c8cf1ae71c226603b3fc502cac109",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:55.826Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -202,10 +202,10 @@
           "command": "rg -ni 'DONE|production|authority' status-output",
           "result": "pass",
           "note": "Status render output makes no DONE/production/Authority claim (verified against render strings; M6 correction records the absence of an explicit disclaimer)",
-          "headHash": "a22d5363e8cb8f2102af8016c84e63f4520033b2",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:57.202Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -215,10 +215,10 @@
           "command": "cat .lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt",
           "result": "pass",
           "note": "Evidence artifact shows the mutation flag was rejected (never-mutate boundary)",
-          "headHash": "f2cece387fcfddf0e957c45f84ae2f4e7ed2fd93",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:58.636Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -270,10 +270,10 @@
           "command": "rg -n '^## M2. Ledger Write Contract' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M2 section covers M2.a-M2.f finding-or-pass plus the confirm-time hash hardening note",
-          "headHash": "8b923b8584c969bffba812d619c415ec54b75433",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:13:59.980Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -283,10 +283,10 @@
           "command": "rg -n 'PLAN' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M2 documents PLAN-only lifecycle phase policy for milestone_ledger_set and milestone_ledger_add",
-          "headHash": "6f3e2081c09daa65d91000ba0955360325a52a93",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:01.823Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -296,10 +296,10 @@
           "command": "rg -n 'candidate|confirmed' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M2 documents candidate vs confirmed hash-bound state behavior (M2.d)",
-          "headHash": "40ff86cdabfd28e3aab9a2a1ded239b44b97d632",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:03.209Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -309,10 +309,10 @@
           "command": "cat .lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt",
           "result": "pass",
           "note": "Evidence artifact documents live confirmed-binding behavior for this story's ledger",
-          "headHash": "8c446525dc5a29e72b155ed20e59d4c2be282b69",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:04.661Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -322,10 +322,10 @@
           "command": "rg -ni 'accidental|silently|gate evidence' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M2 explicitly addresses whether direct writes can accidentally become confirmed gate evidence (M2.e) — they cannot",
-          "headHash": "d538108456764cc438ca7ede1ac5f8086db27c15",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:06.075Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -335,10 +335,10 @@
           "command": "review M2 sub-objective table covers M2.a-M2.f",
           "result": "pass",
           "note": "M2 sub-objective table addresses all six M2.a-M2.f; none silently skipped",
-          "headHash": "39cc7ced9cf9fd8214adfe701c4b0261672ff55e",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:07.426Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -390,10 +390,10 @@
           "command": "rg -n '^## M3. Missing-Ledger Policy' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M3 section present with the missing-state matrix",
-          "headHash": "f340e4e63b6e9abe9e054b26a8ec6c3e30e1f84b",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:09.895Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -403,10 +403,10 @@
           "command": "rg -ni 'ordinary|single-outcome' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M3 reviews ordinary single-outcome story behavior with no ledger (M3.a)",
-          "headHash": "b4bb1dffeb9af2ba9450637c841297a869b158fb",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:11.796Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -416,10 +416,10 @@
           "command": "rg -n 'DEV|REVIEW|DONE' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M3 documents DEV/REVIEW/DONE behavior including the doneGateMode=enforce correction (M3.d/M3.e)",
-          "headHash": "a1157beccb5aadfbeeb139facf0025b6122a4613",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:13.210Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -429,10 +429,10 @@
           "command": "cat .lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt",
           "result": "pass",
           "note": "Evidence artifact shows DEV-admission enforcement behavior for missing required ledger",
-          "headHash": "d5447b7f0066fa8e8e8c4d1a7a76ef8a34b3c4e3",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:14.886Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -442,10 +442,10 @@
           "command": "rg -ni 'non-mutating|specific|next action' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M3 verifies the missing-ledger next action is specific and non-mutating (M3.f)",
-          "headHash": "d3677017a5f1a3370f643e9798262120e49150e5",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:16.253Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -455,10 +455,10 @@
           "command": "review M3 matrix candidate vs confirmed rows",
           "result": "pass",
           "note": "M3 addresses candidate vs confirmed requirements as separate matrix rows, not collapsed into one verdict (M3.c)",
-          "headHash": "c97283d55c3533c35553d8c8e8509391c63c12e2",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:18.056Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -506,10 +506,10 @@
           "command": "rg -n '^## M4. Schema And Progress Model' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M4 Schema section present with adequacy verdict",
-          "headHash": "25cc0c045224106e710dbb3b711f133c57919480",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:14:56.263Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -519,10 +519,10 @@
           "command": "rg -n 'doneMeans|required.evidence|sourceRequirement' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M4 reviews required MilestoneLedgerItem fields id/sourceRequirementId/claim/doneMeans/requiredEvidence (M4.a)",
-          "headHash": "c86b65736052165d03a98959748f1d1d903fc0c5",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:35.092Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -532,10 +532,10 @@
           "command": "rg -ni 'parent|child|assigned' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M4 addresses parent/assigned-child story support (M4.d)",
-          "headHash": "f20aa83bc90f06e244e0ada06628751ee69b36a9",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:36.433Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -545,10 +545,10 @@
           "command": "rg -ni 'prose|hidden|sub-objective' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M4.e: prose-only text cannot mint hidden milestone claims; rows come only from explicit ledger commands",
-          "headHash": "a40f2cc93d010f661d439b76d797bfe201f4fefc",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:37.781Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -558,10 +558,10 @@
           "command": "rg -ni 'schema|addition|future|caveat' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M4.f: schema sufficiency explicitly decided (no addition required) plus the not_applicable self-exemption caveat; not left ambiguous",
-          "headHash": "6ad011e4cc76208afc8b14654aac501ae9d6715d",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:39.083Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -609,10 +609,10 @@
           "command": "rg -n '^## M5. Test Coverage And Negative Controls' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M5 section present with the corrected coverage map and the recorded test-gap list",
-          "headHash": "546c07589e67f31e78ff17844e32ad230e1df7e6",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:40.394Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-006:happy:1",
@@ -622,10 +622,10 @@
           "command": "rg -ni 'read-only|milestone_status' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M5.a: read-only status tests listed (milestone-status.test.mjs)",
-          "headHash": "7404a935cef641db1e0d2b1e76c43f35fb4658d9",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:41.806Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -635,10 +635,10 @@
           "command": "rg -ni 'missing-ledger|negative control' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M5.b/M5.d: missing-ledger report tests found; missing negative controls recorded as gaps",
-          "headHash": "73255114fee331e8841606babe0467b628ea6116",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:43.239Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-006:edge:1",
@@ -648,10 +648,10 @@
           "command": "rg -ni 'DONE|cannot' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M5.e: closeout tests prove milestone status cannot satisfy DONE by itself (stale-report conjunct corrected)",
-          "headHash": "f66f31c0ba14767944c6a581869fe88320d19c45",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:44.604Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -661,10 +661,10 @@
           "command": "rg -ni 'test-gap|negative control|withdrew' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M5.f: missing negative controls (duplicate/empty/stale/suite-wiring) recorded as explicit follow-up findings, not omitted",
-          "headHash": "c89b261d9a7628dbf7be9cc8398155d8e8df59fd",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:47.957Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -712,10 +712,10 @@
           "command": "rg -n '^## M6. Capability Impact Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M6 section present with the bounded capability-claim boundary and the disclaimer/Authority-silence correction",
-          "headHash": "55ec1c62f7ceb8c2f55855ba36fe300d77da78a8",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:49.836Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-007:happy:1",
@@ -725,10 +725,10 @@
           "command": "rg -ni 'progress reporting|structured milestone' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M6.a: structured milestone rows improve progress reporting",
-          "headHash": "281840510dfa1789eb4f6d678ece73329eb71020",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:52.031Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -738,10 +738,10 @@
           "command": "rg -ni 'handoff|restart' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M6.c: ledger refs improve host handoff and restart continuity",
-          "headHash": "4fad2b7c5e0d607b7fc470d2a0002996500c4669",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:53.664Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -751,10 +751,10 @@
           "command": "rg -ni 'DONE|Authority|production' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M6.d: capability stops short of DONE/Authority/production; correction notes the missing output disclaimer and Authority-silence",
-          "headHash": "e3475f6b10b5a89b9473f873e1c04bb8e5cd4e02",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:55.678Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-007:adversarial:1",
@@ -764,10 +764,10 @@
           "command": "review M6 uses no 'replaces lifecycle_check/review/DONE gate' overclaim phrasing",
           "result": "pass",
           "note": "M6 uses only negations (does not replace); no overclaim phrasing that milestone status replaces any lifecycle/review/DONE gate",
-          "headHash": "3545e6da123512a35988a051714f1d51d57acad0",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:15:59.668Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     },
@@ -819,10 +819,10 @@
           "command": "rg -n '^## M7. Review Outcome And Decision' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M7 closure section summarizes all M0-M6 pass/finding outcomes in a closure table",
-          "headHash": "8dc9559df0f1f9add53fa21e7be300a167f80c61",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:01.784Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-008:happy:1",
@@ -832,10 +832,10 @@
           "command": "rg -n 'reviewed-pass' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
           "result": "pass",
           "note": "M7.d: plan Status columns updated planned -> reviewed outcomes for all M0-M7",
-          "headHash": "ff5588a7a709076bcae61d0bd07b6cc4459b603b",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:03.106Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -845,10 +845,10 @@
           "command": "rg -ni 'follow-up|story scope' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
           "result": "pass",
           "note": "M7.b/M7.c: a bounded follow-up hardening story scope is drafted (gaps found)",
-          "headHash": "05a487451ba47c58cfed7345cb0b12f07ff41fb1",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:04.462Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-008:edge:1",
@@ -858,10 +858,10 @@
           "command": "rg -n 'milestone-ledger-status-review-findings' docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV.md entry for the findings report added",
-          "headHash": "03ffc26d648b33afdd2e3dfa29c7cc2cb59bf4a6",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:05.872Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -871,10 +871,10 @@
           "command": "review closure: executed-pass-with-corrections not clean pass",
           "result": "pass",
           "note": "Closure marks executed-pass-with-corrections; every M0-M6 correction is resolved in-report or deferred to the M7 follow-up — no unresolved finding contradicts the verdict",
-          "headHash": "ce110459498d32d2378b8f4277853d2ac319ae88",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:07.275Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         },
         {
           "intentRef": "CHK-008:adversarial:1",
@@ -884,10 +884,10 @@
           "command": "rg -n '\\| planned \\|' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md (expect zero matches)",
           "result": "pass",
           "note": "No milestone left showing planned in the plan Status column (0 planned remain)",
-          "headHash": "26354a1099eb72559bcdf53d677975b95edd5022",
-          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
-          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
-          "timestamp": "2026-07-05T14:16:09.166Z"
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
         }
       ]
     }
