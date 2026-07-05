@@ -3,26 +3,27 @@
   "storyId": "B-6529",
   "mode": "feature",
   "allowed": [
-    "Bounded budget approval binding when supplied by user",
     "Cell 03 provider execution authorization metadata",
     "Checker negative controls for fail-closed behavior",
     "Dated E2 executor/reviewer snapshot binding",
+    "Frozen Cell 03 execution envelope instead of pre-run dollar guessing",
+    "Postflight provider-reported usage accounting and cost comparison",
     "Prompt and tool-surface digest binding",
     "Result output/provider-switch/window/scope policy",
     "Runner ownership and duplicate policy"
   ],
   "excluded": [
-    "Actual provider calls before exact bounded human budget approval",
     "Cell 02 or Cell 04 execution",
     "Cell 06 A2prime execution",
+    "Execution without frozen cell/task/retry/token/time bounds",
     "Paper wording updates",
     "Phase 2 powered matrix",
     "Runtime/playbook behavior changes",
-    "Unbounded provider spend"
+    "Unbounded retry loops"
   ],
-  "confirmedBy": "story_create",
-  "confirmationNote": "User requested solving Cell 03 provider execution prerequisites after B-c25c guardrail showed real execution metadata missing. Scope is Cell 03 authorization unlock only, not provider result generation or later cells.",
-  "createdAt": "2026-07-05T21:22:04.933Z",
-  "updatedAt": "2026-07-05T21:22:04.933Z",
-  "_hash": "80fbf5f79261b707d9573a07401e336bbdc81a7e61c1d44f6a1e22334f59cc3e"
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "User clarified on 2026-07-05 that dollar amount should not be a pre-run limiting condition; the system should complete Cell 03 under frozen execution bounds, then calculate and record actual spend after execution.",
+  "createdAt": "2026-07-05T21:25:09.046Z",
+  "updatedAt": "2026-07-05T21:25:09.046Z",
+  "_hash": "5bf1d6dac4028d48e5999477765c144bd9607f7303db5443f5563b9c78d38f7a"
 }
