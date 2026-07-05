@@ -105,6 +105,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9e44:F-006",
+      "desc": "[codex-host-2 re-check, verified] Refreshed manifest-metadata lies missing: authority, gateEvidence, schemaVersion are in the manifestDigest domain but the verify pass condition never asserts their expected VALUES (and verify hardcodes authority:non_authoritative/gateEvidence:false in its result). Empirically confirmed: manifest gateEvidence:true[refreshed] and authority:authoritative[refreshed] both -> status:pass. Malicious refreshed manifest-metadata lies not covered by corruptRows-lie alone. Same digest-recompute/Tier-C family.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T16:29:28.317Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "_hash": "3ccfb675669cd8df0789a4763631b6f3fa6fc68fc675fd4a90e45164e45179d5",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
