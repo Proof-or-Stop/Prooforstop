@@ -255,6 +255,26 @@ function main() {
     rmSync(sandboxB, { recursive: true, force: true });
   }
 
+  // (c) op-coverage self-test (finding F-005): tamper.mjs --optselftest exercises
+  // every compareFingerprint predicate branch (==, <, >, !=) plus the unknown-op
+  // throw, which the frozen protocol (only == / <) and the negative test (flips a
+  // boolean flag) never reach.
+  let optOut;
+  try {
+    optOut = execFileSync('node', ['tamper.mjs', '--optselftest'], {
+      cwd: HERE,
+      encoding: 'utf8',
+    });
+  } catch (e) {
+    fail(`(c) op-coverage: tamper.mjs --optselftest exited nonzero: ${e.stderr || e.message}`);
+  }
+  if (!/optselftest PASS/.test(optOut)) {
+    fail(`(c) op-coverage: expected "optselftest PASS", got: ${optOut}`);
+  }
+  console.log(
+    'selfcheck-m1 (c) op-coverage: compareFingerprint ==,<,>,!= branches + unknown-op-throw all verified.',
+  );
+
   console.log('selfcheck-m1 PASS');
   process.exit(0);
 }

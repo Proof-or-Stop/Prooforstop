@@ -854,4 +854,63 @@ function main() {
   process.exit(0);
 }
 
-main();
+// ---------------------------------------------------------------------------
+// Op-coverage self-test (finding F-005): exercises every compareFingerprint
+// numeric-predicate branch (==, <, >, !=) plus the unknown-op throw, since the
+// frozen protocol.json only carries == and < today and no conformance run or
+// negative test would otherwise reach the >, != or default branches.
+// Run: node tamper.mjs --optselftest
+// ---------------------------------------------------------------------------
+function runOpSelfTest() {
+  const fail = (msg) => {
+    console.error(`optselftest FAIL: ${msg}`);
+    process.exit(1);
+  };
+  // Minimal (live, frozen, frozenEntry) for one metric field 'r' under
+  // predicate {op, value}; frozen metric value = frozenVal, live = liveVal.
+  const mk = (op, value, frozenVal, liveVal) => {
+    const frozen = { status: 'fail', flags: {}, metrics: { r: frozenVal } };
+    const live = { status: 'fail', flags: {}, metrics: { r: liveVal } };
+    const entry = {
+      class: 'optselftest',
+      handling: 'raw',
+      failureSignals: [{ field: 'r', kind: 'metric', op, value }],
+    };
+    return compareFingerprint(live, frozen, entry);
+  };
+  const expectMatch = (label, res) => {
+    if (!res.match) fail(`${label} expected match but got diffs: ${res.diffs.join('; ')}`);
+  };
+  const expectNoMatch = (label, res) => {
+    if (res.match) fail(`${label} expected NO match but it matched`);
+  };
+  // '==' : abs(live-frozen) within EPS.
+  expectMatch('==(equal)', mk('==', 0.5, 0.5, 0.5));
+  expectNoMatch('==(differ)', mk('==', 0.5, 0.5, 0.7));
+  // '<' : live strictly below threshold AND ~= frozen.
+  expectMatch('<(below+equal)', mk('<', 1, 0.6, 0.6));
+  expectNoMatch('<(at threshold)', mk('<', 1, 0.6, 1.0));
+  expectNoMatch('<(below but differs)', mk('<', 1, 0.6, 0.8));
+  // '>' : live strictly above threshold AND ~= frozen.
+  expectMatch('>(above+equal)', mk('>', 0, 0.5, 0.5));
+  expectNoMatch('>(at threshold)', mk('>', 0, 0.5, 0.0));
+  // '!=' : live not-equal to predicate (gold) value AND ~= frozen.
+  expectMatch('!=(not-gold+equal)', mk('!=', 1, 0.6, 0.6));
+  expectNoMatch('!=(equals gold)', mk('!=', 1, 0.6, 1.0));
+  // unknown op : must THROW loudly, not silently epsilon-compare.
+  let threw = false;
+  try {
+    mk('~', 0, 0.5, 0.5);
+  } catch {
+    threw = true;
+  }
+  if (!threw) fail("unknown op '~' did not throw");
+  console.log('optselftest PASS: compareFingerprint ops ==,<,>,!= + unknown-op-throw all verified');
+  process.exit(0);
+}
+
+if (process.argv.includes('--optselftest')) {
+  runOpSelfTest();
+} else {
+  main();
+}
