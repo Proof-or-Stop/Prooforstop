@@ -4,7 +4,7 @@
   "title": "Record non-runtime artifact provenance at DONE without CLI semver noise",
   "description": "DONE currently skips the CLI patch version when a story changes only non-runtime artifacts such as experiment protocol outputs. That skip is correct for CLI/runtime semver, but users still need a durable provenance/version record for delivered non-runtime artifacts.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "artifact-release",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-05T09:38:54.712Z",
   "startedAt": "2026-07-05T09:38:54.712Z",
-  "endedAt": null,
+  "endedAt": "2026-07-05T11:38:50.684Z",
   "events": [
     {
       "phase": "INIT",
@@ -159,12 +159,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-312c73f6f75c93b3",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:38:50.684Z",
+      "branch": "story/B-11ad",
+      "user": "Harmonygo",
+      "sessionId": "sess-312c73f6f75c93b3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-11ad",
-    "branch": "story/B-11ad",
-    "createdAt": "2026-07-05T09:40:00.979Z"
-  },
   "currentReviewRound": "2026-07-05T11:06:09.853Z"
 }
