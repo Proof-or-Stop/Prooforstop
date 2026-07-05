@@ -159,7 +159,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
       ],
-      "userSees": "Cell 03 has exactly one authorized runner owner and duplicate/retry rules before execution.",
+      "userSees": "`Cell 03 runner owner: codex-cli`; `Duplicate policy: retries bounded; repeated rows are not independent`.",
       "excludes": [
         "Multiple active Cell 03 owners",
         "Counting retries as independent rows",
@@ -177,7 +177,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies exactly one owner for m2-future-cell-03-e2-a4-same and a duplicate policy with bounded retries.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Retry attempts are represented as attempts for the same logical cell key and cannot become independent result rows.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate owners, missing retry limit, or unregistered duplicate rows must be rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
