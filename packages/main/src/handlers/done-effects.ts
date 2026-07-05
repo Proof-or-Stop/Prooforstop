@@ -143,6 +143,8 @@ function normalizeGitPath(path: string): string {
 export function isDoneMainRuntimeBuildInput(path: string): boolean {
   const rel = normalizeGitPath(path);
   return rel.startsWith('packages/main/src/')
+    || rel === 'docs/CLI.md'
+    || rel.startsWith('packages/main/tests/')
     || rel === 'packages/main/package.json'
     || rel === 'packages/main/package-lock.json'
     || rel === 'packages/main/tsconfig.json'
