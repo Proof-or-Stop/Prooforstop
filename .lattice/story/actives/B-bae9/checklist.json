@@ -125,11 +125,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/tamper.mjs; echo exit=$?",
           "result": "pass",
-          "note": "H2 conformance PASS (mismatches=0), exit 0: all 18 failClosed verifyStatus fail/crash + fingerprintMatch true; 2 acceptanceBucket + 6 acknowledgedLimitations verifyStatus pass + fingerprintMatch true; 1 dropped pass. Verified: fingerprintMatch:false count=0, failClosed-with-pass=0.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
+          "note": "H2 conformance PASS exit 0: mismatches=0, dispositionMatch failures=0, no-op mutations=0, dropped-semantics violations=0. Every non-dropped class shows a real byteDiff (mutation genuinely applied); dropped (seed-swap) has records+gold byte-identical to clean; every re-derived disposition matches the frozen bucket.",
+          "headHash": "ca78f71ead6095715b26173b0f79232ff4f727a4",
           "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
           "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "timestamp": "2026-07-05T17:59:41.122Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
