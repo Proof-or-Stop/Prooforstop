@@ -26,7 +26,7 @@
       "desc": "[codex-host-2] H2 fingerprint domain underspecified: section 6.1 freezes 'exact verify flags required false/true' but the verify result also carries numeric gold metrics (rates) and non-boolean fields (playbook-runtime-baseline.ts:73,98,1769); the plan never says which fields participate in the fingerprint match, so 'truthful reason = observed flag vector matches frozen fingerprint' is not implementable as written for classes whose failure manifests in rates.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T13:05:42.089Z",
@@ -36,7 +36,11 @@
         "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|codex-host-fingerprint",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4a4c4e543. Section 6.1 point 2 now defines the H2 fingerprint DOMAIN explicitly: the fingerprint is NOT the whole verify result, only (a) the exact boolean verify-flag vector (each flag named required-false/required-true) AND (b) a declared set of numeric-metric predicates over the gold metrics (e.g. expectedIdsFoundRate == 1.0 vs < 1.0); fields outside the frozen domain do not participate. This makes 'observed values match frozen fingerprint' implementable for classes whose failure manifests only in a rate, not a boolean. Section 7 (tamper-verdicts.jsonl records now carry flag vector + gold metrics + fingerprint-match) and the H2 row/verification matrix updated to reference 'fingerprint-domain values (flags + numeric predicates)'.",
+      "resolvedAt": "2026-07-05T13:57:17.941Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e86f:F-003",
