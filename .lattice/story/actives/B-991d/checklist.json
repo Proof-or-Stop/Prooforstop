@@ -378,8 +378,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:52:57.978Z",
       "endTime": null
     },
     {
@@ -679,6 +679,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03-only execution window opened under B-991d provenance while preserving B-6529 no-provider-call readiness evidence.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:52:57.978Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start bounded Cell 03 probe before full execution.",
       "agent": "codex-main"
     }
   ]
