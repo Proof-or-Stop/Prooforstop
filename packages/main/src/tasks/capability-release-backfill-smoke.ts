@@ -6,20 +6,28 @@
  * @type feature
  * @priority high
  * @description
- *   Hermetic proof of the M8 capability_release_backfill command semantics via the
- *   real handler (createCapabilityReleaseBackfillHandlers):
- *     - dry-run detects EXACTLY ONE eligible under-bound candidate (its
- *       lineage.sourceStoryId has a capability release but lacks
- *       capabilityReleaseId) and emits a STABLE plan digest;
- *     - apply with the WRONG --digest is refused (drift);
- *     - apply with the RIGHT --digest enriches EXACTLY ONE candidate's lineage
- *       (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId);
- *     - a second apply finds 0 eligible (idempotent);
- *     - the candidate status stays 'candidate' and usage.surfacedCount is
- *       unchanged; no playbook-outcome row is written; the capability-releases
- *       ledger is byte-identical before/after.
+ *   Hermetic proof of the M8 capability_release_backfill record-then-bind migration
+ *   via the real handler (createCapabilityReleaseBackfillHandlers).
+ *
+ *   CASE A — 'bind' (a capability release already exists):
+ *     - dry-run detects EXACTLY ONE eligible under-bound candidate and a STABLE digest;
+ *     - apply with the WRONG / MISSING --digest is refused;
+ *     - apply with the RIGHT --digest enriches EXACTLY ONE candidate's lineage;
+ *     - a second run finds 0 eligible (idempotent);
+ *     - status stays 'candidate', usage.surfacedCount unchanged, no outcome written,
+ *       the capability-releases ledger is byte-identical (no new PCR for a pure bind).
+ *
+ *   CASE B — 'record-then-bind' (an ARTIFACT release exists but NO capability release,
+ *   the real PBP-882/B-785e shape):
+ *     - dry-run reports the candidate as eligible with plan='record-then-bind' and the
+ *       PCR it WOULD record (id/version derived from the artifact release's paths);
+ *     - apply RECORDS the capability release into .lattice/capability-releases.jsonl
+ *       (git add -f + commit — verified tracked), THEN binds the candidate;
+ *     - re-run is idempotent (PCR now exists, candidate bound → 0 eligible);
+ *     - status/usage invariants hold and no outcome is written.
  * @changes
  *   - [CHK-001] Cover capability_release_backfill dry-run/apply/--digest + invariants.
+ *   - [CHK-001] Add the record-then-bind migration case (artifact release → recorded PCR).
  */
 
 import assert from 'node:assert/strict';
@@ -29,8 +37,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import {
+  createArtifactReleaseRecordForTest,
+  writeArtifactReleaseLedgerForTest,
+} from '../core/artifact-release.js';
+import {
   capabilityReleaseLedgerPath,
   createCapabilityReleaseRecordForTest,
+  readCapabilityReleaseLedger,
   writeCapabilityReleaseLedgerForTest,
 } from '../core/capability-release.js';
 import type { Playbook } from '../core/experience-layer-types.js';
@@ -50,6 +63,22 @@ function mkdtemp(prefix: string): string {
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
+}
+
+function git(cwd: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+/** Initialize a hermetic git repo so the record-then-bind commit path is real. */
+function gitInit(root: string): void {
+  git(root, ['init', '-q']);
+  git(root, ['config', 'user.email', 'smoke@noreply.local']);
+  git(root, ['config', 'user.name', 'smoke']);
+  git(root, ['config', 'commit.gpgsign', 'false']);
 }
 
 function write(root: string, path: string, content: string): void {
@@ -90,16 +119,17 @@ function candidatePlaybook(id: string, sourceStoryId: string, bound: boolean): P
 const cleanup: string[] = [];
 
 try {
+  // ════════════════════════════════════════════════════════════════════════════
+  // CASE A — 'bind' (a capability release already exists for the story)
+  // ════════════════════════════════════════════════════════════════════════════
   const root = mkdtemp('capability-release-backfill-smoke-');
   cleanup.push(root);
   write(root, 'lattice.config.json', '{}');
 
-  // ── Fixture: one capability release for B-785e; four candidate playbooks ──────
-  //   PBP-882  → B-785e, UNBOUND    → the single eligible candidate.
+  // ── Fixture: one capability release for B-785e; three candidate playbooks ─────
+  //   PBP-882  → B-785e, UNBOUND    → the single eligible candidate (plan='bind').
   //   PBP-bound→ B-785e, ALREADY BOUND (capabilityReleaseId present) → ineligible.
-  //   PBP-nostory → B-9999, UNBOUND but NO capability release exists → ineligible.
-  //   PBP-active is NOT created (all four fixtures are candidates by design; the
-  //   status guard is asserted below by re-reading persisted status).
+  //   PBP-nostory → B-9999, UNBOUND, NO capability AND NO artifact release → ineligible.
   const capabilityRelease = createCapabilityReleaseRecordForTest({
     root,
     storyId: 'B-785e',
@@ -140,10 +170,12 @@ try {
     const row = report.eligible[0];
     assert.equal(row.playbookId, 'PBP-882');
     assert.equal(row.sourceStoryId, 'B-785e');
+    assert.equal(row.plan, 'bind', 'a pre-existing capability release is a pure bind');
     assert.equal(row.capabilityReleaseId, capabilityRelease.id);
     assert.equal(row.capabilityId, capabilityRelease.capabilityId);
     assert.equal(row.capabilityVersion, capabilityRelease.capabilityVersion);
     assert.equal(row.artifactReleaseId, capabilityRelease.artifactReleaseId);
+    assert.equal(report.recordThenBindCount, 0, 'CASE A has no record-then-bind rows');
     assert.ok(/^sha256:[0-9a-f]{64}$/.test(report.planDigest), 'planDigest is a sha256');
     dryDigest = report.planDigest;
   });
@@ -183,6 +215,7 @@ try {
     assert.equal(report.applied, true);
     assert.equal(report.eligibleCount, 1);
     assert.equal(report.enrichedCount, 1);
+    assert.equal(report.recordedReleaseCount, 0, 'a pure bind records no new capability release');
 
     const pbs = readPlaybooks(root);
     const enriched = pbs.find((p) => p.id === 'PBP-882')!;
@@ -238,6 +271,114 @@ try {
   // Sanity: outcomes ledger was never even created by the backfill path.
   check('no playbook-outcome ledger file was ever written by backfill', () => {
     assert.equal(existsSync(resolvePlaybookOutcomesPath(root)), false);
+  });
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // CASE B — 'record-then-bind' (artifact release exists, NO capability release)
+  //   This is the real PBP-882/B-785e shape: B-785e DONE'd before the capability
+  //   release feature, so it has AR-… but no PCR. The migration must RECORD the
+  //   missing PCR (from the artifact release's paths), commit it, then bind.
+  // ════════════════════════════════════════════════════════════════════════════
+  const rootB = mkdtemp('capability-release-recordbind-smoke-');
+  cleanup.push(rootB);
+  write(rootB, 'lattice.config.json', '{}');
+  gitInit(rootB);
+
+  // An ARTIFACT release for B-785e whose paths declare a reusable capability, but
+  // NO capability release for B-785e (the classifier will derive one).
+  const artifactRelease = createArtifactReleaseRecordForTest({
+    root: rootB,
+    storyId: 'B-785e',
+    mainCommit: 'b'.repeat(40),
+    changedPaths: ['experiments/multi-model-ablation/m2-provider-execution-check.mjs'],
+    runtimeSemverChanged: false,
+    now: NOW,
+  });
+  writeArtifactReleaseLedgerForTest(rootB, [artifactRelease]);
+  git(rootB, ['add', '-f', '.lattice/artifact-releases.jsonl', 'lattice.config.json']);
+  git(rootB, ['commit', '-q', '-m', 'fixture: artifact release + config']);
+
+  writePlaybooks(rootB, [candidatePlaybook('PBP-882', 'B-785e', false)]);
+  const capLedgerPathB = capabilityReleaseLedgerPath(rootB);
+
+  const handlersB = createCapabilityReleaseBackfillHandlers({ store: new StoryStore(rootB), root: rootB, scanRoot: rootB });
+  const backfillB = handlersB.capability_release_backfill;
+
+  let recordBindDigest = '';
+  let plannedPcrId = '';
+  check('record-then-bind: dry-run reports one eligible with plan=record-then-bind + the PCR it would record', () => {
+    const report = JSON.parse(backfillB({ json: true }));
+    assert.equal(report.eligibleCount, 1);
+    assert.equal(report.recordThenBindCount, 1);
+    assert.equal(report.recordedReleaseCount, 0, 'dry-run records nothing');
+    const row = report.eligible[0];
+    assert.equal(row.playbookId, 'PBP-882');
+    assert.equal(row.sourceStoryId, 'B-785e');
+    assert.equal(row.plan, 'record-then-bind');
+    assert.ok(/^PCR-[0-9a-f]{24}$/.test(row.capabilityReleaseId), 'a concrete PCR id is planned');
+    assert.equal(row.fromArtifactReleaseId, artifactRelease.id, 'derived from the artifact release');
+    assert.equal(row.artifactReleaseId, artifactRelease.id);
+    // No capability release exists yet; the candidate is still unbound on disk.
+    assert.equal(readCapabilityReleaseLedger(rootB).length, 0);
+    assert.equal(readPlaybooks(rootB)[0].lineage.capabilityReleaseId, undefined);
+    recordBindDigest = report.planDigest;
+    plannedPcrId = row.capabilityReleaseId;
+  });
+
+  check('record-then-bind: apply records the capability release (committed) then binds the candidate', () => {
+    const report = JSON.parse(backfillB({ apply: true, digest: recordBindDigest, json: true }));
+    assert.equal(report.applied, true);
+    assert.equal(report.eligibleCount, 1);
+    assert.equal(report.recordedReleaseCount, 1, 'exactly one capability release recorded');
+    assert.equal(report.enrichedCount, 1);
+
+    // The capability release now exists in the ledger with the planned id.
+    const releases = readCapabilityReleaseLedger(rootB);
+    assert.equal(releases.length, 1);
+    assert.equal(releases[0].storyId, 'B-785e');
+    assert.equal(releases[0].id, plannedPcrId);
+    assert.equal(releases[0].artifactReleaseId, artifactRelease.id);
+    assert.equal(releases[0].authority, 'non_authoritative');
+    assert.equal(releases[0].gateEvidence, false);
+
+    // The candidate is now bound to the freshly-recorded PCR.
+    const pb = readPlaybooks(rootB)[0];
+    assert.equal(pb.lineage.capabilityReleaseId, plannedPcrId);
+    assert.equal(pb.status, 'candidate');
+    assert.equal(pb.usage.surfacedCount, 7);
+
+    // The ledger file is TRACKED and COMMITTED (git add -f + commit ran).
+    const tracked = git(rootB, ['ls-files', '--', '.lattice/capability-releases.jsonl']);
+    assert.equal(tracked, '.lattice/capability-releases.jsonl', 'capability ledger is tracked');
+    const status = git(rootB, ['status', '--porcelain', '--', '.lattice/capability-releases.jsonl']);
+    assert.equal(status, '', 'capability ledger has no uncommitted changes (was committed)');
+
+    // No outcome row was written by the record-then-bind path.
+    assert.equal(existsSync(resolvePlaybookOutcomesPath(rootB)), false);
+  });
+
+  check('record-then-bind: re-run is idempotent (PCR exists + candidate bound → 0 eligible)', () => {
+    const report = JSON.parse(backfillB({ json: true }));
+    assert.equal(report.eligibleCount, 0);
+    assert.equal(report.recordThenBindCount, 0);
+    // A second apply against the empty plan records/binds nothing.
+    const applied = JSON.parse(backfillB({ apply: true, digest: report.planDigest, json: true }));
+    assert.equal(applied.recordedReleaseCount, 0);
+    assert.equal(applied.enrichedCount, 0);
+    assert.equal(readCapabilityReleaseLedger(rootB).length, 1, 'no duplicate PCR');
+  });
+
+  check('record-then-bind: an under-bound candidate whose story has NEITHER a capability NOR an artifact release is not eligible', () => {
+    const rootC = mkdtemp('capability-release-noart-smoke-');
+    cleanup.push(rootC);
+    write(rootC, 'lattice.config.json', '{}');
+    // No capability release and no artifact release for B-noart → nothing to record
+    // from → conservatively not eligible (the migration never invents a binding).
+    writePlaybooks(rootC, [candidatePlaybook('PBP-x', 'B-noart', false)]);
+    const hC = createCapabilityReleaseBackfillHandlers({ store: new StoryStore(rootC), root: rootC, scanRoot: rootC });
+    const report = JSON.parse(hC.capability_release_backfill({ json: true }));
+    assert.equal(report.eligibleCount, 0, 'no artifact release for the story → not eligible');
+    assert.equal(report.candidateCount, 1, 'the candidate was scanned but not eligible');
   });
 
   console.log(`capability-release-backfill smoke passed: ${passed} checks`);
