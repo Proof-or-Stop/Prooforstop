@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0: Review scope and source inventory recorded",
+      "context": "Plan M0.a-M0.e: confirm the canonical Proofbound root via lattice session_brief; inventory milestone ledger/status command surfaces via rg; inventory source docs and existing tests/smokes; record stale or retired-root documents that must not drive implementation truth. Output: trusted source map section in the findings report.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1: Read-only status boundary review completed",
+      "context": "Plan M1.a-M1.f: check allowed argument keys for milestone_status; verify unexpected keys fail before story reads; verify missing ledger produces a report not a write; verify status output launches no commands or reviewers, writes no evidence or lifecycle facts, and never claims DONE or production readiness. Output: boundary finding or pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2: Ledger write contract review completed",
+      "context": "Plan M2.a-M2.f: review milestone_ledger_set and milestone_ledger_add lifecycle phase policy and ownership classification; review ledger hash and candidate/confirmed state behavior; review whether direct writes can accidentally become confirmed gate evidence or silently overwrite existing rows unsafely. Output: write-surface finding or pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3: Missing-ledger policy review completed",
+      "context": "Plan M3.a-M3.f: review ordinary single-outcome story behavior with no ledger; review structural/semantic milestone trigger behavior; review candidate versus confirmed requirements; review DEV admission and REVIEW/DONE behavior for missing or stale milestone facts; verify missing-ledger next actions are specific and non-mutating. Output: missing-state matrix.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4: Schema and progress-model review completed",
+      "context": "Plan M4.a-M4.f: review required milestone fields (id, source requirement, claim, doneMeans, required evidence); review checklist and verification-intent binding fields; review status values for progress tables; review parent/assigned-child story support; check prose-only text cannot produce hidden milestone claims; identify schema additions needed. Output: schema adequacy finding.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5: Test and negative-control review completed",
+      "context": "Plan M5.a-M5.f: find tests for milestone_status read-only behavior, missing-ledger reports, ledger set/add/get schema, milestone-triggered missing-ledger gates, and proof that milestone status cannot satisfy DONE by itself; record missing negative controls as review findings. Output: test-gap list.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M6: Agent capability impact review completed",
+      "context": "Plan M6.a-M6.d: confirm structured milestone rows improve progress reporting, missing-ledger gates improve unattended execution safety, ledger refs improve host handoff continuity, and capability claims stop short of lifecycle DONE or Authority claims. Output: capability claim boundary.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M7: Review outcome recorded and next story decided",
+      "context": "Plan M7.a-M7.d: summarize all pass/finding outcomes; decide whether implementation work is needed; if gaps exist draft a narrow follow-up story scope, otherwise mark documentation-only completion; update the plan document milestone statuses from planned to reviewed outcomes. Output: findings report closure section.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
