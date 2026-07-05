@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-e62e",
+  "id": "IC-20260705102328",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the CLI consumption/output layer only: when configured story-scoped mutating commands succeed for a story that has a milestone ledger, append the existing milestone_status table to human stdout. Do not implement milestone_completion_set or closeout completion-ledger freezing in this story; do not fabricate progress for missing-ledger stories; preserve machine JSON output.",
+  "acceptedInterpretationHash": "sha256:7ae592bda8bd6a782331ccdcb54a7bc8011f0881c4b85fb8f046a46080eb54af",
+  "notes": "Reconfirming after aligning milestone sourceRequirementId values with the immutable original intent keyRequirementIds.",
+  "ledgerHashBeforeDecision": "sha256:3dd44acb6c5bcd2a675d9f8ba26b69ba6416c212a7f063f8f8374272624e2316",
+  "confirmedLedgerHash": "sha256:3dd44acb6c5bcd2a675d9f8ba26b69ba6416c212a7f063f8f8374272624e2316",
+  "createdAt": "2026-07-05T10:23:28.596Z",
+  "updatedAt": "2026-07-05T10:24:41.187Z"
+}

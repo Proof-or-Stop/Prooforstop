@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-e62e",
-  "state": "candidate",
-  "ledgerHash": "sha256:5b3dd730f01099d2bc7f10ce996151f352cfd46626a5f0e587d948303175eb1a",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3dd44acb6c5bcd2a675d9f8ba26b69ba6416c212a7f063f8f8374272624e2316",
   "milestones": [
     {
       "id": "M1",
-      "sourceRequirementId": "B-e62e:CHK-001",
+      "sourceRequirementId": "REQ-auto-surface-table",
       "claim": "State-changing CLI commands automatically append the consumed milestone_status table to human stdout.",
       "doneMeans": "A representative mutating command for a story with milestone-ledger.json prints the normal command result followed by the existing milestone_status Markdown table with Completed, Current, and Remaining sections.",
       "requiredEvidence": [
@@ -26,7 +26,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "B-e62e:CHK-002",
+      "sourceRequirementId": "REQ-json-safe",
       "claim": "Regression coverage proves the stdout contract and negative controls.",
       "doneMeans": "The milestone-status regression executes the built CLI and fails unless checklist_update stdout includes the table headings, JSON mode stays uncontaminated, and missing-ledger stories do not get fabricated tables.",
       "requiredEvidence": [
@@ -44,5 +44,10 @@
     }
   ],
   "createdAt": "2026-07-05T10:20:15.577Z",
-  "updatedAt": "2026-07-05T10:20:15.577Z"
+  "updatedAt": "2026-07-05T10:24:41.187Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705102328",
+    "acceptedInterpretationHash": "sha256:7ae592bda8bd6a782331ccdcb54a7bc8011f0881c4b85fb8f046a46080eb54af",
+    "acceptedAt": "2026-07-05T10:24:41.187Z"
+  }
 }

@@ -1,0 +1,76 @@
+{
+  "storyId": "B-e62e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "docs/CLI.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/core/milestone-status.ts"
+  ],
+  "explicitExcludes": [
+    "milestone_completion_set implementation",
+    "completion-ledger writer",
+    "DONE closeout completion-ledger freezing",
+    "remote publish or release behavior"
+  ],
+  "scopeChangeReason": "Lock scope to the auto-surface milestone_status stdout consumption layer requested by the user; later completion-writer and closeout-freezing work remains excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T10:23:37.523Z",
+  "updatedAt": "2026-07-05T10:23:37.523Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/cli-engine.ts",
+      "allowedAnchors": [
+        "runCli",
+        "wantsMachineJson",
+        "postCommandHumanStdout"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/tests/milestone-status.test.mjs",
+      "allowedAnchors": [
+        "cliMilestoneStatusRegression",
+        "postCommandMilestoneTableStdout"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedAnchors": [
+        "MilestoneStatus",
+        "HostProgressReportingContract"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0"
+      ]
+    }
+  ]
+}
