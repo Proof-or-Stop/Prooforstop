@@ -149,13 +149,13 @@
         {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "manual_transcript",
-          "command": "git show HEAD:...plan.md | grep -n 'recordDigest field absent (preimage frozen in protocol.json)'; | grep -n 'accidental'; | grep -n 'signing is Tier-C, out of scope'",
+          "command": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'preimage frozen in protocol.json'; git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'accidental'; git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'signing is Tier-C, out of scope'",
           "result": "pass",
-          "note": "L241-242 define recordDigest = sha256 of canonical JSON with the recordDigest field absent, preimage frozen in protocol.json. L107-110 (section 3) scope ledger self-digests to 'accidental corruption and naive edits only' with cryptographic signing deferred to Tier-C; L245 (section 6.2) repeats 'signing is Tier-C, out of scope'. No ledger-integrity overclaim.",
-          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
-          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
-          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
-          "timestamp": "2026-07-05T13:57:00.528Z"
+          "note": "recordDigest preimage rule ('preimage frozen in protocol.json'), 'accidental' corruption scoping, and 'signing is Tier-C, out of scope' disclaimer all present at HEAD a14555248 — ledger-integrity claim correctly bounded to non-adversarial detection.",
+          "headHash": "73ead623240789b89c96a5ccc6b458f1d8fe9926",
+          "materialHash": "c8ee02838c0e62f0f4020fa4efcfc4aa454a44def31c59ab8459ff37b2a2d676",
+          "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
+          "timestamp": "2026-07-05T14:08:38.316Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
