@@ -54,6 +54,12 @@ import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { acquireMainWriteLockRegistered, mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
 import {
+  ARTIFACT_RELEASE_LEDGER_REL_PATH,
+  type RecordArtifactReleaseResult,
+  recordArtifactReleaseForDoneMerge,
+  selectArtifactReleasePathsV1,
+} from '../core/artifact-release.js';
+import {
   cleanupAuxiliaryWorktreeResidues,
   renderAuxiliaryClassification,
 } from '../core/auxiliary-worktree-cleanup.js';
@@ -218,6 +224,37 @@ export function runDoneMainPackageBuildAfterMerge(
     `Recovery: ${DONE_MAIN_BUILD_COMMAND}\n` +
     `Captured output:\n${captured}`,
   );
+}
+
+function renderArtifactReleaseDoneLine(result: RecordArtifactReleaseResult): string | null {
+  if (result.status === 'skipped_empty' || !result.record) return null;
+  const verb = result.status === 'already_recorded' ? 'already recorded' : 'recorded';
+  return `✓ artifact release ${verb}: story=${result.record.storyId} commit=${result.record.mainCommit} artifactSetDigest=${result.record.artifactSetDigest} paths=${result.record.paths.length}`;
+}
+
+function commitArtifactReleaseLedgerIfNeeded(
+  mainMergeRoot: string,
+  storyId: string,
+  result: RecordArtifactReleaseResult,
+  runGit: (gitArgs: string[], cwd: string) => string,
+): void {
+  if (result.status !== 'recorded') return;
+  try {
+    runGit(['add', '-f', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    const staged = runGit(['diff', '--cached', '--name-only', '--', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    if (!staged) {
+      throw new Error(`${ARTIFACT_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
+    }
+    runGit(
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: record artifact release for ${storyId}`],
+      mainMergeRoot,
+    );
+  } catch (e: any) {
+    throw new Error(
+      `DONE post-merge artifact release ledger commit failed: ${e?.message ?? e}\n` +
+      `Recovery: git add ${ARTIFACT_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: record artifact release for ${storyId}"`,
+    );
+  }
 }
 
 export type PostDoneLearningSettlementResult = {
@@ -1079,9 +1116,10 @@ export async function applyDoneMergeEffects(
         mainShaBeforeDoneMerge,
         mainShaAfterDoneMerge,
       );
+      const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths(doneMergeChangedPaths);
       mergeLines.push(bumpVersionOnDoneMerge({
         mainMergeRoot,
-        shouldBump: shouldBuildDoneMainPackageForChangedPaths(doneMergeChangedPaths),
+        shouldBump: runtimeSemverChanged,
         runGit: runGitArgs,
       }));
 
@@ -1091,6 +1129,20 @@ export async function applyDoneMergeEffects(
         mainShaAfterDoneMerge,
         { changedPaths: doneMergeChangedPaths },
       ));
+
+      if (selectArtifactReleasePathsV1(doneMergeChangedPaths, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }).length > 0) {
+        const artifactReleaseResult = recordArtifactReleaseForDoneMerge({
+          root: mainMergeRoot,
+          storyId,
+          mainCommit: mainShaAfterDoneMerge,
+          changedPaths: doneMergeChangedPaths,
+          runtimeSemverChanged,
+          isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+        });
+        commitArtifactReleaseLedgerIfNeeded(mainMergeRoot, storyId, artifactReleaseResult, runGitArgs);
+        const line = renderArtifactReleaseDoneLine(artifactReleaseResult);
+        if (line) mergeLines.push(line);
+      }
 
       // B-1a91 CHK-001: auto-refresh the Experience Layer finding-signals cache.
       // The cache only ever updated via an explicit out-of-band `learning_scan`,

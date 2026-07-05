@@ -445,6 +445,14 @@ Behavior:
     reason: z.string().min(10, 'reason ≥ 10 characters').describe('Why this file is declared as an expected output of this story.'),
     relatedIntent: z.string().min(1).describe('Related reference: CHK-NNN:(happy|edge|adversarial):IDX or promise:<docPath>.'),
   }},
+  { name: 'artifact_release_list', description: 'List non-runtime artifact release provenance records', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    limit: z.number().int().positive().optional().describe('Maximum number of recent records to show (default 20, max 200).'),
+  }},
+  { name: 'artifact_release_status', description: 'Show non-runtime artifact release provenance records for one Story', schema: {
+    storyId: z.string().min(1).describe('Story ID to inspect.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+  }},
   { name: 'scope_boundary_set', description: 'Save the user-confirmed allowed/excluded scope boundary for the INIT_CHECK gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode; correctness_fix enables default future-capability keyword exclusions.'),

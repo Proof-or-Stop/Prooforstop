@@ -570,6 +570,17 @@ The canonical and only active project config file is `lattice.config.json`. `lat
 
 Proofbound runtime artifacts are a separate table: `packages/main/src/core/runtime-artifact-registry.ts` defines the ignore, materialHash, and repair semantics for runtime files such as `.lattice/activity.jsonl`, legacy `docs/story/activity.jsonl`, `.lattice/runtime/`, `.lattice/traces/`, `.lattice-serve.json`, and debug/browser logs. `lattice init` merges missing runtime ignore rules into the existing `.gitignore`; `lattice doctor` reports runtime artifacts already tracked by git, and on `--repair` runs `git rm --cached` only for paths the registry marks as repairable. These files do not make materialHash-backed verification evidence stale; `.lattice/story/` is process evidence and is not treated as a runtime artifact.
 
+DONE merges also maintain a separate non-runtime artifact release provenance ledger at `.lattice/artifact-releases.jsonl`. It records releasable `docs/**` and `experiments/**` contents by normalized path and deterministic `sha256:` artifact-set digest, excluding `.lattice/story/**` lifecycle metadata and watched CLI/runtime build inputs. This ledger is provenance only: it does not activate a package release and does not broaden CLI patch semver bump rules.
+
+Read it with:
+
+```bash
+lattice artifact_release_list --format=json --limit=20
+lattice artifact_release_status --storyId=B-xxxx --format=text
+```
+
+Both commands are read-only. Text output is concise; JSON output returns plain records or a `{ storyId, count, latest, records }` object.
+
 Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:
