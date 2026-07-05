@@ -102,7 +102,31 @@
       "context": "Per plan section 7 selfchecks row: hermetic, mkdtemp-isolated, run by node <file>. The selfcheck guards reproducibility of the freeze and the two-pronged viability invariant.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/selfcheck.mjs exits 0 and prints 'selfcheck PASS' (hermetic, mkdtemp-isolated).",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck.mjs runs hermetically in mkdtemp isolation and exits 0 with a PASS line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selfcheck asserts build-protocol.mjs re-emits protocol.json byte-identical (hash stable)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selfcheck asserts the two-pronged invariant: every fail-closed class fingerprint carries a failure signal; it fails loudly if a vacuous class is present",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
