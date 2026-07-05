@@ -46,7 +46,6 @@ import {
 import {
   computePlaybookProposalDigest,
   listProposals,
-  readPlaybooks,
   validatePlaybook,
 } from '../core/learning-store.js';
 import {
