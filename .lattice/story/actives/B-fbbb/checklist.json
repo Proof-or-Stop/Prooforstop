@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Widen the playbook.ts import-fence allowlist in experience-layer-playbook-smoke",
       "context": "Add ../core/source-lineage-audit.js and ../core/playbook-seed.js to BOTH allowed sets (the direct fence check and the non-vacuous planted-import check) in packages/main/src/tasks/experience-layer-playbook-smoke.ts; update the load-bearing guardrail comment in handlers/playbook.ts to match reality. Neither module is a finding-writer/advisory/gate, and the negative assertion !/finding.js$|advisory|gate/ still guards the security property. Clears checks: 'import-fence: handlers/playbook.ts imports only ...' and 'import-fence: the static scan is non-vacuous'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:55:35.994Z",
       "verificationIntent": {
         "happy": [
           {
