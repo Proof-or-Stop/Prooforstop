@@ -33,6 +33,26 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bae9:F-003",
+      "desc": "CHK-001:adversarial:0 (priority=should) has no bound verificationEvidence — validate reports status:missing for this intentRef. Independently confirmed the underlying claim is TRUE (27 unique iterationIds in tamper-verdicts.jsonl, each matching protocol.iterationIdRule format tamper/<scale>/<class>/<manifestHandling>; all 27 frozen tamperMatrix classes appear exactly once, 0 missing/0 extra/0 duplicates), but no verificationEvidence entry was ever recorded against CHK-001:adversarial:0 to bind that proof into the audit trail. Advisory (should-priority, not a must-gap): add a verificationEvidence entry for CHK-001:adversarial:0 citing this check so validate stops reporting it missing.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T17:43:49.473Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-005",
+      "_hash": "cd752d5a57cb8b3ba3bd6eeb5841eaa12e17dc238837bde9ed3b54e3f79ad998",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs",
+        "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "missing|mjs|adversarial-priority-bound",
+      "signatureTagSource": "auto"
     }
   ]
 }
