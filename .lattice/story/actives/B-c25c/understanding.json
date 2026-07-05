@@ -1,0 +1,30 @@
+{
+  "task": "Prepare a Cell 03-only M2 provider execution launch guardrail that records all prerequisite metadata and fails closed when exact human spend approval is absent.",
+  "outcome": "When the user runs `node experiments/multi-model-ablation/m2-provider-execution-check.mjs`, the terminal says the Cell 03 launch guardrail is recorded, exact budget approval is absent so provider calls remain disabled, Cell 06 is still blocked, and no provider calls or outcome rows exist.",
+  "facts": [
+    "B-11be already reached DONE with USD 0.00 metadata-only authorization and no provider calls.",
+    "The next protocol step is Cell 03 / ③ E2 A4 same-family calibration, but real execution still requires exact human budget approval and run metadata.",
+    "Cell 06 / ⑥ A2prime must remain blocked until a real Cell 03-derived budget lock exists.",
+    "Host labels such as Codex CLI or Claude Code CLI are not provider/model snapshots.",
+    "Current checker output proves provider execution remains disabled and Cell 06 remains blocked.",
+    "The exact nonzero provider budget amount is not supplied in this story, so the launch guardrail must keep providerCallEnabled=false rather than invent spend approval.",
+    "Actual provider model snapshot IDs are not run evidence in this story; snapshot fields may be represented as required launch metadata but must not imply outcome evidence."
+  ],
+  "constraints": [
+    "Do not make provider API calls or spend provider budget in this story.",
+    "Do not create records-multi-model-ablation.jsonl, outcome rows, or result rows.",
+    "Do not unlock H-M1, H-M3, model-agnostic paper wording, product gates, runtime memory, or playbook behavior.",
+    "Do not touch unrelated Tier-C dirty docs or active stories.",
+    "Any nonzero budget cap must include exact amount, currency, and approval source from the human; absent approval must keep providerCallEnabled=false."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/README.md",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+  ],
+  "timestamp": "2026-07-05T16:54:16.423Z"
+}
