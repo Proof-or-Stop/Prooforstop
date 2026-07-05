@@ -110,6 +110,18 @@ function writeJson(path, value) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+function writeTestConfig(root) {
+  writeJson(join(root, 'lattice.config.json'), {
+    scanRoot: '.',
+    testsDir: 'tests',
+    fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+  });
+}
+
 function assertTextContract(text) {
   for (const label of [
     'Milestone Status - B-7ba7',
@@ -1679,15 +1691,7 @@ function assertEvidenceRefShape(evidenceRef) {
   try {
     const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
     mkdirSync(storyDir, { recursive: true });
-    writeJson(join(root, 'lattice.config.json'), {
-      scanRoot: '.',
-      testsDir: 'tests',
-      fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
-      requirementsDir: 'docs/requirements',
-      storyPrefix: 'B',
-      flows: { defaults: {}, patterns: [] },
-    });
+    writeTestConfig(root);
     const cliStory = story(storyId);
     const cliChecklist = {
       items: [
@@ -1723,6 +1727,84 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.match(stdout, /Current/);
     assert.match(stdout, /Remaining/);
     assert.match(stdout, /\| M-cli \| CLI report milestone \|/);
+
+    const updateStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+      '--itemId',
+      'CHK-CLI',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(updateStdout, /Checklist CHK-CLI:/);
+    assert.match(updateStdout, /Milestone Status - B-cli-ms/);
+    assert.match(updateStdout, /Completed/);
+    assert.match(updateStdout, /Current/);
+    assert.match(updateStdout, /Remaining/);
+
+    const noLedgerStoryId = 'B-cli-no-ledger';
+    const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
+    mkdirSync(noLedgerStoryDir, { recursive: true });
+    writeJson(join(noLedgerStoryDir, 'index.json'), story(noLedgerStoryId));
+    writeJson(join(noLedgerStoryDir, 'checklist.json'), {
+      items: [
+        checklistItem('CHK-NO-LEDGER', 'pending'),
+      ],
+    });
+    const noLedgerStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      noLedgerStoryId,
+      '--itemId',
+      'CHK-NO-LEDGER',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(noLedgerStdout, /Checklist CHK-NO-LEDGER:/);
+    assert.equal(
+      noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
+      false,
+      'missing-ledger story mutations must not fabricate a milestone status table',
+    );
+
+    const jsonStoryId = 'B-cli-json';
+    const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
+    mkdirSync(jsonStoryDir, { recursive: true });
+    writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));
+    const jsonStdout = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_ledger_add',
+      '--root',
+      root,
+      '--storyId',
+      jsonStoryId,
+      '--id',
+      'M-json',
+      '--sourceRequirementId',
+      'REQ-json',
+      '--claim',
+      'JSON stdout remains parseable',
+      '--doneMeans',
+      'The command writes only JSON when --json is set',
+      '--status',
+      'planned',
+      '--json',
+    ], { cwd: root, encoding: 'utf8' });
+    const jsonLedger = JSON.parse(jsonStdout);
+    assert.equal(jsonLedger.storyId, jsonStoryId);
+    assert.equal(jsonLedger.milestones.at(-1).id, 'M-json');
+    assert.equal(
+      jsonStdout.includes(`Milestone Status - ${jsonStoryId}`),
+      false,
+      'machine JSON stdout must not be contaminated with a milestone table',
+    );
 
     const missingCloseout = execFileSync(process.execPath, [
       cliPath,

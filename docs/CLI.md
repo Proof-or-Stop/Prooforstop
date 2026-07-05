@@ -298,6 +298,13 @@ Host Progress Reporting Contract:
 - Hosts should print or attach the full `milestone_status` table after a
   milestone or sub-objective status change, at handoff, and before final
   responses when milestone progress is relevant.
+- The CLI automatically appends the consumed `milestone_status` Markdown table
+  after successful human-text output for the configured story-scoped mutating
+  commands that update milestone ledgers, checklist state, verification
+  evidence, story phase, delivery checks, or summaries.
+- Automatic append is skipped for `--json` / `--format=json` so machine stdout
+  remains parseable, and it is skipped when the target story has no
+  `milestone-ledger.json`.
 - Missing `milestone-ledger.json` is a blocker. The command reports a clear next
   action and does not infer completion from checklist text alone.
 - Detail granularity comes from the authored milestone ledger, checklist refs,
