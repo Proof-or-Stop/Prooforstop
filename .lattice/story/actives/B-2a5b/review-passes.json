@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T19:22:13.254Z",
       "reviewRunId": "B-2a5b:RR-005",
       "_hash": "48d84816ec1153aacdb5b54c2612c5584e004493ff555e37cfc716ab6f4fcb95"
+    },
+    {
+      "id": "B-2a5b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed round 2: all 9 verificationIntent lanes (8 must + 1 should across CHK-001/002/003) now covered by concrete manual_transcript evidence, result=pass, 0 waivers. Independently re-ran selfcheck-m2.mjs (PASS, 4 sub-checks incl new (d) GENERATE-CRASH closing the CHK-001:adversarial:0 gap). Inspected batch-ledger.jsonl: 33 records (30 small+3 full), 33 unique iterationIds, 0 extra/missing/dup vs expected multiset, 0 stop records, 0 over-cap (max elapsed 18728ms vs 128217 cap). Re-derived all 33 recordDigests via canonicalJson(record minus recordDigest)->sha256: 33/33 match. H1 pairwise-equal confirmed independently: 1 distinct digests-set + 1 distinct goldMetrics-set at each of small(n=30) and full(n=3). lattice validate --story=B-2a5b --json: allPass=true, missingRequired=0. No blocker.",
+      "createdAt": "2026-07-05T19:30:42.450Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "reviewRunId": "B-2a5b:RR-007",
+      "_hash": "0b962b848dbc1dc843ac77dc5541243195a987a0e5e74b9db8279df1c42f6ae6"
     }
   ]
 }
