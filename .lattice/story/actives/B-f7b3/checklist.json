@@ -167,8 +167,8 @@
       "id": "CHK-004",
       "title": "Add negative-control test: empty / all-not_applicable confirmed ledger is not treated as vacuously complete",
       "context": "core/proofstory.ts uncovered-required-milestone loop (~L1357-1364) iterates only ledger.milestones; a confirmed ledger with an empty or all-not_applicable milestone set yields zero uncovered rows. Add a test proving a confirmed-but-vacuous ledger does NOT satisfy the milestone DONE requirement. Closes findings M5 test-gap #2 and M4 caveat.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:39:53.053Z",
       "endTime": null,
       "userSees": "Running the milestone DONE-equivalence suite (`npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs`) prints a new passing assertion block such as `ok - negative control: confirmed empty ledger is NOT vacuously milestone-complete` and `ok - negative control: confirmed all-not_applicable ledger is NOT vacuously milestone-complete`. Concretely, when `evaluateDoneIntentEquivalence` is called in `enforce` mode with a `state: 'confirmed'` ledger whose `milestones` array is empty (and again with a ledger whose every row is `status: 'not_applicable'`), on the strict-milestone path (forced by a structural multi-deliverable story signal / slicePlan), the returned report has `status: 'fail'` and `blocking: true`, and `report.gaps` contains a gap whose `code` flags the vacuous/empty required-milestone set (e.g. `vacuous_milestone_ledger` / `uncovered_required_milestones`) with severity `fail` — instead of the pre-fix behavior where `uncoveredRequiredMilestoneIds` is `[]` and the report silently returns `status: 'pass'`. An operator who reaches DONE with such a ledger sees the DONE gate refuse to close the story, citing that a confirmed milestone ledger with no applicable required milestones does not satisfy strict intent equivalence.",
       "files": {
