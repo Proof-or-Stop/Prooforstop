@@ -56,7 +56,43 @@
       "context": "Add focused tests proving a representative state-change command emits `Milestone Status - B-xxxx`, `Completed`, `Current`, and `Remaining` in stdout instead of silently consuming milestone_status.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "The regression test fails unless CLI stdout for a representative mutation includes `Milestone Status - B-post-progress`, `Completed`, `Current`, and `Remaining`.",
+      "files": {
+        "modify": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "milestone-status regression executes the built CLI and asserts stdout contains the milestone table headings after checklist_update.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage asserts JSON mode output is not contaminated by an appended human table.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression coverage asserts no table is appended when the mutated story lacks a milestone ledger, preventing false progress display.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
