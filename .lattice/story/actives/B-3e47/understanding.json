@@ -5,7 +5,9 @@
     "B-e62e DONE captured milestone-closeout.json before active worktree cleanup.",
     "After cleanup, live milestone_status recomputes freshness against archived state and can show false stale/blocking rows.",
     "milestone_closeout already reads the durable frozen snapshot correctly.",
-    "Active stories still need live projection and freshness checks."
+    "Active stories still need live projection and freshness checks.",
+    "The chosen implementation is snapshot-to-status-report so milestone_status keeps the same report shape for text and JSON.",
+    "Existing milestone-status tests already include DONE cleanup and closeout fixtures that can be extended."
   ],
   "constraints": [
     "Do not fabricate success when a DONE story has no milestone-closeout.json snapshot.",
@@ -13,15 +15,12 @@
     "Do not implement milestone_completion_set or completion ledger in this story.",
     "Do not touch unrelated dirty docs in canonical main."
   ],
-  "unknowns": [
-    "Whether the best conversion is snapshot-to-status-report or text-only closeout rendering.",
-    "Whether existing tests already contain a DONE cleanup fixture we can extend."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/handlers/milestone-status.ts",
     "packages/main/src/core/milestone-status.ts",
     "packages/main/tests/milestone-status.test.mjs",
     "docs/CLI.md"
   ],
-  "timestamp": "2026-07-05T13:01:34.509Z"
+  "timestamp": "2026-07-05T13:04:36.716Z"
 }
