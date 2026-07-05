@@ -44,14 +44,14 @@ not final usage or launch gates. Cell 06 remains `cell-06-a2prime-blocked`.
 | M0 research smoke | Complete | Provider-free examples and local invariants pass without provider calls. |
 | M1 protocol freeze | Complete | Protocol, seed slots, cell matrix, and launch gate remain frozen and provider execution remains blocked. |
 | M2 readiness | Prepared | Dated provider-family declarations, 24-task inventory, runner-family manifest, and static launch readiness pass local checks. |
-| M2 provider authorization metadata | Done, disabled | B-11be records metadata-only approval, provider spend USD 0.00, no provider cells run, no result rows, cell 03 next, and cell 06 blocked. |
+| M2 provider authorization metadata | Done, disabled | B-11be records metadata-only approval, provider spend USD 0.00 as a historical no-spend boundary rather than a future launch cap, no provider cells run, no result rows, cell 03 next, and cell 06 blocked. |
 | Cell 03 execution envelope | Frozen, disabled | B-6529 records `m2-cell03-execution-envelope.json`: exact Cell 03 scope, 24 tasks, 1,152 planned rows, retry/time/token/output limits, stop conditions, dated E2 target snapshots, prompt/tool digests, runner ownership, duplicate policy, and result output policy. |
 | Cell 03 usage accounting | Postflight required | B-6529 records `m2-cell03-usage-accounting-policy.json`: provider-reported usage is required after future execution; estimates are diagnostic only and not final usage or launch gates. |
 | Cell 03 launch guardrail | Recorded, disabled | B-6529 records `m2-cell03-provider-launch-authorization.json`: execution envelope frozen, pre-run dollar guess not required, `providerSpendAllowed=false`, `providerCallEnabled=false`, no outcome rows, no result rows, and postflight provider-reported usage required after future execution. |
 | M2 provider execution launch | Prepared, disabled | `m2-provider-execution-launch.json` records `authorization_ready_execution_not_run`; provider execution and formal Phase 1 use remain false. |
 | Cell 03 calibration | Next permitted formal step, planning-only | Run E2 A4 same-family calibration only after the launch gate authorizes provider execution. |
-| Budget-lock freeze | Blocked | Freeze a real cell-03-derived budget lock from calibration records; examples and declarations do not count. |
-| Cell 06 sequencing | Blocked | Run E2 A2prime only after the matching real cell-03-derived budget lock exists. |
+| Budget/usage-lock freeze | Blocked | Freeze a real cell-03-derived budget/usage lock from calibration records and provider-reported usage; examples and declarations do not count. |
+| Cell 06 sequencing | Blocked | Run E2 A2prime only after the matching real cell-03-derived budget/usage lock exists. |
 | Cell 02 cross-review | Blocked behind launch discipline | Run E1 A4 cross-review only after provider execution is authorized and cell ownership/duplicate policy are locked. |
 | Optional cell 04 | Optional, budget-permitting | Run E2 A4 cross-review only if the future execution approval explicitly includes it. |
 | M3 Phase 2 decision | Pending | Decide from real Phase 1 records and budget, not from readiness artifacts. |
@@ -62,8 +62,8 @@ not final usage or launch gates. Cell 06 remains `cell-06-a2prime-blocked`.
 ## Required Ordering
 
 1. Metadata authorization first: B-11be records a USD 0.00, metadata-only
-   approval boundary without provider calls, result rows, or product-gate
-   impact.
+   no-spend boundary without provider calls, result rows, or product-gate
+   impact. This historical no-spend record is not a future launch cap.
 2. Cell 03 execution envelope next: B-6529 freezes exact Cell 03 execution
    bounds and target metadata while provider spend and provider calls remain
    disabled.

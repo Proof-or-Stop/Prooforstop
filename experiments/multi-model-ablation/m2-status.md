@@ -14,14 +14,14 @@ M2 in this directory is a provider-free launch-readiness layer. It records the s
 | M2 runner manifest | PREPARED | `phase1-runner-manifest.m2.json` represents required cells ③/⑥/② and keeps optional ④ budget-permitting. |
 | M2 static checker | PREPARED | `m2-launch-readiness-check.mjs` recomputes task digests, checks launch blockers, and rejects in-memory negative controls. |
 | M2 provider execution launch gate | PREPARED | `m2-provider-execution-launch.json` records `authorization_ready_execution_not_run`, a frozen Cell 03 execution envelope, `providerExecutionAuthorized=false`, `providerCallEnabled=false`, no provider-call enabled runner, and no outcome records. |
-| M2-provider authorization metadata | DONE | `m2-provider-execution-authorization.json` records B-11be metadata authorization with provider spend USD 0.00, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked. |
+| M2-provider authorization metadata | DONE | `m2-provider-execution-authorization.json` records B-11be metadata authorization with provider spend USD 0.00 as a historical no-spend boundary, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked. |
 | Cell 03 execution envelope | FROZEN | `m2-cell03-execution-envelope.json` freezes exact Cell 03 scope, 24 tasks, 1,152 planned rows, retry/time/token/output limits, stop conditions, dated E2 target snapshots, prompt/tool digests, runner ownership, duplicate policy, and result output policy. |
 | Cell 03 usage accounting | POSTFLIGHT REQUIRED | `m2-cell03-usage-accounting-policy.json` makes provider-reported usage mandatory after future execution; any estimate is diagnostic only and not final usage or a launch gate. |
 | Cell 03 launch guardrail | RECORDED | `m2-cell03-provider-launch-authorization.json` records B-6529 guardrails: execution envelope frozen, pre-run dollar guess not required, `providerSpendAllowed=false`, `providerCallEnabled=false`, no outcome rows exist, and postflight provider-reported usage is required after future execution. |
 | M2 provider execution checker | PREPARED | `m2-provider-execution-check.mjs` validates accidental authorization, host-label-only snapshot, provider fallback, and sequencing negative controls. |
 | Formal M2 execution | NOT STARTED | Provider calls remain disabled; real executor/reviewer run metadata must be supplied by a future provider-execution story, with no claim unlock and no product gate impact. |
 | ③ A4 calibration | PENDING EXECUTION | `nextPermittedFormalStep=cell-03-calibration`, planning-only. It must run after explicit authorization and before any ⑥ A2prime budget can be locked. |
-| ⑥ A2prime | BLOCKED | `cell-06-a2prime-blocked` until a real cell-03-derived budget lock exists. M0 example budget locks are not formal evidence. |
+| ⑥ A2prime | BLOCKED | `cell-06-a2prime-blocked` until a real cell-03-derived budget/usage lock exists. M0 example budget locks are not formal evidence. |
 | M3 Phase 2 decision | PENDING | No Phase 1 directional readout exists yet, so the Phase 2 decision is not available. |
 | M4 powered matrix | PENDING | The powered matrix is not launched by M2 readiness. |
 | M5 analysis and recompute | PENDING | There are no result rows to analyze or recompute. |
@@ -40,7 +40,7 @@ Local-only validation on 2026-07-05:
 | `node experiments/multi-model-ablation/m2-launch-readiness-check.mjs` | PASS |
 | `node experiments/multi-model-ablation/m2-provider-execution-check.mjs` | PASS; reported Cell 03 envelope frozen, pre-run dollar guess not required, provider calls disabled, postflight provider-reported usage required, and Cell 06 blocked. |
 
-M2-provider authorization metadata: DONE. B-11be records provider spend USD 0.00; no provider cells ran; no result rows exist; cell 03 is next; cell 06 remains blocked.
+M2-provider authorization metadata: DONE. B-11be records provider spend USD 0.00 as a historical no-spend boundary, not a future launch cap; no provider cells ran; no result rows exist; cell 03 is next; cell 06 remains blocked.
 
 Cell 03 execution envelope: frozen. Pre-run dollar guess: not required. Provider calls from this authorization story: disabled. Postflight usage accounting: provider-reported usage required after execution. Cell 06 A2prime: blocked.
 

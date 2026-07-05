@@ -356,6 +356,109 @@ function validateToolSurface(toolSurface) {
   assertHostLabelsRejected(toolSurface, "tool surface");
 }
 
+function validateProviderAuthorization(authorization) {
+  assert(authorization.artifact === "m2-provider-execution-authorization", "provider authorization artifact mismatch");
+  assert(authorization.storyId === "B-11be", "provider authorization storyId mismatch");
+  assert(
+    authorization.status === "metadata_authorization_recorded_provider_execution_still_disabled",
+    "provider authorization status mismatch",
+  );
+  assert(
+    authorization.launchArtifactRef === "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "provider authorization launch ref mismatch",
+  );
+  assertBoundary(authorization, "provider authorization");
+
+  const boundary = authorization.authorizationBoundary || {};
+  assert(boundary.metadataAuthorizationRecorded === true, "provider authorization metadata must be recorded");
+  assert(boundary.humanApprovalRecorded === true, "provider authorization human approval must be recorded");
+  assert(boundary.approvalSource === "user-chat-authorization-2026-07-05", "provider authorization source mismatch");
+  assert(boundary.approvedBy === "jek", "provider authorization approver mismatch");
+  assert(boundary.approvalDate === "2026-07-05", "provider authorization approval date mismatch");
+  assert(boundary.appliesToStoryId === "B-11be", "provider authorization applies-to story mismatch");
+  assert(!("providerBudgetCap" in boundary), "provider authorization must not use providerBudgetCap as a future launch cap");
+
+  const spendBoundary = boundary.providerSpendBoundary || {};
+  assert(spendBoundary.currency === "USD", "provider authorization spend boundary currency mismatch");
+  assert(spendBoundary.amount === 0, "provider authorization spend boundary must record zero spend");
+  assert(spendBoundary.providerSpendAllowed === false, "provider authorization must not allow provider spend");
+  assert(
+    /not a future launch cap/.test(spendBoundary.meaning || ""),
+    "provider authorization spend boundary must not become a future launch cap",
+  );
+
+  assert(boundary.providerExecutionAuthorized === false, "provider authorization must not authorize execution");
+  assert(boundary.providerCallEnabled === false, "provider authorization must keep provider calls disabled");
+  assert(boundary.formalPhase1UseAllowed === false, "provider authorization must keep formal Phase 1 disabled");
+  assert(boundary.phase1CampaignAuthorized === false, "provider authorization must not authorize Phase 1");
+  assert(boundary.phase2CampaignAuthorized === false, "provider authorization must not authorize Phase 2");
+  assert(boundary.resultRowsAllowed === false, "provider authorization must not allow result rows");
+  assert(boundary.outcomeRecordsAllowed === false, "provider authorization must not allow outcome records");
+  assert(boundary.resultRowsPresent === false, "provider authorization must not claim result rows");
+  assert(boundary.outcomeRecordsPresent === false, "provider authorization must not claim outcome records");
+  assert(boundary.providerFallbackAllowed === false, "provider authorization must reject provider fallback");
+  assert(boundary.productGateImpact === "none", "provider authorization product gate impact mismatch");
+  assert(authorization.executionWindow?.allowsProviderCells === false, "provider authorization window must not allow provider cells");
+  assert(authorization.executionWindow?.allowsLocalChecks === true, "provider authorization window must allow local checks");
+
+  const fields = byId(authorization.requiredFutureExecutionMetadata, "fieldId");
+  for (const forbidden of ["nonzeroProviderBudgetCap", "budgetCap", "exactBudgetApproval"]) {
+    assert(!fields.has(forbidden), `provider authorization must not require ${forbidden}`);
+  }
+  for (const fieldId of [
+    "humanApproval",
+    "datedExecutorSnapshot",
+    "datedReviewerSnapshot",
+    "promptDigest",
+    "toolSurfaceDigest",
+    "runnerOwnership",
+    "boundedExecutionEnvelope",
+    "duplicatePolicy",
+    "resultOutputPolicy",
+    "postflightUsageAccountingPolicy",
+  ]) {
+    assert(fields.has(fieldId), `provider authorization missing future metadata ${fieldId}`);
+  }
+  assert(fields.get("boundedExecutionEnvelope")?.value === CELL03_ENVELOPE_REF, "provider authorization envelope ref mismatch");
+  assert(
+    fields.get("resultOutputPolicy")?.value === CELL03_RESULT_POLICY_REF,
+    "provider authorization result policy ref mismatch",
+  );
+  assert(
+    fields.get("postflightUsageAccountingPolicy")?.value === CELL03_USAGE_POLICY_REF,
+    "provider authorization usage policy ref mismatch",
+  );
+
+  const cell03 = authorization.sequencing?.cell03Calibration || {};
+  assert(authorization.sequencing?.nextPermittedFormalStep === "cell-03-calibration", "provider authorization next step mismatch");
+  assert(cell03.status === "authorized_for_future_metadata_preparation_only", "provider authorization Cell 03 status mismatch");
+  assert(cell03.providerExecutionAllowedInB11be === false, "provider authorization must not allow Cell 03 in B-11be");
+  assert(cell03.requiresSeparateProviderExecutionStory === true, "provider authorization must require a separate execution story");
+  assert(cell03.requiresNonzeroBudgetApproval === false, "provider authorization must not require nonzero budget approval");
+  assert(cell03.requiresBoundedExecutionEnvelope === true, "provider authorization must require bounded execution envelope");
+  assert(
+    cell03.requiresPostflightProviderReportedUsageAccounting === true,
+    "provider authorization must require postflight provider usage accounting",
+  );
+  assert(cell03.executionEvidencePresent === false, "provider authorization must not claim execution evidence");
+
+  const lock = authorization.sequencing?.realCell03DerivedBudgetOrUsageLock || {};
+  assert(lock.present === false, "provider authorization must not claim real Cell 03-derived budget/usage lock");
+  assert(lock.sourceCell === "03", "provider authorization lock source mismatch");
+  assert(lock.appliesToCell === "06", "provider authorization lock target mismatch");
+  assert(lock.m0ExampleBudgetLockAcceptedAsFormalEvidence === false, "M0 example lock must not count as formal evidence");
+  assertCell06Blocked(authorization.sequencing?.cell06A2primeGate, "provider authorization Cell 06 gate");
+  assert(
+    authorization.sequencing?.cell06A2primeGate?.matchingRealUsageLockPresent !== true,
+    "provider authorization must not claim matching real usage lock",
+  );
+  assertHostLabelsRejected(authorization, "provider authorization");
+  assert(authorization.claimBoundary?.hM1Proven === false, "provider authorization must not prove H-M1");
+  assert(authorization.claimBoundary?.hM3Proven === false, "provider authorization must not prove H-M3");
+  assert(authorization.claimBoundary?.modelAgnosticPaperClaimUnlocked === false, "provider authorization must not unlock paper claims");
+  assert(authorization.claimBoundary?.productGateImpact === "none", "provider authorization claim boundary product impact mismatch");
+}
+
 function validateProviderLaunch(launch, envelope) {
   assert(launch.artifact === "m2-provider-execution-launch", "provider launch artifact mismatch");
   assert(launch.storyId === "B-6529", "provider launch storyId mismatch");
@@ -587,6 +690,7 @@ function validateAll(artifacts) {
     runnerManifest: artifacts.runnerManifest,
     phase1Readiness: artifacts.phase1Readiness,
     providerLaunch: artifacts.providerLaunch,
+    providerAuthorization: artifacts.providerAuthorization,
     cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
     cell03Envelope: artifacts.cell03Envelope,
   })) {
@@ -595,6 +699,7 @@ function validateAll(artifacts) {
   }
   for (const [name, doc] of Object.entries({
     providerLaunch: artifacts.providerLaunch,
+    providerAuthorization: artifacts.providerAuthorization,
     cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
     cell03Envelope: artifacts.cell03Envelope,
   })) {
@@ -602,6 +707,7 @@ function validateAll(artifacts) {
   }
   for (const [name, doc] of Object.entries({
     providerLaunch: artifacts.providerLaunch,
+    providerAuthorization: artifacts.providerAuthorization,
     cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
     cell03Envelope: artifacts.cell03Envelope,
     usagePolicy: artifacts.usagePolicy,
@@ -617,6 +723,7 @@ function validateAll(artifacts) {
   validateUsagePolicy(artifacts.usagePolicy);
   validateResultPolicy(artifacts.resultWritePolicy);
   validateToolSurface(artifacts.toolSurface);
+  validateProviderAuthorization(artifacts.providerAuthorization);
   validateProviderLaunch(artifacts.providerLaunch, artifacts.cell03Envelope);
   validateCell03Guardrail(artifacts.cell03LaunchGuardrail, artifacts.cell03Envelope);
   validateSnapshotLock(artifacts.snapshots);
@@ -690,6 +797,31 @@ expectReject(
     artifacts.cell03LaunchGuardrail.exactBudgetApproval = { status: "present", amount: 25, currency: "USD" };
   },
   /old budget gate key exactBudgetApproval/,
+);
+
+expectReject(
+  "metadata authorization resurrects nonzero budget cap",
+  (artifacts) => {
+    artifacts.providerAuthorization.requiredFutureExecutionMetadata.push({
+      fieldId: "nonzeroProviderBudgetCap",
+      status: "still_required_for_real_provider_execution",
+      value: null,
+      blocksProviderExecution: true,
+    });
+  },
+  /must not require nonzeroProviderBudgetCap/,
+);
+
+expectReject(
+  "metadata authorization restores providerBudgetCap",
+  (artifacts) => {
+    artifacts.providerAuthorization.authorizationBoundary.providerBudgetCap = {
+      currency: "USD",
+      amount: 20,
+      providerSpendAllowed: false,
+    };
+  },
+  /providerBudgetCap as a future launch cap/,
 );
 
 expectReject(
