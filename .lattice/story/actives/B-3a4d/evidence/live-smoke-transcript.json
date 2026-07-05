@@ -1,0 +1,21 @@
+{
+  "storyId": "B-3a4d",
+  "expected": "After DONE, `lattice milestone_closeout --storyId=<story>` prints the final milestone table instead of Snapshot: missing.",
+  "actual": {
+    "command": "node packages/main/tests/milestone-status.test.mjs",
+    "exitCode": 0,
+    "stdout": "ok milestone-status\n",
+    "stderr": "[0.0s] running milestone_closeout...\n[0.0s] milestone_closeout done\n[0.0s] running milestone_status...\n[0.1s] milestone_status done\n[0.0s] running milestone_closeout...\n[0.0s] milestone_closeout done\n[0.0s] running milestone_closeout...\n[0.0s] milestone_closeout done\n[0.0s] running milestone_closeout...\n[0.0s] milestone_closeout done\n[0.0s] running milestone_closeout...\n[0.0s] milestone_closeout done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-05T02:43:28.594Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "3d036e15d28bccf8ff614bd5c93cda29e32deccb",
+  "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e"
+}
