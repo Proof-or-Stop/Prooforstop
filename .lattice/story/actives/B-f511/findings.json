@@ -51,6 +51,25 @@
       ],
       "signatureTag": "edge|mjs|repairtruncatedtail-batch-unconditionally",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-004",
+      "desc": "CHK-002 and understanding.json explicitly specify the H3 mid-iteration kill mechanism as the pre-existing POS_FAIL_APPEND_AT hook (a caught throw AFTER workspace write producing a verify_crash STOP record) — understanding.json facts: the mid-iteration crash hook already exists: POS_FAIL_APPEND_AT; unknowns: whether a mid-append truncated line actually occurs under POS_FAIL_APPEND_AT, resolved by the probe run. The delivered resume-probe.mjs (killA/killB, lines 339-345) and selfcheck-m3.mjs (killResumeTrial A/B, lines 350-352) never exercise POS_FAIL_APPEND_AT at all: both scored kills use the NEW POS_CRASH_BEFORE_APPEND_AT hard-exit hook at two different indices, i.e. the SAME mechanism twice, not two distinct injection points. The only real SIGKILL trial (externalSigkillTrial) is explicitly informational/non-gating and excluded from the dupTotal/gapTotal pass-fail computation. As a result resume behavior when the interrupted iteration already produced a caught stop record (rather than being genuinely recordless) is never asserted anywhere in M3 tests — the storys own pre-DEV automated advisory review (review.json unresolved_unknowns) flagged this exact unknown, and the implementation routed around it with a different mechanism rather than resolving it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T21:27:54.578Z",
+      "reviewRound": "2026-07-05T21:09:49.475Z",
+      "reviewRunId": "B-f511:RR-002",
+      "_hash": "c5748a8c5f80d51d700ba1ef72ad9ae981f33435e722c15100d9021c6428c43e",
+      "files": [
+        "experiments/pos-instrument-replay/resume-probe.mjs",
+        "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+      ],
+      "signatureTag": "missing|mjs|understanding-json-explicitly",
+      "signatureTagSource": "auto"
     }
   ]
 }
