@@ -213,7 +213,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-promotion-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. HAPPY: playbook_outcome_record accepts 3 structured helped outcomes (exposureMode=candidate-inspection, verdictSource=reviewer-confirmation) for capability candidate PBP-882 across 2 context classes; aggregatePlaybookPromotion counts them decisiveSamples=3/helped=3/contextClassCount=2 and evaluatePlaybookPromotion=recommend_activate; playbook_promotion_sweep dry-run EMITS the recommend_activate decision writing nothing (status stays candidate); --apply (with PLAYBOOK_PROMOTION_SWEEP_ENABLED) appends an idempotent recommendation row (2nd apply alreadyApplied=true) and NEVER activates (status stays candidate).",
+          "headHash": "3fe26df57f6172999d3239533096b9f427218b4c",
+          "materialHash": "9ba391f0ac10f4e9d2ff06fa2496916a3f5cf667abb979982df01cc6a597f1d5",
+          "storyFilesHash": "c30eb3d33a067b2f903714979a762ac2f5a42e50904d725061459b0bead9f68a",
+          "timestamp": "2026-07-05T23:40:33.623Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
