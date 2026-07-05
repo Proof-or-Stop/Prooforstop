@@ -47,35 +47,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
-          "note": "Smoke passed and asserts docs/CLI.md changed-path sets return true for the DONE version bump predicate.",
-          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
-          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
-          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
-          "timestamp": "2026-07-05T09:53:49.689Z"
+          "note": "Build passed and version-bump smoke passed 74 assertions, including docs/CLI.md changed-path sets returning true for the DONE version bump predicate.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:51.819Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
-          "note": "Smoke passed and asserts packages/main/tests/milestone-status.test.mjs returns true for the DONE version bump predicate.",
-          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
-          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
-          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
-          "timestamp": "2026-07-05T09:53:49.849Z"
+          "note": "version-bump smoke proves packages/main/tests/** positive predicate coverage; worktree-authority-smoke now treats packages/main/tests/smoke.ts as watched and passed after reviewer finding fix.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:52.005Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
-          "note": "Smoke passed and asserts docs/requirements/decisions/story-lifecycle.md, arbitrary docs, and experiments/tier-c-proof/sum.mjs remain non-bump inputs.",
-          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
-          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
-          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
-          "timestamp": "2026-07-05T09:53:50.006Z"
+          "note": "Smokes passed and assert docs/requirements, arbitrary docs, metadata-only, and experiments remain non-bump/non-build inputs while packages/main/tests/** is watched.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:52.186Z"
         }
       ]
     },
