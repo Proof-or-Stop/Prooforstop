@@ -57,6 +57,8 @@ const CELL03_USAGE_POLICY_REF =
   "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json";
 const CELL03_RESULT_POLICY_REF =
   "experiments/multi-model-ablation/m2-cell03-result-write-policy.json";
+const B991D_STORY_ID = "B-991d";
+const B991D_WINDOW_ID = "B-991d-cell03-execution-window-001";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -200,7 +202,15 @@ function assertNoEnabledProviderCalls(value, location = "document") {
         "providerspendallowed",
       ].includes(normalizedKey)
     ) {
-      assert(child === false, `${location}.${key} must remain false`);
+      if (child !== false) {
+        assert(
+          child === true &&
+            (location.includes(".b991dExecutionWindow") ||
+              location.includes(".b991dCell03ExecutionWindow") ||
+              location.includes(".b991dRunnerAuthorization")),
+          `${location}.${key} must remain false outside the B-991d Cell 03 execution window`,
+        );
+      }
     }
     assertNoEnabledProviderCalls(child, `${location}.${key}`);
   }
@@ -308,6 +318,121 @@ function assertCell06Blocked(gate, label) {
   assert(gate.executionAllowed === false, `${label} execution must be disabled`);
   assert(gate.matchingRealBudgetLockPresent !== true, `${label} must not claim a real budget lock`);
   assert(gate.matchingRealUsageLockPresent !== true, `${label} must not claim a real usage lock`);
+}
+
+function assertB6529ReadinessEvidence(evidence, label) {
+  assert(evidence?.storyId === "B-6529", `${label} storyId mismatch`);
+  assert(evidence.status === "authorization_ready_execution_not_run", `${label} status mismatch`);
+  assert(evidence.historicalClaimPreserved === true, `${label} must preserve historical claim`);
+  assert(evidence.providerCallsMade === false, `${label} must preserve no-provider-call evidence`);
+  assert(evidence.providerExecutionAuthorized === false, `${label} must preserve no execution authorization`);
+  assert(evidence.providerCallEnabled === false, `${label} must preserve disabled provider calls`);
+  assert(evidence.resultRowsPresent === false, `${label} must not claim rows`);
+  assert(evidence.outcomeRecordsPresent === false, `${label} must not claim outcomes`);
+  assert(evidence.preservedByStoryId === B991D_STORY_ID, `${label} must be preserved by ${B991D_STORY_ID}`);
+}
+
+function assertB991dCell03ExecutionWindow(window, envelope, label) {
+  assert(window?.executionWindowId === B991D_WINDOW_ID, `${label} window id mismatch`);
+  assert(window.storyId === B991D_STORY_ID, `${label} storyId mismatch`);
+  assert(window.status === "open_cell03_only", `${label} status mismatch`);
+  assert(window.providerExecutionAuthorized === true, `${label} must authorize provider execution`);
+  assert(window.providerCallEnabled === true, `${label} must enable provider calls`);
+  assert(window.formalCell03RowCaptureAllowed === true, `${label} must allow Cell 03 row capture`);
+  assert(window.formalPhase1UseAllowed === false, `${label} must not unlock formal Phase 1 claims`);
+  assert(window.phase1CampaignAuthorized === false, `${label} must not authorize Phase 1 campaign`);
+  assert(window.phase2CampaignAuthorized === false, `${label} must not authorize Phase 2`);
+  assert(window.outcomeCaptureAllowed === false, `${label} must not capture outcomes before row execution`);
+  assert(window.providerFallbackAllowed === false, `${label} must reject provider fallback`);
+  assert(
+    window.supersession?.supersedesB6529ForExecutionEnablementOnly === true,
+    `${label} must supersede B-6529 only for execution enablement`,
+  );
+  assert(
+    window.supersession?.preservesB6529ReadinessEvidence === true,
+    `${label} must preserve B-6529 readiness evidence`,
+  );
+  assert(
+    /no Cell 06, Phase 2, paper, product, or playbook unlock/.test(window.supersession?.supersessionScope || ""),
+    `${label} supersession scope must keep other claims locked`,
+  );
+
+  const scope = window.allowedScope || {};
+  assert(scope.cellNumber === "03", `${label} must target Cell 03`);
+  assert(scope.protocolCellNumber === "③", `${label} protocol cell mismatch`);
+  assert(scope.arm === "A4", `${label} arm mismatch`);
+  assert(scope.executorFamily === "E2", `${label} executor family mismatch`);
+  assert(scope.reviewerFamily === "same", `${label} reviewer family mismatch`);
+  assert(scope.runnerId === "m2-future-cell-03-e2-a4-same", `${label} runner mismatch`);
+  assert(JSON.stringify(scope.allowedCells) === JSON.stringify(["03"]), `${label} must only allow Cell 03`);
+  for (const denied of ["02", "04", "06"]) {
+    assert(scope.deniedCells?.includes(denied), `${label} must deny Cell ${denied}`);
+  }
+  assert(scope.plannedRows === envelope.cellScope.plannedRows, `${label} planned rows mismatch`);
+  assert(scope.maxProviderCalls === envelope.cellScope.plannedRows, `${label} max provider calls mismatch`);
+  assert(scope.maxAttemptsPerCellKey === envelope.limits.maxAttemptsPerCellKey, `${label} max attempts mismatch`);
+  assert(scope.maxRetriesPerCellKey === envelope.limits.maxRetriesPerCellKey, `${label} max retries mismatch`);
+  assert(scope.probeRequiredBeforeFullRun === true, `${label} must require probe before full run`);
+  assert(scope.fullRunAllowedBeforeProbePass === false, `${label} full run must wait for probe`);
+  assert(scope.phase2ExecutionAllowed === false, `${label} must not unlock Phase 2`);
+  assert(scope.productGateImpact === "none", `${label} product impact mismatch`);
+  assert(scope.paperClaimImpact === "none", `${label} paper claim impact mismatch`);
+  assert(scope.playbookGateImpact === "none", `${label} playbook impact mismatch`);
+
+  const bindings = window.frozenBindings || {};
+  assert(bindings.executionEnvelopeRef === CELL03_ENVELOPE_REF, `${label} envelope ref mismatch`);
+  assert(bindings.usageAccountingPolicyRef === CELL03_USAGE_POLICY_REF, `${label} usage policy ref mismatch`);
+  assert(bindings.resultWritePolicyRef === CELL03_RESULT_POLICY_REF, `${label} result policy ref mismatch`);
+  assert(bindings.executorSnapshotId === "openai-gpt-family-readiness-2026-07-05", `${label} executor snapshot mismatch`);
+  assert(bindings.reviewerSnapshotId === "openai-gpt-family-readiness-2026-07-05", `${label} reviewer snapshot mismatch`);
+  assert(bindings.promptDigest === EXPECTED_PROMPT_DIGEST, `${label} prompt digest mismatch`);
+  assert(bindings.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, `${label} tool digest mismatch`);
+  assert(!isHostLabel(bindings.executorSnapshotId), `${label} executor snapshot must not be a host label`);
+  assert(!isHostLabel(bindings.reviewerSnapshotId), `${label} reviewer snapshot must not be a host label`);
+
+  const rowPolicy = window.rowPolicy || {};
+  assert(rowPolicy.outputDirectory === "experiments/multi-model-ablation/future-cell03-results", `${label} output directory mismatch`);
+  assert(rowPolicy.oneFinalFormalRowPerCellKey === true, `${label} must keep one final row per key`);
+  assert(rowPolicy.requiresProviderReportedUsage === true, `${label} must require provider usage`);
+  assert(rowPolicy.requiresPromptDigest === true, `${label} must require prompt digest`);
+  assert(rowPolicy.requiresToolSurfaceDigest === true, `${label} must require tool digest`);
+  assert(rowPolicy.requiresB991dProvenance === true, `${label} must require B-991d provenance`);
+  assert(rowPolicy.failedRetriedVoidRowsCannotCountTwice === true, `${label} must reject double counting`);
+
+  const drift = window.driftPolicy || {};
+  assert(drift.expiredWindowEffect === "future_rows_void_until_reauthorized", `${label} expired-window effect mismatch`);
+  assert(drift.modelDriftEffect === "affected_rows_nonformal", `${label} model drift effect mismatch`);
+  assert(drift.promptOrToolDigestDriftEffect === "affected_rows_nonformal", `${label} digest drift effect mismatch`);
+  assert(
+    drift.missingB991dSupersessionProvenanceEffect === "affected_rows_nonformal",
+    `${label} missing provenance effect mismatch`,
+  );
+}
+
+function assertB991dRunnerAuthorization(authorization, label) {
+  assert(authorization?.providerCallEnabledRunnerCount === 1, `${label} must enable exactly one runner`);
+  assert(authorization.formalCell03RowCaptureRunnerCount === 1, `${label} must enable exactly one Cell 03 row-capture runner`);
+  assert(Array.isArray(authorization.runners) && authorization.runners.length === 1, `${label} must contain one runner`);
+  const runner = authorization.runners[0];
+  assert(runner.runnerId === "m2-future-cell-03-e2-a4-same", `${label} runner id mismatch`);
+  assert(runner.cellNumber === "03", `${label} runner cell mismatch`);
+  assert(runner.protocolCellNumber === "③", `${label} runner protocol cell mismatch`);
+  assert(runner.arm === "A4", `${label} runner arm mismatch`);
+  assert(runner.executorFamily === "E2", `${label} executor family mismatch`);
+  assert(runner.reviewerFamily === "same", `${label} reviewer family mismatch`);
+  assert(runner.executionWindowId === B991D_WINDOW_ID, `${label} window id mismatch`);
+  assert(runner.executionStoryId === B991D_STORY_ID, `${label} execution story mismatch`);
+  assert(runner.providerCallEnabled === true, `${label} runner must enable provider calls`);
+  assert(runner.formalCell03RowCaptureAllowed === true, `${label} runner must allow Cell 03 row capture`);
+  assert(runner.eligibleForOtherCells === false, `${label} runner must not be eligible for other cells`);
+  assert(runner.executorSnapshot === "openai-gpt-family-readiness-2026-07-05", `${label} executor snapshot mismatch`);
+  assert(runner.reviewerSnapshot === "openai-gpt-family-readiness-2026-07-05", `${label} reviewer snapshot mismatch`);
+  assert(runner.promptDigest === EXPECTED_PROMPT_DIGEST, `${label} prompt digest mismatch`);
+  assert(runner.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, `${label} tool digest mismatch`);
+  assert(authorization.otherCells?.cell02ProviderCallEnabled === false, `${label} Cell 02 must stay disabled`);
+  assert(authorization.otherCells?.cell04ProviderCallEnabled === false, `${label} Cell 04 must stay disabled`);
+  assert(authorization.otherCells?.cell06ProviderCallEnabled === false, `${label} Cell 06 must stay disabled`);
+  assert(authorization.otherCells?.phase2ProviderCallEnabled === false, `${label} Phase 2 must stay disabled`);
 }
 
 function validateUsagePolicy(policy) {
@@ -492,6 +617,8 @@ function validateProviderLaunch(launch, envelope) {
   assertBoundary(launch, "provider launch");
   assert(launch.launchState?.mode === "authorization_ready_execution_not_run", "provider launch mode mismatch");
   assert(launch.launchState?.cell03ExecutionEnvelopeFrozen === true, "provider launch must freeze Cell 03 envelope");
+  assertB6529ReadinessEvidence(launch.b6529ReadinessEvidence, "provider launch B-6529 readiness evidence");
+  assertB991dCell03ExecutionWindow(launch.b991dCell03ExecutionWindow, envelope, "provider launch B-991d Cell 03 window");
   assert(launch.authorization?.allRequiredMetadataPresent === true, "provider launch metadata must be ready");
   assert(launch.authorization?.preRunDollarGuessRequired === false, "provider launch must not require a pre-run dollar guess");
   assert(launch.authorization?.preRunDollarCapAsSoleGateAllowed === false, "provider launch must reject dollar cap as sole gate");
@@ -560,6 +687,7 @@ function validateProviderLaunch(launch, envelope) {
     assert(!isHostLabel(runner.executorSnapshot), `${runner.runnerId}.executorSnapshot must not be a host label`);
     assert(!isHostLabel(runner.reviewerSnapshot), `${runner.runnerId}.reviewerSnapshot must not be a host label`);
   }
+  assertB991dRunnerAuthorization(launch.b991dRunnerAuthorization, "provider launch B-991d runner authorization");
   assertHostLabelsRejected(launch, "provider launch");
 }
 
@@ -569,6 +697,8 @@ function validateCell03Guardrail(guardrail, envelope) {
   assert(guardrail.status === "authorization_ready_execution_not_run", "Cell 03 guardrail status mismatch");
   assertBoundary(guardrail, "Cell 03 guardrail");
   assert(guardrail.executionEnvelopeRef === CELL03_ENVELOPE_REF, "Cell 03 guardrail envelope ref mismatch");
+  assertB6529ReadinessEvidence(guardrail.b6529ReadinessEvidence, "Cell 03 guardrail B-6529 readiness evidence");
+  assertB991dCell03ExecutionWindow(guardrail.b991dExecutionWindow, envelope, "Cell 03 guardrail B-991d window");
   assert(guardrail.usageAccountingPolicyRef === CELL03_USAGE_POLICY_REF, "Cell 03 guardrail usage policy ref mismatch");
   assert(guardrail.resultWritePolicyRef === CELL03_RESULT_POLICY_REF, "Cell 03 guardrail result policy ref mismatch");
   assert(guardrail.guardrailBoundary?.executionEnvelopeFrozen === true, "Cell 03 guardrail must freeze envelope");
@@ -688,16 +818,18 @@ function validateStatus(statusText) {
     assert(statusText.includes(`${key}=${JSON.stringify(value)}`), `status missing ${key}=${JSON.stringify(value)}`);
   }
   for (const requiredLine of [
-    "| M2 provider execution launch gate | PREPARED |",
+    "| M2 provider execution launch gate | CELL 03 WINDOW OPEN |",
     "| Cell 03 execution envelope | FROZEN |",
     "| Cell 03 usage accounting | POSTFLIGHT REQUIRED |",
-    "| Cell 03 launch guardrail | RECORDED |",
+    "| Cell 03 launch guardrail | WINDOW OPEN |",
     "| Formal M2 execution | NOT STARTED |",
+    "| B-991d Cell 03 execution window | OPEN |",
     "| ③ A4 calibration | PENDING EXECUTION |",
     "| ⑥ A2prime | BLOCKED |",
     "Cell 03 execution envelope: frozen",
     "Pre-run dollar guess: not required",
-    "Provider calls from this authorization story: disabled",
+    "B-991d Cell 03 execution window: open for Cell 03 only",
+    "B-6529 no-provider-call readiness evidence: preserved",
     "Postflight usage accounting: provider-reported usage required after execution",
     "Cell 06 A2prime: blocked",
   ]) {
@@ -705,6 +837,7 @@ function validateStatus(statusText) {
   }
   assert(statusText.includes("providerExecutionAuthorized=false"), "status must report providerExecutionAuthorized=false");
   assert(statusText.includes("providerCallEnabled=false"), "status must report providerCallEnabled=false");
+  assert(statusText.includes("providerCallEnabled=true"), "status must report the B-991d Cell 03 window providerCallEnabled=true");
   assert(statusText.includes("no claim unlock"), "status must state no claim unlock");
   assert(statusText.includes("no product gate impact"), "status must state no product gate impact");
 }
@@ -898,6 +1031,38 @@ expectReject(
 );
 
 expectReject(
+  "B-991d execution window includes Cell 06",
+  (artifacts) => {
+    artifacts.providerLaunch.b991dCell03ExecutionWindow.allowedScope.allowedCells.push("06");
+  },
+  /must only allow Cell 03/,
+);
+
+expectReject(
+  "B-991d execution window loses B-991d provenance",
+  (artifacts) => {
+    artifacts.cell03LaunchGuardrail.b991dExecutionWindow.storyId = "B-6529";
+  },
+  /storyId mismatch/,
+);
+
+expectReject(
+  "B-991d execution window allows provider fallback",
+  (artifacts) => {
+    artifacts.providerLaunch.b991dCell03ExecutionWindow.providerFallbackAllowed = true;
+  },
+  /reject provider fallback/,
+);
+
+expectReject(
+  "B-991d runner retargeted to Cell 06",
+  (artifacts) => {
+    artifacts.providerLaunch.b991dRunnerAuthorization.runners[0].cellNumber = "06";
+  },
+  /runner cell mismatch/,
+);
+
+expectReject(
   "prompt digest drift",
   (artifacts) => {
     artifacts.cell03Envelope.promptArtifact.sha256 = "sha256:" + "0".repeat(64);
@@ -926,7 +1091,8 @@ console.log(
 );
 console.log("Cell 03 execution envelope: frozen");
 console.log("Pre-run dollar guess: not required");
-console.log("Provider calls from this authorization story: disabled");
+console.log("B-991d Cell 03 execution window: open for Cell 03 only");
+console.log("B-6529 no-provider-call readiness evidence: preserved");
 console.log("Postflight usage accounting: provider-reported usage required after execution");
 console.log("Cell 06 A2prime: blocked");
-console.log("Provider execution remains disabled; no provider calls made; no outcome records present");
+console.log("Provider calls are allowed only for B-991d Cell 03; no provider calls made; no outcome records present");

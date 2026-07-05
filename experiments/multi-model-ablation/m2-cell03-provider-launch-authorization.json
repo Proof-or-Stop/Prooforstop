@@ -40,6 +40,88 @@
     "providerFallbackAllowed": false,
     "productGateImpact": "none"
   },
+  "b6529ReadinessEvidence": {
+    "storyId": "B-6529",
+    "status": "authorization_ready_execution_not_run",
+    "historicalClaimPreserved": true,
+    "providerCallsMade": false,
+    "providerExecutionAuthorized": false,
+    "providerCallEnabled": false,
+    "resultRowsPresent": false,
+    "outcomeRecordsPresent": false,
+    "preservedByStoryId": "B-991d",
+    "preservationMeaning": "B-991d opens a separate Cell 03 execution window without rewriting B-6529 as an execution story."
+  },
+  "b991dExecutionWindow": {
+    "executionWindowId": "B-991d-cell03-execution-window-001",
+    "storyId": "B-991d",
+    "status": "open_cell03_only",
+    "openedOn": "2026-07-06",
+    "providerExecutionAuthorized": true,
+    "providerCallEnabled": true,
+    "formalCell03RowCaptureAllowed": true,
+    "formalPhase1UseAllowed": false,
+    "phase1CampaignAuthorized": false,
+    "phase2CampaignAuthorized": false,
+    "outcomeCaptureAllowed": false,
+    "providerFallbackAllowed": false,
+    "supersession": {
+      "supersedesB6529ForExecutionEnablementOnly": true,
+      "preservesB6529ReadinessEvidence": true,
+      "supersededArtifactRef": "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+      "supersessionScope": "Cell 03 execution-window enablement only; no Cell 06, Phase 2, paper, product, or playbook unlock."
+    },
+    "allowedScope": {
+      "cellNumber": "03",
+      "protocolCellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "runnerId": "m2-future-cell-03-e2-a4-same",
+      "allowedCells": [
+        "03"
+      ],
+      "deniedCells": [
+        "02",
+        "04",
+        "06"
+      ],
+      "plannedRows": 1152,
+      "maxProviderCalls": 1152,
+      "maxAttemptsPerCellKey": 2,
+      "maxRetriesPerCellKey": 1,
+      "probeRequiredBeforeFullRun": true,
+      "fullRunAllowedBeforeProbePass": false,
+      "phase2ExecutionAllowed": false,
+      "productGateImpact": "none",
+      "paperClaimImpact": "none",
+      "playbookGateImpact": "none"
+    },
+    "frozenBindings": {
+      "executionEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+      "usageAccountingPolicyRef": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+      "resultWritePolicyRef": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+      "executorSnapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "reviewerSnapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "promptDigest": "sha256:b1f7c70a48cf2f2c12b99bedb0f0d4259bfe334276ebf27cd1164903d33a5fa6",
+      "toolSurfaceDigest": "sha256:c42696e2c4b36d0d1a85656000a0fc63bc5aee7158361a1f4da1279afc50beb9"
+    },
+    "rowPolicy": {
+      "outputDirectory": "experiments/multi-model-ablation/future-cell03-results",
+      "oneFinalFormalRowPerCellKey": true,
+      "requiresProviderReportedUsage": true,
+      "requiresPromptDigest": true,
+      "requiresToolSurfaceDigest": true,
+      "requiresB991dProvenance": true,
+      "failedRetriedVoidRowsCannotCountTwice": true
+    },
+    "driftPolicy": {
+      "expiredWindowEffect": "future_rows_void_until_reauthorized",
+      "modelDriftEffect": "affected_rows_nonformal",
+      "promptOrToolDigestDriftEffect": "affected_rows_nonformal",
+      "missingB991dSupersessionProvenanceEffect": "affected_rows_nonformal"
+    }
+  },
   "executionEnvelope": {
     "status": "frozen",
     "artifactRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
