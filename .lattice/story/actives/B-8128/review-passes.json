@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T17:34:07.372Z",
       "reviewRunId": "B-8128:RR-005",
       "_hash": "2251ba7b99da895ce3a5f9d403d72e157c3449d19f9894b514a9107288463510"
+    },
+    {
+      "id": "B-8128:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-audit clean. Verified all 5 round-1 findings (F-001..F-005) are correctly fixed: no unused execFileSync/readPlaybooks/buildCapabilityReleaseRecord imports remain; runArtifactReleaseLedgerAfterDoneMerge cleanly renamed to runArtifactReleaseLedgerAfterDoneMergeDetailed with both call sites (done-effects.ts, done-recover.ts) updated consistently, no orphaned wrapper; product-capability-release-smoke.ts as-any casts confirmed limited to deliberate adversarial/negative-path test fixtures (tampered ledger row, invalid handler args), not production code. F-006 (playbook_promotion_status capabilityRelease lineage display) is implemented cleanly in handlers/playbook.ts (both JSON pendingLearning.capabilityRelease and text render lines), covered end-to-end by a new dedicated smoke check in capability-release-invariants-smoke.ts (M5 check) that exercises the real handler, not a mock. No dead code, no empty catches (the one catch in enrichSeedWithCapabilityLineage is a documented fail-open with a clear comment, not swallowed silently), no unsafe any in production paths. Project has no bridge.ts I/O isolation pattern (N/A). Diff does not touch job/run/proof Authority metadata (capability-release ledger is explicitly non_authoritative/gateEvidence:false fail-closed provenance, not Tier-C proof) so the proof-metadata dual-surface rule does not apply. docs/CLI.md additions (ledger path, schema invariants, CLI examples, text-line format) all verified against actual code (capabilityReleaseLedgerPath, assertNonAuthoritative, handler signatures, renderRecordLine) with no promised-but-undelivered gaps; lattice.config.json test suite + .gitignore correctly wire up all 4 new smokes. tsc --noEmit clean; tsc --noEmit --noUnusedLocals shows zero new violations from this diff (all noUnusedLocals hits are pre-existing in unrelated files/lines, including command-catalog.ts lines 28-48 which predate this story's line-453+ additions). All 4 capability smokes pass: product-capability-release-smoke (23 checks), product-capability-release-red-smoke (1 check), playbook-capability-lineage-smoke (6/6 checks), capability-release-invariants-smoke (8 checks, including the new M5 lineage-display check).",
+      "createdAt": "2026-07-05T17:38:44.694Z",
+      "reviewRound": "2026-07-05T17:34:07.372Z",
+      "reviewRunId": "B-8128:RR-006",
+      "_hash": "46030b62d5fd6255f9462a098e7e77d667910ce9f05fd062e85d8586c7a6785a"
     }
   ]
 }
