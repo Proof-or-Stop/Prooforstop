@@ -131,6 +131,17 @@
           "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
           "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
           "timestamp": "2026-07-05T15:41:59.760Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail' && !Object.values(f.flags||{}).some(v=>v===false) && !(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log('failClosed',p.tamperMatrix.failClosed.length,'vacuous',bad.length)\"",
+          "result": "pass",
+          "note": "Every one of the 16 fail-closed classes carries a genuine failure signal (status:fail and/or >=1 required-false flag / failing numeric predicate); 0 vacuous H2 classes.",
+          "headHash": "0c15319b8403048a61d6267257d2d750530df505",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:42:01.552Z"
         }
       ]
     },
