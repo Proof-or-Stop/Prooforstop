@@ -30,6 +30,76 @@ const HOST_LABELS = Object.freeze([
 ]);
 
 const FORBIDDEN_RECORDS_FILE = "records-multi-model-ablation.jsonl";
+const FORBIDDEN_OUTCOME_DATA_KEYS = Object.freeze([
+  "resultrows",
+  "outcomerecords",
+  "phase1results",
+  "phase2results",
+]);
+const OUTCOME_DATA_PRESENT_FLAGS = Object.freeze([
+  "resultrowspresent",
+  "outcomerecordspresent",
+  "containsoutcomedata",
+]);
+const FORBIDDEN_RECORD_PATH_KEYS = Object.freeze([
+  "recordpath",
+  "recordspath",
+  "recordsoutputpath",
+  "resultrowspath",
+  "outcomerecordspath",
+  "phase1resultspath",
+  "phase2resultspath",
+]);
+const PROVIDER_LAUNCH_RUNNER_BINDINGS = Object.freeze([
+  Object.freeze({
+    runnerId: "m2-future-cell-03-e2-a4-same",
+    cellNumber: "03",
+    protocolCellNumber: "③",
+    arm: "A4",
+    providerModelFamily: "E2",
+    reviewerFamily: "same",
+    reviewerSnapshotFamily: "E2",
+    phase1Status: "required",
+    requiredForLaunchReadiness: true,
+    optional: false,
+  }),
+  Object.freeze({
+    runnerId: "m2-future-cell-06-e2-a2prime",
+    cellNumber: "06",
+    protocolCellNumber: "⑥",
+    arm: "A2prime",
+    providerModelFamily: "E2",
+    reviewerFamily: "not_applicable",
+    reviewerSnapshotFamily: "not_applicable",
+    phase1Status: "required",
+    requiredForLaunchReadiness: true,
+    optional: false,
+  }),
+  Object.freeze({
+    runnerId: "m2-future-cell-02-e1-a4-cross",
+    cellNumber: "02",
+    protocolCellNumber: "②",
+    arm: "A4",
+    providerModelFamily: "E1",
+    reviewerFamily: "cross",
+    reviewerSnapshotFamily: "E2",
+    phase1Status: "required",
+    requiredForLaunchReadiness: true,
+    optional: false,
+  }),
+  Object.freeze({
+    runnerId: "m2-future-cell-04-e2-a4-cross",
+    cellNumber: "04",
+    protocolCellNumber: "④",
+    arm: "A4",
+    providerModelFamily: "E2",
+    reviewerFamily: "cross",
+    reviewerSnapshotFamily: "E1",
+    phase1Status: "optional_budget_permitting",
+    requiredForLaunchReadiness: false,
+    optional: true,
+  }),
+]);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +142,10 @@ function byId(entries, key) {
   return new Map((entries || []).map((entry) => [entry[key], entry]));
 }
 
+function normalizeKey(key) {
+  return String(key).replace(/[^a-z0-9]/gi, "").toLowerCase();
+}
+
 function isHostLabel(value) {
   if (typeof value !== "string") return false;
   const normalized = value.trim().toLowerCase();
@@ -96,8 +170,17 @@ function assertNoOutcomeOrRecordsPath(value, location = "document") {
   }
   if (!value || typeof value !== "object") return;
   for (const [key, child] of Object.entries(value)) {
-    if (key === "outcome") fail(`${location} contains forbidden outcome field`);
-    if (["recordsPath", "recordsOutputPath", "recordPath"].includes(key)) {
+    const normalizedKey = normalizeKey(key);
+    if (normalizedKey === "outcome" || normalizedKey === "outcomes") {
+      fail(`${location} contains forbidden outcome field ${key}`);
+    }
+    if (FORBIDDEN_OUTCOME_DATA_KEYS.includes(normalizedKey)) {
+      fail(`${location} contains forbidden result/outcome data field ${key}`);
+    }
+    if (OUTCOME_DATA_PRESENT_FLAGS.includes(normalizedKey) && child === true) {
+      fail(`${location}.${key} asserts result/outcome data present`);
+    }
+    if (FORBIDDEN_RECORD_PATH_KEYS.includes(normalizedKey)) {
       fail(`${location} contains forbidden records path field ${key}`);
     }
     if (typeof child === "string" && child.includes(FORBIDDEN_RECORDS_FILE)) {
@@ -125,6 +208,150 @@ function assertSnapshotValueIsNotHostLabel(value, label) {
   if (value === null || value === undefined) return;
   assert(typeof value === "string", `${label} must be a string when present`);
   assert(!isHostLabel(value), `${label} must not be a host label`);
+}
+
+function mapByRequiredId(entries, key, label) {
+  assert(Array.isArray(entries), `${label} must be an array`);
+  const mapped = new Map();
+  entries.forEach((entry, index) => {
+    assert(entry && typeof entry === "object", `${label}[${index}] missing entry`);
+    const id = entry[key];
+    assert(typeof id === "string" && id.length > 0, `${label}[${index}] missing ${key}`);
+    assert(!mapped.has(id), `${label} duplicate ${key}: ${id}`);
+    mapped.set(id, entry);
+  });
+  return mapped;
+}
+
+function assertOptionalFieldMatches(entry, field, expected, label) {
+  if (!Object.prototype.hasOwnProperty.call(entry, field)) return;
+  assert(entry[field] === expected, `${label} ${field} mismatch`);
+}
+
+function assertManifestCellMatchesBinding(cell, binding, label) {
+  assert(cell.cellNumber === binding.protocolCellNumber, `${label} manifest cellNumber mismatch`);
+  assert(cell.arm === binding.arm, `${label} manifest arm mismatch`);
+  assert(cell.executorFamily === binding.providerModelFamily, `${label} manifest executorFamily mismatch`);
+  assert(cell.reviewerFamily === binding.reviewerFamily, `${label} manifest reviewerFamily mismatch`);
+  assert(cell.phase1Status === binding.phase1Status, `${label} manifest phase1Status mismatch`);
+  assert(
+    cell.requiredForLaunchReadiness === binding.requiredForLaunchReadiness,
+    `${label} manifest requiredForLaunchReadiness mismatch`,
+  );
+  assert(cell.providerExecutionAllowedInM2 === false, `${label} manifest provider execution must stay disabled`);
+  assert(
+    cell.cellKeyFamily ===
+      `${binding.protocolCellNumber}|${binding.arm}|{taskId}|{scenarioSlot}|{repeatSlot}|${binding.providerModelFamily}|${binding.reviewerFamily}`,
+    `${label} manifest cellKeyFamily mismatch`,
+  );
+
+  const m1Binding = cell.m1CellMatrixBinding || {};
+  assert(m1Binding.cellNumber === binding.protocolCellNumber, `${label} M1 cell binding number mismatch`);
+  assert(m1Binding.arm === binding.arm, `${label} M1 cell binding arm mismatch`);
+  assert(m1Binding.executorFamily === binding.providerModelFamily, `${label} M1 cell binding executorFamily mismatch`);
+  assert(m1Binding.reviewerFamily === binding.reviewerFamily, `${label} M1 cell binding reviewerFamily mismatch`);
+  assert(m1Binding.providerExecutionAllowedInM1 === false, `${label} M1 cell binding provider execution must stay disabled`);
+}
+
+function validateProviderLaunchRunnerBindings(launch, runnerManifest) {
+  const expectedByRunnerId = new Map(PROVIDER_LAUNCH_RUNNER_BINDINGS.map((binding) => [binding.runnerId, binding]));
+  const expectedByProtocolCellNumber = new Map(
+    PROVIDER_LAUNCH_RUNNER_BINDINGS.map((binding) => [binding.protocolCellNumber, binding]),
+  );
+  const launchRunnerById = mapByRequiredId(
+    launch.runnerAuthorization?.runners,
+    "runnerId",
+    "provider launch runnerAuthorization.runners",
+  );
+  const manifestRunnerById = mapByRequiredId(runnerManifest.runners, "runnerId", "phase1 runner manifest runners");
+  const manifestCellByRunnerId = mapByRequiredId(
+    runnerManifest.phase1Cells,
+    "runnerId",
+    "phase1 runner manifest phase1Cells",
+  );
+  const ownershipByRunnerId = mapByRequiredId(
+    runnerManifest.cellOwnership,
+    "runnerId",
+    "phase1 runner manifest cellOwnership",
+  );
+
+  for (const binding of PROVIDER_LAUNCH_RUNNER_BINDINGS) {
+    assert(launchRunnerById.has(binding.runnerId), `provider launch missing runner ${binding.runnerId}`);
+    assert(manifestRunnerById.has(binding.runnerId), `phase1 manifest missing runner ${binding.runnerId}`);
+    assert(manifestCellByRunnerId.has(binding.runnerId), `phase1 manifest missing cell for runner ${binding.runnerId}`);
+    assert(ownershipByRunnerId.has(binding.runnerId), `phase1 manifest missing ownership for runner ${binding.runnerId}`);
+  }
+  for (const runnerId of launchRunnerById.keys()) {
+    assert(expectedByRunnerId.has(runnerId), `provider launch has extra runner ${runnerId}`);
+  }
+  for (const runnerId of manifestRunnerById.keys()) {
+    assert(expectedByRunnerId.has(runnerId), `phase1 manifest has extra runner ${runnerId}`);
+  }
+  for (const runnerId of manifestCellByRunnerId.keys()) {
+    assert(expectedByRunnerId.has(runnerId), `phase1 manifest has extra cell runner ${runnerId}`);
+  }
+  assert(
+    launchRunnerById.size === expectedByRunnerId.size,
+    "provider launch runner count must match phase1 manifest bindings",
+  );
+  assert(manifestRunnerById.size === expectedByRunnerId.size, "phase1 manifest runner count must match launch bindings");
+  assert(manifestCellByRunnerId.size === expectedByRunnerId.size, "phase1 manifest cell count must match launch bindings");
+
+  for (const binding of PROVIDER_LAUNCH_RUNNER_BINDINGS) {
+    const label = `cell ${binding.cellNumber} runner ${binding.runnerId}`;
+    const launchRunner = launchRunnerById.get(binding.runnerId);
+    const manifestRunner = manifestRunnerById.get(binding.runnerId);
+    const manifestCell = manifestCellByRunnerId.get(binding.runnerId);
+    const ownership = ownershipByRunnerId.get(binding.runnerId);
+
+    assert(launchRunner.cellNumber === binding.cellNumber, `${label} launch cellNumber mismatch`);
+    assert(launchRunner.protocolCellNumber === binding.protocolCellNumber, `${label} launch protocolCellNumber mismatch`);
+    assert(launchRunner.providerCallEnabled === false, `${label} launch provider calls must stay disabled`);
+    assert(launchRunner.eligibleForResultRows === false, `${label} launch result rows must stay disabled`);
+    if (binding.optional) {
+      assert(launchRunner.optional === true, `${label} launch optional flag mismatch`);
+    } else {
+      assert(launchRunner.optional !== true, `${label} launch optional flag mismatch`);
+    }
+    assertOptionalFieldMatches(launchRunner, "arm", binding.arm, label);
+    assertOptionalFieldMatches(launchRunner, "providerModelFamily", binding.providerModelFamily, label);
+    assertOptionalFieldMatches(launchRunner, "executorFamily", binding.providerModelFamily, label);
+    assertOptionalFieldMatches(launchRunner, "reviewerFamily", binding.reviewerFamily, label);
+
+    assertManifestCellMatchesBinding(manifestCell, binding, label);
+    assert(manifestRunner.providerModelFamily === binding.providerModelFamily, `${label} providerModelFamily mismatch`);
+    assert(manifestRunner.executorSnapshotFamily === binding.providerModelFamily, `${label} executorSnapshotFamily mismatch`);
+    assert(
+      manifestRunner.reviewerSnapshotFamily === binding.reviewerSnapshotFamily,
+      `${label} reviewerSnapshotFamily mismatch`,
+    );
+    assert(manifestRunner.providerCallEnabled === false, `${label} manifest provider calls must stay disabled`);
+    assert(manifestRunner.eligibleForResultRows === false, `${label} manifest result rows must stay disabled`);
+
+    assert(ownership.cellNumber === binding.protocolCellNumber, `${label} ownership cellNumber mismatch`);
+    assert(
+      ownership.ownershipKey ===
+        `${binding.protocolCellNumber}|${binding.arm}|${binding.providerModelFamily}|${binding.reviewerFamily}`,
+      `${label} ownershipKey mismatch`,
+    );
+    assert(ownership.duplicateOwnershipAllowed === false, `${label} duplicate ownership must stay disabled`);
+  }
+
+  const cell03 = expectedByProtocolCellNumber.get("③");
+  const launchCell03 = launch.sequencing?.cell03Calibration || {};
+  assert(launchCell03.cellNumber === cell03.cellNumber, "cell 03 sequencing cellNumber mismatch");
+  assert(launchCell03.protocolCellNumber === cell03.protocolCellNumber, "cell 03 sequencing protocolCellNumber mismatch");
+  assert(launchCell03.arm === cell03.arm, "cell 03 sequencing arm mismatch");
+  assert(launchCell03.executorFamily === cell03.providerModelFamily, "cell 03 sequencing executorFamily mismatch");
+  assert(launchCell03.reviewerFamily === cell03.reviewerFamily, "cell 03 sequencing reviewerFamily mismatch");
+
+  const cell06 = expectedByProtocolCellNumber.get("⑥");
+  const launchCell06 = launch.sequencing?.cell06A2primeGate || {};
+  assert(launchCell06.cellNumber === cell06.cellNumber, "cell 06 sequencing cellNumber mismatch");
+  assert(launchCell06.protocolCellNumber === cell06.protocolCellNumber, "cell 06 sequencing protocolCellNumber mismatch");
+  assert(launchCell06.arm === cell06.arm, "cell 06 sequencing arm mismatch");
+  assert(launchCell06.executorFamily === cell06.providerModelFamily, "cell 06 sequencing executorFamily mismatch");
+  assert(launchCell06.reviewerFamily === cell06.reviewerFamily, "cell 06 sequencing reviewerFamily mismatch");
 }
 
 function validateProviderLaunch(launch) {
@@ -299,6 +526,7 @@ function loadArtifacts() {
 function validateAll(artifacts) {
   validateExistingM2Artifacts(artifacts);
   validateProviderLaunch(artifacts.providerLaunch);
+  validateProviderLaunchRunnerBindings(artifacts.providerLaunch, artifacts.runnerManifest);
   assertNoOutcomeOrRecordsPath(artifacts.providerLaunch, "providerLaunch");
   assertNoRecordsFileExists();
   validateStatus(artifacts.status);
@@ -411,6 +639,156 @@ expectReject(
     artifacts.providerLaunch.runnerAuthorization.runners[0].outcome = "amplified";
   },
   /forbidden outcome field/,
+);
+
+expectReject(
+  "result rows accidentally added",
+  (artifacts) => {
+    artifacts.providerLaunch.runnerAuthorization.runners[0].resultRows = [{ score: 1 }];
+  },
+  /forbidden result\/outcome data field/,
+);
+
+expectReject(
+  "outcome records accidentally added",
+  (artifacts) => {
+    artifacts.providerLaunch.outcomeRecords = [{ cell: "03" }];
+  },
+  /forbidden result\/outcome data field/,
+);
+
+expectReject(
+  "phase 1 results accidentally added",
+  (artifacts) => {
+    artifacts.providerLaunch.phase1Results = [{ cell: "03" }];
+  },
+  /forbidden result\/outcome data field/,
+);
+
+expectReject(
+  "phase 2 results accidentally added",
+  (artifacts) => {
+    artifacts.providerLaunch.phase2Results = [{ cell: "phase2" }];
+  },
+  /forbidden result\/outcome data field/,
+);
+
+expectReject(
+  "result rows presence flag flipped",
+  (artifacts) => {
+    artifacts.providerLaunch.launchState.resultRowsPresent = true;
+  },
+  /result\/outcome data present|result rows must remain absent/,
+);
+
+expectReject(
+  "outcome records presence flag flipped",
+  (artifacts) => {
+    artifacts.providerLaunch.launchState.outcomeRecordsPresent = true;
+  },
+  /result\/outcome data present|outcome records must remain absent/,
+);
+
+expectReject(
+  "contains outcome data flag flipped outside researchBoundary",
+  (artifacts) => {
+    artifacts.providerLaunch.runnerAuthorization.containsOutcomeData = true;
+  },
+  /result\/outcome data present/,
+);
+
+expectReject(
+  "provider launch missing runner",
+  (artifacts) => {
+    artifacts.providerLaunch.runnerAuthorization.runners = artifacts.providerLaunch.runnerAuthorization.runners.filter(
+      (runner) => runner.runnerId !== "m2-future-cell-03-e2-a4-same",
+    );
+  },
+  /provider launch missing runner/,
+);
+
+expectReject(
+  "provider launch extra runner",
+  (artifacts) => {
+    const extraRunner = deepClone(artifacts.providerLaunch.runnerAuthorization.runners[0]);
+    extraRunner.runnerId = "m2-future-cell-99-extra";
+    extraRunner.cellNumber = "99";
+    extraRunner.protocolCellNumber = "⑨";
+    artifacts.providerLaunch.runnerAuthorization.runners.push(extraRunner);
+  },
+  /provider launch has extra runner/,
+);
+
+expectReject(
+  "provider launch runner cell number drift",
+  (artifacts) => {
+    artifacts.providerLaunch.runnerAuthorization.runners.find(
+      (runner) => runner.runnerId === "m2-future-cell-03-e2-a4-same",
+    ).cellNumber = "06";
+  },
+  /cell 03 runner .* launch cellNumber mismatch/,
+);
+
+expectReject(
+  "provider launch runner protocol cell drift",
+  (artifacts) => {
+    artifacts.providerLaunch.runnerAuthorization.runners.find(
+      (runner) => runner.runnerId === "m2-future-cell-06-e2-a2prime",
+    ).protocolCellNumber = "③";
+  },
+  /cell 06 runner .* launch protocolCellNumber mismatch/,
+);
+
+expectReject(
+  "cell 03 manifest arm binding drift",
+  (artifacts) => {
+    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-03-e2-a4-same").arm =
+      "A2prime";
+  },
+  /cell 03 runner .* manifest arm mismatch/,
+);
+
+expectReject(
+  "cell 06 manifest reviewer binding drift",
+  (artifacts) => {
+    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-06-e2-a2prime").reviewerFamily =
+      "same";
+  },
+  /cell 06 runner .* manifest reviewerFamily mismatch/,
+);
+
+expectReject(
+  "cell 02 provider model family binding drift",
+  (artifacts) => {
+    artifacts.runnerManifest.runners.find((runner) => runner.runnerId === "m2-future-cell-02-e1-a4-cross").providerModelFamily =
+      "E2";
+  },
+  /cell 02 runner .* providerModelFamily mismatch/,
+);
+
+expectReject(
+  "cell 04 manifest reviewer binding drift",
+  (artifacts) => {
+    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-04-e2-a4-cross").reviewerFamily =
+      "same";
+  },
+  /cell 04 runner .* manifest reviewerFamily mismatch/,
+);
+
+expectReject(
+  "cell 03 sequencing arm binding drift",
+  (artifacts) => {
+    artifacts.providerLaunch.sequencing.cell03Calibration.arm = "A2prime";
+  },
+  /cell 03 sequencing arm mismatch/,
+);
+
+expectReject(
+  "cell 06 sequencing protocol binding drift",
+  (artifacts) => {
+    artifacts.providerLaunch.sequencing.cell06A2primeGate.protocolCellNumber = "③";
+  },
+  /cell 06 sequencing protocolCellNumber mismatch/,
 );
 
 console.log(
