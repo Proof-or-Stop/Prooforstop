@@ -43,7 +43,45 @@
       "status": "in_progress",
       "startTime": "2026-07-05T13:10:04.027Z",
       "endTime": null,
-      "userSees": "User runs lattice milestone_status --storyId=<DONE-story> and sees Milestone Status with completed closeout rows, no stale evidence warnings, and empty Current/Remaining sections when the closeout snapshot is complete."
+      "userSees": "User runs lattice milestone_status --storyId=<DONE-story> and sees Milestone Status with completed closeout rows, no stale evidence warnings, and empty Current/Remaining sections when the closeout snapshot is complete.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/milestone-status.ts",
+          "command": "node packages/main/dist/cli.js milestone_status --storyId=B-e62e",
+          "result": "pass",
+          "note": "Real DONE story B-e62e now renders snapshot-backed Milestone Status with M1 and M2 under Completed, both shown as ✅ Done, no Current/Remaining rows, and no stale evidence or blocked warnings.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused regression verifies active non-DONE stories still use live projection and DONE stories without closeout remain fail-closed instead of fabricating completed rows.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Regression and build verify JSON/text snapshot-backed milestone_status remains read-only and MilestoneStatusReport-shaped while preserving existing argument boundary tests.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
