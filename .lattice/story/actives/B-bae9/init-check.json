@@ -1,0 +1,31 @@
+{
+  "storyId": "B-bae9",
+  "checkedAt": "2026-07-05T17:05:34.321Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-05T17:05:21.279Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "The abbreviation \"H2\" is used repeatedly (index.json title/description/keywords, background.md ## Key Insights, checklist.json CHK-002 title+context) but is never expanded within the story artifacts themselves. Only the external plan doc (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md section 9 table) defines H2 as the \"Tamper fail-closed\" hypothesis. A fresh reader with only background.md/index.json/checklist.json open can infer the operational meaning (fingerprint-match assertion on tamper classes) from context, but never learns literally what H2 stands for or that there is a companion H1/H3/H4 hypothesis set."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "index.json has no riskSignals field at all (not even an empty array), unlike a typical fully-populated index.json. Priority is medium so the Dimension-3 hard keyword-match rule does not apply, but the field's total absence is a minor mechanical completeness gap."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-05T17:05:34.321Z",
+      "issues": []
+    }
+  ],
+  "_hash": "e95fd3bccd20a1815efdda718d3f325916c7cbfe1e53d4f3add750317094fc21"
+}

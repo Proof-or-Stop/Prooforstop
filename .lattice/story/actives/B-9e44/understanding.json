@@ -1,0 +1,30 @@
+{
+  "task": "Freeze protocol.json for the proof-or-stop replay and tamper campaign by deriving per-class tamper fingerprints from a committed viability harness and recording full-profile calibration plus env pins, so the M1-M4 harnesses read a frozen contract.",
+  "outcome": "experiments/pos-instrument-replay/protocol.json exists, sha256-pinned and re-emittable byte-identical by a committed producer; every candidate tamper class is dispositioned fail-closed|accepted|dropped with its observed fingerprint over the explicit domain; full-profile (1M) cost and env pins are recorded; a hermetic mkdtemp selfcheck passes via node.",
+  "facts": [
+    "Instrument packages/main/src/core/playbook-runtime-baseline.ts: generatePlaybookRuntimeBaseline + verifyPlaybookRuntimeBaseline; seed content-inert (buildBaselineRows takes no seed).",
+    "verify returns status pass|fail iff 19 conditions; boolean flag vector (recordsDigestStable/goldDigestStable/manifestDigestStable/staleDetected/requestedProfileMatches/profileRecordCountMatches/fullProfileExactMillionMatches/partitionContractPass/sourceDigestMutationMatrixPass) + numeric gold metrics (expectedIdsFoundRate, false-surface rates, malformedRowsSkipped); NO textual reason.",
+    "Hands-on spike (2026-07-05) over 17 candidate (class x handling) combos: 15 fail-closed, 2 accepted (records-row-reorder[refreshed], gold-edit[refreshed]); 0 error. Validates the fail-closed-set vs acceptance-bucket split.",
+    "manifest self-consistent refresh = recompute recordsDigest/goldDigest via sha256 of files + rebuild manifestDigest over canonical JSON (refreshManifest in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts).",
+    "Small verify ~7s measured; full profile writes exactly 1,000,000 records (cost unmeasured — M0 calibration)."
+  ],
+  "constraints": [
+    "Instrument is read/called only, never modified.",
+    "All mutations applied to mkdtemp-isolated copies; never touch a source baseline; no source-tree pollution.",
+    "Producer must be deterministic: re-emit byte-identical protocol.json (hash stable).",
+    "Fingerprint match is over an explicit frozen domain only (flags + numeric predicates), not the whole verify result.",
+    "One heavy full-profile generate+verify only."
+  ],
+  "unknowns": [
+    "Full-profile (1M) actual elapsed/rss cost, which finalizes the full budget cap and full-N (proposed 3).",
+    "Whether Codex red-team surfaces additional tamper classes or accepted-behavior cases beyond the 2 observed."
+  ],
+  "touchpoints": [
+    "experiments/pos-instrument-replay/viability-check.mjs",
+    "experiments/pos-instrument-replay/build-protocol.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/calibration.json",
+    "experiments/pos-instrument-replay/selfcheck.mjs"
+  ],
+  "timestamp": "2026-07-05T15:09:47.331Z"
+}

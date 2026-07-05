@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-9e44",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e40482173bbcd80d2d88ac361b1ac94cc4d9382b207bcf355248e7b54f9d53d6",
+  "milestones": [
+    {
+      "id": "M0-A",
+      "sourceRequirementId": "REQ-001",
+      "claim": "A committed viability harness dispositions every candidate tamper class (class x raw|refreshed) as fail-closed|accepted|dropped with its observed fingerprint",
+      "doneMeans": "node viability-check.mjs prints the disposition table + counts; viability-results.json written",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M0-B",
+      "sourceRequirementId": "REQ-001",
+      "claim": "protocol.json is frozen and hash-pinned by a committed deterministic producer (fail-closed set + acceptance bucket + dropped + N + seed + iterationId + recordDigest preimage + budget caps + stop-reason enum + env pins)",
+      "doneMeans": "node build-protocol.mjs re-emits protocol.json byte-identical; protocol.json.sha256 stable",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M0-C",
+      "sourceRequirementId": "REQ-001",
+      "claim": "One full-profile (1M) generate+verify calibrates the full budget cap and full-N with env pins",
+      "doneMeans": "calibration.json records elapsedMs, peakRssBytes, full-N, env pins",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M0-D",
+      "sourceRequirementId": "REQ-001",
+      "claim": "A hermetic mkdtemp selfcheck asserts hash-stability and the two-pronged fail-closed invariant",
+      "doneMeans": "node selfcheck.mjs exits 0 with PASS",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M0-E",
+      "sourceRequirementId": "REQ-001",
+      "claim": "A reuse-audit smoke-overlap map is committed per candidate class into protocol.json",
+      "doneMeans": "protocol.json has smokeOverlap {covered,smokeCase?} per class",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T15:15:04.844Z",
+  "updatedAt": "2026-07-05T15:15:05.525Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705151505",
+    "acceptedInterpretationHash": "sha256:925549168affece6b2bee1e37237d7c6b37a3c49d3711bc238c298cd4c2fa4e3",
+    "acceptedAt": "2026-07-05T15:15:05.525Z"
+  }
+}

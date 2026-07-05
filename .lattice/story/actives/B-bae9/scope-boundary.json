@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bae9",
+  "mode": "feature",
+  "allowed": [
+    "experiments/pos-instrument-replay/"
+  ],
+  "excluded": [
+    "analyze-batch.mjs (M4 analyzer)",
+    "resume-probe.mjs (M3 probe)",
+    "run-batch.mjs (M2 replay driver)",
+    "the frozen protocol.json (read-only input; M1 must not rewrite the M0 freeze)",
+    "the instrument core (read/called only, never modified)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "M1 delivers only tamper.mjs + tamper-verdicts.jsonl + an M1 selfcheck under experiments/pos-instrument-replay/, reusing the M0 lib/instrument.mjs. It reads the frozen protocol.json (must not rewrite it) and never modifies the instrument. M2-M4 harnesses deferred. Plan section 7/8.",
+  "createdAt": "2026-07-05T17:06:26.600Z",
+  "updatedAt": "2026-07-05T17:06:26.600Z",
+  "_hash": "5f2e67dcfad0e2000812cedc4edb61d5be60a516a18e87f44ff9a8e5cf2a8dbe"
+}

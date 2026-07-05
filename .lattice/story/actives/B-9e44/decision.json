@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Every number/artifact has a committed deterministic producer.",
+    "Fingerprint match is over an explicit frozen domain (flags + numeric predicates), never the whole verify result.",
+    "Two-pronged viability: fail-closed only if the fingerprint carries a real failure signal; accept-only self-consistent variant goes to the acceptance bucket.",
+    "Instrument is read/called only, never modified; mutations in mkdtemp isolation.",
+    "Freeze before scored runs: protocol.json + sha256 is the contract M1-M4 read."
+  ],
+  "drivers": [
+    "The plan (B-e86f) is a frozen pre-registration; protocol.json must match section 6.1/7.",
+    "verify has no textual reason field, forcing fingerprint-based adjudication.",
+    "The full-profile 1M run is the only heavy compute — measure once."
+  ],
+  "options": [
+    {
+      "name": "derive-fingerprints-from-viability-run",
+      "pros": [
+        "Every class demonstrably viability-checked",
+        "Fingerprints are observed facts",
+        "Reuses validated spike (15 fail-closed / 2 accepted)"
+      ],
+      "cons": [
+        "Requires running each mutation once"
+      ]
+    },
+    {
+      "name": "hand-author-fingerprints-from-source-reading",
+      "pros": [
+        "No runtime"
+      ],
+      "cons": [
+        "Violates demonstrably-viability-checked requirement",
+        "Risks a no-op class like rev-1 seed-swap",
+        "Cannot honestly disposition accept-only cases"
+      ]
+    }
+  ],
+  "chosen": "derive-fingerprints-from-viability-run",
+  "rationale": "Plan mandates every class demonstrably viability-checked; the spike proved it on real verify output (15 fail-closed, 2 accepted). Hand-authoring risks the rev-1 seed-swap no-op and cannot honestly disposition accept-only variants.",
+  "preMortem": [
+    {
+      "scenario": "Non-deterministic mutation",
+      "trigger": "row-reorder or byte-flip picks different indices across runs",
+      "consequence": "frozen fingerprint is not reproducible; freeze meaningless",
+      "mitigation": "fix mutation indices/inputs as constants so every run mutates identically"
+    },
+    {
+      "scenario": "Non-reproducible producer output",
+      "trigger": "protocol.json key ordering or floating rates differ across runs",
+      "consequence": "sha256 unstable; selfcheck fails",
+      "mitigation": "canonical JSON serialization + exact/integer predicate encoding"
+    },
+    {
+      "scenario": "Full-profile run cannot complete",
+      "trigger": "1M generate+verify OOMs or exceeds a sane time budget",
+      "consequence": "cost calibration and full-N cannot be finalized",
+      "mitigation": "capture elapsed/rss, record a budget_cap honestly; record the stop rather than fake a number"
+    }
+  ],
+  "timestamp": "2026-07-05T15:11:08.927Z"
+}

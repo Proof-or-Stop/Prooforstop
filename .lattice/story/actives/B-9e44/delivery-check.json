@@ -1,0 +1,78 @@
+{
+  "storyId": "B-9e44",
+  "checkedAt": "2026-07-05T17:00:53.473Z",
+  "headHash": "22f3d60c24e87491b1f478823d2c265e4e39478d",
+  "materialHash": "839050679bb2901f20deaaa8a949ab3ac2110ccaf28f7b4059546d52583942e4",
+  "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+  "reviewRound": "2026-07-05T16:37:18.205Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#reproduce",
+      "promise": "node viability-check.mjs / node calibrate-full.mjs / node build-protocol.mjs / node selfcheck.mjs reproduce the frozen protocol; build-protocol.mjs re-emits a byte-identical protocol.json (stable sha256) on a second run",
+      "verifiedBy": "diff/grep + independent live run",
+      "evidence": "Independently ran node selfcheck.mjs in the worktree: printed selfcheck PASS, exit 0; shasum -a 256 protocol.json == a3a781fed2814259378dae7aee80d3aa3920b5883c5d75d960509fb7901c848c, matches committed protocol.json.sha256 exactly."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#the-four-disposition-categories",
+      "promise": "viability-check.mjs classifies each candidate (class x raw|refreshed) into fail-closed | acknowledged-limitation | dropped | accepted, and exits nonzero on any vacuous fail-closed class or any false-positive (a benign candidate ever rejected)",
+      "verifiedBy": "diff/grep + independent live run",
+      "evidence": "Independently ran node viability-check.mjs: printed the full disposition table for 27 candidates ending fail-closed=18 accepted=2 acknowledged-limitation=6 dropped=1, no false-positive, matching committed viability-results.json exactly. Verified in source (viability-check.mjs lines ~410-552): intent==='benign' && status==='fail' -> disposition 'false-positive' -> process.exit(1); vacuous fail-closed / non-empty fail-closed set / acknowledged-limitation-must-be-malicious-pass all separately exit(1)-guarded."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#the-digest-recompute-blind-spot-family-limitationfamily",
+      "promise": "protocol.json records a top-level limitationFamily general statement (rootCause, exhaustiveness:representative-not-exhaustive, scope, families >=2 including oracle-weaken and manifest-metadata-lie, note) that structurally closes the unbounded digest-recompute blind-spot family; each acknowledgedLimitations entry is {class, handling, intent:malicious, fingerprint, limitationNote}",
+      "verifiedBy": "diff/grep + node -e inspection",
+      "evidence": "protocol.json.limitationFamily present with exhaustiveness=representative-not-exhaustive, rootCause and scope populated, 2 families (oracle-weaken, manifest-metadata-lie). All 6 acknowledgedLimitations entries verified intent:malicious, fingerprint.status:pass, non-empty limitationNote (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids/mustnotsurface/suppressed, manifest-metadata-lie)."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#reuse-audit-smokeoverlap",
+      "promise": "each candidate class carries a smokeOverlap {covered, smokeCase?} annotation audited against packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts; gold-edit -> assertGoldTamperWouldFail, records-truncation -> assertTruncatedSelfConsistentManifestWouldFail; all other classes covered:false (net-new)",
+      "verifiedBy": "diff/grep + node -e inspection",
+      "evidence": "protocol.json.smokeOverlap is a top-level map keyed by class (21 classes); gold-edit:{covered:true,smokeCase:assertGoldTamperWouldFail}, records-truncation:{covered:true,smokeCase:assertTruncatedSelfConsistentManifestWouldFail}, all 19 remaining classes covered:false. Both named smoke functions confirmed to exist and be invoked in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts (lines 172, 189, 353-354). Matches README's enumerated covered/net-new list exactly."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#l6-8",
+      "promise": "Nothing here modifies the instrument (packages/**); it is read/called only",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only shows zero files outside experiments/pos-instrument-replay/** and .lattice/** -- no packages/** file touched by this story."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/README.md#calibrate-fullmjs",
+      "promise": "calibrate-full.mjs runs ONE full-profile (1,000,000-record) generate+verify, captures elapsedMs+peakRssBytes, writes calibration.json with chosen N (small:30, full:3), budget cap (full elapsed x safety factor 3), and env pins {nodeVersion, platform, instrumentCommit}",
+      "verifiedBy": "diff/grep + node -e inspection",
+      "evidence": "calibration.json present: fullProfile.elapsedMs=42739, peakRssBytes=419332096, chosenN={full:3,small:30}, budgetCapMsPerVerify=128217 (=42739*3, matches safety factor 3), env={instrumentCommit,nodeVersion:v22.13.0,platform:darwin}. Not re-run live (would take minutes of heavy compute) but structurally verified against the story-recorded verificationEvidence, which is consistent with the file on disk.",
+      "waiverReason": "re-running the full 1M-record calibration live would cost minutes of heavy compute for no additional signal beyond the committed, hash-consistent calibration.json already produced by the story"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently reran node viability-check.mjs: full disposition table for 27 candidates, ending fail-closed=18 accepted=2 acknowledged-limitation=6 dropped=1, 0 false-positive -- byte-identical to committed viability-results.json. git status clean after the run (mkdtemp isolation confirmed, no source-tree pollution)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently checked protocol.json directly: sha256 a3a781fed2814259... matches protocol.json.sha256 exactly. tamperMatrix keys and counts (failClosed 18 / acceptanceBucket 2 / acknowledgedLimitations 6 / dropped 1) verified via node -e inspection; all 18 failClosed carry a genuine fail/crash signal (0 vacuous, confirmed programmatically)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "calibration.json read directly: fullProfile.elapsedMs=42739, peakRssBytes=419332096, chosenN={full:3,small:30}, env pins present (instrumentCommit/nodeVersion/platform). Not independently re-run live in this review (multi-minute heavy compute); relied on the committed, hash-consistent artifact plus the story's recorded verificationEvidence.",
+      "waiverReason": "full 1M-record recalibration deferred to avoid multi-minute heavy compute during delivery review; committed calibration.json is internally consistent with protocol.json's budgetCaps/N and was independently checked structurally"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independently ran node selfcheck.mjs in a clean shell: exit 0, printed selfcheck PASS plus a summary line confirming byte-identical re-emit, 18/2/6 fingerprint checks, 0 false-positive."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "protocol.json.smokeOverlap inspected directly: 21-class map, 2 covered:true (gold-edit, records-truncation) with correct smokeCase names, 19 covered:false (net-new). Cross-checked both smokeCase function names genuinely exist and are invoked in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified against code and 2 live independent reruns (selfcheck.mjs PASS, viability-check.mjs reproducing 18/2/6/1/0 counts byte-for-byte); the 6 Codex host-2 adversarial findings (F-001..F-006) are genuinely resolved with matching code changes; the closing summary honestly scopes this as a protocol-freeze milestone (M1-M4 harnesses explicitly out of scope) and does not overclaim beyond what the artifacts show."
+  },
+  "_hash": "ee5409e1690ebdd0aee527b2fe72eae6edc8203fff98907d7e312fcc97796468"
+}

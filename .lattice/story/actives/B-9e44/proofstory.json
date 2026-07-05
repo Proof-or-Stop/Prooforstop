@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-9e44",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:a795eedbad7e60a41a69ec086d7a5fcc22e3284557003cb8b70a4673e9b3064f",
+  "confirmedMilestoneLedgerHash": "sha256:e40482173bbcd80d2d88ac361b1ac94cc4d9382b207bcf355248e7b54f9d53d6",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M0-A",
+        "M0-B",
+        "M0-C",
+        "M0-D",
+        "M0-E"
+      ],
+      "note": "M0 acceptance = the hermetic selfcheck passes (protocol.json re-emits byte-identical + every fail-closed class fingerprint carries a failure signal) and protocol.json + producers are committed."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "M0 ProofStory contract: single acceptance binding AB-001 maps the intent-snapshot acceptanceClaim to all 5 checklist items, the selfcheck+protocol verification intents, and milestone rows M0-A..M0-E.",
+  "createdAt": "2026-07-05T15:15:31.029Z",
+  "updatedAt": "2026-07-05T15:15:31.029Z"
+}
