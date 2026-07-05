@@ -1,0 +1,87 @@
+{
+  "storyId": "B-3a4d",
+  "checkedAt": "2026-07-05T02:21:53.449Z",
+  "features": [
+    {
+      "feature": "Generated milestone closeout snapshots persist through the real DONE merge and worktree cleanup boundary.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; decision.json; milestone-ledger.json; checklist.json"
+    },
+    {
+      "feature": "Canonical story metadata contains milestone-closeout.json after DONE so worktree deletion does not lose the accepted closeout artifact.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; decision.json; milestone-ledger.json"
+    },
+    {
+      "feature": "The accepted milestone table is stored as committed durable story metadata rather than as a transient worktree-local file.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; decision.json"
+    },
+    {
+      "feature": "From the canonical root, lattice milestone_closeout --storyId=<story> reads a proofbound.milestone_closeout.v1 snapshot after DONE when the story had a completed risk-free milestone ledger.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; decision.json; milestone-ledger.json; checklist.json"
+    },
+    {
+      "feature": "Post-DONE regression coverage models a story worktree plus canonical main root and asserts canonical-root milestone_closeout succeeds after cleanup.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; decision.json; milestone-ledger.json; checklist.json"
+    },
+    {
+      "feature": "Regression coverage fails if the only milestone-closeout.json copy is worktree-local or deleted during DONE cleanup.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; decision.json; milestone-ledger.json; checklist.json"
+    },
+    {
+      "feature": "Incomplete or risky milestone reports remain fail-closed and do not produce accepted closeout snapshots.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; decision.json"
+    },
+    {
+      "feature": "Stories without milestone ledgers keep the existing missing or not-applicable diagnostic instead of fabricating closeout snapshots.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; decision.json; milestone-ledger.json; checklist.json"
+    },
+    {
+      "feature": "milestone_closeout remains a historical read-only snapshot reader and is not replaced with live milestone_status recomputation.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; decision.json"
+    },
+    {
+      "feature": "The durable closeout handoff stays inside the existing DONE effects and metadata path rather than introducing a separate fragile cleanup path.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; decision.json"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0f46080a421abbb6be8015966fdc11c171f00b0c42acc367e7cc14b4c0742e65",
+  "openQuestions": []
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3a4d",
+  "records": [
+    {
+      "id": "RED-20260705022300",
+      "trigger": "B-bfba DONE closeout missing from canonical root after merge/worktree cleanup",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "3a6750b08e149124dd93cce86c8689b402fe5dac",
+      "baselineMaterialHash": "854d2288df93c9df5f516850953bd26b5397a0d214ed60e79214a42189774969",
+      "observedFailure": "From canonical main, lattice milestone_closeout --storyId=B-bfba --format=json returned schemaVersion proofbound.milestone_closeout_missing.v1 with snapshotPresent false and expectedPath .lattice/story/actives/B-bfba/milestone-closeout.json.",
+      "failingCommand": "lattice milestone_closeout --storyId=B-bfba --format=json",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs"
+      },
+      "note": "Real pre-fix red state is the user-observed canonical-root missing snapshot; green proof must be a regression that reads from canonical main after DONE cleanup, not just worktree-local write.",
+      "createdAt": "2026-07-05T02:23:00.397Z"
+    },
+    {
+      "id": "RED-20260705022351",
+      "trigger": "B-bfba DONE closeout missing from canonical root after merge/worktree cleanup",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "3a6750b08e149124dd93cce86c8689b402fe5dac",
+      "baselineMaterialHash": "854d2288df93c9df5f516850953bd26b5397a0d214ed60e79214a42189774969",
+      "observedFailure": "From canonical main, lattice milestone_closeout --storyId=B-bfba --format=json returned schemaVersion proofbound.milestone_closeout_missing.v1 with snapshotPresent false and expectedPath .lattice/story/actives/B-bfba/milestone-closeout.json.",
+      "failingCommand": "lattice milestone_closeout --storyId=B-bfba --format=json",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs"
+      },
+      "note": "Binds red state to milestone M1, which is an expected ProofStory red target. Green proof must read from canonical main after DONE cleanup.",
+      "createdAt": "2026-07-05T02:23:51.391Z"
+    }
+  ],
+  "createdAt": "2026-07-05T02:23:00.397Z",
+  "updatedAt": "2026-07-05T02:23:51.391Z"
+}

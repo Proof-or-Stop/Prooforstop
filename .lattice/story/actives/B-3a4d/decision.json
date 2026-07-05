@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Proof-or-stop: closeout is usable only if the canonical root can read it after DONE cleanup.",
+    "Do not weaken missing-ledger behavior; no fabricated success snapshots.",
+    "Keep live status and historical closeout separated.",
+    "Regression tests must fail when the only copy is worktree-local."
+  ],
+  "drivers": [
+    "B-bfba real DONE left milestone_closeout missing from canonical main.",
+    "DONE cleanup deletes the story worktree, so worktree-local evidence is insufficient.",
+    "Future hosts need stable post-DONE progress proof without stale live milestone_status confusion."
+  ],
+  "options": [
+    {
+      "name": "Commit closeout through DONE effects and assert canonical root",
+      "pros": [
+        "Targets the actual failure boundary: merge/cleanup durability",
+        "Produces a user-visible post-DONE proof",
+        "Keeps milestone_status live and milestone_closeout historical"
+      ],
+      "cons": [
+        "Requires touching high-risk DONE merge code",
+        "Needs stronger temp-repo regression coverage"
+      ]
+    },
+    {
+      "name": "Only extend helper/unit tests",
+      "pros": [
+        "Smallest code change",
+        "Lower immediate risk"
+      ],
+      "cons": [
+        "Would repeat the B-bfba miss: worktree-local write can pass while canonical root still misses",
+        "Does not prove user-visible DONE behavior"
+      ]
+    },
+    {
+      "name": "Recompute closeout lazily on milestone_closeout read",
+      "pros": [
+        "Avoids DONE merge plumbing",
+        "Could recover older stories"
+      ],
+      "cons": [
+        "Would turn historical closeout into a recomputed live view",
+        "Can fabricate or drift from accepted DONE state"
+      ]
+    }
+  ],
+  "chosen": "Commit closeout through DONE effects and assert canonical root",
+  "rationale": "The failure is at the durable DONE boundary, so the fix must persist or hand off milestone-closeout.json through the same path that commits story metadata and merges to main, then prove it from the canonical root after cleanup.",
+  "preMortem": [
+    {
+      "scenario": "Snapshot remains worktree-only",
+      "trigger": "Test asserts only store.writeMilestoneCloseout before cleanup",
+      "consequence": "DONE users still see Snapshot: missing",
+      "mitigation": "Add canonical-root post-DONE assertion after cleanup/merge"
+    },
+    {
+      "scenario": "False closeout is written for incomplete milestone rows",
+      "trigger": "DONE effects copies any file without checking source report state",
+      "consequence": "Milestone closeout overclaims completion",
+      "mitigation": "Keep buildMilestoneCloseoutSnapshot risk/incomplete blocking semantics"
+    },
+    {
+      "scenario": "Fix destabilizes DONE merge cleanup",
+      "trigger": "New copy/commit logic runs at the wrong point or dirties main unexpectedly",
+      "consequence": "DONE phase can leave partial metadata or failed cleanup",
+      "mitigation": "Keep mutation inside existing DONE effects ordering and verify clean worktree plus full validate"
+    }
+  ],
+  "timestamp": "2026-07-05T02:16:17.107Z"
+}

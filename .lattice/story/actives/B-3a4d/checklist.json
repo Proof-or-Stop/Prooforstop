@@ -12,7 +12,8 @@
         "modify": [
           "packages/main/src/handlers/transition-orchestrator.ts",
           "packages/main/src/handlers/done-effects.ts",
-          "packages/main/src/core/store.ts"
+          "packages/main/src/core/store.ts",
+          "docs/CLI.md"
         ],
         "create": [],
         "test": [
@@ -42,9 +43,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T02:30:04.277Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Build passed and milestone-status regression passed. The new B-done-closeout-worktree fixture creates a real git worktree, advances DONE, removes the story worktree, then reads proofbound.milestone_closeout.v1 from canonical main.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"canonical main root can still|story worktree DONE path|merge cleanup\" docs/CLI.md",
+          "result": "pass",
+          "note": "docs/CLI.md lines 353-355 state that a story worktree DONE closeout is committed before removal and remains readable from canonical main after merge cleanup.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The worktree fixture asserts the story worktree no longer exists before canonical main Store and CLI milestone_closeout read the snapshot, so a transient worktree-only file cannot satisfy the test; existing missing-ledger cases also still pass.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,7 +92,7 @@
       "relatedDocs": [
         "docs/CLI.md"
       ],
-      "userSees": "The regression test fails if milestone_closeout would be missing from the canonical root after DONE.",
+      "userSees": "User sees test assertions for `milestone_closeout --storyId=B-done-closeout --root <mainRoot>` returning `proofbound.milestone_closeout.v1` after DONE cleanup.",
       "files": {
         "modify": [
           "packages/main/tests/milestone-status.test.mjs"
@@ -86,9 +125,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T02:30:04.007Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The regression runs a full enough DONE path through createStoryAdvanceHandlers from a linked story worktree and verifies canonical-root milestone_closeout returns proofbound.milestone_closeout.v1 after cleanup.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The regression distinguishes canonical-root persistence from worktree-local writes by instantiating a new StoryStore at mainRoot after worktree deletion and reading milestone-closeout.json there.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "If DONE cleanup deletes the only closeout copy or fails to merge it into canonical metadata, the mainRoot Store/CLI assertions in the regression fail.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
+          "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+          "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+          "timestamp": "2026-07-05T02:29:50.209Z"
+        }
+      ]
     }
   ]
 }

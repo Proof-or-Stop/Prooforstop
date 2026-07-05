@@ -1,0 +1,26 @@
+{
+  "task": "Persist DONE milestone closeout snapshots so real DONE merge/worktree cleanup leaves milestone-closeout.json readable from the canonical main root.",
+  "outcome": "After a story reaches DONE, lattice milestone_closeout --storyId=<story> from the canonical root returns a proofbound.milestone_closeout.v1 snapshot instead of Snapshot: missing.",
+  "facts": [
+    "B-bfba proved the helper and transition-orchestrator can write milestone-closeout.json inside the story worktree.",
+    "After B-bfba DONE merge/worktree cleanup, canonical main did not contain .lattice/story/actives/B-bfba/milestone-closeout.json.",
+    "transition-orchestrator captures the closeout before phase metadata is persisted; done-effects later commits metadata, merges story branch to main, removes the worktree, and deletes the branch.",
+    "The durable proof must assert canonical-root milestone_closeout succeeds after cleanup, not just that the worktree-local store wrote a file.",
+    "The implementation likely belongs in DONE merge effects or the handoff between transition-orchestrator and done-effects, because that is where story-branch metadata is committed and main-root cleanup happens."
+  ],
+  "constraints": [
+    "Do not fabricate closeout snapshots for stories without a milestone ledger.",
+    "Do not make milestone_status historical; it remains the live freshness view.",
+    "Keep milestone_closeout read-only and non-authoritative for production or Authority claims.",
+    "Use Lattice lifecycle commands for story metadata and avoid direct JSON metadata edits."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "docs/CLI.md"
+  ],
+  "timestamp": "2026-07-05T02:16:03.902Z"
+}
