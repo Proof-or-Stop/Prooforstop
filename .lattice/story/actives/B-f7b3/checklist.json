@@ -117,9 +117,9 @@
       "id": "CHK-003",
       "title": "Add negative-control test: duplicate ledger rows are de-duplicated or rejected by the ledger builder",
       "context": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts has zero duplicat* coverage (grep = 0 hits, the withdrawn M5 claim). Add an assertion that milestone_ledger_set/buildMilestoneLedger with two rows sharing an id is rejected or de-duplicated. Closes findings M5 test-gap #1.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T22:05:04.312Z",
       "userSees": "Running `node dist/tasks/proofstory-intent-hardening-smoke.js` (or the wired `npm test` entry that includes it) prints `ProofStory intent hardening smoke passed` and exits 0, now with new negative-control assertions exercised. If the ledger builder ever stops de-duplicating, the run instead fails with an assertion like `AssertionError [ERR_ASSERTION]: milestone_ledger_set with two rows sharing an id M1 is rejected` and a nonzero exit. Concretely, invoking `lattice milestone_ledger_set '{\"storyId\":\"B-proofstory\",\"milestones\":[{\"id\":\"M1\",...},{\"id\":\"M1\",...}]}'` (two rows sharing id M1) exits nonzero and prints `duplicate milestone id: M1`; the same duplicate id fed to `milestone_ledger_add` (adding an id already present) exits nonzero and prints `duplicate milestone id: M1`, and neither call writes a corrupted milestone-ledger.json.",
       "files": {
         "modify": [
