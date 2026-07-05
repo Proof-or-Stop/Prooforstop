@@ -335,11 +335,11 @@
           "kind": "manual_transcript",
           "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p.smokeOverlap).length)\"",
           "result": "pass",
-          "note": "protocol.json carries a per-class smokeOverlap map incl. the 5 new net-new classes (covered:false); e.g. gold-additive-field covered:true smokeCase:assertGoldTamperWouldFail; manifest-structural-corruption covered:false.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "per-class smokeOverlap map incl. the new net-new oracle-weaken + manifest-metadata-lie classes (covered:false).",
+          "headHash": "358adeaab1ca0ad0417179140e6831e3d7615ce5",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:16.008Z"
         }
       ]
     }
