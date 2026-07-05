@@ -49,7 +49,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke: dry-run detects exactly 1 eligible under-bound candidate (PBP-882) + stable plan digest; --apply with the right --digest enriches exactly one candidate's lineage (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId). 10/10 checks pass.",
+          "headHash": "ac05dc5b7a19d8bf8a08dd52dc6a056afba2dae5",
+          "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
+          "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
+          "timestamp": "2026-07-05T23:13:40.033Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
