@@ -1,17 +1,17 @@
 {
   "storyId": "B-e62e",
-  "changes": "Added CLI-owned post-command milestone_status appending for milestone-aware story mutations, plus six developer-facing status labels in milestone_status output and documentation.",
+  "changes": "Added CLI-owned post-command milestone_status appending for milestone-aware story mutations, fixed DONE cleanup fallback rendering, and corrected six developer-facing status labels including Pending Review semantics.",
   "usage": "Run milestone-aware mutating commands such as checklist_update, verification_evidence_refresh_stale, story_advance, delivery_check_set, or summary_set on a story with milestone-ledger.json; human stdout appends the consumed Milestone Status table automatically.",
-  "expectedOutcome": "After each supported story state change, developers see Milestone Status with Completed, Current, and Remaining sections, including Done, In Progress, Pending Review, Not Started, Blocked, and Failed labels where applicable.",
-  "actualTranscript": "Observed verification_evidence_refresh_stale on B-e62e auto-append Milestone Status - B-e62e after the command completed. Completed contained M1 and M2 with Done status, Current was none, Remaining was none, and Risks was none.",
-  "outcomeDiff": "Expected and actual behavior match for ledger-backed human stdout. JSON mode remains clean and no-ledger stories do not receive fabricated progress tables.",
+  "expectedOutcome": "After each supported story state change, developers see Milestone Status with Completed, Current, and Remaining sections, using Done, In Progress, Pending Review, Not Started, Blocked, and Failed labels accurately.",
+  "actualTranscript": "Observed B-e62e milestone_status after verification_evidence_refresh_stale and story_advance. The table auto-printed after mutating commands. M1 and M2 currently render as 🟡 Pending Review because ledger=planned while checklist, verification evidence, and required evidence are covered; their subitems and evidence refs render ✅ Done. Current and Remaining sections are none, and Risks are none.",
+  "outcomeDiff": "Expected and actual behavior match for ledger-backed human stdout. JSON mode remains clean, no-ledger stories do not receive fabricated progress tables, DONE cleanup falls back to canonical main, and covered-but-ledger-planned rows show Pending Review instead of Done.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
   "limitations": "Applies only to configured human-output story mutating commands with a milestone ledger. JSON output and no-ledger stories intentionally skip appended tables.",
-  "pitfalls": "Do not treat Failed as Not Started. Failed is reserved for failed evidence or explicit failed state; future work should use Not Started for future tasks and Blocked for real blockers.",
+  "pitfalls": "Do not treat Failed as Not Started, and do not treat covered ledger=planned rows as Done. Failed is for failed evidence; Pending Review means implementation/evidence is covered but final ledger acceptance is not done.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 571783
     },
     "DEV": {
-      "count": 2,
-      "durationMs": 3735859
+      "count": 5,
+      "durationMs": 4786550
     },
     "REVIEW": {
-      "count": 2,
-      "durationMs": 1065614
+      "count": 5,
+      "durationMs": 1971962
     },
     "TEST": {
       "count": 2,
-      "durationMs": 788353
+      "durationMs": 849180
     }
   },
-  "totalDurationMs": 6289304,
+  "totalDurationMs": 8307170,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-05T11:58:04.546Z",
-  "updatedAt": "2026-07-05T11:58:04.546Z"
+  "updatedAt": "2026-07-05T12:31:42.411Z"
 }
