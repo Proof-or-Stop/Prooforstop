@@ -53,6 +53,21 @@
       ],
       "signatureTag": "missing|mjs|adversarial-priority-bound",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bae9:F-004",
+      "desc": "conformance-logic-gap: tamper.mjs:277-332 compareFingerprint() only special-cases frozen metric predicate op==\"<\" (threshold form); build-protocol.mjs:136-150 metricPredicate() can also emit op:\">\" (false-surface-rate gold=0 cases) and an op:\"!=\" fallback form, but compareFingerprint has no branch for \">\" or \"!=\" and silently falls through to raw epsilon equality against the frozen VALUE for those forms (no threshold-direction check at all). Verified against the committed protocol.json: only \"==\" and \"<\" ops actually occur today (no false-surface metric ever went above 0 in this matrix), so this does not currently cause a false PASS or false FAIL. But the code comment at tamper.mjs:17-21 and 262-271 claims the comparison \"honor[s] the frozen predicate form\" for numeric metrics generally, which is not implemented for \">\"/\"!=\". If protocol.json is ever regenerated against different fixtures and a false-surface metric produces an observed value >0 (a genuinely malicious tamper this instrument is meant to catch), compareFingerprint would not enforce the \">\" threshold direction — only numeric closeness to the frozen value — a latent correctness gap in the exact logic (predicate-form fidelity) this M1 harness exists to police.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T17:44:18.882Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-006",
+      "_hash": "a191dfa7e0020037ac3c65130b5a1396b6fa1065743c7d788a70dd6f8ce2e079",
+      "signatureTag": "missing|unknown|conformance-logic-tamper",
+      "signatureTagSource": "auto"
     }
   ]
 }
