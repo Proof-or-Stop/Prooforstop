@@ -1,0 +1,29 @@
+{
+  "task": "Build the replay campaign driver (run-batch.mjs): N generate+verify cycles per scale into a mkdtemp-isolated dir each, appending one identity-keyed proof-or-stop record per iteration to an append-only batch-ledger.jsonl (H1/H4 evidence).",
+  "outcome": "node run-batch.mjs completes the full campaign (small N=30 + full N=3), batch-ledger.jsonl holds one proof-or-stop record per iteration with recordDigest, the driver exits nonzero on any recordless iteration + is lockfile-guarded, and a hermetic selfcheck exercises the budget_cap stop + lockfile + recordless-exit paths.",
+  "facts": [
+    "M0 (B-9e44) froze protocol.json: N{small:30,full:3}, budgetCapMsPerVerify=128217, recordDigestPreimageRule, stopReasonEnum {budget_cap,verify_crash,precondition_failed,operator_abort}, iterationIdRule.",
+    "M1 (B-bae9) DONE (tamper arm). Both merged to main.",
+    "lib/instrument.mjs reusable: verifyDir ({status:crash} sentinel -> verify_crash stop), sha256, canonicalJson. Digests sourced from the generation-side result (verifier reports stability booleans).",
+    "Full scale materializes 1,000,000 records/cycle (~42.7s measured in M0); full N=3 is a budget decision.",
+    "H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records per scale; H4 = each iteration within budgetCap OR a budget_cap stop."
+  ],
+  "constraints": [
+    "Instrument read/called only; protocol.json read-only.",
+    "All cycles in fresh mkdtemp dirs; no source pollution.",
+    "batch-ledger.jsonl is append-only + identity-keyed (never rewrite a line).",
+    "Every iteration ends in EXACTLY one record (proof XOR stop); recordless -> nonzero exit.",
+    "recordDigest = sha256 of the record canonical JSON with recordDigest absent."
+  ],
+  "unknowns": [
+    "Whether all N replays at each scale are byte-identical in practice (expected yes; deterministic instrument) — established by the campaign run."
+  ],
+  "touchpoints": [
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs",
+    "experiments/pos-instrument-replay/protocol.json (read-only)",
+    "experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse)"
+  ],
+  "timestamp": "2026-07-05T18:39:06.100Z"
+}
