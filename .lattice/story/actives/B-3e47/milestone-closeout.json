@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-3e47",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T13:58:31.653Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "045b997fea3d0f7866e64d43244bf035b24396692ed10709f3ddc98b6634c188",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:38a594fa3b1bcbea06129cc844fc4c361c5b3ab18b20fa52713fceab732eb206"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "5fecea8dae0e9dea007a2ea520e7d4fdca937432",
+    "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+    "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DONE milestone_status uses the frozen closeout snapshot instead of live archived-state freshness.",
+      "acceptance": "A DONE story with milestone-closeout.json renders Milestone Status with completed rows, no false stale evidence, and JSON groups showing completed rows.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node packages/main/dist/cli.js milestone_status --storyId=B-e62e file=packages/main/src/core/milestone-status.ts note=Real DONE story B-e62e now renders snapshot-backed Milestone Status with M1 and M2 under Completed, both shown as ✅ Done, no Current/Remaining rows, and no stale evidence or blocked warnings.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Focused regression verifies active non-DONE stories still use live projection and DONE stories without closeout remain fail-closed instead of fabricating completed rows.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs && npm --prefix packages/main run build file=packages/main/tests/milestone-status.test.mjs note=Regression and build verify JSON/text snapshot-backed milestone_status remains read-only and MilestoneStatusReport-shaped while preserving existing argument boundary tests."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The CLI docs explain active live projection versus DONE closeout-backed status tables.",
+      "acceptance": "docs/CLI.md states that DONE milestone_status reads the closeout snapshot when present and preserves JSON/no-ledger behavior.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/docs_check] rg -n 'For DONE stories|closeout-backed|live projection|JSON output is always' docs/CLI.md file=docs/CLI.md note=docs/CLI.md documents that DONE stories with a valid milestone-closeout.json use the frozen closeout-backed Milestone Status table and keep the same JSON report shape.",
+        "CHK-002:edge:0 [pass/docs_check] rg -n 'Missing `milestone-ledger\\.json`|live projection|falls back to the live projection' docs/CLI.md file=docs/CLI.md note=Docs keep live projection, JSON/no-ledger, and missing/stale fallback behavior explicit, so machine output and no-ledger stories are not silently changed.",
+        "CHK-002:adversarial:0 [pass/docs_check] ! rg -n 'milestone_completion_set|completion ledger' docs/CLI.md file=docs/CLI.md note=Docs do not claim milestone_completion_set or completion ledger support in this story."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

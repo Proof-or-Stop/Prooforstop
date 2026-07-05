@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-e62e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: central CLI post-success stdout path appends the existing milestone_status Markdown renderer only for configured human-mode story mutation commands with an existing milestone ledger; --json/--format=json is skipped, missing-ledger stories do not fabricate a table, and the story delta does not implement milestone_completion or closeout completion-ledger work.",
+      "createdAt": "2026-07-05T10:44:43.369Z",
+      "reviewRound": "2026-07-05T10:40:41.598Z",
+      "reviewRunId": "B-e62e:RR-002",
+      "_hash": "45b7ed5be764b413025a9505d644e8d04b88bb5e5031de3166be4cf11b60b10b"
+    },
+    {
+      "id": "B-e62e:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "docs/CLI.md Host Progress Reporting Contract matches cli-engine post-command append behavior: configured human-output mutating commands append the existing milestone_status table, JSON modes and missing-ledger stories skip auto-append, and the text does not claim milestone_completion_set or closeout-freezing work.",
+      "createdAt": "2026-07-05T10:44:48.788Z",
+      "reviewRound": "2026-07-05T10:40:41.598Z",
+      "reviewRunId": "B-e62e:RR-003",
+      "_hash": "28ae9472b9d5128069bdacf4bee301656df8d69128470ef5cb985ab1969a3196"
+    },
+    {
+      "id": "B-e62e:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality lane PASS: implementation is confined to the CLI wrapper append path, reuses the existing milestone_status renderer, preserves JSON/missing-ledger skips, contains post-render failures to stderr without failing the mutation, and leaves protected milestone-status core/handler files unchanged. Verified with node packages/main/tests/milestone-status.test.mjs and npm exec -- tsc --noEmit from packages/main.",
+      "createdAt": "2026-07-05T10:45:09.603Z",
+      "reviewRound": "2026-07-05T10:40:41.598Z",
+      "reviewRunId": "B-e62e:RR-001",
+      "_hash": "0e31ee9e5c7e5d23e7a98450a3680ad7e6788be01f58125e03698807b29ce754"
+    },
+    {
+      "id": "B-e62e:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Tests and evidence cover the acceptance contract: checklist_update appends the shared milestone_status table for a ledger-backed story, JSON stdout remains parseable/unpolluted, missing-ledger mutation does not fabricate a table, docs_check evidence exists in docs/CLI.md, and the recorded build plus milestone-status regression command passes.",
+      "createdAt": "2026-07-05T10:45:36.926Z",
+      "reviewRound": "2026-07-05T10:40:41.598Z",
+      "reviewRunId": "B-e62e:RR-004",
+      "_hash": "3a4d004e148a83aa7ac6d3c99651e9d672683278ae868399edc1c4a03dfb9c87"
+    },
+    {
+      "id": "B-e62e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "docs/CLI.md accurately documents the automatic milestone_status append contract, the six developer-facing display labels, and explicitly reserves ❌ for Failed rather than Not Started; milestone_closeout wording stays snapshot/read-only scoped without overclaiming completion writer behavior.",
+      "createdAt": "2026-07-05T11:44:17.016Z",
+      "reviewRound": "2026-07-05T11:42:49.165Z",
+      "reviewRunId": "B-e62e:RR-008",
+      "_hash": "9a282d82968b3d60b56e08f0f0681c349bbea48bbe44af4dcba90ec2dbd42d16"
+    },
+    {
+      "id": "B-e62e:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: worktree milestone_status renderer and auto-append path meet the requested developer-facing progress display. The built CLI renders the six labels ✅ Done, ⏳ In Progress, 🟡 Pending Review, ⬜ Not Started, 🔴 Blocked, and ❌ Failed; pending/planned/not_started rows render as ⬜ Not Started rather than ❌ Failed. Append delegates to the shared milestone_status renderer, preserves JSON stdout, skips missing-ledger fabrication, and the accepted scope still excludes milestone_completion_set/completion-writer and DONE closeout-freezing implementation.",
+      "createdAt": "2026-07-05T11:45:42.948Z",
+      "reviewRound": "2026-07-05T11:42:49.165Z",
+      "reviewRunId": "B-e62e:RR-005",
+      "_hash": "c9dac1a8be24d0687d7f4ff1bc52ede388294198db5c56de6a951a2a6dc0d353"
+    },
+    {
+      "id": "B-e62e:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh build and focused milestone-status regression passed. Tests cover all six displayed statuses in renderer/CLI/auto-append output, distinguish Not Started from Failed, and verify JSON-mode and missing-ledger append skips.",
+      "createdAt": "2026-07-05T11:45:57.540Z",
+      "reviewRound": "2026-07-05T11:42:49.165Z",
+      "reviewRunId": "B-e62e:RR-007",
+      "_hash": "d9398fad5c5e4c643172abb3dbdb53d64e89d68fcc657d433f5e0908fc48f056"
+    },
+    {
+      "id": "B-e62e:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: six-state milestone_status text rendering is centralized in the existing renderer, JSON report shape/schema remain unchanged, Not Started uses ⬜ rather than ❌, failed/not-passing evidence maps to ❌ Failed, and the CLI append path runs after existing gates/handlers while skipping machine JSON and missing-ledger stories. Verified with npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-05T11:46:19.513Z",
+      "reviewRound": "2026-07-05T11:42:49.165Z",
+      "reviewRunId": "B-e62e:RR-006",
+      "_hash": "2e4c5526370a464e382569d1d05ed3cec5a0c9a01c3978c92e1160f9107851aa"
+    },
+    {
+      "id": "B-e62e:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review passed: automatic milestone_status display, DONE fallback, and status semantics are conceptually correct after F-001/F-002/F-003.",
+      "createdAt": "2026-07-05T12:32:49.759Z",
+      "reviewRound": "2026-07-05T12:27:18.167Z",
+      "reviewRunId": "B-e62e:RR-019",
+      "_hash": "e3b3853dc5e4892ac66f62aba8945b063c3472830419adaca1a58db13ce3815e"
+    },
+    {
+      "id": "B-e62e:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test coverage review passed: tests cover normal append, DONE cleanup fallback, JSON/no-ledger skips, six labels, and planned-covered Pending Review rendering.",
+      "createdAt": "2026-07-05T12:33:02.581Z",
+      "reviewRound": "2026-07-05T12:27:18.167Z",
+      "reviewRunId": "B-e62e:RR-018",
+      "_hash": "7d0dd84c1a63c21e1b54c93d40eb28155235a00f6fdad08aeb148fafd502427d"
+    },
+    {
+      "id": "B-e62e:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review passed: DONE fallback uses captured main root safely and Pending Review display logic preserves Done, Blocked, Failed, current, and no-ledger behavior.",
+      "createdAt": "2026-07-05T12:33:12.180Z",
+      "reviewRound": "2026-07-05T12:27:18.167Z",
+      "reviewRunId": "B-e62e:RR-017",
+      "_hash": "acf01f979f70e6450921c0d3c754a9992bb5a108dddbc3d590edc44b0d45384c"
+    },
+    {
+      "id": "B-e62e:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Final docs re-attestation passed: summary, docs, ledger, and local rendered milestone_status align with M1/M2 Pending Review while ledger is planned.",
+      "createdAt": "2026-07-05T12:45:54.965Z",
+      "reviewRound": "2026-07-05T12:41:40.019Z",
+      "reviewRunId": "B-e62e:RR-021",
+      "_hash": "bd0481bbc5a230c00e4314ad550d1f537d2fc7418c07a0a6b9161c733b5645d7"
+    },
+    {
+      "id": "B-e62e:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Final concept re-attestation passed: automatic milestone_status append, DONE fallback, JSON/no-ledger skips, and status semantics remain correct after main merge.",
+      "createdAt": "2026-07-05T12:46:01.050Z",
+      "reviewRound": "2026-07-05T12:41:40.019Z",
+      "reviewRunId": "B-e62e:RR-022",
+      "_hash": "5135b2f6ec573b29e26b1f58cfa2df766f30023130b28ceb3d7612c05f0726f3"
+    },
+    {
+      "id": "B-e62e:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test coverage re-attestation passed: DONE fallback, planned-covered Pending Review, JSON/no-ledger skips, and six labels remain covered.",
+      "createdAt": "2026-07-05T12:46:06.149Z",
+      "reviewRound": "2026-07-05T12:41:40.019Z",
+      "reviewRunId": "B-e62e:RR-023",
+      "_hash": "84a62b2619ce8d4dd620c44f39fdb669dc9fbf367d8d0d9378aa2aec7864a8a5"
+    },
+    {
+      "id": "B-e62e:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-attestation passed: DONE fallback and Pending Review display remain sound after main merge and lifecycle metadata refresh.",
+      "createdAt": "2026-07-05T12:46:11.762Z",
+      "reviewRound": "2026-07-05T12:41:40.019Z",
+      "reviewRunId": "B-e62e:RR-024",
+      "_hash": "c159d10753c012075cbf91138ea70eb85a4df27a76d1236aca54213201a1e023"
+    }
+  ]
+}

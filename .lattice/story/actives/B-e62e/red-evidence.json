@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-e62e",
+  "records": [
+    {
+      "id": "RED-20260705102422",
+      "trigger": "pre-fix CLI mutation output lacks consumed milestone_status table",
+      "acceptanceTargetRef": "ACCEPT-auto-surface-milestone-table",
+      "baselineHeadHash": "9920c6e3b581fe4fdfc8ffa38a09be170e7b4573",
+      "baselineMaterialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+      "observedFailure": "Before this story implementation, a representative checklist_update succeeds but stdout contains only the checklist result and hints; it does not append `Milestone Status - <storyId>` with Completed, Current, and Remaining sections.",
+      "failingCommand": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs # current suite lacks post-command progress assertion; new regression will fail before implementation when added",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+      "greenRelation": {
+        "targetRef": "ACCEPT-auto-surface-milestone-table",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs"
+      },
+      "note": "Red evidence records the missing stdout table behavior the new regression will prove and then turn green.",
+      "createdAt": "2026-07-05T10:24:22.336Z"
+    }
+  ],
+  "createdAt": "2026-07-05T10:24:22.336Z",
+  "updatedAt": "2026-07-05T10:24:22.336Z"
+}

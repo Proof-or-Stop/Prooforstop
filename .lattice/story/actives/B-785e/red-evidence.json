@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-785e",
+  "records": [
+    {
+      "id": "RED-20260705115419",
+      "trigger": "Missing M2 provider execution checker before DEV",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "62eaed0154b511d41cdda3b5b6f119b7e6d4f7c7",
+      "baselineMaterialHash": "e3e1dcbd45e95c678350709b2f206d6a445a86a7bf7892e9e61498a909431659",
+      "observedFailure": "The command node experiments/multi-model-ablation/m2-provider-execution-check.mjs fails with MODULE_NOT_FOUND because the checker does not exist yet, so there is no local proof of cell 03 sequencing or provider-disabled launch state.",
+      "failingCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "This red evidence proves the launch checker is absent before implementation; the same command must pass after DEV.",
+      "createdAt": "2026-07-05T11:54:19.924Z"
+    }
+  ],
+  "createdAt": "2026-07-05T11:54:19.924Z",
+  "updatedAt": "2026-07-05T11:54:19.924Z"
+}

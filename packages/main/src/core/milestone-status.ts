@@ -126,6 +126,8 @@ export interface MilestoneCloseoutSnapshot {
     digest: string;
     ledger: MilestoneStatusLedgerSummary;
     groups: MilestoneStatusReport['groups'];
+    risks?: string[];
+    nextActions?: string[];
   };
   bindings: MilestoneStatusCurrentEvidenceBinding;
   rows: MilestoneCloseoutSnapshotRow[];
@@ -599,6 +601,157 @@ function summaryRisks(summary: StorySummaryData | null | undefined): string[] {
   return risks;
 }
 
+function validMilestoneProgressStatus(value: string): MilestoneProgressStatus | null {
+  if (value === 'completed' || value === 'current' || value === 'remaining') return value;
+  return null;
+}
+
+function validMilestoneLedgerStatus(value: string | undefined): MilestoneStatus | null {
+  if (
+    value === 'planned'
+    || value === 'covered'
+    || value === 'done'
+    || value === 'not_applicable'
+  ) return value;
+  return null;
+}
+
+function closeoutRowStatusParts(value: string): { progressStatus: MilestoneProgressStatus | null; detail: string } {
+  const trimmed = value.trim();
+  const match = /^([^(]+?)(?:\s+\((.*)\))?$/.exec(trimmed);
+  const progressStatus = validMilestoneProgressStatus(match?.[1]?.trim() ?? '');
+  return {
+    progressStatus,
+    detail: match?.[2]?.trim() || trimmed || 'snapshot=closeout',
+  };
+}
+
+function closeoutRowStatusFromGroups(
+  rowId: string,
+  groups: MilestoneStatusReport['groups'],
+  fallback: MilestoneProgressStatus | null,
+): MilestoneProgressStatus {
+  if (groups.completed.includes(rowId)) return 'completed';
+  if (groups.current.includes(rowId)) return 'current';
+  if (groups.remaining.includes(rowId)) return 'remaining';
+  return fallback ?? 'completed';
+}
+
+function ledgerStatusFromCloseoutDetail(
+  detail: string,
+  progressStatus: MilestoneProgressStatus,
+): MilestoneStatus {
+  // Frozen completed closeout rows are final for display even when detail preserves pre-DONE ledger state.
+  if (progressStatus === 'completed') return 'done';
+  const ledgerStatus = validMilestoneLedgerStatus(/\bledger=([^;\s)]+)/.exec(detail)?.[1]);
+  if (ledgerStatus) return ledgerStatus;
+  return 'planned';
+}
+
+function closeoutEvidenceStatus(value: string | undefined): MilestoneStatusEvidenceRef['status'] {
+  if (value === 'pass' || value === 'fail' || value === 'missing-result' || value === 'waived') return value;
+  return 'pass';
+}
+
+function closeoutEvidenceRefFromText(text: string, index: number): MilestoneStatusEvidenceRef {
+  const trimmed = text.trim();
+  const match = /^(.+?) \[([^/\]]+)\/([^\]]+)\](?:\s+(.*))?$/.exec(trimmed);
+  if (!match) {
+    return {
+      intentRef: `closeout:${index + 1}`,
+      kind: 'manual_transcript',
+      status: 'pass',
+      note: trimmed,
+    };
+  }
+
+  const [, intentRef, status, kind, rest] = match;
+  return {
+    intentRef,
+    kind: kind as VerificationEvidence['kind'],
+    status: closeoutEvidenceStatus(status),
+    note: trimmed,
+    ...(rest ? { command: rest } : {}),
+  };
+}
+
+function closeoutStatusFromEvidence(status: MilestoneStatusEvidenceRef['status']): string {
+  if (status === 'pass') return 'covered';
+  if (status === 'waived') return 'waived';
+  if (status === 'fail') return 'fail';
+  return status;
+}
+
+function closeoutNextActionsFromRows(
+  rows: MilestoneStatusRow[],
+  groups: MilestoneStatusReport['groups'],
+): string[] {
+  if (groups.current.length > 0) {
+    return unique(groups.current.map((id) => rows.find((row) => row.id === id)?.nextAction ?? '').filter(Boolean));
+  }
+  if (groups.remaining.length > 0) {
+    const nextAction = rows.find((row) => row.id === groups.remaining[0])?.nextAction;
+    return [nextAction ?? 'Start the next remaining milestone.'];
+  }
+  return ['No milestone action; all ledger rows are completed or not applicable.'];
+}
+
+export function buildMilestoneStatusReportFromCloseoutSnapshot(
+  snapshot: MilestoneCloseoutSnapshot,
+  options: { phase?: StoryPhase } = {},
+): MilestoneStatusReport {
+  const groups = {
+    completed: [...snapshot.sourceReport.groups.completed],
+    current: [...snapshot.sourceReport.groups.current],
+    remaining: [...snapshot.sourceReport.groups.remaining],
+  };
+  const milestones: MilestoneStatusRow[] = snapshot.rows.map((row) => {
+    const parsedStatus = closeoutRowStatusParts(row.status);
+    const status = closeoutRowStatusFromGroups(row.milestone, groups, parsedStatus.progressStatus);
+    const ledgerStatus = ledgerStatusFromCloseoutDetail(parsedStatus.detail, status);
+    const evidenceRefs = row.evidence.map(closeoutEvidenceRefFromText);
+    return {
+      id: row.milestone,
+      claim: row.solvedProblem,
+      doneMeans: row.acceptance,
+      ledgerStatus,
+      status,
+      statusDetail: parsedStatus.detail,
+      sourceRequirementId: row.milestone,
+      checklistRefs: [],
+      verificationIntentRefs: evidenceRefs.map((evidence) => evidence.intentRef),
+      requiredEvidence: [],
+      subObjectives: evidenceRefs.map((evidence) => ({
+        id: evidence.intentRef,
+        kind: 'verificationIntent',
+        label: 'Frozen closeout evidence',
+        status: closeoutStatusFromEvidence(evidence.status),
+        risks: [],
+      })),
+      evidenceRefs,
+      risks: [...row.risks],
+      nextAction: row.nextAction,
+    };
+  });
+  const rowRisks = unique(milestones.flatMap((row) => row.risks.map((risk) => `${row.id}: ${risk}`)));
+  const risks = snapshot.sourceReport.risks ? [...snapshot.sourceReport.risks] : rowRisks;
+  const nextActions = snapshot.sourceReport.nextActions
+    ? [...snapshot.sourceReport.nextActions]
+    : closeoutNextActionsFromRows(milestones, groups);
+
+  return {
+    schemaVersion: MILESTONE_STATUS_SCHEMA_VERSION,
+    storyId: snapshot.storyId,
+    phase: options.phase ?? snapshot.phase,
+    ledger: snapshot.sourceReport.ledger,
+    mode: READ_ONLY_MODE,
+    milestones,
+    groups,
+    risks,
+    nextActions,
+  };
+}
+
 function missingLedgerReport(input: BuildMilestoneStatusReportInput): MilestoneStatusReport {
   const risk = 'Missing milestone ledger: milestone_status cannot infer milestone progress without milestone-ledger.json.';
   const nextAction = `Create or restore the ProofStory milestone ledger with \`lattice milestone_ledger_set --storyId=${input.story.storyId} ...\`; milestone_status is read-only and will not create it.`;
@@ -755,6 +908,8 @@ export function buildMilestoneCloseoutSnapshot(
       digest: milestoneStatusReportDigest(report),
       ledger: report.ledger,
       groups: report.groups,
+      risks: report.risks,
+      nextActions: report.nextActions,
     },
     bindings: input.bindings ?? {},
     rows: report.milestones.map((row) => ({
@@ -854,13 +1009,120 @@ function formatCell(value: string): string {
   return value.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 }
 
+type DisplayStatus = 'done' | 'inProgress' | 'pendingReview' | 'notStarted' | 'blocked' | 'failed';
+
+const DISPLAY_STATUSES: Record<DisplayStatus, { icon: string; label: string }> = {
+  done: { icon: '✅', label: 'Done' },
+  inProgress: { icon: '⏳', label: 'In Progress' },
+  pendingReview: { icon: '🟡', label: 'Pending Review' },
+  notStarted: { icon: '⬜', label: 'Not Started' },
+  blocked: { icon: '🔴', label: 'Blocked' },
+  failed: { icon: '❌', label: 'Failed' },
+};
+
+function displayStatusText(status: DisplayStatus, detail?: string): string {
+  const display = DISPLAY_STATUSES[status];
+  return `${display.icon} ${display.label}${detail ? ` (${detail})` : ''}`;
+}
+
+function normalizeDisplayStatus(status: string): string {
+  return status.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function detailDisplayStatus(status: string): DisplayStatus {
+  const normalized = normalizeDisplayStatus(status);
+  const failedStatuses = new Set(['fail', 'failed', 'not_passing']);
+  const inProgressStatuses = new Set(['in_progress', 'current', 'running', 'active', 'actively_being_developed']);
+  const completedStatuses = new Set(['done', 'covered', 'pass', 'passed', 'success', 'complete', 'completed', 'not_applicable', 'mapped', 'waived']);
+  const notStartedStatuses = new Set(['pending', 'planned', 'remaining', 'not_started', 'todo', 'queued']);
+  const blockedStatuses = new Set([
+    'missing',
+    'blocked',
+    'incomplete',
+    'missing_result',
+    'stale_evidence',
+    'ambiguous_intent',
+    'missing_intent',
+    'missing_evidence',
+    'missing_evidence_kind',
+    'unmapped',
+  ]);
+
+  if (failedStatuses.has(normalized)) return 'failed';
+  if (inProgressStatuses.has(normalized)) return 'inProgress';
+  if (completedStatuses.has(normalized)) return 'done';
+  if (notStartedStatuses.has(normalized)) return 'notStarted';
+  if (blockedStatuses.has(normalized)) return 'blocked';
+  if (normalized.includes('fail') || normalized.includes('not_passing')) return 'failed';
+  if (normalized.includes('current') || normalized.includes('running') || normalized.includes('progress')) return 'inProgress';
+  if (normalized.includes('pending') || normalized.includes('planned') || normalized.includes('remaining')) return 'notStarted';
+  if (
+    normalized.includes('missing')
+    || normalized.includes('blocked')
+    || normalized.includes('incomplete')
+    || normalized.includes('stale')
+    || normalized.includes('ambiguous')
+    || normalized.includes('unmapped')
+  ) return 'blocked';
+  return 'blocked';
+}
+
+function rowHasFailedEvidence(row: MilestoneStatusRow): boolean {
+  return row.evidenceRefs.some((evidence) => detailDisplayStatus(evidence.status) === 'failed')
+    || row.subObjectives.some((sub) => detailDisplayStatus(sub.status) === 'failed')
+    || /\bevidence=not-passing\b/.test(row.statusDetail);
+}
+
+function rowHasBlockingGap(row: MilestoneStatusRow): boolean {
+  return row.subObjectives.some((sub) => {
+    const normalized = normalizeDisplayStatus(sub.status);
+    return normalized === 'ambiguous_intent'
+      || normalized === 'missing_intent'
+      || normalized === 'missing_evidence_kind'
+      || normalized === 'unmapped';
+  })
+    || /\bchecklist=missing\b/.test(row.statusDetail)
+    || /\brequiredEvidence=missing\b/.test(row.statusDetail)
+    || /\bevidence=stale\b/.test(row.statusDetail)
+    || row.risks.some((risk) =>
+      /no verificationIntentRefs mapped|not present|ambiguous|not linked|no checklistRefs mapped|required evidence kind/i.test(risk)
+    );
+}
+
+function rowAppearsPendingReview(row: MilestoneStatusRow): boolean {
+  if (row.ledgerStatus === 'done' || row.ledgerStatus === 'not_applicable') return false;
+  return (row.ledgerStatus === 'covered' && row.risks.length === 0)
+    || (
+      /\bchecklist=complete\b/.test(row.statusDetail)
+      && /\bevidence=covered\b/.test(row.statusDetail)
+      && /\brequiredEvidence=covered\b/.test(row.statusDetail)
+    );
+}
+
+function milestoneDisplayStatus(row: MilestoneStatusRow): DisplayStatus {
+  if (rowHasFailedEvidence(row)) return 'failed';
+  if (rowAppearsPendingReview(row)) return 'pendingReview';
+  if (rowHasBlockingGap(row)) return 'blocked';
+  if (row.status === 'completed') return 'done';
+  if (row.status === 'current') return 'inProgress';
+  return 'notStarted';
+}
+
+function formatDetailStatus(status: string): string {
+  return displayStatusText(detailDisplayStatus(status));
+}
+
+function formatMilestoneStatus(row: MilestoneStatusRow): string {
+  return displayStatusText(milestoneDisplayStatus(row), row.statusDetail);
+}
+
 function renderTableRow(row: MilestoneStatusRow): string {
   const cells = [
     row.id,
     row.claim,
-    `${row.status} (${row.statusDetail})`,
-    formatList(row.subObjectives.map((sub) => `${sub.id} [${sub.status}] ${sub.label}`)),
-    formatList(row.evidenceRefs.map((evidence) => `${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
+    formatMilestoneStatus(row),
+    formatList(row.subObjectives.map((sub) => `${formatDetailStatus(sub.status)} ${sub.id} [${sub.status}] ${sub.label}`)),
+    formatList(row.evidenceRefs.map((evidence) => `${formatDetailStatus(evidence.status)} ${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
     formatList(row.risks),
     row.nextAction,
   ].map(formatCell);
@@ -900,7 +1162,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
       'Current',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',
       '|---|---|---|---|---|---|---|',
-      `| ledger | milestone ledger required | blocked | milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
+      `| ledger | milestone ledger required | ${displayStatusText('blocked', 'ledger=missing')} | ${displayStatusText('blocked')} milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
       '',
       'Remaining',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',

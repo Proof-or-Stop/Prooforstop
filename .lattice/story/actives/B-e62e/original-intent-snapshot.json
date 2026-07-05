@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e62e",
+  "sourceText": "User requested continuing after B-3a4d with auto-surfacing milestone progress, then clarified that the consumed milestone table itself must be output before and during development: Completed, Current, and Remaining must appear in CLI stdout rather than relying on host final response discipline.",
+  "normalizedOutcome": "For stories with milestone ledgers, relevant state-changing CLI commands append the consumed milestone_status Markdown table to human stdout, visibly including Completed, Current, and Remaining sections; missing-ledger stories report the missing-ledger state rather than fabricated milestone progress.",
+  "acceptanceClaim": "A built-CLI regression proves checklist_update stdout includes the milestone_status table headings for a milestone-ledger story, while JSON/missing-ledger negative controls remain uncontaminated and truthful.",
+  "keyRequirementIds": [
+    "REQ-auto-surface-table",
+    "REQ-json-safe",
+    "REQ-no-fabricated-ledger"
+  ],
+  "requestHash": "sha256:963853c9294ba59bd78be1a7780a6f4689f38041710873e2a7be44d4056791c3",
+  "createdAt": "2026-07-05T10:23:28.542Z",
+  "updatedAt": "2026-07-05T10:23:28.542Z"
+}

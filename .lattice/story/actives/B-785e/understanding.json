@@ -1,0 +1,30 @@
+{
+  "task": "Prepare the Multi-Model Ablation M2 provider execution launch layer without fabricating provider outcomes.",
+  "outcome": "After completion, the user can open docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md and run node experiments/multi-model-ablation/m2-provider-execution-check.mjs to see that M0/M1/M2 readiness is complete, provider execution remains disabled by default, cell 03 is the next permitted calibration step, cell 06 remains blocked until a real cell-03-derived budget lock exists, and no H-M1/H-M3 or model-agnostic claim is being asserted.",
+  "facts": [
+    "B-fe25 already prepared provider-free M2 readiness artifacts on 2026-07-05.",
+    "m2-launch-readiness.json currently records providerExecutionAuthorized=false and phase1CampaignAuthorized=false.",
+    "m2-status.md says formal M2 execution is not started, cell 03 is pending, and cell 06 is blocked until a real cell-03-derived budget lock exists.",
+    "The protocol requires host labels and model snapshots to be separated; Codex CLI and Claude Code CLI are hosts/adapters, not provider-family proof.",
+    "Existing main checkout dirty files are unrelated Tier-C/NAV documents and must not be touched from this story worktree."
+  ],
+  "constraints": [
+    "Do not run paid/external provider calls or full Phase 1/Phase 2 campaign in this story.",
+    "Do not claim H-M1, H-M3, model-agnostic replication, or product gate impact from readiness artifacts.",
+    "Keep A2prime blocked until a real budget lock generated from cell 03 calibration exists.",
+    "Use host-neutral Proofbound/Lattice command language; Codex/Claude/Antigravity are hosts, not model-family evidence.",
+    "Touch only the multi-model ablation plan/status/artifact/checker files declared in story scope."
+  ],
+  "unknowns": [
+    "The actual provider model snapshot IDs, provider credentials, and budget cap for real cell 03 execution are not known in this story and must remain required fields rather than guessed values.",
+    "Whether optional cell 04 or same-window cell 01 will be authorized is a later budget decision outside this launch-plan story."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "timestamp": "2026-07-05T11:53:10.118Z"
+}

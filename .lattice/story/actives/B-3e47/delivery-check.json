@@ -1,0 +1,42 @@
+{
+  "storyId": "B-3e47",
+  "checkedAt": "2026-07-05T13:57:04.505Z",
+  "headHash": "7947c0d6ee211ebebb6764d0556e248b1b93f56e",
+  "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+  "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+  "reviewRound": "2026-07-05T13:23:39.637Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "DONE milestone_status first uses a schema-valid milestone-closeout.json closeout-backed snapshot to render the normal Milestone Status report; active stories and DONE stories without a valid closeout remain live projections and missing or stale evidence remains blocked.",
+      "status": "verified",
+      "verifiedBy": "reverse diff review plus live smoke plus validation evidence",
+      "evidence": "docs/CLI.md Milestone Status section documents closeout-backed DONE behavior, live projection fallback, same JSON shape, and missing-ledger live blocker. Handler routes DONE with valid closeout through buildMilestoneStatusReportFromCloseoutSnapshot; tests cover DONE snapshot, active non-DONE snapshot ignored, and DONE missing closeout fail-closed. Live smoke node packages/main/dist/cli.js milestone_status --storyId=B-e62e exited 0 with Phase DONE, M1 and M2 under Completed as ✅ Done, empty Current and Remaining, Risks none."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "Host progress docs define the status icon labels and avoid overpromising: milestone_status remains read-only, skips JSON append, rejects mutation or completion-like flags, and does not claim remote Authority or production readiness or unsupported completion-ledger features.",
+      "status": "verified",
+      "verifiedBy": "docs grep, source/test review, validation evidence",
+      "evidence": "docs/CLI.md lists ✅ Done, ⏳ In Progress, 🟡 Pending Review, ⬜ Not Started, 🔴 Blocked, ❌ Failed and states V1 does not run commands, write evidence, advance phase, claim automatic DONE, remote Authority completion, or production readiness. Tests preserve parser rejection for authorityDone/productionDone and docs evidence verifies no milestone_completion_set or completion ledger claim."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live smoke transcript evidence/live-smoke-transcript.json: node packages/main/dist/cli.js milestone_status --storyId=B-e62e exited 0. Output showed Phase DONE; M1 and M2 in Completed with ✅ Done (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered); Current and Remaining each had only the none row; Risks none; no evidence=stale detail. Full validate PASS also covered CHK-001 edge/adversarial regressions: active non-DONE stories keep live projection, DONE without closeout fails closed, and JSON/text output remains read-only and report-shaped."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Validation evidence for CHK-002 covered docs checks: rg confirmed docs/CLI.md includes DONE closeout-backed behavior, live projection distinction, JSON shape, missing-ledger fallback; adversarial docs check passed for no milestone_completion_set or completion ledger claim. Full validate PASS at 2026-07-05T13:50:11.292Z included npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs; DONE-required validation PASS at 2026-07-05T13:53:36.582Z included packages/main build and npm test."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed docs/CLI.md, milestone-status core and handler, focused tests, live smoke transcript, full validate evidence, and DONE-required evidence. Delivery promises are met: DONE snapshot rendering works, live fallback stays fail-closed, status labels are documented, no unsupported completion or authority/production promise is made, and rg found no TODO/FIXME/XXX markers in the reviewed files."
+  },
+  "_hash": "752e2d17916fd19c77db54de98f1870d011e308b809a8195367f2fb65a8ce476"
+}

@@ -1,0 +1,45 @@
+{
+  "storyId": "B-8128",
+  "name": "product-capability-release-lineage",
+  "title": "Product capability release records + playbook capability lineage binding (M0-M8)",
+  "description": "Implement the product-capability-release-playbook-lineage execution plan (docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md), milestones M0 through M8.\n\nProblem: B-785e produced an artifact release (AR-4e885ed0209e5a32330cdc33) and a candidate playbook (PBP-882), but PBP-882's lineage carries only sourceStoryId/sourceFindingId/sourceSignature=done_experience. It lacks a first-class capabilityReleaseId / artifactReleaseId binding, so future hosts cannot answer which reusable product capability version a lesson is about, or which artifact digest backs it.\n\nFix (parallel to the existing artifact-release feature): add a non-runtime ProductCapabilityReleaseRecord ledger, a conservative DONE capability classifier, deterministic idempotent release binding, DONE candidate-ingest lineage attachment, read-only inspection CLI, controlled pending-learning candidate exposure, evidence-based outcome/promotion safety (DONE success alone never counts as helped), and an idempotent B-785e backfill.\n\nSafety boundary preserved throughout: capability releases are authority=non_authoritative, gateEvidence=false; candidate playbooks stay inert (never auto-active, never in MemoryFreshnessPack active playbookIds, never gate evidence); promotion requires concrete exposure + structured verdict.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "capability-release",
+    "playbook-lineage",
+    "artifact-release",
+    "done-experience",
+    "PBP-882",
+    "B-785e",
+    "promotion",
+    "pending-learning",
+    "non-runtime",
+    "provenance"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-07-05T13:06:17.575Z",
+  "startedAt": "2026-07-05T13:06:17.575Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T13:06:18.017Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "8a82337e-7a51-4552-b409-aca746c3ecc4",
+      "agent": "main"
+    }
+  ]
+}

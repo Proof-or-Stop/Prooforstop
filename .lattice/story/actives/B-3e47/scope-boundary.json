@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3e47",
+  "mode": "correctness_fix",
+  "allowed": [
+    ".lattice/story/actives/<storyId>/**",
+    "docs/CLI.md",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "excluded": [
+    "completion ledger schema",
+    "milestone_completion_set writer",
+    "remote publish",
+    "unrelated docs currently dirty in main"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Follow-up to B-e62e DONE transcript: fix only the false stale DONE milestone_status display.",
+  "createdAt": "2026-07-05T12:58:41.210Z",
+  "updatedAt": "2026-07-05T12:58:41.210Z",
+  "_hash": "182b06e2abf0458a9e81e37806d9db5fd01f9f3f5adb4043501c0feb62474525"
+}

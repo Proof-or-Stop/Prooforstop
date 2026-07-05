@@ -3,8 +3,10 @@ import {
   buildMilestoneCloseoutMissingReport,
   buildMilestoneCloseoutSnapshot,
   buildMilestoneStatusReport,
+  buildMilestoneStatusReportFromCloseoutSnapshot,
   currentMilestoneStatusEvidenceBinding,
   MILESTONE_CLOSEOUT_FILENAME,
+  MILESTONE_CLOSEOUT_SCHEMA_VERSION,
   renderMilestoneCloseoutMissingReport,
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusReport,
@@ -109,6 +111,14 @@ export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<strin
   function milestoneStatus(args: MilestoneStatusArgs): MilestoneStatusReport | string {
     assertMilestoneStatusReadOnlyBoundary(args);
     const story = ctx.store.readStory(args.storyId);
+    if (story.phase === 'DONE') {
+      const snapshot = ctx.store.readMilestoneCloseout(args.storyId);
+      if (snapshot?.schemaVersion === MILESTONE_CLOSEOUT_SCHEMA_VERSION) {
+        const report = buildMilestoneStatusReportFromCloseoutSnapshot(snapshot, { phase: story.phase });
+        return wantsJson(args) ? report : renderMilestoneStatusReport(report);
+      }
+    }
+
     const milestoneLedger = ctx.store.readMilestoneLedger(args.storyId);
     const summary = ctx.store.readSummary(args.storyId);
     if (!milestoneLedger) {
@@ -142,7 +152,7 @@ export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<strin
       );
       return wantsJson(args) ? missing : renderMilestoneCloseoutMissingReport(missing);
     }
-    if (snapshot.schemaVersion !== 'proofbound.milestone_closeout.v1') {
+    if (snapshot.schemaVersion !== MILESTONE_CLOSEOUT_SCHEMA_VERSION) {
       throw new Error(
         `Unsupported milestone closeout snapshot schema for ${args.storyId}: ${String((snapshot as { schemaVersion?: unknown }).schemaVersion)}`,
       );

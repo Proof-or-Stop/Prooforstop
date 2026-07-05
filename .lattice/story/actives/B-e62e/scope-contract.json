@@ -1,0 +1,97 @@
+{
+  "storyId": "B-e62e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "docs/CLI.md",
+    ".lattice/story/actives/B-e62e/intent-collision.json",
+    ".lattice/story/actives/B-e62e/milestone-ledger.json",
+    ".lattice/story/actives/B-e62e/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e62e/proofstory.json",
+    ".lattice/story/actives/B-e62e/red-evidence.json"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-e62e/intent-collision.json",
+    ".lattice/story/actives/B-e62e/milestone-ledger.json",
+    ".lattice/story/actives/B-e62e/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e62e/proofstory.json",
+    ".lattice/story/actives/B-e62e/red-evidence.json"
+  ],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/milestone-status.ts"
+  ],
+  "explicitExcludes": [
+    "milestone_completion_set implementation",
+    "completion-ledger writer",
+    "DONE closeout completion-ledger freezing",
+    "remote publish or release behavior"
+  ],
+  "scopeChangeReason": "Allow DONE regression to read story state while proving milestone_status still prints after story_advance DONE removes the worktree.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T10:23:37.523Z",
+  "updatedAt": "2026-07-05T12:16:16.259Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/cli-engine.ts",
+      "allowedAnchors": [
+        "story",
+        "root",
+        "result"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0"
+      ]
+    },
+    {
+      "path": "packages/main/tests/milestone-status.test.mjs",
+      "allowedAnchors": [
+        "ledger",
+        "readChecklist",
+        "readStory",
+        "evidence"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "docs/CLI.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0"
+      ]
+    }
+  ],
+  "protectedAnchors": []
+}

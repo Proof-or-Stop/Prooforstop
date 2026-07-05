@@ -1,0 +1,57 @@
+{
+  "storyId": "B-785e",
+  "checkedAt": "2026-07-05T12:27:26.535Z",
+  "headHash": "6be0f3d0f08e75be53b6b3e9315271f3a0220c03",
+  "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+  "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+  "reviewRound": "2026-07-05T12:16:21.020Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "promise": "M2 is launch readiness only: provider execution remains disabled, human approval is required before provider calls, and cell 03 calibration must precede cell 06 A2prime.",
+      "status": "verified",
+      "verifiedBy": "manual+node checks",
+      "evidence": "m2-provider-execution-check PASS 391 assertions / 27 negative controls; output reports nextPermittedFormalStep=cell-03-calibration and cell-06-a2prime-blocked."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "Experiment README points operators to M2 readiness artifacts without treating them as provider execution results.",
+      "status": "verified",
+      "verifiedBy": "manual+scope review",
+      "evidence": "Docs reviewer pass B-785e:RP-007; launch checker confirms no provider calls or outcome records."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "M2 status reflects readiness state rather than completed Phase 1/Phase 2 execution.",
+      "status": "verified",
+      "verifiedBy": "manual+node checks",
+      "evidence": "m2-launch-readiness-check PASS 1105 assertions / 21 negative controls; provider execution checker PASS 391/27."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --json: PASS, 34 configured validate commands, allPass=true, completed in about 132.8s."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs: PASS 391 assertions / 27 negative controls; provider execution disabled; no provider calls; no outcome records."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs: PASS 1105 assertions / 21 negative controls; provider-free launch readiness artifacts passed local checks."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": ".lattice/story/actives/B-785e/evidence/transcript-diff.md records expected-vs-actual transcript notes for full validation and M2-specific checks."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirms the story ships a reusable M2 provider execution launch-control base, not actual provider execution. The launch artifact remains disabled by default, no provider outcome data is present, cell 03 is the next permitted step, and all local verification gates passed."
+  },
+  "_hash": "2bbf16c6a0fd5419cd0b929606e2844e7c7028b180611a89245cad5899296e19"
+}

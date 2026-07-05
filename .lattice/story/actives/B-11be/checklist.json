@@ -1,0 +1,86 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define authorized-but-bounded launch metadata artifact",
+      "context": "Add a small Multi-Model M2 authorization artifact that records humanApproval, dated snapshots, prompt/tool digests, runner ownership, budget cap, duplicate policy, and sequencing limits.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "running provider cells",
+        "writing result rows",
+        "unlocking paper claims"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "experiments/multi-model-ablation/m2-status.md",
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-provider-execution-authorization.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update provider execution checker for authorization metadata",
+      "context": "Teach the checker to distinguish accidental unauthorized providerExecutionAuthorized=true from a valid authorized-but-bounded metadata artifact that only permits the next formal cell 03 calibration planning/execution boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "enabling cell 06",
+        "running full Phase 1",
+        "accepting host labels as model snapshots"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update M2 status documentation and visible milestone table",
+      "context": "Update local status docs so future agents see that authorization metadata is recorded while provider result data is still absent and cell 03 remains the only next formal step.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m2-status.md",
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "excludes": [
+        "claiming H-M1 proof",
+        "claiming H-M3 proof",
+        "claiming product-gate impact"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-status.md",
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

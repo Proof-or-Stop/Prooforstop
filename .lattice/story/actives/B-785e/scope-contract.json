@@ -1,0 +1,58 @@
+{
+  "storyId": "B-785e",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m0-smoke-check.mjs",
+    "experiments/multi-model-ablation/m1-freeze-check.mjs",
+    "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md",
+    "docs/requirements/NAV.md"
+  ],
+  "scopeChangeReason": "B-785e planned scope is limited to multi-model ablation launch plan/status/artifacts/checker; unrelated Tier-C/NAV files are explicitly excluded.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These are B-785e ProofStory lifecycle artifacts written by sanctioned Lattice commands required by the high-assurance DEV gate; they are story-scoped gate evidence, not material product scope expansion.",
+      "timestamp": "2026-07-05T12:05:51.977Z",
+      "paths": [
+        ".lattice/story/actives/B-785e/intent-collision.json",
+        ".lattice/story/actives/B-785e/milestone-ledger.json",
+        ".lattice/story/actives/B-785e/original-intent-snapshot.json",
+        ".lattice/story/actives/B-785e/proofstory.json",
+        ".lattice/story/actives/B-785e/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-785e/intent-collision.json",
+        ".lattice/story/actives/B-785e/milestone-ledger.json",
+        ".lattice/story/actives/B-785e/original-intent-snapshot.json",
+        ".lattice/story/actives/B-785e/proofstory.json",
+        ".lattice/story/actives/B-785e/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "1ded7d7dd1251e8dd64d122a2e44a41e1c2d2c1e",
+      "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+      "anchors": [
+        "proofstory.dev_gate_evidence",
+        "proofstory.lifecycle_metadata"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-05T12:05:14.833Z",
+  "updatedAt": "2026-07-05T12:05:51.977Z"
+}
