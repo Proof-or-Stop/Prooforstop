@@ -277,11 +277,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck asserts: 18 failClosed all carry fail/crash signal; 2 acceptanceBucket status:pass; 3 acknowledgedLimitations all intent:malicious + status:pass + non-empty limitationNote; 0 false-positive.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "selfcheck asserts: 18 failClosed carry fail/crash signal; 2 acceptanceBucket status:pass; 6 acknowledgedLimitations malicious+pass+limitationNote; limitationFamily representative-not-exhaustive w/ 2 families both represented; 0 false-positive.",
+          "headHash": "0f1a377871827642d47ade790f88814023c27381",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:14.334Z"
         }
       ]
     },
