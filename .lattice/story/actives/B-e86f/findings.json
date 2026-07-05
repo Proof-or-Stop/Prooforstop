@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-e86f:F-001",
+      "desc": "[codex-host-2, execution-probed] Refreshed row reorder is verifier-ACCEPTED (probe: refreshed_reorder.status=pass, recordsDigestStable=true, partitionContractPass=true) — section 6.1's raw/refreshed axis admits refreshed variants whose fingerprint cannot be status:fail, so enumerating one (e.g. row reorder refreshed) would mechanically falsify H2 exactly like the rev-1 seed-swap no-op. The M0 viability check requires only a byte/contract difference, not a failing fingerprint; a documented-accepted-behavior disposition is missing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T13:05:41.492Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "_hash": "7adb6d165e7c0802af7c525d24a190e8d0c9da8ff10b2a04307e59f4f00d4986",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|codex-host-execution",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
