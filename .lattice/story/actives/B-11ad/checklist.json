@@ -129,7 +129,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-05T09:51:23.127Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js artifact_release_list --format=json",
+          "result": "pass",
+          "note": "built CLI returned JSON [] for an empty real ledger; artifact-release smoke also covered list text/json over a seeded ledger.",
+          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:29.786Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke covered artifact_release_status filtering by story id and the no-records text path.",
+          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:29.786Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke proved repeated storyId+mainCommit+artifactSetDigest records return already_recorded and do not append duplicates.",
+          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:29.786Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
