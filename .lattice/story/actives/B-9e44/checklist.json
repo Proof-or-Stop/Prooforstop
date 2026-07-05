@@ -183,7 +183,20 @@
           "experiments/pos-instrument-replay/calibration.json"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(c.fullProfile.elapsedMs,c.fullProfile.peakRssBytes,JSON.stringify(c.chosenN),c.budgetCapMsPerVerify)\"",
+          "result": "pass",
+          "note": "calibration.json records the measured full-profile (1,000,000-record) generate+verify: elapsedMs=42739, peakRssBytes=419332096 (~400MB); chosenN {small:30, full:3}; budgetCapMsPerVerify=128217 (3x safety).",
+          "headHash": "ed6dedeccef77f3883406fc9eccf8b878c52faaf",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:42:19.824Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
