@@ -854,13 +854,59 @@ function formatCell(value: string): string {
   return value.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 }
 
+type StatusMarker = '✅' | '⏳' | '❌';
+
+function milestoneStatusMarker(status: MilestoneProgressStatus): StatusMarker {
+  if (status === 'completed') return '✅';
+  if (status === 'current') return '⏳';
+  return '❌';
+}
+
+function detailStatusMarker(status: string): StatusMarker {
+  const normalized = status.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const inProgressStatuses = new Set(['in_progress', 'current', 'running', 'active', 'actively_being_developed']);
+  const completedStatuses = new Set(['done', 'covered', 'pass', 'passed', 'success', 'complete', 'completed', 'not_applicable', 'mapped', 'waived']);
+  const incompleteStatuses = new Set([
+    'pending',
+    'missing',
+    'fail',
+    'failed',
+    'blocked',
+    'incomplete',
+    'not_passing',
+    'missing_result',
+    'stale_evidence',
+    'ambiguous_intent',
+    'missing_intent',
+    'missing_evidence',
+    'missing_evidence_kind',
+    'unmapped',
+  ]);
+
+  if (inProgressStatuses.has(normalized)) return '⏳';
+  if (completedStatuses.has(normalized)) return '✅';
+  if (incompleteStatuses.has(normalized)) return '❌';
+  if (normalized.includes('current') || normalized.includes('running')) return '⏳';
+  if (
+    normalized.includes('missing')
+    || normalized.includes('fail')
+    || normalized.includes('blocked')
+    || normalized.includes('incomplete')
+    || normalized.includes('not_passing')
+    || normalized.includes('stale')
+    || normalized.includes('ambiguous')
+    || normalized.includes('unmapped')
+  ) return '❌';
+  return '❌';
+}
+
 function renderTableRow(row: MilestoneStatusRow): string {
   const cells = [
     row.id,
     row.claim,
-    `${row.status} (${row.statusDetail})`,
-    formatList(row.subObjectives.map((sub) => `${sub.id} [${sub.status}] ${sub.label}`)),
-    formatList(row.evidenceRefs.map((evidence) => `${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
+    `${milestoneStatusMarker(row.status)} ${row.status} (${row.statusDetail})`,
+    formatList(row.subObjectives.map((sub) => `${detailStatusMarker(sub.status)} ${sub.id} [${sub.status}] ${sub.label}`)),
+    formatList(row.evidenceRefs.map((evidence) => `${detailStatusMarker(evidence.status)} ${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
     formatList(row.risks),
     row.nextAction,
   ].map(formatCell);
@@ -900,7 +946,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
       'Current',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',
       '|---|---|---|---|---|---|---|',
-      `| ledger | milestone ledger required | blocked | milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
+      `| ledger | milestone ledger required | ❌ blocked | milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
       '',
       'Remaining',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',

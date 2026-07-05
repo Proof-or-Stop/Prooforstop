@@ -302,6 +302,14 @@ Host Progress Reporting Contract:
   after successful human-text output for the configured story-scoped mutating
   commands that update milestone ledgers, checklist state, verification
   evidence, story phase, delivery checks, or summaries.
+- Developer-facing milestone tables prefix real row status cells with `✅` for
+  completed milestones, `⏳` for current/in-progress milestones, and `❌` for
+  remaining, blocked, missing-ledger, or otherwise incomplete rows. Real
+  sub-objective rows are marker-prefixed the same way (`✅` done/covered/pass,
+  `⏳` in progress/current/running, `❌` pending/missing/fail/blocked), and
+  straightforward evidence refs are marker-prefixed as `✅` pass/waived, `⏳`
+  running/current, or `❌` failing/missing. Empty placeholder `none` rows stay
+  unmarked for readability and deterministic table output.
 - Automatic append is skipped for `--json` / `--format=json` so machine stdout
   remains parseable, and it is skipped when the target story has no
   `milestone-ledger.json`.

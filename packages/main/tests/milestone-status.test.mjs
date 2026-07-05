@@ -122,6 +122,180 @@ function writeTestConfig(root) {
   });
 }
 
+{
+  const markerStoryId = 'B-marker-icons';
+  const markerChecklist = {
+    items: [
+      checklistItem('CHK-MARKER-DONE', 'done', [evidence('CHK-MARKER-DONE:happy:0')], intent('marker completed intent')),
+      checklistItem('CHK-MARKER-CURRENT', 'in_progress', [], intent('marker current intent')),
+      checklistItem('CHK-MARKER-REMAINING', 'pending', [], intent('marker remaining intent')),
+    ],
+  };
+  const markerLedger = ledger([
+    milestone({
+      id: 'M-marker-done',
+      sourceRequirementId: 'REQ-marker-done',
+      claim: 'Marker completed milestone',
+      doneMeans: 'Completed rows show the success marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-DONE'],
+      verificationIntentRefs: ['CHK-MARKER-DONE:happy:0'],
+      status: 'done',
+    }),
+    milestone({
+      id: 'M-marker-current',
+      sourceRequirementId: 'REQ-marker-current',
+      claim: 'Marker current milestone',
+      doneMeans: 'The first incomplete row shows the incomplete marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-DONE', 'CHK-MARKER-CURRENT', 'CHK-MARKER-REMAINING'],
+      verificationIntentRefs: ['CHK-MARKER-DONE:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-remaining',
+      sourceRequirementId: 'REQ-marker-remaining',
+      claim: 'Marker remaining milestone',
+      doneMeans: 'Later incomplete rows show the incomplete marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-REMAINING'],
+      verificationIntentRefs: ['CHK-MARKER-REMAINING:happy:0'],
+      status: 'planned',
+    }),
+  ], markerStoryId);
+  const markerReport = buildMilestoneStatusReport({
+    story: story(markerStoryId),
+    checklist: markerChecklist,
+    milestoneLedger: markerLedger,
+  });
+  const markerText = renderMilestoneStatusReport(markerReport);
+  assert.match(markerText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
+  assert.match(markerText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
+  assert.match(markerText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
+  assert.match(markerText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+  assert.match(markerText, /⏳ CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+  assert.match(markerText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+  assert.match(markerText, /✅ CHK-MARKER-DONE:happy:0 \[covered\]/);
+  assert.match(markerText, /✅ CHK-MARKER-DONE:happy:0 \[pass\/logic_test\]/);
+
+  const missingText = renderMilestoneStatusReport(buildMilestoneStatusReport({
+    story: story('B-marker-missing-ledger'),
+    checklist: { items: [] },
+    milestoneLedger: null,
+  }));
+  assert.match(missingText, /\| ledger \| milestone ledger required \| ❌ blocked \|/);
+  assert.match(missingText, /\| none \| none \| none \| none \| none \| none \| none \|/);
+  assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳❌] none \|/, 'placeholder none rows stay unmarked');
+
+  const cliMarkerStoryId = 'B-cli-marker-icons';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
+  try {
+    const storyDir = join(root, '.lattice', 'story', 'actives', cliMarkerStoryId);
+    mkdirSync(storyDir, { recursive: true });
+    writeTestConfig(root);
+    writeJson(join(storyDir, 'index.json'), story(cliMarkerStoryId));
+    writeJson(join(storyDir, 'checklist.json'), markerChecklist);
+    writeJson(join(storyDir, 'milestone-ledger.json'), ledger(markerLedger.milestones, cliMarkerStoryId));
+
+    const cliText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      cliMarkerStoryId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
+    assert.match(cliText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
+    assert.match(cliText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
+    assert.match(cliText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(cliText, /⏳ CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+    assert.match(cliText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+
+    const autoAppendText = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      cliMarkerStoryId,
+      '--itemId',
+      'CHK-MARKER-CURRENT',
+      '--status',
+      'pending',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
+    assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
+    assert.match(autoAppendText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
+    assert.match(autoAppendText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
+    assert.match(autoAppendText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(autoAppendText, /❌ CHK-MARKER-CURRENT \[pending\] CHK-MARKER-CURRENT title/);
+    assert.match(autoAppendText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+
+    const noLedgerStoryId = 'B-cli-marker-no-ledger';
+    const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
+    mkdirSync(noLedgerStoryDir, { recursive: true });
+    writeJson(join(noLedgerStoryDir, 'index.json'), story(noLedgerStoryId));
+    writeJson(join(noLedgerStoryDir, 'checklist.json'), {
+      items: [
+        checklistItem('CHK-MARKER-NO-LEDGER', 'pending'),
+      ],
+    });
+    const noLedgerStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      noLedgerStoryId,
+      '--itemId',
+      'CHK-MARKER-NO-LEDGER',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(noLedgerStdout, /Checklist CHK-MARKER-NO-LEDGER:/);
+    assert.equal(
+      noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
+      false,
+      'missing-ledger story mutations must not fabricate a milestone status table',
+    );
+
+    const jsonStoryId = 'B-cli-marker-json';
+    const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
+    mkdirSync(jsonStoryDir, { recursive: true });
+    writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));
+    const jsonStdout = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_ledger_add',
+      '--root',
+      root,
+      '--storyId',
+      jsonStoryId,
+      '--id',
+      'M-json',
+      '--sourceRequirementId',
+      'REQ-json',
+      '--claim',
+      'JSON stdout remains parseable',
+      '--doneMeans',
+      'The command writes only JSON when --json is set',
+      '--status',
+      'planned',
+      '--json',
+    ], { cwd: root, encoding: 'utf8' });
+    const jsonLedger = JSON.parse(jsonStdout);
+    assert.equal(jsonLedger.storyId, jsonStoryId);
+    assert.equal(jsonLedger.milestones.at(-1).id, 'M-json');
+    assert.equal(
+      jsonStdout.includes(`Milestone Status - ${jsonStoryId}`),
+      false,
+      'machine JSON stdout must not be contaminated with a milestone table',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertTextContract(text) {
   for (const label of [
     'Milestone Status - B-7ba7',
@@ -1691,7 +1865,15 @@ function assertEvidenceRefShape(evidenceRef) {
   try {
     const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
     mkdirSync(storyDir, { recursive: true });
-    writeTestConfig(root);
+    writeJson(join(root, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+    });
     const cliStory = story(storyId);
     const cliChecklist = {
       items: [
@@ -1727,84 +1909,6 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.match(stdout, /Current/);
     assert.match(stdout, /Remaining/);
     assert.match(stdout, /\| M-cli \| CLI report milestone \|/);
-
-    const updateStdout = execFileSync(process.execPath, [
-      cliPath,
-      'checklist_update',
-      '--root',
-      root,
-      '--storyId',
-      storyId,
-      '--itemId',
-      'CHK-CLI',
-      '--status',
-      'in_progress',
-    ], { cwd: root, encoding: 'utf8' });
-    assert.match(updateStdout, /Checklist CHK-CLI:/);
-    assert.match(updateStdout, /Milestone Status - B-cli-ms/);
-    assert.match(updateStdout, /Completed/);
-    assert.match(updateStdout, /Current/);
-    assert.match(updateStdout, /Remaining/);
-
-    const noLedgerStoryId = 'B-cli-no-ledger';
-    const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
-    mkdirSync(noLedgerStoryDir, { recursive: true });
-    writeJson(join(noLedgerStoryDir, 'index.json'), story(noLedgerStoryId));
-    writeJson(join(noLedgerStoryDir, 'checklist.json'), {
-      items: [
-        checklistItem('CHK-NO-LEDGER', 'pending'),
-      ],
-    });
-    const noLedgerStdout = execFileSync(process.execPath, [
-      cliPath,
-      'checklist_update',
-      '--root',
-      root,
-      '--storyId',
-      noLedgerStoryId,
-      '--itemId',
-      'CHK-NO-LEDGER',
-      '--status',
-      'in_progress',
-    ], { cwd: root, encoding: 'utf8' });
-    assert.match(noLedgerStdout, /Checklist CHK-NO-LEDGER:/);
-    assert.equal(
-      noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
-      false,
-      'missing-ledger story mutations must not fabricate a milestone status table',
-    );
-
-    const jsonStoryId = 'B-cli-json';
-    const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
-    mkdirSync(jsonStoryDir, { recursive: true });
-    writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));
-    const jsonStdout = execFileSync(process.execPath, [
-      cliPath,
-      'milestone_ledger_add',
-      '--root',
-      root,
-      '--storyId',
-      jsonStoryId,
-      '--id',
-      'M-json',
-      '--sourceRequirementId',
-      'REQ-json',
-      '--claim',
-      'JSON stdout remains parseable',
-      '--doneMeans',
-      'The command writes only JSON when --json is set',
-      '--status',
-      'planned',
-      '--json',
-    ], { cwd: root, encoding: 'utf8' });
-    const jsonLedger = JSON.parse(jsonStdout);
-    assert.equal(jsonLedger.storyId, jsonStoryId);
-    assert.equal(jsonLedger.milestones.at(-1).id, 'M-json');
-    assert.equal(
-      jsonStdout.includes(`Milestone Status - ${jsonStoryId}`),
-      false,
-      'machine JSON stdout must not be contaminated with a milestone table',
-    );
 
     const missingCloseout = execFileSync(process.execPath, [
       cliPath,
