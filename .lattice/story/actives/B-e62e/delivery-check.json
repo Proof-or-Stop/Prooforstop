@@ -1,0 +1,62 @@
+{
+  "storyId": "B-e62e",
+  "checkedAt": "2026-07-05T12:49:01.589Z",
+  "headHash": "608e46725c511054744f1cd7460024dcefbe930b",
+  "materialHash": "a8a1fab1493fc790144e10b76fce136f33b7705ad6c388dfdc8362c37df8576d",
+  "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+  "reviewRound": "2026-07-05T12:41:40.019Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "After a successful state change, stdout shows the command result and then `Milestone Status - B-demo` with `Completed`, `Current`, and `Remaining` table sections.",
+      "status": "verified",
+      "verifiedBy": "delivery_context_pack, docs review, and current validation evidence",
+      "evidence": "Source changes append shared milestone_status output in packages/main/src/cli-engine.ts for supported human-output story mutations. docs/CLI.md documents the table sections and six labels. Current validation evidence is PASS at 2026-07-05T12:39:22.980Z."
+    },
+    {
+      "docPath": "packages/main/tests/milestone-status.test.mjs",
+      "promise": "The regression test fails unless CLI stdout for a representative mutation includes `Milestone Status - B-post-progress`, `Completed`, `Current`, and `Remaining`.",
+      "status": "verified",
+      "verifiedBy": "test-evidence validation output",
+      "evidence": "Recorded validation ran node packages/main/tests/milestone-status.test.mjs and passed. Coverage is 7/7 required verification intents, including ledger-backed append, JSON-mode skip, missing-ledger skip, Pending Review semantics, and Not Started versus Failed distinction."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001:happy:0",
+      "transcript": "Recorded test evidence from lattice validate --story=B-e62e --json shows node packages/main/tests/milestone-status.test.mjs PASS. The regression exercises checklist_update on a ledger-backed temporary story and asserts the command result is followed by Milestone Status with Completed, Current, and Remaining sections."
+    },
+    {
+      "featureId": "CHK-001:edge:0",
+      "transcript": "Recorded test evidence shows JSON mode remains parseable and is not contaminated by appended human milestone tables."
+    },
+    {
+      "featureId": "CHK-001:edge:1",
+      "transcript": "Recorded test evidence shows a mutation on a story without milestone-ledger.json does not fabricate a milestone status table."
+    },
+    {
+      "featureId": "CHK-002:happy:0",
+      "transcript": "Recorded regression evidence asserts checklist_update stdout includes the richer milestone status table labels after the representative mutation."
+    },
+    {
+      "featureId": "CHK-002:edge:0",
+      "transcript": "Recorded regression evidence asserts JSON output remains parseable while human milestone status labels are skipped in machine mode."
+    },
+    {
+      "featureId": "CHK-002:adversarial:0",
+      "transcript": "Recorded regression evidence asserts no fabricated table appears for no-ledger stories and verifies Not Started is rendered separately from Failed."
+    },
+    {
+      "featureId": "CHK-001:adversarial:0",
+      "transcript": "Recorded docs_check evidence passed rg -n over docs/CLI.md for the six display labels and the Not Started versus Failed warning."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS for current B-e62e materialHash a8a1fab1493fc790144e10b76fce136f33b7705ad6c388dfdc8362c37. Final review/quorum material is current, validation PASS at 2026-07-05T12:39:22.980Z, DONE-required validation PASS at 2026-07-05T12:40:30.457Z, 7/7 required verification intents are covered, docs promises are verified, and all recorded findings are resolved. Host-owned DONE closure still needs branch/main sync and done_prepare; this check refreshes delivery metadata only and does not advance lifecycle."
+  },
+  "_hash": "6aca69b339f72b75cde427a7d34562c92a0a090eb85483506932f7470773252d"
+}

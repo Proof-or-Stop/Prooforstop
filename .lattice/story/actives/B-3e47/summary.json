@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3e47",
+  "changes": "milestone_status now renders DONE stories from the frozen milestone-closeout snapshot when present, preserving live projection for active stories and missing-closeout fail-closed fallback; docs explain the active versus DONE behavior.",
+  "usage": "Run node packages/main/dist/cli.js milestone_status --storyId=<DONE-story> or lattice milestone_status --storyId=<DONE-story> to view Completed, Current, and Remaining milestone tables.",
+  "expectedOutcome": "For a DONE story with a valid milestone-closeout.json, Milestone Status shows completed closeout rows as ✅ Done, with no stale evidence or false blocked rows after active-story cleanup.",
+  "actualTranscript": "Live smoke captured node packages/main/dist/cli.js milestone_status --storyId=B-e62e: Phase DONE, M1 and M2 under Completed as ✅ Done, Current none, Remaining none, Risks none.",
+  "outcomeDiff": "No user-visible difference from the expected outcome; the captured transcript matches the expected DONE closeout-backed table behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for this story scope; milestone_completion_set and completion ledger writer are intentionally not implemented here.",
+  "pitfalls": "The global lattice wrapper killed long silent validation twice at 300 seconds; using node packages/main/dist/cli.js validate completed successfully and wrote fresh test evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 101912
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 43681
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 498331
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 854071
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1657608
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 404185
+    }
+  },
+  "totalDurationMs": 3560220,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T13:58:01.430Z",
+  "updatedAt": "2026-07-05T13:58:01.430Z"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3e47",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/<storyId>/**",
+    "docs/CLI.md",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use local Proofbound CLI and focused Node/build tests only.",
+  "createdAt": "2026-07-05T12:58:41.210Z",
+  "updatedAt": "2026-07-05T12:58:41.210Z",
+  "_hash": "f7f6519b1bb63f68f56325cb8318072d0a436f9509105531eac690cc811f9839"
+}

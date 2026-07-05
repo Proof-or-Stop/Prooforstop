@@ -274,9 +274,18 @@ receipt-backed runner path lands.
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing
-ProofStory facts. It does not create milestone storage; it projects the current
-story phase, milestone ledger state/hash, checklist refs, verificationIntent
-refs, verificationEvidence, and optional summary facts.
+ProofStory facts. For active and other non-DONE stories, it is a live
+projection: it reads the current story phase, milestone ledger state/hash,
+checklist refs, verificationIntent refs, verificationEvidence, and optional
+summary facts. It does not create milestone storage.
+
+For DONE stories, `milestone_status` first looks for a schema-valid
+`.lattice/story/actives/<storyId>/milestone-closeout.json`. When that closeout
+snapshot exists, the command renders the normal Milestone Status table from the
+frozen closeout-backed status report instead of recomputing live evidence
+freshness after active worktree cleanup. If a DONE story has no valid closeout
+snapshot, the command falls back to the live projection and missing or stale
+live evidence remains blocked; it does not fabricate a completed result.
 
 ```bash
 lattice milestone_status --storyId=B-xxxx
@@ -288,18 +297,42 @@ The command accepts only `storyId`, `format`, and `json`. Every other key is
 rejected before story facts are read.
 
 Text output includes grouped Markdown tables for completed, current, and
-remaining milestones. JSON output includes `storyId`, `phase`, `ledger`, `mode`,
-`milestones`, `groups`, `risks`, and `nextActions`. `mode.readOnly` is `true`;
-`runCommands`, `writeEvidence`, `advancePhase`, and `launchReviewers` are always
-`false`.
+remaining milestones. JSON output is always a `MilestoneStatusReport`-shaped
+object with `storyId`, `phase`, `ledger`, `mode`, `milestones`, `groups`,
+`risks`, and `nextActions`; DONE closeout-backed JSON uses the same shape and
+preserves the frozen closeout groups and ledger summary. `mode.readOnly` is
+`true`; `runCommands`, `writeEvidence`, `advancePhase`, and `launchReviewers`
+are always `false`.
 
 Host Progress Reporting Contract:
 
 - Hosts should print or attach the full `milestone_status` table after a
   milestone or sub-objective status change, at handoff, and before final
   responses when milestone progress is relevant.
-- Missing `milestone-ledger.json` is a blocker. The command reports a clear next
-  action and does not infer completion from checklist text alone.
+- The CLI automatically appends the consumed `milestone_status` Markdown table
+  after successful human-text output for the configured story-scoped mutating
+  commands that update milestone ledgers, checklist state, verification
+  evidence, story phase, delivery checks, or summaries.
+- Developer-facing milestone tables render real row status cells with six text
+  labels: `✅ Done` for final completed ledger/sub-objective/evidence pass or
+  coverage, `⏳ In Progress` for the active milestone/checklist/running work,
+  `🟡 Pending Review` when evidence is covered or implementation appears
+  complete but ledger/review/final acceptance is not done yet, `⬜ Not Started`
+  for remaining future work and pending checklist/intent before active work,
+  `🔴 Blocked` for missing ledgers, missing refs, unmapped or ambiguous intent,
+  stale evidence, or missing required evidence that blocks progress, and
+  `❌ Failed` only for failing/not-passing evidence or explicit failed status.
+  Real sub-objective and evidence rows use the same icon plus short label before
+  their ids. Empty placeholder `none` rows stay unmarked for readability and
+  deterministic table output. `❌` means Failed; it must not be used for Not
+  Started rows.
+- Automatic append is skipped for `--json` / `--format=json` so machine stdout
+  remains parseable, and it is skipped when the target story has no
+  `milestone-ledger.json`.
+- Missing `milestone-ledger.json` is a blocker in the live projection. The
+  command reports a clear next action and does not infer completion from
+  checklist text alone. A DONE closeout-backed report uses the ledger summary
+  already frozen in the closeout snapshot.
 - Detail granularity comes from the authored milestone ledger, checklist refs,
   verificationIntent refs, and verificationEvidence. Future completion or
   executor ledgers can improve state-change deltas, but V1 does not require them
@@ -332,8 +365,9 @@ Host Progress Reporting Contract:
 `lattice milestone_closeout` is the read-only historical DONE closeout reader.
 It reads `.lattice/story/actives/<storyId>/milestone-closeout.json`, a snapshot
 captured during DONE advancement from a completed, risk-free live
-`milestone_status` report. It does not recompute current freshness and it does
-not make DONE stories appear green in the live reporter.
+`milestone_status` report. It does not recompute current freshness; DONE
+`milestone_status` uses the same frozen snapshot, when present, to render the
+normal grouped status table after active cleanup.
 
 ```bash
 lattice milestone_closeout --storyId=B-xxxx
@@ -353,8 +387,8 @@ milestone reports block rather than writing a false closeout. When the snapshot
 is written from a story worktree DONE path, it is committed with the story
 metadata before the worktree is removed, so the canonical main root can still
 read it after merge cleanup. When the snapshot is missing, `milestone_closeout`
-prints a diagnostic and a next action; use `milestone_status` to inspect the
-current live readiness.
+prints a diagnostic and a next action; `milestone_status` then remains a live
+readiness projection and missing or stale evidence is still reported as such.
 
 ### Autopilot (local)
 

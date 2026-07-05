@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-e62e",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T12:55:48.177Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "8c2ab502db2b5fbd4326f03c691b5fb570f93e1b5d4c6fd77fbdcdd2fde00271",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:3dd44acb6c5bcd2a675d9f8ba26b69ba6416c212a7f063f8f8374272624e2316"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    }
+  },
+  "bindings": {
+    "headHash": "5bfcbc3d49a312d4ad2840ceb7e786bcb921a2aa",
+    "materialHash": "a8a1fab1493fc790144e10b76fce136f33b7705ad6c388dfdc8362c37df8576d",
+    "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "State-changing CLI commands automatically append the consumed milestone_status table to human stdout.",
+      "acceptance": "A representative mutating command for a story with milestone-ledger.json prints the normal command result followed by the existing milestone_status Markdown table with Completed, Current, and Remaining sections.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression verifies ledger-backed state-changing commands append the shared milestone_status table, now with six developer-facing status labels.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression verifies JSON mode remains parseable and is not contaminated by appended human milestone tables.",
+        "CHK-001:edge:1 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression verifies missing-ledger mutations do not fabricate milestone status tables.",
+        "CHK-001:adversarial:0 [pass/docs_check] rg -n '✅ Done|⏳ In Progress|🟡 Pending Review|⬜ Not Started|🔴 Blocked|❌ Failed|must not be used for Not Started' docs/CLI.md file=docs/CLI.md note=Host Progress Reporting Contract documents the six status labels and states that Failed is not used for Not Started."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Regression coverage proves the stdout contract and negative controls.",
+      "acceptance": "The milestone-status regression executes the built CLI and fails unless checklist_update stdout includes the table headings, JSON mode stays uncontaminated, and missing-ledger stories do not get fabricated tables.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression asserts auto-appended checklist_update output includes the richer milestone status table labels.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression asserts JSON output remains parseable while human milestone status labels are skipped in machine mode.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Regression asserts no fabricated table appears for no-ledger stories and verifies Not Started is rendered separately from Failed."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

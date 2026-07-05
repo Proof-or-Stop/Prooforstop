@@ -4,17 +4,228 @@
       "id": "CHK-001",
       "title": "Print milestone_status table after milestone-aware mutating commands",
       "context": "Add a mechanical post-command output path so commands like checklist_update, verification_evidence_batch_add, verification_evidence_refresh_stale, story_advance, delivery_check_save, summary_set, and milestone_ledger_set/add append the same human table as `lattice milestone_status --storyId=<id>` when the story has a milestone ledger.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T10:28:31.441Z",
+      "endTime": "2026-07-05T10:38:34.284Z",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "After a successful state change, stdout shows the command result and then `Milestone Status - B-demo` with `Completed`, `Current`, and `Remaining` table sections.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A representative state-changing command for a story with milestone-ledger.json appends the consumed milestone_status Markdown table to stdout.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The post-command table is skipped for commands using --json or --format=json so machine-readable stdout remains parseable JSON.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A story without milestone-ledger.json does not receive a fabricated milestone progress table after mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The appended table must be produced by the same milestone_status renderer and include `Milestone Status - <storyId>`, `Completed`, `Current`, and `Remaining`, not a bespoke summary string.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression verifies ledger-backed state-changing commands append the shared milestone_status table, now with six developer-facing status labels.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression verifies JSON mode remains parseable and is not contaminated by appended human milestone tables.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression verifies missing-ledger mutations do not fabricate milestone status tables.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/CLI.md",
+          "command": "rg -n '✅ Done|⏳ In Progress|🟡 Pending Review|⬜ Not Started|🔴 Blocked|❌ Failed|must not be used for Not Started' docs/CLI.md",
+          "result": "pass",
+          "note": "Host Progress Reporting Contract documents the six status labels and states that Failed is not used for Not Started.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Cover stdout contract with regression tests",
       "context": "Add focused tests proving a representative state-change command emits `Milestone Status - B-xxxx`, `Completed`, `Current`, and `Remaining` in stdout instead of silently consuming milestone_status.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T10:38:21.422Z",
+      "endTime": "2026-07-05T10:38:38.201Z",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "The regression test fails unless CLI stdout for a representative mutation includes `Milestone Status - B-post-progress`, `Completed`, `Current`, and `Remaining`.",
+      "files": {
+        "modify": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "milestone-status regression executes the built CLI and asserts stdout contains the milestone table headings after checklist_update.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage asserts JSON mode output is not contaminated by an appended human table.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression coverage asserts no table is appended when the mutated story lacks a milestone ledger, preventing false progress display.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts auto-appended checklist_update output includes the richer milestone status table labels.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts JSON output remains parseable while human milestone status labels are skipped in machine mode.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts no fabricated table appears for no-ledger stories and verifies Not Started is rendered separately from Failed.",
+          "headHash": "911497fab49044efd8da2092a7af0c4c08150234",
+          "materialHash": "c83d4a054f60613aa3b7a1d9843441281493fd5183eef60132d662cf146a3899",
+          "storyFilesHash": "0a49aa7827b2bd6c5411c6cae3e280a8bac9835abdd91d1721ff263c24190f33",
+          "timestamp": "2026-07-05T12:27:12.564Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-05T10:28:31.441Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation of post-command milestone_status table output."
+    },
+    {
+      "timestamp": "2026-07-05T10:38:21.422Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin regression coverage verification after tests passed."
+    },
+    {
+      "timestamp": "2026-07-05T10:38:34.284Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Post-command milestone_status append implemented, documented, and verified."
+    },
+    {
+      "timestamp": "2026-07-05T10:38:38.201Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Regression coverage for append, JSON skip, and missing-ledger skip passed."
     }
   ]
 }
