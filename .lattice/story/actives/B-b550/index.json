@@ -4,7 +4,7 @@
   "title": "Execute the milestone ledger status review and hardening plan (M0-M7)",
   "description": "Story B-9051 delivered docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md but only authored the plan document; all 8 milestones and 43 sub-objectives are still in planned status. This story executes the truth-first document review itself: it audits whether the existing milestone_ledger_set/add/get, milestone_status, and milestone_closeout implementation matches the intended safety boundary, records per-milestone finding-or-pass outcomes in a findings report, updates the plan milestone statuses, and closes with an explicit M7 decision (clean pass or a bounded follow-up story proposal).",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "milestone-ledger",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-07-05T12:11:32.791Z",
   "startedAt": "2026-07-05T12:11:32.791Z",
-  "endedAt": null,
+  "endedAt": "2026-07-05T15:52:15.252Z",
   "events": [
     {
       "phase": "INIT",
@@ -121,6 +121,15 @@
       "user": "Harmonygo",
       "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-05T15:52:15.252Z",
+      "branch": "story/B-b550",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -130,10 +139,5 @@
       "at": "2026-07-05T12:14:06.401Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b550",
-    "branch": "story/B-b550",
-    "createdAt": "2026-07-05T12:16:27.340Z"
-  },
   "currentReviewRound": "2026-07-05T15:14:23.740Z"
 }
