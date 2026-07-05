@@ -18,6 +18,26 @@
       ],
       "signatureTag": "adversarial|mjs|experiments-multi-model",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-785e:F-002",
+      "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:183-190 validates only disabled flags and snapshot labels for providerLaunch.runnerAuthorization.runners, but it never requires the launch runner set to match phase1-runner-manifest.m2.json:194-231 or the launch rows at m2-provider-execution-launch.json:129-170. Removing a runner, changing a runnerId/cell binding, or adding an unrelated disabled runner can pass, so schema drift in the launch plan is a false negative. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:08:41.187Z",
+      "reviewRound": "2026-07-05T12:06:17.038Z",
+      "reviewRunId": "B-785e:RR-002",
+      "_hash": "d6a862ca619ea5f2a64afc5919ddcb5931133a8536d17d47a98b361667dad2fb",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "signatureTag": "missing|mjs|experiments-multi-model",
+      "signatureTagSource": "auto"
     }
   ]
 }
