@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fe25",
+  "allowedCommands": [
+    "lattice delivery_check_set --storyId=*",
+    "lattice scope_freeze_check --storyId=*",
+    "lattice story_advance --storyId=* --phase=*",
+    "lattice story_review --storyId=*",
+    "lattice summary_set --storyId=*",
+    "lattice validate --story=*",
+    "node experiments/multi-model-ablation/*.mjs"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "curl provider APIs",
+    "git push",
+    "phase1 runner execution",
+    "provider execution"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/analysis-results.json",
+    "experiments/multi-model-ablation/phase2-results.json",
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M2 readiness story may run local checkers only; no paid/provider cells or outcome records.",
+  "createdAt": "2026-07-05T02:09:14.746Z",
+  "updatedAt": "2026-07-05T02:09:14.746Z",
+  "_hash": "33b304a757b9ab4d35fbed9d51288f423aa4a6d17ce796b0dfe589bc0d65af6b"
+}

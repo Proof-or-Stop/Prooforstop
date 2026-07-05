@@ -1,0 +1,211 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind M2 launch authorization and dated snapshot inputs",
+      "context": "Create provider-free M2 readiness artifacts that record the approval boundary, E1/E2 provider-family snapshots, host/model separation, and provider execution state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#0-执行边界与采纳原则",
+        "docs/requirements/decisions/multi-model-ablation-replication.md#02-模型host-与并行验证约束"
+      ],
+      "userSees": "A status artifact explains which launch blockers are cleared and which still require actual provider execution.",
+      "excludes": [
+        "Running Phase 1 provider cells",
+        "Generating outcome records",
+        "Changing product DONE/review/playbook gates"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-launch-readiness.json",
+          "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+          "experiments/multi-model-ablation/m2-status.md"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker accepts readiness artifacts with explicit approval boundary, distinct E1/E2 provider families, dated snapshot records, and provider execution disabled.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Checker distinguishes readiness approval from provider-execution authorization and keeps formalPhase1UseAllowed false until all execution prerequisites are present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Checker rejects treating host labels as model families, missing dated snapshots, provider calls enabled without explicit execution authorization, or outcome data inside readiness artifacts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind the concrete 24-task inventory and Phase 1 runner manifest",
+      "context": "Create the M2 task inventory and launch manifest needed before formal cells can run, preserving the M1 cell matrix and legal contrast rules without changing task definitions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#31-因子矩阵",
+        "docs/requirements/decisions/multi-model-ablation-replication.md#32-格数与预算"
+      ],
+      "userSees": "The launch-readiness report shows whether the 24 task slots are concrete and whether required cells ③, ⑥, and ② are ready to schedule.",
+      "excludes": [
+        "Inventing new tasks",
+        "Changing v1 task definitions",
+        "Counting optional ④ as required"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/task-inventory.m2.json",
+          "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker accepts exactly 24 concrete task entries and required Phase 1 cells ③/⑥/② with deterministic seed linkage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional ④ may be absent while required Phase 1 launch remains structurally valid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Checker rejects missing task entries, duplicated task ids, changed task definitions, illegal ② vs ④ confirmatory comparison, or duplicate runner ownership of the same cellKey.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve A4 budget-lock and A2prime sequencing discipline",
+      "context": "M2 Launch Readiness must not fake the ③-derived A4 calibration budget lock. It should show that ⑥ remains blocked until ordered M2-a execution produces a real budget lock.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#32-格数与预算",
+        "docs/requirements/decisions/multi-model-ablation-replication.md#34-控制变量与-v1-逐条对齐--修复项"
+      ],
+      "userSees": "The status table says static launch readiness is prepared while ③ calibration and ⑥ A2prime remain ordered execution steps.",
+      "excludes": [
+        "Fabricating phase1-budget-lock.json",
+        "Running A2prime before A4 calibration",
+        "Using M0 example budget locks as formal M2 evidence"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/phase1-launch-readiness.m2.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker reports A4 calibration required before A2prime and does not mark A2prime sequencing satisfied in readiness-only mode.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A readiness artifact may be DONE while budgetLockStatus remains pending_execution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Checker rejects any artifact that marks A2prime sequencing satisfied without a real phase1 budget lock bound to ③ calibration records.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update M2 status reporting and protocol progress table",
+      "context": "Make the milestone state obvious: M0 and M1 are done, M2 launch readiness is provider-free, M2 execution has not started, and M3-M6 remain pending.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md#01-执行顺序结构化启动",
+        "docs/requirements/decisions/multi-model-ablation-replication.md#6-milestones"
+      ],
+      "userSees": "A readable table lists every milestone, what is done, what is blocked, and what evidence exists.",
+      "excludes": [
+        "Claiming H-M1/H-M3 results",
+        "Updating paper wording",
+        "Marking Phase 1 as launched"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-status.md"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "m2-status.md prints a milestone table with M0/M1 done, M2 readiness prepared, M2 execution not started, and M3-M6 pending.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Status remains accurate if optional ④ is not scheduled.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Status text must not claim outcome data exists, Phase 1 has run, or model-agnostic claims are proven.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
