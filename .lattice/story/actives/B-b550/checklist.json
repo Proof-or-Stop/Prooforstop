@@ -162,7 +162,35 @@
       "context": "Plan M4.a-M4.f: review required milestone fields (id, source requirement, claim, doneMeans, required evidence); review checklist and verification-intent binding fields; review status values for progress tables; review parent/assigned-child story support; check prose-only text cannot produce hidden milestone claims; identify schema additions needed. Output: schema adequacy finding.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M4 or Schema.Adequacy section in findings report -> section exists with finding-or-pass verdict; WHY: confirms the schema review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg id|source.requirement|claim|doneMeans|required.evidence in findings report M4 section -> required milestone fields are reviewed; WHY: M4.a requires review of all required fields",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg parent|child|assigned in findings report M4 section -> parent/assigned-child story support is addressed; WHY: M4.d requires review of multi-story milestone relationships",
+            "type": "cli"
+          },
+          {
+            "desc": "rg prose.only|hidden.*claim|sub.objective in findings report M4 section -> prose-only text producing hidden claims is explicitly addressed; WHY: M4.e prevents text-only content from creating false milestone claims",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg schema.addition|addition.needed|future in findings report M4 section -> schema gaps or sufficiency is explicitly decided not left ambiguous; WHY: M4.f requires an explicit finding-or-pass for schema additions, not silence",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
