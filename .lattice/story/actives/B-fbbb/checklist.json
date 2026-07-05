@@ -88,9 +88,9 @@
       "id": "CHK-002",
       "title": "Fix the stale decision_doc_save authorityBoundary assertion in decision-doc-promotion-smoke",
       "context": "In packages/main/src/tasks/decision-doc-promotion-smoke.ts, update the expected process-event substring from 'not remote receipt completion' (retired by commit 8892270bf) to the current 'not local proof-admissibility, receipt-bundle, quorum, or release readiness'. This clears the decision-doc-promotion and experience-layer-digest-extract no-regression sub-smokes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:55:37.213Z",
       "verificationIntent": {
         "happy": [
           {
