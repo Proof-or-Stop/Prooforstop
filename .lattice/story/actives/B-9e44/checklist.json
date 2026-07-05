@@ -124,13 +124,13 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p.tamperMatrix))\"",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p),Object.keys(p.tamperMatrix),p.limitationFamily.exhaustiveness)\"",
           "result": "pass",
-          "note": "protocol.json tamperMatrix now has failClosed(18), acceptanceBucket(2), acknowledgedLimitations(3, each with intent:malicious + status:pass fingerprint + limitationNote), dropped(1); plus N, budgetCaps, envPins, iterationIdRule, recordDigestPreimageRule, stopReasonEnum, seed, smokeOverlap.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "protocol.json tamperMatrix: failClosed(18)/acceptanceBucket(2)/acknowledgedLimitations(6)/dropped(1); plus a top-level limitationFamily (exhaustiveness=representative-not-exhaustive, families oracle-weaken + manifest-metadata-lie, rootCause=digest-recompute defeats detection, scope=Tier-C/out of H2); plus N, budgetCaps, envPins, iterationIdRule, recordDigestPreimageRule, stopReasonEnum, seed, smokeOverlap.",
+          "headHash": "76c377eac0b16e326ea1bd7880235375175c4ecb",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:10.940Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
