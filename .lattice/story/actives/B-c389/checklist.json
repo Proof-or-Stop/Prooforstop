@@ -69,11 +69,11 @@
           "file": "packages/main/src/tasks/capability-release-backfill-smoke.ts",
           "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
           "result": "pass",
-          "note": "Edge: --apply requires --digest matching the current dry-run planDigest (wrong digest and missing digest both refused); a second dry-run after apply finds 0 eligible (idempotent, no duplicate); a story with no capability release (B-9999) yields 0 eligible. All asserted.",
-          "headHash": "ed8296d6374f02f335f6775f4f1668ceb15b7abd",
-          "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
-          "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
-          "timestamp": "2026-07-05T23:13:49.171Z"
+          "note": "Edge: --apply requires --digest matching the current dry-run planDigest (wrong and missing both refused); after a full apply a re-run finds 0 eligible (idempotent, no duplicate PCR); record-then-bind is idempotent (PCR now exists, candidate bound); a story with NEITHER a capability NOR an artifact release yields 0 eligible; --storyId scopes the scan. All asserted (14/14 checks).",
+          "headHash": "bbe4451736107df9801cb09125d2a78c5c727a91",
+          "materialHash": "7959dcdf973651a89f2c83b9999652b70c9c2071d3a56184c9accd5a728322bd",
+          "storyFilesHash": "3cbc528ca968010f26697a69320ce0ac9210128a6c824cd87ec1f13b6c991afa",
+          "timestamp": "2026-07-05T23:29:15.495Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
