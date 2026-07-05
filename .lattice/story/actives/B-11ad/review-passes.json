@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-05T10:44:20.634Z",
       "reviewRunId": "B-11ad:RR-014",
       "_hash": "8b3251f585ae95eef8d06a192c0a9662ce74c937bdc7e14d561da1155a8d379a"
+    },
+    {
+      "id": "B-11ad:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: artifact-release V1 records only releasable docs/** and experiments/** after excluding .lattice/story, docs/story, root/package manifests, and watched runtime/build inputs; digest is bound to normalized paths plus git blobs at the DONE merge commit. DONE and done_recover share runArtifactReleaseLedgerAfterDoneMerge with before/after main SHAs, wrapper-root reads resolve the same ledger root as writes, and runtimeSemverChanged remains a boundary flag while version-bump semantics stay on the existing watched-input predicate. Evidence inspected: fresh evidence_manifest/evidence_inspect at a094e35, validate PASS, artifact-release-ledger smoke 10 assertions, version-bump smoke 74 assertions, and prior F-001/F-003/F-004 resolved with strong evidence.",
+      "createdAt": "2026-07-05T11:08:53.048Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-017",
+      "_hash": "4d86fbaad2d38de41923f0ffebc7e27a5d6fff5b7947a0a88f92c29e3ae7c082"
     }
   ]
 }
