@@ -54,10 +54,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Build passed and milestone-status regression passed. The new B-done-closeout-worktree fixture creates a real git worktree, advances DONE, removes the story worktree, then reads proofbound.milestone_closeout.v1 from canonical main.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,10 +66,10 @@
           "command": "rg -n \"canonical main root can still|story worktree DONE path|merge cleanup\" docs/CLI.md",
           "result": "pass",
           "note": "docs/CLI.md lines 353-355 state that a story worktree DONE closeout is committed before removal and remains readable from canonical main after merge cleanup.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,11 +77,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "The worktree fixture asserts the story worktree no longer exists before canonical main Store and CLI milestone_closeout read the snapshot, so a transient worktree-only file cannot satisfy the test.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "note": "The worktree fixture asserts the story worktree no longer exists before canonical main Store and CLI milestone_closeout read the snapshot, so a transient worktree-only file cannot satisfy the test; existing missing-ledger cases also still pass.",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         }
       ]
     },
@@ -136,10 +136,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The regression runs a full enough DONE path through createStoryAdvanceHandlers from a linked story worktree and verifies canonical-root milestone_closeout returns proofbound.milestone_closeout.v1 after cleanup.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,10 +148,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The regression distinguishes canonical-root persistence from worktree-local writes by instantiating a new StoryStore at mainRoot after worktree deletion and reading milestone-closeout.json there.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,10 +160,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "If DONE cleanup deletes the only closeout copy or fails to merge it into canonical metadata, the mainRoot Store/CLI assertions in the regression fail.",
-          "headHash": "19985169f7d6cb4811255aae994cda1c5917ce79",
+          "headHash": "ebe7ff07a711277f7fc7add38988e51e484a3331",
           "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
           "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
-          "timestamp": "2026-07-05T02:27:17.723Z"
+          "timestamp": "2026-07-05T02:29:50.209Z"
         }
       ]
     }
