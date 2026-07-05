@@ -195,6 +195,17 @@
           "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
           "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
           "timestamp": "2026-07-05T15:42:19.824Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(JSON.stringify(c.env))\"",
+          "result": "pass",
+          "note": "env pins recorded in calibration.json (and copied to protocol.envPins): instrumentCommit=6c4e7c0a4c7aaa535526ad43170a364556f3b887 (the instrument source commit, not story HEAD), nodeVersion=v22.13.0, platform=darwin.",
+          "headHash": "5f8829f274f637f6a70fe6737b45516ed46b4333",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:42:21.598Z"
         }
       ]
     },
