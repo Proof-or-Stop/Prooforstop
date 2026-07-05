@@ -8,7 +8,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
-      "userSees": "Cell 03 authorization shows the frozen execution envelope before execution and later shows actual provider-reported usage/cost after execution.",
+      "userSees": "`Cell 03 execution envelope: frozen`; `Pre-run dollar guess: not required`; `Postflight usage accounting: provider-reported usage required after execution`.",
       "excludes": [
         "User guesswork budget",
         "Agent-invented provider spend",
@@ -32,7 +32,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run m2-provider-execution-check.mjs and verify it reports Cell 03 execution envelope: frozen plus Pre-run dollar guess: not required.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A preflight estimate may exist, but provider-reported usage remains required postflight and estimates are not final usage.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing retry/time/token/output bounds or treating estimates as final usage must be rejected and keep provider calls disabled.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
