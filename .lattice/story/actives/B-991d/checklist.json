@@ -118,8 +118,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:37:25.998Z",
       "endTime": null
     },
     {
@@ -492,6 +492,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Existing M2 provider execution plan now contains the B-991d Cell 03 real execution section and evidence is bound.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:37:25.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Run provider-free Cell 03 envelope preflight checker.",
       "agent": "codex-main"
     }
   ]
