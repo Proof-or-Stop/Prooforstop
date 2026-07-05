@@ -48,8 +48,8 @@
       "id": "CHK-002",
       "title": "Proof-or-stop + lockfile discipline: every iteration ends in EXACTLY one record (proof XOR stop); the driver takes a lockfile so a concurrent second driver records precondition_failed instead of corrupting the ledger; run-batch.mjs exits nonzero if any iteration ends recordless",
       "context": "The lockfile is released on clean exit. The recordless-exit-nonzero property is load-bearing (a missing record must never be silently tolerated). H1 evidence = pairwise records/gold/manifest digest + gold-metric equality across the proof records at each scale; H4 evidence = each proof record elapsedMs within budgetCapMsPerVerify OR a budget_cap stop.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T18:51:49.452Z",
       "endTime": null,
       "userSees": "run-batch.mjs exits 0 only when every iteration produced exactly one record (prints '0 recordless'); H1: replay proof records per scale are pairwise digest+metric identical; a concurrent second run-batch prints 'precondition_failed (lock held)' and records that stop; a recordless iteration forces nonzero exit.",
       "files": {
