@@ -18,8 +18,25 @@
       },
       "note": "Documentation red evidence: this story begins from a missing execution-plan section, not from a failing runtime command. Provider calls remain disabled.",
       "createdAt": "2026-07-05T23:29:30.205Z"
+    },
+    {
+      "id": "RED-20260705233320",
+      "trigger": "M0 requires the existing M2 provider execution plan to contain the B-991d Cell 03 real-run milestone ledger and boundary text.",
+      "acceptanceTargetRef": "M0",
+      "baselineHeadHash": "6c1d445b90fb2cde88b482b4d062cee805dffd24",
+      "baselineMaterialHash": "e15249a2a8ffc1140e81790a013b8efff111b2381ec79d05f16a1b4ba3a556de",
+      "observedFailure": "Before the fix, the M2 provider execution plan does not contain a B-991d Cell 03 Real Execution Story section or the requested M0-M9 real-run ledger.",
+      "failingCommand": "rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "expectedGreenCommand": "rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "M0",
+        "relation": "same_acceptance",
+        "command": "rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      },
+      "note": "Documentation red evidence bound to ProofStory milestone M0. Provider calls remain disabled.",
+      "createdAt": "2026-07-05T23:33:20.558Z"
     }
   ],
   "createdAt": "2026-07-05T23:29:30.205Z",
-  "updatedAt": "2026-07-05T23:29:30.205Z"
+  "updatedAt": "2026-07-05T23:33:20.558Z"
 }

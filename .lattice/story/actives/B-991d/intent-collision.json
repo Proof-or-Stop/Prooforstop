@@ -4,9 +4,11 @@
   "id": "IC-20260705232930",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Proceed with B-991d as a separate execution-control story that first updates the existing M2 provider execution plan and later may open only Cell 03 provider execution under B-991d provenance. The story must not be interpreted as immediate provider execution, Cell 06 unlock, Phase 2 approval, product gate change, playbook activation, or paper claim upgrade.",
-  "acceptedInterpretationHash": "sha256:7a0619bb8e4cec166d53d8226a3b4d6608550b9ba4195a73f24aeba338351373",
-  "notes": "This resolves the collision between the user asking to solve provider execution blockers and the safety boundary that readiness artifacts must not be rewritten into result evidence.",
+  "acceptedInterpretation": "Proceed with the confirmed five-row B-991d milestone ledger: M0 plan+preflight, M1 receipt/result contract plus Cell 03-only window, M2 probe/full Cell 03 execution, M3 postflight usage plus Cell 03 usage lock, and M4 analysis/DONE closure. This does not authorize immediate provider execution, Cell 06, Phase 2, product gates, playbooks, or paper claim upgrades.",
+  "acceptedInterpretationHash": "sha256:72dbc401ba9dc06a629dcb84e73c02708f2875d412b019ea7d28480e91a87c49",
+  "notes": "Reconfirmed after compressing the ledger to the high-assurance five-row threshold and after independent scope reviewer pass.",
+  "ledgerHashBeforeDecision": "sha256:42cf78b4c18089da78c906b424f39e5ca766fe25ae59dd3c9befb1feeb3d7344",
+  "confirmedLedgerHash": "sha256:42cf78b4c18089da78c906b424f39e5ca766fe25ae59dd3c9befb1feeb3d7344",
   "createdAt": "2026-07-05T23:29:30.104Z",
-  "updatedAt": "2026-07-05T23:29:30.104Z"
+  "updatedAt": "2026-07-05T23:33:40.131Z"
 }
