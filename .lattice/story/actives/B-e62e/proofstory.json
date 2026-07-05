@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-e62e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "structural_milestone_intent",
+      "message": "Request has a structural multi-deliverable signal, so milestone coverage must be countable.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:963853c9294ba59bd78be1a7780a6f4689f38041710873e2a7be44d4056791c3",
+  "confirmedMilestoneLedgerHash": "sha256:5b3dd730f01099d2bc7f10ce996151f352cfd46626a5f0e587d948303175eb1a",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-auto-surface-milestone-table",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2"
+      ],
+      "acceptanceClaim": "A built-CLI regression proves checklist_update stdout includes the milestone_status table headings for a milestone-ledger story, while JSON/missing-ledger negative controls remain uncontaminated and truthful.",
+      "note": "Binds the user-visible stdout table contract to both implementation and regression milestones."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M1 references sourceRequirementId B-e62e:CHK-001, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M2 references sourceRequirementId B-e62e:CHK-002, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "ProofStory contract for auto-surfacing consumed milestone_status tables.",
+  "createdAt": "2026-07-05T10:24:22.218Z",
+  "updatedAt": "2026-07-05T10:24:22.218Z"
+}

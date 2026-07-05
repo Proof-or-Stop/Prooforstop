@@ -1,26 +1,23 @@
 {
   "task": "Make milestone-aware state-changing CLI commands print the consumed milestone_status table to stdout.",
-  "outcome": "After a command such as checklist_update changes a story with a milestone ledger, stdout visibly includes Milestone Status - <storyId>, Completed, Current, and Remaining.",
+  "outcome": "Running `lattice checklist_update --storyId=B-demo --itemId=CHK-001 --status=in_progress` on a story with a milestone ledger prints the normal checklist result followed by `Milestone Status - B-demo`, then visible `Completed`, `Current`, and `Remaining` Markdown table sections.",
   "facts": [
     "B-3a4d is DONE and milestone_closeout is readable from canonical root.",
     "The user explicitly requires the consumed milestone table to be output, not merely invoked internally.",
-    "milestone_status already renders the desired human table for a storyId."
+    "milestone_status already renders the desired human table for a storyId.",
+    "cli-engine run() is the shared stdout choke point after successful command execution."
   ],
   "constraints": [
     "Use the canonical Proofbound root, not the retired Orchestrate root.",
     "Keep this story scoped to auto-surfacing milestone progress; completion writer and closeout completion-ledger freezing are later stories.",
-    "Do not break JSON output contracts or commands without milestone ledgers."
+    "Do not break JSON output contracts or commands without milestone ledgers.",
+    "Do not print fabricated progress when milestone-ledger.json is missing."
   ],
-  "unknowns": [
-    "Which CLI layer is the narrowest safe place to append post-command output while preserving existing handler return contracts?",
-    "Which representative command gives the best regression coverage without making tests brittle?"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/cli-engine.ts",
-    "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/handlers/proofstory-intent.ts",
     "packages/main/tests/milestone-status.test.mjs",
     "docs/CLI.md"
   ],
-  "timestamp": "2026-07-05T10:14:03.716Z"
+  "timestamp": "2026-07-05T10:18:24.468Z"
 }

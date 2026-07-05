@@ -464,6 +464,18 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'milestone_closeout',
 ]);
 
+const MILESTONE_STATUS_APPEND_COMMANDS = new Set([
+  'milestone_ledger_set',
+  'milestone_ledger_add',
+  'checklist_update',
+  'verification_evidence_add',
+  'verification_evidence_batch_add',
+  'verification_evidence_refresh_stale',
+  'story_advance',
+  'delivery_check_set',
+  'summary_set',
+]);
+
 const CLI_META_SCHEMA = {
   takeover: z.boolean().optional(),
   forceTakeover: z.boolean().optional(),
@@ -825,6 +837,74 @@ export async function runCli(opts?: {
   if (opts?.extraRegister) opts.extraRegister(registry, ctx);
   const handlers = registry.toObject() as Record<string, Function>;
 
+  function appendMilestoneStatusAfterMutation(output: string): string {
+    if (wantsMachineJson(parsed)) return output;
+    if (!cmd || !MILESTONE_STATUS_APPEND_COMMANDS.has(cmd)) return output;
+
+    const storyId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
+    if (!storyId) return output;
+
+    const renderFromHandlers = (sourceHandlers: Record<string, Function>): string | null => {
+      const milestoneStatus = sourceHandlers.milestone_status;
+      if (typeof milestoneStatus !== 'function') {
+        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: handler not found\n`);
+        return null;
+      }
+      const rendered = milestoneStatus({ storyId });
+      const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
+      return milestoneOutput.trim() ? milestoneOutput : null;
+    };
+
+    let hasWorktreeLedger = false;
+    let worktreeLedgerError: Error | null = null;
+    try {
+      hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
+    } catch (e) {
+      worktreeLedgerError = e as Error;
+    }
+
+    if (hasWorktreeLedger) {
+      try {
+        const milestoneOutput = renderFromHandlers(handlers);
+        if (!milestoneOutput) return output;
+        if (output.includes(`Milestone Status - ${storyId}`)) return output;
+        return `${output}\n\n${milestoneOutput}`;
+      } catch (e) {
+        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: ${(e as Error).message}\n`);
+        return output;
+      }
+    }
+
+    if (cmd !== 'story_advance' || parsed.phase !== 'DONE' || hasProjectConfigFile(root) || !mainRootFallback) {
+      if (worktreeLedgerError) {
+        process.stderr.write(`[milestone-status] post-command ledger check skipped for ${storyId}: ${worktreeLedgerError.message}\n`);
+      }
+      return output;
+    }
+
+    try {
+      if (!hasProjectConfigFile(mainRootFallback)) return output;
+      const mainStore = new StoryStore(mainRootFallback);
+      if (!mainStore.readMilestoneLedger(storyId)) return output;
+      const mainConfig = loadConfig(mainRootFallback);
+      const mainCtx: HandlerContext = {
+        store: mainStore,
+        root: mainRootFallback,
+        scanRoot: join(mainRootFallback, mainConfig.scanRoot),
+        log,
+      };
+      const mainRegistry = createMainRegistry(mainCtx);
+      if (opts?.extraRegister) opts.extraRegister(mainRegistry, mainCtx);
+      const milestoneOutput = renderFromHandlers(mainRegistry.toObject() as Record<string, Function>);
+      if (!milestoneOutput) return output;
+      if (output.includes(`Milestone Status - ${storyId}`)) return output;
+      return `${output}\n\n${milestoneOutput}`;
+    } catch (e) {
+      process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: ${(e as Error).message}\n`);
+      return output;
+    }
+  }
+
   // Stale state warnings — soft, never blocks. Print before handler dispatch
   // so the agent sees the reminder along with the command output. The captured
   // warnings are also passed into writeLog so activity.jsonl preserves them
@@ -1076,7 +1156,8 @@ export async function runCli(opts?: {
           LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
-      const output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+      let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+      output = appendMilestoneStatusAfterMutation(output);
       process.stdout.write(`${output}\n`);
       process.exitCode = 0;
       return;

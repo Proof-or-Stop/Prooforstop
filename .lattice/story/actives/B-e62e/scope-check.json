@@ -1,0 +1,52 @@
+{
+  "storyId": "B-e62e",
+  "checkedAt": "2026-07-05T10:22:16.154Z",
+  "features": [
+    {
+      "feature": "CLI post-command table output",
+      "covered_by": "CHK-001; plan_get CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "User request asks to auto-surface the consumed milestone_status table after state-changing commands; checklist and plan cover appending the existing milestone_status human table after successful story-scoped mutations."
+    },
+    {
+      "feature": "Regression tests",
+      "covered_by": "CHK-002; packages/main/tests/milestone-status.test.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 and plan_get CHK-002 require CLI-level regressions asserting Milestone Status plus Completed, Current, and Remaining in stdout."
+    },
+    {
+      "feature": "JSON/no-ledger negative controls",
+      "covered_by": "CHK-001 verificationIntent edge; CHK-002 negative controls; plan_get CHK-001/CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Plan and checklist require skipping --json/--format=json and not fabricating a table for stories without milestone-ledger.json."
+    },
+    {
+      "feature": "Excluded completion writer",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User request excludes milestone_completion_set; story_get initCheckFallback evidenceRefs mention excluded completion ledger/closeout freezing; CHK-001 command list names milestone_ledger_set/add and omits milestone_completion_set",
+      "source": "Scope review confirms completion-ledger writer work is outside this PLAN scope."
+    },
+    {
+      "feature": "Excluded closeout completion-ledger freezing",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User request excludes closeout completion-ledger freezing; story_get initCheckFallback evidenceRefs mention excluded completion ledger/closeout freezing",
+      "source": "Scope review confirms closeout ledger-freezing behavior is outside this PLAN scope."
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9be1bc13374df9fc14e403e3cec555ccf67483e7b2913e24b0b34fcdbc5279b2",
+  "openQuestions": []
+}

@@ -298,6 +298,26 @@ Host Progress Reporting Contract:
 - Hosts should print or attach the full `milestone_status` table after a
   milestone or sub-objective status change, at handoff, and before final
   responses when milestone progress is relevant.
+- The CLI automatically appends the consumed `milestone_status` Markdown table
+  after successful human-text output for the configured story-scoped mutating
+  commands that update milestone ledgers, checklist state, verification
+  evidence, story phase, delivery checks, or summaries.
+- Developer-facing milestone tables render real row status cells with six text
+  labels: `✅ Done` for final completed ledger/sub-objective/evidence pass or
+  coverage, `⏳ In Progress` for the active milestone/checklist/running work,
+  `🟡 Pending Review` when evidence is covered or implementation appears
+  complete but ledger/review/final acceptance is not done yet, `⬜ Not Started`
+  for remaining future work and pending checklist/intent before active work,
+  `🔴 Blocked` for missing ledgers, missing refs, unmapped or ambiguous intent,
+  stale evidence, or missing required evidence that blocks progress, and
+  `❌ Failed` only for failing/not-passing evidence or explicit failed status.
+  Real sub-objective and evidence rows use the same icon plus short label before
+  their ids. Empty placeholder `none` rows stay unmarked for readability and
+  deterministic table output. `❌` means Failed; it must not be used for Not
+  Started rows.
+- Automatic append is skipped for `--json` / `--format=json` so machine stdout
+  remains parseable, and it is skipped when the target story has no
+  `milestone-ledger.json`.
 - Missing `milestone-ledger.json` is a blocker. The command reports a clear next
   action and does not infer completion from checklist text alone.
 - Detail granularity comes from the authored milestone ledger, checklist refs,

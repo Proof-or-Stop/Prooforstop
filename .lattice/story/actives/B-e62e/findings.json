@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "id": "B-e62e:F-001",
+      "desc": "packages/main/src/cli-engine.ts:847 story_advance is configured for post-command milestone_status append, but DONE cleanup removes the story worktree before the append hook reads milestone-ledger.json, so story_advance --phase=DONE can succeed without printing Milestone Status. Render before cleanup or read the durable main-root store after DONE, and add a DONE regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:04:08.429Z",
+      "reviewRound": "2026-07-05T11:59:11.671Z",
+      "reviewRunId": "B-e62e:RR-010",
+      "_hash": "8bf015041c40d5aac785416b8607e205ab56cc090c8b9292b3c290da15fe42cd",
+      "signatureTag": "edge|unknown|packages-main-engine",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7a407d4d by falling back to the captured main root for milestone_status rendering after story_advance DONE removes the story worktree, with a runCli regression proving DONE stdout still contains Milestone Status after cleanup.",
+      "resolvedAt": "2026-07-05T12:17:39.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e62e:F-002",
+      "desc": "packages/main/src/core/milestone-status.ts:940 Pending Review semantics are not honored: fully covered ledger rows with ledger=planned render as ✅ Done because row.status is already completed before rowAppearsPendingReview runs. This conflicts with docs/CLI.md, which says covered or implementation-complete rows awaiting ledger/review/final acceptance should render 🟡 Pending Review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T12:22:59.233Z",
+      "reviewRound": "2026-07-05T12:17:26.671Z",
+      "reviewRunId": "B-e62e:RR-014",
+      "_hash": "a996ddd5829e266ef113c6e325ce3632bf835d2b11a2dd1f91dfcf25f54486a6",
+      "signatureTag": "doc-code-drift|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 911497f by making fully covered ledger=planned or ledger=covered rows render 🟡 Pending Review while ledger=done remains ✅ Done, with milestone-status marker fixture coverage proving the planned+covered row behavior.",
+      "resolvedAt": "2026-07-05T12:27:24.784Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e62e:F-003",
+      "desc": ".lattice/story/actives/B-e62e/summary.json still says the observed milestone table had M1 and M2 with Done status, but the current renderer correctly emits 🟡 Pending Review for both rows while ledger=planned and checklist/evidence are covered. Update the summary artifact so the closeout transcript matches current milestone_status semantics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T12:31:32.949Z",
+      "reviewRound": "2026-07-05T12:27:18.167Z",
+      "reviewRunId": "B-e62e:RR-020",
+      "_hash": "70d2a70fd0082aa4a662d3cc1cae7fd0c1daf1f7db06a4a63b1cd0f974b05293",
+      "signatureTag": "doc-code-drift|unknown|lattice-story-actives",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 34757b5 summary_set: actualTranscript now states M1 and M2 render 🟡 Pending Review because ledger=planned while checklist/evidence/requiredEvidence are covered, matching the current milestone_status output and docs semantics.",
+      "resolvedAt": "2026-07-05T12:32:03.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

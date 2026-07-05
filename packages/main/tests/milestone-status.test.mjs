@@ -93,6 +93,252 @@ function ledger(milestones, storyId = 'B-7ba7') {
   };
 }
 
+function writeTestConfig(root) {
+  writeJson(join(root, 'lattice.config.json'), {
+    scanRoot: '.',
+    testsDir: 'tests',
+    fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+  });
+}
+
+{
+  const markerStoryId = 'B-marker-icons';
+  const markerChecklist = {
+    items: [
+      checklistItem('CHK-MARKER-DONE', 'done', [evidence('CHK-MARKER-DONE:happy:0')], intent('marker completed intent')),
+      checklistItem('CHK-MARKER-REVIEW', 'done', [evidence('CHK-MARKER-REVIEW:happy:0')], intent('marker review intent')),
+      checklistItem('CHK-MARKER-PLANNED-REVIEW', 'done', [evidence('CHK-MARKER-PLANNED-REVIEW:happy:0')], intent('marker planned review intent')),
+      checklistItem('CHK-MARKER-CURRENT', 'in_progress', [], intent('marker current intent')),
+      checklistItem('CHK-MARKER-REMAINING', 'pending', [], intent('marker remaining intent')),
+      checklistItem('CHK-MARKER-FAILED', 'done', [evidence('CHK-MARKER-FAILED:happy:0', 'fail')], intent('marker failed intent')),
+    ],
+  };
+  const markerLedger = ledger([
+    milestone({
+      id: 'M-marker-done',
+      sourceRequirementId: 'REQ-marker-done',
+      claim: 'Marker completed milestone',
+      doneMeans: 'Completed rows show the success marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-DONE'],
+      verificationIntentRefs: ['CHK-MARKER-DONE:happy:0'],
+      status: 'done',
+    }),
+    milestone({
+      id: 'M-marker-review',
+      sourceRequirementId: 'REQ-marker-review',
+      claim: 'Marker pending review milestone',
+      doneMeans: 'Covered rows awaiting final ledger acceptance show pending review',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-REVIEW'],
+      verificationIntentRefs: ['CHK-MARKER-REVIEW:happy:0'],
+      status: 'covered',
+    }),
+    milestone({
+      id: 'M-marker-planned-review',
+      sourceRequirementId: 'REQ-marker-planned-review',
+      claim: 'Marker planned pending review milestone',
+      doneMeans: 'Implementation-complete planned rows awaiting ledger acceptance show pending review',
+      requiredEvidence: ['logic_test'],
+      checklistRefs: ['CHK-MARKER-PLANNED-REVIEW'],
+      verificationIntentRefs: ['CHK-MARKER-PLANNED-REVIEW:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-current',
+      sourceRequirementId: 'REQ-marker-current',
+      claim: 'Marker current milestone',
+      doneMeans: 'The first incomplete row shows the incomplete marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-DONE', 'CHK-MARKER-CURRENT', 'CHK-MARKER-REMAINING'],
+      verificationIntentRefs: ['CHK-MARKER-DONE:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-remaining',
+      sourceRequirementId: 'REQ-marker-remaining',
+      claim: 'Marker remaining milestone',
+      doneMeans: 'Later incomplete rows show the incomplete marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-REMAINING'],
+      verificationIntentRefs: ['CHK-MARKER-REMAINING:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-blocked',
+      sourceRequirementId: 'REQ-marker-blocked',
+      claim: 'Marker blocked milestone',
+      doneMeans: 'Missing refs show the blocked marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-MISSING'],
+      verificationIntentRefs: ['CHK-MARKER-MISSING:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-failed',
+      sourceRequirementId: 'REQ-marker-failed',
+      claim: 'Marker failed milestone',
+      doneMeans: 'Failing evidence shows the failed marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-FAILED'],
+      verificationIntentRefs: ['CHK-MARKER-FAILED:happy:0'],
+      status: 'done',
+    }),
+  ], markerStoryId);
+  const markerReport = buildMilestoneStatusReport({
+    story: story(markerStoryId),
+    checklist: markerChecklist,
+    milestoneLedger: markerLedger,
+  });
+  const markerText = renderMilestoneStatusReport(markerReport);
+  assert.match(markerText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+  assert.match(markerText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+  assert.match(markerText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
+  assert.match(markerText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+  assert.match(markerText, /⏳ In Progress CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+  assert.match(markerText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+  assert.match(markerText, /🔴 Blocked CHK-MARKER-MISSING \[missing\] CHK-MARKER-MISSING/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE:happy:0 \[covered\]/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE:happy:0 \[pass\/logic_test\]/);
+  assert.match(markerText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
+
+  const missingText = renderMilestoneStatusReport(buildMilestoneStatusReport({
+    story: story('B-marker-missing-ledger'),
+    checklist: { items: [] },
+    milestoneLedger: null,
+  }));
+  assert.match(missingText, /\| ledger \| milestone ledger required \| 🔴 Blocked \(ledger=missing\) \|/);
+  assert.match(missingText, /\| none \| none \| none \| none \| none \| none \| none \|/);
+  assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳🟡⬜🔴❌] none \|/, 'placeholder none rows stay unmarked');
+
+  const cliMarkerStoryId = 'B-cli-marker-icons';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
+  try {
+    const storyDir = join(root, '.lattice', 'story', 'actives', cliMarkerStoryId);
+    mkdirSync(storyDir, { recursive: true });
+    writeTestConfig(root);
+    writeJson(join(storyDir, 'index.json'), story(cliMarkerStoryId));
+    writeJson(join(storyDir, 'checklist.json'), markerChecklist);
+    writeJson(join(storyDir, 'milestone-ledger.json'), ledger(markerLedger.milestones, cliMarkerStoryId));
+
+    const cliText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      cliMarkerStoryId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+    assert.match(cliText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(cliText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
+    assert.match(cliText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+    assert.match(cliText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(cliText, /⏳ In Progress CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+    assert.match(cliText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(cliText, /🔴 Blocked CHK-MARKER-MISSING \[missing\] CHK-MARKER-MISSING/);
+    assert.match(cliText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
+
+    const autoAppendText = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      cliMarkerStoryId,
+      '--itemId',
+      'CHK-MARKER-CURRENT',
+      '--status',
+      'pending',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
+    assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+    assert.match(autoAppendText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(autoAppendText, /\| M-marker-planned-review \| Marker planned pending review milestone \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\)/);
+    assert.match(autoAppendText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+    assert.match(autoAppendText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-CURRENT \[pending\] CHK-MARKER-CURRENT title/);
+    assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(autoAppendText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
+
+    const noLedgerStoryId = 'B-cli-marker-no-ledger';
+    const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
+    mkdirSync(noLedgerStoryDir, { recursive: true });
+    writeJson(join(noLedgerStoryDir, 'index.json'), story(noLedgerStoryId));
+    writeJson(join(noLedgerStoryDir, 'checklist.json'), {
+      items: [
+        checklistItem('CHK-MARKER-NO-LEDGER', 'pending'),
+      ],
+    });
+    const noLedgerStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      noLedgerStoryId,
+      '--itemId',
+      'CHK-MARKER-NO-LEDGER',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(noLedgerStdout, /Checklist CHK-MARKER-NO-LEDGER:/);
+    assert.equal(
+      noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
+      false,
+      'missing-ledger story mutations must not fabricate a milestone status table',
+    );
+
+    const jsonStoryId = 'B-cli-marker-json';
+    const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
+    mkdirSync(jsonStoryDir, { recursive: true });
+    writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));
+    const jsonStdout = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_ledger_add',
+      '--root',
+      root,
+      '--storyId',
+      jsonStoryId,
+      '--id',
+      'M-json',
+      '--sourceRequirementId',
+      'REQ-json',
+      '--claim',
+      'JSON stdout remains parseable',
+      '--doneMeans',
+      'The command writes only JSON when --json is set',
+      '--status',
+      'planned',
+      '--json',
+    ], { cwd: root, encoding: 'utf8' });
+    const jsonLedger = JSON.parse(jsonStdout);
+    assert.equal(jsonLedger.storyId, jsonStoryId);
+    assert.equal(jsonLedger.milestones.at(-1).id, 'M-json');
+    assert.equal(
+      jsonStdout.includes(`Milestone Status - ${jsonStoryId}`),
+      false,
+      'machine JSON stdout must not be contaminated with a milestone table',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function milestone(overrides) {
   return {
     id: 'M-default',
@@ -1671,6 +1917,169 @@ function assertEvidenceRefShape(evidenceRef) {
     /incomplete milestone rows: M-incomplete=current/,
   );
   assert.deepEqual(writes, [], 'incomplete capture must fail before writing a closeout');
+}
+
+{
+  const storyId = 'B-done-cli-append';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-cli-append-'));
+  const mainRoot = join(root, 'main');
+  const worktreeRoot = join(root, 'story-worktree');
+  const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+  const originalCandidateIngestEnabled = process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+  const gitMain = (args) => execFileSync('git', args, {
+    cwd: mainRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const gitWorktree = (args) => execFileSync('git', args, {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+
+  try {
+    process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = '0';
+    process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = '0';
+    mkdirSync(mainRoot, { recursive: true });
+    gitMain(['init', '-b', 'main']);
+    gitMain(['config', 'user.name', 'Milestone Status Test']);
+    gitMain(['config', 'user.email', 'milestone-status@example.com']);
+    writeJson(join(mainRoot, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      workflow: { profile: 'light' },
+      proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
+      flows: { defaults: {}, patterns: [] },
+    });
+    writeFileSync(join(mainRoot, '.gitignore'), '**/owner-lease.json\n', 'utf8');
+    gitMain(['add', 'lattice.config.json', '.gitignore']);
+    gitMain(['commit', '-m', 'init']);
+    gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
+
+    const store = new StoryStore(worktreeRoot);
+    const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
+    const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
+    assert.ok(preEvidenceMaterialHash, 'CLI worktree fixture must be able to compute a material hash');
+    const doneStory = {
+      ...story(storyId),
+      phase: 'TEST',
+      priority: 'low',
+      currentReviewRound: '2026-07-04T10:00:00.000Z',
+      worktree: {
+        path: worktreeRoot,
+        branch: `story/${storyId}`,
+        createdAt: '2026-07-04T09:00:00.000Z',
+      },
+    };
+    const closeoutChecklist = {
+      items: [
+        checklistItem('CHK-DONE-CLI-APPEND', 'done', [
+          evidence('CHK-DONE-CLI-APPEND:happy:0', 'pass', {
+            headHash: preEvidenceHead,
+            materialHash: preEvidenceMaterialHash,
+          }),
+        ], intent('DONE CLI append evidence')),
+      ],
+    };
+    const docsPromises = [];
+    const realMachineTests = [
+      {
+        featureId: 'milestone-status-done-cli-append',
+        transcript: 'Built CLI story_advance DONE fixture removed the story worktree and still printed milestone_status.',
+      },
+    ];
+    const closingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'The runCli DONE fixture has enough signed delivery context for the orchestrator gate.',
+    };
+    const reviewRound = doneStory.currentReviewRound;
+
+    store.writeStory(storyId, doneStory);
+    store.writeChecklist(storyId, closeoutChecklist);
+    store.writeMilestoneLedger(storyId, ledger([
+      milestone({
+        id: 'M-done-cli-append',
+        sourceRequirementId: 'REQ-done-cli-append',
+        claim: 'The built CLI appends milestone status after DONE worktree cleanup',
+        doneMeans: 'story_advance DONE stdout includes milestone_status even after the story worktree is removed',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-DONE-CLI-APPEND'],
+        verificationIntentRefs: ['CHK-DONE-CLI-APPEND:happy:0'],
+        status: 'done',
+      }),
+    ], storyId));
+    store.writeTestEvidence(storyId, {
+      command: `lattice validate --story=${storyId} --json`,
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-07-04T11:00:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+    });
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-07-04T11:30:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+      reviewRound,
+      agentId: 'lattice-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(
+        storyId,
+        docsPromises,
+        realMachineTests,
+        closingSelfCheck,
+        reviewRound,
+        preEvidenceMaterialHash,
+      ),
+    });
+    gitWorktree(['add', '.']);
+    gitWorktree(['commit', '-m', 'ready for CLI DONE append']);
+    assert.equal(gitWorktree(['status', '--porcelain']), '', 'CLI story worktree fixture must be clean before DONE');
+    assert.equal(gitMain(['status', '--porcelain']), '', 'CLI main fixture must be clean before DONE');
+    assert.equal(currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot), preEvidenceMaterialHash);
+
+    const result = spawnSync(process.execPath, [
+      cliPath,
+      'story_advance',
+      '--root',
+      worktreeRoot,
+      '--storyId',
+      storyId,
+      '--phase',
+      'DONE',
+    ], { cwd: worktreeRoot, encoding: 'utf8' });
+
+    assert.equal(result.status, 0, `story_advance DONE should succeed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
+    assert.ok(
+      !existsSync(worktreeRoot),
+      `runCli story_advance DONE should remove the story worktree\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+    );
+    assert.match(result.stdout, new RegExp(`Story ${storyId} advanced to DONE`));
+    assert.match(result.stdout, new RegExp(`Milestone Status - ${storyId}`));
+    assert.match(result.stdout, /\| M-done-cli-append \| The built CLI appends milestone status after DONE worktree cleanup \|/);
+    assert.doesNotMatch(result.stdout, /milestone ledger required/);
+  } finally {
+    if (originalSettlementEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = originalSettlementEnabled;
+    }
+    if (originalCandidateIngestEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = originalCandidateIngestEnabled;
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 {
