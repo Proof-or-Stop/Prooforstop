@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "A non-runtime DONE merge can produce an artifact release id and digest without bumping CLI semver.",
+      "userSees": "DONE emits `✓ artifact release recorded: story=B-xxxx commit=<sha> artifactSetDigest=sha256:<digest> paths=<n>` when non-runtime releasable paths exist.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-effects.ts"
