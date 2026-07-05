@@ -26,7 +26,7 @@
       "desc": "[codex-host-2, verified] Truncated-tail repair can wrongly drop a VALID final record. repairTruncatedTail truncates the trailing line, but a genuinely complete final record whose line simply lacks a trailing newline (valid JSON, no newline at EOF) would be dropped -> that iterationId becomes a GAP on resume (or a spurious re-run/dup). Fix: only drop the trailing segment if it does NOT parse as valid JSON (genuinely incomplete); if the last line parses cleanly, KEEP it as a complete record. Distinguish 'valid record, no trailing newline' (keep) from 'truncated partial write' (drop).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T21:15:45.070Z",
@@ -36,7 +36,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in aad1db055. repairTruncatedTail now parses the un-terminated tail in BOTH branches (shared isCompleteLedgerRecordLine helper): a complete final record missing only its trailing newline is PRESERVED verbatim; only a genuinely-incomplete partial write is dropped. selfcheck-m3 (G) confirms replay/small/4 preserved -> no gap.",
+      "resolvedAt": "2026-07-05T23:23:32.113Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-003",
