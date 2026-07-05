@@ -24,7 +24,34 @@
     "experiments/pos-instrument-replay/analyze-batch.mjs"
   ],
   "scopeChangeReason": "M1 creates tamper.mjs + tamper-verdicts.jsonl + selfcheck-m1.mjs; the frozen protocol.json + M0 lib/instrument.mjs + the instrument are protected (read-only); M2-M4 harnesses excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice PLAN/ProofStory lifecycle metadata written by the gate commands (intent_collision_set, milestone_ledger_set, original_intent_snapshot_set, proofstory_contract_set, red_evidence_create, scope_check_save) — command-generated bookkeeping under .lattice/, not story source code; expected out-of-scope for the experiments/pos-instrument-replay/ code story.",
+      "timestamp": "2026-07-05T17:33:38.623Z",
+      "paths": [
+        ".lattice/story/actives/B-bae9/intent-collision.json",
+        ".lattice/story/actives/B-bae9/milestone-ledger.json",
+        ".lattice/story/actives/B-bae9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-bae9/proofstory.json",
+        ".lattice/story/actives/B-bae9/red-evidence.json",
+        ".lattice/story/actives/B-bae9/scope-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-bae9/intent-collision.json",
+        ".lattice/story/actives/B-bae9/milestone-ledger.json",
+        ".lattice/story/actives/B-bae9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-bae9/proofstory.json",
+        ".lattice/story/actives/B-bae9/red-evidence.json",
+        ".lattice/story/actives/B-bae9/scope-check.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "d9ddf9b28a3a02e4efdbda12e1b9f315a9d9db0c",
+      "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56"
+    }
+  ],
   "createdAt": "2026-07-05T17:08:43.133Z",
-  "updatedAt": "2026-07-05T17:08:43.133Z"
+  "updatedAt": "2026-07-05T17:33:38.623Z"
 }
