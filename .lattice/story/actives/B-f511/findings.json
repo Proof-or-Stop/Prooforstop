@@ -69,7 +69,7 @@
       "desc": "CHK-002 and understanding.json explicitly specify the H3 mid-iteration kill mechanism as the pre-existing POS_FAIL_APPEND_AT hook (a caught throw AFTER workspace write producing a verify_crash STOP record) — understanding.json facts: the mid-iteration crash hook already exists: POS_FAIL_APPEND_AT; unknowns: whether a mid-append truncated line actually occurs under POS_FAIL_APPEND_AT, resolved by the probe run. The delivered resume-probe.mjs (killA/killB, lines 339-345) and selfcheck-m3.mjs (killResumeTrial A/B, lines 350-352) never exercise POS_FAIL_APPEND_AT at all: both scored kills use the NEW POS_CRASH_BEFORE_APPEND_AT hard-exit hook at two different indices, i.e. the SAME mechanism twice, not two distinct injection points. The only real SIGKILL trial (externalSigkillTrial) is explicitly informational/non-gating and excluded from the dupTotal/gapTotal pass-fail computation. As a result resume behavior when the interrupted iteration already produced a caught stop record (rather than being genuinely recordless) is never asserted anywhere in M3 tests — the storys own pre-DEV automated advisory review (review.json unresolved_unknowns) flagged this exact unknown, and the implementation routed around it with a different mechanism rather than resolving it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T21:27:54.578Z",
@@ -81,7 +81,11 @@
         "experiments/pos-instrument-replay/selfcheck-m3.mjs"
       ],
       "signatureTag": "missing|mjs|understanding-json-explicitly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in aad1db055. resume-probe.mjs killC uses POS_FAIL_APPEND_AT (a caught fault -> a recorded verify_crash STOP at replay/small/3), then resume SKIPS that already-recorded stop (stoppedRecordPreserved:true, not re-run into a proof); selfcheck-m3 sub-check F asserts the stop-record-resume path. The POS_FAIL_APPEND_AT mechanism is now exercised.",
+      "resolvedAt": "2026-07-05T23:23:33.926Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
