@@ -1,0 +1,29 @@
+{
+  "task": "experience-layer-playbook-smoke is silently red at 27/31 on main; restore it to 31/31 by widening the playbook.ts import-fence allowlist and fixing a stale decision-doc authorityBoundary assertion, with no shipping behavior change.",
+  "outcome": "Running `node packages/main/dist/tasks/experience-layer-playbook-smoke.js` from a fresh build now prints every check as PASS and ends with:\n\ncheck: import-fence: handlers/playbook.ts imports only learning-store, types, and the context read port — PASS\ncheck: import-fence: the static scan is non-vacuous (catches a planted foreign import) — PASS\ncheck: no-regression: decision-doc-promotion smoke still prints \"smoke passed\" — PASS\ncheck: no-regression: experience-layer-digest-extract smoke still prints \"smoke passed\" — PASS\n\nTOTAL 31 | PASS 31 | FAIL 0\nsmoke passed\n\nThe two regression sub-smokes (decision-doc-promotion, experience-layer-digest-extract) also print \"smoke passed\" when run directly.",
+  "facts": [
+    "handlers/playbook.ts imports ../core/source-lineage-audit.js and ../core/playbook-seed.js (lines 86, 106); both are absent from the two 'allowed' Set literals in experience-layer-playbook-smoke.ts (lines ~446 and ~463), which fails the direct fence check AND the non-vacuous planted-import check.",
+    "The fence's load-bearing security property is a SEPARATE negative assertion !/finding.js$|advisory|gate/ that still holds independently; neither helper module is a finding-writer, advisory, or gate.",
+    "learning-store.ts has a stricter fence (only ./digest.js + ./experience-layer-types.js) and cannot cleanly absorb the helpers: source-lineage-audit imports dev-memory.js and playbook-seed imports playbook-runtime-memory.js.",
+    "commit 8892270bf ('Align process fact contract with local assurance') reworded the decision_doc_save process-event authorityBoundary to 'local workflow evidence only; not local proof-admissibility, receipt-bundle, quorum, or release readiness', but decision-doc-promotion-smoke.ts line ~385 still asserts the retired substring 'not remote receipt completion'.",
+    "experience-layer-digest-extract fails only because it re-runs the decision-doc-promotion smoke as its own no-regression sub-smoke.",
+    "experience-layer-playbook-smoke is NOT in the curated 'lattice validate' list, so these 4 failures are silent on main.",
+    "dist/ is gitignored, so the committed story diff is only the 3 src files."
+  ],
+  "constraints": [
+    "No shipping/runtime behavior change; edit only the 3 allowed files (2 smokes + 1 comment in playbook.ts).",
+    "Do not move or refactor source-lineage-audit.js / playbook-seed.js, and do not weaken learning-store.ts's own fence.",
+    "Do not add the smoke to the curated 'lattice validate' list or touch the unrelated tier-c WIP docs on main.",
+    "All story artifacts in English; verify from the story worktree build (dist), not the stale main dist."
+  ],
+  "unknowns": [
+    "RESOLVED during triage: whether any file other than experience-layer-playbook-smoke.ts encodes the playbook.ts fence allowlist — a grep for readers of handlers/playbook.ts shows only that one smoke, so both allowed sets live in a single file.",
+    "RESOLVED during triage: whether the decision-doc failure was stale dist vs a real regression — it persists after a clean tsc rebuild, so it is a real stale assertion, not a dist artifact."
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts (two 'allowed' Set literals)",
+    "packages/main/src/handlers/playbook.ts (load-bearing guardrail import comment, lines ~25-28)",
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts (authorityBoundary assertion, line ~385)"
+  ],
+  "timestamp": "2026-07-05T21:30:23.104Z"
+}

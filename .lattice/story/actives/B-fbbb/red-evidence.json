@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-fbbb",
+  "records": [
+    {
+      "id": "RED-20260705213234",
+      "trigger": "experience-layer-playbook-smoke is silently red at 27/31 on the main baseline: playbook.ts import-fence violation (2 checks) + a stale decision_doc_save authorityBoundary assertion cascading into 2 no-regression sub-smokes.",
+      "acceptanceTargetRef": "acceptance:experience-layer-playbook-smoke=31/31-smoke-passed",
+      "baselineHeadHash": "177cb19912c84ef15fa8a5ccafaa136f7bd70a6f",
+      "baselineMaterialHash": "1c2dc2313b3c8af3256ddf2e3ac40e47d80532950cb83c79f6b96937dc65222f",
+      "observedFailure": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js prints TOTAL 31 | PASS 27 | FAIL 4 and ends with smoke FAILED. Failing checks: (1) import-fence: handlers/playbook.ts imports only ...; (2) import-fence: the static scan is non-vacuous; (3) no-regression: decision-doc-promotion; (4) no-regression: experience-layer-digest-extract.",
+      "failingCommand": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js",
+      "greenRelation": {
+        "targetRef": "acceptance:experience-layer-playbook-smoke=31/31-smoke-passed",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js"
+      },
+      "note": "Red captured in the story worktree pre-fix at baseline HEAD 177cb199; dist is gitignored so material hash reflects src only.",
+      "createdAt": "2026-07-05T21:32:34.829Z"
+    }
+  ],
+  "createdAt": "2026-07-05T21:32:34.829Z",
+  "updatedAt": "2026-07-05T21:32:34.829Z"
+}
