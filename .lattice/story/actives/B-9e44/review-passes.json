@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T15:43:22.404Z",
       "reviewRunId": "B-9e44:RR-003",
       "_hash": "56c7d468f53f0bb4c2a51f998083331994e036641c8a924170a9ef17bb9bfc14"
+    },
+    {
+      "id": "B-9e44:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness check for c6ac020c1 rename gold-edit->gold-additive-field: grepped repo-wide (mjs/md/json/ts) for gold-edit and camelCase goldEdit. Confirmed the rename only retargets the REFRESHED/benign additive-field variant to gold-additive-field; the RAW/malicious gold-edit tamper class is intentionally retained as a distinct, still-live class (fail-closed, smokeCovered=true) to avoid colliding with the new gold-semantic-weaken class -- not a residue. No dangling addRefreshed(\"gold-edit\",...) calls, no orphaned goldEdit symbol/import (shared mutate fn correctly reused by both addRaw(gold-edit) and addRefreshed(gold-additive-field)). Remaining gold-edit hits in .lattice/story/actives/B-9e44/{findings,understanding}.json are historical audit-trail prose (finding desc + pre-fix note), not source residue. node --check passed on all touched .mjs files; ran node viability-check.mjs end-to-end -- exit 0, disposition table shows both gold-edit[raw] and gold-additive-field[refreshed] present distinctly, no crash/collision. No blocker.",
+      "createdAt": "2026-07-05T16:15:27.023Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-004",
+      "_hash": "1a77571d62b40acd262d6a6334cd65e2155abac882d89733a416369dd2541232"
     }
   ]
 }
