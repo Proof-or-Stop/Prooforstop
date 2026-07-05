@@ -49,7 +49,7 @@
       "desc": "docs/requirements/NAV.md now resolves the earlier count mismatch (> 76 files matches 76 markdown list entries and all listed links resolve), but it is still not accurate as a Source of Truth Navigation index: lattice truth_scan {\"summary\":true} reports 100 requirements markdown files, and a read-only link/file comparison found 76 local NAV links, 0 broken links, and 25 unlinked requirements files including authority-server-vocabulary-retirement.md, done-full-test-gate-execution-plan.md, and tier-c-crosshost-quorum-execution-plan.md. Regenerate or update NAV so the declared source-of-truth navigation is complete, not merely internally counted.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-05T11:30:21.344Z",
@@ -60,7 +60,11 @@
         "docs/requirements/NAV.md"
       ],
       "signatureTag": "doc-code-drift|md|requirements-nav-incomplete",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit 2140ca6a3: docs/requirements/NAV.md now declares > 101 files, has 101 markdown list entries, links all 100 docs/requirements/decisions/*.md files reported by truth_scan, and the direct link/file comparison reports missing=[] and broken=[].",
+      "resolvedAt": "2026-07-05T11:34:41.028Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
