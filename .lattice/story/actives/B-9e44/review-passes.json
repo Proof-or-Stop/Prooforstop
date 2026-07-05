@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9e44:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion lane: this story is a pure additive scaffold under experiments/pos-instrument-replay/ (diff shows zero removed lines in that path). Verified all local imports resolve to actually-exported symbols in lib/instrument.mjs (sha256, canonicalJson, verifyDir, refreshManifest, fingerprintDomain, failureSignals). Verified packages/** references are call-only (CLI command strings memory_playbook_baseline_generate / memory_playbook_baseline_verify, both live/registered in packages/main/src/cli/command-catalog.ts) and comment-only file paths (packages/main/src/core/playbook-runtime-baseline.ts, packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts), both of which exist. No renamed/removed concept words found; no residue.",
+      "createdAt": "2026-07-05T15:44:55.815Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-001",
+      "_hash": "ce2ba084ef12817c47371098d477eabcaf127c6a8790228058cd91f994199598"
+    }
+  ]
+}
