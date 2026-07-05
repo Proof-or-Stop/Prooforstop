@@ -33,7 +33,26 @@
       "context": "In packages/main/src/tasks/decision-doc-promotion-smoke.ts, update the expected process-event substring from 'not remote receipt completion' (retired by commit 8892270bf) to the current 'not local proof-admissibility, receipt-bundle, quorum, or release readiness'. This clears the decision-doc-promotion and experience-layer-digest-extract no-regression sub-smokes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "decision-doc-promotion smoke prints 'decision doc promotion smoke passed' and experience-layer-digest-extract prints 'smoke passed'; both no-regression sub-smokes inside the playbook suite PASS.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "The decision_doc_save process-event authorityBoundary contains the current committed substring 'not local proof-admissibility, receipt-bundle, quorum, or release readiness'.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
+      }
     }
   ]
 }
