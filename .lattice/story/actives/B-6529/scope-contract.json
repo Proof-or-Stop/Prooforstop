@@ -71,8 +71,24 @@
         "readme_doc_sync",
         "execution_envelope"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-6529:F-002: the checker claimed coverage for the B-11be metadata authorization artifact, so the artifact itself had to be aligned with the no-pre-run-dollar-cap policy and added to validation coverage.",
+      "timestamp": "2026-07-05T22:11:24.065Z",
+      "paths": [
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "db14283c542ade550a3e7b5cb69256ba06b21ace",
+      "materialHash": "59fc6accc01738dd2cbec054a00531f1b0e81aa624858b1201726f76763644a2"
     }
   ],
   "createdAt": "2026-07-05T21:39:19.391Z",
-  "updatedAt": "2026-07-05T22:02:19.849Z"
+  "updatedAt": "2026-07-05T22:11:24.065Z"
 }
