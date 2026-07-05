@@ -119,6 +119,17 @@
           "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
           "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
           "timestamp": "2026-07-05T18:53:14.838Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);const cap=128217;console.log('over-cap:',L.filter(r=>r.elapsedMs>cap).length,'maxElapsed:',Math.max(...L.map(r=>r.elapsedMs||0)))\"",
+          "result": "pass",
+          "note": "H4 scale envelope: every proof record elapsedMs within budgetCapMsPerVerify (128217); 0 over-cap, max elapsed 19538ms; 0 budget_cap stops in the real campaign. The driver holds a mkdir lockfile released on clean exit.",
+          "headHash": "944311bf3a962a767d49b594b219591a3db11243",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:53:15.495Z"
         }
       ]
     },
