@@ -147,11 +147,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
-          "note": "selfcheck-m2 (b): a concurrent second driver records exactly one precondition_failed stop and exits 3 (nonzero) via the mkdir lockfile — the ledger is not corrupted. (c): a recordless iteration (POS_SKIP_RECORD_AT=replay/small/1) makes run-batch exit 1 and name the recordless iterationId. Both un-gameable.",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "note": "selfcheck-m2 (b): a lock-blocked concurrent driver records precondition_failed to a SEPARATE batch-ledger.blocked.jsonl (NOT the shared campaign ledger, which stays clean) and exits 3; the end-of-run guard now validates the EXACT expected identity multiset (rejects missing/dup/EXTRA); (c) recordless -> exit 1. Ledger contamination (F-002) and generate-crash bypass (F-001) both closed.",
+          "headHash": "eb54a44dfb01e05990bd1cb56e2b17332f3f848a",
           "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
           "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "timestamp": "2026-07-05T19:22:11.109Z"
         }
       ]
     },
