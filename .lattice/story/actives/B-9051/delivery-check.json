@@ -1,0 +1,107 @@
+{
+  "storyId": "B-9051",
+  "checkedAt": "2026-07-05T11:53:27.328Z",
+  "headHash": "0012fa8f02e74ea84d404954f2143f7b0f078f80",
+  "materialHash": "e6c3b79c2cc22218f65960ad12c7413ab2daf3b0ee834e345dea7354549b68b7",
+  "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+  "reviewRound": "2026-07-05T11:34:30.219Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "B-9051 delivers a reviewed hardening plan document, not implementation of future milestone-ledger code changes.",
+      "status": "verified",
+      "verifiedBy": "manual doc review plus summary evidence",
+      "evidence": "Plan lines 22-24 state this is not from-scratch implementation and is a truth-first review/hardening plan; lines 64-74 list implementation and gate-change non-goals; summary.json limitations says this story reviews and hardens the plan document only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "milestone_status remains read-only; missing ledger is diagnostic/next-action state and must not repair or create files.",
+      "status": "verified",
+      "verifiedBy": "doc review, checklist evidence, TEST evidence",
+      "evidence": "Plan lines 26-27 and M1 lines 110-128 define the read-only observer boundary; transcript-diff lines 9-10 and 40-43 confirm no ledger was created; story_get CHK-002 evidence records milestone_status readOnly=true and no runCommands/writeEvidence/advancePhase/launchReviewers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "Automatic ledger creation belongs only at explicit planning/write points in future implementation stories, not in status/report commands.",
+      "status": "verified",
+      "verifiedBy": "doc review and checklist evidence",
+      "evidence": "Plan lines 131-147 require explicit scoped ledger mutation and say ledger writes are pre-implementation facts; CHK-003 evidence records command policy keeping milestone_ledger_set/add as PLAN-only gateEvidence candidate writes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "Execution gates should fail closed for required new policy-enabled milestone work while legacy/ordinary single-outcome stories remain advisory/unknown instead of retro-blocked.",
+      "status": "verified",
+      "verifiedBy": "doc review and transcript evidence",
+      "evidence": "Plan lines 149-167 state missing ledgers block only when required and should not be too strict for ordinary legacy/single-outcome stories; CHK-003 evidence records B-9051 DEV gate passed while milestone_status still reported ledger missing, proving this docs-only story was not retro-blocked or repaired."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "Milestone schema/progress reporting must not invent hidden sub-objectives or false precision from prose.",
+      "status": "verified",
+      "verifiedBy": "doc review and checklist evidence",
+      "evidence": "Plan lines 169-186 require explicit fields and reject prose-only hidden milestone claims; CHK-003 adversarial evidence says schema/status rendering rely on explicit ledger fields and missing-ledger status cannot infer progress from prose."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "Agent capability impact is bounded to progress contract, safer execution admission, handoff continuity, and less false DONE risk; it does not claim Story DONE, Authority DONE, full Authority DONE, production readiness, or implementation completion.",
+      "status": "verified",
+      "verifiedBy": "doc review and transcript evidence",
+      "evidence": "Plan lines 244-261 describe the capability and stop short of done claims; lines 72-74 and transcript-diff lines 40-43 explicitly reject lifecycle/DONE/Authority/production overclaims."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV links the new decision doc and is complete for current requirements decision docs.",
+      "status": "verified",
+      "verifiedBy": "read-only link/file comparison",
+      "evidence": "NAV line 54 links milestone-ledger-status-review-and-hardening-plan.md. Delivery reviewer node comparison returned header=101, listCount=101, totalDecisions=100, linkedDecisions=100, missing=[], broken=[]. Round 3 docs pass RP-005 confirms all 100 decision docs plus evidence link."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9051/evidence/transcript-diff.md",
+      "promise": "TEST transcript records expected vs actual outcomes for this docs-only review story without claiming future implementation completion.",
+      "status": "verified",
+      "verifiedBy": "manual transcript review",
+      "evidence": "transcript-diff lines 7-13 list expected outcomes; lines 17-36 record reviewer passes, truth_scan/NAV comparison, verification refresh, and TEST advance validation PASS; lines 40-43 state expected and actual match, no ledger was created, and no DONE/Authority/production implementation claim is made."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9051/test-evidence.json and .lattice/story/actives/B-9051/done-required-evidence.json",
+      "promise": "TEST and DONE-required evidence show real machine validation passed.",
+      "status": "verified",
+      "verifiedBy": "JSON evidence review",
+      "evidence": "test-evidence.json records command lattice validate --story=B-9051 --json with result PASS at 2026-07-05T11:49:17.547Z and verificationCoverage 12/12. done-required-evidence.json status PASS records packages/main build PASS and root full test suite npm test PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "delivery-session-brief",
+      "transcript": "lattice session_brief showed story B-9051 in TEST, last test run PASS at 2026-07-05T11:49:17.547Z, DONE pre-check PASS for test evidence, verification intent coverage 12/12, evidence freshness, DONE-required validation, bugs fixed, and story summary; remaining pre-check items before this review were branch sync and missing delivery-check."
+    },
+    {
+      "featureId": "nav-completeness",
+      "transcript": "Delivery reviewer read docs/requirements/NAV.md and ran a read-only node comparison: header=101, listCount=101, totalDecisions=100, linkedDecisions=100, missing=[], broken=[]."
+    },
+    {
+      "featureId": "review-state",
+      "transcript": "review-passes.json current round contains RP-004 quality, RP-005 docs, RP-006 concept, and RP-007 test-coverage; findings.json has unresolvedFindings=[] and resolvedCount=3."
+    },
+    {
+      "featureId": "test-validation",
+      "transcript": "test-evidence.json records lattice validate --story=B-9051 --json result PASS, with 33 configured validate commands in output and verificationCoverage total=12 required=12 covered=12 missingRequired=0."
+    },
+    {
+      "featureId": "done-required-validation",
+      "transcript": "done-required-evidence.json status PASS, started 2026-07-05T11:49:17.707Z and ended 2026-07-05T11:50:31.621Z; receipts show packages/main build PASS exitCode 0 and root full test suite npm test PASS exitCode 0."
+    },
+    {
+      "featureId": "unresolved-marker-scan",
+      "transcript": "Read-only rg over the plan doc, NAV, transcript-diff.md, and summary.json for TODO/TBD/FIXME/unresolved returned no matches; broader JSON evidence logs were not used for this check because test output can contain unrelated words from smoke fixtures."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery scope is acceptable for B-9051 as a docs-only review story. The hardening plan preserves milestone_status as read-only, keeps ledger creation at explicit planning/write points for future work, distinguishes required new ledger gates from legacy/advisory stories, keeps capability claims below DONE/Authority/production claims, and NAV is complete. Real machine evidence shows TEST validation and DONE-required validation passed. No unresolved findings or document TODO markers remain; branch sync remains an owner lifecycle follow-up, not a delivery-content defect."
+  },
+  "_hash": "79a4971a76c04257a45c961fff3cd70fa0a9259e90ebe81b9e2d09138713edfa"
+}
