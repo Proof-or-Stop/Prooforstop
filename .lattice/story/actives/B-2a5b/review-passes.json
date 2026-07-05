@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T18:56:06.177Z",
       "reviewRunId": "B-2a5b:RR-001",
       "_hash": "9d3107ba4f4367118e2d74b211751dce25a717d53b4fc5f4c8f2577a2d373d71"
+    },
+    {
+      "id": "B-2a5b:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently re-derived all 33 batch-ledger.jsonl recordDigests (exact sha256(canonicalJson(preimage)) via lib/instrument.mjs), confirmed 33/33 unique iterationIds, 0 recordless, 33/33 proof (0 stop), H1 pairwise-equal per scale (small n=30, full n=3), H4 all elapsedMs<=128217 cap (max 19538ms). Independently ran node selfcheck-m2.mjs: PASS, exit 0, and confirmed all 3 sub-checks are genuinely exercised (not tautologies): (a) budget_cap 30/30 real verifies ~2.0-2.3s all exceed injected 1ms cap, (b) lockfile pre-held -> exactly 1 precondition_failed record, exit 3, no other records, (c) recordless fault-injection at replay/small/1 -> exit 1 naming the offending iterationId. lattice validate --story=B-2a5b --json: allPass=true, missingRequired=0. 8/9 verificationIntent covered by concrete evidence; the 1 gap (CHK-001:adversarial:0, verify_crash mapping) is should-priority (advisory only, not a must-gap), no waiver needed. No blocker.",
+      "createdAt": "2026-07-05T19:05:07.415Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-004",
+      "_hash": "63cfe4f49511c25aedee7935432f386fff399fc0501523387e5c820248b46974"
     }
   ]
 }
