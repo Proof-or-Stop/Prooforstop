@@ -54,6 +54,17 @@
           "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
           "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
           "timestamp": "2026-07-05T17:29:34.209Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git status --short experiments/pos-instrument-replay/",
+          "result": "pass",
+          "note": "tamper.mjs mutates only mkdtemp copies; working tree clean after a full run; frozen protocol.json + lib untouched (sha a3a781fe).",
+          "headHash": "6c4960ee8cbec2c65382a9b3a04573cf4a094246",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:29:34.884Z"
         }
       ]
     },
