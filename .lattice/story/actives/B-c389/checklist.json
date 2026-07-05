@@ -6,7 +6,50 @@
       "context": "Mirror playbook_seed_backfill. Default --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId; a --digest confirm gate (apply requires the dry-run plan digest). Idempotent, never activates, never infers helped. Then RUN it on the real B-785e artifact release + PBP-882. Ref: exec-plan doc M8 + Follow-up Story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "capability_release_backfill --dryRun: 1 eligible (B-785e/PBP-882); --apply: PBP-882 enriched with capabilityReleaseId; re-run: 0 eligible (idempotent)",
+      "files": {
+        "modify": [
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "docs/CLI.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/capability-release-backfill.ts",
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capability_release_backfill --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. Live-run against real B-785e/PBP-882 binds PBP-882.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "--apply requires a --digest matching the dry-run plan; re-running apply is idempotent (0 eligible, no duplicate candidate); a story with no capability release yields 0 eligible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Backfill never activates a candidate (status stays candidate), never infers a helped outcome, and never mutates the capability-releases ledger authority/gateEvidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
