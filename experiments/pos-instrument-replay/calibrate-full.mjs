@@ -52,12 +52,20 @@ function verify(dir) {
   return j;
 }
 
-function gitHead() {
-  return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+// Pin the INSTRUMENT's own commit (last commit touching the baseline source),
+// NOT the story/worktree HEAD — the HEAD moves every metadata commit and is not
+// a stable identifier for which instrument produced these fingerprints.
+const INSTRUMENT_FILE = 'packages/main/src/core/playbook-runtime-baseline.ts';
+function instrumentCommitHash() {
+  const out = execFileSync('git', ['log', '-1', '--format=%H', '--', INSTRUMENT_FILE], {
+    encoding: 'utf8',
+  }).trim();
+  if (!out) throw new Error(`could not resolve instrument commit for ${INSTRUMENT_FILE}`);
+  return out;
 }
 
 function main() {
-  const instrumentCommit = gitHead();
+  const instrumentCommit = instrumentCommitHash();
 
   // --- small verify (reference) ---
   const smallRoot = mkdtempSync(join(tmpdir(), 'pos-cal-small-'));
