@@ -46,8 +46,8 @@ But the instrument's own trust story is currently backed only by:
 That demo is the seed of this plan and exhibits the core proof-or-stop
 property worth PROVING SYSTEMATICALLY rather than anecdotally: **the verdict
 follows the evidence chain, not the surface score** — a tampered corpus can
-still "answer all 1,000 questions correctly", and the verifier must refuse
-anyway.
+still score a perfect expectedIdsFoundRate (1.0) over the gold queries, and
+the verifier must refuse anyway.
 
 No committed harness today runs the instrument as a CAMPAIGN: N replays x 2
 scales, a systematic tamper-class matrix with frozen expected verdicts,
@@ -88,8 +88,9 @@ May claim, if all hypotheses are supported:
 > instrument commit), the memory-baseline evidence instrument is
 > replay-deterministic (identical digests over N independent replays at 1k
 > and 1M scale), tamper-evident for the enumerated tamper matrix (every
-> class fails closed with its pre-registered flag fingerprint, including
-> classes that leave surface scores perfect), and campaign-operable (an
+> class in the fail-closed set fails closed with its pre-registered
+> fingerprint, including classes that leave surface scores perfect), and
+> campaign-operable (an
 > unattended batch completed with every iteration ending in a
 > machine-checkable proof record or an explicit stop record, surviving the
 > probed interruption classes — process kill at an iteration boundary and
@@ -123,7 +124,7 @@ the section 3 claim requires all four SUPPORTED verbatim.
 | ID | Hypothesis | Falsifier | Not-evaluable trigger |
 |---|---|---|---|
 | H1 Replay determinism | All N replay iterations per scale produce proof records, and their records/gold/manifest digests and gold metrics are pairwise identical. | Any digest or metric drift across replay proof records. | Any replay-arm stop record at that scale. |
-| H2 Tamper fail-closed | Every enumerated tamper class yields `status: fail` AND its observed verify flag vector matches the frozen per-class expected fingerprint (section 6.1). | Any tampered run returning `status: pass`, or an observed flag vector that contradicts the frozen fingerprint (misattribution). | A tamper class whose mutation cannot be applied (harness precondition failure). |
+| H2 Tamper fail-closed | Every class in the frozen FAIL-CLOSED set (each carrying a failure signal per section 6.1's two-pronged viability check) yields `status: fail` AND its observed values over the frozen fingerprint domain (boolean flag vector + declared numeric predicates) match the frozen per-class fingerprint. Accepted-behavior combinations are dispositioned separately and are not part of this set. | Any fail-closed-set class returning `status: pass`, or observed fingerprint-domain values that contradict the frozen fingerprint (misattribution). | A tamper class whose mutation cannot be applied (harness precondition failure). |
 | H3 Campaign integrity (proof-or-stop) | 100% of iterations terminate in exactly one ledger record (proof XOR stop); after both probed kills + resume, the ledger identity multiset equals the protocol cross-product exactly (0 dup / 0 gap); the mid-iteration casualty resolves to a stop record or a clean re-run, never a silent half-record. | Any iteration with neither record, both records, a prose-only outcome, or a post-resume duplicate/gap. | (none — H3 is evaluable whenever the campaign ran) |
 | H4 Scale envelope | At both scales: either the run stays within the frozen budget cap, or the breach is itself stop-recorded with reason `budget_cap`. End-of-run RSS and elapsed are recorded per iteration. | A cap breach WITHOUT a stop record (silent overrun). | Full-profile arm never started (operator abort before first iteration). |
 
@@ -194,12 +195,36 @@ Three arms plus one optional spot-check, all deterministic:
    manifest.json recordCount edit / profile edit / digest edit (raw only —
    refreshing a manifest edit is definitionally a different corpus);
    cross-PROFILE swap (small records under a full manifest). For each
-   frozen class, M0 also freezes its EXPECTED FLAG FINGERPRINT: the exact
-   verify flags required false (and required true). "Truthful reason" is
-   thereby operationalized: observed flag vector must match the frozen
-   fingerprint. If a class's fingerprint cannot be predicted at M0 time,
-   deciding it (by running the mutation once and reviewing the result) is an
-   M0 deliverable — never a mid-M1 discovery.
+   frozen class, M0 also freezes its EXPECTED FINGERPRINT over an EXPLICIT
+   DOMAIN — the fingerprint is NOT the whole verify result, only these
+   frozen fields: (a) the exact boolean verify-flag vector (each flag named,
+   required-false or required-true) AND (b) a declared set of numeric-metric
+   predicates over the gold metrics (e.g. `expectedIdsFoundRate == 1.0` vs
+   `< 1.0`), because some classes fail only in a rate, not a boolean flag;
+   fields outside this frozen domain do not participate in the match.
+   "Truthful reason" is thereby operationalized: the observed values over the
+   frozen domain must match the frozen fingerprint. If a class's fingerprint
+   cannot be predicted at M0 time, deciding it (by running the mutation once
+   and reviewing the result) is an M0 deliverable — never a mid-M1 discovery.
+
+   VIABILITY IS TWO-PRONGED, and this is what keeps H2 falsifiable rather
+   than vacuous. A class enters the H2 FAIL-CLOSED set only if its frozen
+   fingerprint carries a genuine failure signal — at least one required-false
+   flag OR a failing numeric predicate. A (class x manifestHandling)
+   combination whose self-consistent variant is legitimately verify-ACCEPTED
+   (all flags true, all metrics at gold — e.g. a row-reorder re-manifested
+   into an equivalent corpus) is NOT a tamper failure and must NOT be
+   enumerated as an H2 class: enumerating it would mechanically falsify H2
+   exactly as the rev-1 seed-swap no-op would have. Such a combination is
+   instead DISPOSITIONED at M0 as an ACCEPTED-BEHAVIOR / false-positive-guard
+   observation — recorded with its own frozen `status: pass` fingerprint in a
+   separate acceptance bucket (evidence that the instrument does not
+   false-positive on a benign refresh) and explicitly EXCLUDED from H2's
+   fail-closed accounting. The M0 viability check thus both DROPS no-op
+   classes (no byte/contract difference at all) and RECLASSIFIES accept-only
+   classes (a real difference that verify legitimately accepts) out of the
+   fail-closed set — the disposition of every candidate is recorded, never
+   left implicit.
 3. **Resume probe (H3):** `resume-probe.mjs` spawns the replay arm, kills it
    deterministically twice — (a) at a frozen iteration boundary, (b)
    mid-iteration via a driver-supported crash hook (`--crash-after=<step>`:
@@ -307,8 +332,8 @@ producer):
 
 | Artifact | Producer | Content |
 |---|---|---|
-| protocol.json (+hash) | M0 | frozen N per scale, content-inert seed constant, tamper-class matrix WITH per-class expected flag fingerprints, iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum, env pins {nodeVersion, platform, instrumentCommit} |
-| tamper-verdicts.jsonl | M1 `tamper.mjs` | one verdict record per (class x manifestHandling), full flag vector + fingerprint-match boolean |
+| protocol.json (+hash) | M0 | frozen N per scale, content-inert seed constant, tamper-class matrix split into a FAIL-CLOSED set (each class with its per-class expected fingerprint over the explicit domain: boolean flag vector + numeric-metric predicates) and an ACCEPTANCE bucket (self-consistent verify-accepted combinations with `status: pass` fingerprints), iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum, env pins {nodeVersion, platform, instrumentCommit} |
+| tamper-verdicts.jsonl | M1 `tamper.mjs` | one verdict record per (class x manifestHandling), full flag vector + gold metrics + fingerprint-match boolean + disposition (fail-closed \| accepted-behavior) |
 | batch-ledger.jsonl | M2 `run-batch.mjs` | append-only proof/stop records per section 6.2 |
 | resume-reconciliation.json | M3 `resume-probe.mjs` | pre/post-kill ledger diff, identity-multiset comparison, dup/gap counts (must be 0/0), casualty disposition |
 | report.json / report.md (+digest) | M4 `analyze-batch.mjs` | three-state H1-H4 verdicts, scale envelope (elapsed / endOfRunRss), no-overclaim text |
@@ -322,8 +347,8 @@ multi-day schedule. Each milestone is one Lattice story.
 
 | # | Milestone | Delivers | Exit criterion |
 |---|---|---|---|
-| M0 | Protocol freeze + reuse audit + viability check + cost calibration | protocol.json (+hash) per section 7, including the per-class fingerprint table; documented map of which classes the existing smoke already covers; per-class VIABILITY verification (each frozen mutation demonstrably changes bytes or contract — no no-op classes); ONE measured full-profile generate+verify to set the budget cap and full-N. | Protocol hash frozen; every class viability-checked and fingerprinted; full-profile cost recorded; env pins recorded. |
-| M1 | Tamper-class matrix harness | `tamper.mjs` + selfcheck; isolated-copy mutation per (class x manifestHandling); verdict records with full flag vectors. | Every enumerated class fails closed AND matches its frozen fingerprint (H2 evidence complete); selfcheck hermetic. |
+| M0 | Protocol freeze + reuse audit + viability check + cost calibration | protocol.json (+hash) per section 7, including the per-class fingerprint table; documented map of which classes the existing smoke already covers; per-class TWO-PRONGED VIABILITY verification (each fail-closed class demonstrably changes bytes or contract AND carries a failure signal; no-op classes dropped, accept-only classes reclassified into the acceptance bucket); ONE measured full-profile generate+verify to set the budget cap and full-N. | Protocol hash frozen; every candidate class dispositioned (fail-closed \| accepted \| dropped) and every fail-closed class fingerprinted; full-profile cost recorded; env pins recorded. |
+| M1 | Tamper-class matrix harness | `tamper.mjs` + selfcheck; isolated-copy mutation per (class x manifestHandling); verdict records with full flag vectors + gold metrics. | Every fail-closed-set class fails closed AND matches its frozen fingerprint, and every acceptance-bucket combination matches its `status: pass` fingerprint (H2 evidence complete); selfcheck hermetic. |
 | M2 | Replay campaign driver + ledger | `run-batch.mjs` + selfcheck; N x 2-scale replays; append-only identity-keyed ledger; proof-or-stop contract + recordDigest + lockfile; injected-cap stop path selfchecked; /loop babysitter recipe documented. | Full campaign completes; H1/H4 evidence complete; driver exits nonzero on any recordless iteration. |
 | M3 | Interrupt/resume idempotence probe | `resume-probe.mjs` + selfcheck; deterministic boundary + mid-iteration (crash-hook) kills; resume-reconciliation.json. | 0 duplicates, 0 gaps vs the protocol cross-product; casualty resolved to stop-or-rerun (H3 evidence complete). |
 | M4 | Offline verdict + report | `analyze-batch.mjs` + selfcheck; three-state verdicts; report digest reproducible; per-record digest re-check refuses on mismatch; no-overclaim text embedded verbatim. | Verdict computed from ledger only; rerun reproduces the digest; claim text matches section 3 exactly. |
@@ -336,9 +361,10 @@ Dependency order: M0 → M1 → M2 → M3 → M4 (strict); M5 any time after M2.
 | Case | Required result |
 |---|---|
 | Same profile rerun (same env) | Byte-identical digests, identical gold metrics. |
-| Any enumerated tamper | `status: fail` AND observed flags match the frozen fingerprint. |
+| Any fail-closed-set tamper class | `status: fail` AND observed fingerprint-domain values (flags + numeric predicates) match the frozen fingerprint. |
 | Tamper with perfect surface score | Still fail-closed (the 2026-07-05 demo case, systematized). |
-| Manifest-refreshed (self-consistent) tamper | Verdict matches its frozen fingerprint (contract/gold flags, not digest flags). |
+| Manifest-refreshed tamper that still breaks a contract/gold check | `status: fail`; verdict matches its frozen fingerprint (contract/gold flags, not digest flags). |
+| Manifest-refreshed variant that is self-consistent and verify-ACCEPTED (e.g. row reorder) | Dispositioned at M0 as ACCEPTED-BEHAVIOR (frozen `status: pass` fingerprint), recorded in the acceptance bucket, EXCLUDED from H2's fail-closed set — not a falsifier. |
 | No-op candidate class at M0 | Viability check rejects it BEFORE freeze (never a mid-campaign matrix edit). |
 | Iteration crash | Stop record with machine-readable reason; driver nonzero exit if recordless. |
 | Kill at boundary + mid-iteration, resume | Identity multiset equals protocol cross-product; 0 dup / 0 gap; casualty disposition recorded. |
@@ -374,7 +400,9 @@ by H2 is a higher-value outcome than a clean pass.
 ## 12. Definition Of Done
 
 - protocol.json frozen (hash recorded) BEFORE any scored run, with every
-  tamper class viability-checked and fingerprinted at freeze time;
+  candidate class two-pronged-viability-checked (no-op dropped, accept-only
+  reclassified into the acceptance bucket) and every fail-closed class
+  fingerprinted over its explicit domain at freeze time;
 - all four hypothesis verdicts computed by the committed analyzer from the
   committed ledger, three-state, report digest reproducible;
 - every artifact in section 7 committed with its named producer;
