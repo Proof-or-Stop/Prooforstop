@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add an ADDITIVE resume mode to experiments/pos-instrument-replay/run-batch.mjs: on --resume (or POS_RESUME=1), read the existing batch-ledger.jsonl, skip iterationIds already recorded (proof OR stop), run only the remaining iterations, ignore/repair a truncated trailing line, and have the strict exact-multiset end-of-run guard reconcile the FINAL ledger (== protocol cross-product, 0 dup / 0 gap). The fresh-campaign path (empty/no ledger) must be UNCHANGED so M2 batch-ledger.jsonl + selfcheck-m2 stay valid",
+      "context": "Additive only: resume activates only when a ledger already exists and --resume is passed. A duplicate iterationId on resume is a bug (the strict guard already rejects dups). A kill before the atomic append = no record = clean re-run; a kill mid-append = a truncated last JSONL line the resume must skip/repair. Reuse lib/instrument.mjs.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Build experiments/pos-instrument-replay/resume-probe.mjs (committed producer): spawn run-batch (small scale) and kill it deterministically TWICE — (a) at a frozen iteration boundary (SIGKILL after K iterations recorded), (b) mid-iteration via the crash hook POS_FAIL_APPEND_AT (after workspace write, before ledger append) — restart in --resume mode after each, and write resume-reconciliation.json with the pre/post-kill ledger diff, identity-multiset comparison, dup/gap counts (must be 0/0), and casualty disposition",
+      "context": "iterationId identity-multiset must equal the protocol replay cross-product exactly. The mid-iteration casualty must resolve to a stop record OR a clean re-run, never a silent half-record. resume-reconciliation.json is the H3 evidence artifact (plan section 7).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m3.mjs) that runs the full boundary-kill + mid-iteration-crash + resume + reconciliation flow and asserts 0 dup / 0 gap, exactly one record per iterationId after resume, and that a mid-iteration casualty resolves to a stop-or-clean-rerun (never a half-record)",
+      "context": "Per plan section 7 selfchecks: the M3 selfcheck exercises the crash hook + resume. Hermetic: mkdtemp isolation, small scale, run by node <file>. Assert the H3 evidence-complete conditions on the reconciled ledger.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
