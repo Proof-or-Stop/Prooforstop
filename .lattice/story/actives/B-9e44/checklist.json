@@ -73,6 +73,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/build-protocol.mjs",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/protocol.json.sha256"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ]
       }
     },
     {
