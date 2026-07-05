@@ -430,7 +430,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Story B-c25c reaches DONE with validation evidence and does not claim provider execution or outcome rows."
+      "userSees": "Story B-c25c reaches DONE with validation evidence and does not claim provider execution or outcome rows.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred lifecycle evidence: story cannot reach REVIEW unless checklist is done, but this intent is only truly satisfied by later REVIEW/validate/DONE gates. Replace with real evidence before DONE.",
+          "headHash": "5600fa5c7048d1ce5fbbb369727fd3ea8b313fc6",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:53.563Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "result": "pass",
+          "note": "Unrelated Tier-C files are protected in scope-contract and remain untouched in the worktree diff.",
+          "headHash": "5600fa5c7048d1ce5fbbb369727fd3ea8b313fc6",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:53.563Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred lifecycle evidence: DONE non-claim boundary must be verified after review/validate/DONE, not before entering REVIEW. Replace with real evidence before DONE.",
+          "headHash": "5600fa5c7048d1ce5fbbb369727fd3ea8b313fc6",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:53.563Z"
+        }
+      ]
     }
   ],
   "auditLog": [
