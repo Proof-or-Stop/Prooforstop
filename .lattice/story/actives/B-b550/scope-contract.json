@@ -51,8 +51,24 @@
       "phase": "DEV",
       "headHash": "563c6146257ce0dd04aba1a6a95bf4a78cf7e4b3",
       "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story dogfood artifact: parent-ledger roll-up recording B-b550 self-coverage of its own M0-M7 milestones (single-story slice execution, no child stories); required to satisfy strict_milestone DONE intent-equivalence. Lattice story metadata, not source or test code.",
+      "timestamp": "2026-07-05T15:06:48.940Z",
+      "paths": [
+        ".lattice/story/actives/B-b550/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-b550/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d6cdc4e748f75630c96b14137ef0b4682fc61b84",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0"
     }
   ],
   "createdAt": "2026-07-05T12:18:59.827Z",
-  "updatedAt": "2026-07-05T14:20:59.883Z"
+  "updatedAt": "2026-07-05T15:06:48.940Z"
 }
