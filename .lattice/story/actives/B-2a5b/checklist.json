@@ -50,10 +50,10 @@
           "command": "node experiments/pos-instrument-replay/run-batch.mjs",
           "result": "pass",
           "note": "run-batch.mjs completed the full campaign: batch-ledger.jsonl has 33 identity-keyed records (30 small + 3 full 1M cycles), all proof records (0 stop), each with iterationId replay/<scale>/<index>, verifyStatus, verifyFlags, generation-side digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest. 0 recordless, exit 0.",
-          "headHash": "0c807c2d7555952ddc4855419c3e6c3fa1d924d5",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:53:13.530Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);/*re-derive recordDigest*/console.log(L.length)\"",
           "result": "pass",
           "note": "Digests sourced from the generation-side manifest; all 33 recordDigests independently re-derive (sha256 of canonical JSON with recordDigest absent) per protocol.recordDigestPreimageRule; 33 unique iterationIds.",
-          "headHash": "337d30c908b886054cf9ad8573fd8525daa16abc",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:53:14.189Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         }
       ]
     },
@@ -115,10 +115,10 @@
           "command": "node experiments/pos-instrument-replay/run-batch.mjs",
           "result": "pass",
           "note": "Every iteration ended in exactly one record (33 records / 33 unique iterationIds / 0 recordless). H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records PER SCALE: small n=30 distinct-digest-sets=1 (PAIRWISE-EQUAL), full n=3 distinct-digest-sets=1 (PAIRWISE-EQUAL) — replay determinism confirmed.",
-          "headHash": "104e8773c5a406671601e0cc31560580024e652a",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:53:14.838Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -126,10 +126,10 @@
           "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);const cap=128217;console.log('over-cap:',L.filter(r=>r.elapsedMs>cap).length,'maxElapsed:',Math.max(...L.map(r=>r.elapsedMs||0)))\"",
           "result": "pass",
           "note": "H4 scale envelope: every proof record elapsedMs within budgetCapMsPerVerify (128217); 0 over-cap, max elapsed 19538ms; 0 budget_cap stops in the real campaign. The driver holds a mkdir lockfile released on clean exit.",
-          "headHash": "944311bf3a962a767d49b594b219591a3db11243",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:53:15.495Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -137,10 +137,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "selfcheck-m2 (b): a concurrent second driver records exactly one precondition_failed stop and exits 3 (nonzero) via the mkdir lockfile — the ledger is not corrupted. (c): a recordless iteration (POS_SKIP_RECORD_AT=replay/small/1) makes run-batch exit 1 and name the recordless iterationId. Both un-gameable.",
-          "headHash": "54f97b399ec8ebc3878469811b99fe65cf783cdb",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:55:51.467Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         }
       ]
     },
@@ -191,10 +191,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "node selfcheck-m2.mjs exits 0 with 'selfcheck-m2 PASS' (hermetic mkdtemp, small scale): (a) budget_cap, (b) lockfile, (c) recordless all pass.",
-          "headHash": "211654860fd684505450ec44ff28c7b7e75c68c7",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:55:52.107Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "selfcheck-m2 (a) BUDGET_CAP: with POS_BUDGET_CAP_MS=1 injected, 30/30 small iterations record a budget_cap stop (the H4 stop path exercised).",
-          "headHash": "537ad64a60142abdfee05536fcceffef01518fcf",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:55:52.731Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "selfcheck-m2 (b) LOCKFILE negative test (concurrent driver -> precondition_failed, exit 3) AND (c) RECORDLESS (skip a record -> exit 1 naming replay/small/1) both exercised — the proof-or-stop + lockfile discipline is un-gameable.",
-          "headHash": "afa312694af0096c5ac81c590373774554f70ff1",
-          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
-          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
-          "timestamp": "2026-07-05T18:55:53.354Z"
+          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:09.831Z"
         }
       ]
     }
