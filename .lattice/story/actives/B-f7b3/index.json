@@ -4,8 +4,8 @@
   "title": "Harden ProofStory milestone status/ledger observability boundary (B-b550 M7 follow-up)",
   "description": "Implements the six design-hardening items the B-b550 truth-first audit recorded in the M7 follow-up scope of docs/requirements/decisions/milestone-ledger-status-review-findings.md. The milestone observability surface is safe today (no blocker); these tighten the boundary and close the audit's test gaps. Touches packages/main/src (milestone-status render + command-policy + proofstory) and packages/main/tests/smokes.",
   "type": "feature",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "keywords": [
     "milestone-ledger",
     "milestone-status",
@@ -20,7 +20,6 @@
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-05T17:14:25.271Z",
   "startedAt": "2026-07-05T17:14:25.271Z",
   "endedAt": null,
@@ -33,6 +32,27 @@
       "user": "Harmonygo",
       "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T17:29:50.455Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the story only MENTIONS production readiness inside disclaimer strings it adds (milestone_status/closeout output should explicitly state it is NOT production readiness). It does not touch production infrastructure, deployment, or any incident/hotfix path. This is a milestone-observability hardening story scoped to packages/main/src milestone-status/command-policy/proofstory and tests.",
+      "at": "2026-07-05T17:15:00.456Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f7b3",
+    "branch": "story/B-f7b3",
+    "createdAt": "2026-07-05T17:29:49.222Z"
+  }
 }
