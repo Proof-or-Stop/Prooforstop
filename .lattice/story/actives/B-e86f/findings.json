@@ -16,6 +16,23 @@
       ],
       "signatureTag": "adversarial|md|codex-host-execution",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e86f:F-002",
+      "desc": "[codex-host-2] H2 fingerprint domain underspecified: section 6.1 freezes 'exact verify flags required false/true' but the verify result also carries numeric gold metrics (rates) and non-boolean fields (playbook-runtime-baseline.ts:73,98,1769); the plan never says which fields participate in the fingerprint match, so 'truthful reason = observed flag vector matches frozen fingerprint' is not implementable as written for classes whose failure manifests in rates.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T13:05:42.089Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "_hash": "13333bb57c039d3149ce46e5ba3e8acae3f634fc631101b973157cc6afc2c767",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|codex-host-fingerprint",
+      "signatureTagSource": "auto"
     }
   ]
 }
