@@ -24,7 +24,7 @@
       "desc": "[codex-host-2, verified] End-of-run guard ignores EXTRA/unexpected records, so concurrent-driver evidence can silently contaminate a 'successful' ledger. The guard only checks missing/duplicate of the EXPECTED replay cross-product; it never rejects records whose iterationId is outside that set. Scenario: driver A holds the lock producing the 33 replay records; driver B starts, fails acquireLock, appends a {iterationId:'replay/precondition/lock', stopReason:'precondition_failed'} record to the SAME batch-ledger.jsonl, exits nonzero — but A then scans the ledger, sees all 33 expected ids present with no dup, and exits 0 with a 34-record/1-stop ledger that violates the exact expected-identity-multiset '33 records, 0 stop' H1/H4 evidence contract. Fix: (a) A's guard must validate the EXACT multiset (fail on ANY extra/unexpected iterationId, not just missing/dup); (b) a lock-blocked driver must record its precondition_failed to a SEPARATE location, not the shared campaign ledger ('instead of corrupting the ledger', plan section 6.3).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T19:03:21.539Z",
@@ -34,7 +34,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2285816b1. (a) The end-of-run guard now validates the EXACT expected identity multiset (fails on missing, duplicate, OR extra/unexpected iterationIds, naming offenders). (b) A lock-blocked driver records precondition_failed to a SEPARATE batch-ledger.blocked.jsonl instead of the shared campaign ledger. selfcheck-m2 (b) confirms the blocked record lands in the separate ledger and the campaign ledger stays clean; the full re-run campaign passed the strict guard (33 records, 0 extra).",
+      "resolvedAt": "2026-07-05T19:22:31.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
