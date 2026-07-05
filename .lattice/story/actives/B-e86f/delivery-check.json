@@ -1,0 +1,67 @@
+{
+  "storyId": "B-e86f",
+  "checkedAt": "2026-07-05T14:37:53.482Z",
+  "headHash": "a012359f970351ad4c7b839d17188d61db379e0f",
+  "materialHash": "f15af8055388a0e4b516b7509659a34331ab4777b65cde9efd87b90c7f9b01a3",
+  "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
+  "reviewRound": "2026-07-05T14:10:23.721Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md#header",
+      "promise": "Committed doc has Status: DRAFT rev 3 header and 12 top-level sections plus 5 subsections 6.1-6.5 (17 headers total)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep -c '^## ' = 12; grep '^### 6.' lists exactly 6.1..6.5 (5); line 3 = 'Status: DRAFT rev 3' (independently re-run, matches checklist CHK-001:happy:1 and edge:1 evidence)"
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md#section-6.1-F-001-F-002",
+      "promise": "F-001/F-002 resolved: H2 fingerprint is defined over an explicit domain (boolean flag vector + numeric-metric predicates over gold metrics) and M0 viability is two-pronged, with a separate ACCEPTED-BEHAVIOR acceptance bucket carve-out for self-consistent verify-accepted refreshed variants (e.g. row-reorder), excluded from H2 fail-closed set; propagated to section 3/4/7/8/9/12",
+      "status": "verified",
+      "verifiedBy": "diff/grep + full-file read",
+      "evidence": "section 6.1 lines 204-234 define the explicit fingerprint domain and two-pronged viability + acceptance bucket; section 4 H2 row (line 134) references the fingerprint domain and excludes accepted-behavior combinations; section 7 protocol.json entry (line 342) and tamper-verdicts.jsonl entry (line 343) list fail-closed vs acceptance bucket + disposition field; section 9 verification matrix (lines 371-375) has explicit ACCEPTED-BEHAVIOR and no-op rows; section 12 DoD (lines 409-412) requires every candidate two-pronged-viability-checked. Matches finding B-e86f:F-001/F-002 resolvedReason and reviewer lane confirmations (RP-005/006/007)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md#section-1-F-003",
+      "promise": "F-003 resolved: section 1 uses precise wording 'a tampered corpus can still score a perfect expectedIdsFoundRate (1.0) over the gold queries' rather than the imprecise '1,000 questions' framing",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "line 56 contains exact string 'still score a perfect expectedIdsFoundRate (1.0) over the gold queries'; repo-wide grep for the old '1,000 questions' phrasing in this file returns no hits"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-e86f/checklist.json#CHK-001-F-004",
+      "promise": "F-004 resolved: all 9 CHK-001 verification-intent evidence entries re-recorded against current HEAD (a14555248), not stale against an earlier commit",
+      "status": "verified",
+      "verifiedBy": "checklist_get + independent spot re-run",
+      "evidence": "all 9 verificationEvidence entries (happy:0-1, edge:0-1, adversarial:0-4) carry timestamps 2026-07-05T14:06:57Z-14:08:41Z (after the a14555248 changelog commit) with matching materialHash/storyFilesHash; independently re-ran happy:0's sha256 command and several adversarial greps myself against current HEAD content and got identical results to the recorded notes (68451936c2378fdc digest match; seed-swap historical-only; content-inert x3 + contentInert:true; never-outcome-judging/no-model present; preimage-frozen/signing-is-Tier-C present; three-state discipline present)"
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md#provenance",
+      "promise": "Revision provenance changelog extended to record the rev-3 H2 sharpening (fingerprint domain + two-pronged viability + acceptance bucket)",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "lines 13-23 of the provenance paragraph explicitly describe the rev-3 H2 sharpening: explicit domain, two-pronged viability, and the acceptance-bucket disposition for self-consistent accepted variants"
+    },
+    {
+      "docPath": "story-scope#doc-only",
+      "promise": "This is a docs-only story: no code, no experiments/ artifacts land in this diff",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only (excl .lattice) returns exactly one path, the plan .md; full name-only diff shows only .lattice/story/actives/B-e86f/* metadata plus the doc; grep for ts/js/mjs/experiments/package.json in the diff returns zero matches; experiments/pos-instrument-replay/ does not exist on disk (correctly deferred to future milestone stories)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "No executable test suite applies (docs-only pre-registration; the plan itself explicitly defers all harness/campaign code to milestones M0-M5 as separate future stories). Verification instead used CLI-based content/structure/scope assertions recorded as manual_transcript evidence for all 9 verification intents (2 happy + 2 edge + 5 adversarial): content-integrity sha256 match, section/subsection header count, doc-only diff scope, rev-3 identity strings, seed-swap historical-only, content-inert annotations, cross-vendor never-outcome-judging phrase, ledger-integrity Tier-C disclaimer, three-state verdict discipline. I independently re-ran a representative subset of these commands myself against current HEAD and got results matching the recorded notes.",
+      "waiverReason": "Docs-only story landing a pre-registration plan document; there is no executable code to unit/integration test. CLI-verified structural/content assertions (manual_transcript) are the appropriate and sufficient evidence class for this artifact type, consistent with done_required_validate PASS (build + full npm test unaffected) and 4/4 reviewer lane passes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only pre-registration landing verified genuine: all 4 REVIEW findings (F-001/F-002 fingerprint-domain+acceptance-bucket, F-003 wording, F-004 stale-evidence) are actually resolved in the committed text at current HEAD, independently re-confirmed by direct grep/read rather than trusting recorded notes. Diff is strictly doc-only (single new .md, zero code/experiments leak). summary.json honestly scopes this as pre-registration-only with no harness code implemented, matching the doc's own explicit M0-M5 deferral; no overclaiming found."
+  },
+  "_hash": "ed37e3dca25879d6e663e85e6662a5382f98609e76e0cd53a2bd439489b90e6e"
+}
