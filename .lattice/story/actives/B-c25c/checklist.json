@@ -47,7 +47,7 @@
     {
       "id": "CHK-002",
       "title": "M1 add Cell 03 launch authorization artifact",
-      "context": "Create a structured Cell 03-only authorization packet with nonzero budget cap metadata, dated snapshots, prompt/tool digests, runner ownership, duplicate policy, and explicit no-provider-call boundary.",
+      "context": "Create a structured Cell 03-only launch authorization packet that requires exact human-approved amount, currency, and approval source for any nonzero budget cap, plus dated snapshots, prompt/tool digests, runner ownership, duplicate policy, and an explicit no-provider-call boundary when exact budget approval is absent.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
@@ -64,7 +64,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Cell 03 launch metadata is complete and traceable to this story.",
+            "desc": "Cell 03 launch metadata is complete and traceable to this story, and budget approval is either exactly bound to human-approved amount/currency/source or explicitly marked absent.",
             "type": "cli",
             "priority": "must"
           }
@@ -78,7 +78,7 @@
         ],
         "adversarial": [
           {
-            "desc": "The artifact does not authorize Cell 06, result rows, provider fallback, or model/paper claims.",
+            "desc": "The artifact does not invent spend approval and does not authorize Cell 06, result rows, provider fallback, or model/paper claims.",
             "type": "logic",
             "priority": "must"
           }
@@ -91,7 +91,7 @@
     {
       "id": "CHK-003",
       "title": "M2 harden checker and negative controls",
-      "context": "Extend local checker coverage to accept the Cell 03 launch authorization package while rejecting host-label snapshots, zero budget, missing digests, duplicate runner ownership, provider fallback, outcome rows, and premature Cell 06 unblocking.",
+      "context": "Extend local checker coverage to accept the Cell 03 launch authorization guardrail while rejecting host-label snapshots, zero or invented budget approval, missing digests, duplicate runner ownership, provider fallback, outcome rows, and premature Cell 06 unblocking.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
       ],
@@ -107,7 +107,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Checker reports Cell 03 launch authorization ready and Cell 06 blocked.",
+            "desc": "Checker reports Cell 03 launch guardrail status and Cell 06 blocked.",
             "type": "cli",
             "priority": "must"
           }
@@ -121,7 +121,7 @@
         ],
         "adversarial": [
           {
-            "desc": "Injected malformed authorizations fail closed.",
+            "desc": "Injected malformed authorizations, including invented or unbound budget caps, fail closed.",
             "type": "cli",
             "priority": "must"
           }

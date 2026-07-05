@@ -1,10 +1,10 @@
 {
   "storyId": "B-c25c",
   "name": "multi-model-cell03-provider-launch-authorization",
-  "title": "Authorize M2-a Cell 03 provider execution launch prerequisites without running provider cells",
-  "description": "B-11be completed metadata-only M2 provider authorization with USD 0.00 and providerExecutionAuthorized=false. The next protocol step is Cell 03 E2 A4 same-family calibration, but it still lacks a nonzero budget cap, dated executor/reviewer snapshots, prompt digest, tool-surface digest, runner ownership, and duplicate policy. This story records and validates a narrow Cell 03 launch authorization package while preserving the research boundary: no provider calls, no result rows, no Cell 06 execution, and no paper/product claim unlock.",
+  "title": "Prepare M2-a Cell 03 provider launch authorization guardrails without inventing spend approval",
+  "description": "B-11be completed metadata-only M2 provider authorization with USD 0.00 and providerExecutionAuthorized=false. The next protocol step is Cell 03 E2 A4 same-family calibration, but real provider execution still requires an exact human-approved nonzero budget amount, currency, approval source, dated executor/reviewer snapshots, prompt digest, tool-surface digest, runner ownership, and duplicate policy. This story records and validates a narrow Cell 03 launch authorization guardrail: a Cell 03 packet may be considered executable only when the exact budget approval and all required metadata are present; otherwise it must remain fail-closed with no provider calls, no result rows, no Cell 06 execution, and no paper/product claim unlock.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-2026-07-05-cell03-provider-launch-authorization",
   "keywords": [
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T16:53:07.454Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c25c",
+    "branch": "story/B-c25c",
+    "createdAt": "2026-07-05T16:53:05.057Z"
+  }
 }
