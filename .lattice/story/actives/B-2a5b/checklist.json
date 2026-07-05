@@ -206,6 +206,17 @@
           "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
           "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
           "timestamp": "2026-07-05T18:55:52.731Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "selfcheck-m2 (b) LOCKFILE negative test (concurrent driver -> precondition_failed, exit 3) AND (c) RECORDLESS (skip a record -> exit 1 naming replay/small/1) both exercised — the proof-or-stop + lockfile discipline is un-gameable.",
+          "headHash": "afa312694af0096c5ac81c590373774554f70ff1",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:55:53.354Z"
         }
       ]
     }
