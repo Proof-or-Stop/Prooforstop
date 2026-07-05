@@ -1442,6 +1442,19 @@ export function evaluateDoneIntentEquivalence(
       undefined,
       'fail',
     ));
+  } else if ((ledger.milestones.length ?? 0) === 0) {
+    // Guard against vacuous completeness: a confirmed but EMPTY milestone ledger
+    // has zero rows to cover, so the coverage loop below would produce no gaps and
+    // the milestone path would pass silently. An empty confirmed ledger cannot
+    // satisfy a milestone-path DONE claim — the ledger must enumerate the accepted
+    // milestones (or be explicitly reduced via a confirmed shrinkage decision).
+    gaps.push(gap(
+      'empty_confirmed_milestone_ledger',
+      'milestone-ledger.json',
+      'DONE intent equivalence requires the confirmed milestone ledger to enumerate at least one milestone; an empty ledger cannot vacuously satisfy the milestone path.',
+      undefined,
+      'fail',
+    ));
   }
   const evidence = verificationEvidenceByRef(input.checklist.items);
   const currentBinding = milestoneEvidenceBinding(input);
