@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c25c",
+  "id": "IC-20260705165933",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a Cell 03 launch guardrail and local validation only; do not run providers or claim real Phase 1 results without exact human-approved budget and run metadata.",
+  "acceptedInterpretationHash": "sha256:e96df6c2613e014dd9ec033d94c94bca065b28c43c932887cd93ca00ab2cd193",
+  "notes": "This resolves the potential collision between the user asking to solve launch blockers and the missing exact nonzero spend approval. The accepted interpretation is fail-closed guardrail work, not provider execution.",
+  "createdAt": "2026-07-05T16:59:33.236Z",
+  "updatedAt": "2026-07-05T16:59:33.236Z"
+}

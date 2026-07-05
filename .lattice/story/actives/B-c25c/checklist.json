@@ -43,7 +43,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Baseline evidence shows: nextPermittedFormalStep=cell-03-calibration, provider execution remains disabled, and cell-06-a2prime-blocked."
+      "userSees": "Baseline evidence shows: nextPermittedFormalStep=cell-03-calibration, provider execution remains disabled, and cell-06-a2prime-blocked.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Baseline and current checker identify nextPermittedFormalStep=cell-03-calibration while provider execution remains disabled; red-evidence.json records the pre-fix absence of Cell 03 guardrail.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.292Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker output and assertions preserve cell-06-a2prime-blocked, matching the edge condition that Cell 06 remains blocked.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker retains host-label and missing-budget negative controls; missing budget cannot clear provider launch authorization.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -88,7 +123,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Cell 03 guardrail artifact is present: exact budget approval is absent, providerCallEnabled=false, and the artifact is traceable to B-c25c."
+      "userSees": "Cell 03 guardrail artifact is present: exact budget approval is absent, providerCallEnabled=false, and the artifact is traceable to B-c25c.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "result": "pass",
+          "note": "New Cell 03 guardrail artifact is traceable to B-c25c and records exactBudgetApproval.status=absent with providerCallEnabled=false.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "result": "pass",
+          "note": "Artifact guardrailBoundary applies only to Cell 03 / protocol cell ③ / E2 A4 same-family calibration.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "result": "pass",
+          "note": "Artifact keeps providerSpendAllowed=false, providerCallEnabled=false, result/outcome rows absent, providerFallbackAllowed=false, claimBoundary false, and Cell 06 blocked.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -132,7 +202,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M2 provider execution checker passes and rejects malformed launch packets, including invented budget approval and premature Cell 06 unblocking."
+      "userSees": "M2 provider execution checker passes and rejects malformed launch packets, including invented budget approval and premature Cell 06 unblocking.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker reports Cell 03 launch guardrail recorded, exact Cell 03 budget approval absent, provider calls disabled, and Cell 06 blocked.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker and launch artifact keep Cell 02 and optional Cell 04 runners providerCallEnabled=false and outside this story.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker rejects 48 negative controls including invented/unbound budget approval, zero-budget spend allowance, host-label snapshots, provider fallback, outcome rows, and Cell 06 unblocking.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -177,7 +282,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "M2 status ledger shows Cell 03 guardrail recorded, exact spend approval still required, no provider calls, and Cell 06 blocked."
+      "userSees": "M2 status ledger shows Cell 03 guardrail recorded, exact spend approval still required, no provider calls, and Cell 06 blocked.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "result": "pass",
+          "note": "Status ledger includes a Cell 03 launch guardrail RECORDED row and keeps Formal M2 execution pending and Cell 06 blocked.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "Provider execution plan states the Cell 03 guardrail is not provider spend approval or outcome evidence.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "Docs retain explicit non-claims: no H-M1/H-M3 proof, no model-agnostic wording, no product gate, no runtime/playbook change.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -219,7 +359,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Local validation reports Cell 03 guardrail recorded, Cell 06 blocked, records-multi-model-ablation.jsonl absent, and no provider outcome data."
+      "userSees": "Local validation reports Cell 03 guardrail recorded, Cell 06 blocked, records-multi-model-ablation.jsonl absent, and no provider outcome data.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs && node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Both local checks pass; provider execution checker reports Cell 03 guardrail recorded and Cell 06 blocked.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "test ! -e experiments/multi-model-ablation/records-multi-model-ablation.jsonl",
+          "result": "pass",
+          "note": "records-multi-model-ablation.jsonl is absent; no provider result rows were created.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker recursively rejects outcome/result-shaped data and true outcome/result presence flags in negative controls.",
+          "headHash": "576a80346dbe6723b9fd597b723b3621905dadea",
+          "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
+          "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+          "timestamp": "2026-07-05T17:08:06.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
