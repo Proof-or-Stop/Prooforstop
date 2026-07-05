@@ -40,9 +40,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:34:12.376Z",
-      "endTime": null,
+      "endTime": "2026-07-05T23:37:20.126Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
@@ -482,6 +482,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M0 plan integration edit in existing M2 provider execution plan.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:37:20.126Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Existing M2 provider execution plan now contains the B-991d Cell 03 real execution section and evidence is bound.",
       "agent": "codex-main"
     }
   ]
