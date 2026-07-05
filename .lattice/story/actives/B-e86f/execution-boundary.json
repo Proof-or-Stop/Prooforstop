@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e86f",
+  "allowedCommands": [
+    "git add docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "lattice *",
+    "markdown lint (read-only checks)",
+    "node --version",
+    "shasum *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only story: commits one execution-plan markdown file. No code, no experiments/ artifacts, no package changes. Verification is read-based (section presence checks, shasum, git log).",
+  "createdAt": "2026-07-05T12:45:41.078Z",
+  "updatedAt": "2026-07-05T12:45:41.078Z",
+  "_hash": "d4e8fc0ed740a968563337a2241efb6ddd9de757477281dc4dd3efda4eff980d"
+}
