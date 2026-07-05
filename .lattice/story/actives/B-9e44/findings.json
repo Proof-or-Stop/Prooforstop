@@ -87,6 +87,24 @@
       "resolvedAt": "2026-07-05T16:11:24.379Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-005",
+      "desc": "[codex-host-2 re-check, verified] Oracle-weaken is under-enumerated: gold-semantic-weaken only mutates expectedIds, but the verifier derives obligations from the tampered gold file for mustNotSurfaceIds, expectedSuppressedIds, expectedDeprecatedTermHits, supersededPreference too. Empirically confirmed: weakening expectedSuppressedIds (truth-first query) and mustNotSurfaceIds (host-policy query), refresh -> status:pass. These refreshed oracle-weaken variants are malicious passes not covered. Root family = digest-recompute defeats detection (Tier-C).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T16:29:27.298Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "_hash": "a2f8c85117e8637e9f54cefbca971053eb225a064172c61291d1dffb877a42b8",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
