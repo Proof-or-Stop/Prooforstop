@@ -1450,6 +1450,189 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  const storyId = 'B-done-closeout-worktree';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closeout-worktree-'));
+  const mainRoot = join(root, 'main');
+  const worktreeRoot = join(root, 'story-worktree');
+  const originalCwd = process.cwd();
+  const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+  const originalCandidateIngestEnabled = process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+  const gitMain = (args) => execFileSync('git', args, {
+    cwd: mainRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const gitWorktree = (args) => execFileSync('git', args, {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+
+  try {
+    process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = '0';
+    process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = '0';
+    mkdirSync(mainRoot, { recursive: true });
+    gitMain(['init', '-b', 'main']);
+    gitMain(['config', 'user.name', 'Milestone Status Test']);
+    gitMain(['config', 'user.email', 'milestone-status@example.com']);
+    writeJson(join(mainRoot, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      workflow: { profile: 'light' },
+      proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
+      flows: { defaults: {}, patterns: [] },
+    });
+    gitMain(['add', 'lattice.config.json']);
+    gitMain(['commit', '-m', 'init']);
+    gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
+
+    process.chdir(worktreeRoot);
+    const store = new StoryStore(worktreeRoot);
+    const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
+    const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
+    assert.ok(preEvidenceMaterialHash, 'worktree fixture must be able to compute a material hash');
+    const doneStory = {
+      ...story(storyId),
+      phase: 'TEST',
+      priority: 'low',
+      currentReviewRound: '2026-07-04T10:00:00.000Z',
+    };
+    const closeoutChecklist = {
+      items: [
+        checklistItem('CHK-DONE-CLOSEOUT', 'done', [
+          evidence('CHK-DONE-CLOSEOUT:happy:0', 'pass', {
+            headHash: preEvidenceHead,
+            materialHash: preEvidenceMaterialHash,
+          }),
+        ], intent('DONE handler worktree cleanup evidence')),
+      ],
+    };
+    const docsPromises = [];
+    const realMachineTests = [
+      {
+        featureId: 'milestone-closeout-done-worktree-transition',
+        transcript: 'Focused worktree story_advance DONE fixture must leave closeout readable from canonical main.',
+      },
+    ];
+    const closingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'The worktree DONE transition fixture has enough signed delivery context for the orchestrator gate.',
+    };
+    const reviewRound = doneStory.currentReviewRound;
+
+    store.writeStory(storyId, doneStory);
+    store.writeChecklist(storyId, closeoutChecklist);
+    store.writeMilestoneLedger(storyId, ledger([
+      milestone({
+        id: 'M-done-closeout-worktree',
+        sourceRequirementId: 'REQ-done-closeout-worktree',
+        claim: 'The real DONE worktree cleanup path preserves milestone-closeout.json in canonical main',
+        doneMeans: 'After story_advance DONE removes the story worktree, main-root milestone_closeout reads the frozen snapshot',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-DONE-CLOSEOUT'],
+        verificationIntentRefs: ['CHK-DONE-CLOSEOUT:happy:0'],
+        status: 'done',
+      }),
+    ], storyId));
+    store.writeTestEvidence(storyId, {
+      command: `lattice validate --story=${storyId} --json`,
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-07-04T11:00:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+    });
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-07-04T11:30:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+      reviewRound,
+      agentId: 'lattice-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(
+        storyId,
+        docsPromises,
+        realMachineTests,
+        closingSelfCheck,
+        reviewRound,
+        preEvidenceMaterialHash,
+      ),
+    });
+    gitWorktree(['add', '.']);
+    gitWorktree(['commit', '-m', 'ready for DONE in story worktree']);
+    assert.equal(gitWorktree(['status', '--porcelain']), '', 'story worktree fixture must be clean before the DONE gate runs');
+    assert.equal(gitMain(['status', '--porcelain']), '', 'main worktree fixture must be clean before the DONE merge runs');
+    assert.equal(currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot), preEvidenceMaterialHash);
+    const doneHead = gitWorktree(['rev-parse', 'HEAD']);
+
+    const logs = [];
+    const handlers = createStoryAdvanceHandlers({
+      root: worktreeRoot,
+      scanRoot: worktreeRoot,
+      store,
+      log: (msg) => logs.push(msg),
+    });
+    const output = await handlers.story_advance({ storyId, phase: 'DONE' });
+    process.chdir(mainRoot);
+
+    assert.match(output, new RegExp(`Story ${storyId} advanced to DONE`));
+    assert.ok(!existsSync(worktreeRoot), 'story_advance DONE should remove the story worktree after merging to main');
+    assert.ok(
+      logs.some((line) => line.includes(`milestone closeout snapshot captured for ${storyId}`)),
+      'story_advance DONE should report the closeout capture path before cleanup',
+    );
+    const mainStore = new StoryStore(mainRoot);
+    const snapshot = mainStore.readMilestoneCloseout(storyId);
+    assert.ok(snapshot, 'canonical main must retain milestone-closeout.json after worktree cleanup');
+    assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(snapshot.storyId, storyId);
+    assert.equal(snapshot.phase, 'TEST', 'closeout is captured before DONE phase metadata is persisted');
+    assert.equal(snapshot.bindings.headHash, doneHead);
+    assert.equal(snapshot.bindings.materialHash, preEvidenceMaterialHash);
+    assert.equal(snapshot.rows[0].milestone, 'M-done-closeout-worktree');
+
+    const closeoutJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      mainRoot,
+      '--storyId',
+      storyId,
+      '--format=json',
+    ], { cwd: mainRoot, encoding: 'utf8' }));
+    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(closeoutJson.rows[0].milestone, 'M-done-closeout-worktree');
+    assert.equal(
+      gitMain(['status', '--porcelain', '--untracked-files=no']),
+      '',
+      'DONE merge cleanup should leave canonical main without tracked dirt',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    if (originalSettlementEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = originalSettlementEnabled;
+    }
+    if (originalCandidateIngestEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = originalCandidateIngestEnabled;
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
   const storyId = 'B-capture-incomplete';
   const writes = [];
   assert.throws(

@@ -350,8 +350,11 @@ Snapshot creation is stricter than display: the DONE path skips capture when no
 milestone ledger exists, but if a ledger exists the closeout write must come from
 a report with every row completed and no risks. Incomplete or risk-bearing
 milestone reports block rather than writing a false closeout. When the snapshot
-is missing, `milestone_closeout` prints a diagnostic and a next action; use
-`milestone_status` to inspect the current live readiness.
+is written from a story worktree DONE path, it is committed with the story
+metadata before the worktree is removed, so the canonical main root can still
+read it after merge cleanup. When the snapshot is missing, `milestone_closeout`
+prints a diagnostic and a next action; use `milestone_status` to inspect the
+current live readiness.
 
 ### Autopilot (local)
 

@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-3a4d",
-  "state": "candidate",
-  "ledgerHash": "sha256:802edaec44fe61b694a868d506d37d5c4ef61eade3febd87732d5c2abaf3251c",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5c805e1ea409b3fd2ee98397cf6e8229d6d830f1210545229bd4039ebe94fd61",
   "milestones": [
     {
       "id": "M1",
-      "sourceRequirementId": "REQ-closeout-durable",
+      "sourceRequirementId": "REQ-001",
       "claim": "DONE closeout snapshot is persisted through the DONE merge and cleanup boundary.",
       "doneMeans": "After a real DONE transition, canonical story metadata contains milestone-closeout.json and the story worktree can be removed without losing it.",
       "requiredEvidence": [
@@ -23,7 +23,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "REQ-canonical-root-regression",
+      "sourceRequirementId": "REQ-002",
       "claim": "Regression coverage proves canonical-root milestone_closeout succeeds after DONE cleanup.",
       "doneMeans": "The focused test fails if closeout is only written in the worktree or deleted during cleanup, and passes only when canonical root can read proofbound.milestone_closeout.v1.",
       "requiredEvidence": [
@@ -41,7 +41,7 @@
     },
     {
       "id": "M3",
-      "sourceRequirementId": "REQ-no-fabricated-closeout",
+      "sourceRequirementId": "REQ-003",
       "claim": "Stories without milestone ledgers still do not fabricate closeout snapshots.",
       "doneMeans": "Missing-ledger DONE stories keep the existing missing/not-applicable diagnostic rather than writing false completed closeout rows.",
       "requiredEvidence": [
@@ -59,5 +59,10 @@
     }
   ],
   "createdAt": "2026-07-05T02:16:26.817Z",
-  "updatedAt": "2026-07-05T02:16:26.817Z"
+  "updatedAt": "2026-07-05T02:23:51.342Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705022300",
+    "acceptedInterpretationHash": "sha256:17db690120c2294afa76cd80255d2a1d2f3c73bd5af02606f57a17b983c9be35",
+    "acceptedAt": "2026-07-05T02:23:51.342Z"
+  }
 }
