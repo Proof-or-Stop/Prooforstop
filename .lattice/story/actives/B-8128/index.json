@@ -1,11 +1,11 @@
 {
   "storyId": "B-8128",
   "name": "product-capability-release-lineage",
-  "title": "Product capability release records + playbook capability lineage binding (M0-M8)",
-  "description": "Implement the product-capability-release-playbook-lineage execution plan (docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md), milestones M0 through M8.\n\nProblem: B-785e produced an artifact release (AR-4e885ed0209e5a32330cdc33) and a candidate playbook (PBP-882), but PBP-882's lineage carries only sourceStoryId/sourceFindingId/sourceSignature=done_experience. It lacks a first-class capabilityReleaseId / artifactReleaseId binding, so future hosts cannot answer which reusable product capability version a lesson is about, or which artifact digest backs it.\n\nFix (parallel to the existing artifact-release feature): add a non-runtime ProductCapabilityReleaseRecord ledger, a conservative DONE capability classifier, deterministic idempotent release binding, DONE candidate-ingest lineage attachment, read-only inspection CLI, controlled pending-learning candidate exposure, evidence-based outcome/promotion safety (DONE success alone never counts as helped), and an idempotent B-785e backfill.\n\nSafety boundary preserved throughout: capability releases are authority=non_authoritative, gateEvidence=false; candidate playbooks stay inert (never auto-active, never in MemoryFreshnessPack active playbookIds, never gate evidence); promotion requires concrete exposure + structured verdict.",
+  "title": "Product capability release records + playbook lineage binding V1 (M0-M5 + assert M6/M7)",
+  "description": "Implement V1 of product-capability-release-playbook-lineage-execution-plan.md (revision 2, audited): M0 hermetic red, M1 schema/ledger/fail-closed reader, M2 pure core classifier at both DONE sites, M3 merge-stable idempotent binding, M4 optional lineage widening + candidate enrichment, M5 read-only CLI, M6/M7 assert-invariant smokes (already enforced in code), and a hermetic B-785e-shaped backfill proof. Standalone capability_release_backfill command + M6/M7 exposure surfaces deferred to a follow-up story. Supersedes the original M0-M8 scope per the 2026-07-05 audit.",
   "type": "feature",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "keywords": [
     "capability-release",
     "playbook-lineage",
@@ -40,6 +40,32 @@
       "user": "Harmonygo",
       "sessionId": "8a82337e-7a51-4552-b409-aca746c3ecc4",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T16:05:16.327Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Data Migration/Destructive",
+      "reason": "False positive: migration matched a now-DELETED M8 checklist item removed-title (standalone backfill/migration deferred to a follow-up story). V1 performs NO live/destructive data migration; it keeps only a hermetic fixture-based backfill proof. Confirmed by INIT reviewer INIT-001.",
+      "at": "2026-07-05T16:01:40.828Z"
+    },
+    {
+      "category": "Validation Framework",
+      "reason": "False positive: lattice validate matched a validation-checklist mention, not a modification of the validation framework. V1 RUNS lattice validate as a check but does not modify validate/the validation framework. Confirmed by INIT reviewer INIT-001.",
+      "at": "2026-07-05T16:01:41.313Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8128",
+    "branch": "story/B-8128",
+    "createdAt": "2026-07-05T16:05:14.199Z"
+  }
 }
