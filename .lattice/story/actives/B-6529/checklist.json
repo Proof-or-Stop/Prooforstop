@@ -209,9 +209,9 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:55:57.944Z",
       "verificationIntent": {
         "happy": [
           {
@@ -476,6 +476,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Dated E2 executor/reviewer snapshot metadata and host-label rejection verified by checker."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:57.944Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Prompt and tool-surface digest binding verified by checker."
     }
   ]
 }
