@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2a5b",
+  "records": [
+    {
+      "id": "RED-20260705184017",
+      "trigger": "M2 material-code: build run-batch.mjs replay driver + proof-or-stop ledger + selfcheck; none exists yet.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "324c222296eaba4c71faf01d97ced7da64d70464",
+      "baselineMaterialHash": "9890e8e571a5e34696f117e2eb4100619bbc788bae3e9e0363b196f3f13d269e",
+      "observedFailure": "node experiments/pos-instrument-replay/selfcheck-m2.mjs fails with ERR_MODULE_NOT_FOUND: run-batch.mjs, batch-ledger.jsonl and selfcheck-m2.mjs do not exist, so the budget_cap/lockfile/recordless proof-or-stop paths cannot be checked.",
+      "failingCommand": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+      "expectedGreenCommand": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs"
+      },
+      "note": "Green after DEV: selfcheck-m2 exits 0 (budget_cap stop + lockfile precondition_failed + recordless-exit-nonzero all exercised).",
+      "createdAt": "2026-07-05T18:40:17.539Z"
+    }
+  ],
+  "createdAt": "2026-07-05T18:40:17.539Z",
+  "updatedAt": "2026-07-05T18:40:17.539Z"
+}
