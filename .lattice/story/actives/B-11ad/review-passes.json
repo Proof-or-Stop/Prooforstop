@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T09:55:02.266Z",
       "reviewRunId": "B-11ad:RR-002",
       "_hash": "7a1d4262d6a03d72a48479fec601fcfdb1617cdbf9d46021fa2fe5baf3fa8955"
+    },
+    {
+      "id": "B-11ad:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review of b70d2738 for B-11ad:F-002: commitArtifactReleaseLedgerIfNeeded now stages non-empty already_recorded results and commits any dirty ledger row, while clean already_recorded remains a no-op. Verified packages/main build and artifact-release-ledger smoke including retry durability case.",
+      "createdAt": "2026-07-05T10:03:21.756Z",
+      "reviewRound": "2026-07-05T10:01:51.927Z",
+      "reviewRunId": "B-11ad:RR-006",
+      "_hash": "0679ca264ea2d4ac4ae2b38925162160a2e41c17c0919a4334af74a79fee57ca"
     }
   ]
 }
