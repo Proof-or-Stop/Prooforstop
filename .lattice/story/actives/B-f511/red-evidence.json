@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f511",
+  "records": [
+    {
+      "id": "RED-20260705202445",
+      "trigger": "M3 material-code: build resume-probe.mjs + additive run-batch resume mode + selfcheck; none exists yet.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "d111ed2c6512169ef49f1bcdedcb7d54e429e613",
+      "baselineMaterialHash": "1c2dc2313b3c8af3256ddf2e3ac40e47d80532950cb83c79f6b96937dc65222f",
+      "observedFailure": "node experiments/pos-instrument-replay/selfcheck-m3.mjs fails with ERR_MODULE_NOT_FOUND: resume-probe.mjs + selfcheck-m3.mjs do not exist and run-batch.mjs has no resume mode, so the interrupt/resume/reconciliation H3 flow cannot be checked.",
+      "failingCommand": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+      "expectedGreenCommand": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs"
+      },
+      "note": "Green after DEV: selfcheck-m3 exits 0 (0 dup / 0 gap after boundary+mid-iteration kills + resume; casualty stop-or-rerun).",
+      "createdAt": "2026-07-05T20:24:45.660Z"
+    }
+  ],
+  "createdAt": "2026-07-05T20:24:45.660Z",
+  "updatedAt": "2026-07-05T20:24:45.660Z"
+}
