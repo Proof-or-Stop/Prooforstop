@@ -1,0 +1,11 @@
+## Trigger Event
+Story B-e86f (Docs: land the proof-or-stop evidence-instrument replay and tamper campaign execution plan, rev 3) reached DONE and merged to main on 2026-07-05, freezing the campaign pre-registration. M0 is milestone 1 of that plan section 8 (strict order M0 to M4).
+
+## Key Insights
+The instrument (packages/main/src/core/playbook-runtime-baseline.ts) was mapped hands-on: generate is deterministic and the seed is CONTENT-INERT (buildBaselineRows takes no seed; records/gold byte-identical across seeds). verify returns status pass|fail plus a ~20-field boolean flag vector (recordsDigestStable, goldDigestStable, manifestDigestStable, staleDetected, requestedProfileMatches, profileRecordCountMatches, partitionContractPass, sourceDigestMutationMatrixPass, ...) AND numeric gold metrics (expectedIdsFoundRate, false-surface rates, malformedRowsSkipped) but NO textual reason. status=pass iff all 19 enumerated conditions hold. Because there is no reason field, truthful adjudication MUST be a frozen per-class fingerprint over an explicit domain (flags + numeric predicates), which is why viability must be two-pronged: a class is fail-closed only if its fingerprint carries a real failure signal; a self-consistent refreshed variant that legitimately verify-accepts is dispositioned to the acceptance bucket, never enumerated as an H2 class.
+
+## Solution Tradeoffs
+protocol.json is authored frozen constants PLUS a tamper-matrix whose per-class fingerprints are DERIVED from a committed viability harness that applies each candidate (class x raw|refreshed) to an mkdtemp-isolated copy of a small baseline and observes the real verify result. A committed producer emits protocol.json and its sha256 so the freeze is reproducible. Rejected alternative: hand-authoring fingerprints without running the mutations, because the plan requires every class demonstrably viability-checked and the rev-1 seed-swap no-op was dropped exactly by such a check.
+
+## Conversational Texture
+The operator directed on 2026-07-05, in Chinese, to now begin executing the development plan in strict milestone order until every milestone is DONE. M0 is the first. This story delivers only the freeze + viability + calibration; the tamper harness itself is M1.

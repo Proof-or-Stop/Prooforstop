@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Scaffold experiments/pos-instrument-replay/ and a committed viability harness (viability-check.mjs) that applies each candidate tamper class (x raw|refreshed) to an mkdtemp-isolated copy of a small baseline, runs verify, and records the observed fingerprint over the explicit domain plus a disposition (fail-closed|accepted|dropped)",
+      "context": "Candidate classes from plan section 6.1: records.jsonl byte-flip / row drop / row duplicate / row reorder / field rename / truncation (raw + selected refreshed); gold-queries.json edit (raw + refreshed); manifest.json recordCount/profile/digest edit (raw only); cross-PROFILE swap. Mutation-in-isolated-copy only; never touch the source baseline. refreshManifest logic (recompute recordsDigest/goldDigest, rebuild manifestDigest) is replicated from the smoke.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Freeze protocol.json via a committed producer (build-protocol.mjs) that emits protocol.json + its sha256 from the viability results plus frozen constants",
+      "context": "protocol.json content per plan section 7: N per scale (proposed 30 small / 3 full, full-N finalized from calibration), content-inert seed constant with contentInert:true annotation, tamper matrix split into fail-closed set (each with expected fingerprint over flags+numeric predicates) + acceptance bucket + dropped list, iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum {budget_cap,verify_crash,precondition_failed,operator_abort}, env pins {nodeVersion,platform,instrumentCommit}. Producer must be deterministic and re-emit a byte-identical protocol.json (hash reproducible).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run ONE full-profile (1,000,000-record) generate+verify and record the measured cost (elapsedMs, peakRssBytes) to calibrate the full budget cap and final full-N; record env pins",
+      "context": "This is the sole heavy compute in M0. Capture the measured full-profile elapsed + rss into a committed calibration record that build-protocol.mjs consumes to set the budget cap and freeze full-N. Small verify measured ~7.3s hands-on.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a hermetic mkdtemp-isolated selfcheck runnable by node <file> for the viability harness and the protocol producer, asserting protocol.json re-emits byte-identical (hash stable) and every fail-closed class fingerprint carries a failure signal",
+      "context": "Per plan section 7 selfchecks row: hermetic, mkdtemp-isolated, run by node <file>. The selfcheck guards reproducibility of the freeze and the two-pronged viability invariant.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
