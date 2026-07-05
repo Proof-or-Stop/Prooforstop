@@ -57,6 +57,8 @@ import {
   lineageFromSeed,
   type PlaybookSeedCandidate,
 } from '../core/playbook-seed.js';
+import { StoryStore } from '../core/store.js';
+import { createPlaybookHandlers } from '../handlers/playbook.js';
 
 function mkdtemp(prefix: string): string {
   return execFileSync('mktemp', ['-d', join(tmpdir(), `${prefix}XXXXXX`)], {
@@ -193,6 +195,45 @@ try {
       generatedAt: '2026-07-05T00:00:00.000Z',
     });
     assert.equal(pack.results.playbookIds.includes(active.id), true);
+  });
+
+  check('M5: playbook_promotion_status surfaces a candidate\'s capability-release lineage (text + json)', () => {
+    const statusRoot = mkdtemp('capability-invariants-m5-status-');
+    cleanup.push(statusRoot);
+    write(statusRoot, 'lattice.config.json', '{}');
+    const candidate = makeCapabilityPlaybook('candidate');
+    writePlaybooks(statusRoot, [candidate]);
+
+    const handlers = createPlaybookHandlers({
+      root: statusRoot,
+      store: new StoryStore(statusRoot),
+      scanRoot: join(statusRoot, 'packages/main'),
+    });
+
+    // TEXT render must carry a per-candidate capabilityRelease segment sourced
+    // ONLY from the lineage already on the loaded playbook (no new import).
+    const text = handlers.playbook_promotion_status({}) as string;
+    assert.ok(
+      text.includes(`capabilityRelease=${candidate.lineage.capabilityReleaseId}`),
+      'text status must surface the candidate capabilityReleaseId',
+    );
+    assert.ok(
+      text.includes(`(${candidate.lineage.capabilityId} v${candidate.lineage.capabilityVersion})`),
+      'text status must surface capabilityId + capabilityVersion',
+    );
+
+    // JSON render must expose the same capabilityRelease fields on pendingLearning.
+    const json = JSON.parse(handlers.playbook_promotion_status({ json: true }) as string) as {
+      pendingLearning: Array<{
+        playbookId: string;
+        capabilityRelease?: { capabilityReleaseId: string; capabilityId?: string; capabilityVersion?: string };
+      }>;
+    };
+    const row = json.pendingLearning.find((p) => p.playbookId === candidate.id);
+    assert.ok(row, 'candidate must appear in pendingLearning');
+    assert.equal(row?.capabilityRelease?.capabilityReleaseId, candidate.lineage.capabilityReleaseId);
+    assert.equal(row?.capabilityRelease?.capabilityId, candidate.lineage.capabilityId);
+    assert.equal(row?.capabilityRelease?.capabilityVersion, candidate.lineage.capabilityVersion);
   });
 
   // ── GROUP M7 ────────────────────────────────────────────────────────────────
