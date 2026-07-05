@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0168",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "excluded": [
+    "CLI semver/version bump policy changes",
+    "experiment execution or result claims",
+    "paper number or abstract updates",
+    "protocol.lock.json or records-tier-c.jsonl generation",
+    "runtime code changes"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User asked to open a story to manage the two uncommitted Tier-C docs after ownership check found no active story binding them.",
+  "createdAt": "2026-07-05T10:41:11.239Z",
+  "updatedAt": "2026-07-05T10:41:11.239Z",
+  "_hash": "bc281c44fedb6d9ecc10f2b993e8b6115fef4833d5d0bdc971ed2d82cffafe0b"
+}
