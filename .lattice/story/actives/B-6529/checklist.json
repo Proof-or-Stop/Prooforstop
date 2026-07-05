@@ -298,9 +298,9 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:55:59.371Z",
       "verificationIntent": {
         "happy": [
           {
@@ -485,6 +485,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Prompt and tool-surface digest binding verified by checker."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:59.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Runner ownership and duplicate policy verified by checker."
     }
   ]
 }
