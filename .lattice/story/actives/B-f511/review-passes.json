@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f511:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "M3 diff (experiments/pos-instrument-replay/) is purely additive: run-batch.mjs +183/-0, fresh-campaign path unchanged (resume-only branches gated behind opt-in --resume/POS_RESUME=1); new files resume-probe.mjs, selfcheck-m3.mjs, resume-reconciliation.json introduce no dangling imports (node --check passes on all touched/added .mjs files; all imports are node: stdlib). Confirmed via git diff main...HEAD that protocol.json, lib/, instrument.mjs, tamper.mjs, selfcheck-m1.mjs, selfcheck-m2.mjs, batch-ledger.jsonl are byte-identical to main (empty diff). New env hooks POS_RESUME and POS_CRASH_BEFORE_APPEND_AT do not collide with or shadow existing POS_BUDGET_CAP_MS, POS_FAIL_GENERATE_AT, POS_FAIL_MKDTEMP_AT, POS_FAIL_APPEND_AT, POS_SKIP_RECORD_AT, POS_PROTOCOL_PATH. No concept deletion/replacement this round; no blocker.",
+      "createdAt": "2026-07-05T21:12:09.485Z",
+      "reviewRound": "2026-07-05T21:09:49.475Z",
+      "reviewRunId": "B-f511:RR-004",
+      "_hash": "d3bcf100b7c5cbbdb6984d2f1d9ecfca2fd10cc05843cd955df3b5adfce0e2d2"
+    }
+  ]
+}
