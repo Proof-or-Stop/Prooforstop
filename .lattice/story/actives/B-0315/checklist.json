@@ -42,7 +42,42 @@
       },
       "status": "done",
       "startTime": "2026-07-05T09:47:51.578Z",
-      "endTime": "2026-07-05T09:48:57.352Z"
+      "endTime": "2026-07-05T09:48:57.352Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts docs/CLI.md changed-path sets return true for the DONE version bump predicate.",
+          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
+          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
+          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
+          "timestamp": "2026-07-05T09:53:49.689Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts packages/main/tests/milestone-status.test.mjs returns true for the DONE version bump predicate.",
+          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
+          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
+          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
+          "timestamp": "2026-07-05T09:53:49.849Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts docs/requirements/decisions/story-lifecycle.md, arbitrary docs, and experiments/tier-c-proof/sum.mjs remain non-bump inputs.",
+          "headHash": "9da5e0be21687c1d1768422f2ca2149a7a4212fe",
+          "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
+          "storyFilesHash": "5e11886a3604ee26bd0755ac41f633ce0135d8b95ca04c6da203d275e740cda0",
+          "timestamp": "2026-07-05T09:53:50.006Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
