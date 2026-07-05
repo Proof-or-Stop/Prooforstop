@@ -62,6 +62,25 @@
       "resolvedAt": "2026-07-05T13:57:25.652Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e86f:F-004",
+      "desc": "CHK-001:happy:0 verificationEvidence is stale relative to current HEAD: all 9 CHK-001 evidence entries carry headHash=005b5e344 (bound to the pre-fix doc content, commit 7cdb75165/005b5e344), but current HEAD is 4ad11c79e with the doc content last changed in 4a4c4e543 (F-001/F-002/F-003 fix: H2 fingerprint-domain rewording, two-pronged viability, accepted-behavior bucket, 1000-questions wording fix). The lone verification_evidence_refresh_stale run (commit 1563972d3, timestamp 13:57:00.528Z) executed BEFORE the 4a4c4e543 content fix (finding_resolve/review_pass events at 13:59:47-14:00:34) and was never re-run afterward. Concretely, CHK-001:happy:0 note asserts committed-blob sha256=1f853b0ba354a941dae84512f104bd68d2c72524ff79513de72fe7a3e47e9fa8, but the actual current HEAD blob hashes to a2512bd60483e0edd67b1de2b4c3c0f4a9dde4e612ec1a17356bbd153b985d2e - the content-integrity check as recorded no longer holds against HEAD. The other 8 intents (happy:1, edge:0/1, adversarial:0-4) independently re-verified true against current HEAD content, but their evidence records are equally unrefreshed/stale metadata. Remediation: re-run verification_evidence_refresh_stale (or equivalent re-verification) against current HEAD so headHash/materialHash/sha256 note text bind to 4ad11c79e, not 005b5e344.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T14:02:56.017Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-010",
+      "_hash": "dfe6199ab2e2fd2f13c53801186b1a01ad53baa34749aa44ed662cdc1bb30e55",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+        ".lattice/story/actives/B-e86f/checklist.json"
+      ],
+      "signatureTag": "missing|md|happy-verificationevidence-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
