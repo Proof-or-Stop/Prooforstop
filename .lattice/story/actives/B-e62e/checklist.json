@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Print milestone_status table after milestone-aware mutating commands",
       "context": "Add a mechanical post-command output path so commands like checklist_update, verification_evidence_batch_add, verification_evidence_refresh_stale, story_advance, delivery_check_save, summary_set, and milestone_ledger_set/add append the same human table as `lattice milestone_status --storyId=<id>` when the story has a milestone ledger.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T10:28:31.441Z",
       "endTime": null,
       "relatedDocs": [
         "docs/CLI.md"
@@ -93,6 +93,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-05T10:28:31.441Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation of post-command milestone_status table output."
     }
   ]
 }
