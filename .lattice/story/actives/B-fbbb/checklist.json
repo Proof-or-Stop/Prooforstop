@@ -25,6 +25,14 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {

@@ -33,18 +33,17 @@
         "CHK-001",
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0"
+      ],
       "milestoneIds": [],
-      "note": "Both checklist items must land for experience-layer-playbook-smoke to reach 31/31; acceptance = the smoke prints TOTAL 31 | PASS 31 | FAIL 0 and smoke passed."
+      "note": "Acceptance = experience-layer-playbook-smoke prints 31/31 'smoke passed'; covers the fence allowlist widen (CHK-001) + the stale decision-doc assertion fix (CHK-002)."
     }
   ],
   "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "ACC-001 has no verificationIntentRefs."
-    },
     {
       "code": "missing_red_evidence",
       "severity": "warn",
@@ -55,7 +54,7 @@
       ]
     }
   ],
-  "note": "Single acceptance claim (smoke at 31/31) covering the fence allowlist widen (CHK-001) + the stale decision-doc assertion fix (CHK-002).",
+  "note": "Single acceptance claim (smoke 31/31).",
   "createdAt": "2026-07-05T21:33:36.976Z",
-  "updatedAt": "2026-07-05T21:33:36.976Z"
+  "updatedAt": "2026-07-05T21:36:29.320Z"
 }
