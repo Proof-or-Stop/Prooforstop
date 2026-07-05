@@ -270,7 +270,41 @@
       "context": "tsc build; register new smokes in lattice.config.json; run product-capability-release-smoke.js + playbook-capability-lineage-smoke.js + M0 red test (now green) + lattice validate --json allPass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Project validation commands passed",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-smoke.ts",
+          "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+          "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build passes (tsc clean) and all four new smokes run green under node dist/tasks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The M0 red smoke, initially red, is green after M4 lineage binding; lattice validate --json returns status=pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No unrelated smoke in the auto-discovered suite regresses (run-all-smokes green).",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-011",
