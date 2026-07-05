@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-6529:F-001",
+      "desc": "README still documents the old B-c25c exact-budget approval gate after B-6529 replaced it with a frozen Cell 03 execution envelope and postflight provider-reported usage accounting. At experiments/multi-model-ablation/README.md:16-18 and :228 it still says m2-provider-execution-launch has missing metadata blockers, the Cell 03 guardrail has exact spend approval absent, amount/currency/approvalSource/approvedBy/approvalDate are required before spend, and the checker validates invented/unbound budget approval. The current implementation forbids old exact-budget gate keys and validates preRunDollarGuessRequired=false / preRunDollarCapAsSoleGateAllowed=false instead, so the README gives stale launch semantics to future operators.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T21:58:54.898Z",
+      "reviewRound": "2026-07-05T21:56:57.655Z",
+      "reviewRunId": "B-6529:RR-001",
+      "_hash": "02ecb3092cf5fce835ad922e7aa60e114b43a9355f01b4a8636096df331ced7b",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+        "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json"
+      ],
+      "signatureTag": "doc-code-drift|md|readme-still-documents",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
