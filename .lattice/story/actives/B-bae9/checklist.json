@@ -42,7 +42,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/tamper.mjs",
+          "result": "pass",
+          "note": "tamper.mjs reads frozen protocol.json, replays every (class x handling) on mkdtemp copies, writes tamper-verdicts.jsonl: 27 verdicts (failClosed=18, acceptanceBucket=2, acknowledgedLimitations=6, dropped=1), each with iterationId tamper/small/<class>/<handling>, full verifyFlags, goldMetrics, fingerprintMatch, disposition.",
+          "headHash": "3cdc83c211863222f4f7e9ccbd9c9a003e5e263f",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:29:34.209Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
