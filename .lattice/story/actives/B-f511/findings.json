@@ -33,6 +33,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-003",
+      "desc": "repairTruncatedTail (run-batch.mjs:182-220) unconditionally drops everything after the last newline when the ledger file does not end with \\n, even when that trailing fragment is a COMPLETE, valid, parseable JSON record — contradicting its own documented invariant (\"Every COMPLETE prior record is preserved verbatim\", line 178; \"All well-formed prior lines are honored\", line 129-131). Reproduced: a ledger of rec1\\n + rec2 (rec2 complete JSON, only missing the trailing newline) has rec2 silently deleted by repairTruncatedTail, so its already-completed iteration is silently discarded and re-run on resume. The single-line branch (lastNl < 0, lines 197-209) DOES check JSON.parse before dropping and preserves a parseable lone line, but the multi-line branch (lines 210-219) drops unconditionally without ever checking whether the trailing fragment parses — an inconsistent/incomplete repair that can discard real evidence though it does not create a duplicate.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T21:27:49.257Z",
+      "reviewRound": "2026-07-05T21:09:49.475Z",
+      "reviewRunId": "B-f511:RR-002",
+      "_hash": "a14b6bdca311126eb15319af1290a698a60f602fe15029d206f57d4014e01a2e",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "edge|mjs|repairtruncatedtail-batch-unconditionally",
+      "signatureTagSource": "auto"
     }
   ]
 }
