@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-9e44:F-001",
+      "desc": "[codex-host-2, verified] gold-edit[refreshed] is mislabeled benign. The frozen candidate only adds an ignored top-level field; but a SEMANTIC gold edit (weaken a gold query's expectedIds/mustNotSurfaceIds, keep query IDs present, refresh goldDigest) yields status:pass (empirically confirmed: dropping one expectedId from the host-policy query -> pass). The instrument computes expected/must-not metrics from the (mutated) gold file itself, so refreshed oracle-weakening is an undetected tamper. The matrix must enumerate a malicious gold-semantic-weaken[refreshed] class and disposition it as an acknowledged instrument blind spot (Tier-C, per claim boundary), NOT conflate the gold-refresh axis with benign row-order tolerance.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:54:58.827Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "7125ae99e82e4a96d705321022d8425e7f4317366790a5c04367a809efaa4165",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
