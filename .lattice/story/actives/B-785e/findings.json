@@ -5,7 +5,7 @@
       "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:92 only rejects an exact outcome key or records path fields, while experiments/multi-model-ablation/m2-provider-execution-launch.json:8 declares containsOutcomeData=false and lines 22-23 declare no outcome/result rows. A launch artifact could add resultRows/outcomeRecords/phase1Results data without an outcome key and still pass, creating a false negative against the no-outcome-data boundary. Severity: medium.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T12:08:33.639Z",
@@ -17,7 +17,11 @@
         "experiments/multi-model-ablation/m2-provider-execution-launch.json"
       ],
       "signatureTag": "adversarial|mjs|experiments-multi-model",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e1f2364024177f041754bce36677a20b2efa5e62. The checker now recursively rejects outcome/result-shaped launch data including resultRows, outcomeRecords, phase1Results, phase2Results, and presence flags such as resultRowsPresent/outcomeRecordsPresent/containsOutcomeData. Re-ran m2-provider-execution-check: PASS 391 assertions / 27 negative controls, plus m0/m1/m2 launch readiness checks.",
+      "resolvedAt": "2026-07-05T12:20:32.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-785e:F-002",
