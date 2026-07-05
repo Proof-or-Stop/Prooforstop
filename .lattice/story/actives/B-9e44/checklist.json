@@ -130,9 +130,9 @@
       "id": "CHK-004",
       "title": "Add a hermetic mkdtemp-isolated selfcheck runnable by node <file> for the viability harness and the protocol producer, asserting protocol.json re-emits byte-identical (hash stable) and every fail-closed class fingerprint carries a failure signal",
       "context": "Per plan section 7 selfchecks row: hermetic, mkdtemp-isolated, run by node <file>. The selfcheck guards reproducibility of the freeze and the two-pronged viability invariant.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T15:32:52.017Z",
       "userSees": "node experiments/pos-instrument-replay/selfcheck.mjs exits 0 and prints 'selfcheck PASS' (hermetic, mkdtemp-isolated).",
       "verificationIntent": {
         "happy": [
