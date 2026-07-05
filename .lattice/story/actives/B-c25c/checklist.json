@@ -40,9 +40,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:08:19.655Z",
       "userSees": "Baseline evidence shows: nextPermittedFormalStep=cell-03-calibration, provider execution remains disabled, and cell-06-a2prime-blocked.",
       "verificationEvidence": [
         {
@@ -431,6 +431,17 @@
       "startTime": null,
       "endTime": null,
       "userSees": "Story B-c25c reaches DONE with validation evidence and does not claim provider execution or outcome rows."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-05T17:08:19.655Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Baseline/red status evidence recorded and covered."
     }
   ]
 }
