@@ -356,6 +356,28 @@ function validateToolSurface(toolSurface) {
   assertHostLabelsRejected(toolSurface, "tool surface");
 }
 
+function assertStillRequiredFutureMetadataField(fields, fieldId) {
+  const field = fields.get(fieldId);
+  assert(field, `provider authorization missing future metadata ${fieldId}`);
+  assert(
+    field.status === "still_required_for_real_provider_execution",
+    `provider authorization ${fieldId} must remain still required for real provider execution`,
+  );
+  assert(field.value === null, `provider authorization ${fieldId} value must stay null until real provider execution`);
+  assert(field.blocksProviderExecution === true, `provider authorization ${fieldId} must block provider execution`);
+}
+
+function assertRecordedCell03FutureMetadataField(fields, fieldId, expectedValue) {
+  const field = fields.get(fieldId);
+  assert(field, `provider authorization missing future metadata ${fieldId}`);
+  assert(
+    field.status === "recorded_by_B-6529_for_cell_03",
+    `provider authorization ${fieldId} must be recorded by B-6529 for Cell 03`,
+  );
+  assert(field.value === expectedValue, `provider authorization ${fieldId} ref mismatch`);
+  assert(field.blocksProviderExecution === false, `provider authorization ${fieldId} must not block provider execution`);
+}
+
 function validateProviderAuthorization(authorization) {
   assert(authorization.artifact === "m2-provider-execution-authorization", "provider authorization artifact mismatch");
   assert(authorization.storyId === "B-11be", "provider authorization storyId mismatch");
@@ -401,32 +423,36 @@ function validateProviderAuthorization(authorization) {
   assert(authorization.executionWindow?.allowsProviderCells === false, "provider authorization window must not allow provider cells");
   assert(authorization.executionWindow?.allowsLocalChecks === true, "provider authorization window must allow local checks");
 
+  assert(
+    Array.isArray(authorization.requiredFutureExecutionMetadata),
+    "provider authorization requiredFutureExecutionMetadata must be an array",
+  );
   const fields = byId(authorization.requiredFutureExecutionMetadata, "fieldId");
   for (const forbidden of ["nonzeroProviderBudgetCap", "budgetCap", "exactBudgetApproval"]) {
     assert(!fields.has(forbidden), `provider authorization must not require ${forbidden}`);
   }
+  const humanApproval = fields.get("humanApproval");
+  assert(humanApproval, "provider authorization missing future metadata humanApproval");
+  assert(humanApproval.status === "recorded_for_metadata_only", "provider authorization humanApproval status mismatch");
+  assert(!("value" in humanApproval), "provider authorization humanApproval must not record a launch value");
+  assert(humanApproval.blocksProviderExecution === true, "provider authorization humanApproval must remain metadata-only blocking");
+
   for (const fieldId of [
-    "humanApproval",
     "datedExecutorSnapshot",
     "datedReviewerSnapshot",
     "promptDigest",
     "toolSurfaceDigest",
     "runnerOwnership",
-    "boundedExecutionEnvelope",
     "duplicatePolicy",
-    "resultOutputPolicy",
-    "postflightUsageAccountingPolicy",
   ]) {
-    assert(fields.has(fieldId), `provider authorization missing future metadata ${fieldId}`);
+    assertStillRequiredFutureMetadataField(fields, fieldId);
   }
-  assert(fields.get("boundedExecutionEnvelope")?.value === CELL03_ENVELOPE_REF, "provider authorization envelope ref mismatch");
-  assert(
-    fields.get("resultOutputPolicy")?.value === CELL03_RESULT_POLICY_REF,
-    "provider authorization result policy ref mismatch",
-  );
-  assert(
-    fields.get("postflightUsageAccountingPolicy")?.value === CELL03_USAGE_POLICY_REF,
-    "provider authorization usage policy ref mismatch",
+  assertRecordedCell03FutureMetadataField(fields, "boundedExecutionEnvelope", CELL03_ENVELOPE_REF);
+  assertRecordedCell03FutureMetadataField(fields, "resultOutputPolicy", CELL03_RESULT_POLICY_REF);
+  assertRecordedCell03FutureMetadataField(
+    fields,
+    "postflightUsageAccountingPolicy",
+    CELL03_USAGE_POLICY_REF,
   );
 
   const cell03 = authorization.sequencing?.cell03Calibration || {};
@@ -810,6 +836,19 @@ expectReject(
     });
   },
   /must not require nonzeroProviderBudgetCap/,
+);
+
+expectReject(
+  "dated executor snapshot cannot be pre-recorded as nonblocking metadata",
+  (artifacts) => {
+    const field = artifacts.providerAuthorization.requiredFutureExecutionMetadata.find(
+      (entry) => entry.fieldId === "datedExecutorSnapshot",
+    );
+    field.status = "recorded";
+    field.value = "openai-gpt-family-readiness-2026-07-05";
+    field.blocksProviderExecution = false;
+  },
+  /datedExecutorSnapshot must remain still required|datedExecutorSnapshot value must stay null|datedExecutorSnapshot must block provider execution/,
 );
 
 expectReject(
