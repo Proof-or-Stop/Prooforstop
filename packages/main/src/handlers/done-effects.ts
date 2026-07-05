@@ -1134,6 +1134,7 @@ export async function applyDoneMergeEffects(
       if (selectArtifactReleasePathsV1(doneMergeChangedPaths, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }).length > 0) {
         const artifactReleaseResult = recordArtifactReleaseForDoneMerge({
           root: mainMergeRoot,
+          gitCwd: mainMergeRoot,
           storyId,
           mainCommit: mainShaAfterDoneMerge,
           changedPaths: doneMergeChangedPaths,

@@ -51,6 +51,20 @@ function makeGitFixture(): string {
   return root;
 }
 
+function makeWrapperGitFixture(): { metadataRoot: string; gitCwd: string; head: string } {
+  const metadataRoot = mkdtemp('artifact-release-ledger-wrapper-');
+  const gitCwd = join(metadataRoot, 'repo');
+  mkdirSync(gitCwd, { recursive: true });
+  git(gitCwd, ['init', '-b', 'main']);
+  git(gitCwd, ['config', 'user.email', 'smoke@example.test']);
+  git(gitCwd, ['config', 'user.name', 'Artifact Release Wrapper Smoke']);
+  write(gitCwd, 'docs/release.md', '# Git release bytes\n');
+  git(gitCwd, ['add', '.']);
+  git(gitCwd, ['commit', '-m', 'fixture']);
+  write(metadataRoot, 'docs/release.md', '# Metadata fallback bytes\n');
+  return { metadataRoot, gitCwd, head: git(gitCwd, ['rev-parse', 'HEAD']) };
+}
+
 function mkdtemp(prefix: string): string {
   return execFileSync('mktemp', ['-d', join(tmpdir(), `${prefix}XXXXXX`)], {
     encoding: 'utf-8',
@@ -99,6 +113,39 @@ try {
     assert.equal(digest1, digest2);
     write(root, 'docs/release.md', '# Changed after commit\n');
     assert.equal(computeArtifactSetDigest(root, ['docs/release.md', 'experiments/proof/run.mjs'], head), digest1);
+  });
+
+  check('wrapper-root digest git probes use gitCwd while ledger and filesystem reads stay at metadata root', () => {
+    const { metadataRoot, gitCwd, head: wrapperHead } = makeWrapperGitFixture();
+    cleanup.push(metadataRoot);
+    const paths = ['docs/release.md'];
+    const metadataFsDigest = computeArtifactSetDigest(metadataRoot, paths);
+    const gitDigest = computeArtifactSetDigest(metadataRoot, paths, wrapperHead, gitCwd);
+    assert.match(gitDigest, /^sha256:[a-f0-9]{64}$/);
+    assert.notEqual(gitDigest, metadataFsDigest);
+
+    write(metadataRoot, 'docs/release.md', '# Metadata fallback changed after commit\n');
+    assert.equal(computeArtifactSetDigest(metadataRoot, paths, wrapperHead, gitCwd), gitDigest);
+    assert.equal(
+      computeArtifactSetDigest(metadataRoot, paths, undefined, gitCwd),
+      computeArtifactSetDigest(metadataRoot, paths),
+    );
+    assert.notEqual(computeArtifactSetDigest(metadataRoot, paths), metadataFsDigest);
+
+    const result = recordArtifactReleaseForDoneMerge({
+      root: metadataRoot,
+      gitCwd,
+      storyId: 'B-wrapper',
+      mainCommit: wrapperHead,
+      changedPaths: paths,
+      runtimeSemverChanged: false,
+      isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+      now: '2026-07-05T00:02:30.000Z',
+    });
+    assert.equal(result.status, 'recorded');
+    assert.equal(result.record?.artifactSetDigest, gitDigest);
+    assert.equal(existsSync(artifactReleaseLedgerPath(metadataRoot)), true);
+    assert.equal(existsSync(artifactReleaseLedgerPath(gitCwd)), false);
   });
 
   check('filesystem fallback works when no commit is supplied', () => {

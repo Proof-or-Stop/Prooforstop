@@ -22,7 +22,10 @@ export interface ArtifactReleaseRecordV1 {
 }
 
 export interface ArtifactReleaseRecordOptions {
+  /** Metadata/filesystem root for ledger paths and non-git fallback reads. */
   root: string;
+  /** Already-resolved cwd for git object probes; defaults to root for plain repos. */
+  gitCwd?: string;
   storyId: string;
   mainCommit?: string;
   changedPaths: string[];
@@ -80,10 +83,10 @@ function sha256Hex(input: string | Buffer): string {
   return createHash('sha256').update(input).digest('hex');
 }
 
-function gitObjectMaterial(root: string, commit: string, path: string): string {
+function gitObjectMaterial(root: string, gitCwd: string, commit: string, path: string): string {
   try {
     const blob = execFileSync('git', ['rev-parse', `${commit}:${path}`], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -93,7 +96,7 @@ function gitObjectMaterial(root: string, commit: string, path: string): string {
   }
   try {
     execFileSync('git', ['cat-file', '-e', commit], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -113,11 +116,12 @@ export function computeArtifactSetDigest(
   root: string,
   paths: string[],
   mainCommit?: string,
+  gitCwd = root,
 ): string {
   const normalized = uniqueSortedNormalizedPaths(paths);
   const entries = normalized.map(path => ({
     path,
-    material: mainCommit ? gitObjectMaterial(root, mainCommit, path) : filesystemMaterial(root, path),
+    material: mainCommit ? gitObjectMaterial(root, gitCwd, mainCommit, path) : filesystemMaterial(root, path),
   }));
   return `sha256:${sha256Hex(JSON.stringify(entries))}`;
 }
@@ -152,6 +156,7 @@ export function buildArtifactReleaseRecord(opts: ArtifactReleaseRecordOptions): 
     opts.root,
     paths,
     opts.mainCommit?.trim() || undefined,
+    opts.gitCwd ?? opts.root,
   );
   const idempotencyKey = `${opts.storyId}:${mainCommit}:${artifactSetDigest}`;
   const idHash = sha256Hex(idempotencyKey).slice(0, 24);
