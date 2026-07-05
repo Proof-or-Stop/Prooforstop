@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T12:59:18.692Z",
       "reviewRunId": "B-e86f:RR-001",
       "_hash": "34d6b0a660c855b986b8e87fce48c55c4b46a7ff0de2e6d1c99e66796bd96538"
+    },
+    {
+      "id": "B-e86f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Pure docs diff (Step 1 symbol extraction from git diff main...HEAD yielded zero exported symbols besides .lattice bookkeeping) -> Fallback 1 applied: full-text scan of the new doc (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md, 12 top-level sections + 5 subsections, 384 lines) cross-checked against the actual instrument source it cites. Verified against packages/main/src/core/playbook-runtime-baseline.ts and packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts: (1) PROFILE_COUNTS small=1_000/full=1_000_000 matches doc text; (2) buildBaselineRows(profile) takes only profile, no seed param -> seed is manifest-only metadata (args.seed ?? 42), confirming the content-inert claim; (3) grep for reason in playbook-runtime-baseline.ts returns zero hits -> PlaybookRuntimeBaselineVerifyResult has no textual reason field, only booleans/rates/status, confirming the fingerprint-based adjudication claim; (4) refreshManifest (smoke.ts L29) is used across assertGoldTamperWouldFail / assertMissingGoldQueryClassWouldFail / assertTruncatedSelfConsistentManifestWouldFail / rewriteRecord+replaceRecord, confirming existing manifest-refreshed self-consistent tamper coverage the plan says it extends; (5) cited reuse paths experiments/recovery-runner/ and experiments/experience-ablation/run-pilot.mjs both exist; the new experiments/pos-instrument-replay/ dir correctly does not exist yet (net-new future work, doc-only story). No other project .md references this new file yet, so no cross-doc drift surface exists beyond internal self-consistency, which holds. Zero findings.",
+      "createdAt": "2026-07-05T13:01:32.771Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-003",
+      "_hash": "e067ad5d59b9713e89e7e70982cadc0a3f53a3f6237e042295fd5d41cddd3999"
     }
   ]
 }
