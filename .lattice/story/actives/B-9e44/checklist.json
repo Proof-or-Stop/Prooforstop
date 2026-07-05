@@ -47,8 +47,8 @@
       "id": "CHK-002",
       "title": "Freeze protocol.json via a committed producer (build-protocol.mjs) that emits protocol.json + its sha256 from the viability results plus frozen constants",
       "context": "protocol.json content per plan section 7: N per scale (proposed 30 small / 3 full, full-N finalized from calibration), content-inert seed constant with contentInert:true annotation, tamper matrix split into fail-closed set (each with expected fingerprint over flags+numeric predicates) + acceptance bucket + dropped list, iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum {budget_cap,verify_crash,precondition_failed,operator_abort}, env pins {nodeVersion,platform,instrumentCommit}. Producer must be deterministic and re-emit a byte-identical protocol.json (hash reproducible).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T15:27:09.934Z",
       "endTime": null,
       "userSees": "node experiments/pos-instrument-replay/build-protocol.mjs writes protocol.json + protocol.json.sha256 and prints the frozen hash; a second run prints the identical hash (byte-identical re-emit).",
       "verificationIntent": {
