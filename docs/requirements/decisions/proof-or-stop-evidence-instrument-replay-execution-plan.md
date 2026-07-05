@@ -13,7 +13,14 @@ unsigned self-digests actually detect; determinism claims are bound to a
 recorded environment; per-hypothesis verdicts are three-state. rev 3 adds
 section 6.5 (operator decision, 2026-07-05): cross-vendor (Codex) roles —
 red-team, audit, replication — and the explicit rule that outcome-judging
-stays deterministic code, never any model.
+stays deterministic code, never any model. rev 3 review further sharpened
+H2: the per-class fingerprint is now defined over an EXPLICIT DOMAIN
+(boolean flag vector PLUS numeric-metric predicates over the gold metrics,
+not boolean flags alone), and M0 viability is TWO-PRONGED — self-consistent
+manifest-refreshed variants that legitimately verify-accept (e.g. a
+re-manifested row reorder) are dispositioned into a separate acceptance
+bucket and excluded from H2's fail-closed set, so they cannot spuriously
+falsify H2 the way the dropped seed-swap no-op would have.
 
 ## 1. Problem
 
