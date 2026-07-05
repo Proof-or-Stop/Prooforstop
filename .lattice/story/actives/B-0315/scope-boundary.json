@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0315",
+  "mode": "feature",
+  "allowed": [
+    "Add bounded CLI capability contract/proof inputs to DONE patch-version bump policy",
+    "Update focused smoke coverage for the new predicate",
+    "Update lifecycle documentation for the new policy boundary"
+  ],
+  "excluded": [
+    "Do not bump for every docs/** file",
+    "Do not bump for experiments/** or paper artifacts",
+    "Do not change semver major/minor policy",
+    "Do not manually bump the current version inside this story unless the DONE merge policy itself triggers it"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User requested adding the strategy after B-3a4d skipped version bump despite delivering a capability proof.",
+  "createdAt": "2026-07-05T09:35:40.732Z",
+  "updatedAt": "2026-07-05T09:35:40.732Z",
+  "_hash": "3d6d96ca3bfc0d0d8c0aecefbeac005f0394db5a2b7ea63fc91a039f3b0a281c"
+}

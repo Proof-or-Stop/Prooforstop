@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0315",
+  "allowedCommands": [
+    "lattice story_advance *",
+    "lattice story_review *",
+    "lattice validate --story=* --json",
+    "node packages/main/dist/tasks/version-bump-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/**",
+    "lattice-Paper/**",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Implementation is limited to policy predicate, focused smoke, and lifecycle docs; no manual version bump in DEV.",
+  "createdAt": "2026-07-05T09:35:40.732Z",
+  "updatedAt": "2026-07-05T09:35:40.732Z",
+  "_hash": "c189af5e6bfd28a0e654a1b797e9fdbb5233d7d437cac917692c102c13b0c09d"
+}

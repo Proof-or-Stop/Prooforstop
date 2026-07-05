@@ -1,0 +1,93 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add capability contract inputs to DONE version bump predicate",
+      "context": "Extend the DONE merge changed-path predicate so docs/CLI.md and packages/main/tests/** trigger the same patch-version/build path as packages/main/src/**, without including all docs or experiments.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A DONE story that changes docs/CLI.md or packages/main/tests capability proof files triggers the CLI patch version bump instead of printing the skip line.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A docs/CLI.md-only changed-path set returns true for the DONE version bump predicate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A packages/main/tests regression changed-path set returns true for the DONE version bump predicate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unrelated docs/requirements and experiments/** paths still return false and do not trigger a CLI version bump.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update smoke coverage and lifecycle docs for the new bounded policy",
+      "context": "Update version-bump smoke assertions and story-lifecycle documentation to describe watched CLI runtime plus capability contract/proof inputs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Developers can see exactly why B-3a4d-like stories now bump while general docs and experiments still do not.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "version-bump-smoke passes with assertions for docs/CLI.md and packages/main/tests/** bumping.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story-lifecycle docs name the bounded capability contract/proof input class.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The docs and smoke still prove experiments/** and arbitrary requirements docs are outside the automatic CLI bump policy.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
