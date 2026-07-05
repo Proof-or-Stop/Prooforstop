@@ -53,6 +53,17 @@
           "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
           "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
           "timestamp": "2026-07-05T15:41:54.176Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git status --short experiments/pos-instrument-replay/ ; grep -c mkdtemp experiments/pos-instrument-replay/viability-check.mjs",
+          "result": "pass",
+          "note": "The harness mutates ONLY mkdtemp-isolated copies (cpSync clean baseline -> fresh mkdtemp per candidate; grep shows mkdtemp usage). Working tree is clean after a full run — no source-baseline pollution.",
+          "headHash": "87db0b49562cb3ff412ca2da697577a65ea36a18",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:41:55.942Z"
         }
       ]
     },
