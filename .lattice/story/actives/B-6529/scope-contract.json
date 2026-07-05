@@ -50,8 +50,29 @@
         "B_6529_acceptance",
         "execution_envelope"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "README update is required to resolve B-6529:F-001 doc-code drift: it removes stale exact-budget launch guidance and aligns operator-facing experiment docs with the B-6529 frozen execution-envelope and postflight usage-accounting semantics.",
+      "timestamp": "2026-07-05T22:02:19.849Z",
+      "paths": [
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4d924276d16a936759ff4e9025c0d09ebaf72889",
+      "materialHash": "2ea264928460d519a9d493af83affab1465e46cbbcfb546ae09bcf21521adc72",
+      "anchors": [
+        "B_6529_F_001",
+        "readme_doc_sync",
+        "execution_envelope"
+      ]
     }
   ],
   "createdAt": "2026-07-05T21:39:19.391Z",
-  "updatedAt": "2026-07-05T21:53:52.420Z"
+  "updatedAt": "2026-07-05T22:02:19.849Z"
 }
