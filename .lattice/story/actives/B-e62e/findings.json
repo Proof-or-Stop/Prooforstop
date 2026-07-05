@@ -18,6 +18,21 @@
       "resolvedAt": "2026-07-05T12:17:39.379Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e62e:F-002",
+      "desc": "packages/main/src/core/milestone-status.ts:940 Pending Review semantics are not honored: fully covered ledger rows with ledger=planned render as ✅ Done because row.status is already completed before rowAppearsPendingReview runs. This conflicts with docs/CLI.md, which says covered or implementation-complete rows awaiting ledger/review/final acceptance should render 🟡 Pending Review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T12:22:59.233Z",
+      "reviewRound": "2026-07-05T12:17:26.671Z",
+      "reviewRunId": "B-e62e:RR-014",
+      "_hash": "a996ddd5829e266ef113c6e325ce3632bf835d2b11a2dd1f91dfcf25f54486a6",
+      "signatureTag": "doc-code-drift|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
