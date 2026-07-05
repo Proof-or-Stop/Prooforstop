@@ -125,6 +125,15 @@
       "reviewRound": "2026-07-05T11:06:09.853Z",
       "reviewRunId": "B-11ad:RR-018",
       "_hash": "640b3fa7d759e611b858cd86131d09f205b4174c814ea205f8f0ac257ec2fbfa"
+    },
+    {
+      "id": "B-11ad:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: docs/CLI.md and story-lifecycle.md match local built CLI/source behavior for non-runtime artifact provenance. The artifact ledger records only docs/** and experiments/** after lifecycle/runtime/build input exclusions, uses deterministic sha256 artifact-set digests at DONE/recovery, exposes read-only artifact_release_list/status commands, and remains provenance-only without broadening CLI semver/version bump rules. Verified with local dist read-only commands plus artifact-release-ledger and version-bump smokes.",
+      "createdAt": "2026-07-05T11:31:20.635Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-020",
+      "_hash": "e242deed66c7089fee1d512c7736b856872b75f6a74c8e0d98e0bf4261be0324"
     }
   ]
 }
