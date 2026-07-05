@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition}",
       "context": "iterationId = tamper/<scale>/<class>/<manifestHandling> per protocol.iterationIdRule. Reuse lib/instrument.mjs verifyDir/refreshManifest/fingerprintDomain/canonicalJson. Mutations are re-applied deterministically from the same class definitions M0 used; fingerprintMatch compares the live fingerprint-domain values against the frozen per-class fingerprint in protocol.json.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T17:15:20.676Z",
-      "endTime": null,
+      "endTime": "2026-07-05T17:25:55.213Z",
       "userSees": "node experiments/pos-instrument-replay/tamper.mjs prints a per-class verdict table and writes tamper-verdicts.jsonl (one line per class x manifestHandling with iterationId, verifyStatus, verifyFlags, goldMetrics, fingerprintMatch, disposition); ends 'verdicts written: N'.",
       "files": {
         "modify": [],
