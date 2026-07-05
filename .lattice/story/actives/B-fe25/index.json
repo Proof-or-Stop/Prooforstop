@@ -4,7 +4,7 @@
   "title": "Prepare Multi-Model Ablation M2 launch readiness without running provider cells",
   "description": "Create the auditable M2 launch-readiness layer for the multi-model ablation protocol: record human approval boundaries, lock dated model snapshot inputs, bind the 24-task inventory, and add a checker that distinguishes readiness from actual provider execution. This story must not run Phase 1 cells or generate outcome data.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "source": "2026-07-05 user-approved follow-up after B-806b M1 launch gate remained blocked",
   "keywords": [
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T02:13:15.311Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fe25",
+    "branch": "story/B-fe25",
+    "createdAt": "2026-07-05T02:13:14.031Z"
+  }
 }

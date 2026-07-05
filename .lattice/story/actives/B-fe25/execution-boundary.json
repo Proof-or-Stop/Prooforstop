@@ -2,6 +2,7 @@
   "schemaVersion": "lattice.execution_boundary.v1",
   "storyId": "B-fe25",
   "allowedCommands": [
+    "find experiments/recovery-runner/tasks -mindepth 1 -maxdepth 1 -type d",
     "lattice delivery_check_set --storyId=*",
     "lattice scope_freeze_check --storyId=*",
     "lattice story_advance --storyId=* --phase=*",
@@ -14,7 +15,8 @@
   "allowedPaths": [
     ".lattice/story/actives",
     "docs/requirements/decisions/multi-model-ablation-replication.md",
-    "experiments/multi-model-ablation"
+    "experiments/multi-model-ablation",
+    "experiments/recovery-runner/tasks"
   ],
   "excludedCommands": [
     "curl provider APIs",
@@ -29,8 +31,8 @@
     "experiments/multi-model-ablation/records-multi-model-ablation.jsonl"
   ],
   "confirmedBy": "codex",
-  "confirmationNote": "M2 readiness story may run local checkers only; no paid/provider cells or outcome records.",
-  "createdAt": "2026-07-05T02:09:14.746Z",
-  "updatedAt": "2026-07-05T02:09:14.746Z",
-  "_hash": "33b304a757b9ab4d35fbed9d51288f423aa4a6d17ce796b0dfe589bc0d65af6b"
+  "confirmationNote": "M2 readiness may read experiments/recovery-runner/tasks to bind the canonical 24 v1 task definitions. Scope explicitly excludes modifying task definitions or running provider cells.",
+  "createdAt": "2026-07-05T02:12:01.845Z",
+  "updatedAt": "2026-07-05T02:12:01.845Z",
+  "_hash": "ced01d1b215e41224bced4fae422520d74359f18f5b29663d1f25c281b3667be"
 }
