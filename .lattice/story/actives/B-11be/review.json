@@ -50,6 +50,29 @@
         }
       ],
       "_hash": "4de6bf7de18d347f2064aec447db2088f15d5a12b5ad5286a1ba741574004df3"
+    },
+    {
+      "timestamp": "2026-07-05T15:31:33.323Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Define authorized-but-bounded launch metadata artifact + Update provider execution checker for authorization metadata are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Exact future provider model snapshot IDs for real cell 03 execution remain unknown and out of scope for B-11be.; Exact nonzero provider budget for future cell 03 execution remains unknown and out of scope for B-11be.; Whether Phase 1 will proceed beyond cell 03 depends on future execution evidence, not this metadata story."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-11be is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "33abd9fbcfda7906b046d8e9458dae1ab6d66360bb79a834083558251d265546"
     }
   ]
 }
