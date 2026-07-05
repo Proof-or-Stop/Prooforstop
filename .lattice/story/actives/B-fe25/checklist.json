@@ -61,10 +61,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "M2 checker passed with 730 assertions and 15 negative controls; it accepts readiness artifacts with the 2026-07-05 approval boundary, distinct E1/E2 provider families, dated readiness declarations, and provider execution disabled.",
-          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:41.710Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,10 +73,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Checker distinguishes readiness approval from provider-execution authorization: providerExecutionAuthorized, phase1CampaignAuthorized, formalPhase1UseAllowed, and providerCallEnabled remain false.",
-          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:41.934Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -85,10 +85,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Negative controls reject host labels as model families, missing dated snapshots, enabled provider calls without execution authorization, outcome fields, and records paths inside readiness artifacts.",
-          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:42.166Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         }
       ]
     },
@@ -151,10 +151,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "M2 checker passed with 730 assertions; it recomputes the read-only task inventory and accepts exactly 24 unique task directories bound by corpus digest, plus required Phase 1 cells ③/⑥/② with deterministic cell family linkage.",
-          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:50.898Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -163,10 +163,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Checker accepts required Phase 1 readiness while ④ remains optional_budget_permitting and requiredForLaunchReadiness=false.",
-          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:51.186Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -175,10 +175,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Negative controls reject missing tasks, duplicate task ids, changed task digests, illegal ②-vs-④ confirmatory use, and duplicate runner ownership of the same cell family.",
-          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:51.505Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         }
       ]
     },
@@ -239,10 +239,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "M2 checker passed and confirms ③ A4 calibration is pending_execution and required before any ⑥ A2prime budget lock.",
-          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:59.589Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -251,10 +251,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Checker accepts M2 readiness as DONE-compatible while budgetLockStatus remains pending_execution and formal Phase 1 execution remains disabled.",
-          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:33:59.899Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -263,10 +263,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Negative controls reject any artifact that marks ⑥ A2prime sequencing satisfied or executionAllowed=true without a real ③-derived budget lock; M0 example budget locks are not accepted as formal evidence.",
-          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:34:00.113Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         }
       ]
     },
@@ -329,10 +329,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs && sed -n 1,220p experiments/multi-model-ablation/m2-status.md",
           "result": "pass",
           "note": "m2-status.md prints the milestone table with M0 and M1 complete, M2 launch readiness prepared, formal M2 execution not started, and M3-M6 pending.",
-          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:34:08.639Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -341,10 +341,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Checker accepts status accuracy with optional ④ as optional_budget_permitting and not required for M2 launch readiness.",
-          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:34:08.852Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -353,10 +353,10 @@
           "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
           "note": "Negative controls and status checks reject claims that outcome data exists, Phase 1 has run, H-M1/H-M3 are proven, or model-agnostic paper claims are unlocked.",
-          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
-          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
-          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
-          "timestamp": "2026-07-05T02:34:09.085Z"
+          "headHash": "66dd4fcf7ec4aae5e2d4638e265c384ecf65a85b",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:52:16.787Z"
         }
       ]
     }
