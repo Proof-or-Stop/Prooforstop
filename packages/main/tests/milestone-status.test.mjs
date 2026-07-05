@@ -8,7 +8,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,11 +22,17 @@ const {
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusReport,
 } = await import(join(distRoot, 'core/milestone-status.js'));
-const { EMPTY_STORY_FILES_HASH } = await import(join(distRoot, 'core/evidence-freshness.js'));
+const {
+  EMPTY_STORY_FILES_HASH,
+  currentMaterialHash,
+} = await import(join(distRoot, 'core/evidence-freshness.js'));
+const { signDeliveryCheck } = await import(join(distRoot, 'core/delivery-check-hash.js'));
+const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const {
   captureMilestoneCloseoutSnapshotFromStore,
   createMilestoneStatusHandlers,
 } = await import(join(distRoot, 'handlers/milestone-status.js'));
+const { createStoryAdvanceHandlers } = await import(join(distRoot, 'handlers/story-advance.js'));
 
 function story(storyId = 'B-7ba7') {
   return {
@@ -1283,6 +1289,164 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(writes[0].snapshot.generatedAt, '2026-07-04T13:00:00.000Z');
   assert.equal(writes[0].snapshot.rows[0].milestone, 'M-capture');
   assert.equal(writes[0].snapshot.phase, 'TEST', 'capture happens before DONE phase metadata is written');
+}
+
+{
+  const storyId = 'B-done-closeout';
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closeout-'));
+  const originalCwd = process.cwd();
+  const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+  const originalCandidateIngestEnabled = process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+  const git = (args) => execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+
+  try {
+    process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = '0';
+    process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = '0';
+    process.chdir(root);
+    git(['init', '-b', 'main']);
+    git(['config', 'user.name', 'Milestone Status Test']);
+    git(['config', 'user.email', 'milestone-status@example.com']);
+    writeJson(join(root, 'lattice.config.json'), {
+      scanRoot: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      workflow: { profile: 'light' },
+      proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
+      flows: { defaults: {}, patterns: [] },
+    });
+    git(['add', 'lattice.config.json']);
+    git(['commit', '-m', 'init']);
+
+    const store = new StoryStore(root);
+    const preEvidenceHead = git(['rev-parse', 'HEAD']);
+    const preEvidenceMaterialHash = currentMaterialHash(root, 'HEAD', root);
+    assert.ok(preEvidenceMaterialHash, 'fixture must be able to compute a material hash');
+    const doneStory = {
+      ...story(storyId),
+      phase: 'TEST',
+      priority: 'low',
+      currentReviewRound: '2026-07-04T10:00:00.000Z',
+    };
+    const closeoutChecklist = {
+      items: [
+        checklistItem('CHK-DONE-CLOSEOUT', 'done', [
+          evidence('CHK-DONE-CLOSEOUT:happy:0', 'pass', {
+            headHash: preEvidenceHead,
+            materialHash: preEvidenceMaterialHash,
+          }),
+        ], intent('DONE handler evidence')),
+      ],
+    };
+    const docsPromises = [];
+    const realMachineTests = [
+      {
+        featureId: 'milestone-closeout-done-transition',
+        transcript: 'Focused temp-repo story_advance DONE fixture reached the closeout capture path.',
+      },
+    ];
+    const closingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'The DONE transition fixture has enough signed delivery context for the orchestrator gate.',
+    };
+    const reviewRound = doneStory.currentReviewRound;
+
+    store.writeStory(storyId, doneStory);
+    store.writeChecklist(storyId, closeoutChecklist);
+    store.writeMilestoneLedger(storyId, ledger([
+      milestone({
+        id: 'M-done-closeout',
+        sourceRequirementId: 'REQ-done-closeout',
+        claim: 'The real DONE transition writes milestone-closeout.json',
+        doneMeans: 'A completed milestone snapshot is persisted during story_advance DONE',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-DONE-CLOSEOUT'],
+        verificationIntentRefs: ['CHK-DONE-CLOSEOUT:happy:0'],
+        status: 'done',
+      }),
+    ], storyId));
+    store.writeTestEvidence(storyId, {
+      command: `lattice validate --story=${storyId} --json`,
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-07-04T11:00:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+    });
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-07-04T11:30:00.000Z',
+      headHash: preEvidenceHead,
+      materialHash: preEvidenceMaterialHash,
+      reviewRound,
+      agentId: 'lattice-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(
+        storyId,
+        docsPromises,
+        realMachineTests,
+        closingSelfCheck,
+        reviewRound,
+        preEvidenceMaterialHash,
+      ),
+    });
+    git(['add', '.']);
+    git(['commit', '-m', 'ready for DONE']);
+    assert.equal(git(['status', '--porcelain']), '', 'fixture must be clean before the DONE gate runs');
+    assert.equal(currentMaterialHash(root, 'HEAD', root), preEvidenceMaterialHash);
+    const doneHead = git(['rev-parse', 'HEAD']);
+
+    const logs = [];
+    const handlers = createStoryAdvanceHandlers({
+      root,
+      scanRoot: root,
+      store,
+      log: (msg) => logs.push(msg),
+    });
+    const output = await handlers.story_advance({ storyId, phase: 'DONE' });
+
+    assert.match(output, new RegExp(`Story ${storyId} advanced to DONE`));
+    assert.equal(store.readStory(storyId).phase, 'DONE');
+    assert.ok(
+      existsSync(store.storyFilePath(storyId, 'milestone-closeout.json')),
+      'story_advance DONE must persist milestone-closeout.json through transition-orchestrator wiring',
+    );
+    assert.ok(
+      logs.some((line) => line.includes(`milestone closeout snapshot captured for ${storyId}`)),
+      'story_advance DONE should report the closeout capture path',
+    );
+    const snapshot = store.readMilestoneCloseout(storyId);
+    assert.ok(snapshot);
+    assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(snapshot.storyId, storyId);
+    assert.equal(snapshot.phase, 'TEST', 'closeout is captured before DONE phase metadata is persisted');
+    assert.equal(snapshot.bindings.headHash, doneHead);
+    assert.equal(snapshot.bindings.materialHash, preEvidenceMaterialHash);
+    assert.equal(snapshot.rows[0].milestone, 'M-done-closeout');
+  } finally {
+    process.chdir(originalCwd);
+    if (originalSettlementEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED = originalSettlementEnabled;
+    }
+    if (originalCandidateIngestEnabled === undefined) {
+      delete process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
+    } else {
+      process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED = originalCandidateIngestEnabled;
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 {
