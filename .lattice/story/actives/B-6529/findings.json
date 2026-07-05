@@ -24,6 +24,26 @@
       "resolvedAt": "2026-07-05T22:03:09.462Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6529:F-002",
+      "desc": "m2-provider-execution-check.mjs loads m2-provider-execution-authorization.json but never validates it: providerAuthorization is returned from loadArtifacts() at lines 636-638, yet validateAll() only checks providerLaunch, Cell 03 guardrail/envelope, policies, tool surface, runner manifest, readiness, and status at lines 583-625. README line 232 promises the checker records/validates the B-11be metadata authorization with USD 0.00 spend. As written, mutations to m2-provider-execution-authorization.json authorizationBoundary, provider spend, required metadata blockers, or sequencing would not fail the provider execution check, leaving a silent coverage hole for the full B-6529 change.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T22:05:19.500Z",
+      "reviewRound": "2026-07-05T22:02:56.168Z",
+      "reviewRunId": "B-6529:RR-004",
+      "_hash": "a929c0ccb983d21772e55c8e656a15715e15e8c0e2aca495b59a26cfb37e50e4",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "signatureTag": "missing|mjs|provider-execution-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
