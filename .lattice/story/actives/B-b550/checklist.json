@@ -234,7 +234,35 @@
       "context": "Plan M6.a-M6.d: confirm structured milestone rows improve progress reporting, missing-ledger gates improve unattended execution safety, ledger refs improve host handoff continuity, and capability claims stop short of lifecycle DONE or Authority claims. Output: capability claim boundary.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M6 or Capability.Impact section in findings report -> section exists with capability claim boundary documented; WHY: confirms the capability impact review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg progress.reporting|structured.milestone in findings report M6 section -> M6.a confirms structured rows improve progress reporting; WHY: the primary capability value must be documented",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg handoff|host.handoff|restart.continuity in findings report M6 section -> ledger refs improving host handoff is addressed; WHY: M6.c requires confirmation of handoff value",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg DONE|Authority|production.readiness|overclaim in findings report M6 section -> capability claims explicitly stop short of lifecycle DONE or Authority claims; WHY: M6.d is the overclaim boundary and the most important adversarial check for this milestone",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M6 section does not use phrases like replaces lifecycle_check or replaces review assurance or replaces DONE gate -> no overclaim language present; WHY: plan non-goals explicitly prohibit claiming milestone status replaces lifecycle gates",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
