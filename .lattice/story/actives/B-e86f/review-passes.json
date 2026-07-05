@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-05T14:10:23.721Z",
       "reviewRunId": "B-e86f:RR-012",
       "_hash": "bfeda539087991174375346e67865c14c491101197399f88e9f6e9addd613157"
+    },
+    {
+      "id": "B-e86f:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Read the full 418-line file plus commit-level diffs (4a4c4e543, a14555248) since original rev-3 landing (7cdb75165). Verified internal consistency across §1 (F-003 expectedIdsFoundRate wording), §3 claim boundary, §4 H2 row, §5 reuse note, §6.1 (fingerprint domain + two-pronged viability + acceptance bucket + row-reorder example), §6.4, §7 artifacts, §8 M0/M1, §9 verification matrix, §12 DoD, and the new provenance paragraph (lines 16-23). No leftover every-enumerated-tamper-class or answer-all-1000-questions old framing found (grep clean); terminology fail-closed-set/accepted-behavior/acceptance-bucket/dropped used uniformly across all 6 sections; seed-swap references (4 hits) all historical/provenance only, correctly contrasted with rev-3's new fix; row-reorder appears correctly both as a raw candidate in the section 6.1 initial class list and as the acceptance-bucket example for its refreshed variant, no contradiction; the new provenance sentence accurately summarizes commit 4a4c4e543 fingerprint-domain plus two-pronged-viability plus acceptance-bucket changes without over/under-claiming, and correctly credits it as resolving the round-1 non-blocking observation. Clean.",
+      "createdAt": "2026-07-05T14:13:01.212Z",
+      "reviewRound": "2026-07-05T14:10:23.721Z",
+      "reviewRunId": "B-e86f:RR-014",
+      "_hash": "73c10f4216b27835bd0ba489768a38bc414b3c46e1823f82473503b7bbd16076"
     }
   ]
 }
