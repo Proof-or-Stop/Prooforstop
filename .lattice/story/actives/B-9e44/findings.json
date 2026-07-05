@@ -115,7 +115,7 @@
       "desc": "[codex-host-2 re-check, verified] Refreshed manifest-metadata lies missing: authority, gateEvidence, schemaVersion are in the manifestDigest domain but the verify pass condition never asserts their expected VALUES (and verify hardcodes authority:non_authoritative/gateEvidence:false in its result). Empirically confirmed: manifest gateEvidence:true[refreshed] and authority:authoritative[refreshed] both -> status:pass. Malicious refreshed manifest-metadata lies not covered by corruptRows-lie alone. Same digest-recompute/Tier-C family.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T16:29:28.317Z",
@@ -126,7 +126,11 @@
         "experiments/pos-instrument-replay/protocol.json"
       ],
       "signatureTag": "adversarial|mjs|codex-host-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 08e74dc7. Added manifest-metadata-lie[refreshed] (gateEvidence:true) as acknowledged-limitation; protocol.limitationFamily.families[manifest-metadata-lie] lists the unasserted fields (corruptRows/authority/gateEvidence/schemaVersion) and declares the family representative-not-exhaustive, Tier-C, out of H2 scope. selfcheck asserts both families are represented.",
+      "resolvedAt": "2026-07-05T16:37:37.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
