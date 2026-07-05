@@ -198,7 +198,35 @@
       "context": "Plan M5.a-M5.f: find tests for milestone_status read-only behavior, missing-ledger reports, ledger set/add/get schema, milestone-triggered missing-ledger gates, and proof that milestone status cannot satisfy DONE by itself; record missing negative controls as review findings. Output: test-gap list.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M5 or Test.*Coverage|Negative.Control section in findings report -> section exists with a test-gap list or explicit pass; WHY: confirms the test review was completed and produced the required output",
+            "type": "cli"
+          },
+          {
+            "desc": "rg read.only|milestone_status.*test in findings report M5 section -> tests for read-only behavior are listed or gaps are recorded; WHY: M5.a requires finding tests for the read-only boundary",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg missing.ledger.*test|missing.*negative.control in findings report M5 section -> missing-ledger report tests are found or gaps are recorded as findings; WHY: M5.b/M5.d require test coverage for missing-ledger surfaces",
+            "type": "cli"
+          },
+          {
+            "desc": "rg DONE.*test|cannot.satisfy.DONE in findings report M5 section -> tests proving milestone status cannot satisfy DONE by itself are found or gap is recorded; WHY: M5.e is the critical negative-control check",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg negative.control|missing.*test|test.gap in findings report M5 section -> any missing negative controls are explicitly recorded as findings not silently omitted; WHY: M5.f requires recording gaps as concrete follow-ups not sweeping them under the rug",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
