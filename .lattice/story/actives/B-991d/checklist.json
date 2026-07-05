@@ -118,9 +118,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:37:25.998Z",
-      "endTime": null
+      "endTime": "2026-07-05T23:37:45.559Z"
     },
     {
       "id": "CHK-003",
@@ -502,6 +502,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Run provider-free Cell 03 envelope preflight checker.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:37:45.559Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Provider-free M2 preflight checker passed and evidence is bound.",
       "agent": "codex-main"
     }
   ]
