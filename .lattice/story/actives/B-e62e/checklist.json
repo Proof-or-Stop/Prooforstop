@@ -48,7 +48,61 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression executes checklist_update for a ledger-backed story and asserts stdout includes Milestone Status plus Completed, Current, and Remaining.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression parses --json milestone_ledger_add output and asserts no appended milestone table contaminates machine stdout.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression mutates a story without milestone-ledger.json and asserts no fabricated Milestone Status table is appended.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"automatically appends the consumed|skipped for|milestone-ledger.json\" docs/CLI.md",
+          "result": "pass",
+          "note": "Host Progress Reporting Contract documents CLI-owned milestone_status table append and JSON or missing-ledger skips.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -92,7 +146,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts checklist_update stdout includes Milestone Status and the three table sections after a state-changing command.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts JSON mode remains parseable and does not include the appended human milestone table.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Regression asserts missing-ledger mutations do not invent milestone progress output.",
+          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
+          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
+          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
+          "timestamp": "2026-07-05T10:37:47.744Z"
+        }
+      ]
     }
   ],
   "auditLog": [
