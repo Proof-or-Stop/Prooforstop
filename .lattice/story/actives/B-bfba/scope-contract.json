@@ -26,9 +26,60 @@
     "Authority production completion claims"
   ],
   "scopeChangeReason": "Allow this story's own ProofStory metadata artifacts while keeping implementation scope limited to milestone closeout behavior.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Required ProofStory planning artifacts produced by the story lifecycle gates; they do not expand the product implementation scope.",
+      "timestamp": "2026-07-05T00:07:34.165Z",
+      "paths": [
+        ".lattice/story/actives/B-bfba/intent-collision.json",
+        ".lattice/story/actives/B-bfba/milestone-ledger.json",
+        ".lattice/story/actives/B-bfba/original-intent-snapshot.json",
+        ".lattice/story/actives/B-bfba/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-bfba/intent-collision.json",
+        ".lattice/story/actives/B-bfba/milestone-ledger.json",
+        ".lattice/story/actives/B-bfba/original-intent-snapshot.json",
+        ".lattice/story/actives/B-bfba/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "19a71d1f12c6a40dac289cbb54aced8da35e2141",
+      "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747"
+    },
+    {
+      "actor": "codex",
+      "reason": "Mechanical command registration, read-only policy, store persistence, and DONE transition capture support required to deliver milestone_closeout snapshots.",
+      "timestamp": "2026-07-05T00:07:40.176Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "19a71d1f12c6a40dac289cbb54aced8da35e2141",
+      "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747"
+    }
+  ],
   "createdAt": "2026-07-04T23:53:19.097Z",
-  "updatedAt": "2026-07-04T23:53:44.355Z",
+  "updatedAt": "2026-07-05T00:07:40.176Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/milestone-status.ts",
