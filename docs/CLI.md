@@ -626,6 +626,19 @@ lattice capability_release_status --storyId=B-xxxx --format=text
 
 Both commands are read-only. Text output is concise (one line per record: `storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>`); JSON output returns plain records or a `{ storyId, count, latest, records }` object.
 
+`capability_release_backfill` binds **already-existing under-bound candidate playbooks** to the product capability release recorded for their source story. B-8128 enriches capability-release lineage at candidate-creation time, so candidates created before their story had a recorded capability release stay under-bound: `lineage.sourceStoryId` is set but `lineage.capabilityReleaseId` is absent even though a matching capability release now exists. This backfill binds exactly those.
+
+```bash
+# Default dry-run: list eligible under-bound candidates + a deterministic plan digest.
+lattice capability_release_backfill --dryRun --json
+lattice capability_release_backfill --dryRun --storyId=B-xxxx   # optional single-story filter
+
+# Apply requires the current dry-run plan --digest (refuses on drift).
+lattice capability_release_backfill --apply --digest=sha256:<planDigest-from-dry-run>
+```
+
+A candidate is **eligible** iff it is `status: candidate`, its `lineage.sourceStoryId` has a capability release, and its `lineage.capabilityReleaseId` is absent. `--apply` enriches only those candidates' lineage with `capabilityReleaseId` / `capabilityId` / `capabilityVersion` / `artifactReleaseId` (copied from the matching capability release, the same field set B-8128's enrichment sets). It is a deliberate, digest-guarded metadata writer under the shared learning-store lock, but it **never** changes `.status` (candidate stays candidate), **never** touches `usage.surfacedCount`, **never** appends a playbook-outcome, and **never** mutates the capability-releases ledger. It is **idempotent**: a re-run finds `eligibleCount: 0` because the candidates are now bound. It is non-authoritative and never gate evidence.
+
 Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:

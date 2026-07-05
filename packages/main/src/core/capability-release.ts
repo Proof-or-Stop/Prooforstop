@@ -4,6 +4,9 @@ import { dirname, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 import { selectArtifactReleasePathsV1 } from './artifact-release.js';
+import { digestCanonicalJson } from './digest.js';
+import { readPlaybooks, writePlaybooks, withLearningStoreLock } from './learning-store.js';
+import type { Playbook, PlaybookLineage } from './experience-layer-types.js';
 
 export const CAPABILITY_RELEASE_LEDGER_REL_PATH = '.lattice/capability-releases.jsonl';
 export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
@@ -379,4 +382,281 @@ export function createCapabilityReleaseRecordForTest(
   opts: CapabilityReleaseRecordOptions,
 ): ProductCapabilityReleaseRecord {
   return buildCapabilityReleaseRecord(opts);
+}
+
+// ── M8: capability_release_backfill — bind ALREADY-EXISTING candidates ────────
+//
+// B-8128 M4 enriches capability-release lineage at candidate-CREATION time (via
+// enrichSeedWithCapabilityLineage). Candidates created BEFORE their story had a
+// recorded capability release stay "under-bound": lineage.sourceStoryId is set
+// but lineage.capabilityReleaseId is absent even though a matching capability
+// release now exists. This backfill binds exactly those candidates.
+//
+// It is a DELIBERATE, DIGEST-GUARDED writer: default dry-run emits a plan +
+// deterministic plan digest; --apply requires the matching digest and enriches
+// ONLY the eligible candidates' lineage. It NEVER changes .status (candidate
+// stays candidate), NEVER touches usage.surfacedCount, NEVER appends a
+// playbook-outcome, and NEVER mutates the capability-releases ledger.
+
+export const CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION =
+  'proofbound.capability-release-backfill.v1';
+
+/** One eligible under-bound candidate and the capability release it will bind to. */
+export interface CapabilityReleaseBackfillEligibleRow {
+  playbookId: string;
+  sourceStoryId: string;
+  /** `PCR-…` id of the matching capability release to set as capabilityReleaseId. */
+  capabilityReleaseId: string;
+  capabilityId: string;
+  capabilityVersion: string;
+  /** Present only when the matching capability release carries an artifactReleaseId. */
+  artifactReleaseId?: string;
+}
+
+export interface CapabilityReleaseBackfillReport {
+  schemaVersion: typeof CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION;
+  dryRun: boolean;
+  applied: boolean;
+  /** Always non-authoritative: this backfill is never gate/release evidence. */
+  authority: 'non_authoritative';
+  gateEvidence: false;
+  /** Optional single-story filter that was applied (or null for all stories). */
+  storyFilter: string | null;
+  /** Candidate playbooks scanned (post story filter). */
+  candidateCount: number;
+  /** Number of eligible under-bound candidates. */
+  eligibleCount: number;
+  /** Number of candidates enriched by this run (0 unless --apply succeeded). */
+  enrichedCount: number;
+  /** Deterministic digest over the canonical eligible set; required for --apply. */
+  planDigest: string;
+  eligible: CapabilityReleaseBackfillEligibleRow[];
+}
+
+export interface BuildCapabilityReleaseBackfillOptions {
+  /** Project root (resolved to the ledger/git root internally). */
+  root: string;
+  /** Optional single-story filter (only candidates for this sourceStoryId). */
+  storyId?: string;
+  /** Opt-in real write. Default false → dry-run plan only. */
+  apply?: boolean;
+  /** Required when apply=true: must equal the current dry-run planDigest. */
+  digest?: string;
+}
+
+/**
+ * Compute the eligible set: candidate playbooks whose lineage.sourceStoryId has a
+ * capability release but whose lineage.capabilityReleaseId is absent. Deterministic
+ * (sorted by playbookId). A story with more than one capability release binds to the
+ * latest by createdAt (same "first matching record" spirit as B-8128 enrichment,
+ * made deterministic under duplicates).
+ */
+function computeCapabilityReleaseBackfillEligible(
+  playbooks: Playbook[],
+  records: ProductCapabilityReleaseRecord[],
+  storyFilter: string | null,
+): CapabilityReleaseBackfillEligibleRow[] {
+  const latestByStory = new Map<string, ProductCapabilityReleaseRecord>();
+  for (const record of records) {
+    const prior = latestByStory.get(record.storyId);
+    if (!prior || record.createdAt.localeCompare(prior.createdAt) > 0) {
+      latestByStory.set(record.storyId, record);
+    }
+  }
+  const rows: CapabilityReleaseBackfillEligibleRow[] = [];
+  for (const playbook of playbooks) {
+    if (playbook.status !== 'candidate') continue;
+    const lineage = playbook.lineage;
+    const sourceStoryId = lineage?.sourceStoryId;
+    if (!sourceStoryId) continue;
+    if (storyFilter && sourceStoryId !== storyFilter) continue;
+    if (lineage.capabilityReleaseId) continue; // already bound
+    const record = latestByStory.get(sourceStoryId);
+    if (!record) continue; // no capability release for this story
+    rows.push({
+      playbookId: playbook.id,
+      sourceStoryId,
+      capabilityReleaseId: record.id,
+      capabilityId: record.capabilityId,
+      capabilityVersion: record.capabilityVersion,
+      ...(record.artifactReleaseId ? { artifactReleaseId: record.artifactReleaseId } : {}),
+    });
+  }
+  return rows.sort((a, b) => a.playbookId.localeCompare(b.playbookId));
+}
+
+/**
+ * Deterministic plan digest over the canonical eligible set. Bound to storyId /
+ * capabilityReleaseId / capabilityId / capabilityVersion / artifactReleaseId so an
+ * --apply cannot ride a stale digest after the ledger or playbooks changed.
+ */
+export function computeCapabilityReleaseBackfillPlanDigest(
+  eligible: CapabilityReleaseBackfillEligibleRow[],
+): string {
+  return `sha256:${digestCanonicalJson({
+    schemaVersion: CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION,
+    eligible: eligible.map((row) => ({
+      playbookId: row.playbookId,
+      sourceStoryId: row.sourceStoryId,
+      capabilityReleaseId: row.capabilityReleaseId,
+      capabilityId: row.capabilityId,
+      capabilityVersion: row.capabilityVersion,
+      artifactReleaseId: row.artifactReleaseId ?? null,
+    })),
+  })}`;
+}
+
+/**
+ * Enrich exactly the eligible candidate's lineage with the capability-release
+ * identity, mirroring the field set B-8128's enrichSeedWithCapabilityLineage sets.
+ * PURE on the lineage: returns a new lineage; never mutates status/usage.
+ */
+function bindLineageToRelease(
+  lineage: PlaybookLineage,
+  row: CapabilityReleaseBackfillEligibleRow,
+): PlaybookLineage {
+  return {
+    ...lineage,
+    capabilityReleaseId: row.capabilityReleaseId,
+    capabilityId: row.capabilityId,
+    capabilityVersion: row.capabilityVersion,
+    ...(row.artifactReleaseId ? { artifactReleaseId: row.artifactReleaseId } : {}),
+  };
+}
+
+/**
+ * M8 planner+applier. Default dry-run returns the eligible set + a deterministic
+ * plan digest. --apply requires `digest` to equal the current plan digest, then
+ * enriches ONLY the eligible candidates' lineage (capabilityReleaseId/
+ * capabilityId/capabilityVersion/artifactReleaseId) and writes them back via
+ * writePlaybooks. Idempotent: a re-run finds 0 eligible (they are now bound). It
+ * never changes status, never touches usage, never writes an outcome, and never
+ * mutates the capability-releases ledger.
+ */
+export function buildCapabilityReleaseBackfillReport(
+  opts: BuildCapabilityReleaseBackfillOptions,
+): CapabilityReleaseBackfillReport {
+  const apply = opts.apply === true;
+  const storyFilter = typeof opts.storyId === 'string' && opts.storyId.trim()
+    ? opts.storyId.trim()
+    : null;
+  const ledgerRoot = resolveCapabilityReleaseLedgerRoot(opts.root);
+
+  const run = (): CapabilityReleaseBackfillReport => {
+    const records = readCapabilityReleaseLedger(ledgerRoot);
+    const playbooks = readPlaybooks(opts.root);
+    const candidateCount = playbooks.filter(
+      (p) => p.status === 'candidate'
+        && p.lineage?.sourceStoryId
+        && (!storyFilter || p.lineage.sourceStoryId === storyFilter),
+    ).length;
+    const eligible = computeCapabilityReleaseBackfillEligible(playbooks, records, storyFilter);
+    const planDigest = computeCapabilityReleaseBackfillPlanDigest(eligible);
+
+    if (!apply) {
+      return {
+        schemaVersion: CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION,
+        dryRun: true,
+        applied: false,
+        authority: 'non_authoritative',
+        gateEvidence: false,
+        storyFilter,
+        candidateCount,
+        eligibleCount: eligible.length,
+        enrichedCount: 0,
+        planDigest,
+        eligible,
+      };
+    }
+
+    const expected = (opts.digest ?? '').trim();
+    if (!expected) {
+      throw new Error('capability_release_backfill requires --digest when --apply is set');
+    }
+    if (expected !== planDigest) {
+      throw new Error(
+        `capability_release_backfill: plan digest drift; expected ${expected}, current ${planDigest}. Re-run the dry-run and pass the fresh digest.`,
+      );
+    }
+
+    let enrichedCount = 0;
+    if (eligible.length > 0) {
+      const bindById = new Map(eligible.map((row) => [row.playbookId, row]));
+      const next = playbooks.map((playbook) => {
+        const row = bindById.get(playbook.id);
+        // Enrich ONLY eligible candidates; status/usage are carried through verbatim.
+        if (!row || playbook.status !== 'candidate' || playbook.lineage?.capabilityReleaseId) {
+          return playbook;
+        }
+        return { ...playbook, lineage: bindLineageToRelease(playbook.lineage, row) };
+      });
+      writePlaybooks(opts.root, next);
+
+      // Fail-closed write verification: only lineage capability fields changed;
+      // status and usage.surfacedCount are byte-identical to before.
+      const after = readPlaybooks(opts.root);
+      const beforeById = new Map(playbooks.map((p) => [p.id, p]));
+      for (const row of eligible) {
+        const persisted = after.find((p) => p.id === row.playbookId);
+        const prior = beforeById.get(row.playbookId);
+        if (!persisted || !prior) {
+          throw new Error(`capability_release_backfill: write verification failed; ${row.playbookId} missing after write`);
+        }
+        if (persisted.lineage.capabilityReleaseId !== row.capabilityReleaseId) {
+          throw new Error(`capability_release_backfill: write verification failed; ${row.playbookId} lineage not bound`);
+        }
+        if (persisted.status !== 'candidate' || persisted.status !== prior.status) {
+          throw new Error(`capability_release_backfill: write verification failed; ${row.playbookId} status changed`);
+        }
+        if (persisted.usage.surfacedCount !== prior.usage.surfacedCount) {
+          throw new Error(`capability_release_backfill: write verification failed; ${row.playbookId} usage.surfacedCount changed`);
+        }
+        enrichedCount += 1;
+      }
+      // No unrelated playbook may vanish.
+      for (const prior of playbooks) {
+        if (!after.some((p) => p.id === prior.id)) {
+          throw new Error(`capability_release_backfill: write verification failed; existing playbook ${prior.id} disappeared`);
+        }
+      }
+    }
+
+    return {
+      schemaVersion: CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION,
+      dryRun: false,
+      applied: true,
+      authority: 'non_authoritative',
+      gateEvidence: false,
+      storyFilter,
+      candidateCount,
+      eligibleCount: eligible.length,
+      enrichedCount,
+      planDigest,
+      eligible,
+    };
+  };
+
+  if (!apply) return run();
+  return withLearningStoreLock(opts.root, 'capability-release-backfill', run);
+}
+
+export function renderCapabilityReleaseBackfill(
+  report: CapabilityReleaseBackfillReport,
+  json?: boolean,
+): string {
+  if (json) return JSON.stringify(report, null, 2);
+  return [
+    'Capability release backfill',
+    `dryRun: ${report.dryRun}`,
+    `applied: ${report.applied}`,
+    `authority: ${report.authority}`,
+    `gateEvidence: ${report.gateEvidence}`,
+    `storyFilter: ${report.storyFilter ?? 'all'}`,
+    `candidateCount: ${report.candidateCount}`,
+    `eligibleCount: ${report.eligibleCount}`,
+    `enrichedCount: ${report.enrichedCount}`,
+    `planDigest: ${report.planDigest}`,
+    ...report.eligible.map((row) =>
+      `  - ${row.playbookId} sourceStory=${row.sourceStoryId} -> capabilityReleaseId=${row.capabilityReleaseId} capabilityId=${row.capabilityId} capabilityVersion=${row.capabilityVersion}${row.artifactReleaseId ? ` artifactReleaseId=${row.artifactReleaseId}` : ''}`),
+  ].join('\n');
 }
