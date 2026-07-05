@@ -87,6 +87,19 @@
           "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
           "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
           "timestamp": "2026-07-05T14:13:48.670Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'Orchestrate' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 references Orchestrate only negatively (not authoritative); no positive authoritative citation to the retired root",
+          "headHash": "514aa2b61f4326913d8881909b51bdf4680f4be9",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:13:50.123Z"
         }
       ]
     },
