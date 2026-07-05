@@ -81,6 +81,24 @@
         }
       ],
       "_hash": "9d6ecf682fdd523e26304a90ad7cc2284c8780801a9362e16fe2e14cde62d015"
+    },
+    {
+      "timestamp": "2026-07-05T02:28:48.999Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Make DONE closeout snapshot durable across merge and cleanup + Add post-DONE canonical-root regression coverage are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3a4d is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "ffab8bcf399876ddb4b89f70be27c5aa6c81847d328a5e82f5e95028b91b3456"
     }
   ]
 }
