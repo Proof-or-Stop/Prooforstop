@@ -50,7 +50,7 @@
       "desc": "F-002 fix is incomplete: m2-provider-execution-check.mjs now loads and calls validateProviderAuthorization(), but requiredFutureExecutionMetadata entries are mostly checked for presence only. Lines 404-430 assert the fieldIds exist and validate the new B-6529 refs, but they do not assert that still-required real-execution metadata such as datedExecutorSnapshot, datedReviewerSnapshot, promptDigest, toolSurfaceDigest, runnerOwnership, and duplicatePolicy retain status still_required_for_real_provider_execution, value null, and blocksProviderExecution true. I verified with an isolated temp-copy mutation that setting datedExecutorSnapshot.value to openai-gpt-family-readiness-2026-07-05, status to recorded_for_real_provider_execution, and blocksProviderExecution to false still lets node experiments/multi-model-ablation/m2-provider-execution-check.mjs exit 0 with 1161 assertions and 12 negative controls rejected. This leaves the required metadata blocker drift named in F-002 silently unvalidated, even though the docs promise the checker validates the authorization artifact.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T22:14:37.947Z",
@@ -63,7 +63,11 @@
         "experiments/multi-model-ablation/README.md"
       ],
       "signatureTag": "missing-required-metadata-blocker-validation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit ea7fde6e2. validateProviderAuthorization() now asserts still-required metadata fields keep status still_required_for_real_provider_execution, value null, and blocksProviderExecution true; recorded B-6529 Cell 03 refs are nonblocking; reviewer mutation is covered by a negative control. Verified by node experiments/multi-model-ablation/m2-provider-execution-check.mjs: 1190 assertions / 13 negative controls.",
+      "resolvedAt": "2026-07-05T22:18:26.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
