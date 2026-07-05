@@ -289,8 +289,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:45:13.277Z",
       "endTime": null
     },
     {
@@ -613,6 +613,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03 formal result-row contract and reserved output README are committed and verified.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:45:13.277Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Open Cell 03-only execution window under B-991d provenance while preserving B-6529 readiness evidence.",
       "agent": "codex-main"
     }
   ]
