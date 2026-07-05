@@ -27,7 +27,7 @@
       "desc": "docs/requirements/NAV.md:3 declares \"> 74 files\", but the current NAV contains 76 markdown links. Because B-9051 touched this counter and added the new decision-doc link, the NAV update remains internally inconsistent even though the new link itself resolves.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T11:06:12.541Z",
@@ -38,7 +38,11 @@
         "docs/requirements/NAV.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-declares",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the same NAV count correction as F-001: commit 13d38f5dc updates docs/requirements/NAV.md to > 76 files, matching the 76 markdown list entries. This duplicate quality-lane finding is resolved by the committed one-line fix.",
+      "resolvedAt": "2026-07-05T11:07:48.485Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
