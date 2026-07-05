@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-785e:F-001",
+      "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:92 only rejects an exact outcome key or records path fields, while experiments/multi-model-ablation/m2-provider-execution-launch.json:8 declares containsOutcomeData=false and lines 22-23 declare no outcome/result rows. A launch artifact could add resultRows/outcomeRecords/phase1Results data without an outcome key and still pass, creating a false negative against the no-outcome-data boundary. Severity: medium.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:08:33.639Z",
+      "reviewRound": "2026-07-05T12:06:17.038Z",
+      "reviewRunId": "B-785e:RR-002",
+      "_hash": "222a3b4769418f3845174f463032d085018c04cd4a1b519b861ea0a01dbaf65c",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+      ],
+      "signatureTag": "adversarial|mjs|experiments-multi-model",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
