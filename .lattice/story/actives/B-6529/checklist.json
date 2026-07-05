@@ -119,9 +119,9 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:55:56.530Z",
       "verificationIntent": {
         "happy": [
           {
@@ -467,6 +467,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Execution envelope and postflight usage accounting verified by m2-provider-execution-check.mjs."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:56.530Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Dated E2 executor/reviewer snapshot metadata and host-label rejection verified by checker."
     }
   ]
 }
