@@ -27,7 +27,34 @@
     "experiments/pos-instrument-replay/analyze-batch.mjs"
   ],
   "scopeChangeReason": "M2 creates run-batch.mjs + batch-ledger.jsonl + selfcheck-m2.mjs; frozen protocol.json + M0/M1 files + instrument protected (read-only); M3/M4 harnesses excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice PLAN/ProofStory lifecycle metadata written by the gate commands (intent_collision_set, milestone_ledger_set, original_intent_snapshot_set, proofstory_contract_set, red_evidence_create, scope_check_save) — command-generated bookkeeping under .lattice/, not story source code; expected out-of-scope for the experiments/pos-instrument-replay/ code story.",
+      "timestamp": "2026-07-05T18:56:05.603Z",
+      "paths": [
+        ".lattice/story/actives/B-2a5b/intent-collision.json",
+        ".lattice/story/actives/B-2a5b/milestone-ledger.json",
+        ".lattice/story/actives/B-2a5b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2a5b/proofstory.json",
+        ".lattice/story/actives/B-2a5b/red-evidence.json",
+        ".lattice/story/actives/B-2a5b/scope-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-2a5b/intent-collision.json",
+        ".lattice/story/actives/B-2a5b/milestone-ledger.json",
+        ".lattice/story/actives/B-2a5b/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2a5b/proofstory.json",
+        ".lattice/story/actives/B-2a5b/red-evidence.json",
+        ".lattice/story/actives/B-2a5b/scope-check.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "06d47b8cf7cd3b2a6b1784e575f516e341bc5245",
+      "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220"
+    }
+  ],
   "createdAt": "2026-07-05T18:40:38.780Z",
-  "updatedAt": "2026-07-05T18:40:38.780Z"
+  "updatedAt": "2026-07-05T18:56:05.603Z"
 }
