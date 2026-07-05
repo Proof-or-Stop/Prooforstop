@@ -59,11 +59,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "selfcheck-m3 E-truncated-tail: a mid-append kill leaves a partial trailing line; resume repairs-by-omission (truncates back to the last well-formed newline, dropping only the never-completed partial write) and re-runs that casualty (replay/small/5 -> proof:pass), reconciling to the exact multiset.",
-          "headHash": "aad1db0551c0b44d57c0728cdfed3a8b873b3cee",
+          "note": "selfcheck-m3 E (truncated-tail) + G (valid-final-record-preserved): repairTruncatedTail now PARSES the un-terminated tail in both branches — a genuinely truncated partial write is dropped (that iteration re-runs), but a COMPLETE final record missing only its newline (replay/small/4) is PRESERVED verbatim (never dropped into a gap). 0 dup / 0 gap.",
+          "headHash": "eb7e145eb0b4b347cd9fed488271c0a5b1c3c241",
           "materialHash": "ba6f21bfe8b202a9703dd0aa62498ac29538eca4c26c544bd4e3332e5e3f6756",
           "storyFilesHash": "2ba336106139c029c774bdb2b9ede9d110e6335bde1eb9ef0164d935516cfce0",
-          "timestamp": "2026-07-05T23:22:58.669Z"
+          "timestamp": "2026-07-05T23:23:00.270Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
