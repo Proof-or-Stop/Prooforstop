@@ -207,7 +207,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
-      "userSees": "The unlock permits only Cell 03 and makes all other cells and claims visibly blocked.",
+      "userSees": "`Cell 03 result output policy: frozen`; `Provider/model switch rejection: enabled`; `Cell 06 A2prime: blocked`.",
       "excludes": [
         "Cell 06 execution",
         "Cell 02 or Cell 04 execution",
@@ -230,7 +230,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies result output policy, execution window, provider/model switch rejection, and Cell 03-only scope are present.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expired execution windows or provider/model switches invalidate authorization-ready status.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any attempt to enable Cell 06, Cell 02, Cell 04, Phase 2, paper wording, runtime, or playbook behavior from this story must be rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
