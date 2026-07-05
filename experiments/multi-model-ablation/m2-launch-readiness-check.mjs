@@ -13,6 +13,17 @@ const CHECKER_RESEARCH_BOUNDARY = Object.freeze({
 
 const REQUIRED_PHASE1_CELL_NUMBERS = Object.freeze(["③", "⑥", "②"]);
 const OPTIONAL_CELL_4 = "④";
+const M1_SEED_MANIFEST_ARTIFACT = "seed-manifest.m1.json";
+const M1_CELL_MATRIX_ARTIFACT = "cell-matrix.m1.json";
+const M1_TASK_SLOT_MAPPING_POLICY = "ordinal_identity_sorted_task_ids";
+const EXPECTED_SEED_FIELDS_IN_ORDER = Object.freeze([
+  "protocolDigest",
+  "cellNumber",
+  "taskSlot",
+  "scenarioSlot",
+  "repeatSlot",
+]);
+const EXPECTED_SEED_INPUT_FORMAT = "${protocolDigest}|${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}";
 const TASK_DIGEST_PREFIX = "m2-task-inventory-v1\n";
 const CORPUS_DIGEST_PREFIX = "m2-task-corpus-v1\n";
 const FORBIDDEN_RECORDS_FILE = "records-multi-model-ablation.jsonl";
@@ -26,6 +37,8 @@ const paths = Object.freeze({
   snapshots: "model-snapshot-lock.m2.json",
   inventory: "task-inventory.m2.json",
   runnerManifest: "phase1-runner-manifest.m2.json",
+  seedManifest: M1_SEED_MANIFEST_ARTIFACT,
+  cellMatrix: M1_CELL_MATRIX_ARTIFACT,
   launchReadiness: "phase1-launch-readiness.m2.json",
   status: "m2-status.md",
 });
@@ -101,6 +114,10 @@ function isHostLabel(value) {
 
 function byId(entries, key) {
   return new Map((entries || []).map((entry) => [entry[key], entry]));
+}
+
+function assertJsonEqual(actual, expected, message) {
+  assert(JSON.stringify(actual) === JSON.stringify(expected), message);
 }
 
 function sortedDirectoryNames(relativeRoot) {
@@ -206,7 +223,169 @@ function validateSnapshots(snapshotLock) {
   );
 }
 
-function validateTaskInventory(inventory) {
+function validateM1LineageBinding(binding, seedManifest, cellMatrix, expectedProtocolDigest, name) {
+  assert(binding && typeof binding === "object", `${name} missing M1 lineage binding`);
+  assert(binding.seedManifestArtifact === M1_SEED_MANIFEST_ARTIFACT, `${name} must bind seed-manifest.m1.json`);
+  assert(binding.seedManifestId === seedManifest.artifact, `${name} seed manifest id mismatch`);
+  assert(binding.cellMatrixArtifact === M1_CELL_MATRIX_ARTIFACT, `${name} must bind cell-matrix.m1.json`);
+  assert(binding.cellMatrixId === cellMatrix.artifact, `${name} cell matrix id mismatch`);
+  assert(binding.protocolDigest === expectedProtocolDigest, `${name} M1 binding protocolDigest mismatch`);
+  assert(seedManifest.protocolDigest === expectedProtocolDigest, `${name} M1 seed protocolDigest mismatch`);
+  assert(cellMatrix.protocolDigest === expectedProtocolDigest, `${name} M1 cell matrix protocolDigest mismatch`);
+
+  const seedPolicy = seedManifest.seedDerivationPolicy || {};
+  const boundSeedPolicy = binding.seedDerivationPolicy || {};
+  assert(seedPolicy.algorithm === "sha256", `${name} M1 seed algorithm must be sha256`);
+  assert(boundSeedPolicy.algorithm === seedPolicy.algorithm, `${name} seed algorithm binding mismatch`);
+  assert(seedPolicy.protocolDigest === expectedProtocolDigest, `${name} M1 seed policy protocolDigest mismatch`);
+  assertJsonEqual(
+    seedPolicy.fieldsInOrder,
+    EXPECTED_SEED_FIELDS_IN_ORDER,
+    `${name} M1 seed derivation fields are not frozen`,
+  );
+  assertJsonEqual(
+    boundSeedPolicy.fieldsInOrder,
+    seedPolicy.fieldsInOrder,
+    `${name} seed derivation field binding mismatch`,
+  );
+  assert(seedPolicy.inputFormat === EXPECTED_SEED_INPUT_FORMAT, `${name} M1 seed input format drift`);
+  assert(boundSeedPolicy.inputFormat === seedPolicy.inputFormat, `${name} seed input format binding mismatch`);
+}
+
+function validateM1TaskSlotBinding(inventory, seedManifest) {
+  const taskPolicy = inventory.bindingPolicy?.m1TaskSlotMappingPolicy || {};
+  assert(taskPolicy.policy === M1_TASK_SLOT_MAPPING_POLICY, "task inventory M1 task-slot mapping policy mismatch");
+  assert(taskPolicy.sourceOrdinalField === "tasks[].ordinal", "task inventory M1 mapping ordinal source mismatch");
+  assert(
+    taskPolicy.targetSlotSource === "seed-manifest.m1.json planningDimensions.taskSlots.slotIds[ordinal - 1]",
+    "task inventory M1 mapping target source mismatch",
+  );
+  assert(taskPolicy.taskSlotField === "tasks[].m1TaskSlot", "task inventory M1 mapping task slot field mismatch");
+  assert(taskPolicy.slotIdFormat === "task-slot-%02d", "task inventory M1 task slot format mismatch");
+
+  const taskSlots = seedManifest.planningDimensions?.taskSlots?.slotIds || [];
+  assert(taskSlots.length === 24, "M1 seed manifest must expose 24 task slots for M2 binding");
+  const seenTaskSlots = new Set();
+  for (const [index, task] of (inventory.tasks || []).entries()) {
+    const expectedTaskSlot = taskSlots[index];
+    assert(task.m1TaskSlot === expectedTaskSlot, `task ${task.taskId} must bind M1 ${expectedTaskSlot}`);
+    assert(!seenTaskSlots.has(task.m1TaskSlot), `duplicate M1 task slot binding: ${task.m1TaskSlot}`);
+    seenTaskSlots.add(task.m1TaskSlot);
+  }
+  assert(seenTaskSlots.size === taskSlots.length, "task inventory must bind every M1 task slot exactly once");
+}
+
+function validateM1DimensionBinding(manifest, inventory, seedManifest, cellMatrix) {
+  const seedDimensions = seedManifest.planningDimensions || {};
+  const taskSlots = seedDimensions.taskSlots || {};
+  const scenarioSlots = seedDimensions.scenarioSlots || {};
+  const repeatSlots = seedDimensions.repeatSlots || {};
+  const matrixDimensions = cellMatrix.dimensions || {};
+  assert(taskSlots.count === 24, "M1 seed task slot count must be 24");
+  assert(scenarioSlots.count === 16, "M1 seed scenario slot count must be 16");
+  assert(repeatSlots.count === 3, "M1 seed repeat slot count must be 3");
+  assert(matrixDimensions.taskSlots === taskSlots.count, "M1 matrix task slot count must match M1 seed");
+  assert(matrixDimensions.scenarioSlots === scenarioSlots.count, "M1 matrix scenario slot count must match M1 seed");
+  assert(matrixDimensions.repeatSlots === repeatSlots.count, "M1 matrix repeat slot count must match M1 seed");
+  assert(manifest.dimensions?.taskDirectories === taskSlots.count, "M2 runner task count must match M1 task slots");
+  assert(inventory.tasks?.length === taskSlots.count, "M2 inventory task count must match M1 task slots");
+  assert(manifest.dimensions?.scenarioSlots === scenarioSlots.count, "M2 runner scenario slots must match M1 seed");
+  assert(manifest.dimensions?.repeatSlots === repeatSlots.count, "M2 runner repeat slots must match M1 seed");
+  assert(
+    manifest.dimensions?.rowsPerPhase1Cell === matrixDimensions.rowsPerPhase1Cell,
+    "M2 runner rows per Phase 1 cell must match M1 matrix",
+  );
+}
+
+function validateM1CellSemantics(manifest, cellMatrix) {
+  const m1CellsByNumber = byId(cellMatrix.phase1Cells, "cellNumber");
+  const m2CellsByNumber = byId(manifest.phase1Cells, "cellNumber");
+  const optionalCell4Present = m2CellsByNumber.has(OPTIONAL_CELL_4);
+  for (const cellNumber of [...REQUIRED_PHASE1_CELL_NUMBERS, OPTIONAL_CELL_4]) {
+    const m2Cell = m2CellsByNumber.get(cellNumber);
+    if (!m2Cell && cellNumber === OPTIONAL_CELL_4) continue;
+    const m1Cell = m1CellsByNumber.get(cellNumber);
+    assert(m1Cell, `M1 cell matrix missing cell ${cellNumber}`);
+    assert(m2Cell, `M2 runner manifest missing cell ${cellNumber}`);
+    const binding = m2Cell.m1CellMatrixBinding || {};
+    assert(binding.artifact === M1_CELL_MATRIX_ARTIFACT, `${cellNumber} must bind M1 cell matrix artifact`);
+    assert(binding.cellNumber === m1Cell.cellNumber, `${cellNumber} M1 cell binding number mismatch`);
+    for (const field of ["phase1Status", "arm", "executorFamily", "reviewerFamily"]) {
+      assert(m2Cell[field] === m1Cell[field], `${cellNumber} M2 ${field} must match M1 cell matrix`);
+      assert(binding[field] === m1Cell[field], `${cellNumber} M1 binding ${field} mismatch`);
+    }
+    assert(m1Cell.providerExecutionAllowedInM1 === false, `${cellNumber} M1 provider execution must remain disabled`);
+    assert(binding.providerExecutionAllowedInM1 === false, `${cellNumber} M1 binding must keep provider execution disabled`);
+    assert(m2Cell.rows === cellMatrix.dimensions?.rowsPerPhase1Cell, `${cellNumber} rows must match M1 rows per cell`);
+  }
+
+  assertJsonEqual(
+    manifest.plannedCounts?.requiredCellNumbers,
+    cellMatrix.plannedCounts?.requiredCellNumbers,
+    "M2 required cell numbers must match M1 planned counts",
+  );
+  const expectedOptionalCellNumbers = optionalCell4Present ? cellMatrix.plannedCounts?.optionalCellNumbers || [] : [];
+  const expectedOptionalRows = optionalCell4Present ? cellMatrix.plannedCounts?.optionalRowsAddedByCell4 : 0;
+  const expectedRequiredPlusOptionalRows = (cellMatrix.plannedCounts?.requiredRows || 0) + expectedOptionalRows;
+  assertJsonEqual(
+    manifest.plannedCounts?.optionalCellNumbers || [],
+    expectedOptionalCellNumbers,
+    "M2 optional cell numbers must match M1 planned counts",
+  );
+  assert(manifest.plannedCounts?.requiredCells === cellMatrix.plannedCounts?.requiredCells, "M2 required cell count must match M1");
+  assert(manifest.plannedCounts?.requiredRows === cellMatrix.plannedCounts?.requiredRows, "M2 required rows must match M1");
+  assert(
+    manifest.plannedCounts?.optionalRowsAddedByCell4 === expectedOptionalRows,
+    "M2 optional ④ rows must match M1",
+  );
+  assert(
+    manifest.plannedCounts?.requiredPlusOptionalRows === expectedRequiredPlusOptionalRows,
+    "M2 required plus optional rows must match M1",
+  );
+
+  const matrixBinding = manifest.m1LineageBinding?.cellMatrixBinding || {};
+  assertJsonEqual(
+    matrixBinding.requiredCellNumbers,
+    cellMatrix.plannedCounts?.requiredCellNumbers,
+    "M2 M1 binding required cell numbers mismatch",
+  );
+  assertJsonEqual(
+    matrixBinding.optionalCellNumbers,
+    expectedOptionalCellNumbers,
+    "M2 M1 binding optional cell numbers mismatch",
+  );
+  assert(
+    matrixBinding.cellKeyFormat === cellMatrix.enumerationPolicy?.cellKeyFormat,
+    "M2 M1 binding cell key format mismatch",
+  );
+}
+
+function validateA2PrimeGateBinding(manifest, cellMatrix) {
+  const gate = cellMatrix.a2PrimeCell6Gate || {};
+  const binding = manifest.a2PrimeGateBinding || {};
+  assert(binding.source === "cell-matrix.m1.json a2PrimeCell6Gate", "M2 A2prime gate source mismatch");
+  for (const field of [
+    "cellNumber",
+    "arm",
+    "currentlyBlocked",
+    "executionAllowedBeforeBudgetLock",
+    "matchingBudgetLockPresent",
+    "budgetLockRequired",
+  ]) {
+    assert(binding[field] === gate[field], `M2 A2prime gate ${field} must match M1`);
+  }
+  for (const field of ["cellNumber", "arm", "executorFamily", "reviewerFamily", "sameFamilyCalibrationRequired"]) {
+    assert(
+      binding.requiredSourceCalibration?.[field] === gate.requiredSourceCalibration?.[field],
+      `M2 A2prime source calibration ${field} must match M1`,
+    );
+  }
+  for (const field of ["cellNumber", "arm", "executorFamily", "reviewerFamily"]) {
+    assert(binding.appliesTo?.[field] === gate.appliesTo?.[field], `M2 A2prime applies-to ${field} must match M1`);
+  }
+}
+
+function validateTaskInventory(inventory, seedManifest, cellMatrix) {
   assert(inventory.artifact === "task-inventory.m2", "task inventory artifact mismatch");
   assertBoundary(inventory, "m2 task inventory");
   assert(inventory.sourceRoot === "experiments/recovery-runner/tasks", "task source root mismatch");
@@ -214,6 +393,7 @@ function validateTaskInventory(inventory) {
   assert(inventory.bindingPolicy?.taskDefinitionsModifiedByM2 === false, "task inventory must not modify task definitions");
   assert(inventory.bindingPolicy?.taskDirectoriesExpected === 24, "task inventory expected count must be 24");
   assert(inventory.bindingPolicy?.taskDirectoriesBound === 24, "task inventory bound count must be 24");
+  validateM1LineageBinding(inventory.m1LineageBinding, seedManifest, cellMatrix, inventory.protocolDigest, "task inventory");
 
   const tasks = inventory.tasks || [];
   assert(tasks.length === 24, "task inventory must bind exactly 24 tasks");
@@ -233,14 +413,18 @@ function validateTaskInventory(inventory) {
     assert(task.contentDigest === computeTaskDigest(task.path, task.files), `task content digest mismatch for ${task.taskId}`);
   });
 
+  validateM1TaskSlotBinding(inventory, seedManifest);
   assert(inventory.corpusDigest === computeCorpusDigest(tasks), "task corpus digest mismatch");
 }
 
-function validateRunnerManifest(manifest, inventory) {
+function validateRunnerManifest(manifest, inventory, seedManifest, cellMatrix) {
   assert(manifest.artifact === "phase1-runner-manifest.m2", "runner manifest artifact mismatch");
   assertBoundary(manifest, "m2 phase1 runner manifest");
   assert(manifest.taskInventoryArtifact === "task-inventory.m2.json", "runner manifest must bind task inventory artifact");
   assert(manifest.taskInventoryDigest === inventory.corpusDigest, "runner manifest task inventory digest mismatch");
+  assert(manifest.protocolDigest === inventory.protocolDigest, "runner manifest protocolDigest must match task inventory");
+  validateM1LineageBinding(manifest.m1LineageBinding, seedManifest, cellMatrix, manifest.protocolDigest, "runner manifest");
+  validateM1DimensionBinding(manifest, inventory, seedManifest, cellMatrix);
   assert(manifest.dimensions?.taskDirectories === 24, "runner manifest task count must be 24");
   assert(manifest.dimensions?.scenarioSlots === 16, "runner manifest scenario slots must be 16");
   assert(manifest.dimensions?.repeatSlots === 3, "runner manifest repeat slots must be 3");
@@ -314,6 +498,9 @@ function validateRunnerManifest(manifest, inventory) {
   if (contrasts.has("②-vs-④")) {
     assert(contrasts.get("②-vs-④")?.legalConfirmatory === false, "②-vs-④ must be rejected as confirmatory");
   }
+
+  validateM1CellSemantics(manifest, cellMatrix);
+  validateA2PrimeGateBinding(manifest, cellMatrix);
 }
 
 function validateLaunchReadiness(readiness) {
@@ -403,6 +590,8 @@ function loadArtifacts() {
     snapshots: readJson(paths.snapshots),
     inventory: readJson(paths.inventory),
     runnerManifest: readJson(paths.runnerManifest),
+    seedManifest: readJson(paths.seedManifest),
+    cellMatrix: readJson(paths.cellMatrix),
     launchReadiness: readJson(paths.launchReadiness),
     status: readText(paths.status),
   };
@@ -414,6 +603,8 @@ function validateAll(artifacts) {
     snapshots: artifacts.snapshots,
     inventory: artifacts.inventory,
     runnerManifest: artifacts.runnerManifest,
+    seedManifest: artifacts.seedManifest,
+    cellMatrix: artifacts.cellMatrix,
     launchReadiness: artifacts.launchReadiness,
   })) {
     assertBoundary(doc, name);
@@ -422,8 +613,8 @@ function validateAll(artifacts) {
   assertNoRecordsFileExists();
   validateLaunch(artifacts.launch);
   validateSnapshots(artifacts.snapshots);
-  validateTaskInventory(artifacts.inventory);
-  validateRunnerManifest(artifacts.runnerManifest, artifacts.inventory);
+  validateTaskInventory(artifacts.inventory, artifacts.seedManifest, artifacts.cellMatrix);
+  validateRunnerManifest(artifacts.runnerManifest, artifacts.inventory, artifacts.seedManifest, artifacts.cellMatrix);
   validateLaunchReadiness(artifacts.launchReadiness);
   validateStatus(artifacts.status);
 }
@@ -444,6 +635,7 @@ function removeOptionalCell4(artifacts) {
   artifacts.runnerManifest.plannedCounts.optionalCellNumbers = [];
   artifacts.runnerManifest.plannedCounts.optionalRowsAddedByCell4 = 0;
   artifacts.runnerManifest.plannedCounts.requiredPlusOptionalRows = 3456;
+  artifacts.runnerManifest.m1LineageBinding.cellMatrixBinding.optionalCellNumbers = [];
 }
 
 function expectReject(label, mutate, pattern) {
@@ -532,6 +724,39 @@ expectReject(
 );
 
 expectReject(
+  "missing runner M1 lineage binding",
+  (artifacts) => {
+    delete artifacts.runnerManifest.m1LineageBinding;
+  },
+  /missing M1 lineage binding/,
+);
+
+expectReject(
+  "M1 seed input format drift",
+  (artifacts) => {
+    artifacts.seedManifest.seedDerivationPolicy.inputFormat = "${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}";
+  },
+  /M1 seed input format drift/,
+);
+
+expectReject(
+  "runner seed input binding drift",
+  (artifacts) => {
+    artifacts.runnerManifest.m1LineageBinding.seedDerivationPolicy.inputFormat =
+      "${protocolDigest}:${cellNumber}:${taskSlot}:${scenarioSlot}:${repeatSlot}";
+  },
+  /seed input format binding mismatch/,
+);
+
+expectReject(
+  "wrong M1 task-slot mapping",
+  (artifacts) => {
+    artifacts.inventory.tasks[0].m1TaskSlot = "task-slot-02";
+  },
+  /task bf-datediff must bind M1 task-slot-01|duplicate M1 task slot/,
+);
+
+expectReject(
   "missing required ②",
   (artifacts) => {
     artifacts.runnerManifest.phase1Cells = artifacts.runnerManifest.phase1Cells.filter(
@@ -539,6 +764,22 @@ expectReject(
     );
   },
   /missing required cell ②/,
+);
+
+expectReject(
+  "M2 cell reviewer family drift from M1",
+  (artifacts) => {
+    artifacts.runnerManifest.phase1Cells.find((cell) => cell.cellNumber === "③").reviewerFamily = "cross";
+  },
+  /③ M2 reviewerFamily must match M1 cell matrix/,
+);
+
+expectReject(
+  "A2prime gate applies-to drift from M1",
+  (artifacts) => {
+    artifacts.runnerManifest.a2PrimeGateBinding.appliesTo.reviewerFamily = "same";
+  },
+  /M2 A2prime applies-to reviewerFamily must match M1/,
 );
 
 expectReject(

@@ -19,13 +19,40 @@
     "taskDefinitionsModifiedByM2": false,
     "digestAlgorithm": "sha256",
     "taskDigestInputFormat": "m2-task-inventory-v1 newline, then sorted file name, byte length, and file SHA-256 per tracked task file",
-    "corpusDigestInputFormat": "m2-task-corpus-v1 newline, then sorted taskId and task contentDigest"
+    "corpusDigestInputFormat": "m2-task-corpus-v1 newline, then sorted taskId and task contentDigest",
+    "m1TaskSlotMappingPolicy": {
+      "policy": "ordinal_identity_sorted_task_ids",
+      "sourceOrdinalField": "tasks[].ordinal",
+      "targetSlotSource": "seed-manifest.m1.json planningDimensions.taskSlots.slotIds[ordinal - 1]",
+      "taskSlotField": "tasks[].m1TaskSlot",
+      "slotIdFormat": "task-slot-%02d"
+    }
+  },
+  "m1LineageBinding": {
+    "seedManifestArtifact": "seed-manifest.m1.json",
+    "seedManifestId": "seed-manifest.m1",
+    "cellMatrixArtifact": "cell-matrix.m1.json",
+    "cellMatrixId": "cell-matrix.m1",
+    "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+    "seedDerivationPolicy": {
+      "algorithm": "sha256",
+      "fieldsInOrder": [
+        "protocolDigest",
+        "cellNumber",
+        "taskSlot",
+        "scenarioSlot",
+        "repeatSlot"
+      ],
+      "inputFormat": "${protocolDigest}|${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}"
+    },
+    "taskSlotMappingPolicy": "ordinal_identity_sorted_task_ids"
   },
   "corpusDigest": "sha256:344845e8b2d4d974544fbd182c4061eff958350388133c0d08cfaa0aae4cedd4",
   "tasks": [
     {
       "taskId": "bf-datediff",
       "ordinal": 1,
+      "m1TaskSlot": "task-slot-01",
       "path": "experiments/recovery-runner/tasks/bf-datediff",
       "readOnly": true,
       "fileCount": 7,
@@ -43,6 +70,7 @@
     {
       "taskId": "bf-lru",
       "ordinal": 2,
+      "m1TaskSlot": "task-slot-02",
       "path": "experiments/recovery-runner/tasks/bf-lru",
       "readOnly": true,
       "fileCount": 7,
@@ -60,6 +88,7 @@
     {
       "taskId": "bf-mergesorted",
       "ordinal": 3,
+      "m1TaskSlot": "task-slot-03",
       "path": "experiments/recovery-runner/tasks/bf-mergesorted",
       "readOnly": true,
       "fileCount": 7,
@@ -77,6 +106,7 @@
     {
       "taskId": "cl-combined",
       "ordinal": 4,
+      "m1TaskSlot": "task-slot-04",
       "path": "experiments/recovery-runner/tasks/cl-combined",
       "readOnly": true,
       "fileCount": 7,
@@ -94,6 +124,7 @@
     {
       "taskId": "cl-equals",
       "ordinal": 5,
+      "m1TaskSlot": "task-slot-05",
       "path": "experiments/recovery-runner/tasks/cl-equals",
       "readOnly": true,
       "fileCount": 7,
@@ -111,6 +142,7 @@
     {
       "taskId": "cl-multi",
       "ordinal": 6,
+      "m1TaskSlot": "task-slot-06",
       "path": "experiments/recovery-runner/tasks/cl-multi",
       "readOnly": true,
       "fileCount": 7,
@@ -128,6 +160,7 @@
     {
       "taskId": "cv-email",
       "ordinal": 7,
+      "m1TaskSlot": "task-slot-07",
       "path": "experiments/recovery-runner/tasks/cv-email",
       "readOnly": true,
       "fileCount": 7,
@@ -145,6 +178,7 @@
     {
       "taskId": "cv-ipv4",
       "ordinal": 8,
+      "m1TaskSlot": "task-slot-08",
       "path": "experiments/recovery-runner/tasks/cv-ipv4",
       "readOnly": true,
       "fileCount": 7,
@@ -162,6 +196,7 @@
     {
       "taskId": "cv-luhn",
       "ordinal": 9,
+      "m1TaskSlot": "task-slot-09",
       "path": "experiments/recovery-runner/tasks/cv-luhn",
       "readOnly": true,
       "fileCount": 7,
@@ -179,6 +214,7 @@
     {
       "taskId": "dp-deepmerge",
       "ordinal": 10,
+      "m1TaskSlot": "task-slot-10",
       "path": "experiments/recovery-runner/tasks/dp-deepmerge",
       "readOnly": true,
       "fileCount": 7,
@@ -196,6 +232,7 @@
     {
       "taskId": "dp-querystring",
       "ordinal": 11,
+      "m1TaskSlot": "task-slot-11",
       "path": "experiments/recovery-runner/tasks/dp-querystring",
       "readOnly": true,
       "fileCount": 7,
@@ -213,6 +250,7 @@
     {
       "taskId": "dp-semver",
       "ordinal": 12,
+      "m1TaskSlot": "task-slot-12",
       "path": "experiments/recovery-runner/tasks/dp-semver",
       "readOnly": true,
       "fileCount": 7,
@@ -230,6 +268,7 @@
     {
       "taskId": "du-duration",
       "ordinal": 13,
+      "m1TaskSlot": "task-slot-13",
       "path": "experiments/recovery-runner/tasks/du-duration",
       "readOnly": true,
       "fileCount": 7,
@@ -247,6 +286,7 @@
     {
       "taskId": "du-interp",
       "ordinal": 14,
+      "m1TaskSlot": "task-slot-14",
       "path": "experiments/recovery-runner/tasks/du-interp",
       "readOnly": true,
       "fileCount": 7,
@@ -264,6 +304,7 @@
     {
       "taskId": "eval-expr",
       "ordinal": 15,
+      "m1TaskSlot": "task-slot-15",
       "path": "experiments/recovery-runner/tasks/eval-expr",
       "readOnly": true,
       "fileCount": 7,
@@ -281,6 +322,7 @@
     {
       "taskId": "median",
       "ordinal": 16,
+      "m1TaskSlot": "task-slot-16",
       "path": "experiments/recovery-runner/tasks/median",
       "readOnly": true,
       "fileCount": 7,
@@ -298,6 +340,7 @@
     {
       "taskId": "parse-range",
       "ordinal": 17,
+      "m1TaskSlot": "task-slot-17",
       "path": "experiments/recovery-runner/tasks/parse-range",
       "readOnly": true,
       "fileCount": 7,
@@ -315,6 +358,7 @@
     {
       "taskId": "rf-money",
       "ordinal": 18,
+      "m1TaskSlot": "task-slot-18",
       "path": "experiments/recovery-runner/tasks/rf-money",
       "readOnly": true,
       "fileCount": 7,
@@ -332,6 +376,7 @@
     {
       "taskId": "rf-roman",
       "ordinal": 19,
+      "m1TaskSlot": "task-slot-19",
       "path": "experiments/recovery-runner/tasks/rf-roman",
       "readOnly": true,
       "fileCount": 7,
@@ -349,6 +394,7 @@
     {
       "taskId": "rf-units",
       "ordinal": 20,
+      "m1TaskSlot": "task-slot-20",
       "path": "experiments/recovery-runner/tasks/rf-units",
       "readOnly": true,
       "fileCount": 7,
@@ -366,6 +412,7 @@
     {
       "taskId": "text-stats",
       "ordinal": 21,
+      "m1TaskSlot": "task-slot-21",
       "path": "experiments/recovery-runner/tasks/text-stats",
       "readOnly": true,
       "fileCount": 6,
@@ -382,6 +429,7 @@
     {
       "taskId": "tr-clamp",
       "ordinal": 22,
+      "m1TaskSlot": "task-slot-22",
       "path": "experiments/recovery-runner/tasks/tr-clamp",
       "readOnly": true,
       "fileCount": 7,
@@ -399,6 +447,7 @@
     {
       "taskId": "tr-pluralize",
       "ordinal": 23,
+      "m1TaskSlot": "task-slot-23",
       "path": "experiments/recovery-runner/tasks/tr-pluralize",
       "readOnly": true,
       "fileCount": 7,
@@ -416,6 +465,7 @@
     {
       "taskId": "tr-slugify",
       "ordinal": 24,
+      "m1TaskSlot": "task-slot-24",
       "path": "experiments/recovery-runner/tasks/tr-slugify",
       "readOnly": true,
       "fileCount": 7,

@@ -7,6 +7,42 @@
   "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
   "taskInventoryArtifact": "task-inventory.m2.json",
   "taskInventoryDigest": "sha256:344845e8b2d4d974544fbd182c4061eff958350388133c0d08cfaa0aae4cedd4",
+  "m1LineageBinding": {
+    "seedManifestArtifact": "seed-manifest.m1.json",
+    "seedManifestId": "seed-manifest.m1",
+    "cellMatrixArtifact": "cell-matrix.m1.json",
+    "cellMatrixId": "cell-matrix.m1",
+    "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+    "seedDerivationPolicy": {
+      "algorithm": "sha256",
+      "fieldsInOrder": [
+        "protocolDigest",
+        "cellNumber",
+        "taskSlot",
+        "scenarioSlot",
+        "repeatSlot"
+      ],
+      "inputFormat": "${protocolDigest}|${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}"
+    },
+    "taskSlotMappingPolicy": {
+      "policy": "ordinal_identity_sorted_task_ids",
+      "taskInventoryArtifact": "task-inventory.m2.json",
+      "taskIdField": "task-inventory.m2.json tasks[].taskId",
+      "taskSlotField": "task-inventory.m2.json tasks[].m1TaskSlot",
+      "m1SlotSource": "seed-manifest.m1.json planningDimensions.taskSlots.slotIds[ordinal - 1]"
+    },
+    "cellMatrixBinding": {
+      "requiredCellNumbers": [
+        "③",
+        "⑥",
+        "②"
+      ],
+      "optionalCellNumbers": [
+        "④"
+      ],
+      "cellKeyFormat": "cellNumber|arm|taskSlot|scenarioSlot|repeatSlot|executorFamily|reviewerFamily"
+    }
+  },
   "researchBoundary": {
     "providerCallsMade": false,
     "containsOutcomeData": false,
@@ -29,6 +65,15 @@
   "phase1Cells": [
     {
       "cellNumber": "③",
+      "m1CellMatrixBinding": {
+        "artifact": "cell-matrix.m1.json",
+        "cellNumber": "③",
+        "phase1Status": "required",
+        "arm": "A4",
+        "executorFamily": "E2",
+        "reviewerFamily": "same",
+        "providerExecutionAllowedInM1": false
+      },
       "phase1Status": "required",
       "requiredForLaunchReadiness": true,
       "arm": "A4",
@@ -43,6 +88,15 @@
     },
     {
       "cellNumber": "⑥",
+      "m1CellMatrixBinding": {
+        "artifact": "cell-matrix.m1.json",
+        "cellNumber": "⑥",
+        "phase1Status": "required",
+        "arm": "A2prime",
+        "executorFamily": "E2",
+        "reviewerFamily": "not_applicable",
+        "providerExecutionAllowedInM1": false
+      },
       "phase1Status": "required",
       "requiredForLaunchReadiness": true,
       "arm": "A2prime",
@@ -58,6 +112,15 @@
     },
     {
       "cellNumber": "②",
+      "m1CellMatrixBinding": {
+        "artifact": "cell-matrix.m1.json",
+        "cellNumber": "②",
+        "phase1Status": "required",
+        "arm": "A4",
+        "executorFamily": "E1",
+        "reviewerFamily": "cross",
+        "providerExecutionAllowedInM1": false
+      },
       "phase1Status": "required",
       "requiredForLaunchReadiness": true,
       "arm": "A4",
@@ -71,6 +134,15 @@
     },
     {
       "cellNumber": "④",
+      "m1CellMatrixBinding": {
+        "artifact": "cell-matrix.m1.json",
+        "cellNumber": "④",
+        "phase1Status": "optional_budget_permitting",
+        "arm": "A4",
+        "executorFamily": "E2",
+        "reviewerFamily": "cross",
+        "providerExecutionAllowedInM1": false
+      },
       "phase1Status": "optional_budget_permitting",
       "requiredForLaunchReadiness": false,
       "arm": "A4",
@@ -96,6 +168,28 @@
     "requiredRows": 3456,
     "optionalRowsAddedByCell4": 1152,
     "requiredPlusOptionalRows": 4608
+  },
+  "a2PrimeGateBinding": {
+    "source": "cell-matrix.m1.json a2PrimeCell6Gate",
+    "cellNumber": "⑥",
+    "arm": "A2prime",
+    "currentlyBlocked": true,
+    "executionAllowedBeforeBudgetLock": false,
+    "matchingBudgetLockPresent": false,
+    "budgetLockRequired": true,
+    "requiredSourceCalibration": {
+      "cellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "sameFamilyCalibrationRequired": true
+    },
+    "appliesTo": {
+      "cellNumber": "⑥",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable"
+    }
   },
   "runners": [
     {

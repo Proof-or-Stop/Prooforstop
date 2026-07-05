@@ -11,7 +11,7 @@ These files are not executable Phase 1 or Phase 2 result artifacts. They do not 
 - `m2-launch-readiness.json` records the 2026-07-05 provider-free readiness boundary while keeping provider execution disabled.
 - `model-snapshot-lock.m2.json` declares dated E1/E2 provider-family readiness and keeps host labels separate from model families.
 - `task-inventory.m2.json` binds the 24 existing `experiments/recovery-runner/tasks` directories read-only by digest without editing those tasks.
-- `phase1-runner-manifest.m2.json` represents required Phase 1 cells ③, ⑥, and ②, with optional ④ kept budget-permitting.
+- `phase1-runner-manifest.m2.json` represents required Phase 1 cells ③, ⑥, and ②, with optional ④ kept budget-permitting, and mechanically binds those cells plus task-slot lineage back to `seed-manifest.m1.json` and `cell-matrix.m1.json`.
 - `phase1-launch-readiness.m2.json` keeps ③ A4 calibration pending and ⑥ A2prime blocked until a real ③-derived budget lock exists.
 - `m2-status.md` summarizes M0/M1 completion, M2 readiness, and the still-pending M3-M6 research work.
 - `m2-launch-readiness-check.mjs` validates the M2 artifacts and in-memory negative controls without running provider cells.
@@ -213,4 +213,4 @@ Run the M2 launch-readiness checker:
 node experiments/multi-model-ablation/m2-launch-readiness-check.mjs
 ```
 
-The checker recomputes task digests, verifies E1/E2 provider-family separation, confirms required cells ③/⑥/②, preserves ③ and ⑥ execution blockers, and rejects in-memory negative controls. It is local-only and does not contact providers.
+The checker recomputes task digests, verifies E1/E2 provider-family separation, confirms required cells ③/⑥/②, compares M2 seed/task-slot/cell lineage to the frozen M1 seed and cell matrix, preserves ③ and ⑥ execution blockers, and rejects in-memory negative controls. It is local-only and does not contact providers.
