@@ -82,7 +82,39 @@
       "context": "Plan M2.a-M2.f: review milestone_ledger_set and milestone_ledger_add lifecycle phase policy and ownership classification; review ledger hash and candidate/confirmed state behavior; review whether direct writes can accidentally become confirmed gate evidence or silently overwrite existing rows unsafely. Output: write-surface finding or pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M2 or Write Contract section in findings report -> section exists with finding-or-pass verdict covering M2.a-M2.f; WHY: confirms the write contract review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg lifecycle.phase.policy|phase.gate|DEV|PLAN in findings report M2 section -> lifecycle phase restrictions for ledger_set and ledger_add are documented; WHY: M2.a/M2.b require phase policy review",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg candidate|confirmed in findings report M2 section -> candidate vs confirmed state behavior documented; WHY: M2.d requires review of ledger hash and state transitions",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m2-confirmed-binding.txt exists and documents the confirmed-binding behavior; WHY: confirms live evidence of the confirmed state behavior was captured",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg for accidental.*confirm|silently.*overwrite|gate.evidence in findings report M2 section -> report explicitly addresses whether writes can accidentally become confirmed gate evidence or silently overwrite; WHY: M2.e/M2.f are the adversarial safety boundaries of the write contract",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M2 section does not contain pass verdict without addressing all 6 sub-objectives M2.a-M2.f -> no sub-objective silently skipped; WHY: prevents incomplete review from being marked clean",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
