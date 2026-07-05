@@ -1,0 +1,44 @@
+{
+  "artifact": "m2-cell03-tool-surface",
+  "storyId": "B-6529",
+  "status": "frozen_execution_not_run",
+  "preparedOn": "2026-07-05",
+  "appliesToEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+  "providerCallsFromThisStory": "disabled",
+  "providerCallEnabled": false,
+  "formalPhase1UseAllowed": false,
+  "toolSurface": {
+    "futureProviderInvocation": {
+      "allowedOnlyAfterSeparateExecutionAuthorization": true,
+      "providerFamily": "E2",
+      "cellNumber": "03",
+      "protocolCellNumber": "③",
+      "runnerId": "m2-future-cell-03-e2-a4-same"
+    },
+    "readOnlyInputs": [
+      "experiments/multi-model-ablation/task-inventory.m2.json",
+      "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+      "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+      "experiments/multi-model-ablation/m2-cell03-execution-prompt.md"
+    ],
+    "writePolicyRef": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+    "forbiddenInThisStory": [
+      "provider API calls",
+      "result rows",
+      "outcome records",
+      "Phase 1 execution",
+      "Phase 2 execution",
+      "Cell 06 execution"
+    ]
+  },
+  "hostModelSeparation": {
+    "hostLabelOnlySnapshotsAccepted": false,
+    "hostLabelsRejectedAsSnapshots": [
+      "Codex CLI",
+      "Codex App",
+      "Claude Code CLI",
+      "Antigravity CLI",
+      "agy"
+    ]
+  }
+}

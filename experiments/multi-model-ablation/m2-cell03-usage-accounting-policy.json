@@ -1,0 +1,28 @@
+{
+  "artifact": "m2-cell03-usage-accounting-policy",
+  "storyId": "B-6529",
+  "status": "postflight_provider_reported_usage_required",
+  "preparedOn": "2026-07-05",
+  "appliesToEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+  "providerCallEnabled": false,
+  "preRunDollarGuessRequired": false,
+  "preRunDollarCapAsLaunchGate": false,
+  "postflightUsageAccounting": {
+    "requiredAfterFutureExecution": true,
+    "finalUsageSource": "provider_reported_usage",
+    "providerReportedUsageRequired": true,
+    "estimateAllowed": true,
+    "estimateUse": "diagnostic_only",
+    "estimateMayBeFinalUsage": false,
+    "estimateMayGateLaunch": false,
+    "missingProviderReportedUsageEffect": "future_execution_rows_not_formally_usable"
+  },
+  "cell06Dependency": {
+    "cellNumber": "06",
+    "protocolCellNumber": "⑥",
+    "arm": "A2prime",
+    "blocked": true,
+    "blockedUntil": "real Cell 03-derived budget/usage lock exists after execution",
+    "matchingRealBudgetOrUsageLockPresent": false
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "artifact": "m2-cell03-execution-envelope",
+  "storyId": "B-6529",
+  "status": "authorization_ready_execution_not_run",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "executionState": {
+    "envelopeFrozen": true,
+    "providerExecutionAuthorized": false,
+    "providerCallEnabled": false,
+    "formalPhase1UseAllowed": false,
+    "providerCallsFromThisStory": "disabled",
+    "resultRowsPresent": false,
+    "outcomeRecordsPresent": false
+  },
+  "cellScope": {
+    "cellNumber": "03",
+    "protocolCellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "taskInventoryArtifact": "task-inventory.m2.json",
+    "taskInventoryDigest": "sha256:344845e8b2d4d974544fbd182c4061eff958350388133c0d08cfaa0aae4cedd4",
+    "taskCount": 24,
+    "scenarioSlots": 16,
+    "repeatSlots": 3,
+    "plannedRows": 1152,
+    "otherCellsExcluded": [
+      "02",
+      "04",
+      "06",
+      "Phase 2"
+    ]
+  },
+  "limits": {
+    "maxProviderCalls": 1152,
+    "maxAttemptsPerCellKey": 2,
+    "maxRetriesPerCellKey": 1,
+    "maxWallClockHours": 24,
+    "maxInputTokensPerAttempt": 12000,
+    "maxOutputTokensPerAttempt": 6000,
+    "maxTotalOutputRows": 1152,
+    "preRunDollarGuessRequired": false,
+    "preRunDollarCapRequired": false,
+    "preRunDollarAmount": null
+  },
+  "stopConditions": [
+    "providerCallEnabled is false",
+    "provider fallback occurs",
+    "executor or reviewer target snapshot is missing or drifted",
+    "a host label is supplied as a model snapshot",
+    "a duplicate cell key appears without supersession",
+    "planned row count would exceed 1152",
+    "result write policy cannot be satisfied",
+    "provider-reported usage is unavailable after a future execution"
+  ],
+  "targetSnapshots": {
+    "snapshotDate": "2026-07-05",
+    "hostLabelOnlySnapshotsAccepted": false,
+    "executorTargetSnapshot": {
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotDate": "2026-07-05",
+      "hostLabelAccepted": false,
+      "providerRunMetadataPresent": false
+    },
+    "reviewerTargetSnapshot": {
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotDate": "2026-07-05",
+      "hostLabelAccepted": false,
+      "providerRunMetadataPresent": false
+    }
+  },
+  "promptArtifact": {
+    "path": "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+    "sha256": "sha256:b1f7c70a48cf2f2c12b99bedb0f0d4259bfe334276ebf27cd1164903d33a5fa6"
+  },
+  "toolSurfaceArtifact": {
+    "path": "experiments/multi-model-ablation/m2-cell03-tool-surface.json",
+    "sha256": "sha256:c42696e2c4b36d0d1a85656000a0fc63bc5aee7158361a1f4da1279afc50beb9"
+  },
+  "usageAccountingPolicyRef": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+  "resultWritePolicyRef": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+  "runnerOwnership": {
+    "ownerRecorded": true,
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "ownershipKey": "③|A4|E2|same",
+    "duplicateOwnershipAllowed": false
+  },
+  "duplicatePolicy": {
+    "duplicateCellKeysAllowed": false,
+    "maxAttemptsPerCellKey": 2,
+    "retryRequiresSameCellKeyAndSameSnapshots": true,
+    "retryReplacementAllowedOnlyWithExplicitSupersession": true
+  },
+  "postflightUsageAccounting": {
+    "providerReportedUsageRequiredAfterExecution": true,
+    "estimateAllowed": true,
+    "estimateUse": "diagnostic_only",
+    "estimateMayBeFinalUsage": false,
+    "estimateMayGateLaunch": false
+  },
+  "cell06A2primeGate": {
+    "state": "cell-06-a2prime-blocked",
+    "blocked": true,
+    "executionAllowed": false,
+    "blockedUntil": "real Cell 03-derived budget/usage lock exists after execution",
+    "matchingRealBudgetOrUsageLockPresent": false
+  }
+}

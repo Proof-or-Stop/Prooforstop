@@ -1,0 +1,29 @@
+{
+  "task": "Replace the M2 Cell 03 provider execution precondition from arbitrary pre-run dollar guessing to a frozen execution envelope plus postflight provider-reported usage accounting.",
+  "outcome": "Running node experiments/multi-model-ablation/m2-provider-execution-check.mjs prints: Cell 03 execution envelope: frozen; Pre-run dollar guess: not required; Provider calls from this authorization story: disabled; Postflight usage accounting: provider-reported usage required after execution; Cell 06 A2prime: blocked.",
+  "facts": [
+    "B-c25c already recorded a fail-closed Cell 03 launch guardrail with provider calls disabled and no outcome rows.",
+    "The user rejected pre-run dollar guessing and asked for task completion first, with actual spend calculated after execution.",
+    "The existing LLM usage ledger design distinguishes estimates from provider-reported final usage.",
+    "B-6529 will use an authorization-ready/execution-not-run state rather than setting providerCallEnabled=true.",
+    "Cell 03 target snapshots can be bound as execution-envelope target metadata without claiming a provider call has run."
+  ],
+  "constraints": [
+    "No provider calls in this authorization story.",
+    "No Cell 06, Cell 02, Cell 04, Phase 2, paper wording, runtime, or playbook behavior changes.",
+    "No unbounded retry loops: execution must be bounded by cell scope, row/task count, retry count, timeout, token/output limits, and stop conditions.",
+    "Host labels must not substitute for dated provider/model snapshots.",
+    "Provider-reported usage and derived cost must remain separate from estimates."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+    "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+    "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+    "experiments/multi-model-ablation/m2-status.md",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+  ],
+  "timestamp": "2026-07-05T21:32:21.489Z"
+}

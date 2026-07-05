@@ -20,10 +20,11 @@
     "approvalDate": "2026-07-05",
     "appliesToStoryId": "B-11be",
     "scope": "Record provider-execution authorization metadata, checker coverage, and status documentation only.",
-    "providerBudgetCap": {
+    "providerSpendBoundary": {
       "currency": "USD",
       "amount": 0,
-      "providerSpendAllowed": false
+      "providerSpendAllowed": false,
+      "meaning": "B-11be was a metadata-only authorization story with zero provider spend; this is not a future launch cap."
     },
     "providerExecutionAuthorized": false,
     "providerCallEnabled": false,
@@ -80,16 +81,28 @@
       "blocksProviderExecution": true
     },
     {
-      "fieldId": "nonzeroProviderBudgetCap",
-      "status": "still_required_for_real_provider_execution",
-      "value": null,
-      "blocksProviderExecution": true
+      "fieldId": "boundedExecutionEnvelope",
+      "status": "recorded_by_B-6529_for_cell_03",
+      "value": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+      "blocksProviderExecution": false
     },
     {
       "fieldId": "duplicatePolicy",
       "status": "still_required_for_real_provider_execution",
       "value": null,
       "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "resultOutputPolicy",
+      "status": "recorded_by_B-6529_for_cell_03",
+      "value": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+      "blocksProviderExecution": false
+    },
+    {
+      "fieldId": "postflightUsageAccountingPolicy",
+      "status": "recorded_by_B-6529_for_cell_03",
+      "value": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+      "blocksProviderExecution": false
     }
   ],
   "sequencing": {
@@ -104,10 +117,12 @@
       "status": "authorized_for_future_metadata_preparation_only",
       "providerExecutionAllowedInB11be": false,
       "requiresSeparateProviderExecutionStory": true,
-      "requiresNonzeroBudgetApproval": true,
+      "requiresNonzeroBudgetApproval": false,
+      "requiresBoundedExecutionEnvelope": true,
+      "requiresPostflightProviderReportedUsageAccounting": true,
       "executionEvidencePresent": false
     },
-    "realCell03DerivedBudgetLock": {
+    "realCell03DerivedBudgetOrUsageLock": {
       "present": false,
       "sourceCell": "03",
       "appliesToCell": "06",
@@ -122,8 +137,9 @@
       "reviewerFamily": "not_applicable",
       "blocked": true,
       "executionAllowed": false,
-      "blockedUntil": "real cell-03-derived budget lock exists",
-      "matchingRealBudgetLockPresent": false
+      "blockedUntil": "real cell-03-derived budget/usage lock exists after execution",
+      "matchingRealBudgetLockPresent": false,
+      "matchingRealUsageLockPresent": false
     }
   },
   "hostModelSeparation": {

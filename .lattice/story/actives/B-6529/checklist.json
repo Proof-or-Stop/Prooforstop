@@ -8,7 +8,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
-      "userSees": "Cell 03 authorization shows the frozen execution envelope before execution and later shows actual provider-reported usage/cost after execution.",
+      "userSees": "`Cell 03 execution envelope: frozen`; `Pre-run dollar guess: not required`; `Postflight usage accounting: provider-reported usage required after execution`.",
       "excludes": [
         "User guesswork budget",
         "Agent-invented provider spend",
@@ -30,9 +30,70 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:55:55.037Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run m2-provider-execution-check.mjs and verify it reports Cell 03 execution envelope: frozen plus Pre-run dollar guess: not required.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A preflight estimate may exist, but provider-reported usage remains required postflight and estimates are not final usage.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing retry/time/token/output bounds or treating estimates as final usage must be rejected and keep provider calls disabled.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker transcript now prints Cell 03 execution envelope: frozen and Pre-run dollar guess: not required.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Usage policy separates diagnostic estimates from required postflight provider-reported usage.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject missing bounds and treating estimates as final usage while provider calls stay disabled.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -42,7 +103,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "experiments/multi-model-ablation/model-snapshot-lock.m2.json"
       ],
-      "userSees": "Cell 03 shows concrete dated executor and reviewer snapshots rather than host labels.",
+      "userSees": "`Cell 03 target snapshots: executor=OpenAI GPT / reviewer=OpenAI GPT`; `Host labels accepted as snapshots: false`.",
       "excludes": [
         "Treating host labels as provider snapshots",
         "Provider fallback",
@@ -58,9 +119,70 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:55:56.530Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies Cell 03 target executor and same-family reviewer snapshots are present as dated provider/model metadata.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Declaration-only readiness snapshots remain distinguishable from execution-envelope target snapshot metadata.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex CLI, Codex App, or other host labels used as snapshot values must be rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker validates dated E2 executor and same-family reviewer target snapshot metadata.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Declaration-only readiness metadata remains separate from execution-envelope target snapshot metadata.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Host labels such as Codex CLI are rejected as provider snapshots by checker negative controls.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -69,7 +191,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
       ],
-      "userSees": "Cell 03 launch record shows immutable prompt/tool digests before execution can run.",
+      "userSees": "`Cell 03 prompt digest: sha256:<...>`; `Cell 03 tool-surface digest: sha256:<...>`.",
       "excludes": [
         "Prompt changes after authorization",
         "Hidden tool access changes",
@@ -87,9 +209,70 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:55:57.944Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies prompt and tool-surface artifacts exist and their sha256 digests are referenced by the launch artifact.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Whitespace, command, permission, or parameter changes alter the corresponding digest and require re-freezing.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing or mismatched prompt/tool digests must block authorization-ready status.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker recomputes prompt and tool-surface sha256 digests referenced by the launch artifact.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-cell03-tool-surface.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Digest binding means prompt or tool-surface changes require re-freezing before execution.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker rejects missing or mismatched prompt/tool digest metadata.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -99,7 +282,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
       ],
-      "userSees": "Cell 03 has exactly one authorized runner owner and duplicate/retry rules before execution.",
+      "userSees": "`Cell 03 runner owner: codex-cli`; `Duplicate policy: retries bounded; repeated rows are not independent`.",
       "excludes": [
         "Multiple active Cell 03 owners",
         "Counting retries as independent rows",
@@ -115,9 +298,70 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:55:59.371Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies exactly one owner for m2-future-cell-03-e2-a4-same and a duplicate policy with bounded retries.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Retry attempts are represented as attempts for the same logical cell key and cannot become independent result rows.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate owners, missing retry limit, or unregistered duplicate rows must be rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker verifies one Cell 03 owner and duplicate policy with bounded retries.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Retry attempts remain attempts for the same logical Cell 03 key and not independent result rows.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject duplicate owners, missing retry limits, and duplicate-row independence.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -127,7 +371,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
-      "userSees": "The unlock permits only Cell 03 and makes all other cells and claims visibly blocked.",
+      "userSees": "`Cell 03 result output policy: frozen`; `Provider/model switch rejection: enabled`; `Cell 06 A2prime: blocked`.",
       "excludes": [
         "Cell 06 execution",
         "Cell 02 or Cell 04 execution",
@@ -148,9 +392,117 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:56:00.972Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies result output policy, execution window, provider/model switch rejection, and Cell 03-only scope are present.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expired execution windows or provider/model switches invalidate authorization-ready status.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any attempt to enable Cell 06, Cell 02, Cell 04, Phase 2, paper wording, runtime, or playbook behavior from this story must be rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker verifies output policy, execution window, provider/model switch rejection, and Cell 03-only scope.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Expired windows and provider/model switches invalidate authorization-ready status in checker logic.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Negative controls keep Cell 06, Cell 02, Cell 04, Phase 2, paper wording, runtime, and playbook behavior out of scope.",
+          "headHash": "ea7fde6e2decd87eedd5268016157b1d31f00ace",
+          "materialHash": "339a79f8590b79a085c105acafb736d7af97daa81a00c3648b23405274e8c511",
+          "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+          "timestamp": "2026-07-05T22:17:45.716Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-05T21:55:55.037Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Execution envelope and postflight usage accounting verified by m2-provider-execution-check.mjs."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:56.530Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Dated E2 executor/reviewer snapshot metadata and host-label rejection verified by checker."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:57.944Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Prompt and tool-surface digest binding verified by checker."
+    },
+    {
+      "timestamp": "2026-07-05T21:55:59.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Runner ownership and duplicate policy verified by checker."
+    },
+    {
+      "timestamp": "2026-07-05T21:56:00.972Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Result output, provider switch rejection, execution window, and Cell 03-only scope verified by checker."
     }
   ]
 }
