@@ -32,9 +32,43 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T11:00:26.638Z",
-      "endTime": null
+      "endTime": "2026-07-05T11:00:34.182Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "result": "pass",
+          "note": "Canonical inventory in the review doc matches current Proofbound anchors: proofstory handler for milestone_ledger_set/add/get, milestone-status handler/core for milestone_status and closeout, types, command policy, and ProofStory decision doc.",
+          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:34.315Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice session_brief && lattice aux_doc_list && rg -n milestone_ledger_set packages/main/src docs/requirements/decisions",
+          "result": "pass",
+          "note": "Review used canonical /Users/jek/Documents/Work/proofbound worktree, not retired Orchestrate, and aux_doc_list shows the new canonical review doc in docs/requirements/decisions.",
+          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:34.433Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Stale planning prose was not treated as stronger than current code; the review doc explicitly says this is not a from-scratch implementation plan and the implementation inventory is verified against source.",
+          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:00:34.547Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -152,6 +186,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting canonical source inventory review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:34.182Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical source inventory review completed.",
       "agent": "codex-main"
     }
   ]
