@@ -62,7 +62,7 @@
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "experiments/multi-model-ablation/model-snapshot-lock.m2.json"
       ],
-      "userSees": "Cell 03 shows concrete dated executor and reviewer snapshots rather than host labels.",
+      "userSees": "`Cell 03 target snapshots: executor=OpenAI GPT / reviewer=OpenAI GPT`; `Host labels accepted as snapshots: false`.",
       "excludes": [
         "Treating host labels as provider snapshots",
         "Provider fallback",
@@ -80,7 +80,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies Cell 03 target executor and same-family reviewer snapshots are present as dated provider/model metadata.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Declaration-only readiness snapshots remain distinguishable from execution-envelope target snapshot metadata.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex CLI, Codex App, or other host labels used as snapshot values must be rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
