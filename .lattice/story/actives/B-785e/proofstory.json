@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-785e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:ed26c6778a57000b01e612e0a0356bcba507c6eb14354160511357657731a3e9",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-M2-LAUNCH",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "acceptanceClaim": "M2 provider execution launch is prepared without claiming outcome data.",
+      "note": "Single acceptance claim binds the execution document, disabled-by-default launch artifact, cell 03 first rule, cell 06 budget-lock block, and host/model separation."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_confirmed_milestone_ledger",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "A candidate milestone ledger exists, but accepted intent interpretation has not confirmed it for gate consumption.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "ProofStory contract for M2 launch preparation only; provider execution and Phase 1 results remain out of scope.",
+  "createdAt": "2026-07-05T11:54:19.476Z",
+  "updatedAt": "2026-07-05T11:54:19.476Z"
+}
