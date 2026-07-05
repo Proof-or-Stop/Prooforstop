@@ -19,6 +19,31 @@
     "formalPhase1UseAllowed": false,
     "statement": "M2 binds dated provider-family declarations for readiness review. The future M2-a provider-execution story must still record actual executorSnapshot and reviewerSnapshot metadata before any cell can run."
   },
+  "cell03ExecutionTargetSnapshots": {
+    "storyId": "B-6529",
+    "status": "target_snapshots_frozen_execution_not_run",
+    "appliesToEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+    "cellNumber": "03",
+    "protocolCellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "snapshotDate": "2026-07-05",
+    "executorTargetSnapshot": {
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "hostLabelAccepted": false,
+      "providerRunMetadataPresent": false
+    },
+    "reviewerTargetSnapshot": {
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "hostLabelAccepted": false,
+      "providerRunMetadataPresent": false
+    }
+  },
   "modelFamilies": [
     {
       "familyId": "E1",

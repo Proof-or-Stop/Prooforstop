@@ -1,0 +1,52 @@
+{
+  "storyId": "B-6529",
+  "checkedAt": "2026-07-05T21:36:22.237Z",
+  "features": [
+    {
+      "feature": "CHK-001 frozen Cell 03 execution envelope plus postflight provider-reported usage/cost accounting",
+      "covered_by": "CHK-001 title/context plus files create m2-cell03-execution-envelope.json and m2-cell03-usage-accounting-policy.json; plan_get Goal plus M1 Execution envelope and M5 Output/accounting policy; verificationIntent rejects missing retry/time/token/output bounds and treating estimates as final usage.",
+      "status": "covered",
+      "excluded_by": "Provider calls from this authorization story remain disabled; pre-run dollar guess is not required; Phase 2 or powered matrix approval excluded.",
+      "source": "checklist_get CHK-001; plan_get Goal/Milestones/Verification Plan"
+    },
+    {
+      "feature": "CHK-002 dated E2 executor and same-family reviewer snapshots",
+      "covered_by": "CHK-002 binds provider/model/snapshotDate/API surface for executor and reviewer; files include model-snapshot-lock.m2.json and m2-provider-execution-launch.json; verificationIntent rejects Codex CLI/Codex App or other host labels as snapshots.",
+      "status": "covered",
+      "excluded_by": "Host labels cannot substitute for provider snapshots; provider fallback excluded; undated model family declarations excluded as formal execution metadata.",
+      "source": "checklist_get CHK-002; plan_get M2 Target snapshots"
+    },
+    {
+      "feature": "CHK-003 frozen Cell 03 prompt and tool-surface digests",
+      "covered_by": "CHK-003 creates m2-cell03-execution-prompt.md and m2-cell03-tool-surface.json; launch artifact must reference sha256 prompt and tool-surface digests; verificationIntent rejects missing or mismatched digests.",
+      "status": "covered",
+      "excluded_by": "Prompt changes after authorization excluded; hidden tool access changes excluded; digest-free execution excluded.",
+      "source": "checklist_get CHK-003; plan_get M3 Prompt/tool digests"
+    },
+    {
+      "feature": "CHK-004 runner ownership and duplicate policy",
+      "covered_by": "CHK-004 assigns one owner/session/host for m2-future-cell-03-e2-a4-same; runner manifest and launch artifact must record bounded retry/timeout/duplicate-row handling; verificationIntent rejects duplicate owners, missing retry limit, and unregistered duplicate rows.",
+      "status": "covered",
+      "excluded_by": "Multiple active Cell 03 owners excluded; counting retries as independent rows excluded; unbounded reruns excluded.",
+      "source": "checklist_get CHK-004; plan_get M4 Ownership/duplicates"
+    },
+    {
+      "feature": "CHK-005 result output policy, provider switch rejection, execution window, Cell 03-only scope, docs/status",
+      "covered_by": "CHK-005 creates m2-cell03-result-write-policy.json and updates launch artifact, m2-status.md, and M2 provider execution decision doc; context covers output paths, result row admissibility, provider/model switch rejection, and execution window expiry; plan verification negative controls reject provider calls/result rows in this authorization story and later-cell unlocks.",
+      "status": "covered",
+      "excluded_by": "Actual provider calls excluded from B-6529; Cell 06, Cell 02, Cell 04, and Phase 2 excluded; paper wording, runtime behavior, and playbook behavior excluded.",
+      "source": "checklist_get CHK-005; understanding_get constraints; plan_get Design Decisions/Verification Plan"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a9c3ed183a3c51ecbe9aba63ed228a30b0ac7701f4e96e442ec91406f0d22f16",
+  "openQuestions": []
+}
