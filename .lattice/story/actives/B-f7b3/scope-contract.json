@@ -1,0 +1,34 @@
+{
+  "storyId": "B-f7b3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "package.json",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/milestone-not-applicable-justification.md",
+    "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+    "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests/milestone-not-applicable-justification.test.mjs",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T21:32:41.725Z",
+  "updatedAt": "2026-07-05T21:32:41.725Z"
+}
