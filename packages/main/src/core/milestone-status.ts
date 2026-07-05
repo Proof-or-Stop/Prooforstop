@@ -184,6 +184,9 @@ const READ_ONLY_MODE: MilestoneStatusMode = {
   launchReviewers: false,
 };
 
+const MILESTONE_OBSERVABILITY_DISCLAIMER =
+  'Scope: observability only - reports milestone progress from the ProofStory ledger. This is NOT a lifecycle DONE, NOT an Authority verdict, and NOT a production-readiness gate.';
+
 function unique(values: string[]): string[] {
   return [...new Set(values.filter((value) => value.trim().length > 0))];
 }
@@ -971,6 +974,7 @@ export function renderMilestoneCloseoutSnapshot(snapshot: MilestoneCloseoutSnaps
   const lines = [
     `Milestone Closeout - ${snapshot.storyId}`,
     'Mode: read-only historical snapshot',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     `Phase: ${snapshot.phase}`,
     `Generated: ${snapshot.generatedAt}`,
     `Source milestone_status digest: ${snapshot.sourceReport.digest}`,
@@ -990,6 +994,7 @@ export function renderMilestoneCloseoutMissingReport(report: MilestoneCloseoutMi
   return [
     `Milestone Closeout - ${report.storyId}`,
     'Mode: read-only historical snapshot',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     'Snapshot: missing',
     report.expectedPath ? `Expected path: ${report.expectedPath}` : undefined,
     `Diagnostic: ${report.diagnostic}`,
@@ -1147,6 +1152,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
   const lines = [
     `Milestone Status - ${report.storyId}`,
     'Mode: read-only',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     `Phase: ${report.phase}`,
     `Ledger: ${report.ledger.present ? `state=${report.ledger.state ?? 'unknown'} hash=${report.ledger.hash ?? 'unknown'}` : 'missing'}`,
     '',

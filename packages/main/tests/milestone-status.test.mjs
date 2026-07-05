@@ -361,6 +361,8 @@ function assertTextContract(text) {
   for (const label of [
     'Milestone Status - B-7ba7',
     'Mode: read-only',
+    'observability only',
+    'NOT a lifecycle DONE',
     'Completed',
     'Current',
     'Remaining',
@@ -379,6 +381,8 @@ function assertCloseoutTextContract(text) {
   for (const label of [
     'Milestone Closeout',
     'Mode: read-only historical snapshot',
+    'observability only',
+    'NOT a lifecycle DONE',
     '| Milestone | Status | Solved Problem | Acceptance | Evidence | Risks | Next Action |',
   ]) {
     assert.ok(text.includes(label), `closeout text output must include ${label}`);
