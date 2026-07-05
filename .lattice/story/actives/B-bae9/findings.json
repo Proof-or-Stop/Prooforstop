@@ -84,6 +84,25 @@
       "resolvedAt": "2026-07-05T18:00:00.124Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bae9:F-005",
+      "desc": "quality: experiments/pos-instrument-replay/tamper.mjs:370-405 -- compareFingerprint's new numeric predicate branches for op '>' and op 'not-equal' (plus the default:throw-on-unknown-op branch) are never exercised by any test. The frozen protocol.json's 27 tamperMatrix entries only ever produce failureSignals with op 'equals' (4 entries) or op 'less-than' (12 entries) -- zero entries use the 'greater-than' or 'not-equal' ops (confirmed by iterating protocol.json's tamperMatrix programmatically). selfcheck-m1.mjs's negative test (lines 180-256) only flips a boolean flag, not a numeric metric predicate op, so it does not exercise these branches either. F-004's claim that compareFingerprint covers all four predicate ops and throws on an unknown op is true of the written code but 3 of its 4 op branches (greater-than, not-equal, and the throw-on-unknown-op default) are untested -- a latent bug there would not be caught by the current test suite.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T18:12:39.475Z",
+      "reviewRound": "2026-07-05T17:59:42.735Z",
+      "reviewRunId": "B-bae9:RR-010",
+      "_hash": "8b49cecce2edaebe8abbae6aa09023cd968c7280b39f259e3d75a8bebfbed05d",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs",
+        "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-experiments-instrument",
+      "signatureTagSource": "auto"
     }
   ]
 }
