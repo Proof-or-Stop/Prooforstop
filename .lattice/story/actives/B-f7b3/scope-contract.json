@@ -29,7 +29,50 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story ProofStory metadata artifacts created during PLAN (intent-collision, milestone-ledger, original-intent-snapshot, proofstory contract, slice-plan) to satisfy the high-assurance DEV gate. Lattice story lifecycle metadata, not source or test code.",
+      "timestamp": "2026-07-05T23:20:29.415Z",
+      "paths": [
+        ".lattice/story/actives/B-f7b3/intent-collision.json",
+        ".lattice/story/actives/B-f7b3/milestone-ledger.json",
+        ".lattice/story/actives/B-f7b3/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f7b3/proofstory.json",
+        ".lattice/story/actives/B-f7b3/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f7b3/intent-collision.json",
+        ".lattice/story/actives/B-f7b3/milestone-ledger.json",
+        ".lattice/story/actives/B-f7b3/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f7b3/proofstory.json",
+        ".lattice/story/actives/B-f7b3/slice-plan.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "bca4c4c416167039a5ad88e91defdb91474b82ad",
+      "materialHash": "27855e489f62ea4669a6381def6b6c7b0f2f3cc3d94b913dce2691c22e5eba35"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "packages/main/package.json: CHK-006 added the test:milestone-status script for aggregate-suite wiring. packages/main/src/handlers/proofstory.ts: CHK-010 plumbs currentEvidenceBinding into the ProofStory diagnostic-input builder (same computation milestone_status uses) so the DONE gate honors milestone freshness. Both are in-scope for the declared work; the exact paths were not in the initial per-item files list.",
+      "timestamp": "2026-07-05T23:21:00.117Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "bca4c4c416167039a5ad88e91defdb91474b82ad",
+      "materialHash": "27855e489f62ea4669a6381def6b6c7b0f2f3cc3d94b913dce2691c22e5eba35"
+    }
+  ],
   "createdAt": "2026-07-05T21:32:41.725Z",
-  "updatedAt": "2026-07-05T21:34:31.826Z"
+  "updatedAt": "2026-07-05T23:21:00.117Z"
 }
