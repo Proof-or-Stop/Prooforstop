@@ -360,6 +360,48 @@ try {
     'invalid assignedStory fields fail before corrupting the artifact',
   );
 
+  // Negative control: duplicate milestone ledger rows must be rejected, not silently kept.
+  // milestone_ledger_set with two rows sharing the same id fails before writing the artifact.
+  assert.match(
+    run(root, 'milestone_ledger_set', {
+      storyId,
+      milestones: [
+        { id: 'DUP-1', sourceRequirementId: 'REQ-001', claim: 'First DUP-1 row', doneMeans: 'ledger rejects the second DUP-1 row', checklistRefs: ['CHK-001'], verificationIntentRefs: ['CHK-001:happy:0'], status: 'covered' },
+        { id: 'DUP-1', sourceRequirementId: 'REQ-001', claim: 'Second DUP-1 row', doneMeans: 'ledger rejects the second DUP-1 row', checklistRefs: ['CHK-002'], verificationIntentRefs: ['CHK-002:happy:0'], status: 'covered' },
+      ],
+    }, true),
+    /duplicate milestone id: DUP-1/i,
+    'milestone_ledger_set rejects two rows sharing the same milestone id',
+  );
+  // milestone_ledger_add appending an id that already exists in the ledger (M1) fails before appending.
+  assert.match(
+    run(root, 'milestone_ledger_add', {
+      storyId,
+      milestone: {
+        id: 'M1',
+        sourceRequirementId: 'REQ-001',
+        claim: 'Duplicate M1 append is rejected',
+        doneMeans: 'milestone_ledger_add refuses a second row with an existing id',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: ['CHK-001:happy:0'],
+        status: 'covered',
+      },
+    }, true),
+    /duplicate milestone id: M1/i,
+    'milestone_ledger_add rejects appending a row whose id already exists in the ledger',
+  );
+  const ledgerAfterDupAttempts = jsonRun(root, 'milestone_ledger_get', { storyId });
+  assert.equal(
+    ledgerAfterDupAttempts.milestones.length,
+    6,
+    'rejected duplicate milestone rows do not mutate the existing ledger',
+  );
+  assert.equal(
+    new Set(ledgerAfterDupAttempts.milestones.map((row: any) => row.id)).size,
+    ledgerAfterDupAttempts.milestones.length,
+    'stored ledger milestone ids remain unique after rejected duplicate attempts',
+  );
+
   coverage = jsonRun(root, 'intent_coverage_check', { storyId, mode: 'observe' });
   assert.equal(coverage.missingMilestoneCoverage.length, 0, 'covered ledger rows clear milestone coverage gaps');
   assert.equal(coverage.missingAcceptanceBindings.length, 1, 'acceptance binding remains separate from milestone coverage');

@@ -34,6 +34,7 @@ import type {
   MilestoneLedgerData,
   MilestoneLedgerItem,
   MilestoneLedgerState,
+  MilestoneNotApplicableDecision,
   MilestoneStatus,
   OriginalIntentSnapshotData,
   ProofStoryParentLedgerRollupData,
@@ -295,6 +296,43 @@ export function buildOriginalIntentSnapshot(
   };
 }
 
+/**
+ * Parse an OPTIONAL not-applicable justification. Returns undefined when the field
+ * is absent (never throws on absence). When PRESENT it must be an object with
+ * non-empty reason/decidedBy/decidedAt strings; a malformed present shape throws a
+ * structural error. Policy (a not_applicable row *should* carry a decision) is
+ * enforced downstream as a DONE-gate diagnostic, not here.
+ */
+function normalizeNotApplicableDecision(
+  value: unknown,
+  fieldName: string,
+): MilestoneNotApplicableDecision | undefined {
+  if (value == null) return undefined;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${fieldName} must be an object`);
+  }
+  const obj = value as Record<string, unknown>;
+  return {
+    reason: requireNonEmptyString(obj.reason, `${fieldName}.reason`),
+    decidedBy: requireNonEmptyString(obj.decidedBy, `${fieldName}.decidedBy`),
+    decidedAt: requireNonEmptyString(obj.decidedAt, `${fieldName}.decidedAt`),
+  };
+}
+
+/**
+ * A not-applicable milestone justification is valid only when it carries a
+ * non-empty reason, decidedBy, and decidedAt. Used by the DONE-gate diagnostic;
+ * mirrors `validNotApplicable` in parent-roadmap-totality.
+ */
+function validMilestoneNotApplicable(
+  decision: MilestoneNotApplicableDecision | undefined,
+): boolean {
+  if (!decision) return false;
+  return decision.reason.trim().length > 0
+    && decision.decidedBy.trim().length > 0
+    && decision.decidedAt.trim().length > 0;
+}
+
 function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
   if (!raw || typeof raw !== 'object') throw new Error(`milestones[${index}] must be an object`);
   const obj = raw as Record<string, unknown>;
@@ -302,7 +340,11 @@ function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
   if (!VALID_MILESTONE_STATUSES.has(status as MilestoneStatus)) {
     throw new Error(`milestones[${index}].status must be one of: planned, covered, done, not_applicable`);
   }
-  return {
+  const notApplicableDecision = normalizeNotApplicableDecision(
+    obj.notApplicableDecision,
+    `milestones[${index}].notApplicableDecision`,
+  );
+  const item: MilestoneLedgerItem = {
     id: requireNonEmptyString(obj.id, `milestones[${index}].id`),
     sourceRequirementId: requireNonEmptyString(obj.sourceRequirementId, `milestones[${index}].sourceRequirementId`),
     claim: requireNonEmptyString(obj.claim, `milestones[${index}].claim`),
@@ -314,6 +356,13 @@ function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
     assignedStory: optionalStoryId(obj.assignedStory, `milestones[${index}].assignedStory`),
     status: status as MilestoneStatus,
   };
+  // Only attach the field when present so rows WITHOUT a decision keep the exact
+  // same object shape (and therefore the exact same ledger hash) as before this
+  // field existed. `sha256Stable` must not observe an `undefined` key.
+  if (notApplicableDecision) {
+    item.notApplicableDecision = notApplicableDecision;
+  }
+  return item;
 }
 
 export function computeMilestoneLedgerHash(milestones: readonly MilestoneLedgerItem[]): string {
@@ -386,12 +435,20 @@ export function confirmMilestoneLedger(
 ): MilestoneLedgerData | null {
   if (!ledger) return null;
   if (!collisionAccepted(collision) || !collision.acceptedInterpretationHash) return ledger;
+  const ledgerHash = ledger.ledgerHash ?? computeMilestoneLedgerHash(ledger.milestones);
+  // Confirm-time re-check: the accepted collision recorded the ledger hash it was
+  // deciding over (collision.confirmedLedgerHash). Only mint `confirmed` when that
+  // recorded hash still matches the current ledger hash; otherwise the ledger has
+  // drifted since the intent decision and must stay a candidate (re-decide first).
+  if (collision.confirmedLedgerHash && collision.confirmedLedgerHash !== ledgerHash) {
+    return ledger;
+  }
   const now = new Date().toISOString();
   return {
     ...ledger,
     storyId,
     state: 'confirmed',
-    ledgerHash: ledger.ledgerHash ?? computeMilestoneLedgerHash(ledger.milestones),
+    ledgerHash,
     acceptedIntentBinding: {
       intentCollisionId: collision.id,
       acceptedInterpretationHash: collision.acceptedInterpretationHash,
@@ -1353,15 +1410,34 @@ export function evaluateDoneIntentEquivalence(
   }
   const evidence = verificationEvidenceByRef(input.checklist.items);
   const uncoveredRequiredMilestoneIds: string[] = [];
+  const unjustifiedNotApplicableMilestoneIds: string[] = [];
   if (hasMilestonePath) {
     for (const milestone of ledger?.milestones ?? []) {
-      if (milestone.status === 'not_applicable') continue;
+      if (milestone.status === 'not_applicable') {
+        // A not_applicable row self-exempts from the uncovered-required set, but
+        // only when it carries a valid auditable justification. An unjustified
+        // exemption is a diagnostic gap (not a read-path throw) so the DONE gate
+        // cannot consume a zero-evidence self-exemption.
+        if (!validMilestoneNotApplicable(milestone.notApplicableDecision)) {
+          unjustifiedNotApplicableMilestoneIds.push(milestone.id);
+        }
+        continue;
+      }
       if (acceptedShrinkage.has(milestone.id)) continue;
       const refs = milestone.verificationIntentRefs;
       if (refs.length === 0 || !refs.every((ref) => evidenceCoversIntent(evidence, ref))) {
         uncoveredRequiredMilestoneIds.push(milestone.id);
       }
     }
+  }
+  if (unjustifiedNotApplicableMilestoneIds.length > 0) {
+    gaps.push(gap(
+      'not_applicable_missing_decision',
+      'milestone-ledger.json',
+      `Milestone(s) marked not_applicable lack a valid auditable notApplicableDecision (reason, decidedBy, decidedAt): ${unjustifiedNotApplicableMilestoneIds.join(', ')}.`,
+      undefined,
+      'fail',
+    ));
   }
   if (uncoveredRequiredMilestoneIds.length > 0) {
     gaps.push(gap(

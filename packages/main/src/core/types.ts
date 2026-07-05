@@ -1783,6 +1783,21 @@ export interface OriginalIntentSnapshotData {
 export type MilestoneStatus = 'planned' | 'covered' | 'done' | 'not_applicable';
 export type MilestoneLedgerState = 'candidate' | 'confirmed';
 
+/**
+ * Auditable justification for a `not_applicable` milestone row, mirroring the
+ * shipped `ParentRoadmapNotApplicableDecision` triad. Present only on rows the
+ * author has deliberately exempted; absence is surfaced as a DONE-gate diagnostic
+ * (`not_applicable_missing_decision`), not a read-path throw.
+ */
+export interface MilestoneNotApplicableDecision {
+  /** Non-empty scope reason the row does not apply. */
+  reason: string;
+  /** Human / agent identity of record for the exemption. */
+  decidedBy: string;
+  /** ISO timestamp the exemption was decided. */
+  decidedAt: string;
+}
+
 export interface MilestoneLedgerItem {
   id: string;
   sourceRequirementId: string;
@@ -1796,6 +1811,12 @@ export interface MilestoneLedgerItem {
   /** Optional child story responsible for delivering this row; advisory until roll-up/DONE checks consume it. */
   assignedStory?: string;
   status: MilestoneStatus;
+  /**
+   * Optional auditable justification when `status === 'not_applicable'`. Absence
+   * of a valid decision on a not-applicable row is a DONE-gate diagnostic gap;
+   * present-but-malformed shapes are rejected structurally at normalize time.
+   */
+  notApplicableDecision?: MilestoneNotApplicableDecision;
 }
 
 export interface MilestoneLedgerData {
