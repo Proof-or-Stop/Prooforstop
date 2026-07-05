@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-8128:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round: diff is purely additive (new capability-release ledger/schema/handlers mirroring the existing artifact-release pattern, new optional PlaybookLineage fields, new capability_release_list/status CLI commands). The pre-existing runArtifactReleaseLedgerAfterDoneMerge export was kept as a live backward-compatible wrapper delegating to the new Detailed variant (both DONE call sites still use it), not orphaned/removed. No old terminology or concept word was mass-deleted or replaced anywhere in the diff (checked done-effects.ts, done-recover.ts, playbook-seed.ts, experience-layer-types.ts, config.ts, command-policy.ts, process-fact-levels.ts, registry.ts, command-catalog.ts, capability-release.ts core+handler, execution-plan doc, .gitignore, lattice.config.json). Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-05T17:21:50.340Z",
+      "reviewRound": "2026-07-05T17:20:20.090Z",
+      "reviewRunId": "B-8128:RR-001",
+      "_hash": "6b951ff240fee5e733ff5561051695bf25a15a4272bb94547d779e4debc8c809"
+    }
+  ]
+}
