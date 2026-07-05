@@ -111,6 +111,7 @@ const paths = Object.freeze({
   runnerManifest: "phase1-runner-manifest.m2.json",
   phase1Readiness: "phase1-launch-readiness.m2.json",
   providerLaunch: "m2-provider-execution-launch.json",
+  providerAuthorization: "m2-provider-execution-authorization.json",
   status: "m2-status.md",
 });
 
@@ -438,6 +439,152 @@ function validateProviderLaunch(launch) {
   assert(launch.claimBoundary?.productGateImpact === "none", "provider launch must not affect product gates");
 }
 
+function validateProviderAuthorization(authorization, launch) {
+  assert(
+    authorization.artifact === "m2-provider-execution-authorization",
+    "provider authorization artifact mismatch",
+  );
+  assert(authorization.storyId === "B-11be", "provider authorization storyId must be B-11be");
+  assert(
+    authorization.status === "metadata_authorization_recorded_provider_execution_still_disabled",
+    "provider authorization status mismatch",
+  );
+  assertBoundary(authorization, "m2 provider execution authorization");
+  assert(
+    authorization.launchArtifactRef === "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "provider authorization launchArtifactRef mismatch",
+  );
+
+  const boundary = authorization.authorizationBoundary || {};
+  assert(boundary.metadataAuthorizationRecorded === true, "metadata authorization must be recorded");
+  assert(boundary.humanApprovalRecorded === true, "human approval must be recorded");
+  assert(boundary.approvalSource === "user-chat-authorization-2026-07-05", "approval source mismatch");
+  assert(boundary.appliesToStoryId === "B-11be", "approval must apply to B-11be");
+  assert(boundary.providerBudgetCap?.currency === "USD", "provider budget currency must be USD");
+  assert(boundary.providerBudgetCap?.amount === 0, "provider budget cap must be USD 0.00");
+  assert(boundary.providerBudgetCap?.providerSpendAllowed === false, "provider spend must not be allowed");
+  assert(boundary.providerExecutionAuthorized === false, "provider execution must remain unauthorized");
+  assert(boundary.providerCallEnabled === false, "provider calls must remain disabled");
+  assert(boundary.formalPhase1UseAllowed === false, "formal Phase 1 must remain disabled");
+  assert(boundary.phase1CampaignAuthorized === false, "Phase 1 campaign must remain unauthorized");
+  assert(boundary.phase2CampaignAuthorized === false, "Phase 2 campaign must remain unauthorized");
+  assert(boundary.resultRowsAllowed === false, "result rows must not be allowed");
+  assert(boundary.outcomeRecordsAllowed === false, "outcome records must not be allowed");
+  assert(boundary.resultRowsPresent === false, "result rows must remain absent");
+  assert(boundary.outcomeRecordsPresent === false, "outcome records must remain absent");
+  assert(boundary.providerFallbackAllowed === false, "provider fallback must be rejected");
+  assert(boundary.productGateImpact === "none", "provider authorization must have no product gate impact");
+
+  assert(authorization.executionWindow?.allowsProviderCells === false, "B-11be execution window must not allow provider cells");
+  assert(authorization.executionWindow?.allowsLocalChecks === true, "B-11be execution window must allow local checks");
+
+  const futureFields = byId(authorization.requiredFutureExecutionMetadata, "fieldId");
+  assert(
+    futureFields.get("humanApproval")?.status === "recorded_for_metadata_only",
+    "human approval must be metadata-only",
+  );
+  for (const fieldId of [
+    "datedExecutorSnapshot",
+    "datedReviewerSnapshot",
+    "promptDigest",
+    "toolSurfaceDigest",
+    "runnerOwnership",
+    "nonzeroProviderBudgetCap",
+    "duplicatePolicy",
+  ]) {
+    const field = futureFields.get(fieldId);
+    assert(field, `provider authorization missing future execution field ${fieldId}`);
+    assert(
+      field.status === "still_required_for_real_provider_execution",
+      `${fieldId} must remain required for real provider execution`,
+    );
+    assert(field.value === null, `${fieldId} value must remain null`);
+    assert(field.blocksProviderExecution === true, `${fieldId} must block provider execution`);
+  }
+
+  assert(
+    authorization.sequencing?.nextPermittedFormalStep === "cell-03-calibration",
+    "authorization must keep cell 03 as next permitted formal step",
+  );
+  assert(
+    authorization.sequencing?.nextPermittedFormalStepMode === "separate_story_required",
+    "authorization must require a separate provider-execution story",
+  );
+  assert(
+    authorization.sequencing?.cell03Calibration?.providerExecutionAllowedInB11be === false,
+    "cell 03 provider execution must not be allowed in B-11be",
+  );
+  assert(
+    authorization.sequencing?.cell03Calibration?.requiresSeparateProviderExecutionStory === true,
+    "cell 03 must require a separate provider-execution story",
+  );
+  assert(
+    authorization.sequencing?.cell03Calibration?.requiresNonzeroBudgetApproval === true,
+    "cell 03 must require nonzero budget approval before real execution",
+  );
+  assert(
+    authorization.sequencing?.cell03Calibration?.executionEvidencePresent === false,
+    "cell 03 execution evidence must remain absent",
+  );
+  assert(
+    authorization.sequencing?.realCell03DerivedBudgetLock?.present === false,
+    "authorization must not claim a real cell-03-derived budget lock",
+  );
+  assert(
+    authorization.sequencing?.realCell03DerivedBudgetLock?.m0ExampleBudgetLockAcceptedAsFormalEvidence === false,
+    "authorization must not accept M0 example budget lock as formal evidence",
+  );
+  assert(
+    authorization.sequencing?.cell06A2primeGate?.state === "cell-06-a2prime-blocked",
+    "authorization cell 06 blocked state mismatch",
+  );
+  assert(authorization.sequencing?.cell06A2primeGate?.blocked === true, "authorization must keep cell 06 blocked");
+  assert(
+    authorization.sequencing?.cell06A2primeGate?.executionAllowed === false,
+    "authorization must keep cell 06 execution disabled",
+  );
+  assert(
+    authorization.sequencing?.cell06A2primeGate?.matchingRealBudgetLockPresent === false,
+    "authorization must not claim a matching real budget lock",
+  );
+
+  assert(
+    authorization.hostModelSeparation?.hostLabelOnlySnapshotsAccepted === false,
+    "authorization must reject host-label-only snapshots",
+  );
+  assert(
+    authorization.hostModelSeparation?.providerFallbackAllowed === false,
+    "authorization must reject provider fallback",
+  );
+  for (const label of HOST_LABELS) {
+    assert(
+      authorization.hostModelSeparation?.hostLabelsRejectedAsSnapshots?.includes(label),
+      `authorization must explicitly reject host label as snapshot: ${label}`,
+    );
+  }
+  for (const field of authorization.hostModelSeparation?.snapshotFieldsStillRequiredForRealExecution || []) {
+    assert(!isHostLabel(field), `authorization snapshot field name must not be a host label: ${field}`);
+  }
+
+  assert(authorization.claimBoundary?.hM1Proven === false, "authorization must not prove H-M1");
+  assert(authorization.claimBoundary?.hM3Proven === false, "authorization must not prove H-M3");
+  assert(
+    authorization.claimBoundary?.phase1DirectionalReadoutPresent === false,
+    "authorization must not claim a Phase 1 directional readout",
+  );
+  assert(
+    authorization.claimBoundary?.modelAgnosticPaperClaimUnlocked === false,
+    "authorization must not unlock model-agnostic wording",
+  );
+  assert(authorization.claimBoundary?.productGateImpact === "none", "authorization must not affect product gates");
+
+  assert(launch.launchState?.providerCallEnabled === false, "authorization must not override disabled launch state");
+  assert(
+    launch.sequencing?.cell06A2primeGate?.blocked === true,
+    "authorization must not override launch cell 06 blocked state",
+  );
+}
+
 function validateExistingM2Artifacts(artifacts) {
   for (const [name, doc] of Object.entries({
     m2LaunchReadiness: artifacts.m2LaunchReadiness,
@@ -496,6 +643,7 @@ function validateStatus(statusText) {
     assert(statusText.includes(`${key}=${JSON.stringify(value)}`), `status missing ${key}=${JSON.stringify(value)}`);
   }
   for (const requiredLine of [
+    "| M2-provider authorization metadata | DONE |",
     "| M2 provider execution launch gate | PREPARED |",
     "| M2 provider execution checker | PREPARED |",
     "| Formal M2 execution | NOT STARTED |",
@@ -505,6 +653,12 @@ function validateStatus(statusText) {
     assert(statusText.includes(requiredLine), `status missing row: ${requiredLine}`);
   }
   assert(statusText.includes("providerExecutionAuthorized=false"), "status must report providerExecutionAuthorized=false");
+  assert(statusText.includes("M2-provider authorization metadata: DONE"), "status must report authorization metadata done");
+  assert(statusText.includes("provider spend USD 0.00"), "status must report provider spend USD 0.00");
+  assert(statusText.includes("no provider cells ran"), "status must report no provider cells ran");
+  assert(statusText.includes("no result rows exist"), "status must report no result rows exist");
+  assert(statusText.includes("cell 03 is next"), "status must report cell 03 is next");
+  assert(statusText.includes("cell 06 remains blocked"), "status must report cell 06 remains blocked");
   assert(statusText.includes("nextPermittedFormalStep=cell-03-calibration"), "status must report cell 03 as next permitted step");
   assert(statusText.includes("cell-06-a2prime-blocked"), "status must report cell 06 blocked state");
   assert(/no claim unlock/i.test(statusText), "status must state no claim unlock");
@@ -519,6 +673,7 @@ function loadArtifacts() {
     runnerManifest: readJson(paths.runnerManifest),
     phase1Readiness: readJson(paths.phase1Readiness),
     providerLaunch: readJson(paths.providerLaunch),
+    providerAuthorization: readJson(paths.providerAuthorization),
     status: readText(paths.status),
   };
 }
@@ -526,8 +681,10 @@ function loadArtifacts() {
 function validateAll(artifacts) {
   validateExistingM2Artifacts(artifacts);
   validateProviderLaunch(artifacts.providerLaunch);
+  validateProviderAuthorization(artifacts.providerAuthorization, artifacts.providerLaunch);
   validateProviderLaunchRunnerBindings(artifacts.providerLaunch, artifacts.runnerManifest);
   assertNoOutcomeOrRecordsPath(artifacts.providerLaunch, "providerLaunch");
+  assertNoOutcomeOrRecordsPath(artifacts.providerAuthorization, "providerAuthorization");
   assertNoRecordsFileExists();
   validateStatus(artifacts.status);
 }
@@ -605,6 +762,87 @@ expectReject(
     artifacts.providerLaunch.authorization.providerFallbackAllowed = true;
   },
   /provider fallback must be rejected/,
+);
+
+expectReject(
+  "authorization provider budget made nonzero",
+  (artifacts) => {
+    artifacts.providerAuthorization.authorizationBoundary.providerBudgetCap.amount = 1;
+    artifacts.providerAuthorization.authorizationBoundary.providerBudgetCap.providerSpendAllowed = true;
+  },
+  /provider budget cap must be USD 0\.00|provider spend must not be allowed/,
+);
+
+expectReject(
+  "authorization provider calls enabled",
+  (artifacts) => {
+    artifacts.providerAuthorization.authorizationBoundary.providerCallEnabled = true;
+  },
+  /provider calls must remain disabled/,
+);
+
+expectReject(
+  "authorization real provider execution enabled",
+  (artifacts) => {
+    artifacts.providerAuthorization.authorizationBoundary.providerExecutionAuthorized = true;
+  },
+  /provider execution must remain unauthorized/,
+);
+
+expectReject(
+  "authorization missing future executor snapshot blocker",
+  (artifacts) => {
+    artifacts.providerAuthorization.requiredFutureExecutionMetadata =
+      artifacts.providerAuthorization.requiredFutureExecutionMetadata.filter(
+        (field) => field.fieldId !== "datedExecutorSnapshot",
+      );
+  },
+  /missing future execution field datedExecutorSnapshot/,
+);
+
+expectReject(
+  "authorization host label accepted as snapshot",
+  (artifacts) => {
+    artifacts.providerAuthorization.hostModelSeparation.hostLabelOnlySnapshotsAccepted = true;
+  },
+  /reject host-label-only snapshots/,
+);
+
+expectReject(
+  "authorization host label rejection list missing Codex CLI",
+  (artifacts) => {
+    artifacts.providerAuthorization.hostModelSeparation.hostLabelsRejectedAsSnapshots =
+      artifacts.providerAuthorization.hostModelSeparation.hostLabelsRejectedAsSnapshots.filter(
+        (label) => label !== "Codex CLI",
+      );
+  },
+  /explicitly reject host label as snapshot: Codex CLI/,
+);
+
+expectReject(
+  "authorization cell 03 execution allowed in B-11be",
+  (artifacts) => {
+    artifacts.providerAuthorization.sequencing.cell03Calibration.providerExecutionAllowedInB11be = true;
+  },
+  /cell 03 provider execution must not be allowed in B-11be/,
+);
+
+expectReject(
+  "authorization cell 06 unblocked",
+  (artifacts) => {
+    artifacts.providerAuthorization.sequencing.cell06A2primeGate.state = "ready";
+    artifacts.providerAuthorization.sequencing.cell06A2primeGate.blocked = false;
+    artifacts.providerAuthorization.sequencing.cell06A2primeGate.executionAllowed = true;
+  },
+  /authorization cell 06 blocked state mismatch|authorization must keep cell 06 blocked|authorization must keep cell 06 execution disabled/,
+);
+
+expectReject(
+  "authorization outcome records path added",
+  (artifacts) => {
+    artifacts.providerAuthorization.authorizationBoundary.outcomeRecordsPath = "records-multi-model-ablation.jsonl";
+  },
+  /forbidden records path field|contains forbidden records path/,
 );
 
 expectReject(
@@ -794,6 +1032,10 @@ expectReject(
 console.log(
   `M2 provider execution checker passed: ${assertionCount} assertions; ${negativeControlRejectCount} negative controls rejected`,
 );
+console.log("M2-provider authorization metadata: Done");
+console.log("Provider spend in B-11be: USD 0.00");
+console.log("Provider cells run in B-11be: none");
 console.log("nextPermittedFormalStep=cell-03-calibration");
 console.log("cell-06-a2prime-blocked");
+console.log("Cell 06 A2prime: blocked");
 console.log("Provider execution remains disabled; no provider calls made; no outcome records present");

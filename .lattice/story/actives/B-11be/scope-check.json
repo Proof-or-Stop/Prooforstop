@@ -1,0 +1,66 @@
+{
+  "storyId": "B-11be",
+  "checkedAt": "2026-07-05T15:30:35.059Z",
+  "features": [
+    {
+      "feature": "Metadata-only authorization artifact for B-11be",
+      "covered_by": "plan.md CHK-001; scope-boundary.allowed; checklist CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "Checker validates authorization metadata and negative controls",
+      "covered_by": "plan.md CHK-002; checklist CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "M2 status docs and README update for metadata authorization only",
+      "covered_by": "plan.md CHK-003; scope-boundary.allowed; checklist CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "Provider execution, provider cells, nonzero provider spend, and result or outcome rows",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Non-Goals; scope-boundary.excluded; checklist excludes",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "Cell 06 A2prime enablement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Non-Goals; scope-boundary.excluded; checklist CHK-002 and CHK-003",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "H-M1, H-M3, model-agnostic wording, paper claims, and product gates",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Non-Goals; checklist CHK-003 excludes",
+      "source": "reviewed story inputs"
+    },
+    {
+      "feature": "B-8128 capability-lineage work and unrelated Tier-C docs",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Non-Goals; scope-boundary.excluded",
+      "source": "reviewed story inputs"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fae2d777f4fce8849d7b93fc6f4d9f7730c805d9dceb7fb7b773ae433f7e767d",
+  "openQuestions": []
+}

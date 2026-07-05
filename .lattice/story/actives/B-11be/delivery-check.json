@@ -1,0 +1,67 @@
+{
+  "storyId": "B-11be",
+  "checkedAt": "2026-07-05T16:06:15.657Z",
+  "headHash": "32241cc4f9d22fdef311ecc26a71ee63442deed8",
+  "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+  "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+  "reviewRound": "2026-07-05T15:40:17.711Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+      "promise": "B-11be records metadata-only authorization only: provider execution disabled, provider spend USD 0.00, no provider cells, no result or outcome rows, cell 03 next, cell 06 blocked, and no H-M1/H-M3/model-agnostic/product gate unlock.",
+      "status": "verified",
+      "verifiedBy": "jq assertions plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "jq boundary assertion returned true; checker passed with 493 assertions and 36 negative controls rejected; output reported USD 0.00, no provider cells, cell-03-calibration next, cell-06-a2prime-blocked, and no provider calls/outcome records."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "Status doc marks M2-provider authorization metadata DONE while formal M2 execution remains NOT STARTED; it reports USD 0.00, no provider cells/result rows, cell 03 next, cell 06 blocked, and no claim/product-gate unlock.",
+      "status": "verified",
+      "verifiedBy": "rg plus checker output",
+      "evidence": "rg found the DONE status row, Formal M2 execution NOT STARTED, nextPermittedFormalStep=cell-03-calibration, cell-06-a2prime-blocked, no result rows, H-M1/H-M3 not proven, and no model-agnostic unlock; checker passed."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "README describes B-11be as a metadata-only provider-free boundary, with USD 0.00 spend, no provider cells/result rows, cell 03/cell 06 sequencing controls, and local-only checks that do not contact providers.",
+      "status": "verified",
+      "verifiedBy": "rg plus direct read",
+      "evidence": "README states the files do not call providers or unlock product gates, records m2-provider-execution-authorization.json with USD 0.00/no cells/no result rows/cell 03 next/cell 06 blocked, and states the provider checker is local-only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "promise": "Decision plan remains planning-only: B-11be is USD 0.00 metadata-only, no Phase 1/2 execution or outcome rows, cell 03 is next only for a future story, cell 06 stays blocked, and no H-M1/H-M3/model-agnostic/product gate unlock is claimed.",
+      "status": "verified",
+      "verifiedBy": "rg plus direct read",
+      "evidence": "Plan status says providerExecutionAuthorized=false and provider spend capped at USD 0.00; research boundary forbids provider calls/result rows/product gates; milestones/order keep cell 03 before cell 06; explicit non-claims keep H-M1/H-M3/model-agnostic/product gates locked."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-11be/evidence/transcript-diff.md",
+      "promise": "Transcript diff records no mismatch between expected and actual local checker/validation behavior and explicitly excludes provider execution, result rows, H-M1/H-M3 proof, model-agnostic wording, product-gate impact, and runtime changes.",
+      "status": "verified",
+      "verifiedBy": "direct read",
+      "evidence": "Actual transcript shows checker pass, USD 0.00, no provider cells, cell-03-calibration, cell-06-a2prime-blocked, and no provider calls/outcome records; diff section says no mismatch and limits section lists excluded claims."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-11be:m2-provider-execution-check",
+      "transcript": "Ran node experiments/multi-model-ablation/m2-provider-execution-check.mjs during delivery review. PASS: M2 provider execution checker passed: 493 assertions; 36 negative controls rejected. Output included M2-provider authorization metadata: Done; Provider spend in B-11be: USD 0.00; Provider cells run in B-11be: none; nextPermittedFormalStep=cell-03-calibration; cell-06-a2prime-blocked; Cell 06 A2prime: blocked; Provider execution remains disabled; no provider calls made; no outcome records present."
+    },
+    {
+      "featureId": "B-11be:lattice-validate",
+      "transcript": "Verified existing .lattice/story/actives/B-11be/test-evidence.json for command lattice validate --story=B-11be --json. Result PASS at 2026-07-05T16:00:44.716Z; parsed output status=pass, allPass=true, summary=Project validation commands passed, verificationCoverage=9/9 covered with 0 required missing, materialHash=1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e, storyFilesHash=a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e."
+    },
+    {
+      "featureId": "B-11be:done-required-validate",
+      "transcript": "Verified existing .lattice/story/actives/B-11be/done-required-evidence.json for command lattice done_required_validate --storyId=B-11be. Status PASS from 2026-07-05T16:01:34.889Z to 2026-07-05T16:03:29.924Z; receipts packages/main build and root full test suite both PASS with exitCode 0; materialHash=1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e, storyFilesHash=a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the metadata-only authorization boundary, USD 0.00 spend, no provider cells/result rows, cell 03 next, cell 06 blocked, no claim/product-gate unlock, checker negative controls, lattice validate PASS evidence, and DONE-required PASS evidence. No unresolved TODOs found in the requested scope."
+  },
+  "_hash": "f5f99e5a37ab44bd06d5aa69c98ce0665ab8df6d47fd06ed329c733338c58073"
+}

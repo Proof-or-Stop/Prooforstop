@@ -1,0 +1,30 @@
+{
+  "task": "Add a metadata-only authorized-but-bounded Multi-Model M2 provider launch artifact and checker/docs updates without running provider cells.",
+  "outcome": "After completion, the user sees the M2 status table show “M2-provider authorization metadata: Done”, with evidence pointing to m2-provider-execution-authorization.json and m2-provider-execution-check.mjs PASS; the same table still says provider spend in B-11be is USD 0.00, no provider cells ran, no result rows exist, cell 03 is the next separately budgeted story, and cell 06 remains blocked.",
+  "facts": [
+    "M0, M1, and M2 static readiness artifacts already pass local checkers.",
+    "m2-provider-execution-launch.json currently represents the disabled-by-default boundary with providerExecutionAuthorized=false.",
+    "The user authorized continuing on 2026-07-05, but INIT reviewer required exact cell scope, execution window, and budget cap before spend-sensitive metadata could be encoded.",
+    "B-11be scope now pins metadata/checker/docs only, execution window 2026-07-05 through DONE, and provider budget cap USD 0.00.",
+    "Real cell 03 provider execution requires a later story with explicit nonzero budget and dated provider snapshots."
+  ],
+  "constraints": [
+    "Do not run provider cells in B-11be.",
+    "Do not create outcome rows or result rows.",
+    "Do not enable cell 06 or full Phase 1.",
+    "Do not treat Codex CLI, Claude Code CLI, Antigravity CLI, or other host labels as provider model snapshots.",
+    "Do not touch B-8128 capability-lineage work or unrelated Tier-C docs."
+  ],
+  "unknowns": [
+    "Exact future provider model snapshot IDs for real cell 03 execution remain unknown and out of scope for B-11be.",
+    "Exact nonzero provider budget for future cell 03 execution remains unknown and out of scope for B-11be.",
+    "Whether Phase 1 will proceed beyond cell 03 depends on future execution evidence, not this metadata story."
+  ],
+  "touchpoints": [
+    "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "timestamp": "2026-07-05T14:44:39.500Z"
+}

@@ -14,9 +14,10 @@ These files are not executable Phase 1 or Phase 2 result artifacts. They do not 
 - `phase1-runner-manifest.m2.json` represents required Phase 1 cells ③, ⑥, and ②, with optional ④ kept budget-permitting, and mechanically binds those cells plus task-slot lineage back to `seed-manifest.m1.json` and `cell-matrix.m1.json`.
 - `phase1-launch-readiness.m2.json` keeps ③ A4 calibration pending and ⑥ A2prime blocked until a real ③-derived budget lock exists.
 - `m2-provider-execution-launch.json` records the disabled-by-default provider execution authorization boundary with `providerExecutionAuthorized=false`, required metadata blockers, cell 03 as the planning-only next step, and cell 06 still blocked.
+- `m2-provider-execution-authorization.json` records the B-11be metadata-only authorization boundary: provider spend USD 0.00, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked.
 - `m2-status.md` summarizes M0/M1 completion, M2 readiness, and the still-pending M3-M6 research work.
 - `m2-launch-readiness-check.mjs` validates the M2 artifacts and in-memory negative controls without running provider cells.
-- `m2-provider-execution-check.mjs` validates the provider execution launch boundary, including accidental authorization, host-label-only snapshot, provider fallback, and cell 03/cell 06 sequencing negative controls.
+- `m2-provider-execution-check.mjs` validates the provider execution launch boundary plus the B-11be metadata-only authorization artifact, including accidental authorization, host-label-only snapshot, provider fallback, USD 0.00 budget, no provider calls, and cell 03/cell 06 sequencing negative controls.
 
 ### M1 Freeze
 
@@ -223,4 +224,4 @@ Run the M2 provider-execution launch checker:
 node experiments/multi-model-ablation/m2-provider-execution-check.mjs
 ```
 
-The checker reads the existing M2 readiness artifacts plus `m2-provider-execution-launch.json`. It keeps provider execution disabled, requires real authorization metadata before provider calls can be enabled, rejects host-label-only snapshots and provider fallback, reports `nextPermittedFormalStep=cell-03-calibration`, and keeps `cell-06-a2prime-blocked` until a real cell-03-derived budget lock exists. It is local-only and does not contact providers.
+The checker reads the existing M2 readiness artifacts plus `m2-provider-execution-launch.json` and `m2-provider-execution-authorization.json`. It keeps provider execution disabled, records B-11be metadata authorization with provider spend USD 0.00, requires a separate provider-execution story with real dated snapshots and nonzero budget before provider calls can be enabled, rejects host-label-only snapshots and provider fallback, reports `nextPermittedFormalStep=cell-03-calibration`, and keeps `cell-06-a2prime-blocked` until a real cell-03-derived budget lock exists. It is local-only and does not contact providers.

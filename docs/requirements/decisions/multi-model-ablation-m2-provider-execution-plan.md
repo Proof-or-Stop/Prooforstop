@@ -1,6 +1,7 @@
 # Multi-Model Ablation M2 Provider Execution Plan
 
-Status: planning-only launch layer. The current launch state is
+Status: planning-only launch layer. B-11be records metadata-only authorization
+with provider spend capped at USD 0.00. The current launch state remains
 `providerExecutionAuthorized=false`.
 
 ## Purpose
@@ -14,8 +15,10 @@ or Phase 2.
 This document defines the next M2 provider execution launch layer so a future
 human-approved execution story can start from explicit blockers instead of
 implicit guesses. The next formal step is
-`nextPermittedFormalStep=cell-03-calibration`, but only in planning mode until
-authorization metadata exists. Cell 06 remains `cell-06-a2prime-blocked`.
+`nextPermittedFormalStep=cell-03-calibration`, but only in planning mode until a
+separate provider-execution story records real dated snapshots, prompt/tool
+digests, runner ownership, duplicate policy, and nonzero provider budget. Cell
+06 remains `cell-06-a2prime-blocked`.
 
 ## Research Boundary
 
@@ -36,7 +39,8 @@ authorization metadata exists. Cell 06 remains `cell-06-a2prime-blocked`.
 | M0 research smoke | Complete | Provider-free examples and local invariants pass without provider calls. |
 | M1 protocol freeze | Complete | Protocol, seed slots, cell matrix, and launch gate remain frozen and provider execution remains blocked. |
 | M2 readiness | Prepared | Dated provider-family declarations, 24-task inventory, runner-family manifest, and static launch readiness pass local checks. |
-| M2 provider execution launch | Prepared, disabled | Human approval plus all required executor/reviewer snapshot, prompt, tool-surface, runner ownership, budget cap, and duplicate-policy metadata are present. |
+| M2 provider authorization metadata | Done, disabled | B-11be records metadata-only approval, provider spend USD 0.00, no provider cells run, no result rows, cell 03 next, and cell 06 blocked. |
+| M2 provider execution launch | Prepared, disabled | A future provider-execution story records real executor/reviewer snapshot, prompt, tool-surface, runner ownership, nonzero budget cap, and duplicate-policy metadata before any provider calls. |
 | Cell 03 calibration | Next permitted formal step, planning-only | Run E2 A4 same-family calibration only after the launch gate authorizes provider execution. |
 | Budget-lock freeze | Blocked | Freeze a real cell-03-derived budget lock from calibration records; examples and declarations do not count. |
 | Cell 06 sequencing | Blocked | Run E2 A2prime only after the matching real cell-03-derived budget lock exists. |
@@ -49,14 +53,18 @@ authorization metadata exists. Cell 06 remains `cell-06-a2prime-blocked`.
 
 ## Required Ordering
 
-1. Launch gate first: record human approval, dated executor and reviewer
-   snapshots, prompt digest, tool-surface digest, runner ownership, budget cap,
-   and duplicate policy.
-2. Cell 03 calibration second: run E2 A4 same-family calibration as the first
+1. Metadata authorization first: B-11be records a USD 0.00, metadata-only
+   approval boundary without provider calls, result rows, or product-gate
+   impact.
+2. Real launch gate next: a separate provider-execution story must record human
+   approval for nonzero spend, dated executor and reviewer snapshots, prompt
+   digest, tool-surface digest, runner ownership, budget cap, and duplicate
+   policy.
+3. Cell 03 calibration after that: run E2 A4 same-family calibration as the first
    formal provider step.
-3. Real budget lock third: derive and freeze the A2prime budget lock from real
+4. Real budget lock after cell 03: derive and freeze the A2prime budget lock from real
    cell 03 calibration records.
-4. Cell 06 only after the lock: keep A2prime blocked until the real
+5. Cell 06 only after the lock: keep A2prime blocked until the real
    cell-03-derived budget lock exists.
 
 ## Authorization Metadata
@@ -65,7 +73,7 @@ The launch layer must treat these fields as blockers when missing:
 
 | Field | Required meaning |
 |---|---|
-| Human approval | Explicit dated approval to spend provider budget for the named cells. |
+| Human approval | Explicit dated approval to spend provider budget for the named cells. B-11be's USD 0.00 metadata-only approval is not enough for real provider execution. |
 | Dated executor snapshot | Real provider model snapshot for the executor, not a host label. |
 | Dated reviewer snapshot | Real provider model snapshot for reviewer cells; `not_applicable` only for A2prime. |
 | Prompt digest | Digest of the prompt template and provider-specific minimal adaptation. |
