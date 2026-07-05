@@ -16,6 +16,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bae9:F-002",
+      "desc": "[codex-host-2, verified] dropped entries bypass the dropped-semantics check. For the dropped class (seed-swap[refreshed]) tamper.mjs records fingerprintMatch:null, takes disposition from the frozen bucket, and checks only verifyStatus==pass. If the mutation drifts to a no-op or another pass-producing change (e.g. gold-additive-field), it is silently mis-recorded as a valid dropped case. Fix: for dropped, assert the DEFINING property — records.jsonl AND gold-queries.json byte-identical to clean (only manifest metadata changed) — not merely verifyStatus==pass.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T17:42:36.629Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "_hash": "60d1b8887468b543560650e032e8fc0326ba6c749727172f2f5ad0050a37c12f",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
