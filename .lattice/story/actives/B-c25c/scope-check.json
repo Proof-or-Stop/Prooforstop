@@ -1,0 +1,94 @@
+{
+  "storyId": "B-c25c",
+  "checkedAt": "2026-07-05T16:57:13.314Z",
+  "features": [
+    {
+      "feature": "Cell 03 guardrail artifact records exact launch prerequisites without spend invention",
+      "covered_by": "plan.md M1; CHK-002; scope-boundary allowed Cell 03 launch authorization metadata and local checker coverage",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Authorization Metadata; multi-model-ablation-replication.md 0.3"
+    },
+    {
+      "feature": "Exact budget approval fail-closed rule",
+      "covered_by": "plan.md Budget Approval Rule; CHK-002 exact human-approved amount/currency/source or absent; decision.json invented-budget mitigation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Required Ordering"
+    },
+    {
+      "feature": "Checker negative controls for malformed launch metadata",
+      "covered_by": "plan.md M2; CHK-003 rejects host-label snapshots, invented budget approval, missing digests, duplicate ownership, provider fallback, outcome rows, and premature Cell 06 unblocking",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Research Boundary; multi-model-ablation-replication.md 0.2"
+    },
+    {
+      "feature": "Docs and status ledger distinguish readiness from result evidence",
+      "covered_by": "plan.md M3; CHK-004 README, m2-status, and provider execution plan updates with Done/In Progress/Pending/Blocked states and non-claim wording",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Milestones"
+    },
+    {
+      "feature": "Provider calls and provider spend remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; scope-boundary excluded Actual provider API calls or nonlocal execution",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Research Boundary"
+    },
+    {
+      "feature": "records-multi-model-ablation.jsonl, outcome rows, and result rows remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-005 records file remains absent; scope-boundary excluded outcome/result rows",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Explicit Non-Claims; multi-model-ablation-replication.md 0.3"
+    },
+    {
+      "feature": "Cell 06 A2prime execution and budget-lock generation remain blocked",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-002/CHK-003 keep Cell 06 blocked; scope-boundary excluded Cell 06 A2prime execution or budget-lock generation",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Required Ordering; multi-model-ablation-replication.md 3.2"
+    },
+    {
+      "feature": "Cell 02 and Cell 04 execution remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-003 edge; scope-boundary excluded Cell 02/Cell 04 execution",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Milestones"
+    },
+    {
+      "feature": "Paper claims, H-M1/H-M3, model-agnostic wording, and product gates remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-004/CHK-006 adversarial intents; scope-boundary excluded paper claim unlock and product gate change",
+      "source": "multi-model-ablation-m2-provider-execution-plan.md Explicit Non-Claims; multi-model-ablation-replication.md 3.5"
+    },
+    {
+      "feature": "Runtime memory and playbook behavior remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-004 adversarial intent; scope-boundary excluded runtime/playbook behavior change",
+      "source": "multi-model-ablation-replication.md 0"
+    },
+    {
+      "feature": "Unrelated Tier-C docs and active stories remain out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Explicit Non-Goals; CHK-006 edge; scope-boundary excluded unrelated Tier-C docs or active stories; execution-boundary excluded Tier-C paths",
+      "source": "multi-model-ablation-replication.md 8"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 4,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ae6129f0c3fcf7e9a01bc9a107bcdfa62d003cd6d2d024990ea5ebcaa8a5fb30",
+  "openQuestions": []
+}

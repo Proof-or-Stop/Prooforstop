@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c25c",
+  "sourceText": "User selected the M2-a Cell 03 provider execution launch authorization blocker list and asked: 那就先解决吧，直到完成done为止.",
+  "normalizedOutcome": "B-c25c reaches DONE with a Cell 03-only launch guardrail that records required metadata, refuses invented spend approval, keeps provider calls/result rows absent, and keeps Cell 06 blocked.",
+  "acceptanceClaim": "The M2 provider execution checker and status docs show Cell 03 guardrail recorded, exact budget approval absent/fail-closed, no provider calls, no outcome rows, and Cell 06 blocked.",
+  "keyRequirementIds": [
+    "REQ-BUDGET-FAIL-CLOSED",
+    "REQ-CELL03-GUARDRAIL",
+    "REQ-CELL06-BLOCKED",
+    "REQ-NO-PROVIDER-CALLS"
+  ],
+  "requestHash": "sha256:506f123c7281eba61ad23b79f25f91f4cc1bb288e3260338adf58aafeffebcce",
+  "createdAt": "2026-07-05T16:59:32.771Z",
+  "updatedAt": "2026-07-05T16:59:32.771Z"
+}

@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Host-neutral workflow: commands and artifacts describe research lifecycle state, not a Codex-specific namespace.",
+    "Only fix real correctness and lifecycle-boundary issues; do not optimize or broaden the experiment arbitrarily.",
+    "Fail closed on spend approval, provider fallback, host-label snapshots, outcome rows, and premature Cell 06 execution.",
+    "Keep launch readiness separate from result evidence and paper/product claims.",
+    "Make status machine-checkable and readable for later hosts."
+  ],
+  "drivers": [
+    "Product-reviewer INIT finding requires exact human-approved amount/currency/source for any nonzero budget cap.",
+    "The protocol requires Cell 03 before budget-lock generation and Cell 06 A2prime.",
+    "The user wants a DONE story without fake activation, fake provider execution, or stale/ambiguous state."
+  ],
+  "options": [
+    {
+      "name": "guardrail-only-cell03-launch",
+      "pros": [
+        "Clears the real metadata discipline gap without spending budget or inventing approval.",
+        "Keeps Cell 06 and paper claims locked until real Cell 03 evidence exists.",
+        "Can be fully validated locally with negative controls."
+      ],
+      "cons": [
+        "Does not produce provider outcome rows or H-M1/H-M3 evidence.",
+        "A later story is still needed for actual provider execution after explicit budget approval."
+      ]
+    },
+    {
+      "name": "run-cell03-now",
+      "pros": [
+        "Would produce real calibration records sooner.",
+        "Could start budget-lock derivation immediately after success."
+      ],
+      "cons": [
+        "No exact nonzero budget approval, model snapshot IDs, or provider execution runner has been supplied in this thread.",
+        "Would risk provider spend and false readiness claims inside a story scoped for launch guardrails."
+      ]
+    },
+    {
+      "name": "leave-current-disabled-state",
+      "pros": [
+        "No risk of accidental provider spend.",
+        "No code changes required."
+      ],
+      "cons": [
+        "Does not solve the repeated ambiguity around what is missing before Cell 03 can launch.",
+        "Future agents may continue to confuse metadata readiness, execution approval, and result evidence."
+      ]
+    }
+  ],
+  "chosen": "guardrail-only-cell03-launch",
+  "rationale": "Choose a Cell 03 guardrail-only launch package because it fixes the actual lifecycle correctness issue while refusing to invent budget approval or provider results.",
+  "preMortem": [
+    {
+      "scenario": "An agent interprets launch authorization as provider result evidence.",
+      "trigger": "Docs or checker say ready without restating no provider calls/outcome rows.",
+      "consequence": "Paper/product claims could be unlocked from metadata only.",
+      "mitigation": "Checker and status docs must assert no outcome rows, no H-M1/H-M3 proof, and no product gate impact."
+    },
+    {
+      "scenario": "An implementer invents a nonzero budget cap.",
+      "trigger": "Artifact accepts amount without exact human-approved amount/currency/source.",
+      "consequence": "Provider execution could appear authorized without user spend approval.",
+      "mitigation": "Budget approval schema requires amount, currency, approvalSource, approvedBy, approvalDate, and providerSpendAllowed=false when absent."
+    },
+    {
+      "scenario": "Cell 06 becomes unblocked before a real Cell 03-derived budget lock.",
+      "trigger": "Launch artifact uses Cell 03 readiness as a budget lock substitute.",
+      "consequence": "A2prime sequencing would violate the pre-registered protocol.",
+      "mitigation": "Checker negative controls reject Cell 06 unblocking and require realCell03DerivedBudgetLock.present=false in this story."
+    },
+    {
+      "scenario": "Host labels are accepted as dated snapshots.",
+      "trigger": "Codex CLI or Claude Code CLI is written into executorSnapshot/reviewerSnapshot.",
+      "consequence": "Multi-model evidence becomes invalid because host and provider are conflated.",
+      "mitigation": "Snapshot validation rejects host labels and requires provider snapshot fields to remain non-host labels or absent."
+    }
+  ],
+  "timestamp": "2026-07-05T16:54:02.496Z"
+}

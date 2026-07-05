@@ -1,0 +1,72 @@
+{
+  "storyId": "B-c25c",
+  "checkedAt": "2026-07-05T17:30:20.981Z",
+  "headHash": "d07c084fac19d9c6c47dc2bf07655d4d33ecd8ba",
+  "materialHash": "878c29fec765a71ffef06dc84d175668e026b9ef3dccddf49c70c7f4e4e8a766",
+  "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
+  "reviewRound": "2026-07-05T17:09:01.217Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "promise": "B-c25c records only a Cell 03 launch guardrail: exact Cell 03 budget approval is absent, providerExecutionAuthorized=false, providerCallEnabled=false, no outcome/result rows exist, and Cell 06 remains blocked until a real Cell 03 derived budget lock exists.",
+      "status": "verified",
+      "verifiedBy": "rg targeted docs plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "rg lines 4-6,45,62-64,83,102-105; checker PASS: Cell 03 launch guardrail recorded; Exact Cell 03 budget approval absent; provider calls disabled; cell-06-a2prime-blocked."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "promise": "Protocol remains research/paper-evidence only and requires locked provider snapshots, tool surface, prompt, budget lock, and formal records before outcome data; Cell 03 precedes Cell 06 and A2prime cannot run before a real A4 budget lock.",
+      "status": "verified",
+      "verifiedBy": "rg targeted protocol doc plus git diff --exit-code main...HEAD -- docs/requirements/decisions/multi-model-ablation-replication.md",
+      "evidence": "Replication doc unchanged by story; rg lines 7,21,43,46-47,51-59,149-155,226,230 show research-only scope, locked snapshots/budget, records requirements, Cell 03 before Cell 06, and no automatic product gate/runtime changes."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "README describes the B-c25c Cell 03 guardrail and checker as local-only: exact approval fields remain required before spend, providerSpendAllowed=false, providerCallEnabled=false, no outcome/result rows exist, and Cell 06 remains blocked.",
+      "status": "verified",
+      "verifiedBy": "rg targeted README plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "rg README lines 16,18,21,228; checker PASS confirms exact budget approval absent, provider calls disabled, no outcome records present, and Cell 06 blocked."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "Status ledger records Cell 03 launch guardrail as RECORDED while Formal M2 execution remains NOT STARTED, Cell 03 remains PENDING EXECUTION, Cell 06 remains BLOCKED, and local checks did not run providers.",
+      "status": "verified",
+      "verifiedBy": "rg targeted status ledger plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "rg status lines 16,18,20,22,39,43,45; checker PASS reports 696 assertions, 48 rejected negative controls, Cell 03 guardrail recorded, exact budget approval absent, and provider execution disabled."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Command: node experiments/multi-model-ablation/m2-provider-execution-check.mjs\nResult: PASS\nOutput: M2 provider execution checker passed: 696 assertions; 48 negative controls rejected; nextPermittedFormalStep=cell-03-calibration; cell-06-a2prime-blocked; Provider execution remains disabled; no provider calls made; no outcome records present. Covers baseline/status proof that Cell 03 is next but not execution-authorized."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Command: node experiments/multi-model-ablation/m2-provider-execution-check.mjs\nResult: PASS\nOutput includes Cell 03 launch guardrail: recorded; Exact Cell 03 budget approval: absent; provider calls disabled. Covers the Cell 03-only authorization artifact and confirms it does not invent spend approval."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Command: node experiments/multi-model-ablation/m2-provider-execution-check.mjs\nResult: PASS\nOutput: 696 assertions; 48 negative controls rejected. Negative controls cover invented or unbound budget approval, missing exact approval fields, host-label snapshots, provider fallback, duplicate or extra runner ownership, outcome/result rows, and Cell 06 unblocking."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Commands: rg targeted docs for B-c25c guardrail/no-provider promises; node experiments/multi-model-ablation/m2-provider-execution-check.mjs\nResult: PASS\nDocs show Cell 03 launch guardrail recorded, provider calls disabled, no outcome/result rows, and Cell 06 blocked; checker confirms no provider execution or outcome records."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Commands: node experiments/multi-model-ablation/m2-provider-execution-check.mjs; test ! -e experiments/multi-model-ablation/records-multi-model-ablation.jsonl\nResult: PASS\nChecker reports no provider calls and no outcome records; records-multi-model-ablation.jsonl is absent with exit 0."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Commands: lattice finding_list --storyId=B-c25c; git status --short; node experiments/multi-model-ablation/m2-provider-execution-check.mjs\nResult: PASS\nfinding_list returned an empty findings array, git status was clean before the delivery artifact write, and checker output prevents any DONE claim of provider execution, spend approval, or outcome rows."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed story evidence, changed docs, guardrail artifact, launch JSON, checker implementation, finding state, and fresh local checker transcript. The delivery boundary is Cell 03 launch guardrail recorded only: exact budget approval absent, provider spend/calls disabled, no outcome/result rows, Cell 06 blocked, and no unresolved TODOs in the reviewed delivery scope."
+  },
+  "_hash": "a837d3ce8e45b2f2c80931db83208e7702f2c8751f2a1e5008fa099c109280c7"
+}
