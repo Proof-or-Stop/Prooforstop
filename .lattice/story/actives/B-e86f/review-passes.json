@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e86f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Docs-only diff: one new file (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md) plus Lattice story-lifecycle bookkeeping under .lattice/story/actives/B-e86f/. No existing concept word was deleted, renamed, or replaced anywhere in the repo by this diff -- the new doc introduces new terminology (seed-swap, content-inert, cross-vendor roles, etc.) describing its own internal revision history, not a rename of a prior repo-wide concept. Confirmed via git diff main...HEAD --stat/--name-only (single new md + .lattice metadata only, zero code files) and a repo-wide grep for proof-or-stop / seed-swap / content-inert showing only pre-existing unrelated usages elsewhere (NAV.md, other proof-or-stop-*.md plans, lifecycle_check tool) untouched by this change. No concept-deletion residue; no blocker.",
+      "createdAt": "2026-07-05T13:00:14.245Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-002",
+      "_hash": "dca3af2905eccc7506742a50aa8a160421d7d3cacce860d55eca1183dabe2b41"
+    }
+  ]
+}
