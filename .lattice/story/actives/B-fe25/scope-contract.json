@@ -10,7 +10,10 @@
     "experiments/multi-model-ablation/m2-status.md",
     "experiments/multi-model-ablation/task-inventory.m2.json",
     "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
-    "experiments/multi-model-ablation/phase1-launch-readiness.m2.json"
+    "experiments/multi-model-ablation/phase1-launch-readiness.m2.json",
+    ".lattice/story/actives/B-fe25/original-intent-snapshot.json",
+    ".lattice/story/actives/B-fe25/intent-collision.json",
+    ".lattice/story/actives/B-fe25/proofstory.json"
   ],
   "allowedTest": [
     "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
@@ -27,8 +30,8 @@
     "experiments/multi-model-ablation/phase2-results.json",
     "experiments/multi-model-ablation/analysis-results.json"
   ],
-  "scopeChangeReason": "Initialize scope contract from B-fe25 PLAN: provider-free M2 readiness may read the 24-task corpus but must not modify task definitions or create outcome/phase2 result files.",
+  "scopeChangeReason": "Allow ProofStory-required proofstory.json acceptance binding metadata while preserving provider-free M2 readiness scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T02:15:03.216Z",
-  "updatedAt": "2026-07-05T02:15:03.216Z"
+  "updatedAt": "2026-07-05T02:20:55.642Z"
 }

@@ -1,12 +1,12 @@
 {
   "storyId": "B-fe25",
-  "generatedAt": "2026-07-05T02:15:08.006Z",
+  "generatedAt": "2026-07-05T02:21:00.568Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 4,
-    "reviewRounds": 1,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -228,7 +228,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 3,
+          "value": 7,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -309,7 +309,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
