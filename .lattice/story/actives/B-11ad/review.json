@@ -55,6 +55,34 @@
         }
       ],
       "_hash": "4a04069db4f19f89545afaa1cfb6df4363ac89bc45f6973519fe7e1dacbeba66"
+    },
+    {
+      "timestamp": "2026-07-05T09:43:26.022Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add artifact release ledger and non-runtime artifact digest classification + Expose artifact release inspection commands and DONE post-merge report line are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-11ad is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "57096a6ef6e003ee647ab01770594e71b9c6a3270e664a9a9ee719484849d961"
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-11ad",
+  "sourceText": "User approved adding a clear artifact provenance/version record for DONE stories whose CLI patch version does not bump, after B-fe25 showed a non-runtime experiment/protocol DONE merge with version bump skipped.",
+  "normalizedOutcome": "Non-runtime DONE artifacts get a queryable artifact release provenance record while CLI package semver remains reserved for runtime/capability inputs.",
+  "acceptanceClaim": "A DONE merge that changes experiments/** records an artifact release with story id, main commit, releasable paths, and artifactSetDigest; artifact_release_list/status can inspect it; version-bump-smoke still proves experiments/** do not trigger CLI semver.",
+  "keyRequirementIds": [
+    "REQ-ARTIFACT-LEDGER",
+    "REQ-QUERYABLE-PROVENANCE",
+    "REQ-SEPARATE-SEMVERS"
+  ],
+  "requestHash": "sha256:e43f63e8c8b797c53337816d0aff6b749f76bae913cf77dbf29b581d2a5c15e1",
+  "createdAt": "2026-07-05T09:43:49.334Z",
+  "updatedAt": "2026-07-05T09:43:49.334Z"
+}
