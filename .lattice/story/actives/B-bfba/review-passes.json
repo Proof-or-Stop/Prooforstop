@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-05T00:17:44.038Z",
       "reviewRunId": "B-bfba:RR-005",
       "_hash": "b45b11545794e61fbd4d504123567c80936ac41c10893202b16eccebfe1b2d44"
+    },
+    {
+      "id": "B-bfba:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted current-round quality review after F-001: packages/main/tests/milestone-status.test.mjs adds a real temp-repo createStoryAdvanceHandlers(...).story_advance({phase:DONE}) regression. The fixture restores cwd and PLAYBOOK_DONE_* env vars in finally, removes its temp root, leaves the worktree clean, asserts persisted milestone-closeout.json/snapshot data rather than source text, and the delta contains no production changes. Verified npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-05T00:22:34.460Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-006",
+      "_hash": "8ca06a8a63f48d712d40f8921ed2672475482d7c0ccf283f68935d0cdc9fd915"
     }
   ]
 }
