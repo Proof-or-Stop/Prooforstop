@@ -6,7 +6,42 @@
       "context": "Additive only: resume activates only when a ledger already exists and --resume is passed. A duplicate iterationId on resume is a bug (the strict guard already rejects dups). A kill before the atomic append = no record = clean re-run; a kill mid-append = a truncated last JSONL line the resume must skip/repair. Reuse lib/instrument.mjs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/run-batch.mjs --resume (with a partial batch-ledger.jsonl present) skips already-recorded iterationIds, runs only the remaining, and the strict guard reconciles the full multiset; a fresh run (no --resume / empty ledger) behaves exactly as M2 (unchanged).",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/run-batch.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/lib/instrument.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-batch --resume against a partial ledger skips already-recorded iterationIds (proof OR stop), runs only the remaining, and the strict exact-multiset guard reconciles the FINAL ledger (0 dup / 0 gap)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a truncated trailing JSONL line (mid-append kill) is ignored/repaired by resume; that casualty iterationId then re-runs cleanly",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the fresh-campaign path (no --resume / empty ledger) is UNCHANGED: M2 selfcheck-m2 still PASSes and batch-ledger.jsonl still reproduces",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

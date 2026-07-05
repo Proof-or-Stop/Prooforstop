@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Resume mode is ADDITIVE to run-batch: the fresh-campaign path is byte-unchanged so M2 evidence + selfcheck-m2 stay valid.",
+    "Identity-keyed idempotent resume: skip iterationIds already recorded; reconcile the FINAL multiset (== protocol cross-product, 0 dup / 0 gap).",
+    "A mid-iteration casualty resolves to a stop record OR a clean re-run, never a silent half-record.",
+    "ONE driver is both the M2 campaign producer and the M3 resume target (evidence stays coherent).",
+    "resume-reconciliation.json is the H3 evidence; the probe kills DETERMINISTICALLY (boundary + crash hook)."
+  ],
+  "drivers": [
+    "run-batch is already append-only + identity-keyed but lacks resume; adding it is the H3 machinery.",
+    "The atomic-single-line append makes a pre-append kill a clean re-run; a mid-append kill needs trailing-line repair.",
+    "H3 is evaluable whenever the campaign ran; the reconciliation is mechanical (multiset compare)."
+  ],
+  "options": [
+    {
+      "name": "add-resume-to-run-batch",
+      "pros": [
+        "ONE coherent driver (M2 producer = M3 resume target)",
+        "Reuses the append-only + identity-key + strict guard",
+        "Additive: fresh path unchanged"
+      ],
+      "cons": [
+        "Modifies an M2-DONE file (must keep M2 evidence valid)"
+      ]
+    },
+    {
+      "name": "separate-resumable-driver",
+      "pros": [
+        "Does not touch run-batch"
+      ],
+      "cons": [
+        "Duplicates the driver; the two can drift; the M3 evidence would not be about the same driver M2 proved"
+      ]
+    }
+  ],
+  "chosen": "add-resume-to-run-batch",
+  "rationale": "The plan wants resume-probe to restart THE replay driver; a separate resumable driver would drift from the M2-proven one and make the H3 evidence about a different driver. The resume mode is strictly additive so M2 batch-ledger.jsonl + selfcheck-m2 stay valid.",
+  "preMortem": [
+    {
+      "scenario": "Resume path changes fresh-campaign behavior",
+      "trigger": "the resume branch alters the empty-ledger flow or record content",
+      "consequence": "M2 batch-ledger.jsonl no longer reproduces / selfcheck-m2 breaks",
+      "mitigation": "gate resume strictly on --resume + a non-empty existing ledger; assert selfcheck-m2 still passes after the change"
+    },
+    {
+      "scenario": "Mid-append kill leaves a half-record the resume mis-parses",
+      "trigger": "a kill during the atomic-ish append writes a truncated JSONL line",
+      "consequence": "resume reads a malformed line -> crash or a phantom iterationId",
+      "mitigation": "resume repairs/ignores a truncated trailing line; the casualty iterationId then re-runs cleanly"
+    },
+    {
+      "scenario": "Duplicate iterationId after resume",
+      "trigger": "resume re-does an already-recorded iteration",
+      "consequence": "the strict exact-multiset guard fails (dup) -> H3 falsified spuriously",
+      "mitigation": "skip iterationIds already present (proof OR stop) before running; verify 0 dup in reconciliation"
+    }
+  ],
+  "timestamp": "2026-07-05T20:23:56.701Z"
+}
