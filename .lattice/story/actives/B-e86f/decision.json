@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Pre-registration before implementation: the protocol document must be committed and hash-referencable before any harness code exists.",
+    "Reuse over rebuild: the plan binds to the existing instrument and smoke coverage instead of inventing new instrumentation.",
+    "No-overclaim: every claim in the landed document carries its boundary (instrument-not-agent, enumerated-classes-only, environment-bound)."
+  ],
+  "drivers": [
+    "Operator approval on 2026-07-05 to start the campaign, with the explicit instruction to land a supporting document first.",
+    "The rev 2 self-review proved the draft needed hardening (21 findings, incl. a no-op tamper class that would have spuriously falsified H2) — landing the hardened rev 3 locks that state.",
+    "M0 needs a committed plan to freeze protocol.json against."
+  ],
+  "options": [
+    {
+      "name": "Docs-only story landing rev 3 now",
+      "pros": [
+        "smallest review surface",
+        "pre-registration discipline intact",
+        "M0 can reference a commit hash"
+      ],
+      "cons": [
+        "one more story in the pipeline before code starts"
+      ]
+    },
+    {
+      "name": "Bundle the doc with the M0 implementation story",
+      "pros": [
+        "fewer stories"
+      ],
+      "cons": [
+        "protocol semantics and harness code reviewed together — a reviewer finding on the doc forces re-review of code; weakens pre-registration"
+      ]
+    },
+    {
+      "name": "Keep the doc uncommitted and start M0 from the draft",
+      "pros": [
+        "fastest"
+      ],
+      "cons": [
+        "violates the repo's committed-generator/pre-registration policy; the draft could drift after M0 freezes against it"
+      ]
+    }
+  ],
+  "chosen": "Docs-only story landing rev 3 now",
+  "rationale": "Pre-registration discipline requires the reviewed protocol text to be immutable-by-commit before M0 freezes protocol.json against it; the marginal cost of one docs story is small and the review surface stays clean.",
+  "preMortem": [
+    {
+      "scenario": "Landed doc drifts from what M0 implements (spec-vs-code divergence)",
+      "trigger": "M0 makes fingerprint/viability decisions that contradict the doc without updating it",
+      "consequence": "protocol.json and the pre-registration disagree; reviewers cannot tell which is authoritative",
+      "mitigation": "M0's story cites the doc's commit hash; fingerprint/viability decisions are recorded IN protocol.json with the doc as semantic source; contradictions require a doc revision story"
+    },
+    {
+      "scenario": "Concurrent same-path draft collision with another host",
+      "trigger": "another host drafts at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md while this story is in flight",
+      "consequence": "DONE merge conflict or silent overwrite of one draft",
+      "mitigation": "draft already removed from the main working tree into this worktree; single-path scope; scratchpad backup preserves our text; DONE merge fails loudly on collision"
+    },
+    {
+      "scenario": "Reviewers relitigate plan design and stall the docs story",
+      "trigger": "REVIEW lanes treat pre-story design decisions (already adversarially reviewed, 21 findings resolved) as new story findings",
+      "consequence": "docs story loops without improving the deliverable",
+      "mitigation": "story deliverable is defined as landing reviewed rev 3 verbatim-in-substance; only genuinely new blocking defects are fixed in-story with the revision note updated"
+    },
+    {
+      "scenario": "Section 11 full-profile cost assumption proves wrong at M0",
+      "trigger": "1M-record generate+verify cycle costs far more than expected",
+      "consequence": "schedule/budget claims in the landed doc look wrong",
+      "mitigation": "the plan defers full-N and the budget cap to M0 calibration (recorded unknown); a bad cost number changes protocol.json parameters, not the landed doc's validity"
+    }
+  ],
+  "timestamp": "2026-07-05T12:48:00.473Z"
+}

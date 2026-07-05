@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-e86f",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T14:39:52.451Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "ffbfd459ed92527ead19cc22916e136ae1a30c1cbfdddeab310e962f128017b4",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:c54e77dfb1752f3491c2dac10e2c388d44dd834a49b7b79d0586f5b879bbe1fa"
+    },
+    "groups": {
+      "completed": [
+        "M-DOC"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "7b97788c03961259f6c63967cb73568d2fdb68a8",
+    "materialHash": "f15af8055388a0e4b516b7509659a34331ab4777b65cde9efd87b90c7f9b01a3",
+    "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf"
+  },
+  "rows": [
+    {
+      "milestone": "M-DOC",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The rev 3 execution plan is committed as the campaign pre-registration at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "acceptance": "Committed blob sha256 matches the reviewed rev 3 backup digest; sections 1-12 + 6.5 present; diff vs main touches exactly one path",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] git cat-file blob HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | shasum -a 256; shasum -a 256 /private/tmp/claude-501/-Users-jek-Documents-CDR3/b0a01b07-dd7a-40ba-a0fe-163497230a65/scratchpad/pos-plan-rev3-backup.md note=Both digests = 68451936c2378fdc8133d351db18021a25949baecc604788f6188b8b10c806f7 (committed HEAD blob == refreshed backup); byte-identical verbatim-in-substance; re-recorded at HEAD a14555248 superseding stale 1f853b0b (F-004).",
+        "CHK-001:happy:1 [pass/manual_transcript] git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -cE '^## '; git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -cE '^### 6\\.' note=12 top-level '## ' headers (sections 1-12) + 5 '### 6.' subsections (6.1-6.5) = 17 present at HEAD a14555248; no section truncated or dropped by the finding-resolution/provenance edits.",
+        "CHK-001:edge:0 [pass/manual_transcript] git diff main...HEAD --name-only -- ':(exclude).lattice'; git diff main...HEAD --name-only | grep -E '\\.(ts|js|mjs)$|^experiments/|package\\.json' note=git diff main...HEAD (excluding .lattice) lists exactly one path — the plan .md; zero .ts/.js/.mjs, experiments/, or package.json matches. Doc-only scope confirmed at HEAD a14555248.",
+        "CHK-001:adversarial:0 [pass/manual_transcript] git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -nE 'seed-swap' note=seed-swap appears ONLY as historical references at HEAD a14555248 (rev provenance lines 8 & 23; rev-1 viability explanation lines 198 & 225) — NOT an active class in the frozen tamper matrix. The intent explicitly allows rev-provenance/viability historical refs; no content-inert no-op class present."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

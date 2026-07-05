@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-e86f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:c54e77dfb1752f3491c2dac10e2c388d44dd834a49b7b79d0586f5b879bbe1fa",
+  "milestones": [
+    {
+      "id": "M-DOC",
+      "sourceRequirementId": "REQ-001",
+      "claim": "The rev 3 execution plan is committed as the campaign pre-registration at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "doneMeans": "Committed blob sha256 matches the reviewed rev 3 backup digest; sections 1-12 + 6.5 present; diff vs main touches exactly one path",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T12:49:55.767Z",
+  "updatedAt": "2026-07-05T12:49:56.034Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705124930",
+    "acceptedInterpretationHash": "sha256:ca1e16eb670b0b7f28feec97ed4d2f5c94d2883795b112567d2ff231d7506324",
+    "acceptedAt": "2026-07-05T12:49:56.034Z"
+  }
+}
