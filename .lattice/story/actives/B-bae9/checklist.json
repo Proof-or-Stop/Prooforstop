@@ -49,11 +49,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/tamper.mjs",
           "result": "pass",
-          "note": "tamper.mjs reads frozen protocol.json, replays every (class x handling) on mkdtemp copies, writes tamper-verdicts.jsonl: 27 verdicts (failClosed=18, acceptanceBucket=2, acknowledgedLimitations=6, dropped=1), each with iterationId tamper/small/<class>/<handling>, full verifyFlags, goldMetrics, fingerprintMatch, disposition.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
+          "note": "tamper.mjs writes tamper-verdicts.jsonl (27 verdicts: 18 failClosed / 2 acceptanceBucket / 6 acknowledgedLimitations / 1 dropped), each now with byteDiff{recordsChanged,goldChanged,manifestChanged}, rederivedDisposition, expectedDisposition, dispositionMatch, intent.",
+          "headHash": "f52df7759b5d15f0941db5fe4afd0f4bc3597b71",
           "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
           "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "timestamp": "2026-07-05T17:59:39.790Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
