@@ -1,0 +1,90 @@
+{
+  "findings": [
+    {
+      "id": "B-e86f:F-001",
+      "desc": "[codex-host-2, execution-probed] Refreshed row reorder is verifier-ACCEPTED (probe: refreshed_reorder.status=pass, recordsDigestStable=true, partitionContractPass=true) — section 6.1's raw/refreshed axis admits refreshed variants whose fingerprint cannot be status:fail, so enumerating one (e.g. row reorder refreshed) would mechanically falsify H2 exactly like the rev-1 seed-swap no-op. The M0 viability check requires only a byte/contract difference, not a failing fingerprint; a documented-accepted-behavior disposition is missing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T13:05:41.492Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "_hash": "7adb6d165e7c0802af7c525d24a190e8d0c9da8ff10b2a04307e59f4f00d4986",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|codex-host-execution",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4a4c4e543. Added the missing documented-accepted-behavior disposition: section 6.1 point 2 now makes M0 viability TWO-PRONGED — a (class x manifestHandling) enters the H2 fail-closed set ONLY if its frozen fingerprint carries a genuine failure signal (>=1 required-false flag OR a failing numeric predicate). A self-consistent refreshed variant that verify-ACCEPTS (e.g. row-reorder refreshed) is dispositioned as ACCEPTED-BEHAVIOR/false-positive-guard with a frozen status:pass fingerprint in a separate acceptance bucket, EXCLUDED from H2's fail-closed accounting, so it can no longer mechanically falsify H2 like the rev-1 seed-swap no-op. Propagated to the H2 hypothesis row (section 4), claim boundary (section 3), section 7 artifacts, milestones M0/M1, verification matrix (new ACCEPTED row), and Definition of Done.",
+      "resolvedAt": "2026-07-05T13:57:11.181Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e86f:F-002",
+      "desc": "[codex-host-2] H2 fingerprint domain underspecified: section 6.1 freezes 'exact verify flags required false/true' but the verify result also carries numeric gold metrics (rates) and non-boolean fields (playbook-runtime-baseline.ts:73,98,1769); the plan never says which fields participate in the fingerprint match, so 'truthful reason = observed flag vector matches frozen fingerprint' is not implementable as written for classes whose failure manifests in rates.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T13:05:42.089Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "_hash": "13333bb57c039d3149ce46e5ba3e8acae3f634fc631101b973157cc6afc2c767",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|codex-host-fingerprint",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4a4c4e543. Section 6.1 point 2 now defines the H2 fingerprint DOMAIN explicitly: the fingerprint is NOT the whole verify result, only (a) the exact boolean verify-flag vector (each flag named required-false/required-true) AND (b) a declared set of numeric-metric predicates over the gold metrics (e.g. expectedIdsFoundRate == 1.0 vs < 1.0); fields outside the frozen domain do not participate. This makes 'observed values match frozen fingerprint' implementable for classes whose failure manifests only in a rate, not a boolean. Section 7 (tamper-verdicts.jsonl records now carry flag vector + gold metrics + fingerprint-match) and the H2 row/verification matrix updated to reference 'fingerprint-domain values (flags + numeric predicates)'.",
+      "resolvedAt": "2026-07-05T13:57:17.941Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e86f:F-003",
+      "desc": "[codex-host-2] Section 1 wording imprecise: 'a tampered corpus can still answer all 1,000 questions correctly' — 1,000 is the small-profile RECORD count; expectedIdsFoundRate is computed over the gold-query expected-ID list (playbook-runtime-baseline.ts:299,1670), not 1,000 questions. Should say: still scores a perfect expectedIdsFoundRate (1.0) over the gold queries.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T13:05:42.651Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "_hash": "00ba82b5e4533ef4958c57e0c4bdb8fc9f264d82f570804bd16e82f23d1e6754",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-host-section",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4a4c4e543. Section 1 wording corrected: 'a tampered corpus can still answer all 1,000 questions correctly' -> 'a tampered corpus can still score a perfect expectedIdsFoundRate (1.0) over the gold queries'. This is precise: expectedIdsFoundRate is computed over the gold-query expected-ID list, not over the 1,000-record small-profile count.",
+      "resolvedAt": "2026-07-05T13:57:25.652Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e86f:F-004",
+      "desc": "CHK-001:happy:0 verificationEvidence is stale relative to current HEAD: all 9 CHK-001 evidence entries carry headHash=005b5e344 (bound to the pre-fix doc content, commit 7cdb75165/005b5e344), but current HEAD is 4ad11c79e with the doc content last changed in 4a4c4e543 (F-001/F-002/F-003 fix: H2 fingerprint-domain rewording, two-pronged viability, accepted-behavior bucket, 1000-questions wording fix). The lone verification_evidence_refresh_stale run (commit 1563972d3, timestamp 13:57:00.528Z) executed BEFORE the 4a4c4e543 content fix (finding_resolve/review_pass events at 13:59:47-14:00:34) and was never re-run afterward. Concretely, CHK-001:happy:0 note asserts committed-blob sha256=1f853b0ba354a941dae84512f104bd68d2c72524ff79513de72fe7a3e47e9fa8, but the actual current HEAD blob hashes to a2512bd60483e0edd67b1de2b4c3c0f4a9dde4e612ec1a17356bbd153b985d2e - the content-integrity check as recorded no longer holds against HEAD. The other 8 intents (happy:1, edge:0/1, adversarial:0-4) independently re-verified true against current HEAD content, but their evidence records are equally unrefreshed/stale metadata. Remediation: re-run verification_evidence_refresh_stale (or equivalent re-verification) against current HEAD so headHash/materialHash/sha256 note text bind to 4ad11c79e, not 005b5e344.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T14:02:56.017Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-010",
+      "_hash": "dfe6199ab2e2fd2f13c53801186b1a01ad53baa34749aa44ed662cdc1bb30e55",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+        ".lattice/story/actives/B-e86f/checklist.json"
+      ],
+      "signatureTag": "missing|md|happy-verificationevidence-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed. F-004 correctly caught that verification_evidence_refresh_stale re-stamped storyFilesHash but left the recorded CHK-001:happy:0 note asserting the pre-fix digest 1f853b0b (against old commit 7cdb75165), which no longer matched HEAD's blob. Corrected by genuinely RE-RECORDING all 9 CHK-001 verification-intent evidence entries via verification_evidence_add against current HEAD: each command was re-run and each note now states the current-content fact. Specifically happy:0 now records both digests = 68451936c2378fdc... (committed HEAD blob == refreshed rev-3 backup, byte-identical). The 8 other intents (happy:1, edge:0/1, adversarial:0-4) were likewise re-run against current HEAD and re-recorded with accurate notes. checklist.json evidence now carries current headHashes; the separate test-evidence.json store is refreshed by lattice validate at TEST.",
+      "resolvedAt": "2026-07-05T14:10:10.076Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Define authorized-but-bounded launch metadata artifact",
-      "context": "Add a small Multi-Model M2 authorization artifact that records humanApproval, dated snapshots, prompt/tool digests, runner ownership, budget cap, duplicate policy, and sequencing limits.",
+      "context": "Add a small Multi-Model M2 authorization artifact that records humanApproval, dated snapshots, prompt/tool digests, runner ownership, duplicate policy, sequencing limits, and B-11be provider budget cap USD 0.00. Approved scope is metadata/checker/docs for the next formal cell 03 calibration boundary only; real provider cell execution requires a later story with a separate nonzero budget cap.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-replication.md",
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
@@ -11,7 +11,8 @@
       "excludes": [
         "running provider cells",
         "writing result rows",
-        "unlocking paper claims"
+        "unlocking paper claims",
+        "spending provider budget in B-11be"
       ],
       "files": {
         "modify": [
@@ -33,14 +34,15 @@
     {
       "id": "CHK-002",
       "title": "Update provider execution checker for authorization metadata",
-      "context": "Teach the checker to distinguish accidental unauthorized providerExecutionAuthorized=true from a valid authorized-but-bounded metadata artifact that only permits the next formal cell 03 calibration planning/execution boundary.",
+      "context": "Teach the checker to distinguish accidental unauthorized providerExecutionAuthorized=true from a valid metadata-only authorized-but-bounded artifact. For B-11be, the valid state is local metadata authorization with providerCallEnabled=false, budget cap USD 0.00, cell 03 as next formal step, and cell 06 blocked until a real cell-03-derived budget lock from a later provider-execution story.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
       ],
       "excludes": [
         "enabling cell 06",
         "running full Phase 1",
-        "accepting host labels as model snapshots"
+        "accepting host labels as model snapshots",
+        "allowing provider calls in B-11be"
       ],
       "files": {
         "modify": [
@@ -58,7 +60,7 @@
     {
       "id": "CHK-003",
       "title": "Update M2 status documentation and visible milestone table",
-      "context": "Update local status docs so future agents see that authorization metadata is recorded while provider result data is still absent and cell 03 remains the only next formal step.",
+      "context": "Update local status docs so future agents see that B-11be records local authorization metadata with provider spend capped at USD 0.00, provider result data absent, and cell 03 remaining the only next formal provider-execution step for a later separately budgeted story.",
       "relatedDocs": [
         "experiments/multi-model-ablation/m2-status.md",
         "experiments/multi-model-ablation/README.md"
@@ -66,7 +68,8 @@
       "excludes": [
         "claiming H-M1 proof",
         "claiming H-M3 proof",
-        "claiming product-gate impact"
+        "claiming product-gate impact",
+        "claiming provider execution happened in B-11be"
       ],
       "files": {
         "modify": [

@@ -1,0 +1,24 @@
+{
+  "task": "Land the operator-approved rev 3 execution plan for the proof-or-stop evidence-instrument replay & tamper campaign as a committed pre-registration document, via a docs-only story.",
+  "outcome": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md exists on main with the reviewed rev 3 content: sections 1-12, three-state hypotheses H1-H4, per-class tamper flag-fingerprint discipline, recordDigest preimage rule, environment binding, section 6.5 cross-vendor roles, no-overclaim rule, and the 5-core+1-optional milestone table. Implementation stories (M0-M4) can then bind to a hash-referencable committed plan.",
+  "facts": [
+    "The instrument under test is packages/main/src/core/playbook-runtime-baseline.ts: small profile = exactly 1,000 records (line 264), full = 1,000,000 (line 265).",
+    "Seed is content-inert: buildBaselineRows(profile) takes no seed; seed is manifest metadata only — verified during the rev 2 self-review; the rev 1 seed-swap tamper class was dropped for exactly this reason.",
+    "The verifier emits ~20 boolean flags plus status and NO textual reason field, so H2 adjudication is fingerprint-based by design.",
+    "The existing smoke playbook-runtime-memory-baseline-smoke.ts already covers several tamper cases including manifest-refreshed variants via refreshManifest; the plan's matrix extends rather than duplicates it.",
+    "The draft went through an adversarial self-review on 2026-07-05 (3 lenses x per-finding refutation, 25 candidates, 21 surviving findings all resolved in rev 2); rev 3 added the operator-decided cross-vendor roles section 6.5.",
+    "The 2026-07-05 manual demo (3 byte-stable small-profile replays; 1-byte tamper -> status fail with perfect surface score) is recorded in the plan as anecdotal seed evidence, not campaign evidence."
+  ],
+  "constraints": [
+    "Docs-only: the single allowed scope path is the plan markdown file; no code, no experiments/ artifacts, no package changes.",
+    "The committed content must match the reviewed rev 3 verbatim-in-substance (review happened pre-story; the plan text is the deliverable).",
+    "Story artifacts in English; pre-registration discipline: the plan lands BEFORE any M0-M4 harness code exists."
+  ],
+  "unknowns": [
+    "Whether the full-profile (1M) single-cycle cost lands within a practical budget cap — deliberately deferred to M0 calibration, not resolved in this docs story."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+  ],
+  "timestamp": "2026-07-05T12:46:39.113Z"
+}

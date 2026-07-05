@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-11be",
+  "checkedAt": "2026-07-05T14:42:45.898Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "11db125411cc7ef6d0dbd63e799967c18d27d21a81f290f4be0d0ce910d15b12",
+  "executionBoundaryHash": "39ac66b3569f00814b58a8c2a09c40ef26cc4172f05219028e264694f6dbbdeb",
+  "freshnessHash": "080618655f799a0e954b9feb63a52038c87c653f986b5ff1d56d0ac04a5e20fd",
+  "effectiveExcludedKeywords": [
+    "changing product gates",
+    "changing unrelated Tier-C docs",
+    "creating outcome rows",
+    "enabling cell 06 before a real cell-03-derived budget lock",
+    "running provider cells",
+    "touching B-8128 capability-lineage work",
+    "treating host labels as provider model snapshots",
+    "unlocking H-M1/H-M3 claims",
+    "writing result rows"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "changing product gates",
+      "source": "scopeBoundary.excluded",
+      "text": "changing product gates",
+      "excluded": true
+    },
+    {
+      "keyword": "changing unrelated Tier-C docs",
+      "source": "scopeBoundary.excluded",
+      "text": "changing unrelated Tier-C docs",
+      "excluded": true
+    },
+    {
+      "keyword": "creating outcome rows",
+      "source": "scopeBoundary.excluded",
+      "text": "creating outcome rows",
+      "excluded": true
+    },
+    {
+      "keyword": "enabling cell 06 before a real cell-03-derived budget lock",
+      "source": "scopeBoundary.excluded",
+      "text": "enabling cell 06 before a real cell-03-derived budget lock",
+      "excluded": true
+    },
+    {
+      "keyword": "running provider cells",
+      "source": "checklist.excludes",
+      "text": "running provider cells",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "running provider cells",
+      "source": "scopeBoundary.excluded",
+      "text": "running provider cells",
+      "excluded": true
+    },
+    {
+      "keyword": "touching B-8128 capability-lineage work",
+      "source": "scopeBoundary.excluded",
+      "text": "touching B-8128 capability-lineage work",
+      "excluded": true
+    },
+    {
+      "keyword": "treating host labels as provider model snapshots",
+      "source": "scopeBoundary.excluded",
+      "text": "treating host labels as provider model snapshots",
+      "excluded": true
+    },
+    {
+      "keyword": "unlocking H-M1/H-M3 claims",
+      "source": "scopeBoundary.excluded",
+      "text": "unlocking H-M1/H-M3 claims",
+      "excluded": true
+    },
+    {
+      "keyword": "writing result rows",
+      "source": "checklist.excludes",
+      "text": "writing result rows",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "writing result rows",
+      "source": "scopeBoundary.excluded",
+      "text": "writing result rows",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5537020da1d1ed8128b38f3499d6fdeac30c9b0eabb3d9c42f7b40eab8fadd78"
+}

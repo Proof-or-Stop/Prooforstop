@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-e86f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Docs-only diff: one new file (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md) plus Lattice story-lifecycle bookkeeping under .lattice/story/actives/B-e86f/. No existing concept word was deleted, renamed, or replaced anywhere in the repo by this diff -- the new doc introduces new terminology (seed-swap, content-inert, cross-vendor roles, etc.) describing its own internal revision history, not a rename of a prior repo-wide concept. Confirmed via git diff main...HEAD --stat/--name-only (single new md + .lattice metadata only, zero code files) and a repo-wide grep for proof-or-stop / seed-swap / content-inert showing only pre-existing unrelated usages elsewhere (NAV.md, other proof-or-stop-*.md plans, lifecycle_check tool) untouched by this change. No concept-deletion residue; no blocker.",
+      "createdAt": "2026-07-05T13:00:14.245Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-002",
+      "_hash": "dca3af2905eccc7506742a50aa8a160421d7d3cacce860d55eca1183dabe2b41"
+    },
+    {
+      "id": "B-e86f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change (single new file: docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md, 383 lines added; .lattice/* are standard story metadata). No code touched, so dead-code/type-safety/I-O-shell-isolation/proof-metadata checks are N/A. Verified the two load-bearing factual claims against actual source: buildBaselineRows(profile) in packages/main/src/core/playbook-runtime-baseline.ts:733 takes only profile (no seed param), confirming the seed-content-inert claim; refreshManifest exists in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts:29 with call sites at :65/:79/:195, confirming the manifest-refreshed smoke-coverage claim. Header-count claim verified: 12 top-level ## sections + 5 ### 6.x subsections = 17. No TODO/FIXME/TBD markers, no malformed tables/tabs. No dead code, no promised-but-undelivered CLI examples/handler fields/env vars (this is a plan document describing future M0-M4 work, not asserting present-tense implemented behavior).",
+      "createdAt": "2026-07-05T13:00:29.589Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-001",
+      "_hash": "34d6b0a660c855b986b8e87fce48c55c4b46a7ff0de2e6d1c99e66796bd96538"
+    },
+    {
+      "id": "B-e86f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Pure docs diff (Step 1 symbol extraction from git diff main...HEAD yielded zero exported symbols besides .lattice bookkeeping) -> Fallback 1 applied: full-text scan of the new doc (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md, 12 top-level sections + 5 subsections, 384 lines) cross-checked against the actual instrument source it cites. Verified against packages/main/src/core/playbook-runtime-baseline.ts and packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts: (1) PROFILE_COUNTS small=1_000/full=1_000_000 matches doc text; (2) buildBaselineRows(profile) takes only profile, no seed param -> seed is manifest-only metadata (args.seed ?? 42), confirming the content-inert claim; (3) grep for reason in playbook-runtime-baseline.ts returns zero hits -> PlaybookRuntimeBaselineVerifyResult has no textual reason field, only booleans/rates/status, confirming the fingerprint-based adjudication claim; (4) refreshManifest (smoke.ts L29) is used across assertGoldTamperWouldFail / assertMissingGoldQueryClassWouldFail / assertTruncatedSelfConsistentManifestWouldFail / rewriteRecord+replaceRecord, confirming existing manifest-refreshed self-consistent tamper coverage the plan says it extends; (5) cited reuse paths experiments/recovery-runner/ and experiments/experience-ablation/run-pilot.mjs both exist; the new experiments/pos-instrument-replay/ dir correctly does not exist yet (net-new future work, doc-only story). No other project .md references this new file yet, so no cross-doc drift surface exists beyond internal self-consistency, which holds. Zero findings.",
+      "createdAt": "2026-07-05T13:01:32.771Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-003",
+      "_hash": "e067ad5d59b9713e89e7e70982cadc0a3f53a3f6237e042295fd5d41cddd3999"
+    },
+    {
+      "id": "B-e86f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntent entries (2 happy + 2 edge + 5 adversarial) on CHK-001 have concrete, non-generic verificationEvidence (manual_transcript, result=pass) independently re-verified against commit 7cdb751 (sha256 match, header count 12+5=17, doc-only diff, status/provenance strings, seed-swap absent from active matrix, content-inert x3+contentInert:true annotation, never outcome-judging phrase intact, Tier-C disclaimer present, three-state hypothesis discipline end-to-end). No coverage gaps, no waivers needed, no blocker.",
+      "createdAt": "2026-07-05T13:03:07.000Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-004",
+      "_hash": "4855c1acecf941347694bb9bd7dc755d54c00fb56b3813b4f0ef628ea2430e92"
+    },
+    {
+      "id": "B-e86f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Docs-only commit 4a4c4e543 reworded H2/fingerprint terminology (added fingerprint-domain + accepted-behavior disposition) but deleted/renamed no concept. Grepped the full plan doc for old phrasing (flag fingerprint / observed flag vector / enumerated tamper class) plus new terms (fingerprint domain, fail-closed set, acceptance bucket, accepted-behavior) across all ~20 occurrences: every use is internally consistent with the new domain-qualified fingerprint definition; no dangling old-terminology residue found. No blocker.",
+      "createdAt": "2026-07-05T13:59:47.248Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-005",
+      "_hash": "897601dd0f22063b562c06a1a94c9486b9eeadc7b4d0a4907fe4e6e6b4917b43"
+    },
+    {
+      "id": "B-e86f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only story (single .md pre-registration file, no source code). Reviewed commit 4a4c4e543 resolving F-001/F-002/F-003: verified the H2 fingerprint domain definition (boolean flags + numeric-metric predicates), the two-pronged viability/acceptance-bucket disposition scheme, and the 1,000-questions wording fix are propagated coherently and cross-reference consistently across H2 hypothesis row, section 1/5/6.1, section 7 artifacts table, milestones M0/M1, verification matrix (section 9), and Definition of Done (section 12). No internal contradiction, undeliverable assertion, or dangling definition found. Dead-code/type-safety/I-O-isolation/proof-metadata checks are N/A (no code in this diff).",
+      "createdAt": "2026-07-05T14:00:12.030Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-009",
+      "_hash": "c020b3d1e8fa420fd8a49000efc8295d02b65df3af87e9ae0c23264ac000731f"
+    },
+    {
+      "id": "B-e86f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Verified internal consistency of the fingerprint-DOMAIN, two-pronged viability, and ACCEPTED-BEHAVIOR concepts introduced by commit 4a4c4e543 across sections 1,3,4,6.1,7,8,9,12 of docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md. Checked: (1) fingerprint domain (boolean flags + numeric-metric predicates) referenced consistently in H2 row, protocol.json/tamper-verdicts.jsonl artifacts, M0/M1 milestones, and verification matrix; (2) two-pronged viability + ACCEPTED-BEHAVIOR bucket consistent across claim boundary, H2 row, 6.1, M0/M1 exit criteria, the new split verification-matrix rows (366-367), and DoD -- no leftover old-framing every-enumerated-class-fails-closed language remains (grep confirmed); (3) the 1.0 expectedIdsFoundRate wording fix at line 49 is correct with no dangling 1,000-questions references anywhere in the file. No inconsistencies found; no findings filed.",
+      "createdAt": "2026-07-05T14:00:34.315Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-008",
+      "_hash": "0a40ebc68e9d7b3a761e986e51f78cc9b64892c8f7706687243e85dd31aad35b"
+    },
+    {
+      "id": "B-e86f:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 covers only commit a14555248 (changelog-completion, docs-only), which restates already-reviewed H2 sharpening in the revision-provenance paragraph and introduces no new terminology. Re-grepped the full plan doc + repo for superseded phrasings (flag fingerprint / observed flag vector / every enumerated tamper class yields status:fail): zero residue outside .lattice/ audit-history (findings.json/review-passes.json, legitimate historical record of the prior fix). All 'flag vector' occurrences in the doc are correctly scoped as the boolean component of the new domain-qualified fingerprint (flags + numeric predicates), consistent across sections 1/6.1/7/9/12. No concept deletion/replacement issue; no blocker.",
+      "createdAt": "2026-07-05T14:11:49.129Z",
+      "reviewRound": "2026-07-05T14:10:23.721Z",
+      "reviewRunId": "B-e86f:RR-011",
+      "_hash": "1075c54730ced5d606879a8376492ad8e96bd95f3400c58183f600276216c830"
+    },
+    {
+      "id": "B-e86f:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only diff (2 commits: 4a4c4e543 F-001/F-002/F-003 fix, a14555248 changelog completion) reviewed for prose quality: dead-code/type-safety/I-O-isolation checks N/A (no source code touched). Cross-checked internal consistency of the new two-pronged-viability + explicit-fingerprint-domain concepts across provenance para, sections 1/3/4/6.1/7/8/9/12: fail-closed-set vs acceptance-bucket terminology used consistently everywhere it appears; disposition enum differs by scope (protocol.json candidate list: fail-closed|accepted|dropped vs per-run tamper-verdicts.jsonl record: fail-closed|accepted-behavior) but this is non-contradictory since dropped classes never produce a verdict record. No internal contradiction, no assertion the plan cannot deliver, no dangling definition found.",
+      "createdAt": "2026-07-05T14:12:52.239Z",
+      "reviewRound": "2026-07-05T14:10:23.721Z",
+      "reviewRunId": "B-e86f:RR-012",
+      "_hash": "bfeda539087991174375346e67865c14c491101197399f88e9f6e9addd613157"
+    },
+    {
+      "id": "B-e86f:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Read the full 418-line file plus commit-level diffs (4a4c4e543, a14555248) since original rev-3 landing (7cdb75165). Verified internal consistency across §1 (F-003 expectedIdsFoundRate wording), §3 claim boundary, §4 H2 row, §5 reuse note, §6.1 (fingerprint domain + two-pronged viability + acceptance bucket + row-reorder example), §6.4, §7 artifacts, §8 M0/M1, §9 verification matrix, §12 DoD, and the new provenance paragraph (lines 16-23). No leftover every-enumerated-tamper-class or answer-all-1000-questions old framing found (grep clean); terminology fail-closed-set/accepted-behavior/acceptance-bucket/dropped used uniformly across all 6 sections; seed-swap references (4 hits) all historical/provenance only, correctly contrasted with rev-3's new fix; row-reorder appears correctly both as a raw candidate in the section 6.1 initial class list and as the acceptance-bucket example for its refreshed variant, no contradiction; the new provenance sentence accurately summarizes commit 4a4c4e543 fingerprint-domain plus two-pronged-viability plus acceptance-bucket changes without over/under-claiming, and correctly credits it as resolving the round-1 non-blocking observation. Clean.",
+      "createdAt": "2026-07-05T14:13:01.212Z",
+      "reviewRound": "2026-07-05T14:10:23.721Z",
+      "reviewRunId": "B-e86f:RR-014",
+      "_hash": "73c10f4216b27835bd0ba489768a38bc414b3c46e1823f82473503b7bbd16076"
+    },
+    {
+      "id": "B-e86f:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): independently re-verified all 9 CHK-001 must-priority verificationEvidence entries (happy:0-1, edge:0-1, adversarial:0-4) directly against current HEAD e081e62ac. happy:0 content-integrity digest 68451936c2378fdc... matches both committed blob and scratchpad backup exactly, confirming the round-1 stale-digest gap (F-004, resolved) is genuinely fixed and no longer stale. All other 8 evidence notes independently reconfirmed true at HEAD. No must-gaps, no waivers, no blockers.",
+      "createdAt": "2026-07-05T14:14:48.834Z",
+      "reviewRound": "2026-07-05T14:10:23.721Z",
+      "reviewRunId": "B-e86f:RR-013",
+      "_hash": "d65c3dde3e855e81a7465666c55493cf837889ca7f93689535856f387fcde0f9"
+    }
+  ]
+}
