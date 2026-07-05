@@ -145,7 +145,42 @@
       "context": "tsc clean; new smokes green; lattice validate pass. Prove the LIVE B-785e backfill is idempotent: re-run is a no-op, no duplicate candidate, PBP-882 stays status=candidate with usage.surfacedCount unchanged, and no helped outcome is produced.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Project validation commands passed; live B-785e backfill idempotency proof green",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "tsc clean; the three new smokes green; lattice validate --json status=pass with the new smokes in the suite.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The live B-785e backfill is proven idempotent (re-run no-op, PBP-882 stays status=candidate, usage.surfacedCount unchanged, no helped outcome).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No unrelated smoke in the curated validate suite regresses.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
