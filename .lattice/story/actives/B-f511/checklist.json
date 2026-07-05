@@ -70,11 +70,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
-          "note": "The resume change is ADDITIVE: selfcheck-m3 C-fresh-additive confirms a fresh run (no --resume, empty ledger) produces the exact 30-record multiset; and M2's own selfcheck-m2 STILL PASSES all 5 sub-checks (independently re-run) with batch-ledger.jsonl untouched (empty diff).",
-          "headHash": "aad1db0551c0b44d57c0728cdfed3a8b873b3cee",
+          "note": "Additive + safe concurrency: selfcheck-m3 H — --resume REFUSES to break a LIVE lock (holder pid alive -> exit 3, precondition_failed to blocked-ledger, campaign ledger untouched) and only breaks a lock whose holder is DEAD (discriminating liveness check via process.kill(pid,0)); C-fresh-additive + M2's selfcheck-m2 STILL PASS (fresh path byte-unchanged).",
+          "headHash": "6d45858f40569250a7e18b781addcc5dc81d2010",
           "materialHash": "ba6f21bfe8b202a9703dd0aa62498ac29538eca4c26c544bd4e3332e5e3f6756",
           "storyFilesHash": "2ba336106139c029c774bdb2b9ede9d110e6335bde1eb9ef0164d935516cfce0",
-          "timestamp": "2026-07-05T23:22:58.669Z"
+          "timestamp": "2026-07-05T23:23:03.711Z"
         }
       ]
     },
