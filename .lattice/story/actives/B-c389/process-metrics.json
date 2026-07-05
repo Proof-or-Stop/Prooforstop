@@ -1,6 +1,6 @@
 {
   "storyId": "B-c389",
-  "generatedAt": "2026-07-05T22:59:42.067Z",
+  "generatedAt": "2026-07-05T23:31:37.314Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
@@ -108,7 +108,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -220,7 +220,7 @@
           "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -233,8 +233,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -283,8 +282,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -346,13 +344,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
