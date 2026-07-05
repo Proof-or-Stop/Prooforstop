@@ -195,6 +195,17 @@
           "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
           "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
           "timestamp": "2026-07-05T17:33:01.526Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
+          "result": "pass",
+          "note": "selfcheck-m1 (b) negative test: a protocol copy with one frozen flag flipped (cross-profile-swap[refreshed].fullProfileExactMillionMatches true->false via POS_PROTOCOL_PATH) makes tamper.mjs report fingerprintMatch:false + exit nonzero (H2 conformance FAIL mismatches=1) — the conformance check is un-gameable, not a tautology.",
+          "headHash": "09a3a59418c2f6c5c7402e6e17bb853872046fb2",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:33:02.178Z"
         }
       ]
     }
