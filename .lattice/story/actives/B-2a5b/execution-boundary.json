@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2a5b",
+  "allowedCommands": [
+    "git *",
+    "lattice memory_playbook_baseline_generate*",
+    "lattice memory_playbook_baseline_verify*",
+    "node --version",
+    "node experiments/pos-instrument-replay/*.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "experiments/pos-instrument-replay"
+  ],
+  "excludedCommands": [
+    "curl *",
+    "npm publish*",
+    "rm -rf / *",
+    "wget *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M2 runs run-batch.mjs (N generate+verify cycles per scale incl. 3 full-profile 1,000,000-record runs) into mkdtemp dirs. No network. Instrument read/called only.",
+  "createdAt": "2026-07-05T18:38:35.434Z",
+  "updatedAt": "2026-07-05T18:38:35.434Z",
+  "_hash": "085e26adbe28f9e4c58f995b139071386b1fbb7964f4fe2d88b1b34872b92662"
+}
