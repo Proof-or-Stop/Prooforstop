@@ -1,0 +1,30 @@
+{
+  "storyId": "B-bae9",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/tamper.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/protocol.json.sha256",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "packages/main/src/core/playbook-runtime-baseline.ts"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "scopeChangeReason": "M1 creates tamper.mjs + tamper-verdicts.jsonl + selfcheck-m1.mjs; the frozen protocol.json + M0 lib/instrument.mjs + the instrument are protected (read-only); M2-M4 harnesses excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T17:08:43.133Z",
+  "updatedAt": "2026-07-05T17:08:43.133Z"
+}
