@@ -156,6 +156,18 @@
           "materialHash": "ce72e0d04c917a41754bc85758762463a2fe6a46ff9fa8b4c38e1a60abd29114",
           "storyFilesHash": "c02d70cdd4458ce5e1e1dea14910859f97dc9c604074c63b4526ed09de5baedc",
           "timestamp": "2026-07-05T23:38:04.747Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. ADVERSARIAL: after the candidate-exposure trial ran, PBP-882 stays status=candidate and usage.surfacedCount/resolvedHits/dismissedHits unchanged (exposure never activates); the exposure record verdict is unknown, isPositiveHelpedPlaybookOutcome=false, and aggregatePlaybookPromotion counts helpedCount=0 / decisiveSamples=0 / unknownCount=1 — an exposure is never a helped outcome.",
+          "headHash": "2537bc476c1a5d9ff409925c24f04bfca9a7bbee",
+          "materialHash": "ce72e0d04c917a41754bc85758762463a2fe6a46ff9fa8b4c38e1a60abd29114",
+          "storyFilesHash": "c02d70cdd4458ce5e1e1dea14910859f97dc9c604074c63b4526ed09de5baedc",
+          "timestamp": "2026-07-05T23:38:09.591Z"
         }
       ]
     },
