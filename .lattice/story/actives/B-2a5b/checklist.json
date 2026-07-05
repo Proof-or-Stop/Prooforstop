@@ -89,8 +89,8 @@
       "id": "CHK-003",
       "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m2.mjs) that exercises the budget_cap stop path with an injected sub-second cap, asserts a concurrent second driver gets precondition_failed via the lockfile, and asserts a recordless iteration forces a nonzero exit",
       "context": "Per plan section 7 selfchecks: the M2 selfcheck exercises the budget_cap stop path with an injected sub-second cap. Also negative-tests the lockfile (second driver -> precondition_failed) and the recordless-exit-nonzero guard. Hermetic: mkdtemp isolation, run by node <file>, small scale only for speed.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T18:45:24.179Z",
       "endTime": null,
       "userSees": "node experiments/pos-instrument-replay/selfcheck-m2.mjs exits 0 with 'selfcheck-m2 PASS': an injected sub-second budget cap forces a budget_cap stop record; a concurrent driver gets precondition_failed; a recordless iteration forces nonzero exit.",
       "files": {
