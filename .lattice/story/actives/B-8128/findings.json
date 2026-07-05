@@ -74,6 +74,25 @@
       "_hash": "665050339dcbf8c5b357e291ab0d1f40f61b6a1c8595a70bcce43fbe03f473b9",
       "signatureTag": "missing|unknown|type-safety-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8128:F-006",
+      "desc": "doc-code-drift: product-capability-release-playbook-lineage-execution-plan.md M5 milestone row (\"candidate lineage shown in playbook_promotion_status\") and the V1 Validation Checklist (\"lattice playbook_promotion_status --json # M5 candidate-lineage column\") both assert that playbook_promotion_status gains a capability-lineage display column in V1 (story B-8128). The shipped diff does not touch packages/main/src/handlers/playbook.ts at all (git diff main...HEAD -- packages/main/src/handlers/playbook.ts is empty), and a live run of lattice playbook_promotion_status --json shows no capabilityReleaseId/capabilityId/capabilityVersion fields on any pendingLearning entry. The same doc does hedge elsewhere (\"...or defer it to the follow-up story\"), but the milestone table and validation checklist state it unconditionally as a V1 deliverable/proof, which is inconsistent with the actual shipped scope. docs/CLI.md itself is scoped correctly (it only documents capability_release_list/status and does not mention playbook_promotion_status), so this drift is isolated to the execution-plan doc (and plan.md, and checklist CHK-006 context/happy-path intent, which say the same thing).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T17:24:43.042Z",
+      "reviewRound": "2026-07-05T17:20:20.090Z",
+      "reviewRunId": "B-8128:RR-003",
+      "_hash": "6c2954b7a07ccf4cabaaac64830fb78226593c7ac130c9ddb0c475829e3d69b3",
+      "files": [
+        "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+        "packages/main/src/handlers/playbook.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-product",
+      "signatureTagSource": "auto"
     }
   ]
 }
