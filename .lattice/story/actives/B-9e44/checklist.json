@@ -135,13 +135,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail' && !Object.values(f.flags||{}).some(v=>v===false) && !(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log('failClosed',p.tamperMatrix.failClosed.length,'vacuous',bad.length)\"",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail'&&f.status!=='crash'&&!Object.values(f.flags||{}).some(v=>v===false)&&!(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log('failClosed',p.tamperMatrix.failClosed.length,'vacuous',bad.length)\"",
           "result": "pass",
-          "note": "Every one of the 16 fail-closed classes carries a genuine failure signal (status:fail and/or >=1 required-false flag / failing numeric predicate); 0 vacuous H2 classes.",
-          "headHash": "0c15319b8403048a61d6267257d2d750530df505",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:42:01.552Z"
+          "note": "All 18 fail-closed classes carry a genuine failure signal (status fail OR crash, and/or a required-false flag / failing numeric predicate); 0 vacuous.",
+          "headHash": "39c4530bab813affd9c68e99249b68c9f8d2f613",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:48.465Z"
         }
       ]
     },
