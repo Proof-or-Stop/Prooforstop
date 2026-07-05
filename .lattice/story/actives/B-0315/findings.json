@@ -19,6 +19,27 @@
       ],
       "signatureTag": "spec-boundary|ts|0315-changes-build",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0315:F-002",
+      "desc": "packages/main build skip output still says \"no watched runtime inputs changed\" (done-effects.ts:205) and existing smoke assertions preserve that old text, while this story expands the watched predicate to include docs/CLI.md and packages/main/tests/** and updates the lifecycle docs/CLI version-bump skip wording to \"CLI/runtime or capability contract\". This leaves DONE/partial-DONE build skip messaging inconsistent with the new bounded capability/proof policy.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T10:00:44.524Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-002",
+      "_hash": "a36f4b7836f917cc15416aed735d588a39298d0f8ddc9b1340a2357343f6c735",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "edge|ts|packages-main-build",
+      "signatureTagSource": "auto"
     }
   ]
 }
