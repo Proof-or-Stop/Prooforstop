@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-11ad:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: artifact-release-ledger-smoke plus existing version-bump smoke and direct CLI probes cover CHK-001/002/003. Verified classification includes docs/experiments and excludes .lattice/story, docs/story, root manifests, packages/main runtime inputs; digest determinism/order invariance and commit-blob binding; filesystem fallback; empty releasable set skips ledger creation; idempotent storyId+mainCommit+artifactSetDigest append; read-only list/status handler JSON/text and absent status behavior; CLI command registration in catalog/registry/policy/fact levels; version-bump boundary that experiments do not trigger CLI semver bump; provenance-only docs/boundary note. Commands run: node packages/main/dist/tasks/artifact-release-ledger-smoke.js; node packages/main/dist/tasks/version-bump-smoke.js; node packages/main/dist/cli.js artifact_release_list --format=json; node packages/main/dist/cli.js artifact_release_status --storyId=B-11ad --format=text.",
+      "createdAt": "2026-07-05T09:56:41.558Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-004",
+      "_hash": "7e44cf3929aaae95ef1af6418a2865c838965a019ee2065871e07ff5b0f823b0"
+    }
+  ]
+}
