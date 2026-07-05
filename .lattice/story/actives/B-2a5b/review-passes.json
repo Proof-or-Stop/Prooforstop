@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T19:22:13.254Z",
       "reviewRunId": "B-2a5b:RR-007",
       "_hash": "0b962b848dbc1dc843ac77dc5541243195a987a0e5e74b9db8279df1c42f6ae6"
+    },
+    {
+      "id": "B-2a5b:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check on commit 8513707f7 (run-batch.mjs full-lifecycle restructure + selfcheck-m2.mjs sub-check (e)). Confirmed: (1) M0/M1 files untouched - git diff main...HEAD on protocol.json, lib/instrument.mjs, lib/tamper.mjs is empty. (2) No dangling refs from the restructure: old inline crash-record wrapper shape replaced by buildIterationRecord()+runIteration(...,appendOne) with single def/single call site each; crashStop closure defined and used only within its own scope; producedThisRun/appendRecord/STOP_REASONS/fatal all resolve cleanly; node --check passes on both files. (3) selfcheck-m2.mjs sub-check (e) checkPreBodyCrash is wired consistently: env vars POS_FAIL_MKDTEMP_AT/POS_FAIL_APPEND_AT match between run-batch.mjs and selfcheck-m2.mjs, header comment updated four->five guards, main() calls checkPreBodyCrash(). (4) Repo-wide grep found no stale four-sub-check/four-guard doc mentions tied to this change (READMEs four disposition categories is an unrelated M1 concept). No blockers found in this lane.",
+      "createdAt": "2026-07-05T19:56:17.656Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-008",
+      "_hash": "0bdbcaab386fe0e779d78d2651e041c2e8a5eede3c8ab589c0400f83aca3d4f7"
     }
   ]
 }
