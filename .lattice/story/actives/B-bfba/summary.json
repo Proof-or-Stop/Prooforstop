@@ -1,0 +1,55 @@
+{
+  "storyId": "B-bfba",
+  "changes": "Added DONE milestone closeout snapshot support. The DONE transition now captures a stable milestone-closeout.json from the accepted milestone_status projection before DONE metadata or later main merges can make the live status view stale. Added read-only milestone_closeout reporting plus CLI docs and regression coverage for the real story_advance DONE path.",
+  "usage": "Use lattice milestone_closeout --storyId=B-xxxx after a story reaches DONE to print the stable closeout table. Use lattice milestone_status --storyId=B-xxxx for the live freshness/status view while work is still moving.",
+  "expectedOutcome": "When a story advances from TEST to DONE with milestone data, the user can later see the accepted closeout state even if live milestone_status correctly reports stale bindings after metadata or main movement.",
+  "actualTranscript": "Verified npm --prefix packages/main run build, node packages/main/tests/milestone-status.test.mjs, lattice validate --story=B-bfba, done_required_validate PASS, and done_prepare dryRun reaching only the missing summary blocker before this summary was written.",
+  "outcomeDiff": "Expected stable DONE closeout artifact and read-only retrieval; actual implementation writes milestone-closeout.json during the DONE transition path and exposes it through milestone_closeout while keeping milestone_status live and diagnostic.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No production or Authority completion is claimed. milestone_closeout reports the captured DONE snapshot; it does not recompute current freshness or replace milestone_status for active work.",
+  "pitfalls": "Do not treat milestone_status after DONE as the final accepted closeout proof, because later metadata or main movement can intentionally make the live freshness view stale. Use milestone_closeout for the accepted closure snapshot.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 152951
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 18608
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 181383
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1155356
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 5085177
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 537174
+    }
+  },
+  "totalDurationMs": 7130966,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T01:47:31.864Z",
+  "updatedAt": "2026-07-05T01:47:31.864Z"
+}
