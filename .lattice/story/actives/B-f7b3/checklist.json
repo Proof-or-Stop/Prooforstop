@@ -46,7 +46,50 @@
       "context": "run-all-smokes.ts discoverSmokes globs dist/tasks/*-smoke.js; the .mjs test under packages/main/tests/ is named by no test:* npm script and its header documents manual invocation. Add a test:* script and/or run-all-smokes inclusion so it runs in the aggregate suite. Closes findings M5 suite-wiring gap.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running `npm run test:milestone-status` from the repo root prints the milestone-status regression's terminal output ending in `ok milestone-status` and exits 0. Running the aggregate suite `npm test` from the repo root now includes a `> proofbound@... test:milestone-status` step in its &&-chain whose output shows `ok milestone-status`; if that .mjs regression fails, `npm test` aborts with a non-zero exit at that step (the milestone-status test is no longer silently skipped by the aggregate suite). `npm run` lists a `test:milestone-status` entry, so the test is named by a discoverable script. The head comment of packages/main/tests/milestone-status.test.mjs no longer documents only manual invocation — it names the `npm run test:milestone-status` / `npm test` wiring.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From repo root run `npm run test:milestone-status`; assert exit code 0 and stdout contains `ok milestone-status`. Confirms the new script builds packages/main and runs the .mjs regression.",
+            "type": "cli"
+          },
+          {
+            "desc": "From repo root run `node -e \"const s=require('./package.json').scripts; if(!s['test:milestone-status']) process.exit(2); if(!s.test.includes('test:milestone-status')) process.exit(3);\"`; assert exit 0. Confirms a test:milestone-status script exists AND the root `npm test` &&-chain references it.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Grep packages/main/tests/milestone-status.test.mjs head comment for the string `npm run test:milestone-status` (or `npm test`); assert present. Confirms the header no longer documents only manual `node packages/main/tests/...` invocation as the checklist context flagged.",
+            "type": "cli"
+          },
+          {
+            "desc": "Assert build ordering: the `test:milestone-status` script value contains a `npm --prefix packages/main run build` (or equivalent build step) before `node packages/main/tests/milestone-status.test.mjs`, verified via `node -e` reading package.json. The .mjs dynamically imports from packages/main/dist, so a stale/absent dist must be rebuilt first; without the build step the aggregate run could import stale compiled code or crash on a missing dist.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simulate a regression: temporarily edit packages/main/tests/milestone-status.test.mjs to `assert.fail('injected')` early, run `npm test` from repo root, and confirm it exits non-zero AT the test:milestone-status step (not passing through), then revert. Proves the test is genuinely gate-observable in the aggregate suite and cannot be silently skipped.",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm the fix does not depend on run-all-smokes discovery (which only globs dist/tasks/*-smoke.js and would never pick up a tests/*.test.mjs file): assert `discoverSmokes` in packages/main/src/tasks/run-all-smokes.ts still filters `endsWith('-smoke.js')` unchanged, so the wiring is via the named npm script/chain rather than a discovery change that could accidentally pull in every tests/*.mjs file.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
