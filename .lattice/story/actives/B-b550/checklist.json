@@ -287,6 +287,19 @@
           "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
           "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
           "timestamp": "2026-07-05T14:14:01.823Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'candidate|confirmed' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 documents candidate vs confirmed hash-bound state behavior (M2.d)",
+          "headHash": "40ff86cdabfd28e3aab9a2a1ded239b44b97d632",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:14:03.209Z"
         }
       ]
     },
