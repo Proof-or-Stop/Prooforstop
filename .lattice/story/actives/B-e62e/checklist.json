@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Print milestone_status table after milestone-aware mutating commands",
+      "context": "Add a mechanical post-command output path so commands like checklist_update, verification_evidence_batch_add, verification_evidence_refresh_stale, story_advance, delivery_check_save, summary_set, and milestone_ledger_set/add append the same human table as `lattice milestone_status --storyId=<id>` when the story has a milestone ledger.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Cover stdout contract with regression tests",
+      "context": "Add focused tests proving a representative state-change command emits `Milestone Status - B-xxxx`, `Completed`, `Current`, and `Remaining` in stdout instead of silently consuming milestone_status.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

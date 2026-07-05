@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "The CLI must mechanically surface progress instead of relying on host final-response discipline.",
+    "The appended output must be the actual milestone_status table users can already request manually.",
+    "JSON and read-only command contracts must remain stable.",
+    "Commands for stories without milestone ledgers should not gain noisy fabricated progress."
+  ],
+  "drivers": [
+    "The user wants the consumed milestone table printed to stdout.",
+    "Multiple story-scoped commands can mutate checklist, evidence, phase, summary, delivery, or milestone ledger state.",
+    "Existing handlers have command-specific output contracts that tests may depend on."
+  ],
+  "options": [
+    {
+      "name": "Append table in each mutating handler",
+      "pros": [
+        "Very explicit per command",
+        "Easy to tune command-specific behavior"
+      ],
+      "cons": [
+        "Duplicates logic across handlers",
+        "Higher risk of missing future commands"
+      ]
+    },
+    {
+      "name": "Central CLI post-command renderer",
+      "pros": [
+        "Single mechanical path for all configured commands",
+        "Preserves handler storage logic and makes stdout behavior testable at the CLI boundary"
+      ],
+      "cons": [
+        "Needs care to avoid JSON mode and read-only commands",
+        "Needs robust storyId extraction"
+      ]
+    }
+  ],
+  "chosen": "Central CLI post-command renderer",
+  "rationale": "A central post-command renderer best matches the desired consumption layer and avoids depending on each handler author to remember milestone progress output.",
+  "preMortem": [
+    {
+      "scenario": "The hook prints after JSON commands and corrupts machine-readable output.",
+      "trigger": "A command is run with --json or --format=json and the hook appends a human table.",
+      "consequence": "Automation parsing stdout breaks.",
+      "mitigation": "Detect JSON-format invocations and skip the human post-command table for machine-readable modes."
+    },
+    {
+      "scenario": "The hook fabricates progress for stories without milestone ledgers.",
+      "trigger": "A mutating command has a storyId but milestone_status would report missing ledger.",
+      "consequence": "Users see noisy or misleading progress output.",
+      "mitigation": "Only append when the status report indicates a present milestone ledger."
+    },
+    {
+      "scenario": "A representative handler test passes but real CLI stdout does not include the table.",
+      "trigger": "Tests call handler functions directly instead of invoking the CLI command path.",
+      "consequence": "The host-visible output bug remains.",
+      "mitigation": "Add a CLI-level regression that executes a state-changing command and asserts stdout contains the table headings."
+    }
+  ],
+  "timestamp": "2026-07-05T10:14:04.025Z"
+}

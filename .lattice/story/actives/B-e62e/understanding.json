@@ -1,0 +1,26 @@
+{
+  "task": "Make milestone-aware state-changing CLI commands print the consumed milestone_status table to stdout.",
+  "outcome": "After a command such as checklist_update changes a story with a milestone ledger, stdout visibly includes Milestone Status - <storyId>, Completed, Current, and Remaining.",
+  "facts": [
+    "B-3a4d is DONE and milestone_closeout is readable from canonical root.",
+    "The user explicitly requires the consumed milestone table to be output, not merely invoked internally.",
+    "milestone_status already renders the desired human table for a storyId."
+  ],
+  "constraints": [
+    "Use the canonical Proofbound root, not the retired Orchestrate root.",
+    "Keep this story scoped to auto-surfacing milestone progress; completion writer and closeout completion-ledger freezing are later stories.",
+    "Do not break JSON output contracts or commands without milestone ledgers."
+  ],
+  "unknowns": [
+    "Which CLI layer is the narrowest safe place to append post-command output while preserving existing handler return contracts?",
+    "Which representative command gives the best regression coverage without making tests brittle?"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory-intent.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "docs/CLI.md"
+  ],
+  "timestamp": "2026-07-05T10:14:03.716Z"
+}
