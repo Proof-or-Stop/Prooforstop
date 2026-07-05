@@ -4,6 +4,14 @@
 
 **Proof-or-Stop** is an evidence-gated control layer that lets coding agents (Claude, Codex, …) run an unattended development loop — *plan → execute → review → reflect → done* — where every step forward is admitted only on **mechanically verifiable evidence bound to the current code state**, never on the agent's word. If the evidence isn't there, the loop repairs or stops. The point isn't that an agent *can* run unattended — plenty of frameworks do that. The point is that what an unattended run marks "done" comes with a **mechanically checkable merge-readiness claim** — evidence a reviewer or merge policy can act on.
 
+## Loop Engineering
+
+```
+plan ──▶ execute ──▶ review ──▶ reflect ──▶ done
+  ▲                                          │
+  └──────────  proof, or stop  ◀─────────────┘
+```
+
 ## The problem: "done" is a claim, not a proof
 
 Agents write code, run tests, and report `tests passed / reviewed / done` on their own — and downstream automation (merge, release, next task) takes those words at face value. But they are **claims, not evidence**:
@@ -19,14 +27,6 @@ The most expensive incident is the quiet one: **tests green, code wrong, auto-me
 Any lifecycle advance — next phase, review pass, mark done, merge-readiness claim — **must** be backed by structured evidence that is **fresh** (still bound to the current code-state hash — the moment code changes, prior evidence is void) and **tamper-evident** (signed, not hand-waved). No qualifying evidence → **repair, downgrade, or stop.** Never pass on the agent's testimony.
 
 > Think of it less as a better engine and more as a traffic light for autonomous development: the value isn't speed — it's making "the wrong thing auto-merges to main" *mechanically hard to happen*.
-
-## Loop Engineering
-
-```
-plan ──▶ execute ──▶ review ──▶ reflect ──▶ done
-  ▲                                          │
-  └──────────  proof, or stop  ◀─────────────┘
-```
 
 ## How it's proven
 
