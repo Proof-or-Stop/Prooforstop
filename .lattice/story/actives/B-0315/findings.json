@@ -29,7 +29,7 @@
       "desc": "packages/main build skip output still says \"no watched runtime inputs changed\" (done-effects.ts:205) and existing smoke assertions preserve that old text, while this story expands the watched predicate to include docs/CLI.md and packages/main/tests/** and updates the lifecycle docs/CLI version-bump skip wording to \"CLI/runtime or capability contract\". This leaves DONE/partial-DONE build skip messaging inconsistent with the new bounded capability/proof policy.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T10:00:44.524Z",
@@ -43,7 +43,11 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "signatureTag": "edge|ts|packages-main-build",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the post-DONE packages/main build skip line and maintained smoke assertions to say no watched runtime or capability contract inputs changed; npm build and targeted smoke commands passed.",
+      "resolvedAt": "2026-07-05T10:13:36.510Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0315:F-003",
