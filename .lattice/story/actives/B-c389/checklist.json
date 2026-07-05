@@ -144,6 +144,18 @@
           "materialHash": "ce72e0d04c917a41754bc85758762463a2fe6a46ff9fa8b4c38e1a60abd29114",
           "storyFilesHash": "c02d70cdd4458ce5e1e1dea14910859f97dc9c604074c63b4526ed09de5baedc",
           "timestamp": "2026-07-05T23:37:54.399Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. EDGE: the capability candidate surfaces ONLY under pending-learning/candidate-inspection; it is excluded from active runtime surfacing — matchRuntimePlaybooks returns 0 for the status=candidate playbook and MemoryFreshnessPack.results.playbookIds omits PBP-882; flipping the SAME playbook to status=active surfaces it (matchRuntimePlaybooks length 1 + present in freshness pack), proving the status===active guard (matchActivePlaybook, unchanged) is the gate.",
+          "headHash": "606e78c22abe5c33354fb0628d5a535a75526099",
+          "materialHash": "ce72e0d04c917a41754bc85758762463a2fe6a46ff9fa8b4c38e1a60abd29114",
+          "storyFilesHash": "c02d70cdd4458ce5e1e1dea14910859f97dc9c604074c63b4526ed09de5baedc",
+          "timestamp": "2026-07-05T23:38:04.747Z"
         }
       ]
     },
