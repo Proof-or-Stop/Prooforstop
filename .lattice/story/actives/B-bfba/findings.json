@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-bfba:F-001",
+      "desc": "Coverage exercises captureMilestoneCloseoutSnapshotFromStore directly, but no test or smoke asserts the real story_advance --phase=DONE path writes milestone-closeout.json. A regression that removes the transition-orchestrator DONE wiring at packages/main/src/handlers/transition-orchestrator.ts:600 would leave the focused milestone-status tests green. Add an end-to-end or smoke test with a TEST story and confirmed ledger that runs story_advance DONE and asserts the closeout snapshot is captured before phase metadata/drift.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T00:11:12.005Z",
+      "reviewRound": "2026-07-05T00:08:17.768Z",
+      "reviewRunId": "B-bfba:RR-001",
+      "_hash": "37340b0aeccb46cd845de3dcd9b1dd66c033fe31ae26fcf4d6052fefa9ca98c0",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|ts|coverage-exercises-capturemilestonecloseoutsnapshotfromstore",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
