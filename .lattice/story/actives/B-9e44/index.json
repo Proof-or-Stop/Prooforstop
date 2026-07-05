@@ -4,7 +4,7 @@
   "title": "POS campaign M0: freeze protocol.json (tamper matrix + per-class fingerprints), two-pronged viability, and full-profile cost calibration",
   "description": "First implementation milestone of the proof-or-stop evidence-instrument replay and tamper campaign whose rev-3 pre-registration landed as DONE story B-e86f (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md). M0 must FREEZE protocol.json BEFORE any scored run. It is the foundation the M1-M4 harnesses read: it fixes N per scale (calibrated), the content-inert seed constant, the tamper-class matrix split into a FAIL-CLOSED set (each class carrying a failure signal, with its expected fingerprint over the explicit domain = boolean verify-flag vector + numeric-metric predicates) and an ACCEPTANCE bucket (self-consistent verify-accepted combinations), the iterationId cross-product rule, the recordDigest preimage rule, budget caps, the stop-reason enum, and env pins. Every candidate tamper class must be demonstrably viability-checked (each mutation produces a byte/contract difference AND fail-closed classes carry a failure signal) and dispositioned fail-closed|accepted|dropped. One measured full-profile (1,000,000-record) generate+verify sets the full budget cap and final full-N. All artifacts live under experiments/pos-instrument-replay/.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "proof-or-stop,replay,tamper,protocol,evidence-instrument"
@@ -84,6 +84,15 @@
       "user": "Harmonygo",
       "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T16:37:18.205Z",
+      "branch": "story/B-9e44",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -91,5 +100,5 @@
     "branch": "story/B-9e44",
     "createdAt": "2026-07-05T15:07:44.877Z"
   },
-  "currentReviewRound": "2026-07-05T16:10:59.713Z"
+  "currentReviewRound": "2026-07-05T16:37:18.205Z"
 }
