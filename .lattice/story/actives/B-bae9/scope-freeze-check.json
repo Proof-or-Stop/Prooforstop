@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-bae9",
+  "checkedAt": "2026-07-05T17:06:27.676Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "5f2e67dcfad0e2000812cedc4edb61d5be60a516a18e87f44ff9a8e5cf2a8dbe",
+  "executionBoundaryHash": "703f1427bb41d4db2bb89edced28425b7647319dcf97eb0d8a5ce6fd77b073c3",
+  "freshnessHash": "e97d1cbb787b2350a1fc4465fd6578279a32c900f992f1b2346c43770c61141d",
+  "effectiveExcludedKeywords": [
+    "analyze-batch.mjs (M4 analyzer)",
+    "resume-probe.mjs (M3 probe)",
+    "run-batch.mjs (M2 replay driver)",
+    "the frozen protocol.json (read-only input; M1 must not rewrite the M0 freeze)",
+    "the instrument core (read/called only, never modified)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "analyze-batch.mjs (M4 analyzer)",
+      "source": "scopeBoundary.excluded",
+      "text": "analyze-batch.mjs (M4 analyzer)",
+      "excluded": true
+    },
+    {
+      "keyword": "resume-probe.mjs (M3 probe)",
+      "source": "scopeBoundary.excluded",
+      "text": "resume-probe.mjs (M3 probe)",
+      "excluded": true
+    },
+    {
+      "keyword": "run-batch.mjs (M2 replay driver)",
+      "source": "scopeBoundary.excluded",
+      "text": "run-batch.mjs (M2 replay driver)",
+      "excluded": true
+    },
+    {
+      "keyword": "the frozen protocol.json (read-only input; M1 must not rewrite the M0 freeze)",
+      "source": "scopeBoundary.excluded",
+      "text": "the frozen protocol.json (read-only input; M1 must not rewrite the M0 freeze)",
+      "excluded": true
+    },
+    {
+      "keyword": "the instrument core (read/called only, never modified)",
+      "source": "scopeBoundary.excluded",
+      "text": "the instrument core (read/called only, never modified)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "840a291c5f1409fd211f7820d93b1637836ec9d51a82ef342c7aeaec05fcb93e"
+}

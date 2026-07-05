@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bae9",
+  "allowedCommands": [
+    "git *",
+    "lattice memory_playbook_baseline_generate*",
+    "lattice memory_playbook_baseline_verify*",
+    "node --version",
+    "node experiments/pos-instrument-replay/*.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "experiments/pos-instrument-replay"
+  ],
+  "excludedCommands": [
+    "curl *",
+    "npm publish*",
+    "rm -rf / *",
+    "wget *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M1 runs node harness scripts (tamper.mjs applies each protocol class to mkdtemp copies + verifies). No network. Instrument read/called only. Baselines in mkdtemp, not source control.",
+  "createdAt": "2026-07-05T17:06:27.057Z",
+  "updatedAt": "2026-07-05T17:06:27.057Z",
+  "_hash": "703f1427bb41d4db2bb89edced28425b7647319dcf97eb0d8a5ce6fd77b073c3"
+}
