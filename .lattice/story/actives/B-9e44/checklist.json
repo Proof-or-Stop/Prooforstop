@@ -200,6 +200,16 @@
             "priority": "should"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/build-protocol.mjs",
+          "experiments/pos-instrument-replay/protocol.json"
+        ],
+        "create": [
+          "experiments/pos-instrument-replay/README.md"
+        ],
+        "test": []
       }
     }
   ]
