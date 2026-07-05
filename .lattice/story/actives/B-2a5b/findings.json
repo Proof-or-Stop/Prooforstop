@@ -39,6 +39,23 @@
       "resolvedAt": "2026-07-05T19:22:31.633Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2a5b:F-003",
+      "desc": "[codex-host-2 re-check, verified] F-001 fix is incomplete: exceptions OUTSIDE the guarded generate+verify body can still leave an iteration with no record AND skip the end-of-run guard. Scenario: mkdtempSync fails, the record appendFileSync fails after runIteration returns, or the rmSync cleanup throws -> the exception escapes the crash->verify_crash-stop conversion, the driver crashes mid-loop before reaching the end-of-run guard, so there is neither a stop record nor a recordless-nonzero-exit. This violates the claimed 'ANY throw becomes exactly one stop record / the driver never exits 0 with a missing record' guarantee. Structural fix: run the end-of-run STRICT-multiset guard in a finally (or top-level try/finally over the whole campaign) so it ALWAYS executes even if the loop throws uncaught — any recordless iteration then still forces a named nonzero exit; and widen the per-iteration try to include mkdtemp + append + cleanup (best-effort stop record).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T19:27:55.224Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "_hash": "f6c8ac2e919415f709dc8d1b646773cedf280bd4893b8714aec45329d6d4676f",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
