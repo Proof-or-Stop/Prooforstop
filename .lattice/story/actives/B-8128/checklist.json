@@ -91,7 +91,42 @@
       "context": "Classify changed docs/experiments into capabilityKind or no-release. Conservative: uncertain -> no release + advisory. Fixtures: B-785e-like experiment-launch-control, plain doc (none), runtime code (none), .lattice/story metadata (none).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "capability classifier fixtures green; classifier invoked from both DONE completion sites",
+      "files": {
+        "modify": [
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A pure core/ classifier (mirroring selectArtifactReleasePathsV1) returns experiment-launch-control for B-785e-like experiment/doc paths and produces the capability-declaring path subset.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plain typo-only docs, packages/main/src runtime code, and .lattice/story metadata-only changes classify as NO capability release; uncertain cases record nothing and emit an advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Both DONE sites (done-effects.ts:1167 and done-recover.ts:116) import and invoke the SAME core classifier so the recover path cannot silently diverge from the normal path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
