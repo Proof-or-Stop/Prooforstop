@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Evidence before claims: readiness cannot be reported as outcome data.",
+    "Host-neutral core: workflow and experiment proof are not tied to Codex, Claude, or any single host namespace.",
+    "Only fix real correctness boundaries: preserve cell ordering, snapshot binding, and budget-lock discipline.",
+    "Default-deny provider execution: external calls require explicit authorization and complete runner metadata."
+  ],
+  "drivers": [
+    "M2 readiness is already prepared but provider execution is explicitly disabled.",
+    "The next formal execution step is cell 03 calibration; cell 06 sequencing depends on a real budget lock from cell 03.",
+    "The user needs a visible milestone table so future sessions know what is complete and what remains blocked."
+  ],
+  "options": [
+    {
+      "name": "direct-phase1-run",
+      "pros": [
+        "Would produce experiment rows sooner if all provider credentials and budget approvals were already available."
+      ],
+      "cons": [
+        "Risks spending budget before launch metadata is locked.",
+        "Would blur readiness with provider outcome data.",
+        "Could violate A2prime sequencing if budget lock is not generated first."
+      ]
+    },
+    {
+      "name": "launch-plan-and-local-gate",
+      "pros": [
+        "Creates a detailed execution document and machine-readable launch artifact.",
+        "Keeps provider calls disabled until explicit authorization.",
+        "Mechanically preserves cell 03 before cell 06 sequencing.",
+        "Gives the user a clear milestone table and next-step state."
+      ],
+      "cons": [
+        "Does not by itself produce H-M1/H-M3 experiment results.",
+        "Requires a later explicit provider execution authorization to run real cells."
+      ]
+    },
+    {
+      "name": "docs-only-note",
+      "pros": [
+        "Fastest to write."
+      ],
+      "cons": [
+        "Would not provide a local checker or machine-readable launch boundary.",
+        "Future agents could still misread readiness as outcome data."
+      ]
+    }
+  ],
+  "chosen": "launch-plan-and-local-gate",
+  "rationale": "The correct next step is to convert provider-free readiness into an auditable launch gate and cell 03 calibration path, while keeping provider execution disabled until real snapshots, budget caps, and runner metadata are supplied.",
+  "preMortem": [
+    {
+      "scenario": "Readiness is mistaken for experiment evidence.",
+      "trigger": "A later agent reads the protocol/status but not the launch boundary.",
+      "consequence": "Paper wording could overclaim H-M1/H-M3 or model-agnostic replication.",
+      "mitigation": "State in the doc, launch artifact, checker, and status table that providerCallsMade=false and no outcome data exists."
+    },
+    {
+      "scenario": "A2prime runs before budget lock.",
+      "trigger": "Cell 06 is launched before real cell 03 calibration medians exist.",
+      "consequence": "The main H-M1 comparison is invalid or vulnerable to post-hoc budget tuning.",
+      "mitigation": "Checker keeps cell 06 blocked until a real cell-03-derived phase1-budget-lock exists."
+    },
+    {
+      "scenario": "Host label is treated as model snapshot.",
+      "trigger": "Runner metadata records Codex CLI or Claude Code CLI as the executor/reviewer snapshot.",
+      "consequence": "Multi-model evidence becomes uninterpretable because host and provider family are mixed.",
+      "mitigation": "Checker rejects host labels in snapshot fields and requires dated provider-family metadata."
+    },
+    {
+      "scenario": "Provider execution accidentally happens in this story.",
+      "trigger": "A runner command is added or enabled while writing launch artifacts.",
+      "consequence": "Costs are incurred without explicit human budget authorization and records are not pre-registered.",
+      "mitigation": "Keep providerExecutionAuthorized=false and providerCallEnabled=false in the launch artifact; the story excludes full campaign execution."
+    }
+  ],
+  "timestamp": "2026-07-05T11:53:10.528Z"
+}

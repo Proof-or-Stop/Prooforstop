@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-785e",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T12:32:16.066Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "58b00996845f199a58467bb4e4b2a1837c63720b54939508f8b42fe028bfd00f",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:71ca92562841172406e5df578589c5e91e068d60aabba84fcb7784f9c2aee96c"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "current": [],
+      "remaining": []
+    }
+  },
+  "bindings": {
+    "headHash": "056de0390c60d5fd4d32db5bb90197f580135d2e",
+    "materialHash": "17de1d711ed25744ab24a6b0e3a4779e1a6e22c231450ef72e6423c37b366ecc",
+    "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Detailed M2 provider execution launch plan exists.",
+      "acceptance": "The plan document lists readiness vs execution, milestones, blockers, and verification checklist.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/docs_check] file=docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The launch plan orders M2 launch authorization, cell 03 calibration, real budget-lock freeze, and cell 06 sequencing.",
+        "CHK-001:edge:0 [pass/docs_check] file=docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The plan explicitly states the launch layer has no outcome data and does not prove H-M1 or H-M3.",
+        "CHK-001:adversarial:0 [pass/docs_check] file=docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The plan rejects host-label-only snapshots, provider fallback, duplicate cell-key ambiguity, and A2prime before a real cell-03-derived budget lock."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Machine-readable launch artifact keeps provider execution disabled until explicit authorization.",
+      "acceptance": "m2-provider-execution-launch.json records providerExecutionAuthorized=false and required blocker fields.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/docs_check] file=experiments/multi-model-ablation/m2-provider-execution-launch.json note=The launch artifact lists the required authorization fields and keeps cell 03 planning-only until human approval, snapshots, runner metadata, and budget caps are present.",
+        "CHK-002:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=After e1f236402, the checker asserts required authorization fields remain missing/blocking and provider execution cannot be enabled without all metadata; rerun passed with 391 assertions and 27 negative controls."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Checker identifies cell 03 E2 A4 same-family calibration as the next permitted formal step.",
+      "acceptance": "m2-provider-execution-check.mjs passes and reports nextPermittedFormalStep=cell-03-calibration.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=After e1f236402, the checker passes and prints nextPermittedFormalStep=cell-03-calibration; 391 assertions and 27 negative controls."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Checker keeps cell 06 A2prime blocked without a real cell-03-derived budget lock.",
+      "acceptance": "m2-provider-execution-check.mjs passes only when cell 06 is blocked in the provider-disabled launch state.",
+      "evidence": [
+        "CHK-003:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=After e1f236402, the checker prints cell-06-a2prime-blocked and asserts cell 06 remains blocked without a real cell-03-derived budget lock.",
+        "CHK-003:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=After e1f236402, checker negative controls cover accidental authorization, outcome/result-shaped fields, provider fallback, false budget lock, cell 06 unblocked state, and runner/manifest binding drift."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Host labels are not accepted as provider model snapshots.",
+      "acceptance": "Launch artifact and checker encode host/model separation and reject host-label-only snapshots.",
+      "evidence": [
+        "CHK-002:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=After e1f236402, negative controls reject host-label snapshots and runner/schema drift against phase1-runner-manifest.m2.json; rerun passed with 391 assertions and 27 negative controls.",
+        "CHK-004:adversarial:0 [pass/docs_check] file=experiments/multi-model-ablation/m2-status.md note=The status table keeps formal M2 execution NOT STARTED and says no H-M1/H-M3 claim, no model-agnostic unlock, and no product gate impact exists."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

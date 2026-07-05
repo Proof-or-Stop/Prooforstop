@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-785e",
+  "state": "confirmed",
+  "ledgerHash": "sha256:71ca92562841172406e5df578589c5e91e068d60aabba84fcb7784f9c2aee96c",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M2-LAUNCH-DOC",
+      "claim": "Detailed M2 provider execution launch plan exists.",
+      "doneMeans": "The plan document lists readiness vs execution, milestones, blockers, and verification checklist.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-M2-PROVIDER-DISABLED",
+      "claim": "Machine-readable launch artifact keeps provider execution disabled until explicit authorization.",
+      "doneMeans": "m2-provider-execution-launch.json records providerExecutionAuthorized=false and required blocker fields.",
+      "requiredEvidence": [
+        "docs_check",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-M2-CELL03-FIRST",
+      "claim": "Checker identifies cell 03 E2 A4 same-family calibration as the next permitted formal step.",
+      "doneMeans": "m2-provider-execution-check.mjs passes and reports nextPermittedFormalStep=cell-03-calibration.",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M2-A2PRIME-BLOCKED",
+      "claim": "Checker keeps cell 06 A2prime blocked without a real cell-03-derived budget lock.",
+      "doneMeans": "m2-provider-execution-check.mjs passes only when cell 06 is blocked in the provider-disabled launch state.",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-HOST-MODEL-SEPARATION",
+      "claim": "Host labels are not accepted as provider model snapshots.",
+      "doneMeans": "Launch artifact and checker encode host/model separation and reject host-label-only snapshots.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T11:54:19.108Z",
+  "updatedAt": "2026-07-05T11:54:36.019Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705115418",
+    "acceptedInterpretationHash": "sha256:459ee0ef55621b4a136133857d1e03a4ef32eb564c63128e2dc8827aff739024",
+    "acceptedAt": "2026-07-05T11:54:36.019Z"
+  }
+}

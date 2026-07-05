@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b550",
+  "mode": "maintenance",
+  "allowed": [
+    "Author a findings report document under docs/requirements/decisions/ recording per-milestone finding-or-pass outcomes",
+    "Execute the M0-M7 document review defined in docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md against the current implementation",
+    "Record review findings for any boundary/schema/test gaps discovered; draft a narrow follow-up story scope in the findings report if M7 decides gaps exist",
+    "Update docs/requirements/NAV.md to reference the new findings report",
+    "Update the plan document milestone Status columns to reflect executed review outcomes"
+  ],
+  "excluded": [
+    "Advancing or modifying unrelated stories (including B-e62e)",
+    "Changing lifecycle gates or gate enforcement code",
+    "Claiming milestone status replaces lifecycle_check, review assurance, validation, delivery checks, or DONE gates",
+    "Implementing new CLI commands or changing existing command behavior",
+    "Launching reviewers for implementation work outside this story lifecycle",
+    "Rewriting ProofStory milestone contracts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator instruction on 2026-07-05: execute the plan strictly in M0 to M7 order until the story reaches DONE. Plan non-goals section is binding.",
+  "createdAt": "2026-07-05T12:14:33.856Z",
+  "updatedAt": "2026-07-05T12:14:33.856Z",
+  "_hash": "c9f457a89161ba222398a56d3a54e2f7d60f415b56275bfb2bd04dfa7d7f9a0d"
+}

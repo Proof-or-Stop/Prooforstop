@@ -1,0 +1,87 @@
+{
+  "storyId": "B-785e",
+  "checkedAt": "2026-07-05T11:57:27.690Z",
+  "features": [
+    {
+      "feature": "M2 provider execution launch plan/document",
+      "covered_by": "Covered by CHK-001 plus plan.md:16-39: creates docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md, distinguishes readiness from execution, lists milestones/status, states ordering/non-claims, and rejects host-label-only snapshots/provider fallback; also matches scope-boundary.allowed[0].",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json CHK-001; .lattice/story/actives/B-785e/plan.md:16-39; scope-boundary.json allowed[0]"
+    },
+    {
+      "feature": "Disabled-by-default launch authorization and runner readiness artifact",
+      "covered_by": "Covered by CHK-002 plus plan.md:41-61: creates m2-provider-execution-launch.json, updates m2-status.md, records required authorization/snapshot/runner/cost/cap blockers, keeps providerExecutionAuthorized=false, keeps result rows absent, and blocks cell 06 until a real cell-03-derived budget lock exists; also matches scope-boundary.allowed[1-3].",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json CHK-002; .lattice/story/actives/B-785e/plan.md:41-61; scope-boundary.json allowed[1-3]"
+    },
+    {
+      "feature": "Cell 03 calibration before cell 06 A2prime and budget-lock verification",
+      "covered_by": "Covered by CHK-003 plus plan.md:63-89: creates m2-provider-execution-check.mjs, validates cell 03 as nextPermittedFormalStep=cell-03-calibration, validates cell-06-a2prime-blocked until real budget lock, and includes negative controls. This matches multi-model-ablation-replication.md:29 and :151-152 ordering.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json CHK-003; .lattice/story/actives/B-785e/plan.md:63-89; docs/requirements/decisions/multi-model-ablation-replication.md:29,151-152"
+    },
+    {
+      "feature": "Host/model separation and no readiness-as-outcome claims",
+      "covered_by": "Covered by CHK-001/002/003/004 adversarial intents and plan.md:3-14,31-39,78-83,108-112: provider-disabled scope, no outcome rows, no H-M1/H-M3/model-agnostic claim, no product gate impact, and checker rejection of Codex CLI/Claude Code CLI as model snapshots; protocol lines 40-42 require the same separation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json verificationIntent adversarial entries; .lattice/story/actives/B-785e/plan.md:3-14,31-39,78-83,108-112; docs/requirements/decisions/multi-model-ablation-replication.md:40-42,97-103"
+    },
+    {
+      "feature": "Local-only validation and published milestone/status table",
+      "covered_by": "Covered by CHK-004 plus plan.md:91-112: runs only local m0/m1/m2 readiness and new m2-provider-execution checks, updates m2-status.md with completed/blocked rows, and keeps no claim unlock/no product gate impact. Execution boundary allows local node checks under experiments/multi-model-ablation and excludes provider/full campaign runners.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json CHK-004; .lattice/story/actives/B-785e/plan.md:91-112; execution-boundary.json allowedCommands/excludedCommands"
+    },
+    {
+      "feature": "Paid/external provider calls or provider execution runner in this story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Excluded by scope-boundary.allowed[2] default-deny wording, execution-boundary excludedCommands for provider execution runner without explicit approval, and plan.md:121-130 stop conditions for external provider calls or providerExecutionAuthorized=true.",
+      "source": "scope-boundary.json allowed[2]; execution-boundary.json excludedCommands; .lattice/story/actives/B-785e/plan.md:121-130"
+    },
+    {
+      "feature": "Full Phase 1 campaign or Phase 2 powered matrix execution",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Excluded by scope-boundary.excluded[2-3], execution-boundary excludedCommands for phase1 full campaign runner and phase2 powered campaign runner, and plan.md:5-7 plus :121-130 excluding Phase 1/Phase 2 execution and outcome rows.",
+      "source": "scope-boundary.json excluded[2-3]; execution-boundary.json excludedCommands; .lattice/story/actives/B-785e/plan.md:5-7,121-130"
+    },
+    {
+      "feature": "H-M1, H-M3, model-agnostic replication, product gate, or paper-claim unlock from readiness artifacts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Excluded by scope-boundary.excluded[0], CHK-004 adversarial intent, and plan.md:5-14,31-32,108-112, which keep these claims locked until real records exist.",
+      "source": "scope-boundary.json excluded[0]; checklist.json CHK-004 adversarial; .lattice/story/actives/B-785e/plan.md:5-14,31-32,108-112"
+    },
+    {
+      "feature": "Treat Codex CLI or Claude Code CLI host labels as model snapshots",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Excluded by scope-boundary.excluded[4], plan.md:78-83 and :125-130, and protocol lines 40-42 separating hosts/adapters from provider-family proof.",
+      "source": "scope-boundary.json excluded[4]; .lattice/story/actives/B-785e/plan.md:78-83,125-130; docs/requirements/decisions/multi-model-ablation-replication.md:40-42"
+    },
+    {
+      "feature": "Tier-C quorum protocol docs or unrelated active-story files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Excluded by scope-boundary.excluded[1], execution-boundary excludedPaths for Tier-C quorum docs/.omx, and plan.md:121-130 stop conditions against Tier-C quorum documents or unrelated active-story files.",
+      "source": "scope-boundary.json excluded[1]; execution-boundary.json excludedPaths; .lattice/story/actives/B-785e/plan.md:121-130"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 5,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4e429dc0089833d9564eefe050e845cf3997e1aab35de6abcd7bc2375f3c5904",
+  "openQuestions": []
+}
