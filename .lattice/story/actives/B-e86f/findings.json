@@ -68,7 +68,7 @@
       "desc": "CHK-001:happy:0 verificationEvidence is stale relative to current HEAD: all 9 CHK-001 evidence entries carry headHash=005b5e344 (bound to the pre-fix doc content, commit 7cdb75165/005b5e344), but current HEAD is 4ad11c79e with the doc content last changed in 4a4c4e543 (F-001/F-002/F-003 fix: H2 fingerprint-domain rewording, two-pronged viability, accepted-behavior bucket, 1000-questions wording fix). The lone verification_evidence_refresh_stale run (commit 1563972d3, timestamp 13:57:00.528Z) executed BEFORE the 4a4c4e543 content fix (finding_resolve/review_pass events at 13:59:47-14:00:34) and was never re-run afterward. Concretely, CHK-001:happy:0 note asserts committed-blob sha256=1f853b0ba354a941dae84512f104bd68d2c72524ff79513de72fe7a3e47e9fa8, but the actual current HEAD blob hashes to a2512bd60483e0edd67b1de2b4c3c0f4a9dde4e612ec1a17356bbd153b985d2e - the content-integrity check as recorded no longer holds against HEAD. The other 8 intents (happy:1, edge:0/1, adversarial:0-4) independently re-verified true against current HEAD content, but their evidence records are equally unrefreshed/stale metadata. Remediation: re-run verification_evidence_refresh_stale (or equivalent re-verification) against current HEAD so headHash/materialHash/sha256 note text bind to 4ad11c79e, not 005b5e344.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-05T14:02:56.017Z",
@@ -80,7 +80,11 @@
         ".lattice/story/actives/B-e86f/checklist.json"
       ],
       "signatureTag": "missing|md|happy-verificationevidence-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed. F-004 correctly caught that verification_evidence_refresh_stale re-stamped storyFilesHash but left the recorded CHK-001:happy:0 note asserting the pre-fix digest 1f853b0b (against old commit 7cdb75165), which no longer matched HEAD's blob. Corrected by genuinely RE-RECORDING all 9 CHK-001 verification-intent evidence entries via verification_evidence_add against current HEAD: each command was re-run and each note now states the current-content fact. Specifically happy:0 now records both digests = 68451936c2378fdc... (committed HEAD blob == refreshed rev-3 backup, byte-identical). The 8 other intents (happy:1, edge:0/1, adversarial:0-4) were likewise re-run against current HEAD and re-recorded with accurate notes. checklist.json evidence now carries current headHashes; the separate test-evidence.json store is refreshed by lattice validate at TEST.",
+      "resolvedAt": "2026-07-05T14:10:10.076Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
