@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-b550:F-001",
+      "desc": "doc-code-drift: plan.md M1 milestone-summary-table rollup status says plain \"reviewed-pass\" but the plan's own M1 sub-objective table (same file) marks M1.d and M1.f as \"reviewed-pass (corrected)\" -- an internal status-rollup inconsistency within the plan doc. Compare: M0 rollup correctly carries a bare correction note with all subs plain, and M3 rollup correctly propagates its M3.e sub-objective correction (both consistent patterns), but M1 does not propagate its own M1.d/M1.f corrections to the M1 rollup row. The underlying corrections are real and match the findings doc (M1 correction: milestone_status spawns read-only git subprocesses via currentMilestoneStatusEvidenceBinding, contradicting a literal zero-subprocess reading of runCommands:false; M6 correction: status/closeout output carries no explicit DONE/Authority/production disclaimer string). Fix: change the M1 row in the milestone summary table from \"reviewed-pass\" to \"reviewed-pass (corrected)\" for consistency with its own sub-objective rows and with the findings doc M1 Verdict line (executed-pass (clarified)).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T15:10:11.447Z",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "reviewRunId": "B-b550:RR-010",
+      "_hash": "e3b71d8af09094a49adafa0b45970197b45c7862cc8012b2e9d76e8a16fc6ee9",
+      "files": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+      ],
+      "signatureTag": "missing|md|code-drift-plan",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
