@@ -3,6 +3,7 @@
   "mode": "enforce",
   "allowedModify": [
     ".gitignore",
+    ".lattice/story/actives/B-8128/**",
     "packages/main/src/core/capability-release.ts",
     "packages/main/src/handlers/done-effects.ts",
     "packages/main/src/handlers/done-recover.ts",
@@ -19,6 +20,7 @@
     "lattice.config.json"
   ],
   "allowedCreate": [
+    ".lattice/story/actives/B-8128/**",
     "packages/main/src/tasks/product-capability-release-red-smoke.ts",
     "packages/main/src/core/capability-release.ts",
     "packages/main/src/tasks/product-capability-release-smoke.ts",
@@ -39,8 +41,8 @@
     "M6 exposure surfaces (follow-up)",
     "M7 promotion command surfaces (follow-up)"
   ],
-  "scopeChangeReason": "Correct M5 registration paths (cli/command-catalog.ts + registry.ts, not core/), add lattice.config.json to register the new capability-release smokes in the validate suite, and add the audited exec-plan doc to allowedCreate.",
+  "scopeChangeReason": "Add the story lifecycle-metadata pattern (.lattice/story/actives/B-8128/**) so ProofStory artifacts (intent-collision, milestone-ledger, original-intent-snapshot, proofstory, review) are not flagged as out-of-scope code changes.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T16:28:05.570Z",
-  "updatedAt": "2026-07-05T17:00:46.060Z"
+  "updatedAt": "2026-07-05T17:20:19.107Z"
 }
