@@ -434,14 +434,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-006:happy:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred lifecycle evidence: story cannot reach REVIEW unless checklist is done, but this intent is only truly satisfied by later REVIEW/validate/DONE gates. Replace with real evidence before DONE.",
-          "headHash": "5600fa5c7048d1ce5fbbb369727fd3ea8b313fc6",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list --storyId=B-c25c && lattice session_brief",
+          "result": "pass",
+          "note": "REVIEW is complete: finding_list returned no findings and session_brief reports story-review, concept, quality, test-coverage, and docs all PASS.",
+          "headHash": "12feac8a3f6cbd161dce9fdf79175a3ce343565f",
           "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
           "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
-          "timestamp": "2026-07-05T17:08:53.563Z"
+          "timestamp": "2026-07-05T17:19:03.774Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -456,14 +456,14 @@
         },
         {
           "intentRef": "CHK-006:adversarial:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred lifecycle evidence: DONE non-claim boundary must be verified after review/validate/DONE, not before entering REVIEW. Replace with real evidence before DONE.",
-          "headHash": "5600fa5c7048d1ce5fbbb369727fd3ea8b313fc6",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Review and checker evidence show DONE will not claim provider execution or outcome rows: guardrail is recorded, exact budget approval absent, provider calls disabled, Cell 06 blocked, and claimBoundary remains false.",
+          "headHash": "12feac8a3f6cbd161dce9fdf79175a3ce343565f",
           "materialHash": "dc2ae184593d51e1d2df07d82902de100ab453d89d76549b5cd157a4cf02c1de",
           "storyFilesHash": "4ad5d9cf22762f3d9820ca40bc246c12237c39051284029222bf362814798bca",
-          "timestamp": "2026-07-05T17:08:53.563Z"
+          "timestamp": "2026-07-05T17:19:03.774Z"
         }
       ]
     }
