@@ -5,7 +5,7 @@
       "desc": "Coverage exercises captureMilestoneCloseoutSnapshotFromStore directly, but no test or smoke asserts the real story_advance --phase=DONE path writes milestone-closeout.json. A regression that removes the transition-orchestrator DONE wiring at packages/main/src/handlers/transition-orchestrator.ts:600 would leave the focused milestone-status tests green. Add an end-to-end or smoke test with a TEST story and confirmed ledger that runs story_advance DONE and asserts the closeout snapshot is captured before phase metadata/drift.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-05T00:11:12.005Z",
@@ -17,7 +17,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "missing|ts|coverage-exercises-capturemilestonecloseoutsnapshotfromstore",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added packages/main/tests/milestone-status.test.mjs regression using createStoryAdvanceHandlers(...).story_advance from a temp TEST story to DONE. It asserts milestone-closeout.json is persisted through transition-orchestrator wiring, the capture log appears, the story reaches DONE, and the snapshot phase remains TEST before DONE metadata persistence. Verified by npm --prefix packages/main run build, node packages/main/tests/milestone-status.test.mjs, and lattice validate --story=B-bfba --json passing all 33 configured commands.",
+      "resolvedAt": "2026-07-05T00:20:09.913Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
