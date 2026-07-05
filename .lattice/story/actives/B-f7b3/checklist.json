@@ -219,7 +219,35 @@
       "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L749-870, stale ledger built ~L823) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running `npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs` completes with a `# stale-only closeout negative control passed` style success (process exit 0, no `AssertionError`). The newly added assertion block inside the stale-evidence section (~L806-868) proves that the same stale-only `report` which `milestone_status` demotes to the `Current` group also causes `buildMilestoneCloseoutSnapshot({ report })` to THROW. The operator sees the run reach the end of the suite (\"all milestone-status assertions passed\") only because the closeout guard rejected the stale report with a message matching `incomplete milestone rows: M-stale=current`. If someone regresses the guard so a stale-only report is silently frozen into a closeout snapshot, this run instead fails with `AssertionError [ERR_ASSERTION]: Missing expected exception` (the `assert.throws` firing), naming this negative control.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In the stale-evidence block of packages/main/tests/milestone-status.test.mjs (after the existing L849-868 assertions that confirm `report.groups.completed === []` and `report.groups.current === ['M-stale']`), add `assert.throws(() => buildMilestoneCloseoutSnapshot({ report }), /incomplete milestone rows: M-stale=current/, 'stale-only report must be rejected by closeout snapshot')`. Then run `npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs`; it exits 0, proving the stale-only report both demotes M-stale to Current AND is refused by buildMilestoneCloseoutSnapshot.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the closeout guard fires on the FIRST-failing gate for a stale row: assert the thrown Error message begins with `Cannot create milestone closeout snapshot for` and contains `incomplete milestone rows: M-stale=current` (the status!=='completed' check at milestone-status.ts L885-891 runs before the risk check at L893-899), documenting that demotion-to-current, not merely the stale risk, is what blocks closeout. Verify via the same `node packages/main/tests/milestone-status.test.mjs` run passing.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation check that the test is un-gameable: temporarily edit milestone-status.ts L885-891 to drop the `incomplete` guard (e.g. force `incomplete = []`), rebuild with `npm --prefix packages/main run build`, and run `node packages/main/tests/milestone-status.test.mjs`; the new negative control must now FAIL with `AssertionError ... Missing expected exception` (the stale-only report would otherwise be frozen into a closeout snapshot). Revert the mutation and confirm the suite passes again, proving the assertion actually catches a regressed guard rather than passing vacuously.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
