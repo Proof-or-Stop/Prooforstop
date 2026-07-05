@@ -28,7 +28,7 @@
       "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:183-190 validates only disabled flags and snapshot labels for providerLaunch.runnerAuthorization.runners, but it never requires the launch runner set to match phase1-runner-manifest.m2.json:194-231 or the launch rows at m2-provider-execution-launch.json:129-170. Removing a runner, changing a runnerId/cell binding, or adding an unrelated disabled runner can pass, so schema drift in the launch plan is a false negative. Severity: medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T12:08:41.187Z",
@@ -41,7 +41,11 @@
         "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
       ],
       "signatureTag": "missing|mjs|experiments-multi-model",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e1f2364024177f041754bce36677a20b2efa5e62. The checker now cross-binds providerLaunch.runnerAuthorization.runners to phase1-runner-manifest.m2.json and launch rows, rejecting missing/extra runners, runner/cell/protocol-cell drift, and family/arm/reviewer mismatches. Re-ran m2-provider-execution-check: PASS 391 assertions / 27 negative controls, plus m0/m1/m2 launch readiness checks.",
+      "resolvedAt": "2026-07-05T12:20:39.735Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
