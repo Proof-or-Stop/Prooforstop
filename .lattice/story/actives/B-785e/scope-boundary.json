@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-785e",
+  "mode": "maintenance",
+  "allowed": [
+    "Create a detailed M2 provider execution launch plan for the multi-model ablation protocol.",
+    "Create local readiness and check artifacts under experiments/multi-model-ablation.",
+    "Keep provider calls disabled unless explicit provider execution authorization and concrete runner metadata are recorded.",
+    "Update only multi-model ablation status material needed to expose the launch state."
+  ],
+  "excluded": [
+    "Do not claim H-M1, H-M3, or model-agnostic replication from readiness artifacts.",
+    "Do not modify Tier-C quorum protocol docs or unrelated active story files.",
+    "Do not run Phase 2 powered matrix in this story.",
+    "Do not run the full Phase 1 campaign in this story.",
+    "Do not treat Codex CLI or Claude Code CLI host labels as model snapshots."
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked on 2026-07-05 to start the next logical M2 step and asked for a detailed execution document; provider execution remains evidence-gated.",
+  "createdAt": "2026-07-05T11:50:01.241Z",
+  "updatedAt": "2026-07-05T11:50:01.241Z",
+  "_hash": "3278a2b82b738ddbf2b8b47a63283f8d2d9eb3b6e0f18442ac65e5432e3e578a"
+}

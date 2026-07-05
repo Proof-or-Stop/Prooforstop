@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-785e",
+  "allowedCommands": [
+    "cat experiments/multi-model-ablation/*",
+    "git status --short --branch",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice convergence_check",
+    "lattice delivery_check_set",
+    "lattice execution_*",
+    "lattice review_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice summary_set",
+    "lattice validate",
+    "node experiments/multi-model-ablation/*.mjs",
+    "npm test -- --runInBand",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "Antigravity CLI",
+    "Claude Code CLI",
+    "Codex CLI",
+    "local shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *",
+    "phase1 full campaign runner",
+    "phase2 powered campaign runner",
+    "provider execution runner without explicit approval"
+  ],
+  "excludedTools": [
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "This story may prepare and validate launch artifacts, but paid or external provider execution must remain disabled until explicitly authorized in a later launch artifact.",
+  "createdAt": "2026-07-05T11:50:01.241Z",
+  "updatedAt": "2026-07-05T11:50:01.241Z",
+  "_hash": "e232d7ec4ec785599178caf4c1b7136d37a3307c73596782be56390821e09f66"
+}
