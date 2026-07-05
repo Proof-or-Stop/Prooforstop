@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T02:34:49.688Z",
       "reviewRunId": "B-3a4d:RR-004",
       "_hash": "bbea3bd0ca133b273bf21500bf0d1c64d06e6ff1b8ea559fb699de734cd326c7"
+    },
+    {
+      "id": "B-3a4d:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: DONE captures milestone-closeout before metadata persistence; done-effects stages store.storyDirRel() and merges story/B-3a4d to main before worktree removal; regression B-done-closeout-worktree reads proofbound.milestone_closeout.v1 from canonical main after cleanup; missing-ledger capture still skips after readMilestoneLedger only and writes nothing, so no false closeout is fabricated.",
+      "createdAt": "2026-07-05T02:37:45.418Z",
+      "reviewRound": "2026-07-05T02:34:49.688Z",
+      "reviewRunId": "B-3a4d:RR-001",
+      "_hash": "1e335299d705a608c00553d4e34e0f03dda9e46c1b41b9c4b0738da70c2e06af"
     }
   ]
 }
