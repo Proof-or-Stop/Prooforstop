@@ -1,0 +1,60 @@
+{
+  "storyId": "B-fe25",
+  "checkedAt": "2026-07-05T03:09:22.413Z",
+  "headHash": "d214dd5b2bbe7613bc9ad05e35e84679a7696613",
+  "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+  "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+  "reviewRound": "2026-07-05T02:47:01.933Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "The M2 section documents provider-free readiness artifacts only and says they do not call providers, contain ablation results, unlock product gates, or change runtime guidance.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg forbidden-claim scan, node checker",
+      "evidence": "Diff adds M2 Launch Readiness section with local-only checker. rg found no true execution/outcome/proof flags in JSON/docs; checker passed 1105 assertions and 21 negative controls."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "Status table reports M0/M1 complete, M2 launch readiness prepared, formal execution not started, cell 3 pending, cell 6 blocked, M3-M6 pending, and no H-M1/H-M3/model-agnostic unlock.",
+      "status": "verified",
+      "verifiedBy": "sed transcript, rg claim scan, checker status assertions",
+      "evidence": "m2-status boundary states providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, productGateImpact=none; only PROVEN/unlocked scan hit is negative wording."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-launch-readiness.json",
+      "promise": "Launch readiness records static readiness only and keeps provider execution, Phase 1/2 campaigns, formal Phase 1 use, provider calls, and proof claims disabled.",
+      "status": "verified",
+      "verifiedBy": "jq artifact scan and node checker",
+      "evidence": "authorizationBoundary false for providerExecutionAuthorized, phase1CampaignAuthorized, phase2CampaignAuthorized, formalPhase1UseAllowed, providerCallEnabled; claimBoundary false for hM1Proven, hM3Proven, modelAgnosticPaperClaimUnlocked."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/task-inventory.m2.json, phase1-runner-manifest.m2.json, phase1-launch-readiness.m2.json, model-snapshot-lock.m2.json",
+      "promise": "M2 binds 24 read-only task directories, distinct E1/E2 provider-family declarations, required cells 3/6/2 with optional 4, preserves M1 seed/cell lineage, and keeps cell 6 blocked until real cell 3 budget-lock evidence exists.",
+      "status": "verified",
+      "verifiedBy": "jq, git diff name scan, node checker",
+      "evidence": "taskCount=24; recovery task directory diff is empty; provider calls/result eligibility false; cell 6 executionAllowed and sequencingSatisfied false; checker reread M1 seed/cell artifacts and rejected drift controls."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004 m2-launch-readiness-check",
+      "transcript": "Ran node experiments/multi-model-ablation/m2-launch-readiness-check.mjs in /Users/jek/Documents/Work/proofbound/.worktrees/B-fe25. Output: M2 launch readiness checker passed: 1105 assertions; 21 negative controls rejected; M2 provider-free launch readiness artifacts passed local checks; Negative controls rejected as expected."
+    },
+    {
+      "featureId": "B-fe25 lattice validate evidence",
+      "transcript": "Verified .lattice/story/actives/B-fe25/test-evidence.json: command lattice validate --story=B-fe25 --json status PASS at 2026-07-05T03:04:33.612Z, verificationCoverage total=12 required=12 covered=12 missingRequired=0."
+    },
+    {
+      "featureId": "B-fe25 DONE-required evidence",
+      "transcript": "Verified .lattice/story/actives/B-fe25/done-required-evidence.json: status PASS ended 2026-07-05T03:05:29.393Z; receipts show packages/main build PASS and root full test suite npm test PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS. Reverse-scanned main...HEAD business diff and Lattice evidence; provider-free M2 readiness delivered, local checker rerun passed, validate and DONE-required evidence are passing, and no delivery blockers remain."
+  },
+  "_hash": "923ea618ba6af08264554c9b7cfe93b79a40b4f974e7554831b47c6606e4153a"
+}
