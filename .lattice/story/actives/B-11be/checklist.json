@@ -29,7 +29,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The status table shows M2-provider authorization metadata as Done, with m2-provider-execution-authorization.json recording USD 0.00 provider budget and cell 03 as the next separately budgeted step.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "m2-provider-execution-authorization.json exists and records human approval, USD 0.00 provider budget cap, metadata-only scope, and cell 03 as the next formal step.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authorization artifact keeps providerCallEnabled=false, formalPhase1UseAllowed=false, and containsOutcomeData=false for B-11be.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Authorization artifact does not treat host labels as provider model snapshots and does not unblock cell 06.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
