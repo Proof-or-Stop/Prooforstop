@@ -42,7 +42,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The launch plan orders M2 launch authorization, cell 03 calibration, real budget-lock freeze, and cell 06 sequencing.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The plan explicitly states the launch layer has no outcome data and does not prove H-M1 or H-M3.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The plan rejects host-label-only snapshots, provider fallback, duplicate cell-key ambiguity, and A2prime before a real cell-03-derived budget lock.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -88,7 +126,47 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+          "result": "pass",
+          "note": "The launch artifact lists the required authorization fields and keeps cell 03 planning-only until human approval, snapshots, runner metadata, and budget caps are present.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "The checker asserts each required authorization field remains missing/blocking in the disabled launch state and provider execution cannot be enabled without all required metadata.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject Codex CLI, Claude Code CLI, and other host-label-only snapshots as executor/reviewer snapshot evidence.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -136,7 +214,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "The checker passes locally and prints nextPermittedFormalStep=cell-03-calibration.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "The checker prints cell-06-a2prime-blocked and asserts cell 06 remains blocked until a real cell-03-derived budget lock exists.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "The checker rejects accidental authorization, provider-call enabled runner, host-label snapshots, provider fallback, cell 06 unblocked state, false budget lock, and accidental outcome data.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -185,7 +304,47 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs && node experiments/multi-model-ablation/m1-freeze-check.mjs && node experiments/multi-model-ablation/m2-launch-readiness-check.mjs && node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "All four local checks passed; m2-status.md records the latest local validation and the disabled-by-default launch state.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "command": "git show --stat --name-only HEAD",
+          "result": "pass",
+          "note": "The material commit 101c5314 touched only the five declared multi-model ablation files and did not touch unrelated Tier-C/NAV files.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "result": "pass",
+          "note": "The status table keeps formal M2 execution NOT STARTED and says no H-M1/H-M3 claim, no model-agnostic unlock, and no product gate impact exists.",
+          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
+          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
+          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
+          "timestamp": "2026-07-05T12:04:52.447Z"
+        }
+      ]
     }
   ]
 }
