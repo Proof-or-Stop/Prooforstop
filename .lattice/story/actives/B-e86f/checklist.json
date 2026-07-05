@@ -75,10 +75,10 @@
           "command": "git cat-file blob HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | shasum -a 256; shasum -a 256 /private/tmp/claude-501/-Users-jek-Documents-CDR3/b0a01b07-dd7a-40ba-a0fe-163497230a65/scratchpad/pos-plan-rev3-backup.md",
           "result": "pass",
           "note": "Committed blob sha256 = 1f853b0ba354a941dae84512f104bd68d2c72524ff79513de72fe7a3e47e9fa8 == pre-commit reviewed rev 3 backup digest (recorded by the implementer BEFORE commit, step 1 of its transcript; commit 7cdb75165d0c4494228e5a5e8e2c4711dddb54ab). Byte-identical => verbatim-in-substance.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -86,10 +86,10 @@
           "command": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -cE '^## '; git show HEAD:... | grep -cE '^### 6\\.'",
           "result": "pass",
           "note": "12 top-level '## ' sections (1..12) + 5 subsections 6.1-6.5 = 17 headers, all present in the committed blob; matches the intent's structural-completeness count exactly.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -97,10 +97,10 @@
           "command": "git diff main...HEAD --name-only -- ':(exclude).lattice'; git diff main...HEAD --name-only | grep -E '\\.(ts|js|mjs)$|^experiments/|package\\.json'; git show HEAD --stat",
           "result": "pass",
           "note": "Excluding .lattice/ story bookkeeping (CLI auto-commits lifecycle metadata on every story branch; not deliverable content and governed separately by the scope-boundary gate), the diff vs main is exactly one path: the plan md. Code-leak greps (.ts/.js/.mjs, experiments/, package.json) all empty. The CHK-001 commit itself (git show HEAD --stat) touches exactly 1 file, 383 insertions. Doc-only confirmed per the intent's WHY (no code or non-doc artifacts leak).",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -108,10 +108,10 @@
           "command": "git show HEAD:...plan.md | grep -n 'Status: DRAFT rev 3'; | grep -n 'Revision provenance: rev 2 resolved 21 surviving findings'",
           "result": "pass",
           "note": "L3 'Status: DRAFT rev 3 (authored 2026-07-05; operator-approved...' and L6 'Revision provenance: rev 2 resolved 21 surviving findings...' both present — rev identity confirmed, not an older revision.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -119,10 +119,10 @@
           "command": "git show HEAD:...plan.md | grep -n 'seed-swap'",
           "result": "pass",
           "note": "Exactly 2 hits: L8 (rev provenance: 'the seed-swap tamper class was a no-op' — historical correction record) and L190 (viability-check explanation: 'the rev-1 seed-swap class failed exactly this check and was dropped'). The section 6.1 frozen class list does NOT contain seed-swap; the cross-file class is cross-PROFILE swap. No no-op class in the matrix.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -130,10 +130,10 @@
           "command": "git show HEAD:...plan.md | grep -c 'content-inert'; | grep -n 'contentInert: true'",
           "result": "pass",
           "note": "content-inert appears 3 times (rev provenance L9-area, section 5 reuse inventory instrument-fact, section 6.1 seed annotation) and the machine annotation 'contentInert: true' is at L182 in the protocol.json spec. Seed inertness documented at all touchpoints.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -141,10 +141,10 @@
           "command": "git show HEAD:...plan.md | grep -n 'never outcome-judging'; | grep -n 'no model'",
           "result": "pass",
           "note": "L272 section 6.5 header contains the exact phrase 'never outcome-judging'; L274 body states 'The OUTCOME judge is deterministic code (analyze-batch.mjs); no model — Claude or Codex — ever judges a hypothesis.' Cross-vendor fairness rule intact as the operator decided.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -152,10 +152,10 @@
           "command": "git show HEAD:...plan.md | grep -n 'recordDigest field absent (preimage frozen in protocol.json)'; | grep -n 'accidental'; | grep -n 'signing is Tier-C, out of scope'",
           "result": "pass",
           "note": "L241-242 define recordDigest = sha256 of canonical JSON with the recordDigest field absent, preimage frozen in protocol.json. L107-110 (section 3) scope ledger self-digests to 'accidental corruption and naive edits only' with cryptographic signing deferred to Tier-C; L245 (section 6.2) repeats 'signing is Tier-C, out of scope'. No ledger-integrity overclaim.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -163,10 +163,10 @@
           "command": "git show HEAD:...plan.md | grep -n 'Not-evaluable trigger'; | grep -n 'supported / falsified'; | grep -n 'all four'",
           "result": "pass",
           "note": "L123 section 4 table has the 'Not-evaluable trigger' column with exactly three verdict states (L118-119 'supported / falsified / not-evaluable'); L121 'the section 3 claim requires all four SUPPORTED verbatim' and L352 section 10 'Allowed if all four hypotheses are SUPPORTED'; L382 section 12 repeats three-state in the final-summary DoD. Three-state discipline end-to-end.",
-          "headHash": "7cdb75165d0c4494228e5a5e8e2c4711dddb54ab",
-          "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7",
-          "storyFilesHash": "ce66252783db93550dd921b4640a52ed2b709fbabbc6790dff16fa0ee180426a",
-          "timestamp": "2026-07-05T12:58:54.419Z"
+          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
+          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
+          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
+          "timestamp": "2026-07-05T13:57:00.528Z"
         }
       ]
     }
