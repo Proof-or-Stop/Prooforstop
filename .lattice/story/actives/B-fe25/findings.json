@@ -5,7 +5,7 @@
       "desc": "M2 runner readiness does not bind deterministic seed lineage or mechanically compare the M2 phase1 runner manifest to the frozen M1 seed/cell contract. CHK-002 requires required Phase 1 cells ③/⑥/② with deterministic seed linkage, but phase1-runner-manifest.m2.json only records counts/cell families and task ids, while the M1 seed policy derives seeds from protocolDigest|cellNumber|taskSlot|scenarioSlot|repeatSlot. The M2 checker validates counts and required cell presence, but it does not read seed-manifest.m1.json or cell-matrix.m1.json, does not bind taskId/ordinal back to M1 taskSlot ids, and does not assert each M2 cell mirrors the frozen M1 arm/executor/reviewer/row semantics. A future provider-execution story could therefore consume a passing M2 readiness layer with ambiguous or drifted seed/cell linkage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T02:40:09.010Z",
@@ -19,7 +19,11 @@
         "experiments/multi-model-ablation/cell-matrix.m1.json"
       ],
       "signatureTag": "missing|json|runner-readiness-bind",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 2c7bc625e914f5e0c404cbfe729e0cd60f5b49ea. M2 now binds seed-manifest.m1.json and cell-matrix.m1.json, maps each concrete task to task-slot-01..24, and m2-launch-readiness-check mechanically validates M1 protocolDigest, seed derivation policy, dimensions, cell semantics, A2prime gate, planned counts, and task-slot mapping. Verified with node experiments/multi-model-ablation/m2-launch-readiness-check.mjs (1105 assertions, 21 negative controls), node experiments/multi-model-ablation/m1-freeze-check.mjs, and lattice scope_contract_check --storyId=B-fe25.",
+      "resolvedAt": "2026-07-05T02:47:21.282Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
