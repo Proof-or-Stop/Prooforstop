@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-b550:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff reviewed: three docs-only changes (NAV.md +1 line, plan.md Status column planned->reviewed-pass variants, new milestone-ledger-status-review-findings.md). No concept word was deleted, renamed, or replaced in this diff - the plan.md edit is a status-value update (planned -> reviewed-pass/corrected/caveat) on an existing column, not a concept removal, and the findings.md file is new additive prose. Confirmed via git diff main...HEAD --stat that no packages/main/src or packages/main/tests files changed, matching the scope contract explicitExcludes. No concept-cleanup residue to grep for; no blocker.",
+      "createdAt": "2026-07-05T14:22:25.481Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-001",
+      "_hash": "30cd8174e694d23eaa963157386639405242cdc92cfee25a720dfcff38fd8b57"
+    },
+    {
+      "id": "B-b550:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only diff (NAV.md +1 line, plan.md Status column reviewed->corrections wording, new findings.md 406 lines). No source/test files touched (scope-contract enforce-mode confirms packages/main/src/** and packages/main/tests/** excluded). Checked for dead code, type-safety, I/O-shell isolation, and proof-metadata coverage: not applicable to a docs diff. Focused on internal consistency and unsupported claims per task framing: cross-checked ~8 specific factual claims in the new findings doc against actual source (packages/main version 0.3.159 matches package.json; confirmMilestoneLedger has no confirmedLedgerHash re-check as claimed; currentMilestoneStatusEvidenceBinding does call git rev-parse/ls-tree probes as claimed; run-all-smokes.discoverSmokes only globs dist/tasks/*-smoke.js so milestone-status.test.mjs is correctly reported as not wired in; no test:* npm script names milestone-status; doneGateMode enforce-gating in proofstory.ts:1387/1442 matches the corrected claim; milestone_status command-policy reason string omits Authority while milestone_closeout includes it, matching the M6 correction; zero duplicate-row hits in proofstory-intent-hardening-smoke.ts matching the withdrawal claim). All sampled claims were accurate and appropriately hedged (corrections/caveats), no unsupported or overclaiming prose found. Minor cosmetic-only wording variance between plan.md status column (reviewed-pass) and findings.md verdict labels (executed-pass) but both map consistently to the same pass+correction-tag outcomes for every milestone -- not a substantive inconsistency, not filed as a finding. No blocking issues.",
+      "createdAt": "2026-07-05T14:23:15.393Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-002",
+      "_hash": "6b4363fe744bcf533ab505d5a74f0d5191306c4fd7acb8c8d70c3027973e2bed"
+    },
+    {
+      "id": "B-b550:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Symbol-set from git diff main...HEAD contains no material code symbols (docs-only diff limited to .lattice metadata + 3 markdown files). Applied Fallback 1: full-text scan of the two touchpoint docs (findings.md 406 lines, plan.md 273 lines) + NAV.md diff. Cross-checked every concrete source-symbol claim in the findings report against packages/main/src: assertMilestoneStatusReadOnlyBoundary allowed-key set (storyId/format/json) matches handlers/milestone-status.ts; command-policy.ts PLAN-only allowedPhases for milestone_ledger_set/add and readOnly classification for milestone_status/milestone_closeout match; milestone_status reason string omits Authority while milestone_closeout reason string includes remote Authority readiness (matches M6 correction); addMilestoneToLedger resets state to candidate and clears acceptedIntentBinding; confirmMilestoneLedger does not re-check confirmedLedgerHash===ledgerHash (matches M2 hardening note); blocking = mode===enforce && gaps.length>0 exists verbatim at proofstory.ts:1387/1442 with default doneGateMode observe (config.ts); not_applicable rows are enum-validated only and short-circuit both the uncovered-milestone check (proofstory.ts:1358) and completed-progress grouping (milestone-status.ts:539), matching M4 caveat; run-all-smokes.ts discoverSmokes globs dist/tasks/*-smoke.js while milestone-status.test.mjs lives under packages/main/tests and is not npm-scripted, matching the M5 suite-wiring claim; zero grep hits for duplicat* in proofstory-intent-hardening-smoke.ts confirming the withdrawn coverage claim; renderMilestoneStatusReport emits literal Mode: read-only with zero Authority/production tokens elsewhere in milestone-status.ts, matching the M6 no-disclaimer-string claim; captureMilestoneCloseoutSnapshotFromStore is co-located in handlers/milestone-status.ts and only invoked from handlers/transition-orchestrator.ts guarded by phase===DONE. Also verified package.json version 0.3.159 matches the doc worktree-source citation; plan.md Status column has zero remaining planned markers (all reviewed-pass variants matching findings.md per-milestone verdicts); NAV.md diff adds exactly one line for the new findings doc, correctly placed adjacent to the existing plan-doc entry. No inconsistencies found between docs and code, and no inconsistency between plan.md Status columns and findings.md verdicts.",
+      "createdAt": "2026-07-05T14:24:17.740Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-004",
+      "_hash": "8a2415523ba9b440ff7e12e46d4822bb276506814a3eb7f27ced007f20d93fe3"
+    },
+    {
+      "id": "B-b550:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 44/44 verificationIntent refs across CHK-001..CHK-008 have concrete, literal verificationEvidence (docs_check/manual_transcript/logic_test), all result=pass, zero uncovered, zero waivers; spot-checked evidence commands against docs/requirements/decisions/milestone-ledger-status-review-findings.md and .lattice evidence artifacts, confirmed substantive (not generic) coverage; no blocker.",
+      "createdAt": "2026-07-05T14:25:29.585Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-006",
+      "_hash": "b691535a241c6c7da83626372477a846303b87a58f34df508cf64a6c3b732bf9"
+    },
+    {
+      "id": "B-b550:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after DEV->REVIEW restart: full diff vs main and vs prior clean pass (HEAD~1) inspected. Only new content since the prior pass is .lattice/story/actives/B-b550/parent-ledger-rollup.json plus its scope-contract acknowledgement entry (routine ProofStory self-coverage rollup, no code). No source, test, or documentation content changed in this round. Full-diff sweep vs main found no mass concept deletion or rename: docs changes are new-file additions (findings report) and status-label transitions (planned -> reviewed-pass) in the plan doc; .lattice diff is routine lifecycle scaffolding (pending/INIT_CHECK placeholders overwritten as story progressed). No concept words removed; nothing to grep for residue. No blocker.",
+      "createdAt": "2026-07-05T15:08:21.386Z",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "reviewRunId": "B-b550:RR-007",
+      "_hash": "115ab8718fa567abd67252ede651e87c1cda03378403ce6d899db02f552d40ca"
+    },
+    {
+      "id": "B-b550:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after DEV->REVIEW restart. Delta since prior clean pass is .lattice/story/actives/B-b550/parent-ledger-rollup.json plus its scope-contract acknowledgement only; the two docs (plan doc + new findings report + NAV entry) are byte-identical to the previously reviewed commit e90d08349. Checked: dead code / unused imports (none — no TS/JS touched, packages/main/** excluded by scope-contract), type safety / empty catch (n/a, docs+metadata only), I/O shell isolation (n/a), proof-metadata dual-authoring rule (n/a — no job/run/proof metadata semantics touched). Verified parent-ledger-rollup.json is CLI-authored (parent_ledger_rollup_set handler in packages/main/src/handlers/proofstory.ts, not hand-edited) and its ledgerHash (sha256:7e6ee013...) matches the confirmed milestone-ledger.json ledgerHash exactly; scope-contract.json acknowledgement correctly lists this file with matching headHash/materialHash. Working tree clean, no unstaged drift. No unsupported claims found in the docs (prior pass already verified corrections/caveats against source with concrete grep/version evidence). No findings.",
+      "createdAt": "2026-07-05T15:08:37.872Z",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "reviewRunId": "B-b550:RR-008",
+      "_hash": "501aa6f8ff807c5619619b952da27deded6be51330e7a8889d5f9a9115670fea"
+    },
+    {
+      "id": "B-b550:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-07-05T15:10:35.039Z",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "reviewRunId": "B-b550:RR-011",
+      "_hash": "5f8116eaa48959bdb3ed7805e2f4a352d4c9900b93482ee97a0e724360df0767"
+    },
+    {
+      "id": "B-b550:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 diff (main...HEAD) is exactly commit 00dc09329: a docs-only wording sync in milestone-ledger-status-review-and-hardening-plan.md, changing the M1 summary-row and M1.d/M1.f sub-row status label from reviewed-pass (corrected) to reviewed-pass (clarified), to match the findings docs existing M1 verdict executed-pass (clarified) (confirmed at line 99 of milestone-ledger-status-review-findings.md). No concept was deleted, renamed, or replaced en masse; corrected/clarified/caveat are pre-existing sibling status-qualifier terms already used elsewhere in the same table (M0/M3/M6/M7 keep corrected, M4 keeps caveat), so no repo-wide grep cleanup is applicable. Scope contract explicitly excludes packages/main/src/** and packages/main/tests/**, and the diff touches only the plan doc (allowedModify), consistent with the docs-only chore scope. No blocker.",
+      "createdAt": "2026-07-05T15:15:53.797Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-012",
+      "_hash": "144a43490b33a716593bd48034b186c419003135483865b456bc92a730b883bd"
+    },
+    {
+      "id": "B-b550:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Third round, quality lane. Diff since last clean pass is scoped to commit 00dc09329 only: a 6-line doc-only edit in docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md that fixes prior finding F-001 by changing the M1 milestone-summary rollup status from reviewed-pass to reviewed-pass (clarified), matching its own M1.d/M1.f sub-rows and the findings-doc M1 Verdict line (executed-pass (clarified)), consistent with the M0/M3/M5/M6 rollup pattern. No source/test code touched; git diff main...HEAD --name-only confirms zero files under packages/main/** or any code path. No dead code, no as any/empty-catch, no I/O shell isolation concerns, and no proof/receipt/provider/run/job metadata semantics in scope. Quality lane finds no blockers.",
+      "createdAt": "2026-07-05T15:16:02.194Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-013",
+      "_hash": "0f7b955d42594a1b956bb3acee90cd9c9e009d50682cd71bfb34b7d7691aaa20"
+    },
+    {
+      "id": "B-b550:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 doc-code drift check. Verified fix for F-001: plan doc M1 summary row + M1.d + M1.f sub-rows now all read reviewed-pass (clarified), consistent with each other and with findings.md M1 Verdict executed-pass (clarified). F-001 CONFIRMED RESOLVED. Cross-checked all other milestone rollups (M0,M2-M7) in the plan summary table against their own sub-objective rows and against findings.md per-milestone Verdict lines: M0 (corrected) has no matching sub-row tag, but this is structurally consistent -- findings.md M0 has no per-sub-objective outcome table (prose-only), the correction is a whole-milestone version-note (0.3.160->0.3.159), and the prior round F-001 text itself already evaluated and accepted this exact M0 pattern as consistent (cited as a comparison baseline). M2 (plain reviewed-pass in both plan+subs) vs findings hardening note is consistent since hardening note is not a status-label qualifier used elsewhere. M3/M4/M5/M6 all have inline-tagged sub-rows (M3.e, M4.c, M5.c/e/f, M6.d) matching their rollup qualifier and findings Verdict. M7 rollup plain reviewed-pass vs findings executed-pass-with-corrections is fine since M7 subs are meta/process items not correction-carrying claims themselves. Re-verified doc-code claims still hold against current source: command-policy.ts PLAN-only restriction for milestone_ledger_set/add, milestone_status/closeout readOnly ownershipClass, assertMilestoneStatusReadOnlyBoundary key allowlist, evidence-freshness.ts read-only git subprocess calls (rev-parse/status/ls-tree) via currentMilestoneStatusEvidenceBinding, confirmMilestoneLedger not re-asserting hash at confirm time, not_applicable enum + skip-in-check at proofstory.ts:1358, duplicat* zero-hits in proofstory-intent-hardening-smoke.ts, milestone-status.test.mjs correctly excluded from run-all-smokes dist/tasks/*-smoke.js glob and package.json test scripts, and NAV.md linking both docs. Version drift to 0.3.161 in current package.json is unrelated chore auto-bump churn from main, not a story-introduced drift. No new inconsistency found; no blocker.",
+      "createdAt": "2026-07-05T15:17:29.834Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-014",
+      "_hash": "c0cc381a474cfb1b6a5d5b2f7d35ea64ed3b9590b753136862d748e0f83ee9c0"
+    }
+  ]
+}

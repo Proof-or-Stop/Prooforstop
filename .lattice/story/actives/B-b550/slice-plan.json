@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-b550",
+  "ledgerHash": "sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724",
+  "slices": [
+    {
+      "id": "slice-1",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "reason": "Fact-finding half of the review: source inventory plus the three boundary/policy audits (read-only status, write contract, missing-ledger policy) plus schema adequacy; executed first in strict M0-M4 order within this story."
+    },
+    {
+      "id": "slice-2",
+      "milestoneIds": [
+        "M5",
+        "M6",
+        "M7"
+      ],
+      "reason": "Synthesis half of the review: test/negative-control mapping, capability impact bounds, and the closing outcome decision; depends on slice-1 facts and closes the review within this same story."
+    }
+  ],
+  "planHash": "sha256:cb805ccd1da8cdc977d6f222fa2894c522c78a81b5259ed4184afb2cff2e4772",
+  "createdAt": "2026-07-05T12:24:45.538Z",
+  "updatedAt": "2026-07-05T12:24:45.538Z"
+}

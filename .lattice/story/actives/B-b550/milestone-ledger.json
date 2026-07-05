@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-b550",
+  "state": "confirmed",
+  "ledgerHash": "sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "M0",
+      "claim": "Review scope and source inventory recorded",
+      "doneMeans": "Findings report contains a trusted source map: canonical root confirmation, command-surface inventory, doc inventory, test inventory, stale-doc register.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "M1",
+      "claim": "Read-only status boundary verified or gaps filed",
+      "doneMeans": "Findings report M1 section records boundary finding or pass for milestone_status argument boundary, missing-ledger non-write, no launches, no evidence writes, no DONE claims.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "M2",
+      "claim": "Ledger write contract verified or gaps filed",
+      "doneMeans": "Findings report M2 section records write-surface finding or pass covering phase policy, ownership, hash and candidate/confirmed behavior, overwrite safety.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "M3",
+      "claim": "Missing-ledger policy verified across story classes",
+      "doneMeans": "Findings report M3 section records the missing-state matrix for ordinary, triggered, candidate, and confirmed cases with DEV/REVIEW/DONE behavior.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "M4",
+      "claim": "Schema adequacy for honest progress reporting decided",
+      "doneMeans": "Findings report M4 section records schema adequacy finding covering required fields, binding refs, status values, parent/child support, prose-claim resistance.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "M5",
+      "claim": "Test and negative-control coverage mapped",
+      "doneMeans": "Findings report M5 section maps existing tests to M5.a-M5.e and lists missing negative controls as findings.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "M6",
+      "claim": "Agent capability impact bounded without overclaim",
+      "doneMeans": "Findings report M6 section confirms capability claims (progress, admission safety, handoff) stop short of lifecycle DONE or Authority claims.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "M7",
+      "claim": "Review outcome and next story decision recorded",
+      "doneMeans": "Findings report closure section summarizes pass/finding outcomes, records the implementation decision, and plan doc statuses plus NAV are updated.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:edge:0",
+        "CHK-008:edge:1",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T12:18:26.959Z",
+  "updatedAt": "2026-07-05T12:24:35.863Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705121840",
+    "acceptedInterpretationHash": "sha256:e43dc30cce0df653b848a8a154a7d4f74161c0b42edcb9a0365785569b6c1680",
+    "acceptedAt": "2026-07-05T12:24:35.863Z"
+  }
+}

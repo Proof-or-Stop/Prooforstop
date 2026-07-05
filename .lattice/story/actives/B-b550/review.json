@@ -1,0 +1,336 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-05T12:23:15.034Z",
+      "issueCount": 30,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 checklist items; please check for missing combined scenarios (e.g., what happens when M0: Review scope and source inventory recorded + M1: Read-only status boundary review completed are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M0 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M0, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M1 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M1, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M1 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M2 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M2, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M2 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M3 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M3, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M3 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M4 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M4, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M4 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M5 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M5, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M5 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M6 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M6, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M6 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M7 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M7, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M7 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "too_broad: Milestone ledger has 8 row(s), above the 5 row threshold for high_assurance. Record a complete slice-plan.json or assignedStory fields before enforce-mode DEV admission; suggested slicing groups are diagnostic only and no child stories are created automatically. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        }
+      ],
+      "_hash": "f920250b314e4fc2c385ef265e47c096e0e426fd73c181074575d012ee979ca3"
+    },
+    {
+      "timestamp": "2026-07-05T12:23:29.420Z",
+      "issueCount": 30,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 checklist items; please check for missing combined scenarios (e.g., what happens when M0: Review scope and source inventory recorded + M1: Read-only status boundary review completed are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M0 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M0, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M1 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M1, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M1 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M2 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M2, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M2 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M3 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M3, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M3 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M4 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M4, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M4 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M5 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M5, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M5 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M6 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M6, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M6 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_source_requirement_unbound: M7 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M7, which is not in original intent keyRequirementIds. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M7 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "too_broad: Milestone ledger has 8 row(s), above the 5 row threshold for high_assurance. Record a complete slice-plan.json or assignedStory fields before enforce-mode DEV admission; suggested slicing groups are diagnostic only and no child stories are created automatically. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        }
+      ],
+      "_hash": "13c48b47771dbf8e4cb8253642b160136ff71df4438c76df477c4aef8c19d894"
+    }
+  ]
+}

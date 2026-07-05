@@ -4,65 +4,892 @@
       "id": "CHK-001",
       "title": "M0: Review scope and source inventory recorded",
       "context": "Plan M0.a-M0.e: confirm the canonical Proofbound root via lattice session_brief; inventory milestone ledger/status command surfaces via rg; inventory source docs and existing tests/smokes; record stale or retired-root documents that must not drive implementation truth. Output: trusted source map section in the findings report.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T12:27:43.117Z",
+      "endTime": "2026-07-05T14:16:25.535Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M0 or Source Inventory section in milestone-ledger-status-review-findings.md -> section exists with at least one source file ref; WHY: confirms the inventory was actually recorded",
+            "type": "cli"
+          },
+          {
+            "desc": "rg session_brief or canonical root in findings report -> confirms canonical Proofbound root was verified not retired Orchestrate root; WHY: M0.a requires root confirmation",
+            "type": "cli"
+          },
+          {
+            "desc": "rg milestone_ledger_set|milestone_ledger_add|milestone_status|milestone_closeout in findings report -> all 5 command surfaces inventoried; WHY: M0.b requires complete surface inventory",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg stale|retired in findings report M0 section -> stale/retired-root docs explicitly called out or marked not-applicable; WHY: M0.e requires recording stale docs that must not drive implementation truth",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Check findings report M0 section does not reference any path under the retired Orchestrate root /Users/jek/Documents/Work/Orchestrate as authoritative -> no retired-root path treated as truth; WHY: prevents stale-root contamination of the audit",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M0. Source Inventory' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 Source Inventory section present with the authoritative implementation source refs",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'session_brief|canonical' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 records the canonical worktree root via session_brief; retired Orchestrate root excluded as truth",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'milestone_ledger_set|milestone_ledger_add|milestone_status|milestone_closeout' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "All five milestone command surfaces inventoried in M0",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'stale|retired' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 stale/retired-root note: no Orchestrate path treated as authoritative",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'Orchestrate' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 references Orchestrate only negatively (not authoritative); no positive authoritative citation to the retired root",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "M1: Read-only status boundary review completed",
       "context": "Plan M1.a-M1.f: check allowed argument keys for milestone_status; verify unexpected keys fail before story reads; verify missing ledger produces a report not a write; verify status output launches no commands or reviewers, writes no evidence or lifecycle facts, and never claims DONE or production readiness. Output: boundary finding or pass.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:26.786Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npx lattice milestone_status --storyId=B-b550 -> output contains Mode: read-only and produces status table without errors; WHY: confirms milestone_status is a functioning read-only observer",
+            "type": "cli"
+          },
+          {
+            "desc": "rg for ## M1 or Read-Only Boundary section in findings report -> section exists with finding-or-pass verdict for each M1.a-M1.f sub-objective; WHY: confirms the boundary review was completed and recorded",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run npx lattice milestone_status with an unexpected key e.g. --writeEvidence=true -> CLI rejects with an error before any story read; WHY: M1.b verifies unexpected keys are rejected early",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m1-unexpected-key-rejection.txt exists under .lattice/story/actives/B-b550/evidence/ and contains rejection output; WHY: confirms live CLI probe evidence was captured for the rejection boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg for DONE|production.ready|Authority in milestone_status output from evidence files -> status output never claims DONE or production readiness; WHY: M1.f verifies no overclaim in status output",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m1-mutation-flag-rejection.txt exists and shows z.never mutation flag was rejected; WHY: confirms the never-mutate safety boundary was probed and holds",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice milestone_status --storyId=B-b550",
+          "result": "pass",
+          "note": "Live milestone_status renders Mode: read-only status table with no error",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M1. Read-Only Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M1 section records pass per M1.a-M1.f plus the read-only git-subprocess clarification",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+          "command": "lattice milestone_status --storyId=B-b550 --writeEvidence=true",
+          "result": "pass",
+          "note": "Unknown key rejected before any story read; pass = the expected rejection occurred (see evidence artifact)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+          "command": "cat .lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+          "result": "pass",
+          "note": "Evidence artifact exists and contains the unexpected-key rejection output",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'DONE|production|authority' status-output",
+          "result": "pass",
+          "note": "Status render output makes no DONE/production/Authority claim (verified against render strings; M6 correction records the absence of an explicit disclaimer)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt",
+          "command": "cat .lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt",
+          "result": "pass",
+          "note": "Evidence artifact shows the mutation flag was rejected (never-mutate boundary)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "M2: Ledger write contract review completed",
       "context": "Plan M2.a-M2.f: review milestone_ledger_set and milestone_ledger_add lifecycle phase policy and ownership classification; review ledger hash and candidate/confirmed state behavior; review whether direct writes can accidentally become confirmed gate evidence or silently overwrite existing rows unsafely. Output: write-surface finding or pass.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:28.021Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M2 or Write Contract section in findings report -> section exists with finding-or-pass verdict covering M2.a-M2.f; WHY: confirms the write contract review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg lifecycle.phase.policy|phase.gate|DEV|PLAN in findings report M2 section -> lifecycle phase restrictions for ledger_set and ledger_add are documented; WHY: M2.a/M2.b require phase policy review",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg candidate|confirmed in findings report M2 section -> candidate vs confirmed state behavior documented; WHY: M2.d requires review of ledger hash and state transitions",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m2-confirmed-binding.txt exists and documents the confirmed-binding behavior; WHY: confirms live evidence of the confirmed state behavior was captured",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg for accidental.*confirm|silently.*overwrite|gate.evidence in findings report M2 section -> report explicitly addresses whether writes can accidentally become confirmed gate evidence or silently overwrite; WHY: M2.e/M2.f are the adversarial safety boundaries of the write contract",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M2 section does not contain pass verdict without addressing all 6 sub-objectives M2.a-M2.f -> no sub-objective silently skipped; WHY: prevents incomplete review from being marked clean",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M2. Ledger Write Contract' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 section covers M2.a-M2.f finding-or-pass plus the confirm-time hash hardening note",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'PLAN' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 documents PLAN-only lifecycle phase policy for milestone_ledger_set and milestone_ledger_add",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'candidate|confirmed' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 documents candidate vs confirmed hash-bound state behavior (M2.d)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt",
+          "command": "cat .lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt",
+          "result": "pass",
+          "note": "Evidence artifact documents live confirmed-binding behavior for this story's ledger",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'accidental|silently|gate evidence' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 explicitly addresses whether direct writes can accidentally become confirmed gate evidence (M2.e) — they cannot",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "review M2 sub-objective table covers M2.a-M2.f",
+          "result": "pass",
+          "note": "M2 sub-objective table addresses all six M2.a-M2.f; none silently skipped",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "M3: Missing-ledger policy review completed",
       "context": "Plan M3.a-M3.f: review ordinary single-outcome story behavior with no ledger; review structural/semantic milestone trigger behavior; review candidate versus confirmed requirements; review DEV admission and REVIEW/DONE behavior for missing or stale milestone facts; verify missing-ledger next actions are specific and non-mutating. Output: missing-state matrix.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:29.171Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M3 or Missing-Ledger Policy section in findings report -> section exists with a missing-state matrix or equivalent structured breakdown; WHY: confirms the policy review produced the required output artifact",
+            "type": "cli"
+          },
+          {
+            "desc": "rg ordinary|single.outcome in findings report M3 section -> ordinary single-outcome story behavior without a ledger is explicitly reviewed; WHY: M3.a requires confirmation that ordinary stories are not retroactively broken",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg DEV.admission|REVIEW|DONE in findings report M3 section -> lifecycle phase behavior for missing/stale milestone facts is documented; WHY: M3.d/M3.e require review of phase-specific gating behavior",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m3-dev-admission-enforce-block.txt exists and shows DEV admission enforcement behavior; WHY: confirms live CLI probe of the missing-ledger gate was captured",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg non.mutating|specific|next.action in findings report M3 section -> missing-ledger next actions are verified as specific and non-mutating; WHY: M3.f prevents status reports from recommending mutation as a fix for missing state",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M3 section addresses candidate vs confirmed requirements separately -> not collapsed into a single verdict; WHY: M3.c requires distinguishing candidate from confirmed which have different safety implications",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M3. Missing-Ledger Policy' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M3 section present with the missing-state matrix",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'ordinary|single-outcome' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M3 reviews ordinary single-outcome story behavior with no ledger (M3.a)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'DEV|REVIEW|DONE' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M3 documents DEV/REVIEW/DONE behavior including the doneGateMode=enforce correction (M3.d/M3.e)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt",
+          "command": "cat .lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt",
+          "result": "pass",
+          "note": "Evidence artifact shows DEV-admission enforcement behavior for missing required ledger",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'non-mutating|specific|next action' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M3 verifies the missing-ledger next action is specific and non-mutating (M3.f)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "review M3 matrix candidate vs confirmed rows",
+          "result": "pass",
+          "note": "M3 addresses candidate vs confirmed requirements as separate matrix rows, not collapsed into one verdict (M3.c)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "M4: Schema and progress-model review completed",
       "context": "Plan M4.a-M4.f: review required milestone fields (id, source requirement, claim, doneMeans, required evidence); review checklist and verification-intent binding fields; review status values for progress tables; review parent/assigned-child story support; check prose-only text cannot produce hidden milestone claims; identify schema additions needed. Output: schema adequacy finding.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:30.330Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M4 or Schema.Adequacy section in findings report -> section exists with finding-or-pass verdict; WHY: confirms the schema review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg id|source.requirement|claim|doneMeans|required.evidence in findings report M4 section -> required milestone fields are reviewed; WHY: M4.a requires review of all required fields",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg parent|child|assigned in findings report M4 section -> parent/assigned-child story support is addressed; WHY: M4.d requires review of multi-story milestone relationships",
+            "type": "cli"
+          },
+          {
+            "desc": "rg prose.only|hidden.*claim|sub.objective in findings report M4 section -> prose-only text producing hidden claims is explicitly addressed; WHY: M4.e prevents text-only content from creating false milestone claims",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg schema.addition|addition.needed|future in findings report M4 section -> schema gaps or sufficiency is explicitly decided not left ambiguous; WHY: M4.f requires an explicit finding-or-pass for schema additions, not silence",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M4. Schema And Progress Model' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M4 Schema section present with adequacy verdict",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'doneMeans|required.evidence|sourceRequirement' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M4 reviews required MilestoneLedgerItem fields id/sourceRequirementId/claim/doneMeans/requiredEvidence (M4.a)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'parent|child|assigned' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M4 addresses parent/assigned-child story support (M4.d)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'prose|hidden|sub-objective' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M4.e: prose-only text cannot mint hidden milestone claims; rows come only from explicit ledger commands",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'schema|addition|future|caveat' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M4.f: schema sufficiency explicitly decided (no addition required) plus the not_applicable self-exemption caveat; not left ambiguous",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "M5: Test and negative-control review completed",
       "context": "Plan M5.a-M5.f: find tests for milestone_status read-only behavior, missing-ledger reports, ledger set/add/get schema, milestone-triggered missing-ledger gates, and proof that milestone status cannot satisfy DONE by itself; record missing negative controls as review findings. Output: test-gap list.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:31.527Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M5 or Test.*Coverage|Negative.Control section in findings report -> section exists with a test-gap list or explicit pass; WHY: confirms the test review was completed and produced the required output",
+            "type": "cli"
+          },
+          {
+            "desc": "rg read.only|milestone_status.*test in findings report M5 section -> tests for read-only behavior are listed or gaps are recorded; WHY: M5.a requires finding tests for the read-only boundary",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg missing.ledger.*test|missing.*negative.control in findings report M5 section -> missing-ledger report tests are found or gaps are recorded as findings; WHY: M5.b/M5.d require test coverage for missing-ledger surfaces",
+            "type": "cli"
+          },
+          {
+            "desc": "rg DONE.*test|cannot.satisfy.DONE in findings report M5 section -> tests proving milestone status cannot satisfy DONE by itself are found or gap is recorded; WHY: M5.e is the critical negative-control check",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg negative.control|missing.*test|test.gap in findings report M5 section -> any missing negative controls are explicitly recorded as findings not silently omitted; WHY: M5.f requires recording gaps as concrete follow-ups not sweeping them under the rug",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M5. Test Coverage And Negative Controls' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M5 section present with the corrected coverage map and the recorded test-gap list",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'read-only|milestone_status' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M5.a: read-only status tests listed (milestone-status.test.mjs)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'missing-ledger|negative control' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M5.b/M5.d: missing-ledger report tests found; missing negative controls recorded as gaps",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'DONE|cannot' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M5.e: closeout tests prove milestone status cannot satisfy DONE by itself (stale-report conjunct corrected)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'test-gap|negative control|withdrew' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M5.f: missing negative controls (duplicate/empty/stale/suite-wiring) recorded as explicit follow-up findings, not omitted",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
       "title": "M6: Agent capability impact review completed",
       "context": "Plan M6.a-M6.d: confirm structured milestone rows improve progress reporting, missing-ledger gates improve unattended execution safety, ledger refs improve host handoff continuity, and capability claims stop short of lifecycle DONE or Authority claims. Output: capability claim boundary.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:32.826Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M6 or Capability.Impact section in findings report -> section exists with capability claim boundary documented; WHY: confirms the capability impact review was completed",
+            "type": "cli"
+          },
+          {
+            "desc": "rg progress.reporting|structured.milestone in findings report M6 section -> M6.a confirms structured rows improve progress reporting; WHY: the primary capability value must be documented",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg handoff|host.handoff|restart.continuity in findings report M6 section -> ledger refs improving host handoff is addressed; WHY: M6.c requires confirmation of handoff value",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg DONE|Authority|production.readiness|overclaim in findings report M6 section -> capability claims explicitly stop short of lifecycle DONE or Authority claims; WHY: M6.d is the overclaim boundary and the most important adversarial check for this milestone",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M6 section does not use phrases like replaces lifecycle_check or replaces review assurance or replaces DONE gate -> no overclaim language present; WHY: plan non-goals explicitly prohibit claiming milestone status replaces lifecycle gates",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M6. Capability Impact Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M6 section present with the bounded capability-claim boundary and the disclaimer/Authority-silence correction",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'progress reporting|structured milestone' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M6.a: structured milestone rows improve progress reporting",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'handoff|restart' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M6.c: ledger refs improve host handoff and restart continuity",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'DONE|Authority|production' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M6.d: capability stops short of DONE/Authority/production; correction notes the missing output disclaimer and Authority-silence",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "review M6 uses no 'replaces lifecycle_check/review/DONE gate' overclaim phrasing",
+          "result": "pass",
+          "note": "M6 uses only negations (does not replace); no overclaim phrasing that milestone status replaces any lifecycle/review/DONE gate",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
       "title": "M7: Review outcome recorded and next story decided",
       "context": "Plan M7.a-M7.d: summarize all pass/finding outcomes; decide whether implementation work is needed; if gaps exist draft a narrow follow-up story scope, otherwise mark documentation-only completion; update the plan document milestone statuses from planned to reviewed outcomes. Output: findings report closure section.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T14:16:34.034Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M7 or Review.Outcome|Outcome.*Decision section in findings report -> closure section exists with explicit summary of all pass/finding outcomes; WHY: M7.a requires the summary",
+            "type": "cli"
+          },
+          {
+            "desc": "Check plan document milestone-ledger-status-review-and-hardening-plan.md Status column -> all M0-M7 statuses updated from planned to reviewed outcomes; WHY: M7.d requires plan-doc status updates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg follow.up|implementation.story|story.scope in findings report M7 section -> if gaps were found a narrow follow-up story scope is drafted, or if no gaps exist documentation-only completion is marked; WHY: M7.b/M7.c/M7.d require an explicit decision not ambiguity",
+            "type": "cli"
+          },
+          {
+            "desc": "rg NAV.md or check NAV.md file -> findings report entry added to NAV.md; WHY: story description requires a NAV.md entry as a deliverable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Check findings report closure section does not mark clean pass while any M0-M6 sections contain unresolved findings -> pass verdict is consistent with milestone findings; WHY: prevents a clean-pass claim that contradicts the body of the report",
+            "type": "logic"
+          },
+          {
+            "desc": "Check plan document Status column has no milestone still showing planned after the review is complete -> no milestone silently left in planned status; WHY: prevents the review from appearing complete while milestones are actually unreviewed",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M7. Review Outcome And Decision' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M7 closure section summarizes all M0-M6 pass/finding outcomes in a closure table",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "command": "rg -n 'reviewed-pass' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "result": "pass",
+          "note": "M7.d: plan Status columns updated planned -> reviewed outcomes for all M0-M7",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -ni 'follow-up|story scope' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M7.b/M7.c: a bounded follow-up hardening story scope is drafted (gaps found)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n 'milestone-ledger-status-review-findings' docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV.md entry for the findings report added",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "review closure: executed-pass-with-corrections not clean pass",
+          "result": "pass",
+          "note": "Closure marks executed-pass-with-corrections; every M0-M6 correction is resolved in-report or deferred to the M7 follow-up — no unresolved finding contradicts the verdict",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "command": "rg -n '\\| planned \\|' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md (expect zero matches)",
+          "result": "pass",
+          "note": "No milestone left showing planned in the plan Status column (0 planned remain)",
+          "headHash": "c5773b989b88ae561f833966878c42eebf11af26",
+          "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+          "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+          "timestamp": "2026-07-05T15:22:10.728Z"
+        }
+      ]
     }
   ]
 }

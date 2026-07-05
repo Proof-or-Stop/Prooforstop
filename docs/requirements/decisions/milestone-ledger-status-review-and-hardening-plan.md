@@ -1,6 +1,6 @@
 # Milestone Ledger Status Review And Hardening Plan
 
-Status: document review plan
+Status: executed (see milestone-ledger-status-review-findings.md)
 Created: 2026-07-05
 Short name: Milestone Ledger Status Review
 Primary review target: ProofStory milestone ledger and read-only milestone status
@@ -79,14 +79,14 @@ This review plan has 8 milestones and 43 sub-objectives.
 
 | Milestone | Title | Sub-objectives | Status | Output |
 |---|---|---:|---|---|
-| M0 | Review scope and source inventory | 5 | planned | trusted source map |
-| M1 | Read-only status boundary review | 6 | planned | boundary finding or pass |
-| M2 | Ledger write contract review | 6 | planned | write-surface finding or pass |
-| M3 | Missing-ledger policy review | 6 | planned | missing-state matrix |
-| M4 | Schema and progress-model review | 6 | planned | schema adequacy finding |
-| M5 | Test and negative-control review | 6 | planned | test-gap list |
-| M6 | Agent capability impact review | 4 | planned | capability claim boundary |
-| M7 | Review outcome and next story decision | 4 | planned | pass/findings/follow-up story |
+| M0 | Review scope and source inventory | 5 | reviewed-pass (corrected) | trusted source map |
+| M1 | Read-only status boundary review | 6 | reviewed-pass (clarified) | boundary finding or pass |
+| M2 | Ledger write contract review | 6 | reviewed-pass | write-surface finding or pass |
+| M3 | Missing-ledger policy review | 6 | reviewed-pass (corrected) | missing-state matrix |
+| M4 | Schema and progress-model review | 6 | reviewed-pass (caveat) | schema adequacy finding |
+| M5 | Test and negative-control review | 6 | reviewed-pass (corrected) | test-gap list |
+| M6 | Agent capability impact review | 4 | reviewed-pass (corrected) | capability claim boundary |
+| M7 | Review outcome and next story decision | 4 | reviewed-pass | pass/findings/follow-up story |
 
 ## M0. Review Scope And Source Inventory
 
@@ -96,11 +96,11 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M0.a | Confirm this review uses the canonical Proofbound root, not the retired Orchestrate root. | planned | `lattice session_brief` output |
-| M0.b | Inventory command surfaces for milestone ledger and status. | planned | `rg` transcript |
-| M0.c | Inventory source docs that define ProofStory milestone behavior. | planned | doc refs |
-| M0.d | Inventory existing tests or smokes covering milestone ledger/status. | planned | test refs |
-| M0.e | Record any stale or retired-root documents that should not drive implementation truth. | planned | review note |
+| M0.a | Confirm this review uses the canonical Proofbound root, not the retired Orchestrate root. | reviewed-pass | `lattice session_brief` output |
+| M0.b | Inventory command surfaces for milestone ledger and status. | reviewed-pass | `rg` transcript |
+| M0.c | Inventory source docs that define ProofStory milestone behavior. | reviewed-pass | doc refs |
+| M0.d | Inventory existing tests or smokes covering milestone ledger/status. | reviewed-pass | test refs |
+| M0.e | Record any stale or retired-root documents that should not drive implementation truth. | reviewed-pass | review note |
 
 Acceptance:
 
@@ -115,12 +115,12 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M1.a | Check allowed argument keys for `milestone_status`. | planned | source review |
-| M1.b | Verify unexpected keys fail before story reads. | planned | negative test or source proof |
-| M1.c | Verify missing ledger produces a report, not a write. | planned | smoke or source proof |
-| M1.d | Verify status output does not launch commands or reviewers. | planned | source review |
-| M1.e | Verify status output does not write evidence, summaries, review passes, or lifecycle facts. | planned | source review |
-| M1.f | Verify status output does not claim DONE or production readiness. | planned | output review |
+| M1.a | Check allowed argument keys for `milestone_status`. | reviewed-pass | source review |
+| M1.b | Verify unexpected keys fail before story reads. | reviewed-pass | negative test or source proof |
+| M1.c | Verify missing ledger produces a report, not a write. | reviewed-pass | smoke or source proof |
+| M1.d | Verify status output does not launch commands or reviewers. | reviewed-pass (clarified) | source review |
+| M1.e | Verify status output does not write evidence, summaries, review passes, or lifecycle facts. | reviewed-pass | source review |
+| M1.f | Verify status output does not claim DONE or production readiness. | reviewed-pass (clarified) | output review |
 
 Acceptance:
 
@@ -134,12 +134,12 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M2.a | Review `milestone_ledger_set` lifecycle phase policy. | planned | command policy |
-| M2.b | Review `milestone_ledger_add` lifecycle phase policy. | planned | command policy |
-| M2.c | Review ownership classification for ledger writes. | planned | command policy |
-| M2.d | Review ledger hash and candidate/confirmed state behavior. | planned | source review |
-| M2.e | Review whether direct writes can accidentally become confirmed gate evidence. | planned | source review |
-| M2.f | Review whether existing rows can be silently overwritten in unsafe ways. | planned | negative test or finding |
+| M2.a | Review `milestone_ledger_set` lifecycle phase policy. | reviewed-pass | command policy |
+| M2.b | Review `milestone_ledger_add` lifecycle phase policy. | reviewed-pass | command policy |
+| M2.c | Review ownership classification for ledger writes. | reviewed-pass | command policy |
+| M2.d | Review ledger hash and candidate/confirmed state behavior. | reviewed-pass | source review |
+| M2.e | Review whether direct writes can accidentally become confirmed gate evidence. | reviewed-pass | source review |
+| M2.f | Review whether existing rows can be silently overwritten in unsafe ways. | reviewed-pass | negative test or finding |
 
 Acceptance:
 
@@ -154,12 +154,12 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M3.a | Review ordinary single-outcome story behavior when no milestone ledger exists. | planned | fixture or source proof |
-| M3.b | Review structural or semantic milestone trigger behavior. | planned | ProofStory diagnostics |
-| M3.c | Review candidate versus confirmed ledger requirements. | planned | source review |
-| M3.d | Review DEV admission behavior for missing required ledgers. | planned | gate/source review |
-| M3.e | Review REVIEW/DONE behavior for incomplete or stale milestone facts. | planned | gate/source review |
-| M3.f | Verify missing-ledger next actions are specific and non-mutating in status output. | planned | output snapshot |
+| M3.a | Review ordinary single-outcome story behavior when no milestone ledger exists. | reviewed-pass | fixture or source proof |
+| M3.b | Review structural or semantic milestone trigger behavior. | reviewed-pass | ProofStory diagnostics |
+| M3.c | Review candidate versus confirmed ledger requirements. | reviewed-pass | source review |
+| M3.d | Review DEV admission behavior for missing required ledgers. | reviewed-pass | gate/source review |
+| M3.e | Review REVIEW/DONE behavior for incomplete or stale milestone facts. | reviewed-pass (corrected) | gate/source review |
+| M3.f | Verify missing-ledger next actions are specific and non-mutating in status output. | reviewed-pass | output snapshot |
 
 Acceptance:
 
@@ -174,12 +174,12 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M4.a | Review required milestone fields: id, source requirement, claim, doneMeans, required evidence. | planned | type/source review |
-| M4.b | Review checklist and verification-intent binding fields. | planned | type/source review |
-| M4.c | Review status values and whether they are sufficient for progress tables. | planned | source review |
-| M4.d | Review parent and assigned-child story support. | planned | source review |
-| M4.e | Check that prose-only text cannot produce hidden detailed milestone claims. | planned | doc/source review |
-| M4.f | Identify any schema additions needed for future grouped status reports. | planned | finding or pass |
+| M4.a | Review required milestone fields: id, source requirement, claim, doneMeans, required evidence. | reviewed-pass | type/source review |
+| M4.b | Review checklist and verification-intent binding fields. | reviewed-pass | type/source review |
+| M4.c | Review status values and whether they are sufficient for progress tables. | reviewed-pass (caveat) | source review |
+| M4.d | Review parent and assigned-child story support. | reviewed-pass | source review |
+| M4.e | Check that prose-only text cannot produce hidden detailed milestone claims. | reviewed-pass | doc/source review |
+| M4.f | Identify any schema additions needed for future grouped status reports. | reviewed-pass | finding or pass |
 
 Acceptance:
 
@@ -193,12 +193,12 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M5.a | Find tests for `milestone_status` read-only behavior. | planned | test refs |
-| M5.b | Find tests for missing-ledger status reports. | planned | test refs |
-| M5.c | Find tests for ledger set/add/get schema behavior. | planned | test refs |
-| M5.d | Find tests for milestone-triggered missing-ledger gates. | planned | test refs |
-| M5.e | Find tests proving milestone status cannot satisfy DONE by itself. | planned | test refs |
-| M5.f | Record any missing negative controls as review findings. | planned | finding list |
+| M5.a | Find tests for `milestone_status` read-only behavior. | reviewed-pass | test refs |
+| M5.b | Find tests for missing-ledger status reports. | reviewed-pass | test refs |
+| M5.c | Find tests for ledger set/add/get schema behavior. | reviewed-pass (corrected) | test refs |
+| M5.d | Find tests for milestone-triggered missing-ledger gates. | reviewed-pass | test refs |
+| M5.e | Find tests proving milestone status cannot satisfy DONE by itself. | reviewed-pass (corrected) | test refs |
+| M5.f | Record any missing negative controls as review findings. | reviewed-pass (corrected) | finding list |
 
 Acceptance:
 
@@ -213,10 +213,10 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M6.a | Confirm structured milestone rows improve progress reporting. | planned | doc review |
-| M6.b | Confirm missing-ledger gates improve unattended execution safety. | planned | doc/source review |
-| M6.c | Confirm ledger refs improve host handoff and restart continuity. | planned | doc review |
-| M6.d | Confirm capability claims stop short of lifecycle DONE or Authority claims. | planned | doc review |
+| M6.a | Confirm structured milestone rows improve progress reporting. | reviewed-pass | doc review |
+| M6.b | Confirm missing-ledger gates improve unattended execution safety. | reviewed-pass | doc/source review |
+| M6.c | Confirm ledger refs improve host handoff and restart continuity. | reviewed-pass | doc review |
+| M6.d | Confirm capability claims stop short of lifecycle DONE or Authority claims. | reviewed-pass (corrected) | doc review |
 
 Acceptance:
 
@@ -231,10 +231,10 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M7.a | Summarize all pass/finding outcomes. | planned | review summary |
-| M7.b | Decide whether implementation work is needed or current implementation is sufficient. | planned | decision note |
-| M7.c | If gaps exist, draft a narrow implementation story scope. | planned | story proposal |
-| M7.d | If no gaps exist, mark the review as documentation-only completion. | planned | closure note |
+| M7.a | Summarize all pass/finding outcomes. | reviewed-pass | review summary |
+| M7.b | Decide whether implementation work is needed or current implementation is sufficient. | reviewed-pass | decision note |
+| M7.c | If gaps exist, draft a narrow implementation story scope. | reviewed-pass | story proposal |
+| M7.d | If no gaps exist, mark the review as documentation-only completion. | reviewed-pass | closure note |
 
 Acceptance:
 

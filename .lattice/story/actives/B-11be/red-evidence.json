@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-11be",
+  "records": [
+    {
+      "id": "RED-20260705144656",
+      "trigger": "M2 provider execution authorization metadata is absent, so future agents cannot distinguish a reviewed metadata-only authorization boundary from accidental providerExecutionAuthorized=true.",
+      "acceptanceTargetRef": "REQ-M2-PROVIDER-AUTH-METADATA",
+      "baselineHeadHash": "0e9bb4949013a2701069cfea380a237380bf0344",
+      "baselineMaterialHash": "1b7cfaef0cac92cc1170611bbf53436edc619e5796fb0d8a8a18c3f5e4538899",
+      "observedFailure": "Baseline has no experiments/multi-model-ablation/m2-provider-execution-authorization.json artifact, while the existing launch checker only validates the disabled state. There is no auditable metadata-only authorization boundary with USD 0.00 budget cap.",
+      "failingCommand": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+      "expectedGreenCommand": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json && node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-M2-PROVIDER-AUTH-METADATA",
+        "relation": "same_acceptance",
+        "command": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json && node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "This red evidence is local-only and spends no provider budget. It proves the missing artifact before the fix; green requires the artifact plus checker pass.",
+      "createdAt": "2026-07-05T14:46:56.373Z"
+    },
+    {
+      "id": "RED-B11BE-AUTH-MISSING",
+      "trigger": "M2 provider execution authorization metadata is absent, so future agents cannot distinguish a reviewed metadata-only authorization boundary from accidental providerExecutionAuthorized=true.",
+      "acceptanceTargetRef": "ACCEPT-M2-PROVIDER-AUTH",
+      "baselineHeadHash": "0e9bb4949013a2701069cfea380a237380bf0344",
+      "baselineMaterialHash": "1b7cfaef0cac92cc1170611bbf53436edc619e5796fb0d8a8a18c3f5e4538899",
+      "observedFailure": "Baseline has no experiments/multi-model-ablation/m2-provider-execution-authorization.json artifact, while the existing launch checker only validates the disabled state. There is no auditable metadata-only authorization boundary with USD 0.00 budget cap.",
+      "failingCommand": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+      "expectedGreenCommand": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json && node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "ACCEPT-M2-PROVIDER-AUTH",
+        "relation": "same_acceptance",
+        "command": "test -f experiments/multi-model-ablation/m2-provider-execution-authorization.json && node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "Replacement red evidence target matches the ProofStory acceptance binding. Local-only; no provider budget spent.",
+      "createdAt": "2026-07-05T14:47:55.260Z"
+    }
+  ],
+  "createdAt": "2026-07-05T14:46:56.373Z",
+  "updatedAt": "2026-07-05T14:47:55.260Z"
+}

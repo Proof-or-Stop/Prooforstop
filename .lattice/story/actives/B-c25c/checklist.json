@@ -1,0 +1,255 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0 red/status: prove Cell 03 launch is blocked before this story",
+      "context": "Capture the current checker/status evidence that Cell 03 is planning-only and required launch metadata is absent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Baseline checker identifies Cell 03 as next but not execution-authorized.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cell 06 remains blocked in the same baseline.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host labels and missing budget cannot clear the launch gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1 add Cell 03 launch authorization artifact",
+      "context": "Create a structured Cell 03-only launch authorization packet that requires exact human-approved amount, currency, and approval source for any nonzero budget cap, plus dated snapshots, prompt/tool digests, runner ownership, duplicate policy, and an explicit no-provider-call boundary when exact budget approval is absent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Cell 03 launch metadata is complete and traceable to this story, and budget approval is either exactly bound to human-approved amount/currency/source or explicitly marked absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authorization applies only to Cell 03 E2 A4 same-family calibration.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The artifact does not invent spend approval and does not authorize Cell 06, result rows, provider fallback, or model/paper claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2 harden checker and negative controls",
+      "context": "Extend local checker coverage to accept the Cell 03 launch authorization guardrail while rejecting host-label snapshots, zero or invented budget approval, missing digests, duplicate runner ownership, provider fallback, outcome rows, and premature Cell 06 unblocking.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker reports Cell 03 launch guardrail status and Cell 06 blocked.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Optional Cell 04 and Cell 02 remain outside this story.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Injected malformed authorizations, including invented or unbound budget caps, fail closed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3 update milestone/status docs",
+      "context": "Update README, M2 status, and provider execution plan so future agents know what is done, what remains blocked, and that no provider calls or outcome rows were produced.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/README.md",
+          "experiments/multi-model-ablation/m2-status.md",
+          "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Status ledger distinguishes Done, In Progress, Pending, and Blocked states.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation states Cell 03 authorization is not outcome evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply H-M1/H-M3, model-agnostic claims, or runtime/product gate changes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4 run local validation only",
+      "context": "Run the M2 checker and relevant local tests without invoking provider APIs or creating result rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Local checker passes and prints the expected Cell 03/Cell 06 status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "records-multi-model-ablation.jsonl remains absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation fails if provider outcome data appears.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5 complete Lattice review, validate, and DONE",
+      "context": "Move through review, validate, summary, delivery check, and DONE merge without touching unrelated Tier-C active work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Story reaches DONE with signed validation evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unrelated dirty Tier-C docs remain untouched.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE does not claim provider execution or outcome rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

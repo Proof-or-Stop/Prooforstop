@@ -1,0 +1,79 @@
+{
+  "storyId": "B-b550",
+  "checkedAt": "2026-07-05T15:47:51.621Z",
+  "headHash": "ec1ed96a9d5d7c16a1e23fae931add89ea982d97",
+  "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+  "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+  "reviewRound": "2026-07-05T15:14:23.740Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "promise": "New findings report recording M0-M7 verdicts, an independent takeover-audit that corrects several original claims, and a proposed bounded M7 follow-up hardening story scope.",
+      "verifiedBy": "diff/grep + source read",
+      "evidence": "File present in diff (406 lines). Contains all 8 milestone sections M0-M7, each with a Verdict line and per-milestone Correction/caveat/hardening-note paragraph. M7 contains an explicit 6-item follow-up scope titled Harden ProofStory milestone status/ledger observability boundary, marked NOT created by this review. Independently re-verified 7 load-bearing claims against current source (not trusting the doc): (1) evidence-freshness.ts calls execFileSync git rev-parse/status --porcelain/ls-tree only (read-only), confirming the M1 subprocess-clarification; (2) captureMilestoneCloseoutSnapshotFromStore is called only inside transition-orchestrator.ts under a phase === DONE guard, never from milestone_status/milestone_closeout handlers, confirming the M1 boundary-intact claim; (3) command-policy.ts lines 406-408 confirm milestone_ledger_set/add allowedPhases:[PLAN] and milestone_ledger_get is readOnly, confirming M2; (4) proofstory.ts lines 1387 and 1442 both read blocking = mode === enforce && gaps.length > 0, confirming the M3 correction that strict-DONE is conditional not unconditional; (5) grep -ic duplicat over proofstory-intent-hardening-smoke.ts returns 0, confirming the M5 withdrawn duplicate-row coverage claim; (6) Authority appears in command-policy.ts only inside the milestone_closeout reason string, never inside milestone_status's, confirming the M6 correction; (7) VALID_MILESTONE_STATUSES enum plus a status-skip guard in proofstory.ts confirms the M4 caveat about the not_applicable self-exemption."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "promise": "Status columns updated from planned to reviewed outcomes; 0 planned remaining; M1 status label made internally consistent as reviewed-pass (clarified) across the milestone-summary rollup row and its M1.d/M1.f sub-rows (fix for finding F-001).",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep -c on the current worktree file for the planned status cell pattern returns 0. git diff main...HEAD shows every M0-M7 rollup Status cell changed from planned to reviewed-pass or a qualified variant; top Status line changed to executed (see milestone-ledger-status-review-findings.md). Commit 00dc09329 (isolated diff inspected via git show) changes exactly 6 lines: the M1 rollup row and M1.d/M1.f sub-rows, unifying them to reviewed-pass (clarified), matching findings.md's M1 Verdict line verbatim. Confirmed live in the current file: M1 rollup and M1.d/M1.f sub-rows all read reviewed-pass (clarified)."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "One new entry linking the findings report.",
+      "verifiedBy": "diff/stat",
+      "evidence": "git diff main...HEAD --stat reports exactly 1 insertion in docs/requirements/NAV.md. The added line links decisions/milestone-ledger-status-review-findings.md, placed adjacent to the existing plan-doc NAV entry."
+    },
+    {
+      "docPath": "scope-contract.json (implicit promise: no source/test code changed)",
+      "promise": "Document-review-only story; packages/main/src/** and packages/main/tests/** stay untouched (scope-contract mode=enforce, explicitExcludes covers both globs).",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only lists only the 3 docs files plus .lattice story metadata for B-b550; zero matches under packages/main/src or packages/main/tests. scope-contract.json mode=enforce, allowedModify/allowedCreate match exactly the 3 touched docs files, explicitExcludes lists both source and test globs."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "M0 source-inventory: doc section presence and content verified via rg against the findings report; checklist item carries 5 verificationEvidence bindings (docs_check kind) covering session_brief canonical-root wording, all 5 command surfaces enumerated, and the stale/retired-root callout. Pure docs-review item; no application code produced.",
+      "waiverReason": "Doc-only deliverable (source-inventory section); scope-contract forbids touching packages/main/src or tests, so there is no application code path to unit-test for this item."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "M1 read-only boundary: independently re-verified against source (not just the doc) that core/milestone-status.ts hard-codes the read-only mode flags, command-policy.ts classifies milestone_status/milestone_closeout as readOnly all-phase destructiveRisk none, and the closeout-snapshot write function is reachable only from the DONE transition guard, never the status/closeout handlers. Live evidence files under .lattice/story/actives/B-b550/evidence/ contain real CLI rejection transcripts for unrecognized keys. 6 verificationEvidence bindings."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "M2 ledger write contract: independently confirmed command-policy.ts lines 406-407 restrict milestone_ledger_set/add to PLAN-only; the m2-confirmed-binding evidence file shows a real ledger confirmed state plus hash plus intent-collision binding captured live during this story. 6 verificationEvidence bindings."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "M3 missing-ledger policy: independently confirmed the enforce-mode blocking condition at both cited line numbers in proofstory.ts (conditional, not unconditional, strict-DONE gate). The m3-dev-admission-enforce-block evidence file contains a real gate-check enforce-mode block transcript with 18 diagnostic gaps, dogfooding the milestone gate under review. 6 verificationEvidence bindings."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "M4 schema review is a doc/type-review checklist item with no executable test target; independently confirmed the MilestoneLedgerItem field set in types.ts, and confirmed the not_applicable caveat via the status enum plus its skip in the uncovered-milestone check. 5 verificationEvidence bindings.",
+      "waiverReason": "Type/schema review item verified by reading source field definitions and enum/skip logic, not by an executable test; no code changed by this story."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "M5 test-gap review: independently confirmed zero duplicate-row-handling hits in the intent-hardening smoke source (withdrawn coverage claim is honest); confirmed the milestone-status test file sits under packages/main/tests/ as a .mjs file not discovered by the aggregate smoke runner's glob, matching the suite-wiring-gap claim. 5 verificationEvidence bindings."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "M6 capability-impact boundary: independently confirmed Authority appears only in milestone_closeout's command-policy reason string, never in milestone_status's, matching the precise M6 correction; confirmed the rendered status/closeout output carries mode strings only, with no explicit DONE/Authority/production disclaimer, matching the caveat that absence-of-overclaim is not the same as an affirmative disclaimer. 5 verificationEvidence bindings.",
+      "waiverReason": "Render-string and command-policy-string review; no executable assertion target beyond source grep, which was independently re-run in this delivery review."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "M7 review outcome: closure table cross-checked against every milestone's own Verdict line and correction note for consistency; confirmed the implementation decision (no code change; safety boundary sufficient) matches the actual diff (zero packages/main/src or tests files touched) and confirmed the 6-item follow-up story scope is proposed only, not created as a new story in this diff. 6 verificationEvidence bindings."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified directly against current source and diff, not merely against the story doc text; 7 specific load-bearing claims (read-only git subprocesses, DONE-only closeout-write guard, PLAN-only ledger writes, conditional enforce-mode gate at 2 exact line numbers, zero duplicate-row hits, Authority-string asymmetry, not_applicable enum-skip) were independently re-derived from source and all matched the doc verbatim. The one prior-round finding F-001 (M1 rollup and sub-row label inconsistency) is confirmed fixed live in the current file (all rows now read the same clarified label). F-002 (stale 44 verificationEvidence bindings after that fix) is confirmed fixed live via test-evidence.json PASS with the current materialHash, and checklist item evidence counts sum to exactly 44. Both F-001 and F-002 remain formally status=open in findings.json because no finding_resolve call was made; this is a process-hygiene gap the main agent should close, but it does not change the material delivery verdict since the underlying broken conditions are demonstrably fixed on disk. No unresolved TODO/FIXME/HACK in the diff (docs-only, no code). Scope honored: zero packages/main/src or packages/main/tests files in the diff."
+  },
+  "_hash": "590dc2c95b34da156cb4d8bbd8c8e49445d4c2625e2fa982ee0359be5fb342ad"
+}

@@ -1,0 +1,634 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-b550:RR-001",
+      "storyId": "B-b550",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:22:14.698Z",
+      "headHash": "5fb0fa94e2b15ee75b9dea4abfda56543c4a9221",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "5fb0fa94e2b15ee75b9dea4abfda56543c4a9221",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "22d656a47fae41ed6b50fd5ab840481638dc35a67e997326b4b38412e0f80c81"
+      },
+      "_hash": "7d84c64be40001ba90df4b484ed8559732e7fe0507a693426f452b57f2f43e18"
+    },
+    {
+      "reviewRunId": "B-b550:RR-002",
+      "storyId": "B-b550",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:23:03.573Z",
+      "headHash": "3cf09390087e230712ac060c893a1221c7d43194",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "3cf09390087e230712ac060c893a1221c7d43194",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "e1b5967b3bb1809d441a0a94c6766a2d7793b002a78ad69f08ae55b6e6ab153f"
+      },
+      "_hash": "4a0c4da8445d8bcaba7e8d0fd1081c022e7986ec8a627f014b6c868cfc3ca2dc"
+    },
+    {
+      "reviewRunId": "B-b550:RR-003",
+      "storyId": "B-b550",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:23:47.192Z",
+      "headHash": "81b07cea03d44e31512238154c67f4d1172fc81c",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "81b07cea03d44e31512238154c67f4d1172fc81c",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "0cda08a453d8f52d537b47f9295a0a6ac34b37d7c100057d5c6e443a7e3dd564"
+      },
+      "_hash": "573fd2c718836d1bc39e9c94e7fb1b23358926d8f190e7fab8e7437a6442a4bd"
+    },
+    {
+      "reviewRunId": "B-b550:RR-004",
+      "storyId": "B-b550",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:24:05.538Z",
+      "headHash": "81b07cea03d44e31512238154c67f4d1172fc81c",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "81b07cea03d44e31512238154c67f4d1172fc81c",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "0cda08a453d8f52d537b47f9295a0a6ac34b37d7c100057d5c6e443a7e3dd564"
+      },
+      "_hash": "c93798505126793a5a043a71ac58f50948fe1fd36302b170cbeb109f93701140"
+    },
+    {
+      "reviewRunId": "B-b550:RR-005",
+      "storyId": "B-b550",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:25:14.209Z",
+      "headHash": "c0873e2f0baee9d8f346551af3aea2a2bde76824",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "c0873e2f0baee9d8f346551af3aea2a2bde76824",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "dce2ddf1792509d7d9a82e93385d18d30ae5a82644287b1ce4fd7187b0f2be5f"
+      },
+      "_hash": "9250a7b240dab53122ff1300fcccf239e09376e429e29972bb57f12139bd67b5"
+    },
+    {
+      "reviewRunId": "B-b550:RR-006",
+      "storyId": "B-b550",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "startedAt": "2026-07-05T14:25:22.548Z",
+      "headHash": "c0873e2f0baee9d8f346551af3aea2a2bde76824",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "c0873e2f0baee9d8f346551af3aea2a2bde76824",
+        "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "dce2ddf1792509d7d9a82e93385d18d30ae5a82644287b1ce4fd7187b0f2be5f"
+      },
+      "_hash": "6d576a6f16ee3c6e25ad7cb2490dc743ae9b0440e9852bcd8917044925bfcf91"
+    },
+    {
+      "reviewRunId": "B-b550:RR-007",
+      "storyId": "B-b550",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "startedAt": "2026-07-05T15:08:13.370Z",
+      "headHash": "7def2a2a4fa14f68bf9b670c8510e8ead8c30354",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "7def2a2a4fa14f68bf9b670c8510e8ead8c30354",
+        "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "121507d9ed61976be6e9c3722c3a08632ff02476c4546e7a62f3cbb5ab080013"
+      },
+      "_hash": "d355b697d15ce2fdb9611a0e3074de3779b3f3c8ebf699009e9769e1aa1cf337"
+    },
+    {
+      "reviewRunId": "B-b550:RR-008",
+      "storyId": "B-b550",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "startedAt": "2026-07-05T15:08:28.314Z",
+      "headHash": "ae1503e8b714303c9bdc90744e0183e8f5376c81",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "ae1503e8b714303c9bdc90744e0183e8f5376c81",
+        "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "69d95600248a817b259b9af87f77d4c5bd335bda10479a017897dc79a2a1c068"
+      },
+      "_hash": "f0344497bad4f210036a344782ae340077150dc07c81a88739b6dfc3e926d35c"
+    },
+    {
+      "reviewRunId": "B-b550:RR-009",
+      "storyId": "B-b550",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "startedAt": "2026-07-05T15:09:34.145Z",
+      "headHash": "5d41f4b9942aae08404bf7d039eb08407727565b",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d41f4b9942aae08404bf7d039eb08407727565b",
+        "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "739602d0e4c3f5371add5949ae17324979674ed68f74e7f074596a41d3b77509"
+      },
+      "_hash": "fd502ed6ae56c114e941464aa9b2c2114578207f8751877843f4c58bd2d6161f"
+    },
+    {
+      "reviewRunId": "B-b550:RR-010",
+      "storyId": "B-b550",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "startedAt": "2026-07-05T15:09:57.261Z",
+      "headHash": "5d41f4b9942aae08404bf7d039eb08407727565b",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d41f4b9942aae08404bf7d039eb08407727565b",
+        "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "739602d0e4c3f5371add5949ae17324979674ed68f74e7f074596a41d3b77509"
+      },
+      "_hash": "e836dc0271abb48c0328dc3f86b7511a01773a2535de4c3dca7a861f4c0eb649"
+    },
+    {
+      "reviewRunId": "B-b550:RR-011",
+      "storyId": "B-b550",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "startedAt": "2026-07-05T15:10:29.203Z",
+      "headHash": "f41735018f0bd90d76b97d05ebf7082d1e2acc46",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+      "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "77d3685cb32b2f9eab7ec2403f9f236532e83dca7a962685888fc7d58074b4ae",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "5b46b5a6b62b0c17a2415b8603af258f223b71d6cd4e27979be79b7f500b2bfc",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "54420552e28936938ad000ffe61baa5bff85ec2c72ef01ff4fe790d791299365"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "f41735018f0bd90d76b97d05ebf7082d1e2acc46",
+        "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0",
+        "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+        "bindingHash": "1ce751bf0a3932b8034327818d366ca5c2ecae3c638c9f9686dd0b060ba98ec2"
+      },
+      "_hash": "748decf31bee4ce23c28cc11580dfd180732338e5077109f534ae1927574d7fb"
+    },
+    {
+      "reviewRunId": "B-b550:RR-012",
+      "storyId": "B-b550",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "startedAt": "2026-07-05T15:15:42.290Z",
+      "headHash": "8a157d87e5d76e2100b6cc335185312ba4bd6747",
+      "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+      "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "11bb88b7846fa0a95aab2828a123c1cb47915ce552aac7f9c8b7066aa6c12d0d",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "3ef84f9b90f975020128d73275dac44bebb3d168b5ae05cf2179eb063925b494",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "b9b99ab72c6a38fa5249de2eb95d4a961dfa069114663026a82005d4a35ae1b8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "8a157d87e5d76e2100b6cc335185312ba4bd6747",
+        "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+        "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+        "bindingHash": "f2fb4774fc66ed250debcdfdb90474265427770b9b4fae4e0ba1290e94fefe41"
+      },
+      "_hash": "7a0c2d3898a35c219bf91bb8d151f701856da738ec5866400fa0933b36685477"
+    },
+    {
+      "reviewRunId": "B-b550:RR-013",
+      "storyId": "B-b550",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "startedAt": "2026-07-05T15:15:45.857Z",
+      "headHash": "8a157d87e5d76e2100b6cc335185312ba4bd6747",
+      "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+      "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "11bb88b7846fa0a95aab2828a123c1cb47915ce552aac7f9c8b7066aa6c12d0d",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "3ef84f9b90f975020128d73275dac44bebb3d168b5ae05cf2179eb063925b494",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "b9b99ab72c6a38fa5249de2eb95d4a961dfa069114663026a82005d4a35ae1b8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "8a157d87e5d76e2100b6cc335185312ba4bd6747",
+        "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+        "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+        "bindingHash": "f2fb4774fc66ed250debcdfdb90474265427770b9b4fae4e0ba1290e94fefe41"
+      },
+      "_hash": "3ced55e83937245d71c5e6b8af915f02a062b87eb31df8bd55a28029da5c5d60"
+    },
+    {
+      "reviewRunId": "B-b550:RR-014",
+      "storyId": "B-b550",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "startedAt": "2026-07-05T15:17:11.953Z",
+      "headHash": "cf9c967c81021023cca3072846a8d9d38a4c9fde",
+      "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+      "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "11bb88b7846fa0a95aab2828a123c1cb47915ce552aac7f9c8b7066aa6c12d0d",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "3ef84f9b90f975020128d73275dac44bebb3d168b5ae05cf2179eb063925b494",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "b9b99ab72c6a38fa5249de2eb95d4a961dfa069114663026a82005d4a35ae1b8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "cf9c967c81021023cca3072846a8d9d38a4c9fde",
+        "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+        "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+        "bindingHash": "9e6e81df2e90261241e1fcaf3648c441e56f6ef867bc4a70849b6265d6b181f6"
+      },
+      "_hash": "ce223f6fee9b3e06c3ccf10edd7d3b26a22f001d048922657f2f4c1fe6964b50"
+    },
+    {
+      "reviewRunId": "B-b550:RR-015",
+      "storyId": "B-b550",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "startedAt": "2026-07-05T15:20:19.729Z",
+      "headHash": "95c7e36eb9903fb63286ec78b460b2779614dd7a",
+      "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+      "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "abcec818eaa7ac88c030286dd2135965d1725e5e245a009a28f4e5fdd9f2aaab",
+        "diffPackHash": "11bb88b7846fa0a95aab2828a123c1cb47915ce552aac7f9c8b7066aa6c12d0d",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "113da0e27c26b33e0c01ba3889a1d50626176e864279fb149a75f116e5b10cdc",
+          "3ef84f9b90f975020128d73275dac44bebb3d168b5ae05cf2179eb063925b494",
+          "72a6dbdbba16cb30ba81076ade1bfebf84c147371f0e115d8f4ce16e1d17e679",
+          "895c3f84da354a46902a9b748225af8eb17eb84446a73cdb6e2a2637707f6568"
+        ],
+        "bindingHash": "b9b99ab72c6a38fa5249de2eb95d4a961dfa069114663026a82005d4a35ae1b8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-b550",
+        "workspaceMode": "story-worktree",
+        "headHash": "95c7e36eb9903fb63286ec78b460b2779614dd7a",
+        "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+        "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6",
+        "bindingHash": "cc32ae30ee0c12c1a812d08202749d37c7c08d5328324f09d8d709dfc2898f81"
+      },
+      "_hash": "2747ff4f6a1bcea570525514fe28050fc290c721936717d02c9ee59292e25716"
+    }
+  ]
+}
