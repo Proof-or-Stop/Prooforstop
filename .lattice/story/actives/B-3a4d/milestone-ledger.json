@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3a4d",
+  "state": "candidate",
+  "ledgerHash": "sha256:802edaec44fe61b694a868d506d37d5c4ef61eade3febd87732d5c2abaf3251c",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-closeout-durable",
+      "claim": "DONE closeout snapshot is persisted through the DONE merge and cleanup boundary.",
+      "doneMeans": "After a real DONE transition, canonical story metadata contains milestone-closeout.json and the story worktree can be removed without losing it.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-canonical-root-regression",
+      "claim": "Regression coverage proves canonical-root milestone_closeout succeeds after DONE cleanup.",
+      "doneMeans": "The focused test fails if closeout is only written in the worktree or deleted during cleanup, and passes only when canonical root can read proofbound.milestone_closeout.v1.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-no-fabricated-closeout",
+      "claim": "Stories without milestone ledgers still do not fabricate closeout snapshots.",
+      "doneMeans": "Missing-ledger DONE stories keep the existing missing/not-applicable diagnostic rather than writing false completed closeout rows.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T02:16:26.817Z",
+  "updatedAt": "2026-07-05T02:16:26.817Z"
+}

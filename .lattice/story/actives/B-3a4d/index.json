@@ -4,7 +4,7 @@
   "title": "Persist milestone closeout snapshots through DONE merge cleanup",
   "description": "B-bfba implemented milestone-closeout snapshots but the real DONE path cleaned the story worktree while main still lacked .lattice/story/actives/B-bfba/milestone-closeout.json. The follow-up fixes the correctness gap so DONE closeout snapshots survive merge/worktree cleanup and are visible from the canonical root after DONE.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "milestone-closeout",
@@ -33,6 +33,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T01:51:31.143Z",
+      "branch": "story/B-3a4d",
+      "user": "Harmonygo",
+      "sessionId": "sess-0c8674e09e4f4ad9",
       "agent": "main"
     }
   ],
