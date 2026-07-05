@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status and milestone_closeout rendered output",
       "context": "packages/main/src/core/milestone-status.ts renderMilestoneStatusReport (~L1146-1187), the missing-ledger report, and the closeout report currently emit only 'Mode: read-only'. Add an explicit disclaimer line stating milestone progress is not lifecycle DONE, not Authority, not production readiness. Closes findings M6 (report lines re: M1.f/M6). Update packages/main/tests/milestone-status.test.mjs to assert the disclaimer string is present.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:51:08.158Z",
       "userSees": "After running `lattice milestone_status --storyId=<id>` (or the milestone_closeout report), the operator sees a new explicit disclaimer line directly under the existing `Mode: read-only` header of every rendered report. Concretely:\n\n- `milestone_status` (populated ledger) header block now reads:\n  `Milestone Status - <id>`\n  `Mode: read-only`\n  `Disclaimer: Milestone progress is not lifecycle DONE, not Authority-signed, and not production readiness.`\n  `Phase: <phase>` ...\n\n- `milestone_status` with a MISSING ledger prints the same `Disclaimer:` line under `Mode: read-only` (progress cannot be inferred, and the report still must not imply DONE/Authority/production).\n\n- `milestone_closeout` snapshot report header now reads:\n  `Milestone Closeout - <id>`\n  `Mode: read-only historical snapshot`\n  `Disclaimer: This is a historical milestone snapshot, not lifecycle DONE, not Authority-signed, and not production readiness.`\n\n- `milestone_closeout` missing-snapshot report prints the same `Disclaimer:` line under `Mode: read-only historical snapshot`.\n\nThe disclaimer text is a stable literal that mentions all three negatives (not lifecycle DONE, not Authority, not production readiness). No table columns, ordering, or other lines change; it is purely an added advisory line, consistent with the read-only/no-write posture of these commands.",
       "files": {
         "modify": [
