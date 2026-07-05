@@ -17,6 +17,24 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-declares",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9051:F-002",
+      "desc": "docs/requirements/NAV.md:3 declares \"> 74 files\", but the current NAV contains 76 markdown links. Because B-9051 touched this counter and added the new decision-doc link, the NAV update remains internally inconsistent even though the new link itself resolves.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T11:06:12.541Z",
+      "reviewRound": "2026-07-05T11:01:44.419Z",
+      "reviewRunId": "B-9051:RR-002",
+      "_hash": "c3d9a44d87d7a223a49d1a9bbd3080becf774892dc3e8db4bd960e49d8d4b8ed",
+      "files": [
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-declares",
+      "signatureTagSource": "auto"
     }
   ]
 }
