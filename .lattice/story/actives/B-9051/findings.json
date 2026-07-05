@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-9051:F-001",
+      "desc": "docs/requirements/NAV.md:3 declares \"> 74 files\", but the file currently contains 76 local markdown links and link verification found 0 broken links. The navigation count is stale/inaccurate; update the count or regenerate NAV so readers can trust the source-of-truth index.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T11:04:37.100Z",
+      "reviewRound": "2026-07-05T11:01:44.419Z",
+      "reviewRunId": "B-9051:RR-001",
+      "_hash": "e5fc1b7651b4f8d35150959237dfee9a960ec108310ae5ffc804bb357388fb30",
+      "files": [
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-declares",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
