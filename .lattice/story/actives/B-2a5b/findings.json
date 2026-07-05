@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-2a5b:F-001",
+      "desc": "proof-or-stop-gap: experiments/pos-instrument-replay/run-batch.mjs:129-142,188 generateBaseline() calls execFileSync(lattice memory_playbook_baseline_generate) and JSON.parse(manifest.json) with NO try/catch, unlike verifyDir() in lib/instrument.mjs:52-80 which explicitly wraps execFileSync failures/unparseable JSON into a {status:crash} sentinel mapped to a verify_crash stop record. If the generate CLI throws or emits a malformed manifest.json, the exception propagates uncaught out of runIteration() (run-batch.mjs:183-250) through the loop finally at line 372 (lock IS released, good) but the process then crashes with a raw stack trace BEFORE reaching the end-of-run recordless guard (lines 376-422), so that iteration produces NO ledger record and is never named by the recordless FAIL message the reviewer prompt and CHK-002 require (driver exits nonzero on any recordless iteration via the clean diagnostic path). protocol.json stopReasonEnum only has budget_cap/verify_crash/precondition_failed/operator_abort — there is no generate-side stop reason, and the execution-plan doc (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md:269-270) does not exempt generate failures from the proof-or-stop contract. Net effect: a generate-side crash is recordless-but-silent (undiagnosed crash) rather than surfaced as a stop record or caught by the clean recordless guard, weakening the proof-or-stop discipline this story exists to enforce.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T18:58:22.503Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-002",
+      "_hash": "acb72facafbe62674e81ae1eaf3a3bbcfd619ae5bbe1209787f7a83d1d46c2b3",
+      "signatureTag": "edge|unknown|proof-stop-experiments",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
