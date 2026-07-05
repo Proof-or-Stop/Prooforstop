@@ -17,6 +17,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9e44:F-002",
+      "desc": "[codex-host-2, verified] Refreshed corruptRows manifest lie is missing and passes. Setting manifest.corruptRows 1->0 and recomputing manifestDigest (records/gold unchanged) yields status:pass with malformedRowsSkipped=1 (empirically confirmed) — the verifier never cross-checks malformedRowsSkipped against manifest.corruptRows. The current disposition rule would mis-classify this as 'dropped' (records/gold byte-identical) though the manifest is lying. Enumerate corruptRows-lie[refreshed] and disposition as acknowledged blind spot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:54:59.764Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "2e1605c5ebca0c4c3fb1a138dd2a46ec03e13e041fb090f7aab4e195798d9999",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
