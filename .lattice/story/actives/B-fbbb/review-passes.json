@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T21:56:28.612Z",
       "reviewRunId": "B-fbbb:RR-005",
       "_hash": "c6456ab46dd0c4113c9acad484c2d449404dce2261c311b697cfcc5f267a0d1e"
+    },
+    {
+      "id": "B-fbbb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-confirmation after main merge (853226c98) restored 0-behind; no new concept deletion/replacement. Diff unchanged from prior PASS: two allowlist entries (playbook-seed.js, source-lineage-audit.js) added to BOTH allowed-import sets in experience-layer-playbook-smoke.ts (verified both entries match real imports in playbook.ts, no orphans), a guardrail-comment refresh in playbook.ts describing those same imports, and one authorityBoundary substring update in decision-doc-promotion-smoke.ts (retired string not remote receipt completion -> current committed not local proof-admissibility, receipt-bundle, quorum, or release readiness, matching commit 8892270bf). Nothing deleted/renamed. Grepped repo for the retired substring not remote receipt completion (excluding node_modules/dist/.git/@deprecated): all hits are inside .lattice/story/actives/B-fbbb/*.json story-metadata narrative describing the fix, not production/test code residue; the actual test file no longer contains the retired string. Concept-deletion residual check: clean.",
+      "createdAt": "2026-07-05T23:56:30.118Z",
+      "reviewRound": "2026-07-05T23:55:21.895Z",
+      "reviewRunId": "B-fbbb:RR-006",
+      "_hash": "37e97d26f3a8e4abff238ffbd40ed21a7df586758f08f5b7ec6c3811a2679fdb"
     }
   ]
 }
