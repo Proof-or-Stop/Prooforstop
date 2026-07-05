@@ -35,6 +35,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9e44:F-003",
+      "desc": "[codex-host-2, verified] In-place duplicate record ID is missing and passes. Rewriting a non-gold noise row's id to an existing gold record id (mem-host-current), keeping row/partition counts, then refreshing, yields status:pass (empirically confirmed) — the verifier stores ids in a Set/Map and never checks uniqueness. The existing records-row-duplicate class only INSERTS a row (fails by count/partition) and does not cover this id-collision. Enumerate duplicate-gold-id[refreshed] and disposition as acknowledged blind spot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:55:00.772Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "48f737309777da1cb5c6816c85750b300e66c2bc2ed0c85ed89ef2168cc234d0",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
