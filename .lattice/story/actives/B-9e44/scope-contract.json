@@ -31,7 +31,48 @@
     "experiments/pos-instrument-replay/analyze-batch.mjs"
   ],
   "scopeChangeReason": "M0 files declared per checklist; instrument protected; M1-M4 harnesses excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are Lattice lifecycle metadata artifacts written by the PLAN/ProofStory gate commands (intent_collision_set, milestone_ledger_set, original_intent_snapshot_set, proofstory_contract_set) — command-generated bookkeeping under .lattice/, not story source code. They are expected out-of-scope for a code story whose material scope is experiments/pos-instrument-replay/.",
+      "timestamp": "2026-07-05T15:42:57.200Z",
+      "paths": [
+        ".lattice/story/actives/B-9e44/intent-collision.json",
+        ".lattice/story/actives/B-9e44/milestone-ledger.json",
+        ".lattice/story/actives/B-9e44/original-intent-snapshot.json",
+        ".lattice/story/actives/B-9e44/review.json",
+        ".lattice/story/actives/B-9e44/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9e44/intent-collision.json",
+        ".lattice/story/actives/B-9e44/milestone-ledger.json",
+        ".lattice/story/actives/B-9e44/original-intent-snapshot.json",
+        ".lattice/story/actives/B-9e44/review.json",
+        ".lattice/story/actives/B-9e44/proofstory.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "ccce558611d0196767699591e6dc2cdeba0480ee",
+      "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice ProofStory lifecycle metadata written by red_evidence_create (repro-first gate) — command-generated bookkeeping under .lattice/, not story source code; expected out-of-scope for the experiments/pos-instrument-replay/ code story.",
+      "timestamp": "2026-07-05T15:43:20.947Z",
+      "paths": [
+        ".lattice/story/actives/B-9e44/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9e44/red-evidence.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ccce558611d0196767699591e6dc2cdeba0480ee",
+      "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616"
+    }
+  ],
   "createdAt": "2026-07-05T15:13:05.536Z",
-  "updatedAt": "2026-07-05T15:13:36.606Z"
+  "updatedAt": "2026-07-05T15:43:20.947Z"
 }
