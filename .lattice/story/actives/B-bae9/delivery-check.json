@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bae9",
+  "checkedAt": "2026-07-05T18:33:49.715Z",
+  "headHash": "cc1c5ce32587827c2f3f916e8ce76e61bbd84ec4",
+  "materialHash": "d9604877dcfea4c26378ed7daf5f5ae81e74c4fe046b54bdeeea07c810b33861",
+  "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+  "reviewRound": "2026-07-05T18:21:26.500Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/pos-instrument-replay/ (checklist CHK-001, no CLAUDE.md/README changed by this story)",
+      "promise": "tamper.mjs reads the frozen protocol.json tamperMatrix and, for each (class x manifestHandling), applies the deterministic mutation to an mkdtemp-isolated copy of a fresh small baseline, runs verify via lib/instrument.mjs, and emits an identity-keyed verdict to tamper-verdicts.jsonl with the full flag vector, goldMetrics, fingerprintMatch, and disposition.",
+      "verifiedBy": "diff/read + independent run",
+      "evidence": "Read experiments/pos-instrument-replay/tamper.mjs in full: implements MUTATIONS table replaying M0 mutation logic, mkdtempSync isolation, verifyDir/fingerprintDomain from lib/instrument.mjs, canonicalJson output. Independently ran node experiments/pos-instrument-replay/tamper.mjs: produced tamper-verdicts.jsonl with 27 lines matching the committed file exactly (18 failClosed/2 acceptanceBucket/6 acknowledgedLimitations/1 dropped); git diff after run empty (no working-tree pollution)."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/ (checklist CHK-002)",
+      "promise": "tamper.mjs asserts H2 conformance: every fail-closed class yields status:fail/crash + fingerprintMatch=true, every acceptance-bucket/acknowledged-limitation entry yields status:pass + fingerprintMatch=true, and the harness exits nonzero on any mismatch (un-gameable gate, not raw float equality).",
+      "verifiedBy": "diff/read + independent run",
+      "evidence": "compareFingerprint() (tamper.mjs:309-409) implements ==, <, >, not-equal predicate forms with epsilon tolerance and throws on unrecognized ops. Independently ran tamper.mjs: stdout shows 'H2 conformance: PASS (mismatches=0)', exit 0, dispositionMatch failures=0, no-op mutations=0, dropped-semantics violations=0 for all 27 classes."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/ (checklist CHK-003)",
+      "promise": "A hermetic mkdtemp-isolated selfcheck-m1.mjs proves tamper.mjs is deterministic (two runs produce byte-identical tamper-verdicts.jsonl) and that a deliberately corrupted frozen fingerprint makes tamper.mjs detect a mismatch and exit nonzero (anti-tautology negative test), plus full op-coverage for compareFingerprint.",
+      "verifiedBy": "diff/read + independent run",
+      "evidence": "Read selfcheck-m1.mjs in full: (a) determinism via two sandboxed runTamper() calls compared byte-for-byte, (a2) clean-run invariant re-checks, (b) negative test flips one boolean flag in a copy of protocol.json via POS_PROTOCOL_PATH and asserts nonzero exit + fingerprintMatch:false, (c) runs tamper.mjs --optselftest. Independently ran node selfcheck-m1.mjs: output shows all 4 steps passing, including the negative test genuinely producing 'H2 conformance: FAIL (mismatches=1)  MISMATCH cross-profile-swap [refreshed] ... fingerprintMatch false: flags.fullProfileExactMillionMatches: expected=false actual=true' inside the sandbox before final 'selfcheck-m1 PASS'."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "M1 delivers only the H2 conformance ledger; the replay driver (M2), resume probe (M3), and offline analyzer (M4) are separate, later stories; tamper.mjs asserts conformance to the frozen M0 protocol and does not re-discover fingerprints, and the M0 protocol.json/lib/instrument.mjs/viability-check.mjs/build-protocol.mjs were read-only inputs.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only -- experiments/pos-instrument-replay/** shows only selfcheck-m1.mjs, tamper-verdicts.jsonl, tamper.mjs changed; git diff main...HEAD for protocol.json lib/instrument.mjs viability-check.mjs build-protocol.mjs is empty (byte-identical to main), confirming the M0 files were genuinely untouched and the M1 scope claim is accurate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently ran node experiments/pos-instrument-replay/tamper.mjs (no reliance on prior evidence): H2 conformance PASS, mismatches=0, 27 verdicts (18/2/6/1) with iterationId format tamper/small/<class>/<handling>, byte-identical to the committed tamper-verdicts.jsonl. Working tree clean after run."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same run as CHK-001 covers CHK-002: every failClosed class verified fail or crash plus fingerprintMatch true; every acceptanceBucket/acknowledgedLimitations class verified pass plus fingerprintMatch true; dropped class content-inert. Also independently ran node tamper.mjs --optselftest: 'optselftest PASS: compareFingerprint ops all verified', confirming the numeric-predicate-form (not raw float equality) logic is exercised end-to-end."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently ran node experiments/pos-instrument-replay/selfcheck-m1.mjs (~3min): step (a) determinism two runs byte-identical (27 verdict lines); step (a2) clean-run invariants all satisfied; step (b) negative test flipped cross-profile-swap[refreshed] flag fullProfileExactMillionMatches true to false, tamper.mjs exited nonzero and reported fingerprintMatch false; step (c) op-coverage all verified; final 'selfcheck-m1 PASS'. This is a genuine anti-tautology proof, independently reproduced."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 checklist promises (CHK-001/002/003) are genuinely implemented and independently reproduced by re-running tamper.mjs, tamper.mjs --optselftest, and selfcheck-m1.mjs from a fresh context; M0 read-only inputs confirmed byte-identical to main. The 5 prior findings (2 real soundness gaps from Codex host-2, 1 evidence-binding gap, 2 quality/op-coverage gaps) are all resolved with strong evidence and the fixes are visible and correct in the current code. Scope is honestly limited to M1 (H2 conformance ledger); no overclaiming of M2-M4 functionality found."
+  },
+  "_hash": "bcbc17cd0fb748ccca5fc239b8639966008e3ff1db9be88a74c9d29423b88e3c"
+}
