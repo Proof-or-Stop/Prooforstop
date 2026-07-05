@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "selfcheck-m3 asserts each mid-iteration casualty resolved to a stop-or-clean-rerun (proof:pass) — never a silent half-record; it fails loudly on any dup/gap/half-record. Two real resume bugs (stale-lock, truncated-tail) were found+fixed and are covered.",
-          "headHash": "aad1db0551c0b44d57c0728cdfed3a8b873b3cee",
+          "note": "Un-gameable: sub-checks F (stop preserved+skipped, not re-run), G (valid record not dropped -> no gap), H (live lock not broken -> no two-writer corruption; dead lock broken) each fail loudly on regression; 0 dup / 0 gap enforced. Codex F-001/F-002 + quality F-003/F-004 all covered by dedicated sub-checks.",
+          "headHash": "98b200f65a3ca508531892b2723182150a3c834f",
           "materialHash": "ba6f21bfe8b202a9703dd0aa62498ac29538eca4c26c544bd4e3332e5e3f6756",
           "storyFilesHash": "2ba336106139c029c774bdb2b9ede9d110e6335bde1eb9ef0164d935516cfce0",
-          "timestamp": "2026-07-05T23:22:58.669Z"
+          "timestamp": "2026-07-05T23:23:08.474Z"
         }
       ]
     }
