@@ -209,7 +209,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-05T09:51:39.530Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "build passed and the new artifact-release-ledger smoke is wired into lattice.config.json validate commands.",
+          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:45.864Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "existing version-bump smoke still proves experiments/docs do not trigger CLI semver bumps.",
+          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:45.864Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md and docs/CLI.md state artifact release rows are provenance only, not runtime activation or package semver.",
+          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
+          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T09:51:45.864Z"
+        }
+      ]
     }
   ]
 }
