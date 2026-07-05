@@ -199,9 +199,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:08:21.602Z",
       "userSees": "M2 provider execution checker passes and rejects malformed launch packets, including invented budget approval and premature Cell 06 unblocking.",
       "verificationEvidence": [
         {
@@ -451,6 +451,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Cell 03 guardrail artifact added and covered by evidence."
+    },
+    {
+      "timestamp": "2026-07-05T17:08:21.602Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Checker and negative controls implemented and covered by evidence."
     }
   ]
 }
