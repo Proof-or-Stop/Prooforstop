@@ -217,9 +217,9 @@
       "id": "CHK-005",
       "title": "Add negative-control test: a stale-only status report is rejected by buildMilestoneCloseoutSnapshot",
       "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L749-870, stale ledger built ~L823) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:29:26.826Z",
-      "endTime": null,
+      "endTime": "2026-07-05T23:29:38.298Z",
       "userSees": "Running `npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs` completes with a `# stale-only closeout negative control passed` style success (process exit 0, no `AssertionError`). The newly added assertion block inside the stale-evidence section (~L806-868) proves that the same stale-only `report` which `milestone_status` demotes to the `Current` group also causes `buildMilestoneCloseoutSnapshot({ report })` to THROW. The operator sees the run reach the end of the suite (\"all milestone-status assertions passed\") only because the closeout guard rejected the stale report with a message matching `incomplete milestone rows: M-stale=current`. If someone regresses the guard so a stale-only report is silently frozen into a closeout snapshot, this run instead fails with `AssertionError [ERR_ASSERTION]: Missing expected exception` (the `assert.throws` firing), naming this negative control.",
       "files": {
         "modify": [],
@@ -247,7 +247,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Added stale-only negative control: buildMilestoneCloseoutSnapshot throws on a report whose only defect is stale milestone evidence, and the DONE-time capture wrapper degrades that same report to a non-throwing skip with no write.",
+          "headHash": "8a108ee599b75aa702fab95b2b7834a935582e15",
+          "materialHash": "6b97b4f57ff2c06c288a608728a0443423e5c05c6f1cf474e06dbc505a02caf2",
+          "storyFilesHash": "23e6c5fdb7368dca090f80098df02211aef0193f7aed8a491032a05f21610911",
+          "timestamp": "2026-07-05T23:29:39.417Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
