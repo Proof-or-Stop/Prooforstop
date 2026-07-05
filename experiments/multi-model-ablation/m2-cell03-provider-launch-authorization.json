@@ -1,0 +1,201 @@
+{
+  "artifact": "m2-cell03-provider-launch-authorization",
+  "storyId": "B-c25c",
+  "status": "cell03_launch_guardrail_recorded_exact_budget_approval_absent",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "launchArtifactRef": "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+  "priorMetadataAuthorizationRef": "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "guardrailBoundary": {
+    "guardrailRecorded": true,
+    "appliesToStoryId": "B-c25c",
+    "appliesToCellNumber": "03",
+    "protocolCellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "exactBudgetApprovalStatus": "absent",
+    "providerSpendAllowed": false,
+    "providerExecutionAuthorized": false,
+    "providerCallEnabled": false,
+    "formalPhase1UseAllowed": false,
+    "phase1CampaignAuthorized": false,
+    "phase2CampaignAuthorized": false,
+    "resultRowsAllowed": false,
+    "outcomeRecordsAllowed": false,
+    "resultRowsPresent": false,
+    "outcomeRecordsPresent": false,
+    "providerFallbackAllowed": false,
+    "productGateImpact": "none"
+  },
+  "exactBudgetApproval": {
+    "status": "absent",
+    "nonzeroBudgetApprovalPresent": false,
+    "amount": null,
+    "currency": null,
+    "approvalSource": null,
+    "approvedBy": null,
+    "approvalDate": null,
+    "providerSpendAllowed": false,
+    "providerCallEnabled": false,
+    "requirement": "Nonzero Cell 03 budget approval requires exact amount, currency, approvalSource, approvedBy, and approvalDate before provider spend or calls can be enabled.",
+    "requiredForSpendApproval": [
+      {
+        "fieldId": "amount",
+        "status": "required_absent",
+        "value": null,
+        "blocksProviderExecution": true
+      },
+      {
+        "fieldId": "currency",
+        "status": "required_absent",
+        "value": null,
+        "blocksProviderExecution": true
+      },
+      {
+        "fieldId": "approvalSource",
+        "status": "required_absent",
+        "value": null,
+        "blocksProviderExecution": true
+      },
+      {
+        "fieldId": "approvedBy",
+        "status": "required_absent",
+        "value": null,
+        "blocksProviderExecution": true
+      },
+      {
+        "fieldId": "approvalDate",
+        "status": "required_absent",
+        "value": null,
+        "blocksProviderExecution": true
+      }
+    ]
+  },
+  "requiredMetadata": [
+    {
+      "fieldId": "humanApprovalExactBudget",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "datedExecutorSnapshot",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "datedReviewerSnapshot",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "promptDigest",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "toolSurfaceDigest",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "runnerOwnership",
+      "status": "pending",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "duplicatePolicy",
+      "status": "absent",
+      "value": null,
+      "blocksProviderExecution": true
+    }
+  ],
+  "snapshotMetadata": {
+    "datedExecutorSnapshot": {
+      "status": "absent",
+      "value": null,
+      "hostLabelAccepted": false,
+      "blocksProviderExecution": true
+    },
+    "datedReviewerSnapshot": {
+      "status": "absent",
+      "value": null,
+      "hostLabelAccepted": false,
+      "blocksProviderExecution": true
+    }
+  },
+  "runnerOwnershipGuard": {
+    "ownershipRecorded": false,
+    "duplicateOwnershipAllowed": false,
+    "extraOwnershipAllowed": false,
+    "expectedRunnerIds": [
+      "m2-future-cell-03-e2-a4-same",
+      "m2-future-cell-06-e2-a2prime",
+      "m2-future-cell-02-e1-a4-cross",
+      "m2-future-cell-04-e2-a4-cross"
+    ]
+  },
+  "sequencing": {
+    "nextPermittedFormalStep": "cell-03-calibration",
+    "nextPermittedFormalStepMode": "planning_only",
+    "cell03Calibration": {
+      "cellNumber": "03",
+      "protocolCellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "status": "guardrail_recorded_not_authorized",
+      "providerExecutionAllowed": false,
+      "executionEvidencePresent": false,
+      "exactSpendApprovalPresent": false
+    },
+    "cell06A2primeGate": {
+      "state": "cell-06-a2prime-blocked",
+      "cellNumber": "06",
+      "protocolCellNumber": "⑥",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "blocked": true,
+      "executionAllowed": false,
+      "blockedUntil": "real cell-03-derived budget lock exists",
+      "matchingRealBudgetLockPresent": false
+    }
+  },
+  "hostModelSeparation": {
+    "hostLabelOnlySnapshotsAccepted": false,
+    "providerFallbackAllowed": false,
+    "hostLabelsRejectedAsSnapshots": [
+      "Codex CLI",
+      "Codex App",
+      "Claude Code CLI",
+      "Antigravity CLI",
+      "agy"
+    ],
+    "snapshotFields": [
+      "datedExecutorSnapshot",
+      "datedReviewerSnapshot"
+    ],
+    "statement": "Host labels may identify where Cell 03 would be launched, but they do not satisfy dated provider snapshot metadata."
+  },
+  "claimBoundary": {
+    "hM1Proven": false,
+    "hM3Proven": false,
+    "phase1DirectionalReadoutPresent": false,
+    "modelAgnosticPaperClaimUnlocked": false,
+    "productGateImpact": "none"
+  }
+}

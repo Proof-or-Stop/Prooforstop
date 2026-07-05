@@ -17,6 +17,7 @@
     "providerExecutionAuthorized": false,
     "providerCallEnabled": false,
     "formalPhase1UseAllowed": false,
+    "cell03LaunchGuardrailRecorded": true,
     "phase1CampaignAuthorized": false,
     "phase2CampaignAuthorized": false,
     "outcomeRecordsPresent": false,
@@ -85,6 +86,25 @@
         "blocksProviderExecution": true
       }
     ]
+  },
+  "guardrails": {
+    "cell03ProviderLaunchAuthorization": {
+      "recorded": true,
+      "artifactRef": "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+      "storyId": "B-c25c",
+      "status": "cell03_launch_guardrail_recorded_exact_budget_approval_absent",
+      "exactBudgetApprovalStatus": "absent",
+      "providerSpendAllowed": false,
+      "providerCallEnabled": false,
+      "requiresExactNonzeroBudgetApproval": true,
+      "requiredApprovalFields": [
+        "amount",
+        "currency",
+        "approvalSource",
+        "approvedBy",
+        "approvalDate"
+      ]
+    }
   },
   "sequencing": {
     "nextPermittedFormalStep": "cell-03-calibration",

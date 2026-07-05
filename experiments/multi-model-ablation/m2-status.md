@@ -15,6 +15,7 @@ M2 in this directory is a provider-free launch-readiness layer. It records the s
 | M2 static checker | PREPARED | `m2-launch-readiness-check.mjs` recomputes task digests, checks launch blockers, and rejects in-memory negative controls. |
 | M2 provider execution launch gate | PREPARED | `m2-provider-execution-launch.json` records `providerExecutionAuthorized=false`, missing authorization metadata blockers, no provider-call enabled runner, and no outcome records. |
 | M2-provider authorization metadata | DONE | `m2-provider-execution-authorization.json` records B-11be metadata authorization with provider spend USD 0.00, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked. |
+| Cell 03 launch guardrail | RECORDED | `m2-cell03-provider-launch-authorization.json` records B-c25c guardrails: exact Cell 03 spend approval is absent, `providerSpendAllowed=false`, `providerCallEnabled=false`, no outcome rows exist, and amount/currency/approvalSource/approvedBy/approvalDate are still required before spend. |
 | M2 provider execution checker | PREPARED | `m2-provider-execution-check.mjs` validates accidental authorization, host-label-only snapshot, provider fallback, and sequencing negative controls. |
 | Formal M2 execution | NOT STARTED | Provider calls remain disabled; real executor/reviewer run metadata must be supplied by a future provider-execution story, with no claim unlock and no product gate impact. |
 | ③ A4 calibration | PENDING EXECUTION | `nextPermittedFormalStep=cell-03-calibration`, planning-only. It must run after explicit authorization and before any ⑥ A2prime budget can be locked. |
@@ -38,5 +39,7 @@ Local-only validation on 2026-07-05:
 | `node experiments/multi-model-ablation/m2-provider-execution-check.mjs` | PASS; reported `nextPermittedFormalStep=cell-03-calibration` and `cell-06-a2prime-blocked`. |
 
 M2-provider authorization metadata: DONE. B-11be records provider spend USD 0.00; no provider cells ran; no result rows exist; cell 03 is next; cell 06 remains blocked.
+
+Cell 03 launch guardrail: RECORDED. Exact Cell 03 budget approval: absent; provider calls disabled. B-c25c does not add provider snapshots, provider spend, outcome rows, or result records; cell 06 remains blocked until a real cell-03-derived budget lock exists.
 
 These checks are local parse and invariant checks only. They did not run provider calls, full Phase 1, full Phase 2, or any external provider execution.
