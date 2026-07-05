@@ -2047,6 +2047,13 @@ export interface DoneIntentEquivalenceReport {
   equivalenceMode: 'lightweight_single_outcome' | 'strict_milestone';
   acceptedShrinkageMilestoneIds: string[];
   uncoveredRequiredMilestoneIds: string[];
+  /**
+   * Milestones whose base coverage passed but whose ONLY covering verification
+   * evidence is stale against the current binding. Surfaced as a non-blocking
+   * (observe) diagnostic so this gate agrees with milestone_status, which demotes
+   * the same rows to statusDetail=stale.
+   */
+  staleMilestoneEvidenceIds: string[];
   gaps: ProofStoryDiagnosticGap[];
 }
 

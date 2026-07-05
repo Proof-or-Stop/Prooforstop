@@ -209,6 +209,38 @@ function evidenceCanCover(evidence: VerificationEvidence): boolean {
   return evidence.result === 'pass';
 }
 
+/**
+ * A freshness risk is a genuine MISMATCH ("stale <hash> … (current …)") rather
+ * than a mere ABSENCE ("missing <hash> binding …"). Staleness in the reconciled
+ * DONE-gate sense means the evidence WAS bound to a state that no longer matches;
+ * evidence that never carried a binding is unbound, not stale.
+ */
+function isMismatchRisk(risk: string): boolean {
+  return risk.startsWith('stale ');
+}
+
+/**
+ * Shared freshness verdict for a single verification-evidence row against the
+ * current evidence binding. Exported so the DONE gate (evaluateDoneIntentEquivalence)
+ * and milestone_status agree BY CONSTRUCTION on which evidence is stale: both call
+ * this same predicate.
+ *
+ * When `mismatchOnly` is true (the DONE-gate default), the row is stale only when
+ * a bound hash genuinely disagrees with the current binding — a missing/absent
+ * binding is NOT treated as stale, so the gate does not newly block evidence that
+ * simply predates binding capture. When false, any freshness risk (including a
+ * missing binding) counts, matching milestone_status's row-demotion detail.
+ */
+export function evidenceIsStaleCovering(
+  evidence: VerificationEvidence,
+  currentBinding: MilestoneStatusCurrentEvidenceBinding | null | undefined,
+  mismatchOnly = false,
+): boolean {
+  if (!evidenceCanCover(evidence)) return false;
+  const risks = evidenceFreshnessRisks(evidence, currentBinding);
+  return mismatchOnly ? risks.some(isMismatchRisk) : risks.length > 0;
+}
+
 function isKnownEvidenceKind(value: string): boolean {
   return VERIFICATION_EVIDENCE_KINDS.has(value);
 }

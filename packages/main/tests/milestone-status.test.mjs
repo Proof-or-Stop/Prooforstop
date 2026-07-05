@@ -1961,10 +1961,16 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  // B-f7b3 CHK-010 reconciliation (b): the DONE-time closeout capture must NOT
+  // act as an undesigned second DONE gate with throw-semantics. On an incomplete
+  // report (which buildMilestoneCloseoutSnapshot still rejects at the pure-builder
+  // level) capture must DEGRADE to a non-throwing 'skipped' result and write
+  // nothing — leaving evaluateDoneIntentEquivalence as the single designed gate.
   const storyId = 'B-capture-incomplete';
   const writes = [];
-  assert.throws(
-    () => captureMilestoneCloseoutSnapshotFromStore({
+  let result;
+  assert.doesNotThrow(() => {
+    result = captureMilestoneCloseoutSnapshotFromStore({
       readMilestoneLedger() {
         return ledger([
           milestone({
@@ -1995,10 +2001,39 @@ function assertEvidenceRefShape(evidenceRef) {
       writeMilestoneCloseout() {
         writes.push('write');
       },
-    }, storyId),
+    }, storyId);
+  }, 'DONE-time closeout capture must not throw on an incomplete report (no divergent second gate)');
+  assert.equal(result.status, 'skipped', 'incomplete capture must degrade to a skipped result');
+  assert.equal(result.reason, 'closeout_snapshot_unbuildable', 'incomplete capture must report closeout_snapshot_unbuildable');
+  assert.match(result.message, /incomplete milestone rows: M-incomplete=current/, 'skip message must carry the builder rejection reason');
+  assert.deepEqual(writes, [], 'incomplete capture must not write a closeout');
+}
+
+{
+  // The pure builder buildMilestoneCloseoutSnapshot STAYS strict: it still throws
+  // on an incomplete report. Only the DONE-time capture wrapper is non-blocking.
+  const storyId = 'B-builder-incomplete-strict';
+  const strictReport = buildMilestoneStatusReport({
+    story: story(storyId),
+    checklist: { items: [checklistItem('CHK-INCOMPLETE', 'done', [], intent('missing evidence'))] },
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-incomplete',
+        sourceRequirementId: 'REQ-incomplete',
+        claim: 'Incomplete rows block the pure builder',
+        doneMeans: 'Missing evidence cannot be frozen as success',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-INCOMPLETE'],
+        verificationIntentRefs: ['CHK-INCOMPLETE:happy:0'],
+        status: 'done',
+      }),
+    ], storyId),
+  });
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: strictReport }),
     /incomplete milestone rows: M-incomplete=current/,
+    'the pure closeout builder must stay strict and reject an incomplete report',
   );
-  assert.deepEqual(writes, [], 'incomplete capture must fail before writing a closeout');
 }
 
 {

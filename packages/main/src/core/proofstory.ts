@@ -62,6 +62,10 @@ import type {
   VerificationEvidence,
   VerificationLane,
 } from './types.js';
+import {
+  evidenceIsStaleCovering,
+  type MilestoneStatusCurrentEvidenceBinding,
+} from './milestone-status.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -121,6 +125,14 @@ export interface ProofStoryDiagnosticInput {
   summary?: StorySummaryData | null;
   currentHeadHash?: string;
   currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
+  /**
+   * Current evidence binding (head/material/storyFiles hashes) used by the DONE
+   * intent-equivalence gate to detect STALE milestone evidence exactly the way
+   * milestone_status demotes stale rows. When absent, freshness is not evaluated
+   * (backward-compatible: base coverage semantics are unchanged).
+   */
+  currentEvidenceBinding?: MilestoneStatusCurrentEvidenceBinding | null;
 }
 
 export interface BuildProofStoryContractArgs {
@@ -747,14 +759,37 @@ function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string,
   return evidence;
 }
 
+function rowCoversIntent(row: VerificationEvidence): boolean {
+  if (row.waiverType === 'deferred_gate_evidence') return false;
+  if (row.result === 'pass') return true;
+  return row.kind === 'waiver'
+    && row.waiverType === 'permanent'
+    && row.result !== 'fail';
+}
+
 function evidenceCoversIntent(evidence: Map<string, VerificationEvidence[]>, ref: string): boolean {
-  return (evidence.get(ref) ?? []).some((row) => {
-    if (row.waiverType === 'deferred_gate_evidence') return false;
-    if (row.result === 'pass') return true;
-    return row.kind === 'waiver'
-      && row.waiverType === 'permanent'
-      && row.result !== 'fail';
-  });
+  return (evidence.get(ref) ?? []).some((row) => rowCoversIntent(row));
+}
+
+/**
+ * Resolve the current evidence binding used to detect stale milestone evidence.
+ * Prefers an explicit currentEvidenceBinding, then falls back to the individual
+ * currentHeadHash / currentMaterialHash / currentStoryFilesHash fields. Returns
+ * undefined when none are supplied, in which case freshness is NOT evaluated and
+ * base coverage semantics are preserved (backward-compatible).
+ */
+function milestoneEvidenceBinding(
+  input: ProofStoryDiagnosticInput,
+): MilestoneStatusCurrentEvidenceBinding | undefined {
+  if (input.currentEvidenceBinding && Object.keys(input.currentEvidenceBinding).length > 0) {
+    return input.currentEvidenceBinding;
+  }
+  const binding: MilestoneStatusCurrentEvidenceBinding = {
+    ...(input.currentHeadHash ? { headHash: input.currentHeadHash } : {}),
+    ...(input.currentMaterialHash ? { materialHash: input.currentMaterialHash } : {}),
+    ...(input.currentStoryFilesHash ? { storyFilesHash: input.currentStoryFilesHash } : {}),
+  };
+  return Object.keys(binding).length > 0 ? binding : undefined;
 }
 
 export function collisionAccepted(collision: IntentCollisionData | null): boolean {
@@ -1409,7 +1444,26 @@ export function evaluateDoneIntentEquivalence(
     ));
   }
   const evidence = verificationEvidenceByRef(input.checklist.items);
+  const currentBinding = milestoneEvidenceBinding(input);
+  // A ref whose covering evidence exists but is entirely stale against the
+  // current binding. Mirrors milestone_status, which demotes such a row to
+  // statusDetail=stale (evidence=stale) instead of counting it as covered.
+  // mismatchOnly=true: only a genuine hash MISMATCH demotes coverage here. A row
+  // that never carried a binding is unbound (not stale) and must not newly block —
+  // this keeps the DONE gate non-surprising for evidence recorded before binding
+  // capture, while still agreeing with milestone_status on genuinely stale rows.
+  const refCoverageIsStale = (ref: string): boolean => {
+    const rows = evidence.get(ref) ?? [];
+    if (rows.length === 0) return false;
+    if (!currentBinding) return false;
+    const anyFreshCovering = rows.some(
+      (row) => rowCoversIntent(row) && !evidenceIsStaleCovering(row, currentBinding, true),
+    );
+    const anyStaleCovering = rows.some((row) => evidenceIsStaleCovering(row, currentBinding, true));
+    return !anyFreshCovering && anyStaleCovering;
+  };
   const uncoveredRequiredMilestoneIds: string[] = [];
+  const staleMilestoneEvidenceIds: string[] = [];
   const unjustifiedNotApplicableMilestoneIds: string[] = [];
   if (hasMilestonePath) {
     for (const milestone of ledger?.milestones ?? []) {
@@ -1427,6 +1481,14 @@ export function evaluateDoneIntentEquivalence(
       const refs = milestone.verificationIntentRefs;
       if (refs.length === 0 || !refs.every((ref) => evidenceCoversIntent(evidence, ref))) {
         uncoveredRequiredMilestoneIds.push(milestone.id);
+        continue;
+      }
+      // Base coverage passed. Now demote — as a NON-BLOCKING diagnostic under
+      // observe — if any covering ref's only covering evidence is stale. This
+      // reconciles evaluateDoneIntentEquivalence with milestone_status, which
+      // already treats stale covering evidence as not-covered.
+      if (refs.some((ref) => refCoverageIsStale(ref))) {
+        staleMilestoneEvidenceIds.push(milestone.id);
       }
     }
   }
@@ -1446,6 +1508,19 @@ export function evaluateDoneIntentEquivalence(
       `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredRequiredMilestoneIds.join(', ')}.`,
       undefined,
       'fail',
+    ));
+  }
+  if (staleMilestoneEvidenceIds.length > 0) {
+    // Severity 'warn' by design: like every other milestone gap this only blocks
+    // under enforce (blocking = mode === 'enforce' && gaps.length > 0). Under the
+    // default observe mode it is a NON-BLOCKING diagnostic that surfaces the same
+    // staleness milestone_status already reports, so the two surfaces agree.
+    gaps.push(gap(
+      'stale_milestone_evidence',
+      'milestone-ledger.json',
+      `Required milestone(s) are covered only by STALE verification evidence whose binding no longer matches the current head/material/story-files hash: ${staleMilestoneEvidenceIds.join(', ')}. Re-run the verification evidence against the current binding before treating these milestones as covered.`,
+      undefined,
+      'warn',
     ));
   }
   const rollupState = parentRollupCoversSlicePlan(input.parentLedgerRollup, input.milestoneLedger, input.slicePlan);
@@ -1472,6 +1547,7 @@ export function evaluateDoneIntentEquivalence(
     equivalenceMode,
     acceptedShrinkageMilestoneIds,
     uncoveredRequiredMilestoneIds,
+    staleMilestoneEvidenceIds,
     gaps,
   };
 }
