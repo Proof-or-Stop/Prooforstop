@@ -50,9 +50,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T02:33:26.878Z",
-      "endTime": null
+      "endTime": "2026-07-05T02:33:41.444Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "M2 checker passed with 730 assertions and 15 negative controls; it accepts readiness artifacts with the 2026-07-05 approval boundary, distinct E1/E2 provider families, dated readiness declarations, and provider execution disabled.",
+          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:41.710Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Checker distinguishes readiness approval from provider-execution authorization: providerExecutionAuthorized, phase1CampaignAuthorized, formalPhase1UseAllowed, and providerCallEnabled remain false.",
+          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:41.934Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject host labels as model families, missing dated snapshots, enabled provider calls without execution authorization, outcome fields, and records paths inside readiness artifacts.",
+          "headHash": "05476b91865946618e7ffe2565051a5cee2de7b5",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:42.166Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
