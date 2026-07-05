@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-05T15:06:59.965Z",
       "reviewRunId": "B-b550:RR-011",
       "_hash": "5f8116eaa48959bdb3ed7805e2f4a352d4c9900b93482ee97a0e724360df0767"
+    },
+    {
+      "id": "B-b550:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 diff (main...HEAD) is exactly commit 00dc09329: a docs-only wording sync in milestone-ledger-status-review-and-hardening-plan.md, changing the M1 summary-row and M1.d/M1.f sub-row status label from reviewed-pass (corrected) to reviewed-pass (clarified), to match the findings docs existing M1 verdict executed-pass (clarified) (confirmed at line 99 of milestone-ledger-status-review-findings.md). No concept was deleted, renamed, or replaced en masse; corrected/clarified/caveat are pre-existing sibling status-qualifier terms already used elsewhere in the same table (M0/M3/M6/M7 keep corrected, M4 keeps caveat), so no repo-wide grep cleanup is applicable. Scope contract explicitly excludes packages/main/src/** and packages/main/tests/**, and the diff touches only the plan doc (allowedModify), consistent with the docs-only chore scope. No blocker.",
+      "createdAt": "2026-07-05T15:15:53.797Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-012",
+      "_hash": "144a43490b33a716593bd48034b186c419003135483865b456bc92a730b883bd"
     }
   ]
 }
