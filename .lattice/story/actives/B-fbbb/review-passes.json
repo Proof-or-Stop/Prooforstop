@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T21:56:28.612Z",
       "reviewRunId": "B-fbbb:RR-001",
       "_hash": "381b5799f2036ab53bb830068cac86a775a00ad82f2209a5f0552473fafb2c17"
+    },
+    {
+      "id": "B-fbbb:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean: 3-file test-maintenance diff (cdb034b97) widens playbook.ts import-fence allowlist for source-lineage-audit.js + playbook-seed.js (verified both are non finding-writer/advisory/gate transitively), refreshes matching guardrail comment, and fixes a stale decision_doc_save assertion to the current committed authorityBoundary string (verified against handlers/decision-doc-promotion.ts + retirement commit 8892270bf). No deletions/renames in this story diff; the concept-deletion-looking residual in reviewer_batch changedFiles is pre-existing branch drift (77 commits behind main from unrelated story B-8128), not caused by this commit. Ran the built smoke: TOTAL 31 | PASS 31 | FAIL 0, decision-doc-promotion smoke passed (9 checks). No blocking findings.",
+      "createdAt": "2026-07-05T22:01:33.629Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-002",
+      "_hash": "0e8c9461c8719ac96cbb691ec07ab9bcb4bf61d9723d29b9545fbecc52de96cb"
     }
   ]
 }
