@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-05T15:14:23.740Z",
       "reviewRunId": "B-b550:RR-013",
       "_hash": "0f7b955d42594a1b956bb3acee90cd9c9e009d50682cd71bfb34b7d7691aaa20"
+    },
+    {
+      "id": "B-b550:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 doc-code drift check. Verified fix for F-001: plan doc M1 summary row + M1.d + M1.f sub-rows now all read reviewed-pass (clarified), consistent with each other and with findings.md M1 Verdict executed-pass (clarified). F-001 CONFIRMED RESOLVED. Cross-checked all other milestone rollups (M0,M2-M7) in the plan summary table against their own sub-objective rows and against findings.md per-milestone Verdict lines: M0 (corrected) has no matching sub-row tag, but this is structurally consistent -- findings.md M0 has no per-sub-objective outcome table (prose-only), the correction is a whole-milestone version-note (0.3.160->0.3.159), and the prior round F-001 text itself already evaluated and accepted this exact M0 pattern as consistent (cited as a comparison baseline). M2 (plain reviewed-pass in both plan+subs) vs findings hardening note is consistent since hardening note is not a status-label qualifier used elsewhere. M3/M4/M5/M6 all have inline-tagged sub-rows (M3.e, M4.c, M5.c/e/f, M6.d) matching their rollup qualifier and findings Verdict. M7 rollup plain reviewed-pass vs findings executed-pass-with-corrections is fine since M7 subs are meta/process items not correction-carrying claims themselves. Re-verified doc-code claims still hold against current source: command-policy.ts PLAN-only restriction for milestone_ledger_set/add, milestone_status/closeout readOnly ownershipClass, assertMilestoneStatusReadOnlyBoundary key allowlist, evidence-freshness.ts read-only git subprocess calls (rev-parse/status/ls-tree) via currentMilestoneStatusEvidenceBinding, confirmMilestoneLedger not re-asserting hash at confirm time, not_applicable enum + skip-in-check at proofstory.ts:1358, duplicat* zero-hits in proofstory-intent-hardening-smoke.ts, milestone-status.test.mjs correctly excluded from run-all-smokes dist/tasks/*-smoke.js glob and package.json test scripts, and NAV.md linking both docs. Version drift to 0.3.161 in current package.json is unrelated chore auto-bump churn from main, not a story-introduced drift. No new inconsistency found; no blocker.",
+      "createdAt": "2026-07-05T15:17:29.834Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-014",
+      "_hash": "c0cc381a474cfb1b6a5d5b2f7d35ea64ed3b9590b753136862d748e0f83ee9c0"
     }
   ]
 }
