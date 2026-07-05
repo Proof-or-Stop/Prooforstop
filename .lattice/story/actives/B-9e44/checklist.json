@@ -115,11 +115,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/build-protocol.mjs; shasum -a 256 experiments/pos-instrument-replay/protocol.json; git checkout -- experiments/pos-instrument-replay/protocol.json",
           "result": "pass",
-          "note": "build-protocol re-emits byte-identical; sha256 a809206ae06f5c96781845daef81f7bfe1ee169d792f0ddfddee3733316606bc stable.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "build-protocol re-emits byte-identical; sha256 a3a781fed2814259378dae7aee80d3aa3920b5883c5d75d960509fb7901c848c stable.",
+          "headHash": "791fc945aae6a0c596027b048731461bc63727f1",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:09.295Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
