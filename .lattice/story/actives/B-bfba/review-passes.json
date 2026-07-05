@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T00:17:44.038Z",
       "reviewRunId": "B-bfba:RR-008",
       "_hash": "58f8e58c635b0ab045955bcc35049e2b1aa5b3b26b566e648ec9908b0f2bacf2"
+    },
+    {
+      "id": "B-bfba:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "B-bfba:F-001 is resolved. The added milestone-status regression creates a temp repo StoryStore, calls createStoryAdvanceHandlers(...).story_advance({ storyId, phase: 'DONE' }), asserts DONE succeeds, asserts milestone-closeout.json exists via store.storyFilePath, verifies the closeout capture log, and checks the snapshot phase remains TEST before DONE metadata persistence. Focused test and no-emit build both pass.",
+      "createdAt": "2026-07-05T00:22:13.472Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-007",
+      "_hash": "ac23e7d6337e4ea7ac03639070f3742ddcebbf67b0db63c246feb8c051f1e65c"
     }
   ]
 }
