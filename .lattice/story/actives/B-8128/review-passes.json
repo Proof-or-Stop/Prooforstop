@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T17:20:20.090Z",
       "reviewRunId": "B-8128:RR-003",
       "_hash": "53dc2e56429249eef544d3ea49d2424b6dfb983aa17d890edd2593e9d8cd695c"
+    },
+    {
+      "id": "B-8128:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 (post round-1 fixes). Diff vs main is purely additive: new capability-release.ts core module + handlers/capability-release.ts + capability_release_list/status CLI commands + new smoke tasks + optional PlaybookLineage fields + new .lattice/capability-releases.jsonl ledger — none of these replace or delete a prior concept (grep confirms core/capability-release.ts did not exist on main; new capability_release_* commands are distinct from, and do not collide with, the pre-existing untouched capability_list/capability_probe/capability_claim family). The one true rename in this diff is runArtifactReleaseLedgerAfterDoneMerge -> runArtifactReleaseLedgerAfterDoneMergeDetailed (the round-1 F-002 fix removed the dead non-Detailed wrapper rather than keeping it as delegating shim). Repo-wide grep (*.ts/*.md/*.json, excluding node_modules/dist/.git/@deprecated) confirms ZERO remaining code references to the bare old name; both call sites (done-effects.ts, done-recover.ts) and the sole definition consistently use ...Detailed. The old name survives only as prose in the execution-plan doc (pre-existing M2 planning text written before the rename) and in .lattice/story audit-trail metadata (plan.md/review-passes.json/findings.json, self-referential story history) — no orphaned code, no dead imports, no user-facing API-name drift (docs/CLI.md never names this internal fn). Also re-verified all 6 round-1-fixed findings have zero residue: execFileSync import gone, dead runArtifactReleaseLedgerAfterDoneMerge wrapper gone, unused readPlaybooks import gone from playbook-capability-lineage-smoke.ts, unused buildCapabilityReleaseRecord import gone from product-capability-release-smoke.ts (function itself remains legitimately used elsewhere), the two flagged as-any HandlerContext casts are gone (remaining as-any uses in that file are unrelated deliberate invalid-input assertions), and playbook_promotion_status now genuinely renders capability-lineage from the already-loaded row.playbook.lineage. No concept-deletion residue found; no blocker.",
+      "createdAt": "2026-07-05T17:36:34.898Z",
+      "reviewRound": "2026-07-05T17:34:07.372Z",
+      "reviewRunId": "B-8128:RR-005",
+      "_hash": "2251ba7b99da895ce3a5f9d403d72e157c3449d19f9894b514a9107288463510"
     }
   ]
 }
