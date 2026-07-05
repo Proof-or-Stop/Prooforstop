@@ -1,0 +1,58 @@
+{
+  "storyId": "B-11ad",
+  "checkedAt": "2026-07-05T11:38:03.446Z",
+  "headHash": "daddb0ee18308592738ea5ea1f5e6c2793c6b2d4",
+  "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+  "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+  "reviewRound": "2026-07-05T11:06:09.853Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "Documents .lattice/artifact-releases.jsonl plus artifact_release_list/status as read-only provenance commands for non-runtime docs/experiments artifacts, excluding runtime/lifecycle inputs and not broadening CLI semver.",
+      "status": "verified",
+      "verifiedBy": "manual line inspection and direct CLI checks",
+      "evidence": "docs/CLI.md lines 573-582 name .lattice/artifact-releases.jsonl, docs/** and experiments/** release contents, exclusions for .lattice/story lifecycle metadata and watched CLI/runtime build inputs, provenance-only semantics, no CLI patch semver broadening, and read-only artifact_release_list/status inspection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "States CLI patch semver remains runtime/capability-bound and non-runtime DONE artifacts use a separate provenance ledger with deterministic sha256 digest and read-only host-neutral inspection.",
+      "status": "verified",
+      "verifiedBy": "manual line inspection and smoke test evidence",
+      "evidence": "story-lifecycle.md lines 160-161 state CLI patch version is a Proofbound CLI/runtime and capability-contract marker, not repository-wide artifact ledger, and that non-runtime DONE artifacts use .lattice/artifact-releases.jsonl with deterministic sha256 artifact-set digest and read-only host-neutral artifact_release_list/status commands."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "validate-full-suite",
+      "transcript": "PASS: lattice validate --story=B-11ad --json ran 34 configured validate commands, reported status pass/allPass true, and covered 9/9 verification intents."
+    },
+    {
+      "featureId": "done-required-validation",
+      "transcript": "PASS: lattice done_required_validate --storyId=B-11ad completed with 2 required commands: npm --prefix packages/main run build exitCode=0 and npm test exitCode=0."
+    },
+    {
+      "featureId": "artifact-release-ledger-smoke",
+      "transcript": "PASS: node packages/main/dist/tasks/artifact-release-ledger-smoke.js completed 10 assertions covering path classification, sha256-prefixed deterministic digest, DONE/recovery ledger write behavior, idempotence, empty releasable set behavior, read-only list/status handlers, and semver boundary note."
+    },
+    {
+      "featureId": "version-bump-smoke",
+      "transcript": "PASS: node packages/main/dist/tasks/version-bump-smoke.js completed 74 assertions, preserving CLI semver bump boundaries."
+    },
+    {
+      "featureId": "artifact-release-list-empty-ledger",
+      "transcript": "PASS: node packages/main/dist/cli.js artifact_release_list --format=json returned valid JSON [] for the empty live ledger."
+    },
+    {
+      "featureId": "artifact-release-status-before-done",
+      "transcript": "PASS: node packages/main/dist/cli.js artifact_release_status --storyId=B-11ad --format=json returned { storyId: B-11ad, count: 0, latest: null, records: [] }, proving read-only absence state before DONE ledger write."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs promises and real-machine checks for B-11ad are verified; no delivery blocker remains."
+  },
+  "_hash": "3faffca96554c89264a1f73044597dd628b11391b2c2d4d48e0ec36a4b538009"
+}
