@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status and milestone_closeout rendered output",
-      "context": "packages/main/src/core/milestone-status.ts renderMilestoneStatusReport (~L884-925), the missing-ledger report, and the closeout report currently emit only 'Mode: read-only'. Add an explicit disclaimer line stating milestone progress is not lifecycle DONE, not Authority, not production readiness. Closes findings M6 (report lines re: M1.f/M6). Update packages/main/tests/milestone-status.test.mjs to assert the disclaimer string is present.",
+      "context": "packages/main/src/core/milestone-status.ts renderMilestoneStatusReport (~L1146-1187), the missing-ledger report, and the closeout report currently emit only 'Mode: read-only'. Add an explicit disclaimer line stating milestone progress is not lifecycle DONE, not Authority, not production readiness. Closes findings M6 (report lines re: M1.f/M6). Update packages/main/tests/milestone-status.test.mjs to assert the disclaimer string is present.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -35,7 +35,7 @@
     {
       "id": "CHK-005",
       "title": "Add negative-control test: a stale-only status report is rejected by buildMilestoneCloseoutSnapshot",
-      "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L482-544) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
+      "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L749-870, stale ledger built ~L823) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -67,7 +67,18 @@
     {
       "id": "CHK-009",
       "title": "Record an explicit decision on the milestone-triggered gate-mode default (observe vs enforce)",
-      "context": "core/phase-gates.ts default doneGateMode is 'observe'; strict-DONE blocking only fires under 'enforce' (proofstory.ts blocking = mode === 'enforce' && gaps.length > 0, ~L1387/1442). Decide (with a recorded rationale/decision-doc) whether milestone-triggered stories should default to enforce; observe->enforce is a behavior change with wide blast radius, so this is a decision item, not a blind flip. Closes findings M3/M7 gate-mode default question.",
+      "context": "packages/main/src/handlers/phase-gates.ts resolves doneGateMode (type declared in packages/main/src/core/config.ts:60 as 'observe'|'warn'|'enforce', default observe); strict-DONE blocking only fires under 'enforce' (proofstory.ts blocking = mode === 'enforce' && gaps.length > 0, ~L1387/1442). Decide (with a recorded rationale/decision-doc) whether milestone-triggered stories should default to enforce; observe->enforce is a behavior change with wide blast radius, so this is a decision item, not a blind flip. Closes findings M3/M7 gate-mode default question.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Reconcile the milestone_status vs DONE-gate stale-evidence disagreement and the closeout second-gate divergence",
+      "context": "B-b550 M7 follow-up item 4 (the completeness-critic's two MAJOR holes). (1) milestone_status demotes stale milestone evidence (row -> groups.current, statusDetail=stale), but evaluateDoneIntentEquivalence (packages/main/src/handlers/phase-gates.ts; milestone coverage resolved via evidenceCoversIntent) can still pass the SAME stale ledger — the two surfaces give contradictory verdicts on identical stale evidence. (2) captureMilestoneCloseoutSnapshotFromStore (packages/main/src/handlers/milestone-status.ts, invoked from the DONE transition in transition-orchestrator.ts, phase==='DONE') acts as an undesigned second DONE gate with divergent throw semantics vs the designed evaluateDoneIntentEquivalence gate: a legitimately shrunk / non-applicable-but-risky confirmed ledger makes the designed gate pass while the closeout builder throws, blocking DONE. Reconcile so (a) milestone_status freshness and the DONE gate agree on stale milestone evidence, and (b) closeout capture is not a divergent second gate — with a recorded decision + tests. Design-decision + code; closes findings M7 follow-up item 4.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-f7b3/background.md"
+      ],
       "status": "pending",
       "startTime": null,
       "endTime": null

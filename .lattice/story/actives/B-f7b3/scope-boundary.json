@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f7b3",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/ — a decision doc recording the gate-mode-default decision",
+    "packages/main/src/core/command-policy.ts — add Authority to the milestone_status reason string (match milestone_closeout)",
+    "packages/main/src/core/milestone-status.ts — add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status/closeout render output",
+    "packages/main/src/core/phase-gates.ts — milestone-triggered gate-mode default decision (guarded, decision-recorded, not a blind flip)",
+    "packages/main/src/core/proofstory.ts — gate not_applicable behind a justification + confirmMilestoneLedger confirm-time confirmedLedgerHash===ledgerHash re-check",
+    "packages/main/src/core/types.ts — optional not_applicable justification field",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts — duplicate-row + vacuous confirmed-ledger negative-control tests",
+    "packages/main/src/tasks/run-all-smokes.ts and package.json/packages/main/package.json test scripts — wire milestone-status.test.mjs into the aggregate suite",
+    "packages/main/tests/milestone-status.test.mjs — disclaimer assertion + stale-only closeout negative-control test"
+  ],
+  "excluded": [
+    "Do NOT blindly flip the gate-mode default observe->enforce without a recorded decision + rationale",
+    "Do NOT touch unrelated packages, experiments, or milestone semantics beyond the six M7 items",
+    "Do NOT weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
+    "No production/deployment/infrastructure changes (the production keyword was a disclaimer-text mention only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directive 2026-07-05: turn the B-b550 M7 follow-up scope (all six milestone-observability hardening items) into a single implementation story.",
+  "createdAt": "2026-07-05T17:16:23.144Z",
+  "updatedAt": "2026-07-05T17:16:23.144Z",
+  "_hash": "c596236d44c98cc7d3920f8c00cfb654e1b68a85b4c902546f73d6ba9f1d8b66"
+}

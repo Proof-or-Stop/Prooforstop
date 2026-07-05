@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f7b3",
+  "checkedAt": "2026-07-05T17:27:30.639Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "c596236d44c98cc7d3920f8c00cfb654e1b68a85b4c902546f73d6ba9f1d8b66",
+  "executionBoundaryHash": "795b9c24dbf11c445e0c26d039579dbe13f389d8e4326b1a625837d806677e31",
+  "freshnessHash": "7ed5a195e84828cc74f4c9e29d6d4f436df66a75fb76c98d256c69470e11fb23",
+  "effectiveExcludedKeywords": [
+    "Do NOT blindly flip the gate-mode default observe->enforce without a recorded decision + rationale",
+    "Do NOT touch unrelated packages, experiments, or milestone semantics beyond the six M7 items",
+    "Do NOT weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
+    "No production/deployment/infrastructure changes (the production keyword was a disclaimer-text mention only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do NOT blindly flip the gate-mode default observe->enforce without a recorded decision + rationale",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT blindly flip the gate-mode default observe->enforce without a recorded decision + rationale",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT touch unrelated packages, experiments, or milestone semantics beyond the six M7 items",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT touch unrelated packages, experiments, or milestone semantics beyond the six M7 items",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
+      "excluded": true
+    },
+    {
+      "keyword": "No production/deployment/infrastructure changes (the production keyword was a disclaimer-text mention only)",
+      "source": "scopeBoundary.excluded",
+      "text": "No production/deployment/infrastructure changes (the production keyword was a disclaimer-text mention only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a286bd9cd435de8a20f8f5adc1ac848e9ac976e8b87fd180afdc47e4bf128bb0"
+}
