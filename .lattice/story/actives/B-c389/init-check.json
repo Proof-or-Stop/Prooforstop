@@ -1,0 +1,32 @@
+{
+  "storyId": "B-c389",
+  "checkedAt": "2026-07-05T22:50:44.998Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md uses the milestone codes M6/M7 (and index.json description additionally uses M8) as if pre-defined, but background.md never expands what M6/M7/M8 stand for inline. Line 2 says \"proved the M6/M7/backfill semantics\", line 5 says \"the safety invariants underneath M6 and M7\", and line 11 says \"the M6 candidate exposure surfaces\" / \"the M7 structured-outcome + promotion recommendation commands\" -- all treating M6/M7 as known labels. A reader of background.md alone (no prior context, not yet having read checklist.json or the external execution-plan doc) cannot resolve what M6 or M7 concretely denote until cross-referencing docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md, which background.md itself never links (the Ref: line only appears in index.jsons description field, not in background.md). checklist.json context fields do informally resolve this (CHK-002 prefixes M6:, CHK-003 prefixes M7:), but background.md fails the standalone-readability bar on its own."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-05T22:49:38.219Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-05T22:50:44.998Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md uses the milestone codes M6/M7 (and index.json description additionally uses M8) as if pre-defined, but background.md never expands what M6/M7/M8 stand for inline. Line 2 says \"proved the M6/M7/backfill semantics\", line 5 says \"the safety invariants underneath M6 and M7\", and line 11 says \"the M6 candidate exposure surfaces\" / \"the M7 structured-outcome + promotion recommendation commands\" -- all treating M6/M7 as known labels. A reader of background.md alone (no prior context, not yet having read checklist.json or the external execution-plan doc) cannot resolve what M6 or M7 concretely denote until cross-referencing docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md, which background.md itself never links (the Ref: line only appears in index.jsons description field, not in background.md). checklist.json context fields do informally resolve this (CHK-002 prefixes M6:, CHK-003 prefixes M7:), but background.md fails the standalone-readability bar on its own."
+        }
+      ]
+    }
+  ],
+  "_hash": "bf6452db3b51b53e00aa1cea360da87ee342bf47e576920c1b85cce68f91ab4f"
+}
