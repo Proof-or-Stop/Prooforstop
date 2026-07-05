@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-0315:F-001",
+      "desc": "B-0315 changes the DONE build/version-bump gate so packages/main/tests/** is a watched capability-proof input (done-effects.ts returns true and version-bump-smoke asserts that positive case), but worktree-authority-smoke still keeps packages/main/tests/smoke.ts in the skipped set and asserts isDoneMainRuntimeBuildInput(path) === false. That leaves a core authority smoke encoding the opposite product boundary from this story, so the bounded strategy is not consistently reflected and will fail or mislead gate verification when that smoke runs.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-05T09:59:45.561Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-003",
+      "_hash": "5a424beb3b01c3e2793277373053be5bc26e8cf4b931a4adcd9863c5f4cc1bdb",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|0315-changes-build",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
