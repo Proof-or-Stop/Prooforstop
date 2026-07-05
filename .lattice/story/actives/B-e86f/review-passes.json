@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T12:59:18.692Z",
       "reviewRunId": "B-e86f:RR-004",
       "_hash": "4855c1acecf941347694bb9bd7dc755d54c00fb56b3813b4f0ef628ea2430e92"
+    },
+    {
+      "id": "B-e86f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Docs-only commit 4a4c4e543 reworded H2/fingerprint terminology (added fingerprint-domain + accepted-behavior disposition) but deleted/renamed no concept. Grepped the full plan doc for old phrasing (flag fingerprint / observed flag vector / enumerated tamper class) plus new terms (fingerprint domain, fail-closed set, acceptance bucket, accepted-behavior) across all ~20 occurrences: every use is internally consistent with the new domain-qualified fingerprint definition; no dangling old-terminology residue found. No blocker.",
+      "createdAt": "2026-07-05T13:59:47.248Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-005",
+      "_hash": "897601dd0f22063b562c06a1a94c9486b9eeadc7b4d0a4907fe4e6e6b4917b43"
     }
   ]
 }
