@@ -135,13 +135,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail'&&f.status!=='crash'&&!Object.values(f.flags||{}).some(v=>v===false)&&!(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log('failClosed',p.tamperMatrix.failClosed.length,'vacuous',bad.length)\"",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail'&&f.status!=='crash'&&!Object.values(f.flags||{}).some(v=>v===false)&&!(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log(p.tamperMatrix.failClosed.length,bad.length)\"",
           "result": "pass",
-          "note": "All 18 fail-closed classes carry a genuine failure signal (status fail OR crash, and/or a required-false flag / failing numeric predicate); 0 vacuous.",
-          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "note": "All 18 fail-closed classes carry a genuine failure signal (fail/crash and/or required-false flag / failing numeric predicate); 0 vacuous.",
+          "headHash": "a4734906a025992967fe187a69cdd4321827c937",
           "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
           "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
-          "timestamp": "2026-07-05T16:37:05.896Z"
+          "timestamp": "2026-07-05T16:37:12.593Z"
         }
       ]
     },
