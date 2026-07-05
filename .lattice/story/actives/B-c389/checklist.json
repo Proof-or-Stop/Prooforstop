@@ -248,9 +248,9 @@
       "id": "CHK-004",
       "title": "Validation: build + new smokes + lattice validate green; live backfill idempotency proof",
       "context": "tsc clean; new smokes green; lattice validate pass. Prove the LIVE B-785e backfill is idempotent: re-run is a no-op, no duplicate candidate, PBP-882 stays status=candidate with usage.surfacedCount unchanged, and no helped outcome is produced.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T23:47:27.379Z",
       "userSees": "Project validation commands passed; live B-785e backfill idempotency proof green",
       "files": {
         "modify": [
