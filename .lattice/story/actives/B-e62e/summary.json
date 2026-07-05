@@ -1,0 +1,55 @@
+{
+  "storyId": "B-e62e",
+  "changes": "Added CLI-owned post-command milestone_status appending for milestone-aware story mutations, plus six developer-facing status labels in milestone_status output and documentation.",
+  "usage": "Run milestone-aware mutating commands such as checklist_update, verification_evidence_refresh_stale, story_advance, delivery_check_set, or summary_set on a story with milestone-ledger.json; human stdout appends the consumed Milestone Status table automatically.",
+  "expectedOutcome": "After each supported story state change, developers see Milestone Status with Completed, Current, and Remaining sections, including Done, In Progress, Pending Review, Not Started, Blocked, and Failed labels where applicable.",
+  "actualTranscript": "Observed verification_evidence_refresh_stale on B-e62e auto-append Milestone Status - B-e62e after the command completed. Completed contained M1 and M2 with Done status, Current was none, Remaining was none, and Risks was none.",
+  "outcomeDiff": "Expected and actual behavior match for ledger-backed human stdout. JSON mode remains clean and no-ledger stories do not receive fabricated progress tables.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Applies only to configured human-output story mutating commands with a milestone ledger. JSON output and no-ledger stories intentionally skip appended tables.",
+  "pitfalls": "Do not treat Failed as Not Started. Failed is reserved for failed evidence or explicit failed state; future work should use Not Started for future tasks and Blocked for real blockers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 103810
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23519
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 571783
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3735859
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1065614
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 788353
+    }
+  },
+  "totalDurationMs": 6289304,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T11:58:04.546Z",
+  "updatedAt": "2026-07-05T11:58:04.546Z"
+}
