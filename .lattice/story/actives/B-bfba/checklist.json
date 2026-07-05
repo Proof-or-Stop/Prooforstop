@@ -18,9 +18,9 @@
           "packages/main/tests/milestone-status.test.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-04T23:55:00.850Z",
-      "endTime": null,
+      "endTime": "2026-07-05T00:04:17.378Z",
       "userSees": "The closeout JSON contains each final milestone row with Status, Solved Problem, Acceptance, Evidence, Risks, and Next Action fields.",
       "verificationIntent": {
         "happy": [
@@ -44,7 +44,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Helper happy path asserts proofbound.milestone_closeout.v1 schema, source milestone_status digest, bindings, closeout rows, solvedProblem/acceptance/evidence/risks/nextAction fields, and text rendering.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:17.599Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Test freezes a completed snapshot, then rebuilds a later live milestone_status report with stale bindings and asserts the snapshot still preserves the accepted completed row.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:17.794Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Snapshot helper tests refuse missing-ledger, empty-ledger, incomplete, and risk-bearing reports instead of fabricating closeout success.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:17.982Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
