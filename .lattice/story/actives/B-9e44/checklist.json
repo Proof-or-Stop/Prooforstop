@@ -137,7 +137,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "protocol.json contains a smokeOverlap {covered, smokeCase?} annotation per candidate class; grep shows net-new classes as covered:false and smoke-covered ones naming their smoke case.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "protocol.json records a smokeOverlap {covered:bool, smokeCase?:string} per candidate class (the reuse-audit map)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "classes already exercised by playbook-runtime-memory-baseline-smoke.ts are annotated covered:true with the specific smoke case name",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a net-new class (e.g. records-byte-flip) is annotated covered:false (not falsely claimed as smoke-covered)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
