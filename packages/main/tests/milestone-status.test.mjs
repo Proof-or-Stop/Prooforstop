@@ -669,6 +669,62 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.match(snapshotBackedText, /Milestone Status - B-closeout/);
   assert.match(snapshotBackedText, /\| M-closeout \| Users can read the final solved problem \| ✅ Done \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/);
 
+  const plannedLedgerStoryId = 'B-closeout-planned-ledger';
+  const plannedLedgerReport = buildMilestoneStatusReport({
+    story: story(plannedLedgerStoryId),
+    checklist: {
+      items: [
+        checklistItem('CHK-PLANNED-CLOSEOUT', 'done', [
+          evidence('CHK-PLANNED-CLOSEOUT:happy:0'),
+        ], intent('planned ledger evidence is covered')),
+      ],
+    },
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-planned-closeout',
+        sourceRequirementId: 'REQ-planned-closeout',
+        claim: 'Closeout completed rows render done even when frozen detail says ledger planned',
+        doneMeans: 'The completed closeout group is display-final',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-PLANNED-CLOSEOUT'],
+        verificationIntentRefs: ['CHK-PLANNED-CLOSEOUT:happy:0'],
+        status: 'planned',
+      }),
+    ], plannedLedgerStoryId),
+  });
+  assert.deepEqual(plannedLedgerReport.groups, { completed: ['M-planned-closeout'], current: [], remaining: [] });
+  const activePlannedText = renderMilestoneStatusReport(plannedLedgerReport);
+  assert.match(
+    activePlannedText,
+    /\| M-planned-closeout \| Closeout completed rows render done even when frozen detail says ledger planned \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/,
+    'active live planned+covered rows still render Pending Review',
+  );
+  assert.doesNotMatch(activePlannedText, /✅ Done \(ledger=planned;/);
+
+  const plannedLedgerSnapshot = buildMilestoneCloseoutSnapshot({
+    report: plannedLedgerReport,
+    bindings: { headHash: 'head-planned-closeout' },
+    generatedAt: '2026-07-04T12:30:00.000Z',
+  });
+  assert.equal(
+    plannedLedgerSnapshot.rows[0].status,
+    'completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)',
+  );
+  const plannedSnapshotBackedReport = buildMilestoneStatusReportFromCloseoutSnapshot(
+    plannedLedgerSnapshot,
+    { phase: 'DONE' },
+  );
+  assert.equal(plannedSnapshotBackedReport.milestones[0].status, 'completed');
+  assert.equal(plannedSnapshotBackedReport.milestones[0].statusDetail, 'ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered');
+  assert.equal(plannedSnapshotBackedReport.milestones[0].ledgerStatus, 'done');
+  const plannedSnapshotBackedText = renderMilestoneStatusReport(plannedSnapshotBackedReport);
+  assert.match(
+    plannedSnapshotBackedText,
+    /\| M-planned-closeout \| Closeout completed rows render done even when frozen detail says ledger planned \| ✅ Done \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/,
+    'DONE closeout-backed completed rows render Done even when frozen ledger detail is planned',
+  );
+  assert.doesNotMatch(plannedSnapshotBackedText, /🟡 Pending Review \(ledger=planned;/);
+
   const laterLiveReport = buildMilestoneStatusReport({
     story: closeoutStory,
     checklist: cl,

@@ -641,9 +641,11 @@ function ledgerStatusFromCloseoutDetail(
   detail: string,
   progressStatus: MilestoneProgressStatus,
 ): MilestoneStatus {
+  // Frozen completed closeout rows are final for display even when detail preserves pre-DONE ledger state.
+  if (progressStatus === 'completed') return 'done';
   const ledgerStatus = validMilestoneLedgerStatus(/\bledger=([^;\s)]+)/.exec(detail)?.[1]);
   if (ledgerStatus) return ledgerStatus;
-  return progressStatus === 'completed' ? 'done' : 'planned';
+  return 'planned';
 }
 
 function closeoutEvidenceStatus(value: string | undefined): MilestoneStatusEvidenceRef['status'] {
