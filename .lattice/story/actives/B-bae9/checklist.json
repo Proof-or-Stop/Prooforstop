@@ -136,11 +136,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
-          "note": "Un-gameable: selfcheck-m1 negative test flips a frozen fingerprint flag -> tamper.mjs fingerprintMatch:false + nonzero exit. Plus new guards: a silent no-op mutation OR a dropped drift OR a disposition mismatch each fail loudly (exit nonzero).",
-          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "note": "Un-gameable + fully op-covered: selfcheck-m1 (b) negative test (flip a frozen flag -> fingerprintMatch:false + nonzero exit) AND (c) op-coverage (tamper.mjs --optselftest drives compareFingerprint ==,<,>,!= + unknown-op-throw). A no-op mutation, dropped drift, or disposition mismatch each also fail loudly.",
+          "headHash": "87dbbf9542dce78ec79abe2ddaca17a669c5a611",
           "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
           "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
-          "timestamp": "2026-07-05T18:21:24.271Z"
+          "timestamp": "2026-07-05T18:21:24.944Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
