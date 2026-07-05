@@ -90,7 +90,7 @@
       "desc": "quality: experiments/pos-instrument-replay/tamper.mjs:370-405 -- compareFingerprint's new numeric predicate branches for op '>' and op 'not-equal' (plus the default:throw-on-unknown-op branch) are never exercised by any test. The frozen protocol.json's 27 tamperMatrix entries only ever produce failureSignals with op 'equals' (4 entries) or op 'less-than' (12 entries) -- zero entries use the 'greater-than' or 'not-equal' ops (confirmed by iterating protocol.json's tamperMatrix programmatically). selfcheck-m1.mjs's negative test (lines 180-256) only flips a boolean flag, not a numeric metric predicate op, so it does not exercise these branches either. F-004's claim that compareFingerprint covers all four predicate ops and throws on an unknown op is true of the written code but 3 of its 4 op branches (greater-than, not-equal, and the throw-on-unknown-op default) are untested -- a latent bug there would not be caught by the current test suite.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T18:12:39.475Z",
@@ -102,7 +102,11 @@
         "experiments/pos-instrument-replay/selfcheck-m1.mjs"
       ],
       "signatureTag": "missing|mjs|quality-experiments-instrument",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f636e40cf. Added tamper.mjs --optselftest that exercises every compareFingerprint predicate branch (==, <, >, != with match + no-match cases) plus an unknown op that must throw, and wired it as selfcheck-m1.mjs step (c). The >/!=/throw branches are now covered by a committed executable test (selfcheck-m1 (c): 'compareFingerprint ==,<,>,!= branches + unknown-op-throw all verified'). No change to the normal conformance run or tamper-verdicts.jsonl.",
+      "resolvedAt": "2026-07-05T18:21:39.597Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
