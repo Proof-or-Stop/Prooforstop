@@ -167,6 +167,19 @@
           "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
           "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
           "timestamp": "2026-07-05T14:13:52.979Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+          "command": "lattice milestone_status --storyId=B-b550 --writeEvidence=true",
+          "result": "pass",
+          "note": "Unknown key rejected before any story read; pass = the expected rejection occurred (see evidence artifact)",
+          "headHash": "7462da16f4eaa54399cd65bd397cfd6a6ab394f9",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:13:54.368Z"
         }
       ]
     },
