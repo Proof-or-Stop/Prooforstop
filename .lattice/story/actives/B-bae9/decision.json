@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "tamper.mjs READS the frozen protocol.json; it never re-derives or rewrites fingerprints (conformance to the M0 freeze is the whole point).",
+    "fingerprintMatch over the explicit frozen domain (flags + numeric predicates) is the mechanical H2 adjudication (no textual reason).",
+    "Reuse M0 lib/instrument.mjs; do not duplicate verify/refresh/fingerprint logic.",
+    "All mutations on mkdtemp copies; identity-keyed canonical verdict ledger.",
+    "Fail loudly: any live-vs-frozen mismatch exits nonzero (H2 evidence must be un-gameable)."
+  ],
+  "drivers": [
+    "The frozen protocol.json is the M0 contract; M1 proves conformance, not re-discovery.",
+    "The verifier has no reason field, forcing fingerprint-based adjudication.",
+    "tamper-verdicts.jsonl must be reproducible + machine-adjudicable by the M4 analyzer."
+  ],
+  "options": [
+    {
+      "name": "read-frozen-protocol-assert-conformance",
+      "pros": [
+        "Catches instrument drift vs the freeze",
+        "Verdict ledger is the reproducible H2 evidence",
+        "Reuses M0 mutations + lib"
+      ],
+      "cons": [
+        "Requires the class mutation definitions to match M0 exactly"
+      ]
+    },
+    {
+      "name": "recompute-fingerprints-in-tamper",
+      "pros": [
+        "Self-contained"
+      ],
+      "cons": [
+        "Makes the M0 freeze meaningless — no conformance check; H2 becomes unfalsifiable"
+      ]
+    }
+  ],
+  "chosen": "read-frozen-protocol-assert-conformance",
+  "rationale": "M1 must prove the instrument still conforms to the frozen fingerprints (that is H2 evidence). Recomputing fingerprints inside tamper.mjs would defeat the freeze. Reusing the M0 mutations + lib keeps it deterministic and drift-detecting.",
+  "preMortem": [
+    {
+      "scenario": "Fingerprint mismatch from a benign representation diff",
+      "trigger": "live verify returns a numeric rate as 0.9999999 vs frozen 1 due to float",
+      "consequence": "false H2 falsification",
+      "mitigation": "compare numeric predicates via the frozen op/value (exact/threshold), not raw float equality"
+    },
+    {
+      "scenario": "Non-deterministic verdict ledger",
+      "trigger": "volatile fields (elapsedMs/rss/absolute paths) written into tamper-verdicts.jsonl",
+      "consequence": "selfcheck determinism check fails spuriously",
+      "mitigation": "exclude volatile fields from the identity/verdict content; keep only the frozen-domain values + fingerprintMatch"
+    },
+    {
+      "scenario": "Harness mutations drift from the M0 class definitions",
+      "trigger": "tamper.mjs re-implements a mutation differently than viability-check.mjs",
+      "consequence": "a class produces a different fingerprint and spuriously mismatches",
+      "mitigation": "share the mutation/class definitions with M0 (import or replicate verbatim) and let the selfcheck negative test catch drift"
+    }
+  ],
+  "timestamp": "2026-07-05T17:07:30.540Z"
+}

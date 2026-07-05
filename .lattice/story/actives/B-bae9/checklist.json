@@ -6,7 +6,41 @@
       "context": "iterationId = tamper/<scale>/<class>/<manifestHandling> per protocol.iterationIdRule. Reuse lib/instrument.mjs verifyDir/refreshManifest/fingerprintDomain/canonicalJson. Mutations are re-applied deterministically from the same class definitions M0 used; fingerprintMatch compares the live fingerprint-domain values against the frozen per-class fingerprint in protocol.json.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/tamper.mjs prints a per-class verdict table and writes tamper-verdicts.jsonl (one line per class x manifestHandling with iterationId, verifyStatus, verifyFlags, goldMetrics, fingerprintMatch, disposition); ends 'verdicts written: N'.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/tamper.mjs",
+          "experiments/pos-instrument-replay/tamper-verdicts.jsonl"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node tamper.mjs reads the frozen protocol.json, runs every (class x manifestHandling) on mkdtemp copies, and writes tamper-verdicts.jsonl with the full flag vector + gold metrics + fingerprintMatch + disposition per class",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tamper.mjs only mutates mkdtemp-isolated copies; the working tree + source baseline stay clean after a full run",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the identity key (tamper/<scale>/<class>/<manifestHandling>) matches protocol.iterationIdRule and every frozen-matrix class appears exactly once in the verdict ledger",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
