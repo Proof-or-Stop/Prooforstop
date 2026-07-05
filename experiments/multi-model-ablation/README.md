@@ -1,10 +1,30 @@
-# Multi-Model Ablation M0 Examples
+# Multi-Model Ablation Research Artifacts
 
-This directory contains M0-only research scaffolding for the protocol in `docs/requirements/decisions/multi-model-ablation-replication.md`.
+This directory contains provider-free research scaffolding for the protocol in `docs/requirements/decisions/multi-model-ablation-replication.md`.
 
-These files are examples, not executable Phase 1 or Phase 2 artifacts. They do not call providers, do not contain ablation outcomes, do not unlock product gates, and do not alter DONE, playbook, runtime, or default agent guidance.
+These files are not executable Phase 1 or Phase 2 result artifacts. They do not call providers, do not contain ablation results, do not unlock product gates, and do not alter DONE, playbook, runtime, or default agent guidance.
 
 ## Files
+
+### M2 Launch Readiness
+
+- `m2-launch-readiness.json` records the 2026-07-05 provider-free readiness boundary while keeping provider execution disabled.
+- `model-snapshot-lock.m2.json` declares dated E1/E2 provider-family readiness and keeps host labels separate from model families.
+- `task-inventory.m2.json` binds the 24 existing `experiments/recovery-runner/tasks` directories read-only by digest without editing those tasks.
+- `phase1-runner-manifest.m2.json` represents required Phase 1 cells ③, ⑥, and ②, with optional ④ kept budget-permitting.
+- `phase1-launch-readiness.m2.json` keeps ③ A4 calibration pending and ⑥ A2prime blocked until a real ③-derived budget lock exists.
+- `m2-status.md` summarizes M0/M1 completion, M2 readiness, and the still-pending M3-M6 research work.
+- `m2-launch-readiness-check.mjs` validates the M2 artifacts and in-memory negative controls without running provider cells.
+
+### M1 Freeze
+
+- `protocol.lock.json` binds the protocol document by SHA-256.
+- `seed-manifest.m1.json` freezes task/scenario/repeat slots and deterministic seed policy.
+- `cell-matrix.m1.json` freezes the provider-free Phase 1 cell matrix.
+- `phase1-launch-gate.m1.json` keeps Phase 1 launch blocked.
+- `m1-freeze-check.mjs` validates the M1 freeze layer.
+
+### M0 Examples
 
 - `cell-manifest.example.json` shows formal, unique `cellKey` rows for ③, ⑥, ②, and optional ④. It also encodes the required ordering: ③ E2 A4 calibration precedes the ⑥ E2 A2prime row, and A2prime requires a `budgetLockDigest`.
 - `runner-registry.example.json` shows runner pre-registration while keeping `hostKind` separate from `executorSnapshot` and `reviewerSnapshot`.
@@ -184,3 +204,13 @@ NODE
 ```
 
 These commands are intentionally limited to `rg` and local `node` parsing. They do not run Phase 1/2 cells and do not contact model providers.
+
+## M2 Local Check
+
+Run the M2 launch-readiness checker:
+
+```bash
+node experiments/multi-model-ablation/m2-launch-readiness-check.mjs
+```
+
+The checker recomputes task digests, verifies E1/E2 provider-family separation, confirms required cells ③/⑥/②, preserves ③ and ⑥ execution blockers, and rejects in-memory negative controls. It is local-only and does not contact providers.

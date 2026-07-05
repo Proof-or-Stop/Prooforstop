@@ -1,0 +1,209 @@
+{
+  "artifact": "phase1-runner-manifest.m2",
+  "storyId": "B-fe25",
+  "status": "m2_phase1_required_cell_families_represented_provider_execution_disabled",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "taskInventoryArtifact": "task-inventory.m2.json",
+  "taskInventoryDigest": "sha256:344845e8b2d4d974544fbd182c4061eff958350388133c0d08cfaa0aae4cedd4",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "providerFree": true,
+  "enumerationPolicy": {
+    "materializesAllRows": false,
+    "manifestType": "cell_family_manifest_over_24_bound_tasks",
+    "cellKeyFamilyFormat": "cellNumber|arm|{taskId}|{scenarioSlot}|{repeatSlot}|executorFamily|reviewerFamily",
+    "duplicateOwnershipPolicy": "one runner owner per cell key family; duplicate rows require pre-registered duplicate handling in the future execution story"
+  },
+  "dimensions": {
+    "taskDirectories": 24,
+    "scenarioSlots": 16,
+    "repeatSlots": 3,
+    "rowsPerPhase1Cell": 1152
+  },
+  "phase1Cells": [
+    {
+      "cellNumber": "③",
+      "phase1Status": "required",
+      "requiredForLaunchReadiness": true,
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "rows": 1152,
+      "runnerId": "m2-future-cell-03-e2-a4-same",
+      "cellKeyFamily": "③|A4|{taskId}|{scenarioSlot}|{repeatSlot}|E2|same",
+      "executionStatus": "pending_provider_execution_authorization",
+      "providerExecutionAllowedInM2": false,
+      "isA4CalibrationSource": true
+    },
+    {
+      "cellNumber": "⑥",
+      "phase1Status": "required",
+      "requiredForLaunchReadiness": true,
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "rows": 1152,
+      "runnerId": "m2-future-cell-06-e2-a2prime",
+      "cellKeyFamily": "⑥|A2prime|{taskId}|{scenarioSlot}|{repeatSlot}|E2|not_applicable",
+      "executionStatus": "blocked_until_real_③_A4_budget_lock",
+      "providerExecutionAllowedInM2": false,
+      "requiresRealBudgetLockFromCell": "③",
+      "isA2primeBudgetLockedCell": true
+    },
+    {
+      "cellNumber": "②",
+      "phase1Status": "required",
+      "requiredForLaunchReadiness": true,
+      "arm": "A4",
+      "executorFamily": "E1",
+      "reviewerFamily": "cross",
+      "rows": 1152,
+      "runnerId": "m2-future-cell-02-e1-a4-cross",
+      "cellKeyFamily": "②|A4|{taskId}|{scenarioSlot}|{repeatSlot}|E1|cross",
+      "executionStatus": "pending_provider_execution_authorization",
+      "providerExecutionAllowedInM2": false
+    },
+    {
+      "cellNumber": "④",
+      "phase1Status": "optional_budget_permitting",
+      "requiredForLaunchReadiness": false,
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "cross",
+      "rows": 1152,
+      "runnerId": "m2-future-cell-04-e2-a4-cross",
+      "cellKeyFamily": "④|A4|{taskId}|{scenarioSlot}|{repeatSlot}|E2|cross",
+      "executionStatus": "optional_not_required_for_m2_launch_readiness",
+      "providerExecutionAllowedInM2": false
+    }
+  ],
+  "plannedCounts": {
+    "requiredCells": 3,
+    "requiredCellNumbers": [
+      "③",
+      "⑥",
+      "②"
+    ],
+    "optionalCellNumbers": [
+      "④"
+    ],
+    "requiredRows": 3456,
+    "optionalRowsAddedByCell4": 1152,
+    "requiredPlusOptionalRows": 4608
+  },
+  "runners": [
+    {
+      "runnerId": "m2-future-cell-03-e2-a4-same",
+      "hostKind": "future-provider-runner",
+      "providerModelFamily": "E2",
+      "executorSnapshotFamily": "E2",
+      "reviewerSnapshotFamily": "E2",
+      "providerCallEnabled": false,
+      "eligibleForResultRows": false
+    },
+    {
+      "runnerId": "m2-future-cell-06-e2-a2prime",
+      "hostKind": "future-provider-runner",
+      "providerModelFamily": "E2",
+      "executorSnapshotFamily": "E2",
+      "reviewerSnapshotFamily": "not_applicable",
+      "providerCallEnabled": false,
+      "eligibleForResultRows": false
+    },
+    {
+      "runnerId": "m2-future-cell-02-e1-a4-cross",
+      "hostKind": "future-provider-runner",
+      "providerModelFamily": "E1",
+      "executorSnapshotFamily": "E1",
+      "reviewerSnapshotFamily": "E2",
+      "providerCallEnabled": false,
+      "eligibleForResultRows": false
+    },
+    {
+      "runnerId": "m2-future-cell-04-e2-a4-cross",
+      "hostKind": "future-provider-runner",
+      "providerModelFamily": "E2",
+      "executorSnapshotFamily": "E2",
+      "reviewerSnapshotFamily": "E1",
+      "providerCallEnabled": false,
+      "eligibleForResultRows": false
+    }
+  ],
+  "cellOwnership": [
+    {
+      "ownershipKey": "③|A4|E2|same",
+      "cellNumber": "③",
+      "runnerId": "m2-future-cell-03-e2-a4-same",
+      "duplicateOwnershipAllowed": false
+    },
+    {
+      "ownershipKey": "⑥|A2prime|E2|not_applicable",
+      "cellNumber": "⑥",
+      "runnerId": "m2-future-cell-06-e2-a2prime",
+      "duplicateOwnershipAllowed": false
+    },
+    {
+      "ownershipKey": "②|A4|E1|cross",
+      "cellNumber": "②",
+      "runnerId": "m2-future-cell-02-e1-a4-cross",
+      "duplicateOwnershipAllowed": false
+    },
+    {
+      "ownershipKey": "④|A4|E2|cross",
+      "cellNumber": "④",
+      "runnerId": "m2-future-cell-04-e2-a4-cross",
+      "duplicateOwnershipAllowed": false
+    }
+  ],
+  "confirmatoryContrasts": [
+    {
+      "contrastId": "③-vs-⑥",
+      "leftCellNumber": "③",
+      "rightCellNumber": "⑥",
+      "legalConfirmatory": true,
+      "conditions": [
+        "matching real ③-derived E2 A4 budget lock exists before ⑥",
+        "same executor family E2",
+        "A2prime reviewerFamily not_applicable is structural and excluded from reviewer-family effects"
+      ]
+    },
+    {
+      "contrastId": "①-vs-②",
+      "leftCellNumber": "①",
+      "rightCellNumber": "②",
+      "legalConfirmatory": true,
+      "conditions": [
+        "same-window ① anchor exists before confirmatory use",
+        "fixed E1 executor",
+        "reviewer family is the only changed factor"
+      ],
+      "m2Phase1Note": "M2 launch readiness represents ② only; without a same-window ① anchor, ①-vs-② remains descriptive."
+    },
+    {
+      "contrastId": "③-vs-④",
+      "leftCellNumber": "③",
+      "rightCellNumber": "④",
+      "legalConfirmatory": true,
+      "conditions": [
+        "optional ④ runs in the same approved execution window",
+        "fixed E2 executor",
+        "reviewer family is the only changed factor"
+      ],
+      "optionalCellRequiredForM2": false
+    },
+    {
+      "contrastId": "②-vs-④",
+      "leftCellNumber": "②",
+      "rightCellNumber": "④",
+      "legalConfirmatory": false,
+      "descriptiveOnly": true,
+      "rejection": "Illegal as confirmatory because executor family and reviewer family both change."
+    }
+  ]
+}
