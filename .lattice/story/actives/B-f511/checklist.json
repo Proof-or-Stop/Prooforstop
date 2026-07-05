@@ -83,7 +83,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/resume-probe.mjs",
+          "result": "pass",
+          "note": "resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
+          "headHash": "32fc65f559759821f2492aa3501cfd3e2f0a2bcb",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:01:22.492Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
