@@ -44,6 +44,21 @@
       "_hash": "eb59880d9c0b7bb02042a81dabac35a3a10ad0a7071be6906081925268247f5e",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8128:F-004",
+      "desc": "quality-cleanup: packages/main/src/tasks/product-capability-release-smoke.ts:18 imports buildCapabilityReleaseRecord from core/capability-release.js but never uses it (the file uses createCapabilityReleaseRecordForTest instead throughout; confirmed with --noUnusedLocals tsc pass and grep count=1).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T17:23:59.094Z",
+      "reviewRound": "2026-07-05T17:20:20.090Z",
+      "reviewRunId": "B-8128:RR-002",
+      "_hash": "27ebaecb6486ec7ce74d8e23b242c4db13628161668f6fddaa0b6511f600485c",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
