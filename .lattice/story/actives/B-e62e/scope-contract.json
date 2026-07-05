@@ -30,10 +30,10 @@
     "DONE closeout completion-ledger freezing",
     "remote publish or release behavior"
   ],
-  "scopeChangeReason": "User acceptance requires developer-facing milestone status tables to mark completed rows with ✅ and incomplete rows with ❌, so the milestone status renderer is now in scope.",
+  "scopeChangeReason": "Allow the milestone-status regression hunk anchor used for six-state developer-facing display labels.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T10:23:37.523Z",
-  "updatedAt": "2026-07-05T10:56:47.813Z",
+  "updatedAt": "2026-07-05T11:40:02.891Z",
   "fileRules": [
     {
       "path": "packages/main/src/cli-engine.ts",
@@ -68,7 +68,8 @@
       "path": "packages/main/tests/milestone-status.test.mjs",
       "allowedAnchors": [
         "ledger",
-        "readChecklist"
+        "readChecklist",
+        "evidence"
       ],
       "allowedChangeKinds": [
         "add",
