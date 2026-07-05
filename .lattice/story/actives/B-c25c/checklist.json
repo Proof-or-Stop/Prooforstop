@@ -356,9 +356,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:08:23.431Z",
       "userSees": "Local validation reports Cell 03 guardrail recorded, Cell 06 blocked, records-multi-model-ablation.jsonl absent, and no provider outcome data.",
       "verificationEvidence": [
         {
@@ -469,6 +469,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Status docs and provider execution plan updated and covered by evidence."
+    },
+    {
+      "timestamp": "2026-07-05T17:08:23.431Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Local validation completed and covered by evidence."
     }
   ]
 }
