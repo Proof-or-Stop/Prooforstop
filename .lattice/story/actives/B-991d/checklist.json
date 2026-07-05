@@ -197,8 +197,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T23:38:58.666Z",
       "endTime": null
     },
     {
@@ -547,6 +547,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Provider-free M2 preflight checker passed and evidence is bound.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T23:38:58.666Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start result-row and receipt contract definition for future Cell 03 rows.",
       "agent": "codex-main"
     }
   ]
