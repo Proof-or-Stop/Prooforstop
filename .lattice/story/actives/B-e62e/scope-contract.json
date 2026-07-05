@@ -3,6 +3,7 @@
   "mode": "enforce",
   "allowedModify": [
     "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
     "docs/CLI.md",
     ".lattice/story/actives/B-e62e/intent-collision.json",
     ".lattice/story/actives/B-e62e/milestone-ledger.json",
@@ -21,8 +22,7 @@
     "packages/main/tests/milestone-status.test.mjs"
   ],
   "protectedFiles": [
-    "packages/main/src/handlers/milestone-status.ts",
-    "packages/main/src/core/milestone-status.ts"
+    "packages/main/src/handlers/milestone-status.ts"
   ],
   "explicitExcludes": [
     "milestone_completion_set implementation",
@@ -30,10 +30,10 @@
     "DONE closeout completion-ledger freezing",
     "remote publish or release behavior"
   ],
-  "scopeChangeReason": "Align contract with the actual ProofStory metadata artifacts and semantic anchors produced by this scoped milestone-status stdout implementation.",
+  "scopeChangeReason": "User acceptance requires developer-facing milestone status tables to mark completed rows with ✅ and incomplete rows with ❌, so the milestone status renderer is now in scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T10:23:37.523Z",
-  "updatedAt": "2026-07-05T10:39:40.028Z",
+  "updatedAt": "2026-07-05T10:56:47.813Z",
   "fileRules": [
     {
       "path": "packages/main/src/cli-engine.ts",
@@ -51,6 +51,17 @@
         "CHK-001:edge:0",
         "CHK-001:edge:1",
         "CHK-001:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/milestone-status.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0"
       ]
     },
     {
