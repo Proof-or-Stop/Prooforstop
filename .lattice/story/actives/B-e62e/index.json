@@ -4,7 +4,7 @@
   "title": "Auto-surface milestone progress tables after story state changes",
   "description": "When story-scoped mutating commands change checklist, evidence, phase, delivery, summary, or milestone-ledger state, the CLI should consume milestone_status and print the actual Completed / Current / Remaining milestone table to stdout so hosts cannot forget to surface progress.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "milestone-status",
@@ -152,6 +152,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-05T12:27:18.167Z",
+      "branch": "story/B-e62e",
+      "user": "Harmonygo",
+      "sessionId": "sess-8168c8753276f6fe",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T12:36:21.372Z",
       "branch": "story/B-e62e",
       "user": "Harmonygo",
       "sessionId": "sess-8168c8753276f6fe",
