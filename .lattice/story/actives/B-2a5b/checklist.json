@@ -107,7 +107,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/run-batch.mjs",
+          "result": "pass",
+          "note": "Every iteration ended in exactly one record (33 records / 33 unique iterationIds / 0 recordless). H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records PER SCALE: small n=30 distinct-digest-sets=1 (PAIRWISE-EQUAL), full n=3 distinct-digest-sets=1 (PAIRWISE-EQUAL) — replay determinism confirmed.",
+          "headHash": "104e8773c5a406671601e0cc31560580024e652a",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:53:14.838Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
