@@ -277,11 +277,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck asserts the two-pronged invariant: all 16 failClosed classes carry a failure signal AND all 2 acceptanceBucket entries are status:pass. Negative-tested by the implementer: a tampered protocol.json makes selfcheck exit nonzero.",
-          "headHash": "01b8f4d0f10fe6dde4b76d3b7757b7e4f08972cd",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:42:27.204Z"
+          "note": "selfcheck asserts: 18 failClosed all carry fail/crash signal; 2 acceptanceBucket status:pass; 3 acknowledgedLimitations all intent:malicious + status:pass + non-empty limitationNote; 0 false-positive.",
+          "headHash": "6c66c6764d15823d2bce9b8359ce9ce12a9e662a",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:56.113Z"
         }
       ]
     },
