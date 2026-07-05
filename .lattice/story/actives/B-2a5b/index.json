@@ -4,14 +4,14 @@
   "title": "POS campaign M2: replay campaign driver + append-only proof-or-stop ledger (run-batch.mjs, H1/H4 evidence)",
   "description": "Third milestone of the proof-or-stop replay and tamper campaign (plan: docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md; M0 DONE=B-9e44 froze protocol.json, M1 DONE=B-bae9 built the tamper arm). M2 delivers experiments/pos-instrument-replay/run-batch.mjs + a selfcheck: the REPLAY arm. For each scale in {small, full}, it runs N independent generate+verify cycles (N frozen in protocol.json: small=30, full=3) into fresh mkdtemp-isolated directories, and appends one proof-or-stop record per iteration to an append-only identity-keyed batch-ledger.jsonl. Each iteration ends in EXACTLY one record: a proof record {iterationId, arm, scale, verifyStatus, verifyFlags, digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest} or a stop record {iterationId, stopReason (budget_cap|verify_crash|precondition_failed|operator_abort), rawError?, env, recordDigest}. recordDigest = sha256 of the record canonical JSON with recordDigest absent. The driver takes a lockfile (a concurrent second driver records precondition_failed) and exits nonzero if any iteration ends recordless. H1 evidence = pairwise digest+metric equality across replay proof records per scale; H4 evidence = every iteration within the frozen budget cap or an explicit budget_cap stop. Reuses M0 lib/instrument.mjs + reads the frozen protocol.json. Instrument read/called only.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "proof-or-stop,replay,H1,H4,ledger,evidence-instrument"
   ],
   "createdAt": "2026-07-05T18:36:27.391Z",
   "startedAt": "2026-07-05T18:36:27.391Z",
-  "endedAt": null,
+  "endedAt": "2026-07-05T20:18:06.242Z",
   "events": [
     {
       "phase": "INIT",
@@ -30,11 +30,88 @@
       "user": "Harmonygo",
       "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T18:38:38.311Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T18:40:39.610Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T18:56:06.177Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T19:05:41.033Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T19:22:13.254Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T19:31:19.167Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T19:51:59.601Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T20:06:38.054Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-05T20:18:06.242Z",
+      "branch": "story/B-2a5b",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2a5b",
-    "branch": "story/B-2a5b",
-    "createdAt": "2026-07-05T18:38:36.124Z"
-  }
+  "currentReviewRound": "2026-07-05T19:51:59.601Z"
 }

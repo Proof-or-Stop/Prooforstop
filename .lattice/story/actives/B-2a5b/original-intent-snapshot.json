@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-2a5b",
+  "sourceText": "Operator directive 2026-07-05: execute the frozen plan in strict milestone order until all DONE. M0+M1 done; this is M2 (replay driver + ledger).",
+  "normalizedOutcome": "A committed run-batch.mjs replay driver produces an append-only proof-or-stop batch-ledger.jsonl (N x 2-scale) that is the H1/H4 evidence, with a hermetic selfcheck of the budget_cap/lockfile/recordless paths.",
+  "acceptanceClaim": "node selfcheck-m2.mjs passes (budget_cap stop + lockfile precondition_failed + recordless-exit-nonzero all exercised) and node run-batch.mjs produces a complete ledger with one proof-or-stop record per iteration and H1 pairwise-equal replay digests.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:959aeaa325f4c33e59d991e8abc8a595e51f19f50cc4ed4651c1208d58636599",
+  "createdAt": "2026-07-05T18:39:06.318Z",
+  "updatedAt": "2026-07-05T18:39:06.318Z"
+}

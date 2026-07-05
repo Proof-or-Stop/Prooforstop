@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-2a5b",
+  "state": "confirmed",
+  "ledgerHash": "sha256:46fd42946e29db7e8dbeba82939ab3981dde2743ec3c0562dab530abad780f42",
+  "milestones": [
+    {
+      "id": "M2-A",
+      "sourceRequirementId": "REQ-001",
+      "claim": "run-batch.mjs runs N x 2-scale generate+verify cycles and appends identity-keyed proof-or-stop records to batch-ledger.jsonl",
+      "doneMeans": "node run-batch.mjs writes a complete batch-ledger.jsonl with one record per iteration",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2-B",
+      "sourceRequirementId": "REQ-001",
+      "claim": "proof-or-stop + lockfile discipline: exactly one record per iteration, H1 pairwise-equal replay digests, H4 cap-vs-stop, concurrent driver -> precondition_failed, recordless -> nonzero exit",
+      "doneMeans": "run-batch.mjs exits 0 with 0 recordless and H1/H4 evidence complete",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2-C",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Hermetic selfcheck exercises budget_cap stop + lockfile + recordless-exit paths",
+      "doneMeans": "node selfcheck-m2.mjs exits 0",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T18:40:17.755Z",
+  "updatedAt": "2026-07-05T18:40:18.078Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705184018",
+    "acceptedInterpretationHash": "sha256:480155a1a6f442b871038374aba9589e5dcdd0238338dfab704826e156c3c738",
+    "acceptedAt": "2026-07-05T18:40:18.078Z"
+  }
+}

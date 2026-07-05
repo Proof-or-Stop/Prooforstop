@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-2a5b",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:959aeaa325f4c33e59d991e8abc8a595e51f19f50cc4ed4651c1208d58636599",
+  "confirmedMilestoneLedgerHash": "sha256:46fd42946e29db7e8dbeba82939ab3981dde2743ec3c0562dab530abad780f42",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M2-A",
+        "M2-B",
+        "M2-C"
+      ],
+      "note": "M2 acceptance = selfcheck-m2 passes (budget_cap/lockfile/recordless) and run-batch produces a complete proof-or-stop ledger with H1/H4 evidence."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "M2 ProofStory contract: single acceptance binding mapping the intent-snapshot claim to the 3 checklist items + proof-or-stop/selfcheck intents + milestones M2-A..C.",
+  "createdAt": "2026-07-05T18:40:38.155Z",
+  "updatedAt": "2026-07-05T18:40:38.155Z"
+}
