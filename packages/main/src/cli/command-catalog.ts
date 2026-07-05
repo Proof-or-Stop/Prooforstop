@@ -783,6 +783,18 @@ Behavior:
     terminalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
+  { name: 'milestone_closeout', description: 'Read-only historical DONE milestone closeout report from milestone-closeout.json; reads a frozen closeout snapshot without recomputing live freshness, mutating storage, advancing phase, or claiming production readiness.', schema: {
+    storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    deploymentReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    externalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    terminalCompletionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
   { name: 'global_control_status', description: 'Read-only global lifecycle control plane dashboard over runtime closure, admissibility waterline, and queue governance.', schema: {
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     expanded: z.boolean().optional().describe('Expand experiment-batch details (default false).'),

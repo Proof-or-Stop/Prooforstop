@@ -15,9 +15,18 @@ import { fileURLToPath } from 'node:url';
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const cliPath = join(distRoot, 'cli.js');
-const { buildMilestoneStatusReport, renderMilestoneStatusReport } = await import(join(distRoot, 'core/milestone-status.js'));
+const {
+  buildMilestoneCloseoutSnapshot,
+  buildMilestoneStatusReport,
+  milestoneStatusReportDigest,
+  renderMilestoneCloseoutSnapshot,
+  renderMilestoneStatusReport,
+} = await import(join(distRoot, 'core/milestone-status.js'));
 const { EMPTY_STORY_FILES_HASH } = await import(join(distRoot, 'core/evidence-freshness.js'));
-const { createMilestoneStatusHandlers } = await import(join(distRoot, 'handlers/milestone-status.js'));
+const {
+  captureMilestoneCloseoutSnapshotFromStore,
+  createMilestoneStatusHandlers,
+} = await import(join(distRoot, 'handlers/milestone-status.js'));
 
 function story(storyId = 'B-7ba7') {
   return {
@@ -110,6 +119,16 @@ function assertTextContract(text) {
     'Next action:',
   ]) {
     assert.ok(text.includes(label), `text output must include ${label}`);
+  }
+}
+
+function assertCloseoutTextContract(text) {
+  for (const label of [
+    'Milestone Closeout',
+    'Mode: read-only historical snapshot',
+    '| Milestone | Status | Solved Problem | Acceptance | Evidence | Risks | Next Action |',
+  ]) {
+    assert.ok(text.includes(label), `closeout text output must include ${label}`);
   }
 }
 
@@ -287,6 +306,171 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.doesNotMatch(currentSection, /\| M3 \|/);
   assert.match(remainingSection, /\| M3 \| Empty verification refs do not count \|/);
   assert.match(text, /CHK-001:happy:0 \[pass\/logic_test\]/);
+
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report }),
+    /incomplete milestone rows: M2=current, M3=remaining/,
+    'closeout snapshots must reject incomplete live milestone reports',
+  );
+}
+
+{
+  const closeoutStory = story('B-closeout');
+  closeoutStory.phase = 'TEST';
+  const cl = {
+    items: [
+      checklistItem('CHK-CLOSE', 'done', [
+        evidence('CHK-CLOSE:happy:0', 'pass', {
+          headHash: 'head-closeout',
+          materialHash: 'material-closeout',
+          storyFilesHash: 'story-closeout',
+        }),
+      ], intent('closeout evidence')),
+    ],
+  };
+  const report = buildMilestoneStatusReport({
+    story: closeoutStory,
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-closeout',
+        sourceRequirementId: 'REQ-closeout',
+        claim: 'Users can read the final solved problem',
+        doneMeans: 'A completed risk-free report can be frozen',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-CLOSE'],
+        verificationIntentRefs: ['CHK-CLOSE:happy:0'],
+        status: 'done',
+      }),
+    ], 'B-closeout'),
+    currentEvidenceBinding: {
+      headHash: 'head-closeout',
+      materialHash: 'material-closeout',
+      storyFilesHash: 'story-closeout',
+    },
+  });
+
+  const snapshot = buildMilestoneCloseoutSnapshot({
+    report,
+    bindings: {
+      headHash: 'head-closeout',
+      materialHash: 'material-closeout',
+      storyFilesHash: 'story-closeout',
+    },
+    generatedAt: '2026-07-04T12:00:00.000Z',
+  });
+
+  assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+  assert.equal(snapshot.storyId, 'B-closeout');
+  assert.equal(snapshot.phase, 'TEST');
+  assert.equal(snapshot.generatedAt, '2026-07-04T12:00:00.000Z');
+  assert.equal(snapshot.sourceReport.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(snapshot.sourceReport.digest, milestoneStatusReportDigest(report));
+  assert.deepEqual(snapshot.sourceReport.groups, { completed: ['M-closeout'], current: [], remaining: [] });
+  assert.deepEqual(snapshot.bindings, {
+    headHash: 'head-closeout',
+    materialHash: 'material-closeout',
+    storyFilesHash: 'story-closeout',
+  });
+  assert.equal(snapshot.rows.length, 1);
+  assert.deepEqual(Object.keys(snapshot.rows[0]).sort(), [
+    'acceptance',
+    'evidence',
+    'milestone',
+    'nextAction',
+    'risks',
+    'solvedProblem',
+    'status',
+  ]);
+  assert.equal(snapshot.rows[0].milestone, 'M-closeout');
+  assert.match(snapshot.rows[0].status, /^completed /);
+  assert.equal(snapshot.rows[0].solvedProblem, 'Users can read the final solved problem');
+  assert.equal(snapshot.rows[0].acceptance, 'A completed risk-free report can be frozen');
+  assert.match(snapshot.rows[0].evidence.join('\n'), /CHK-CLOSE:happy:0 \[pass\/logic_test\]/);
+  assert.deepEqual(snapshot.rows[0].risks, []);
+  assert.equal(snapshot.rows[0].nextAction, 'No action for this milestone.');
+
+  const text = renderMilestoneCloseoutSnapshot(snapshot);
+  assertCloseoutTextContract(text);
+  assert.match(text, /Source milestone_status digest:/);
+  assert.match(text, /\| M-closeout \| completed \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \| Users can read the final solved problem \|/);
+
+  const laterLiveReport = buildMilestoneStatusReport({
+    story: closeoutStory,
+    checklist: cl,
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-closeout',
+        sourceRequirementId: 'REQ-closeout',
+        claim: 'Users can read the final solved problem',
+        doneMeans: 'A completed risk-free report can be frozen',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-CLOSE'],
+        verificationIntentRefs: ['CHK-CLOSE:happy:0'],
+        status: 'done',
+      }),
+    ], 'B-closeout'),
+    currentEvidenceBinding: {
+      headHash: 'head-later',
+      materialHash: 'material-later',
+      storyFilesHash: 'story-later',
+    },
+  });
+  assert.deepEqual(laterLiveReport.groups.completed, [], 'later live milestone_status can become stale');
+  assert.equal(snapshot.rows[0].milestone, 'M-closeout', 'closeout snapshot preserves the accepted row');
+  assert.match(snapshot.rows[0].status, /^completed /, 'closeout snapshot remains the historical completed state');
+}
+
+{
+  const missingReport = buildMilestoneStatusReport({
+    story: story('B-closeout-missing-ledger'),
+    checklist: { items: [] },
+    milestoneLedger: null,
+  });
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: missingReport }),
+    /missing milestone ledger.*cannot fabricate success/s,
+  );
+
+  const emptyReport = buildMilestoneStatusReport({
+    story: story('B-closeout-empty'),
+    checklist: { items: [] },
+    milestoneLedger: ledger([], 'B-closeout-empty'),
+  });
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: emptyReport }),
+    /has no rows/,
+  );
+
+  const riskyChecklist = {
+    items: [
+      checklistItem('CHK-RISKY', 'done', [evidence('CHK-RISKY:happy:0')], intent('covered but candidate ledger')),
+    ],
+  };
+  const candidateLedger = ledger([
+    milestone({
+      id: 'M-risky',
+      sourceRequirementId: 'REQ-risky',
+      claim: 'Candidate ledgers are risky',
+      doneMeans: 'Confirmed ledgers are required',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-RISKY'],
+      verificationIntentRefs: ['CHK-RISKY:happy:0'],
+      status: 'done',
+    }),
+  ], 'B-closeout-risky');
+  candidateLedger.state = 'candidate';
+  const riskyReport = buildMilestoneStatusReport({
+    story: story('B-closeout-risky'),
+    checklist: riskyChecklist,
+    milestoneLedger: candidateLedger,
+  });
+  assert.deepEqual(riskyReport.groups.completed, ['M-risky']);
+  assert.match(riskyReport.risks.join('\n'), /candidate/);
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: riskyReport }),
+    /has risks.*candidate/s,
+  );
 }
 
 {
@@ -933,6 +1117,12 @@ function assertEvidenceRefShape(evidenceRef) {
     /read-only.*unexpected keys: surpriseFlag/s,
   );
   assert.equal(readCount, 0, 'unexpected args must be rejected before reading story facts');
+
+  assert.throws(
+    () => handlers.milestone_closeout({ storyId: 'B-7ba7', surpriseFlag: true }),
+    /read-only.*unexpected keys: surpriseFlag/s,
+  );
+  assert.equal(readCount, 0, 'unexpected closeout args must be rejected before reading story facts');
 }
 
 {
@@ -1003,6 +1193,140 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  const reads = [];
+  const writes = [];
+  const skipped = captureMilestoneCloseoutSnapshotFromStore({
+    readMilestoneLedger() {
+      reads.push('ledger');
+      return null;
+    },
+    readStory() {
+      reads.push('story');
+      throw new Error('readStory should not be called when ledger is missing');
+    },
+    readChecklist() {
+      reads.push('checklist');
+      throw new Error('readChecklist should not be called when ledger is missing');
+    },
+    readSummary() {
+      reads.push('summary');
+      throw new Error('readSummary should not be called when ledger is missing');
+    },
+    writeMilestoneCloseout() {
+      writes.push('write');
+    },
+  }, 'B-capture-missing');
+  assert.deepEqual(skipped, {
+    status: 'skipped',
+    reason: 'missing_milestone_ledger',
+    message: 'No milestone-ledger.json exists for B-capture-missing; DONE milestone closeout capture skipped.',
+  });
+  assert.deepEqual(reads, ['ledger']);
+  assert.deepEqual(writes, []);
+}
+
+{
+  const storyId = 'B-capture';
+  const captureStory = story(storyId);
+  captureStory.phase = 'TEST';
+  const captureChecklist = {
+    items: [
+      checklistItem('CHK-CAPTURE', 'done', [
+        evidence('CHK-CAPTURE:happy:0', 'pass', {
+          headHash: 'head-capture',
+          materialHash: 'material-capture',
+          storyFilesHash: 'story-capture',
+        }),
+      ], intent('capture helper evidence')),
+    ],
+  };
+  const captureLedger = ledger([
+    milestone({
+      id: 'M-capture',
+      sourceRequirementId: 'REQ-capture',
+      claim: 'DONE path writes closeout before phase metadata',
+      doneMeans: 'Completed risk-free report produces a snapshot',
+      requiredEvidence: ['logic_test'],
+      checklistRefs: ['CHK-CAPTURE'],
+      verificationIntentRefs: ['CHK-CAPTURE:happy:0'],
+      status: 'done',
+    }),
+  ], storyId);
+  const writes = [];
+  const result = captureMilestoneCloseoutSnapshotFromStore({
+    readMilestoneLedger() {
+      return captureLedger;
+    },
+    readStory() {
+      return captureStory;
+    },
+    readChecklist() {
+      return captureChecklist;
+    },
+    readSummary() {
+      return null;
+    },
+    writeMilestoneCloseout(id, snapshot) {
+      writes.push({ id, snapshot });
+    },
+  }, storyId, {
+    currentEvidenceBinding: {
+      headHash: 'head-capture',
+      materialHash: 'material-capture',
+      storyFilesHash: 'story-capture',
+    },
+    generatedAt: '2026-07-04T13:00:00.000Z',
+  });
+  assert.equal(result.status, 'written');
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0].id, storyId);
+  assert.equal(writes[0].snapshot.generatedAt, '2026-07-04T13:00:00.000Z');
+  assert.equal(writes[0].snapshot.rows[0].milestone, 'M-capture');
+  assert.equal(writes[0].snapshot.phase, 'TEST', 'capture happens before DONE phase metadata is written');
+}
+
+{
+  const storyId = 'B-capture-incomplete';
+  const writes = [];
+  assert.throws(
+    () => captureMilestoneCloseoutSnapshotFromStore({
+      readMilestoneLedger() {
+        return ledger([
+          milestone({
+            id: 'M-incomplete',
+            sourceRequirementId: 'REQ-incomplete',
+            claim: 'Incomplete rows block closeout',
+            doneMeans: 'Missing evidence cannot be frozen as success',
+            requiredEvidence: [],
+            checklistRefs: ['CHK-INCOMPLETE'],
+            verificationIntentRefs: ['CHK-INCOMPLETE:happy:0'],
+            status: 'done',
+          }),
+        ], storyId);
+      },
+      readStory() {
+        return story(storyId);
+      },
+      readChecklist() {
+        return {
+          items: [
+            checklistItem('CHK-INCOMPLETE', 'done', [], intent('missing evidence')),
+          ],
+        };
+      },
+      readSummary() {
+        return null;
+      },
+      writeMilestoneCloseout() {
+        writes.push('write');
+      },
+    }, storyId),
+    /incomplete milestone rows: M-incomplete=current/,
+  );
+  assert.deepEqual(writes, [], 'incomplete capture must fail before writing a closeout');
+}
+
+{
   const storyId = 'B-cli-ms';
   const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-'));
   try {
@@ -1017,13 +1341,13 @@ function assertEvidenceRefShape(evidenceRef) {
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
     });
-    writeJson(join(storyDir, 'index.json'), story(storyId));
-    writeJson(join(storyDir, 'checklist.json'), {
+    const cliStory = story(storyId);
+    const cliChecklist = {
       items: [
         checklistItem('CHK-CLI', 'done', [evidence('CHK-CLI:happy:0')], intent('CLI-covered intent')),
       ],
-    });
-    writeJson(join(storyDir, 'milestone-ledger.json'), ledger([
+    };
+    const cliLedger = ledger([
       milestone({
         id: 'M-cli',
         sourceRequirementId: 'REQ-cli',
@@ -1034,7 +1358,10 @@ function assertEvidenceRefShape(evidenceRef) {
         verificationIntentRefs: ['CHK-CLI:happy:0'],
         status: 'covered',
       }),
-    ], storyId));
+    ], storyId);
+    writeJson(join(storyDir, 'index.json'), cliStory);
+    writeJson(join(storyDir, 'checklist.json'), cliChecklist);
+    writeJson(join(storyDir, 'milestone-ledger.json'), cliLedger);
 
     const stdout = execFileSync(process.execPath, [
       cliPath,
@@ -1050,6 +1377,70 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.match(stdout, /Remaining/);
     assert.match(stdout, /\| M-cli \| CLI report milestone \|/);
 
+    const missingCloseout = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+    ], { cwd: root, encoding: 'utf8' });
+    assertCloseoutTextContract(missingCloseout);
+    assert.match(missingCloseout, /Snapshot: missing/);
+    assert.match(missingCloseout, /No milestone-closeout\.json snapshot exists for B-cli-ms/);
+    assert.match(missingCloseout, /Next action:/);
+
+    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+      '--json',
+    ], { cwd: root, encoding: 'utf8' }));
+    assert.equal(missingCloseoutJson.schemaVersion, 'proofbound.milestone_closeout_missing.v1');
+    assert.equal(missingCloseoutJson.snapshotPresent, false);
+    assert.match(missingCloseoutJson.diagnostic, /No milestone-closeout\.json snapshot exists/);
+
+    const cliReport = buildMilestoneStatusReport({
+      story: cliStory,
+      checklist: cliChecklist,
+      milestoneLedger: cliLedger,
+    });
+    const cliSnapshot = buildMilestoneCloseoutSnapshot({
+      report: cliReport,
+      bindings: { headHash: 'head-cli', materialHash: 'material-cli', storyFilesHash: 'story-cli' },
+      generatedAt: '2026-07-04T14:00:00.000Z',
+    });
+    writeJson(join(storyDir, 'milestone-closeout.json'), cliSnapshot);
+
+    const closeoutText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+    ], { cwd: root, encoding: 'utf8' });
+    assertCloseoutTextContract(closeoutText);
+    assert.match(closeoutText, /Generated: 2026-07-04T14:00:00\.000Z/);
+    assert.match(closeoutText, /Bindings: headHash=head-cli materialHash=material-cli storyFilesHash=story-cli/);
+    assert.match(closeoutText, /\| M-cli \| completed \(ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered\) \| CLI report milestone \|/);
+
+    const closeoutJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+      '--format=json',
+    ], { cwd: root, encoding: 'utf8' }));
+    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(closeoutJson.sourceReport.digest, milestoneStatusReportDigest(cliReport));
+    assert.equal(closeoutJson.rows[0].milestone, 'M-cli');
+
     const unknownFlag = spawnSync(process.execPath, [
       cliPath,
       'milestone_status',
@@ -1063,6 +1454,20 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.notEqual(unknownFlag.status, 0, 'CLI parser must reject unknown milestone_status flags');
     assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');
     assert.match(unknownFlag.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
+
+    const unknownCloseoutFlag = spawnSync(process.execPath, [
+      cliPath,
+      'milestone_closeout',
+      '--root',
+      root,
+      '--storyId',
+      storyId,
+      '--format=json',
+      '--surpriseFlag=true',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.notEqual(unknownCloseoutFlag.status, 0, 'CLI parser must reject unknown milestone_closeout flags');
+    assert.equal(unknownCloseoutFlag.stdout, '', 'unknown closeout flags must fail before story facts are printed');
+    assert.match(unknownCloseoutFlag.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
 
     {
       const activeStoryId = 'B-preflight';
@@ -1099,6 +1504,19 @@ function assertEvidenceRefShape(evidenceRef) {
         assert.notEqual(rejectedBeforeActiveRead.error?.code, 'ETIMEDOUT', 'malformed milestone_status args must reject before active-story metadata reads');
         assert.notEqual(rejectedBeforeActiveRead.status, 0, 'malformed milestone_status args must be rejected');
         assert.match(rejectedBeforeActiveRead.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
+
+        const rejectedCloseoutBeforeActiveRead = spawnSync(process.execPath, [
+          cliPath,
+          'milestone_closeout',
+          '--root',
+          activeRoot,
+          '--storyId',
+          activeStoryId,
+          '--surpriseFlag=true',
+        ], { cwd: activeRoot, encoding: 'utf8', timeout: 2000 });
+        assert.notEqual(rejectedCloseoutBeforeActiveRead.error?.code, 'ETIMEDOUT', 'malformed milestone_closeout args must reject before active-story metadata reads');
+        assert.notEqual(rejectedCloseoutBeforeActiveRead.status, 0, 'malformed milestone_closeout args must be rejected');
+        assert.match(rejectedCloseoutBeforeActiveRead.stderr, /Argument validation failed[\s\S]*surpriseFlag/);
       } finally {
         rmSync(activeRoot, { recursive: true, force: true });
       }
@@ -1119,17 +1537,19 @@ function assertEvidenceRefShape(evidenceRef) {
       'authorityDone',
       'productionDone',
     ]) {
-      const rejected = spawnSync(process.execPath, [
-        cliPath,
-        'milestone_status',
-        '--root',
-        root,
-        '--storyId',
-        storyId,
-        `--${flag}=true`,
-      ], { cwd: root, encoding: 'utf8' });
-      assert.notEqual(rejected.status, 0, `CLI parser must reject ${flag} for milestone_status`);
-      assert.match(rejected.stderr, new RegExp(`Argument validation failed[\\s\\S]*${flag}`));
+      for (const command of ['milestone_status', 'milestone_closeout']) {
+        const rejected = spawnSync(process.execPath, [
+          cliPath,
+          command,
+          '--root',
+          root,
+          '--storyId',
+          storyId,
+          `--${flag}=true`,
+        ], { cwd: root, encoding: 'utf8' });
+        assert.notEqual(rejected.status, 0, `CLI parser must reject ${flag} for ${command}`);
+        assert.match(rejected.stderr, new RegExp(`Argument validation failed[\\s\\S]*${flag}`));
+      }
     }
   } finally {
     rmSync(root, { recursive: true, force: true });

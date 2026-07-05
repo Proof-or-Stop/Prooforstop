@@ -327,6 +327,32 @@ Host Progress Reporting Contract:
   change phase, launch reviewers, claim automatic execution, claim automatic
   DONE, claim remote Authority completion, or claim production readiness.
 
+### Milestone Closeout
+
+`lattice milestone_closeout` is the read-only historical DONE closeout reader.
+It reads `.lattice/story/actives/<storyId>/milestone-closeout.json`, a snapshot
+captured during DONE advancement from a completed, risk-free live
+`milestone_status` report. It does not recompute current freshness and it does
+not make DONE stories appear green in the live reporter.
+
+```bash
+lattice milestone_closeout --storyId=B-xxxx
+lattice milestone_closeout --storyId=B-xxxx --format=json
+lattice milestone_closeout --storyId=B-xxxx --json
+```
+
+The command accepts only `storyId`, `format`, and `json`. Mutation-like flags are
+rejected before story facts are read. Text output uses the closeout columns
+`Milestone`, `Status`, `Solved Problem`, `Acceptance`, `Evidence`, `Risks`, and
+`Next Action`.
+
+Snapshot creation is stricter than display: the DONE path skips capture when no
+milestone ledger exists, but if a ledger exists the closeout write must come from
+a report with every row completed and no risks. Incomplete or risk-bearing
+milestone reports block rather than writing a false closeout. When the snapshot
+is missing, `milestone_closeout` prints a diagnostic and a next action; use
+`milestone_status` to inspect the current live readiness.
+
 ### Autopilot (local)
 
 `lattice autopilot ...` exposes a bounded unattended-development control plane.

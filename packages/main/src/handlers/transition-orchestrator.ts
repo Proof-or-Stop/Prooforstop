@@ -48,6 +48,7 @@ import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -73,6 +74,7 @@ import {
   runValidateGate,
 } from './phase-gates.js';
 import { runGuardSessionGate } from './guard-session.js';
+import { captureMilestoneCloseoutSnapshotFromStore } from './milestone-status.js';
 import { getSessionId } from '../core/owner-session.js';
 import {
   recomputeProcessMetrics,
@@ -594,6 +596,17 @@ async function runStoryTransitionInner(
     actor.send({ type: eventType } as any);
     const newState = getStateName(actor);
     assertStoryTransitionReachedTarget(args.storyId, eventType, args.phase, newState);
+
+    if (args.phase === 'DONE') {
+      const closeoutCapture = captureMilestoneCloseoutSnapshotFromStore(store, args.storyId, {
+        currentEvidenceBinding: currentMilestoneStatusEvidenceBinding(doneGitCwd, ctx.root),
+      });
+      if (closeoutCapture.status === 'written') {
+        ctx.log?.(`✓ milestone closeout snapshot captured for ${args.storyId}`);
+      } else {
+        ctx.log?.(`ℹ ${closeoutCapture.message}`);
+      }
+    }
 
     // IDEA→PLAN: write checklist
     if (args.phase === 'PLAN' && args.checklist && args.checklist.length > 0) {
