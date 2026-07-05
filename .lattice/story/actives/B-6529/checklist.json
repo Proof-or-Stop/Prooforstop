@@ -109,7 +109,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
       ],
-      "userSees": "Cell 03 launch record shows immutable prompt/tool digests before execution can run.",
+      "userSees": "`Cell 03 prompt digest: sha256:<...>`; `Cell 03 tool-surface digest: sha256:<...>`.",
       "excludes": [
         "Prompt changes after authorization",
         "Hidden tool access changes",
@@ -129,7 +129,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Checker verifies prompt and tool-surface artifacts exist and their sha256 digests are referenced by the launch artifact.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Whitespace, command, permission, or parameter changes alter the corresponding digest and require re-freezing.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing or mismatched prompt/tool digests must block authorization-ready status.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
