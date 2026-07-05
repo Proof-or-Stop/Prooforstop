@@ -167,9 +167,9 @@
       "id": "CHK-004",
       "title": "Add negative-control test: empty / all-not_applicable confirmed ledger is not treated as vacuously complete",
       "context": "core/proofstory.ts uncovered-required-milestone loop (~L1357-1364) iterates only ledger.milestones; a confirmed ledger with an empty or all-not_applicable milestone set yields zero uncovered rows. Add a test proving a confirmed-but-vacuous ledger does NOT satisfy the milestone DONE requirement. Closes findings M5 test-gap #2 and M4 caveat.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:39:53.053Z",
-      "endTime": null,
+      "endTime": "2026-07-05T23:39:55.196Z",
       "userSees": "Running the milestone DONE-equivalence suite (`npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs`) prints a new passing assertion block such as `ok - negative control: confirmed empty ledger is NOT vacuously milestone-complete` and `ok - negative control: confirmed all-not_applicable ledger is NOT vacuously milestone-complete`. Concretely, when `evaluateDoneIntentEquivalence` is called in `enforce` mode with a `state: 'confirmed'` ledger whose `milestones` array is empty (and again with a ledger whose every row is `status: 'not_applicable'`), on the strict-milestone path (forced by a structural multi-deliverable story signal / slicePlan), the returned report has `status: 'fail'` and `blocking: true`, and `report.gaps` contains a gap whose `code` flags the vacuous/empty required-milestone set (e.g. `vacuous_milestone_ledger` / `uncovered_required_milestones`) with severity `fail` — instead of the pre-fix behavior where `uncoveredRequiredMilestoneIds` is `[]` and the report silently returns `status: 'pass'`. An operator who reaches DONE with such a ledger sees the DONE gate refuse to close the story, citing that a confirmed milestone ledger with no applicable required milestones does not satisfy strict intent equivalence.",
       "files": {
         "modify": [
@@ -211,7 +211,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Added a minimal contract-preserving empty_confirmed_milestone_ledger guard in evaluateDoneIntentEquivalence plus negative-control tests: empty confirmed ledger fails (enforce blocks), all-not_applicable-without-decision fails via not_applicable_missing_decision, and a positive control confirms the guards do not over-fire on a genuinely-covered ledger. Un-gameability verified by neutralizing the guard in dist and observing the empty-ledger assertion fail.",
+          "headHash": "8272c44e7d95340e3b339d6a2fe0c935567f1785",
+          "materialHash": "6b97b4f57ff2c06c288a608728a0443423e5c05c6f1cf474e06dbc505a02caf2",
+          "storyFilesHash": "23e6c5fdb7368dca090f80098df02211aef0193f7aed8a491032a05f21610911",
+          "timestamp": "2026-07-05T23:39:55.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
