@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T14:21:07.427Z",
       "reviewRunId": "B-b550:RR-002",
       "_hash": "6b4363fe744bcf533ab505d5a74f0d5191306c4fd7acb8c8d70c3027973e2bed"
+    },
+    {
+      "id": "B-b550:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Symbol-set from git diff main...HEAD contains no material code symbols (docs-only diff limited to .lattice metadata + 3 markdown files). Applied Fallback 1: full-text scan of the two touchpoint docs (findings.md 406 lines, plan.md 273 lines) + NAV.md diff. Cross-checked every concrete source-symbol claim in the findings report against packages/main/src: assertMilestoneStatusReadOnlyBoundary allowed-key set (storyId/format/json) matches handlers/milestone-status.ts; command-policy.ts PLAN-only allowedPhases for milestone_ledger_set/add and readOnly classification for milestone_status/milestone_closeout match; milestone_status reason string omits Authority while milestone_closeout reason string includes remote Authority readiness (matches M6 correction); addMilestoneToLedger resets state to candidate and clears acceptedIntentBinding; confirmMilestoneLedger does not re-check confirmedLedgerHash===ledgerHash (matches M2 hardening note); blocking = mode===enforce && gaps.length>0 exists verbatim at proofstory.ts:1387/1442 with default doneGateMode observe (config.ts); not_applicable rows are enum-validated only and short-circuit both the uncovered-milestone check (proofstory.ts:1358) and completed-progress grouping (milestone-status.ts:539), matching M4 caveat; run-all-smokes.ts discoverSmokes globs dist/tasks/*-smoke.js while milestone-status.test.mjs lives under packages/main/tests and is not npm-scripted, matching the M5 suite-wiring claim; zero grep hits for duplicat* in proofstory-intent-hardening-smoke.ts confirming the withdrawn coverage claim; renderMilestoneStatusReport emits literal Mode: read-only with zero Authority/production tokens elsewhere in milestone-status.ts, matching the M6 no-disclaimer-string claim; captureMilestoneCloseoutSnapshotFromStore is co-located in handlers/milestone-status.ts and only invoked from handlers/transition-orchestrator.ts guarded by phase===DONE. Also verified package.json version 0.3.159 matches the doc worktree-source citation; plan.md Status column has zero remaining planned markers (all reviewed-pass variants matching findings.md per-milestone verdicts); NAV.md diff adds exactly one line for the new findings doc, correctly placed adjacent to the existing plan-doc entry. No inconsistencies found between docs and code, and no inconsistency between plan.md Status columns and findings.md verdicts.",
+      "createdAt": "2026-07-05T14:24:17.740Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-004",
+      "_hash": "8a2415523ba9b440ff7e12e46d4822bb276506814a3eb7f27ced007f20d93fe3"
     }
   ]
 }
