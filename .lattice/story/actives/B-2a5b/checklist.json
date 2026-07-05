@@ -65,6 +65,17 @@
           "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
           "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
           "timestamp": "2026-07-05T19:22:09.831Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "verify_crash mapping now exercised: selfcheck-m2 (d) GENERATE-CRASH forces a generate throw at replay/small/1 -> run-batch produces exactly one verify_crash STOP record for that iteration (not recordless, not an uncaught crash) and exits 0. Any generate OR verify crash maps to a verify_crash stop per the frozen stopReasonEnum.",
+          "headHash": "d44b6debc51507d906d42af2c95ed4c9c4c527a1",
+          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
+          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
+          "timestamp": "2026-07-05T19:22:10.482Z"
         }
       ]
     },
