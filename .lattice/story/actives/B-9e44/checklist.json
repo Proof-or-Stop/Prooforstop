@@ -31,6 +31,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Emit the reuse-audit smoke-overlap map: for each candidate tamper class, annotate whether and which existing smoke case in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts already covers it, and carry that annotation into protocol.json",
+      "context": "Plan section 8 M0 Delivers column names a documented map of which tamper classes the existing smoke already covers (INIT-002 gap flagged by both INIT reviewers). Naturally produced during CHK-001 viability by tagging each class with smokeOverlap {covered:bool, smokeCase?:string}; classes already smoke-covered are re-asserted through the harness for ledger completeness (cheap), not re-engineered. The frozen protocol.json records the overlap per class so the reuse audit is a committed artifact, not prose.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9e44/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }

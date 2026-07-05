@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9e44",
+  "mode": "feature",
+  "allowed": [
+    "experiments/pos-instrument-replay/"
+  ],
+  "excluded": [
+    "analyze-batch.mjs (M4 milestone analyzer)",
+    "resume-probe.mjs (M3 milestone probe)",
+    "run-batch.mjs (M2 milestone driver)",
+    "tamper.mjs (M1 milestone harness)",
+    "the instrument core (read/called only, never modified)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "All campaign artifacts live under experiments/pos-instrument-replay/ (plan section 7); everything outside that single allowed prefix is implicitly excluded. M0 delivers only viability-check.mjs + build-protocol.mjs + protocol.json(+hash) + calibration record + selfcheck. The named M1-M4 harnesses are deferred to their own milestone stories. Operator directed executing M0-M4 in strict order on 2026-07-05.",
+  "createdAt": "2026-07-05T15:05:22.952Z",
+  "updatedAt": "2026-07-05T15:05:22.952Z",
+  "_hash": "b72d1e511dfb970a7f4981f7638d7564fe5039147ddaff9298e7409200a42ea8"
+}
