@@ -1,0 +1,57 @@
+{
+  "storyId": "B-9051",
+  "checkedAt": "2026-07-05T10:52:49.736Z",
+  "features": [
+    {
+      "feature": "CHK-001 Review canonical source inventory",
+      "covered_by": ".lattice/story/actives/B-9051/checklist.json CHK-001; .lattice/story/actives/B-9051/background.md Key Insights/Solution Tradeoffs; .lattice/story/actives/B-9051/understanding.json facts/touchpoints; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 317-354; docs/CLI.md lines 274-328; packages/main/src/handlers/proofstory.ts lines 134-189; packages/main/src/handlers/milestone-status.ts lines 53-157; packages/main/src/core/milestone-status.ts lines 602-685; packages/main/src/core/command-policy.ts lines 235-236",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "lattice-review-scope-plan: canonical source anchors exist and support a truth-first inventory, but the required related doc docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md is absent at the exact path; test -e returned exit 1 and rg --files found no replacement milestone-ledger/status hardening plan."
+    },
+    {
+      "feature": "CHK-002 Review read-only status and write boundaries",
+      "covered_by": ".lattice/story/actives/B-9051/checklist.json CHK-002; docs/CLI.md lines 276-328; packages/main/src/handlers/milestone-status.ts lines 53-157; packages/main/src/core/milestone-status.ts lines 31-37 and 602-685; packages/main/src/core/command-policy.ts lines 235 and 404-406; packages/main/tests/milestone-status.test.mjs lines 1115-1166 and 1870-1900",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice-review-scope-plan: the PLAN scope explicitly asks for a document-only review of status/write separation, and live anchors cover strict read-only args, no missing-ledger repair, no storage creation, no evidence writes, and separate milestone_ledger_set/add writers."
+    },
+    {
+      "feature": "CHK-003 Review missing-ledger and schema adequacy",
+      "covered_by": ".lattice/story/actives/B-9051/checklist.json CHK-003; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 88-109, 317-354, 397-438, and 518-535; packages/main/src/core/types.ts lines 1783-1813; packages/main/src/core/milestone-status.ts lines 396-543 and 602-685; packages/main/src/handlers/proofstory.ts lines 134-189 and 300-347; packages/main/src/tasks/proofstory-intent-hardening-smoke.ts lines 284-425 and 520-610",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice-review-scope-plan: the scope covers ordinary versus triggered milestone requirements, candidate versus confirmed ledger semantics, checklist and verificationIntent bindings, requiredEvidence and status fields, grouped status reporting, too_broad/slice-plan diagnostics, and DONE equivalence boundaries."
+    },
+    {
+      "feature": "CHK-004 Review tests and agent capability claims",
+      "covered_by": ".lattice/story/actives/B-9051/checklist.json CHK-004; docs/CLI.md lines 296-328; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 518-535 and 1368-1380; packages/main/src/core/command-policy.ts lines 235-236 and 425-427; packages/main/tests/milestone-status.test.mjs lines 182-208, 1115-1166, and 1870-1900; packages/main/src/tasks/proofstory-intent-hardening-smoke.ts lines 284-428 and 520-618",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice-review-scope-plan: the scope includes focused negative controls for missing-ledger diagnostics, mutation-like flags, stale or invalid evidence, waiver limits, strict DONE equivalence, and explicit no automatic DONE, remote Authority, or production readiness claims."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "1a319df49522e1546863043b8641b66d7e62b44817a9c97ea4f2c9a5ede3a345",
+  "openQuestions": [
+    {
+      "id": "Q-001",
+      "q": "The checklist and required reading name docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md, but the file is absent in this worktree. Should B-9051 restore that decision doc, or should the checklist be retargeted to live docs/CLI.md plus ProofStory/source anchors?",
+      "evidence": "Exact path check returned missing; rg --files docs/requirements/decisions filtered for milestone, ledger, status, hardening, proofstory found proofstory-intent-collision-execution-plan.md but no milestone-ledger-status-review-and-hardening-plan.md.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-9051/checklist.json relatedDocs",
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/CLI.md lines 274-328",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 317-354"
+      ]
+    }
+  ]
+}

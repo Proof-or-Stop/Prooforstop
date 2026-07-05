@@ -1,0 +1,32 @@
+{
+  "task": "Review the milestone ledger status review and hardening plan against current Proofbound implementation and ProofStory contracts.",
+  "outcome": "The user sees a documented review result for B-9051 that says whether the milestone ledger/status hardening plan is accurate, whether any gaps remain, and what exact follow-up story or no-op decision comes next.",
+  "facts": [
+    "Canonical work happens in /Users/jek/Documents/Work/proofbound, not the retired Orchestrate root.",
+    "Current Proofbound already implements milestone_ledger_set/add/get and milestone_status surfaces.",
+    "The review story is document-review only and must not implement code or change lifecycle gates.",
+    "Reviewer evidence must come from explicit reviewer lanes; main agent cannot count its own prose as reviewer proof."
+  ],
+  "constraints": [
+    "Do not mutate milestone ledger/status implementation code in this story.",
+    "Do not claim Story DONE, Authority DONE, full Authority DONE, or production readiness from milestone progress.",
+    "Keep status reporting read-only and separate from ledger writes.",
+    "Use current code and accepted lifecycle facts over stale retired-root prose."
+  ],
+  "unknowns": [
+    "Whether existing tests fully cover milestone_status no-write behavior.",
+    "Whether missing-ledger diagnostics and triggered gates are sufficiently covered by negative controls.",
+    "Whether schema fields are enough for future grouped milestone status without false precision."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "timestamp": "2026-07-05T10:49:16.363Z"
+}
