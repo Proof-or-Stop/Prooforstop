@@ -201,11 +201,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
-          "note": "node selfcheck-m1.mjs runs hermetically (mkdtemp) and exits 0 with 'selfcheck-m1 PASS'.",
-          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "note": "node selfcheck-m1.mjs exits 0 with 'selfcheck-m1 PASS': (a) determinism, (a2) clean-run invariants (dispositionMatch/byteDiff/dropped-semantics), (b) negative test, (c) compareFingerprint op-coverage all verified.",
+          "headHash": "ff871d830f90f244b88d04d0a5a3b88ab69b2a64",
           "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
           "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
-          "timestamp": "2026-07-05T18:21:24.271Z"
+          "timestamp": "2026-07-05T18:21:25.580Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
