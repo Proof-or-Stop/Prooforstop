@@ -54,6 +54,13 @@ import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { acquireMainWriteLockRegistered, mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
 import {
+  ARTIFACT_RELEASE_LEDGER_REL_PATH,
+  type RecordArtifactReleaseResult,
+  recordArtifactReleaseForDoneMerge,
+  resolveArtifactReleaseLedgerRoot,
+  selectArtifactReleasePathsV1,
+} from '../core/artifact-release.js';
+import {
   cleanupAuxiliaryWorktreeResidues,
   renderAuxiliaryClassification,
 } from '../core/auxiliary-worktree-cleanup.js';
@@ -156,7 +163,7 @@ export function shouldBuildDoneMainPackageForChangedPaths(paths: string[]): bool
   return paths.some(isDoneMainRuntimeBuildInput);
 }
 
-function listChangedPathsBetweenMainShas(mainMergeRoot: string, beforeMainSha: string, afterMainSha: string): string[] {
+export function listChangedPathsBetweenMainShas(mainMergeRoot: string, beforeMainSha: string, afterMainSha: string): string[] {
   if (beforeMainSha === afterMainSha) return [];
   const raw = execFileSync('git', ['diff', '--name-only', beforeMainSha, afterMainSha, '--'], {
     cwd: mainMergeRoot,
@@ -220,6 +227,68 @@ export function runDoneMainPackageBuildAfterMerge(
     `Recovery: ${DONE_MAIN_BUILD_COMMAND}\n` +
     `Captured output:\n${captured}`,
   );
+}
+
+function renderArtifactReleaseDoneLine(result: RecordArtifactReleaseResult): string | null {
+  if (result.status === 'skipped_empty' || !result.record) return null;
+  const verb = result.status === 'already_recorded' ? 'already recorded' : 'recorded';
+  return `✓ artifact release ${verb}: story=${result.record.storyId} commit=${result.record.mainCommit} artifactSetDigest=${result.record.artifactSetDigest} paths=${result.record.paths.length}`;
+}
+
+export function commitArtifactReleaseLedgerIfNeeded(
+  mainMergeRoot: string,
+  storyId: string,
+  result: RecordArtifactReleaseResult,
+  runGit: (gitArgs: string[], cwd: string) => string,
+): void {
+  if (result.status === 'skipped_empty' || !result.record) return;
+  try {
+    runGit(['add', '-f', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    const staged = runGit(['diff', '--cached', '--name-only', '--', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
+    if (!staged) {
+      if (result.status === 'already_recorded') return;
+      throw new Error(`${ARTIFACT_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
+    }
+    runGit(
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: record artifact release for ${storyId}`],
+      mainMergeRoot,
+    );
+  } catch (e: any) {
+    throw new Error(
+      `DONE post-merge artifact release ledger commit failed: ${e?.message ?? e}\n` +
+      `Recovery: git add ${ARTIFACT_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: record artifact release for ${storyId}"`,
+    );
+  }
+}
+
+export function runArtifactReleaseLedgerAfterDoneMerge(
+  mainMergeRoot: string,
+  storyId: string,
+  beforeMainSha: string,
+  afterMainSha: string,
+  opts: {
+    changedPaths?: string[];
+    runtimeSemverChanged?: boolean;
+    runGit: (gitArgs: string[], cwd: string) => string;
+  },
+): string | null {
+  const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
+  if (selectArtifactReleasePathsV1(changedPaths, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }).length === 0) {
+    return null;
+  }
+
+  const ledgerRoot = resolveArtifactReleaseLedgerRoot(mainMergeRoot);
+  const artifactReleaseResult = recordArtifactReleaseForDoneMerge({
+    root: ledgerRoot,
+    gitCwd: mainMergeRoot,
+    storyId,
+    mainCommit: afterMainSha,
+    changedPaths,
+    runtimeSemverChanged: opts.runtimeSemverChanged ?? shouldBuildDoneMainPackageForChangedPaths(changedPaths),
+    isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+  });
+  commitArtifactReleaseLedgerIfNeeded(ledgerRoot, storyId, artifactReleaseResult, opts.runGit);
+  return renderArtifactReleaseDoneLine(artifactReleaseResult);
 }
 
 export type PostDoneLearningSettlementResult = {
@@ -1081,9 +1150,10 @@ export async function applyDoneMergeEffects(
         mainShaBeforeDoneMerge,
         mainShaAfterDoneMerge,
       );
+      const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths(doneMergeChangedPaths);
       mergeLines.push(bumpVersionOnDoneMerge({
         mainMergeRoot,
-        shouldBump: shouldBuildDoneMainPackageForChangedPaths(doneMergeChangedPaths),
+        shouldBump: runtimeSemverChanged,
         runGit: runGitArgs,
       }));
 
@@ -1093,6 +1163,19 @@ export async function applyDoneMergeEffects(
         mainShaAfterDoneMerge,
         { changedPaths: doneMergeChangedPaths },
       ));
+
+      const artifactReleaseLine = runArtifactReleaseLedgerAfterDoneMerge(
+        mainMergeRoot,
+        storyId,
+        mainShaBeforeDoneMerge,
+        mainShaAfterDoneMerge,
+        {
+          changedPaths: doneMergeChangedPaths,
+          runtimeSemverChanged,
+          runGit: runGitArgs,
+        },
+      );
+      if (artifactReleaseLine) mergeLines.push(artifactReleaseLine);
 
       // B-1a91 CHK-001: auto-refresh the Experience Layer finding-signals cache.
       // The cache only ever updated via an explicit out-of-band `learning_scan`,

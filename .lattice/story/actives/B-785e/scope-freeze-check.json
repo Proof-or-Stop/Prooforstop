@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-785e",
+  "checkedAt": "2026-07-05T11:51:40.331Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "3278a2b82b738ddbf2b8b47a63283f8d2d9eb3b6e0f18442ac65e5432e3e578a",
+  "executionBoundaryHash": "e232d7ec4ec785599178caf4c1b7136d37a3307c73596782be56390821e09f66",
+  "freshnessHash": "cc4763cd3b0ebd4112ce1c93b5dfd6cae7ce4bb240a6c0991546d7a53cce49ba",
+  "effectiveExcludedKeywords": [
+    "Do not claim H-M1, H-M3, or model-agnostic replication from readiness artifacts.",
+    "Do not modify Tier-C quorum protocol docs or unrelated active story files.",
+    "Do not run Phase 2 powered matrix in this story.",
+    "Do not run the full Phase 1 campaign in this story.",
+    "Do not treat Codex CLI or Claude Code CLI host labels as model snapshots."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not claim H-M1, H-M3, or model-agnostic replication from readiness artifacts.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim H-M1, H-M3, or model-agnostic replication from readiness artifacts.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify Tier-C quorum protocol docs or unrelated active story files.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify Tier-C quorum protocol docs or unrelated active story files.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not run Phase 2 powered matrix in this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run Phase 2 powered matrix in this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not run the full Phase 1 campaign in this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run the full Phase 1 campaign in this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not treat Codex CLI or Claude Code CLI host labels as model snapshots.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not treat Codex CLI or Claude Code CLI host labels as model snapshots.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d54143e15ecd67b052ed2d22a48925a404728574e80be0e397ac7dcbb22e40fb"
+}

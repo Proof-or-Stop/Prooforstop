@@ -1,0 +1,191 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the M2 provider execution launch plan",
+      "context": "Create a detailed execution document that distinguishes existing provider-free readiness from real provider execution, lists milestones M2-launch, M2-a cell 03 calibration, budget-lock freeze, M2-a cell 06 sequencing, M2-b cell 02, and optional M2-c cell 04, and includes a status table to update after each milestone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "experiments/multi-model-ablation/m2-status.md",
+        "experiments/multi-model-ablation/m2-launch-readiness.json"
+      ],
+      "userSees": "A concrete execution document explaining what is ready, what remains blocked, and what exact evidence is needed before provider calls count as formal experiment data.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The launch plan gives an ordered M2 path from authorization through cell 03 calibration and budget-lock generation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan states readiness artifacts are not outcome data and cannot claim H-M1 or H-M3.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan blocks host-label-only evidence, missing snapshots, provider fallback, duplicate cell keys, and A2prime before a real cell 03-derived budget lock.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add formal launch authorization and runner readiness artifacts",
+      "context": "Create or update local artifacts under experiments/multi-model-ablation so M2 provider execution has explicit authorization status, dated executor and reviewer snapshot fields, runner ownership, cost and budget cap fields, and provider-call disabled-by-default behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "userSees": "A machine-readable launch artifact that says whether real provider execution is authorized and exactly what still blocks it.",
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-status.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The artifact can represent ready-to-run cell 03 only after human approval, dated snapshots, runner metadata, and budget caps are present.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If any snapshot or budget field is missing, launch remains blocked rather than silently allowing provider calls.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex CLI, Claude Code CLI, or any host label alone is not accepted as an executor or reviewer model family snapshot.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Define cell 03 calibration and budget-lock verification",
+      "context": "Add local verification that checks M2 launch readiness and preserves the sequencing rule: cell 03 E2 A4 same-family calibration produces the real budget lock before cell 06 A2prime can run.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md",
+        "experiments/multi-model-ablation/phase1-launch-readiness.m2.json",
+        "experiments/multi-model-ablation/phase1-budget-lock.example.json"
+      ],
+      "userSees": "A verifier or documented command that explains why 03 can run first and why 06 remains blocked without a real 03-derived budget lock.",
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Local check passes for provider-disabled planning artifacts and reports the next permitted formal execution step as cell 03 calibration.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The check reports cell 06 as blocked until a real cell 03-derived budget lock exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The check fails or warns if provider execution is marked allowed without dated snapshots, budget cap, runner ownership, prompt digest, tool surface digest, or duplicate policy.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run local validation and publish milestone status",
+      "context": "Run the local M0, M1, and M2 readiness checks plus the new M2 provider-execution check, then update the status table so completed and blocked milestones are visible without reading every artifact.",
+      "relatedDocs": [
+        "experiments/multi-model-ablation/m0-status.md",
+        "experiments/multi-model-ablation/m1-status.md",
+        "experiments/multi-model-ablation/m2-status.md"
+      ],
+      "userSees": "A final milestone table showing M0, M1, M2 readiness, M2 launch plan, cell 03 calibration status, budget lock status, cell 06 status, and later Phase 1 or Phase 2 status.",
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-status.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m0-smoke-check.mjs",
+          "experiments/multi-model-ablation/m1-freeze-check.mjs",
+          "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation proves the launch plan is internally consistent and does not invent provider outcome data.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing unrelated active stories and dirty unrelated docs are not touched.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The status table cannot claim H-M1, H-M3, model-agnostic replication, or product gate impact until real records exist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

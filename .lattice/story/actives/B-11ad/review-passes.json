@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-11ad:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: artifact-release-ledger-smoke plus existing version-bump smoke and direct CLI probes cover CHK-001/002/003. Verified classification includes docs/experiments and excludes .lattice/story, docs/story, root manifests, packages/main runtime inputs; digest determinism/order invariance and commit-blob binding; filesystem fallback; empty releasable set skips ledger creation; idempotent storyId+mainCommit+artifactSetDigest append; read-only list/status handler JSON/text and absent status behavior; CLI command registration in catalog/registry/policy/fact levels; version-bump boundary that experiments do not trigger CLI semver bump; provenance-only docs/boundary note. Commands run: node packages/main/dist/tasks/artifact-release-ledger-smoke.js; node packages/main/dist/tasks/version-bump-smoke.js; node packages/main/dist/cli.js artifact_release_list --format=json; node packages/main/dist/cli.js artifact_release_status --storyId=B-11ad --format=text.",
+      "createdAt": "2026-07-05T09:56:41.558Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-004",
+      "_hash": "7e44cf3929aaae95ef1af6418a2865c838965a019ee2065871e07ff5b0f823b0"
+    },
+    {
+      "id": "B-11ad:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: docs/CLI.md and docs/requirements/decisions/story-lifecycle.md accurately frame the artifact release ledger as provenance-only, artifact_release_list/status as read-only inspection commands, CLI semver bumping as limited to watched runtime inputs, and avoid false production/release-readiness claims.",
+      "createdAt": "2026-07-05T09:57:07.511Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-005",
+      "_hash": "b71437a1b95da0624ed182e9fb3640f7fa2dcac50bbe4f0a2b918d45c321c727"
+    },
+    {
+      "id": "B-11ad:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed main...HEAD quality scope for TypeScript correctness, CLI registration, artifact ledger parsing/writing, DONE git interactions, error handling, and hidden side effects; no blocking quality findings.",
+      "createdAt": "2026-07-05T09:57:44.703Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-002",
+      "_hash": "7a1d4262d6a03d72a48479fec601fcfdb1617cdbf9d46021fa2fe5baf3fa8955"
+    },
+    {
+      "id": "B-11ad:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review of b70d2738 for B-11ad:F-002: commitArtifactReleaseLedgerIfNeeded now stages non-empty already_recorded results and commits any dirty ledger row, while clean already_recorded remains a no-op. Verified packages/main build and artifact-release-ledger smoke including retry durability case.",
+      "createdAt": "2026-07-05T10:03:21.756Z",
+      "reviewRound": "2026-07-05T10:01:51.927Z",
+      "reviewRunId": "B-11ad:RR-006",
+      "_hash": "0679ca264ea2d4ac4ae2b38925162160a2e41c17c0919a4334af74a79fee57ca"
+    },
+    {
+      "id": "B-11ad:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS for b70d2738: commitArtifactReleaseLedgerIfNeeded now stages and commits any non-empty artifact ledger result, including already_recorded rows when the ledger file is dirty from a prior uncommitted append, while preserving clean already_recorded as a no-op. Focused verification: npm --prefix packages/main run build && node packages/main/dist/tasks/artifact-release-ledger-smoke.js (8 assertions, including already-recorded dirty ledger retry commits durably).",
+      "createdAt": "2026-07-05T10:03:32.165Z",
+      "reviewRound": "2026-07-05T10:01:51.927Z",
+      "reviewRunId": "B-11ad:RR-007",
+      "_hash": "dac320980a5a556e5495f6a043c69bb34f7eaa7783b2584426bf2dd7470d2f06"
+    },
+    {
+      "id": "B-11ad:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: artifact-release-ledger smoke covers list/status, DONE ledger idempotency, wrapper-root gitCwd, and provenance semver flag; version-bump and gitroot-cwd smokes cover semver separation and cwd contract.",
+      "createdAt": "2026-07-05T10:26:06.071Z",
+      "reviewRound": "2026-07-05T10:23:30.242Z",
+      "reviewRunId": "B-11ad:RR-011",
+      "_hash": "9bf8496ab27af9e92f2b87296d22e33bfb4e89ca0a633df51592fac31d557aa1"
+    },
+    {
+      "id": "B-11ad:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs/CLI.md and docs/requirements/decisions/story-lifecycle.md match the implemented non-runtime artifact release provenance ledger, read-only inspection commands, and runtime-only CLI semver boundary.",
+      "createdAt": "2026-07-05T10:26:13.837Z",
+      "reviewRound": "2026-07-05T10:23:30.242Z",
+      "reviewRunId": "B-11ad:RR-010",
+      "_hash": "f8e4e3ec9365bc02dec00c5cab176bbb39dd91dd7ac3a60f1d0853b12df908de"
+    },
+    {
+      "id": "B-11ad:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: targeted coverage verified. artifact-release-ledger smoke covers recovery merge ledger write, wrapper-root read-after-DONE ledger-root consistency, idempotent append/retry commit behavior, and provenance-only semver separation; version-bump smoke preserves runtime semver gating for docs/experiments; gitroot-cwd-contract smoke passed repo scan with 0 bare-cwd violations.",
+      "createdAt": "2026-07-05T10:46:50.637Z",
+      "reviewRound": "2026-07-05T10:44:20.634Z",
+      "reviewRunId": "B-11ad:RR-012",
+      "_hash": "05afeac808538ccb2d35d1a715a2f8d87c61df6aa068e7ea781888c5bcb0f3f4"
+    },
+    {
+      "id": "B-11ad:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality review checked F-004 wrapper-root ledger read/write parity, resolveArtifactReleaseLedgerRoot, shared DONE/recover artifact ledger helper, done_recover main-merge lock cwd, idempotent ledger commit retry, and artifact-release smoke stability. No remaining quality blocker found.",
+      "createdAt": "2026-07-05T10:47:29.323Z",
+      "reviewRound": "2026-07-05T10:44:20.634Z",
+      "reviewRunId": "B-11ad:RR-013",
+      "_hash": "c8285370bb180b5ae4dfdb2f93f595103871bae91ef4ad5b18c27858d92abfd9"
+    },
+    {
+      "id": "B-11ad:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Docs review verified artifact release provenance, read-only inspection commands, CLI semver boundary, and DONE/done_recover ledger lifecycle against the changed docs, handlers, command policy, and focused smoke/read-command results; no docs blocker found.",
+      "createdAt": "2026-07-05T10:49:06.778Z",
+      "reviewRound": "2026-07-05T10:44:20.634Z",
+      "reviewRunId": "B-11ad:RR-016",
+      "_hash": "2c322f0ab82504b4f05fd85734df3b7016167ad95583e9bbbed8ab7bb6005874"
+    },
+    {
+      "id": "B-11ad:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: F-003 fixed by sharing DONE artifact-release post-merge provenance in done_recover; F-004 wrapper-root read-after-DONE path is fixed via resolved ledger root; semver boundary preserved by runtimeSemverChanged predicate and version-bump smoke.",
+      "createdAt": "2026-07-05T10:49:45.177Z",
+      "reviewRound": "2026-07-05T10:44:20.634Z",
+      "reviewRunId": "B-11ad:RR-014",
+      "_hash": "8b3251f585ae95eef8d06a192c0a9662ce74c937bdc7e14d561da1155a8d379a"
+    },
+    {
+      "id": "B-11ad:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: artifact-release V1 records only releasable docs/** and experiments/** after excluding .lattice/story, docs/story, root/package manifests, and watched runtime/build inputs; digest is bound to normalized paths plus git blobs at the DONE merge commit. DONE and done_recover share runArtifactReleaseLedgerAfterDoneMerge with before/after main SHAs, wrapper-root reads resolve the same ledger root as writes, and runtimeSemverChanged remains a boundary flag while version-bump semantics stay on the existing watched-input predicate. Evidence inspected: fresh evidence_manifest/evidence_inspect at a094e35, validate PASS, artifact-release-ledger smoke 10 assertions, version-bump smoke 74 assertions, and prior F-001/F-003/F-004 resolved with strong evidence.",
+      "createdAt": "2026-07-05T11:08:53.048Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-017",
+      "_hash": "4d86fbaad2d38de41923f0ffebc7e27a5d6fff5b7947a0a88f92c29e3ae7c082"
+    },
+    {
+      "id": "B-11ad:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 9 must verification intents are fresh across happy edge adversarial lanes; artifact-release-ledger and version-bump smokes pass in validate; DONE-required build and full test receipts pass.",
+      "createdAt": "2026-07-05T11:09:43.679Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-019",
+      "_hash": "c7dd99a503d9ffc896ab2f04b3415d5f1efebe9af66f60a42c17688fb1aec066"
+    },
+    {
+      "id": "B-11ad:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocking issues after inspecting artifact release diff, idempotent ledger retry, dirty-tree handling, git root resolution, command policy, and current evidence.",
+      "createdAt": "2026-07-05T11:09:52.397Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-018",
+      "_hash": "640b3fa7d759e611b858cd86131d09f205b4174c814ea205f8f0ac257ec2fbfa"
+    },
+    {
+      "id": "B-11ad:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: docs/CLI.md and story-lifecycle.md match local built CLI/source behavior for non-runtime artifact provenance. The artifact ledger records only docs/** and experiments/** after lifecycle/runtime/build input exclusions, uses deterministic sha256 artifact-set digests at DONE/recovery, exposes read-only artifact_release_list/status commands, and remains provenance-only without broadening CLI semver/version bump rules. Verified with local dist read-only commands plus artifact-release-ledger and version-bump smokes.",
+      "createdAt": "2026-07-05T11:31:20.635Z",
+      "reviewRound": "2026-07-05T11:06:09.853Z",
+      "reviewRunId": "B-11ad:RR-020",
+      "_hash": "e242deed66c7089fee1d512c7736b856872b75f6a74c8e0d98e0bf4261be0324"
+    }
+  ]
+}

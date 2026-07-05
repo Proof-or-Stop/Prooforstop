@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "A non-runtime DONE merge can produce an artifact release id and digest without bumping CLI semver.",
+      "userSees": "DONE emits `✓ artifact release recorded: story=B-xxxx commit=<sha> artifactSetDigest=sha256:<digest> paths=<n>` when non-runtime releasable paths exist.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-effects.ts"
@@ -42,9 +42,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T09:45:05.335Z",
+      "endTime": "2026-07-05T09:51:18.456Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke covered docs/** and experiments/** classification plus stable digest generation.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke proved .lattice story metadata and packages/main runtime inputs are excluded from release paths.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js; node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "smokes covered mixed runtime plus non-runtime changes while version-bump smoke preserved the existing semver boundary.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -54,7 +89,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/CLI.md"
       ],
-      "userSees": "DONE output says when an artifact release record was written, and users can inspect releases by story id or latest list.",
+      "userSees": "`lattice artifact_release_list --format=json` prints records including storyId, mainCommit, artifactSetDigest, runtimeSemverChanged, and paths; `lattice artifact_release_status --storyId=B-xxxx` prints the matching record or `No artifact release records found`.",
       "files": {
         "modify": [
           "packages/main/src/registry.ts",
@@ -92,9 +127,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T09:51:23.127Z",
+      "endTime": "2026-07-05T09:51:34.609Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js artifact_release_list --format=json",
+          "result": "pass",
+          "note": "built CLI returned JSON [] for an empty real ledger; artifact-release smoke also covered list text/json over a seeded ledger.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke covered artifact_release_status filtering by story id and the no-records text path.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "artifact-release-ledger smoke proved repeated storyId+mainCommit+artifactSetDigest records return already_recorded and do not append duplicates.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -103,7 +173,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Developers know why version bump may skip while artifact release provenance still exists.",
+      "userSees": "Docs say: `CLI patch version remains a runtime/capability marker; non-runtime DONE artifacts are recorded in artifact-releases.jsonl as provenance, not package semver.`",
       "files": {
         "modify": [
           "docs/requirements/decisions/story-lifecycle.md",
@@ -137,9 +207,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T09:51:39.530Z",
+      "endTime": "2026-07-05T09:51:49.161Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "build passed and the new artifact-release-ledger smoke is wired into lattice.config.json validate commands.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "existing version-bump smoke still proves experiments/docs do not trigger CLI semver bumps.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md and docs/CLI.md state artifact release rows are provenance only, not runtime activation or package semver.",
+          "headHash": "86253fed552b71a251442845bcf923f45103a046",
+          "materialHash": "56e510802d91966c6348562cd0ceb8f5446789639f3219a3a7b852a6d1ade6c8",
+          "storyFilesHash": "9761af474d7399608c54facbf67dea8993a0ad477da600699ee09b3bdb98ad42",
+          "timestamp": "2026-07-05T11:00:39.662Z"
+        }
+      ]
     }
   ]
 }
