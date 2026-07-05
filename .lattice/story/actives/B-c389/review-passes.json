@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c389:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD for B-c389 (23 files, +2735/-27). Purely additive follow-up to B-8128: new capability_release_backfill handler/core-logic/CLI-catalog entry/command-policy/process-fact-level entries, two new capability-aware smokes (capability-candidate-exposure-smoke.ts, capability-candidate-promotion-smoke.ts), one new backfill smoke, docs/CLI.md addition, lattice.config.json validate-command additions (3 new smokes registered, 0 removed, otherwise only JSON reformatting), and one new capability-releases.jsonl ledger row (live B-785e/PBP-882 backfill). Confirmed via git diff --diff-filter=D and --diff-filter=R (zero deletions, zero renames across the whole diff) and via git diff --name-status (every non-.lattice-metadata file is A(dded) or M(odified-additively); the only M files with removed lines are lattice.config.json reformatting and the .lattice checklist/index status-field updates expected from normal lifecycle progress). No concept word, command, field, or file was deleted or replaced en masse. Cross-checked the new M6/M7/M8 naming against B-8128 plan/background/checklist/scope-freeze-check (which explicitly deferred capability_release_backfill + M6/M7 exposure/promotion surfaces to this follow-up story) and against docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md; the M6/M7/M8 terms are consistent greenfield continuations, not a renamed/replaced concept. No residue found; nothing to file.",
+      "createdAt": "2026-07-05T23:59:18.412Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-001",
+      "_hash": "ae49ebb7903bc5111c28ff1dd7923499841f57e6b7a0dc0f4defd70d895b8594"
+    }
+  ]
+}
