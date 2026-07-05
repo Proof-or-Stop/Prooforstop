@@ -53,10 +53,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Helper happy path asserts proofbound.milestone_closeout.v1 schema, source milestone_status digest, bindings, closeout rows, solvedProblem/acceptance/evidence/risks/nextAction fields, and text rendering.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:17.599Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,10 +65,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Test freezes a completed snapshot, then rebuilds a later live milestone_status report with stale bindings and asserts the snapshot still preserves the accepted completed row.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:17.794Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,10 +77,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Snapshot helper tests refuse missing-ledger, empty-ledger, incomplete, and risk-bearing reports instead of fabricating closeout success.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:17.982Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         }
       ]
     },
@@ -138,10 +138,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "captureMilestoneCloseoutSnapshotFromStore test writes milestone-closeout snapshot from a completed risk-free report and asserts the captured phase remains TEST before DONE metadata is written.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:30.885Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Missing-ledger capture test returns skipped missing_milestone_ledger, reads only the ledger, and performs no closeout write.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:31.075Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,10 +162,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Incomplete capture helper test throws before write, while closeout helper tests also reject risk-bearing reports.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:31.273Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         }
       ]
     },
@@ -224,10 +224,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "CLI fixture writes milestone-closeout.json and verifies milestone_closeout text columns plus JSON schema, source digest, bindings, and row content.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:43.272Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,10 +236,10 @@
           "command": "rg -n \"Milestone Closeout|milestone_closeout|milestone-closeout|live milestone_status|historical\" docs/CLI.md",
           "result": "pass",
           "note": "docs/CLI.md documents milestone_closeout as a read-only historical DONE snapshot reader, including path, text/JSON usage, closeout columns, missing-snapshot diagnostic, and the boundary with live milestone_status.",
-          "headHash": "a7eb1a59544c0e421b55b25f67f31786ad195d00",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:07:21.329Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -248,10 +248,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "CLI tests reject unknown and mutation-like milestone_closeout flags, including active-story FIFO preflight coverage proving rejection happens before story fact reads.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
-          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
-          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:43.650Z"
+          "headHash": "3ace0b32e93b169a7b568e0a5502a12173bca7fe",
+          "materialHash": "b3401609cf1e5b743a96cf19d105afffffeb91d8797de6eaeec9a4fbf3dec703",
+          "storyFilesHash": "3ec4777fbc80c00ed10c190198ed20398651e1a98580310ccf665267eb32dfa7",
+          "timestamp": "2026-07-05T00:17:58.676Z"
         }
       ]
     }
