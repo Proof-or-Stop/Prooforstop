@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-bae9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "M1 tamper conformance harness (tamper.mjs, selfcheck-m1.mjs) is purely additive over M0. Verified: (1) git diff main...HEAD --diff-filter=DR is empty across the whole story diff — no deletions/renames anywhere; (2) M0 files (protocol.json, lib/instrument.mjs, viability-check.mjs) are byte-identical to main (git diff main...HEAD for those paths is empty) and still present on disk; (3) tamper.mjs imports {sha256, verifyDir, refreshManifest, fingerprintDomain, canonicalJson} from ./lib/instrument.mjs — all 5 symbols confirmed exported by lib/instrument.mjs via grep of export statements; (4) node --check passes on both new .mjs files (syntax OK, no dangling module resolution errors); (5) selfcheck-m1.mjs only references lib/instrument.mjs and protocol.json as cpSync file-copy targets into a sandbox, not as import specifiers. No concept deletion/replacement occurred this round; no blocker.",
+      "createdAt": "2026-07-05T17:35:01.597Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-004",
+      "_hash": "8409077a6284ea74b60195a586cdd431a7694fb5e97f9b5bc3c2b8fc69397b02"
+    }
+  ]
+}
