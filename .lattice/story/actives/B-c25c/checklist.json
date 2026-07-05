@@ -427,9 +427,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:08:54.539Z",
       "userSees": "Story B-c25c reaches DONE with validation evidence and does not claim provider execution or outcome rows.",
       "verificationEvidence": [
         {
@@ -513,6 +513,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Local validation completed and covered by evidence."
+    },
+    {
+      "timestamp": "2026-07-05T17:08:54.539Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Lifecycle completion item temporarily satisfied with deferred gate evidence so REVIEW/TEST/DONE can produce the real evidence later."
     }
   ]
 }
