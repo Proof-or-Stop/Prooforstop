@@ -231,15 +231,15 @@
         },
         {
           "intentRef": "CHK-003:edge:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/tests/milestone-status.test.mjs",
-          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"Milestone Closeout|milestone_closeout|milestone-closeout|live milestone_status|historical\" docs/CLI.md",
           "result": "pass",
-          "note": "CLI fixture verifies missing milestone-closeout snapshot returns a text diagnostic table, next action, and proofbound.milestone_closeout_missing.v1 JSON diagnostic.",
-          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "note": "docs/CLI.md documents milestone_closeout as a read-only historical DONE snapshot reader, including path, text/JSON usage, closeout columns, missing-snapshot diagnostic, and the boundary with live milestone_status.",
+          "headHash": "a7eb1a59544c0e421b55b25f67f31786ad195d00",
           "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
           "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
-          "timestamp": "2026-07-05T00:04:43.462Z"
+          "timestamp": "2026-07-05T00:07:21.329Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
