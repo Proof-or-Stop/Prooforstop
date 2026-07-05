@@ -53,6 +53,17 @@
           "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
           "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
           "timestamp": "2026-07-05T21:09:32.713Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 E-truncated-tail: a mid-append kill leaves a partial trailing line; resume repairs-by-omission (truncates back to the last well-formed newline, dropping only the never-completed partial write) and re-runs that casualty (replay/small/5 -> proof:pass), reconciling to the exact multiset.",
+          "headHash": "50b3e9ec7ea394a4c19da88f2426f849166bb299",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:09:33.416Z"
         }
       ]
     },
