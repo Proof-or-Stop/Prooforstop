@@ -67,7 +67,7 @@
       "desc": "packages/main/src/handlers/done-effects.ts:1135-1144 records and commits .lattice/artifact-releases.jsonl under mainMergeRoot, the resolved git root. But packages/main/src/handlers/artifact-release.ts:49-58 reads the ledger from ctx.root, and cli/runtime-root.ts:6-15 resolves ctx.root to the metadata root containing lattice.config.json. In a wrapper-root layout with metadataRoot != gitRoot, DONE will commit repo/.lattice/artifact-releases.jsonl while artifact_release_list/status look at metadataRoot/.lattice/artifact-releases.jsonl and report no records. This breaks the promised read-after-DONE provenance inspection for wrapper-root projects and is an unexpected side effect of using the git cwd as the ledger root instead of routing read commands to the same root or making the ledger root explicit.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T10:27:06.950Z",
@@ -80,7 +80,11 @@
         "packages/main/src/cli/runtime-root.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c0e6271f2/f21105eff: artifact_release_list/status now read from resolveArtifactReleaseLedgerRoot(ctx.root), DONE and done_recover share runArtifactReleaseLedgerAfterDoneMerge, done_recover passes mainMergeRoot into acquireDoneMainMergeLock, and focused verification passed: npm exec -- tsc --noEmit -p tsconfig.json plus node packages/main/dist/tasks/artifact-release-ledger-smoke.js (10 assertions).",
+      "resolvedAt": "2026-07-05T10:47:25.045Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
