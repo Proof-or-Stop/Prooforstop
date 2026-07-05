@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-05T10:23:30.242Z",
       "reviewRunId": "B-11ad:RR-010",
       "_hash": "f8e4e3ec9365bc02dec00c5cab176bbb39dd91dd7ac3a60f1d0853b12df908de"
+    },
+    {
+      "id": "B-11ad:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: targeted coverage verified. artifact-release-ledger smoke covers recovery merge ledger write, wrapper-root read-after-DONE ledger-root consistency, idempotent append/retry commit behavior, and provenance-only semver separation; version-bump smoke preserves runtime semver gating for docs/experiments; gitroot-cwd-contract smoke passed repo scan with 0 bare-cwd violations.",
+      "createdAt": "2026-07-05T10:46:50.637Z",
+      "reviewRound": "2026-07-05T10:44:20.634Z",
+      "reviewRunId": "B-11ad:RR-012",
+      "_hash": "05afeac808538ccb2d35d1a715a2f8d87c61df6aa068e7ea781888c5bcb0f3f4"
     }
   ]
 }
