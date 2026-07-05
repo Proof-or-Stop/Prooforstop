@@ -371,7 +371,50 @@
       "context": "core/proofstory.ts confirmMilestoneLedger (~L382-402) mints state=confirmed from an accepted intent collision without re-checking collision.confirmedLedgerHash === ledger.ledgerHash; today safety is emergent (any later row change routes through set/add which reset to candidate). Add an explicit confirm-time hash re-check so the invariant is local. Closes findings M2 hardening note.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the milestone-ledger confirm flow, the operator sees confirmation minted only when the accepted intent-collision was decided against the exact current ledger. Concretely: `node dist/tasks/proofstory-intent-hardening-smoke.js` prints `proofstory-intent-hardening-smoke: PASS` including the new assertion `confirmMilestoneLedger re-checks collision.confirmedLedgerHash === ledgerHash at confirm time`. In the CLI, `intent_collision_set --decision pass` against an unchanged ledger still returns `confirmedLedger.state = \"confirmed\"` (unchanged happy path), and `proofstory_gate_check` still reports `ledgerState: \"confirmed\"`. But if the ledger rows drifted after the collision was accepted (its `confirmedLedgerHash` no longer equals the current `ledgerHash`), `confirmMilestoneLedger` now returns the ledger still in `state: \"candidate\"` instead of falsely minting `confirmed` — the invariant is enforced locally at confirm time rather than relying on downstream set/add resets.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Unit/logic: call confirmMilestoneLedger(storyId, ledger, collision) where collision is accepted (decision 'pass', status 'accepted', acceptedInterpretationHash set) and collision.confirmedLedgerHash === computeMilestoneLedgerHash(ledger.milestones); assert the returned ledger has state === 'confirmed', ledgerHash unchanged, and acceptedIntentBinding.intentCollisionId === collision.id — i.e. the added re-check does not regress the normal confirm path.",
+            "type": "logic"
+          },
+          {
+            "desc": "CLI: in proofstory-intent-hardening-smoke.ts run intent_collision_set with decision 'pass' immediately after milestone_ledger_set (no intervening row change) and assert passCollision.confirmedLedger.state === 'confirmed' and proofstory_gate_check reports ledgerState === 'confirmed' (existing L416-425 assertions still pass).",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Logic: build a ledger, mint an accepted collision whose confirmedLedgerHash matches, then mutate the ledger (add/remove a milestone so computeMilestoneLedgerHash differs) and call confirmMilestoneLedger with the STALE collision; assert the returned ledger is state === 'candidate' (not 'confirmed') and acceptedIntentBinding is undefined, proving the confirm-time re-check catches ledger drift.",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic: call confirmMilestoneLedger with an accepted collision that has acceptedInterpretationHash set but confirmedLedgerHash === undefined (older-schema collision); assert the function does NOT mint 'confirmed' (returns ledger unchanged / candidate), so a missing confirmedLedgerHash fails closed rather than silently confirming.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Logic: pass a null ledger and a fully-accepted collision to confirmMilestoneLedger; assert it returns null and never throws (guard clause preserved). Then pass a non-accepted collision (decision 'revise_intent', status 'open') with a matching confirmedLedgerHash and assert the ledger is returned unchanged in 'candidate' state — acceptance is still required in addition to the new hash check.",
+            "type": "logic"
+          },
+          {
+            "desc": "Integration/CLI: run the full proofstory-intent-hardening-smoke.js end to end via `node dist/tasks/proofstory-intent-hardening-smoke.js` after `npm run build`; assert exit code 0 and PASS output, confirming the new confirm-time invariant assertion coexists with the existing gate/ledger/collision flow and no downstream diagnostic (ledgerState 'confirmed', missingIntentCollision length 0) regressed.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
