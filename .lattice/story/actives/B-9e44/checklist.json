@@ -120,6 +120,17 @@
           "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
           "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
           "timestamp": "2026-07-05T15:41:57.658Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p).join(','))\"",
+          "result": "pass",
+          "note": "protocol.json contains N{small:30,full:3}, budgetCaps, envPins, iterationIdRule, recordDigestPreimageRule, stopReasonEnum[budget_cap|verify_crash|precondition_failed|operator_abort], tamperMatrix{failClosed:16,acceptanceBucket:2,dropped:1}, seed(contentInert), flagGold, metricGold, smokeOverlap.",
+          "headHash": "b87a47518a767bb1f02f76f3da3a42762240de6a",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:41:59.760Z"
         }
       ]
     },
