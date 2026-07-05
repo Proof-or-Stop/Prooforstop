@@ -74,11 +74,11 @@
           "kind": "manual_transcript",
           "command": "git cat-file blob HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | shasum -a 256; shasum -a 256 /private/tmp/claude-501/-Users-jek-Documents-CDR3/b0a01b07-dd7a-40ba-a0fe-163497230a65/scratchpad/pos-plan-rev3-backup.md",
           "result": "pass",
-          "note": "Both digests = 68451936c2378fdc8133d351db18021a25949baecc604788f6188b8b10c806f7 (committed HEAD blob == refreshed rev-3 backup). Byte-identical => committed content is verbatim-in-substance the reviewed rev-3 text; backup re-refreshed to the post-finding-resolution + provenance-completion content. Re-recorded against current HEAD a14555248, superseding the stale 1f853b0b record flagged by F-004.",
-          "headHash": "a145552486da724826cd0b5d61a7c5c89ed4a253",
+          "note": "Both digests = 68451936c2378fdc8133d351db18021a25949baecc604788f6188b8b10c806f7 (committed HEAD blob == refreshed backup); byte-identical verbatim-in-substance; re-recorded at HEAD a14555248 superseding stale 1f853b0b (F-004).",
+          "headHash": "90cc62c7260c7012ac40eab4d19cd1c045d9106f",
           "materialHash": "c8ee02838c0e62f0f4020fa4efcfc4aa454a44def31c59ab8459ff37b2a2d676",
           "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
-          "timestamp": "2026-07-05T14:06:56.263Z"
+          "timestamp": "2026-07-05T14:07:34.271Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
