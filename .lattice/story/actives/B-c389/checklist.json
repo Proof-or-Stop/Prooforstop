@@ -226,6 +226,18 @@
           "materialHash": "9ba391f0ac10f4e9d2ff06fa2496916a3f5cf667abb979982df01cc6a597f1d5",
           "storyFilesHash": "c30eb3d33a067b2f903714979a762ac2f5a42e50904d725061459b0bead9f68a",
           "timestamp": "2026-07-05T23:40:33.623Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-promotion-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. EDGE: a done-settlement helped outcome recorded for PBP-882 is a well-formed row but isPositiveHelpedPlaybookOutcome=false and does NOT increment helped/decisiveSamples (stay 3/3); playbook_outcome_record REFUSES a helped outcome with exposureMode=none (throws helped outcomes require exposureMode other than none) and the refused row is not written — helped requires exposureMode!=none + a structured verdictSource, asserted for the capability candidate.",
+          "headHash": "0c9c374f256bd11b4fb73ee44278d3b22ae39e3e",
+          "materialHash": "9ba391f0ac10f4e9d2ff06fa2496916a3f5cf667abb979982df01cc6a597f1d5",
+          "storyFilesHash": "c30eb3d33a067b2f903714979a762ac2f5a42e50904d725061459b0bead9f68a",
+          "timestamp": "2026-07-05T23:40:36.928Z"
         }
       ]
     },
