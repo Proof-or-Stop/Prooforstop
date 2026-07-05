@@ -4,7 +4,7 @@
   "title": "Bump CLI version for capability contract proof changes",
   "description": "The current DONE version policy only bumps for watched CLI/runtime inputs. B-3a4d proved a user-visible CLI capability using docs/CLI.md plus packages/main/tests regression evidence, but DONE skipped the patch version because no packages/main/src file changed. Add a narrower policy so CLI capability contract/proof changes can bump the CLI patch version without expanding version bumps to every docs, experiment, or repository artifact change.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "version-bump",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T09:40:46.384Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0315",
+    "branch": "story/B-0315",
+    "createdAt": "2026-07-05T09:40:45.176Z"
+  }
 }
