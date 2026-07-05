@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-05T16:10:59.713Z",
       "reviewRunId": "B-9e44:RR-006",
       "_hash": "5a905786e11f7935d870227f9d8bae5e1b838c4942ed48960a1e6bd6da4e8488"
+    },
+    {
+      "id": "B-9e44:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 08e74dc7 (experiments/pos-instrument-replay/{build-protocol,viability-check,selfcheck}.mjs, protocol.json, README.md). All 3 new mutations (gold-weaken-suppressed, gold-weaken-mustnotsurface, manifest-metadata-lie) use fixed indices/constants only (slice(0,len-1) on first-match query, fixed gateEvidence:true override) - no Math.random/Date.now/env-dependent input; confirmed the seed=42 baseline has queries with expectedSuppressedIds/mustNotSurfaceIds so the mutations are genuine (not no-ops). Re-ran build-protocol.mjs twice in the worktree: both re-emits produced protocol.json with sha256 a3a781fe... matching the committed protocol.json.sha256 exactly and byte-identical to each other (git diff clean after each run). Ran node selfcheck.mjs directly: PASS (18 failClosed, 2 acceptanceBucket, 6 acknowledgedLimitations, limitationFamily 2 families). Inspected protocol.json.tamperMatrix: all 6 malicious classes (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids, gold-weaken-mustnotsurface, gold-weaken-suppressed, manifest-metadata-lie) route correctly to acknowledgedLimitations; dropped={seed-swap} and acceptanceBucket={gold-additive-field, records-row-reorder} are unchanged benign classes - no malicious class mis-routed to accepted/dropped. limitationFamily object is well-formed (rootCause non-empty, exhaustiveness=representative-not-exhaustive, 2 families each cross-referencing real representativeClasses that exist in acknowledgedLimitations) and selfcheck's (d2) block genuinely cross-validates this against runtime-derived acknowledgedLimitations (not a hardcoded assertion). Remaining 'gold-semantic-weaken' string hits are only historical-rename comments, not dangling references. No dead code, no as-any, no empty catch introduced.",
+      "createdAt": "2026-07-05T16:39:31.038Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-008",
+      "_hash": "38c657f302765df8cad2b9408cfb659d9c34e5d2ff327754aba30dd8014f5803"
     }
   ]
 }
