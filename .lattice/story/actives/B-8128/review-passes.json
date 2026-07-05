@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-05T17:34:07.372Z",
       "reviewRunId": "B-8128:RR-007",
       "_hash": "040408ad37ed0140b0a3345045f9fd2d4d23bfe36d512a6439ef2a943978e0f4"
+    },
+    {
+      "id": "B-8128:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified after verification_evidence_refresh_stale: fresh lattice validate run (HEAD a63f0e248) reports Verification intent coverage: 30/30 covered (0 required missing), allPass true, 0 result:fail. Live-confirmed the 4 named smokes: product-capability-release-smoke 23 checks pass, product-capability-release-red-smoke green (M4 lineage binding), playbook-capability-lineage-smoke 6/6 checks, capability-release-invariants-smoke 8 checks. All 30 verificationEvidence rows now carry a consistent headHash/materialHash/storyFilesHash triple from the refresh. Prior F-007 stale-evidence gap is closed; no new coverage gaps found this round.",
+      "createdAt": "2026-07-05T17:50:37.018Z",
+      "reviewRound": "2026-07-05T17:34:07.372Z",
+      "reviewRunId": "B-8128:RR-009",
+      "_hash": "6a18bf4eee7e1e7e815faf08980bbfcd7fdb4f30326e6bada5bd2d7a79dc7f42"
     }
   ]
 }
