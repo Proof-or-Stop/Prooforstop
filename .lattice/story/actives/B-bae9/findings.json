@@ -5,7 +5,7 @@
       "desc": "[codex-host-2, verified] Pass-bucket mutations can no-op and still 'conform'. For acceptanceBucket/acknowledgedLimitations classes (expected status:pass), tamper.mjs asserts verifyStatus==pass + fingerprintMatch against the frozen pass fingerprint, but does NOT assert the mutation actually CHANGED the corpus. If a malicious mutation silently no-ops (e.g. gold-weaken-expectedids finds no query with expectedIds.length>1), verify passes on the CLEAN corpus and the clean fingerprint equals the acknowledged-limitation pass fingerprint -> the harness emits conforming H2 blind-spot evidence for a tamper that was never applied. Fix: re-derive the byte-diff signal (records/gold/manifest changed vs clean) per class and assert the mutation genuinely applied (non-dropped classes MUST change the corpus), failing loudly on a no-op.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T17:42:36.076Z",
@@ -15,7 +15,11 @@
         "experiments/pos-instrument-replay/tamper.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4fadf4f40. tamper.mjs now computes a per-class byteDiff vs clean and re-derives the M0 disposition; every non-dropped class must show a real byteDiff (records/gold/manifest changed) or it fails loudly — a silent no-op can no longer masquerade as a conforming blind spot. Verified: no-op mutations=0.",
+      "resolvedAt": "2026-07-05T17:59:58.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bae9:F-002",
