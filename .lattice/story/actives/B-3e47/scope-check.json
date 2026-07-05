@@ -1,0 +1,59 @@
+{
+  "storyId": "B-3e47",
+  "checkedAt": "2026-07-05T13:07:10.304Z",
+  "features": [
+    {
+      "feature": "DONE milestone_status uses the frozen milestone-closeout snapshot only for DONE stories with a valid closeout",
+      "covered_by": "checklist.json CHK-001; plan.md CHK-001 steps 1-4; decision.json chosen=snapshot-to-status-report",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Active stories keep live projection; DONE stories without closeout fail closed; JSON/text output stays read-only MilestoneStatusReport-shaped",
+      "covered_by": "checklist.json CHK-001 edge/adversarial intents; plan.md CHK-001 verification 2-3; decision.json preMortem mitigations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "CLI documentation update is limited to DONE snapshot milestone_status behavior and JSON/no-ledger contract",
+      "covered_by": "checklist.json CHK-002; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Product/test/doc file scope is limited to packages/main/src/handlers/milestone-status.ts, packages/main/src/core/milestone-status.ts, packages/main/tests/milestone-status.test.mjs, and docs/CLI.md",
+      "covered_by": "checklist.json files; scope-contract.json allowedModify/allowedTest; scope-boundary.json allowed",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope contract and checklist"
+    },
+    {
+      "feature": "Exclude milestone_completion_set writer, completion ledger schema, remote publish, unrelated docs, and .omx",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.json explicitExcludes; scope-boundary.json excluded; execution-boundary.json excludedCommands/excludedPaths; plan.md CHK-002 step 3",
+      "source": "scope contract and plan"
+    },
+    {
+      "feature": "B-3e47 lifecycle metadata is allowed as intended by main",
+      "covered_by": "scope-boundary.json and execution-boundary.json allow .lattice/story/actives/<storyId>/**",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "scope_contract_check reports OUT_OF_SCOPE for intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, proofstory.json, and red-evidence.json because scope-contract/lifecycle registry does not match them"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "f3bfefc217c5bcab1ec48d48ec020998fa413a1951258601ad67b277dbe3aaca",
+  "openQuestions": []
+}
