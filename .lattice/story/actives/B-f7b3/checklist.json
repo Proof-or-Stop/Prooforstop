@@ -67,9 +67,9 @@
       "id": "CHK-002",
       "title": "Add 'Authority' to the milestone_status command-policy reason string to match milestone_closeout",
       "context": "packages/main/src/core/command-policy.ts: the milestone_status reason (~L237) omits Authority while milestone_closeout (~L238) includes it. Add the Authority-silence fix so both read-only commands disclaim Authority uniformly. Closes findings M6 Authority-silence note.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:45:35.620Z",
       "userSees": "After the fix, an operator inspecting the command-policy reason for milestone_status (via `lattice help milestone_status`, `getCommandPolicy('milestone_status').reason`, or any surface that renders the policy reason) sees the disclaimer end with an explicit Authority disclaimer matching milestone_closeout. Concretely the milestone_status reason tail changes from \"…advances no phase, and never claims automatic DONE or production readiness.\" to \"…advances no phase, and never claims automatic DONE, production, or remote Authority readiness.\" Both read-only milestone commands (milestone_status and milestone_closeout) now literally contain the word \"Authority\" in their reason string, so a grep for the token no longer shows a gap. No behavior, phase-gating, ownershipClass, destructiveRisk, or allowedPhases changes — only the human-readable reason string gains the uniform Authority-silence disclaimer, closing the M6 Authority-silence note.",
       "files": {
         "modify": [

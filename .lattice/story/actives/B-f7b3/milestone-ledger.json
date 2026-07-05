@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-f7b3",
+  "state": "confirmed",
+  "ledgerHash": "sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Observability disclaimer + Authority reason string added",
+      "doneMeans": "Checklist item(s) CHK-001, CHK-002 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Three negative-control tests added and passing",
+      "doneMeans": "Checklist item(s) CHK-003, CHK-004, CHK-005 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "milestone-status test suite wired into the aggregate runner",
+      "doneMeans": "Checklist item(s) CHK-006 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:adversarial:0",
+        "CHK-006:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "milestone_status vs DONE-gate stale-evidence disagreement + closeout second-gate reconciled",
+      "doneMeans": "Checklist item(s) CHK-010 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-010:happy:0",
+        "CHK-010:happy:1",
+        "CHK-010:happy:2",
+        "CHK-010:edge:0",
+        "CHK-010:edge:1",
+        "CHK-010:edge:2",
+        "CHK-010:edge:3",
+        "CHK-010:adversarial:0",
+        "CHK-010:adversarial:1",
+        "CHK-010:adversarial:2"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-001",
+      "claim": "not_applicable justification + confirm-time hash re-check implemented",
+      "doneMeans": "Checklist item(s) CHK-007, CHK-008 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-007",
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:happy:2",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:edge:2",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1",
+        "CHK-007:adversarial:2",
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:edge:0",
+        "CHK-008:edge:1",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-001",
+      "claim": "milestone-triggered gate-mode default decision recorded",
+      "doneMeans": "Checklist item(s) CHK-009 are done with passing evidence covering their verification intents.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-009"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:happy:1",
+        "CHK-009:happy:2",
+        "CHK-009:edge:0",
+        "CHK-009:edge:1",
+        "CHK-009:adversarial:0",
+        "CHK-009:adversarial:1"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T21:39:22.962Z",
+  "updatedAt": "2026-07-05T21:39:40.509Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705213827",
+    "acceptedInterpretationHash": "sha256:2c2bc808e8e5149bb090a61bb371a4b8f703d1135b5361c30532f86394fb7394",
+    "acceptedAt": "2026-07-05T21:39:40.509Z"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f7b3",
+  "sourceText": "Operator (2026-07-05): turn the B-b550 audit's M7 follow-up scope (the six milestone-observability hardening items) into a single implementation story, and develop it all the way to DONE.",
+  "normalizedOutcome": "milestone_status/closeout print an explicit observability-only disclaimer (NOT DONE/Authority/production); milestone_status command-policy reason mentions Authority; the milestone-status test suite runs in the aggregate suite with new passing negative controls (duplicate rows, vacuous confirmed ledger, stale-only closeout); confirmMilestoneLedger rejects a hash-mismatched confirm; not_applicable rows require a justification; and decision docs record the gate-mode-default (observe stays) and stale-evidence/second-gate reconciliation.",
+  "acceptanceClaim": "lattice validate and the full npm test suite pass with all six M7 hardening items closed by code + tests + recorded decisions, and the diff is limited to packages/main plus decision docs (no contract weakening).",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:82fac0414c61f51e9cce18f84556a1d19f37fcafa80e8a70ff313e81bf1c4faf",
+  "createdAt": "2026-07-05T21:38:27.417Z",
+  "updatedAt": "2026-07-05T21:38:27.417Z"
+}
