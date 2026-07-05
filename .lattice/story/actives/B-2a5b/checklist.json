@@ -42,7 +42,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/run-batch.mjs",
+          "result": "pass",
+          "note": "run-batch.mjs completed the full campaign: batch-ledger.jsonl has 33 identity-keyed records (30 small + 3 full 1M cycles), all proof records (0 stop), each with iterationId replay/<scale>/<index>, verifyStatus, verifyFlags, generation-side digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest. 0 recordless, exit 0.",
+          "headHash": "0c807c2d7555952ddc4855419c3e6c3fa1d924d5",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:53:13.530Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
