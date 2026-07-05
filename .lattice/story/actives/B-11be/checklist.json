@@ -79,7 +79,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The M2 provider execution checker passes while still rejecting unsafe authorization states, host-label snapshots, cell 06 enablement, provider fallback, and premature result rows.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs passes with the metadata-only authorization artifact present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Checker rejects missing required metadata fields and keeps cell 06 blocked without a real cell-03-derived budget lock.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Checker rejects host-label-only snapshots, provider fallback, providerCallEnabled runners, and outcome/result record paths in B-11be.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
