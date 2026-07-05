@@ -65,6 +65,17 @@
           "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
           "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
           "timestamp": "2026-07-05T17:59:39.097Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/tamper-verdicts.jsonl','utf8').trim().split('\\n').map(JSON.parse);const ids=new Set(L.map(v=>v.iterationId));console.log('lines',L.length,'uniqueIds',ids.size)\"",
+          "result": "pass",
+          "note": "identity key = tamper/small/<class>/<handling> per protocol.iterationIdRule; all 27 frozen-matrix classes appear exactly once (27 lines, 27 unique iterationIds, 0 dup/missing/extra).",
+          "headHash": "61dcb585da6cd17ff8a998edbd47f388093915a5",
+          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
+          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
+          "timestamp": "2026-07-05T17:59:40.442Z"
         }
       ]
     },
