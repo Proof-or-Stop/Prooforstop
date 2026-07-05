@@ -1,0 +1,87 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status and milestone_closeout rendered output",
+      "context": "packages/main/src/core/milestone-status.ts renderMilestoneStatusReport (~L1146-1187), the missing-ledger report, and the closeout report currently emit only 'Mode: read-only'. Add an explicit disclaimer line stating milestone progress is not lifecycle DONE, not Authority, not production readiness. Closes findings M6 (report lines re: M1.f/M6). Update packages/main/tests/milestone-status.test.mjs to assert the disclaimer string is present.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add 'Authority' to the milestone_status command-policy reason string to match milestone_closeout",
+      "context": "packages/main/src/core/command-policy.ts: the milestone_status reason (~L237) omits Authority while milestone_closeout (~L238) includes it. Add the Authority-silence fix so both read-only commands disclaim Authority uniformly. Closes findings M6 Authority-silence note.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add negative-control test: duplicate ledger rows are de-duplicated or rejected by the ledger builder",
+      "context": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts has zero duplicat* coverage (grep = 0 hits, the withdrawn M5 claim). Add an assertion that milestone_ledger_set/buildMilestoneLedger with two rows sharing an id is rejected or de-duplicated. Closes findings M5 test-gap #1.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add negative-control test: empty / all-not_applicable confirmed ledger is not treated as vacuously complete",
+      "context": "core/proofstory.ts uncovered-required-milestone loop (~L1357-1364) iterates only ledger.milestones; a confirmed ledger with an empty or all-not_applicable milestone set yields zero uncovered rows. Add a test proving a confirmed-but-vacuous ledger does NOT satisfy the milestone DONE requirement. Closes findings M5 test-gap #2 and M4 caveat.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add negative-control test: a stale-only status report is rejected by buildMilestoneCloseoutSnapshot",
+      "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L749-870, stale ledger built ~L823) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Wire packages/main/tests/milestone-status.test.mjs into an aggregate suite runner so it is not silently skipped",
+      "context": "run-all-smokes.ts discoverSmokes globs dist/tasks/*-smoke.js; the .mjs test under packages/main/tests/ is named by no test:* npm script and its header documents manual invocation. Add a test:* script and/or run-all-smokes inclusion so it runs in the aggregate suite. Closes findings M5 suite-wiring gap.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Gate not_applicable milestone rows behind an explicit justification so they cannot be a zero-evidence self-exemption",
+      "context": "core/proofstory.ts normalizeMilestone (~L301-316) validates not_applicable against VALID_MILESTONE_STATUSES only, with no rule that the row is genuinely inapplicable; it then short-circuits the uncovered-required check and renders in the completed group. Add a required justification/reason field (or policy) for not_applicable, without weakening the PLAN-only, hash-bound, intent-collision-confirmed write contract. Design-decision item; record the decision. Closes findings M4 caveat.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Re-assert confirmedLedgerHash === ledgerHash inside confirmMilestoneLedger at confirm time",
+      "context": "core/proofstory.ts confirmMilestoneLedger (~L382-402) mints state=confirmed from an accepted intent collision without re-checking collision.confirmedLedgerHash === ledger.ledgerHash; today safety is emergent (any later row change routes through set/add which reset to candidate). Add an explicit confirm-time hash re-check so the invariant is local. Closes findings M2 hardening note.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Record an explicit decision on the milestone-triggered gate-mode default (observe vs enforce)",
+      "context": "packages/main/src/handlers/phase-gates.ts resolves doneGateMode (type declared in packages/main/src/core/config.ts:60 as 'observe'|'warn'|'enforce', default observe); strict-DONE blocking only fires under 'enforce' (proofstory.ts blocking = mode === 'enforce' && gaps.length > 0, ~L1387/1442). Decide (with a recorded rationale/decision-doc) whether milestone-triggered stories should default to enforce; observe->enforce is a behavior change with wide blast radius, so this is a decision item, not a blind flip. Closes findings M3/M7 gate-mode default question.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Reconcile the milestone_status vs DONE-gate stale-evidence disagreement and the closeout second-gate divergence",
+      "context": "B-b550 M7 follow-up item 4 (the completeness-critic's two MAJOR holes). (1) milestone_status demotes stale milestone evidence (row -> groups.current, statusDetail=stale), but evaluateDoneIntentEquivalence (packages/main/src/handlers/phase-gates.ts; milestone coverage resolved via evidenceCoversIntent) can still pass the SAME stale ledger — the two surfaces give contradictory verdicts on identical stale evidence. (2) captureMilestoneCloseoutSnapshotFromStore (packages/main/src/handlers/milestone-status.ts, invoked from the DONE transition in transition-orchestrator.ts, phase==='DONE') acts as an undesigned second DONE gate with divergent throw semantics vs the designed evaluateDoneIntentEquivalence gate: a legitimately shrunk / non-applicable-but-risky confirmed ledger makes the designed gate pass while the closeout builder throws, blocking DONE. Reconcile so (a) milestone_status freshness and the DONE gate agree on stale milestone evidence, and (b) closeout capture is not a divergent second gate — with a recorded decision + tests. Design-decision + code; closes findings M7 follow-up item 4.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-f7b3/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
