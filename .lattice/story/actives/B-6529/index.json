@@ -1,0 +1,33 @@
+{
+  "storyId": "B-6529",
+  "name": "multi-model-cell03-provider-execution-authorization-unlock",
+  "title": "Unlock Cell 03 provider execution authorization with bounded spend and bound execution metadata",
+  "description": "Cell 03 is the next formal M2-a provider execution step, but current artifacts keep providerExecutionAuthorized=false because exact bounded budget approval, dated model snapshots, prompt/tool digests, runner ownership, duplicate policy, result write policy, execution window, and Cell 03-only scope are not yet bound. This story records and verifies those prerequisites while rejecting uncapped approval and avoiding later-cell execution or broader claim rows.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-request-2026-07-05-cell03-provider-execution-prerequisites",
+  "keywords": [
+    "multi-model-ablation",
+    "provider-execution",
+    "cell-03",
+    "authorization",
+    "budget-cap",
+    "runner-ownership",
+    "duplicate-policy"
+  ],
+  "createdAt": "2026-07-05T21:22:04.933Z",
+  "startedAt": "2026-07-05T21:22:04.933Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T21:22:05.720Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}

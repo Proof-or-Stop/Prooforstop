@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6529",
+  "mode": "feature",
+  "allowed": [
+    "Bounded budget approval binding when supplied by user",
+    "Cell 03 provider execution authorization metadata",
+    "Checker negative controls for fail-closed behavior",
+    "Dated E2 executor/reviewer snapshot binding",
+    "Prompt and tool-surface digest binding",
+    "Result output/provider-switch/window/scope policy",
+    "Runner ownership and duplicate policy"
+  ],
+  "excluded": [
+    "Actual provider calls before exact bounded human budget approval",
+    "Cell 02 or Cell 04 execution",
+    "Cell 06 A2prime execution",
+    "Paper wording updates",
+    "Phase 2 powered matrix",
+    "Runtime/playbook behavior changes",
+    "Unbounded provider spend"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested solving Cell 03 provider execution prerequisites after B-c25c guardrail showed real execution metadata missing. Scope is Cell 03 authorization unlock only, not provider result generation or later cells.",
+  "createdAt": "2026-07-05T21:22:04.933Z",
+  "updatedAt": "2026-07-05T21:22:04.933Z",
+  "_hash": "80fbf5f79261b707d9573a07401e336bbdc81a7e61c1d44f6a1e22334f59cc3e"
+}
