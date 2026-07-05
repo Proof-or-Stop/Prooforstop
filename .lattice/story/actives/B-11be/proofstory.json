@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-11be",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:0e75ce90e2dc9764d89d4f1bfc98e891353d09fe06491f2e104a230c61ee08ee",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-M2-PROVIDER-AUTH",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "acceptanceClaim": "The repository contains an auditable m2-provider-execution-authorization.json artifact plus checker/docs updates; local M2 checks pass; docs/status state provider calls/result rows are absent, B-11be budget cap is USD 0.00, cell 03 is next, and cell 06 remains blocked.",
+      "note": "Binds the original acceptance claim to all three checklist items: artifact, checker, and status docs."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "ACCEPT-M2-PROVIDER-AUTH has no verificationIntentRefs."
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "ProofStory contract for B-11be metadata-only authorized provider launch boundary. No provider execution or result rows are in scope.",
+  "createdAt": "2026-07-05T14:47:54.505Z",
+  "updatedAt": "2026-07-05T14:47:54.505Z"
+}

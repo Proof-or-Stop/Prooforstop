@@ -83,7 +83,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The M2 status docs show metadata authorization is recorded, B-11be spent USD 0.00 on providers, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "m2-status.md and README mention the authorization artifact and show M2-provider metadata as Done/Prepared without claiming provider execution results.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs keep H-M1/H-M3, model-agnostic wording, product gates, and paper claims locked until real result rows exist.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply full Phase 1 authorization, cell 06 unblocked, provider calls made, or product-gate impact.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

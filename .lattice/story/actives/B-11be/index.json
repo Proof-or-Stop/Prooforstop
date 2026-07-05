@@ -4,7 +4,7 @@
   "title": "Authorize Multi-Model Ablation M2 provider execution metadata without running cells",
   "description": "The multi-model ablation protocol has M0/M1/M2 static readiness, but provider execution remains disabled because authorization metadata is absent. This story records the human approval boundary and adds an auditable authorized-but-bounded launch metadata layer so the next formal step can be cell 03 calibration without allowing cell 06 or full Phase 1 to run prematurely.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user-approved-provider-execution-2026-07-05",
   "keywords": [
@@ -34,6 +34,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T14:43:53.725Z",
+      "branch": "story/B-11be",
+      "user": "Harmonygo",
+      "sessionId": "sess-deb3a0b50baf430d",
       "agent": "main"
     }
   ],
