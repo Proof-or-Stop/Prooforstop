@@ -122,7 +122,39 @@
       "context": "Plan M3.a-M3.f: review ordinary single-outcome story behavior with no ledger; review structural/semantic milestone trigger behavior; review candidate versus confirmed requirements; review DEV admission and REVIEW/DONE behavior for missing or stale milestone facts; verify missing-ledger next actions are specific and non-mutating. Output: missing-state matrix.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M3 or Missing-Ledger Policy section in findings report -> section exists with a missing-state matrix or equivalent structured breakdown; WHY: confirms the policy review produced the required output artifact",
+            "type": "cli"
+          },
+          {
+            "desc": "rg ordinary|single.outcome in findings report M3 section -> ordinary single-outcome story behavior without a ledger is explicitly reviewed; WHY: M3.a requires confirmation that ordinary stories are not retroactively broken",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg DEV.admission|REVIEW|DONE in findings report M3 section -> lifecycle phase behavior for missing/stale milestone facts is documented; WHY: M3.d/M3.e require review of phase-specific gating behavior",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m3-dev-admission-enforce-block.txt exists and shows DEV admission enforcement behavior; WHY: confirms live CLI probe of the missing-ledger gate was captured",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg non.mutating|specific|next.action in findings report M3 section -> missing-ledger next actions are verified as specific and non-mutating; WHY: M3.f prevents status reports from recommending mutation as a fix for missing state",
+            "type": "logic"
+          },
+          {
+            "desc": "Check findings report M3 section addresses candidate vs confirmed requirements separately -> not collapsed into a single verdict; WHY: M3.c requires distinguishing candidate from confirmed which have different safety implications",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
