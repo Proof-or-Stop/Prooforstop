@@ -315,7 +315,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "capability-release-invariants-smoke: candidate excluded from active surfacing (green)",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A status=candidate capability playbook is excluded by matchActivePlaybook (playbook-runtime-memory.ts:343) and never appears in active surfacing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The candidate does not enter MemoryFreshnessPack.results.playbookIds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Only status===active playbooks match; flipping status to active would surface it, proving the guard is the actual gate (no new mechanism built).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-012",
