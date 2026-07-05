@@ -1,0 +1,90 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind the powered campaign protocol to the Tier-C parent plan",
+      "context": "Update the parent Tier-C cross-host quorum execution plan so M4 points to the new powered independent-host campaign protocol as the protocol source of truth, while preserving the no-results/no-paper-change boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+      ],
+      "userSees": "The Tier-C parent plan visibly names the powered campaign protocol file and says it is protocol-only, not result evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Parent plan links to tier-c-powered-independent-host-campaign-protocol.md as the M4 protocol source.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Parent plan states the protocol does not change paper numbers or runtime gates by itself.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Parent plan does not claim powered Tier-C results have already been produced.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit the powered protocol artifact with explicit claim boundaries",
+      "context": "Keep the new protocol document as a draft protocol artifact defining coverage matrix, adoption boundary, claim boundary, pre-registered questions, independence requirements, and missing pre-campaign work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+      ],
+      "userSees": "The new protocol document clearly separates future powered campaign prerequisites from current evidence and product behavior.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Protocol document includes coverage matrix, adoption boundary, claim boundary, pre-registered questions, and independence requirements.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Protocol document says it is not an experiment result and does not alter runtime gates, story DONE gates, paper numbers, playbook guidance, or release wording.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Protocol document keeps missing items such as multi-key signed verdicts, protocol.lock.json, records-tier-c.jsonl, and independent recompute as future prerequisites.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

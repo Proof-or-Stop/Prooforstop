@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0315",
+  "changes": "Expanded DONE version-bump/build watched inputs so docs/CLI.md and packages/main/tests/** capability contract proof changes trigger a CLI patch bump, while arbitrary docs/requirements, experiments, paper artifacts, and manual DEV package version edits do not trigger this policy. Updated maintained smokes and lifecycle docs to match the bounded policy.",
+  "usage": "Use normal TEST to DONE flow. If a story changes docs/CLI.md or packages/main/tests/**, done_prepare/DONE treats it as a watched CLI capability contract input and performs the patch bump/build path instead of printing the skip line. Do not manually edit package version files during DEV.",
+  "expectedOutcome": "version-bump-smoke reports that the bounded watched inputs are covered and pass, proving docs/CLI.md and packages/main/tests/** trigger the policy while requirements docs, experiments, paper files, and manual package version edits are not used as DEV implementation.",
+  "actualTranscript": "live_smoke_transcript captured: node packages/main/dist/tasks/version-bump-smoke.js exited 0 with stdout: version-bump smoke passed: 74 assertions.",
+  "outcomeDiff": "No difference observed: the expected version-bump policy smoke passed exactly, with 74 assertions.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully proven by targeted smokes, formal validate, live smoke transcript, delivery review, and 3x2 review escalation quorum.",
+  "pitfalls": "First review found stale maintained smoke expectations and old runtime-only wording; fixed by updating worktree-authority and done-merge smokes, then reran all reviewers and submitted full 3x2 quorum because first-round findings crossed the escalation threshold.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 305268
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11875
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 404847
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1163235
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 690697
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 901901
+    }
+  },
+  "totalDurationMs": 3478207,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T10:28:48.757Z",
+  "updatedAt": "2026-07-05T10:33:38.939Z"
+}

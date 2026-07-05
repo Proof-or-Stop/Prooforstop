@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-0315",
+  "records": [
+    {
+      "id": "B-0315-red-version-bump-policy",
+      "trigger": "B-3a4d-like CLI capability proof changes skip patch version bump",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "954c370aa60dda2bbcb7a402d04401a60b0ed4ee",
+      "baselineMaterialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+      "observedFailure": "Before the fix, done-effects.ts does not watch docs/CLI.md or packages/main/tests/**, so a docs/tests-only capability proof change is treated as non-bump input.",
+      "failingCommand": "grep -q \"rel === 'docs/CLI.md'\" packages/main/src/handlers/done-effects.ts && grep -q \"rel.startsWith('packages/main/tests/')\" packages/main/src/handlers/done-effects.ts",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js"
+      },
+      "note": "Red grep command was run before edits in equivalent Node form and observed hasDocs=false, hasTests=false, exit code 1.",
+      "createdAt": "2026-07-05T09:42:47.220Z"
+    },
+    {
+      "id": "B-0315-red-ACC-001-version-bump-policy",
+      "trigger": "B-3a4d-like CLI capability proof changes skip patch version bump",
+      "acceptanceTargetRef": "ACC-001",
+      "baselineHeadHash": "954c370aa60dda2bbcb7a402d04401a60b0ed4ee",
+      "baselineMaterialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
+      "observedFailure": "Before the fix, done-effects.ts does not watch docs/CLI.md or packages/main/tests/**, so the acceptance claim is not satisfied for capability contract/proof-only changes.",
+      "failingCommand": "grep -q \"rel === 'docs/CLI.md'\" packages/main/src/handlers/done-effects.ts && grep -q \"rel.startsWith('packages/main/tests/')\" packages/main/src/handlers/done-effects.ts",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACC-001",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js"
+      },
+      "note": "Current source lacks both watched predicates before implementation; post-fix smoke must prove bounded positives and negatives.",
+      "createdAt": "2026-07-05T09:43:36.635Z"
+    }
+  ],
+  "createdAt": "2026-07-05T09:42:47.220Z",
+  "updatedAt": "2026-07-05T09:43:36.635Z"
+}

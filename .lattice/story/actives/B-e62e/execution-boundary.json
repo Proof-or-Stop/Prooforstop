@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e62e",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice checklist_update*",
+    "lattice story_advance*",
+    "lattice story_review*",
+    "lattice validate*",
+    "lattice verification_evidence_batch_add*",
+    "node packages/main/dist/cli.js*",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build",
+    "rg*",
+    "sed*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "bin",
+    "docs/CLI.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "lattice release_approve_push*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Implement only the auto-surface milestone progress stdout path. Do not implement milestone_completion_set or closeout completion-ledger freezing in this story.",
+  "createdAt": "2026-07-05T10:14:18.934Z",
+  "updatedAt": "2026-07-05T10:14:18.934Z",
+  "_hash": "b29778482f04d3f5c8b960b4c737612f4d7d8b5c81c8e05b97a5b5265bea94bd"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0315",
+  "sourceText": "User asked to add a version strategy after B-3a4d skipped the CLI version bump because no watched CLI/runtime inputs changed.",
+  "normalizedOutcome": "B-3a4d-like stories that change CLI capability contract or proof files trigger a DONE patch-version bump, while unrelated documentation, experiments, paper artifacts, and manual semver edits remain outside the policy.",
+  "acceptanceClaim": "The changed-path predicate returns true for docs/CLI.md and packages/main/tests/**, returns false for unrelated docs/requirements and experiments/**, the smoke test proves both sides, and story-lifecycle docs describe the bounded policy.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002"
+  ],
+  "requestHash": "sha256:b7fc39f6a92eae064d2f807ecb59db785dcf03923d56a10217885c97fb543790",
+  "createdAt": "2026-07-05T09:42:53.200Z",
+  "updatedAt": "2026-07-05T09:42:53.200Z"
+}

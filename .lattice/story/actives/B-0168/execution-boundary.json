@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0168",
+  "allowedCommands": [
+    "git diff *",
+    "lattice story_advance *",
+    "lattice validate --story=* --json",
+    "rg *"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "rg"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "excludedCommands": [
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "python *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/tier-c-campaign/**",
+    "lattice-Paper/**",
+    "packages/**",
+    "paper/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Docs-only protocol management story; no runtime, experiment, or paper execution is authorized.",
+  "createdAt": "2026-07-05T10:41:11.239Z",
+  "updatedAt": "2026-07-05T10:41:11.239Z",
+  "_hash": "c3fd5eac50f5cc1e814dd2866eae5b2077cca83d305f95fca15f7ba70edde97b"
+}
