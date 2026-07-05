@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T21:09:49.475Z",
       "reviewRunId": "B-f511:RR-003",
       "_hash": "1dc2e342d6fd051f16773d30feb707876d0cacb6c3c372dd07ab5281d729f61b"
+    },
+    {
+      "id": "B-f511:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: commit aad1db055 (F-001..F-004 fixes) reviewed via git diff main...HEAD -- experiments/pos-instrument-replay/. Confirmed purely additive: run-batch.mjs adds isCompleteLedgerRecordLine() + isLockHolderAlive() helpers and HOLDER_PATH const, both fully wired (no dangling refs, grep-verified); prior repairTruncatedTail/acquireLock logic is extended (parse-before-drop, PID-liveness check) not deleted, only comments reworded/expanded. resume-probe.mjs adds stopRecordResumeTrial (killC) alongside existing killA/killB, none removed. selfcheck-m3.mjs adds sub-checks F/G/H alongside existing A-E in main(), all still invoked; main() gains a .catch wrapper (robustness add, not a behavior deletion). resume-reconciliation.json gains a killC block, existing fields unchanged. M0/M1/M2 files (protocol.json, lib/, instrument.mjs, tamper.mjs, selfcheck-m1.mjs, selfcheck-m2.mjs, batch-ledger.jsonl) have zero diff against main, confirmed via git diff. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-05T23:24:58.448Z",
+      "reviewRound": "2026-07-05T23:23:10.512Z",
+      "reviewRunId": "B-f511:RR-008",
+      "_hash": "e58f4efedf9087566e3a5719dc82a0945b044e6f6fab0aadf0126d01ff6a6b7f"
     }
   ]
 }
