@@ -38,7 +38,31 @@
       "context": "protocol.json content per plan section 7: N per scale (proposed 30 small / 3 full, full-N finalized from calibration), content-inert seed constant with contentInert:true annotation, tamper matrix split into fail-closed set (each with expected fingerprint over flags+numeric predicates) + acceptance bucket + dropped list, iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum {budget_cap,verify_crash,precondition_failed,operator_abort}, env pins {nodeVersion,platform,instrumentCommit}. Producer must be deterministic and re-emit a byte-identical protocol.json (hash reproducible).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/build-protocol.mjs writes protocol.json + protocol.json.sha256 and prints the frozen hash; a second run prints the identical hash (byte-identical re-emit).",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node build-protocol.mjs emits protocol.json and its sha256; running it twice yields byte-identical protocol.json (stable hash)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "protocol.json contains the fail-closed set (each with fingerprint over flags+numeric predicates), the acceptance bucket, the dropped list, N per scale, content-inert seed const, iterationId cross-product rule, recordDigest preimage rule, budget caps, stop-reason enum, and env pins",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "every class in the fail-closed set has a fingerprint with at least one required-false flag OR a failing numeric predicate (no vacuous H2 class)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
