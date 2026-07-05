@@ -23,9 +23,47 @@
     "docs/** except docs/CLI.md policy reference and story-lifecycle docs text"
   ],
   "scopeChangeReason": "Bounded version bump strategy for CLI capability contract/proof inputs only.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Acknowledge ProofStory DEV-gate artifacts and semantic hunk digests for changes already covered by B-0315 scope: bounded version bump predicate, skip wording, smoke coverage, and lifecycle docs.",
+      "timestamp": "2026-07-05T09:57:24.770Z",
+      "paths": [
+        ".lattice/story/actives/B-0315/intent-collision.json",
+        ".lattice/story/actives/B-0315/original-intent-snapshot.json",
+        ".lattice/story/actives/B-0315/proofstory.json",
+        ".lattice/story/actives/B-0315/red-evidence.json",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/core/version-bump.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-0315/intent-collision.json",
+        ".lattice/story/actives/B-0315/original-intent-snapshot.json",
+        ".lattice/story/actives/B-0315/proofstory.json",
+        ".lattice/story/actives/B-0315/red-evidence.json",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/core/version-bump.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "affectedPathCount": 8,
+      "phase": "DEV",
+      "headHash": "8424bad90cadf7afb104cd4a00de336f47dd011c",
+      "materialHash": "efbb5550a389ee958a481c4828c8f3d58a128ff8c20a08ce305952f7bd4ed595",
+      "hunkDigests": [
+        "d0533283a44b4b206cb15c6988d9ffa5eb4604f67a1dbd87fc8e156ae9d596d8",
+        "43ef50719d1b7ffbf2cbf71f056903cedf486d314803e2ee24d74e3527b5f534",
+        "b2dd3a989cbf1908766f69d97cef12e0515e4fd47ba91aa73d69f01aeb567d09",
+        "2864a7793b4358283175937a914bbb32362933cb8ddbd6dfaac7f2575e889017",
+        "f788690eb91d83a6b2283ea7a2abd37470142b90d837f89766737402ca9b047f"
+      ]
+    }
+  ],
   "createdAt": "2026-07-05T09:42:24.280Z",
-  "updatedAt": "2026-07-05T09:42:24.280Z",
+  "updatedAt": "2026-07-05T09:57:24.771Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/done-effects.ts",
