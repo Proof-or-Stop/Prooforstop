@@ -61,6 +61,26 @@
       ],
       "signatureTag": "missing|ts|partial-recovery-complete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-11ad:F-004",
+      "desc": "packages/main/src/handlers/done-effects.ts:1135-1144 records and commits .lattice/artifact-releases.jsonl under mainMergeRoot, the resolved git root. But packages/main/src/handlers/artifact-release.ts:49-58 reads the ledger from ctx.root, and cli/runtime-root.ts:6-15 resolves ctx.root to the metadata root containing lattice.config.json. In a wrapper-root layout with metadataRoot != gitRoot, DONE will commit repo/.lattice/artifact-releases.jsonl while artifact_release_list/status look at metadataRoot/.lattice/artifact-releases.jsonl and report no records. This breaks the promised read-after-DONE provenance inspection for wrapper-root projects and is an unexpected side effect of using the git cwd as the ledger root instead of routing read commands to the same root or making the ledger root explicit.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T10:27:06.950Z",
+      "reviewRound": "2026-07-05T10:23:30.242Z",
+      "reviewRunId": "B-11ad:RR-009",
+      "_hash": "03010d5f66217b6ca1758ac53e22350d69f7a021d112d7bd60b7a37fba4467be",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/artifact-release.ts",
+        "packages/main/src/cli/runtime-root.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
