@@ -70,7 +70,31 @@
       "context": "This is the sole heavy compute in M0. Capture the measured full-profile elapsed + rss into a committed calibration record that build-protocol.mjs consumes to set the budget cap and freeze full-N. Small verify measured ~7.3s hands-on.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/calibrate-full.mjs (or the build step) records calibration.json with measured full-profile elapsedMs + peakRssBytes + chosen full-N and env pins; prints 'full-profile: <ms>ms rss=<bytes> -> full-N=<n>'.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "one full-profile (1,000,000-record) generate+verify runs and calibration.json records elapsedMs, peakRssBytes, and the finalized full-N + budget cap",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "env pins {nodeVersion, platform, instrumentCommit} are recorded in calibration.json / protocol.json",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "if the full-profile run cannot complete within budget, an honest budget_cap/stop is recorded rather than a fabricated cost number",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
