@@ -232,17 +232,18 @@ function renderArtifactReleaseDoneLine(result: RecordArtifactReleaseResult): str
   return `✓ artifact release ${verb}: story=${result.record.storyId} commit=${result.record.mainCommit} artifactSetDigest=${result.record.artifactSetDigest} paths=${result.record.paths.length}`;
 }
 
-function commitArtifactReleaseLedgerIfNeeded(
+export function commitArtifactReleaseLedgerIfNeeded(
   mainMergeRoot: string,
   storyId: string,
   result: RecordArtifactReleaseResult,
   runGit: (gitArgs: string[], cwd: string) => string,
 ): void {
-  if (result.status !== 'recorded') return;
+  if (result.status === 'skipped_empty' || !result.record) return;
   try {
     runGit(['add', '-f', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
     const staged = runGit(['diff', '--cached', '--name-only', '--', ARTIFACT_RELEASE_LEDGER_REL_PATH], mainMergeRoot);
     if (!staged) {
+      if (result.status === 'already_recorded') return;
       throw new Error(`${ARTIFACT_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
     }
     runGit(

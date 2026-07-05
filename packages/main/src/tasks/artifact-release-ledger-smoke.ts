@@ -18,6 +18,7 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createArtifactReleaseHandlers } from '../handlers/artifact-release.js';
 import {
+  commitArtifactReleaseLedgerIfNeeded,
   isDoneMainRuntimeBuildInput,
   shouldBuildDoneMainPackageForChangedPaths,
 } from '../handlers/done-effects.js';
@@ -143,6 +144,53 @@ try {
     assert.equal(records[0].runtimeSemverChanged, true);
     assert.ok(records[0].claimBoundary.includes('provenance-only'));
     assert.ok(readFileSync(artifactReleaseLedgerPath(root), 'utf-8').includes('"schemaVersion"'));
+  });
+
+  check('already-recorded dirty ledger retry commits the existing row durably', () => {
+    const retryRoot = makeGitFixture();
+    cleanup.push(retryRoot);
+    const retryHead = git(retryRoot, ['rev-parse', 'HEAD']);
+    const retryChangedPaths = ['docs/release.md', 'experiments/proof/run.mjs'];
+    const first = recordArtifactReleaseForDoneMerge({
+      root: retryRoot,
+      storyId: 'B-retry',
+      mainCommit: retryHead,
+      changedPaths: retryChangedPaths,
+      runtimeSemverChanged: false,
+      isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+      now: '2026-07-05T00:03:00.000Z',
+    });
+    assert.equal(first.status, 'recorded');
+    assert.notEqual(git(retryRoot, ['status', '--short', '--', ARTIFACT_RELEASE_LEDGER_REL_PATH]), '');
+
+    const second = recordArtifactReleaseForDoneMerge({
+      root: retryRoot,
+      storyId: 'B-retry',
+      mainCommit: retryHead,
+      changedPaths: retryChangedPaths,
+      runtimeSemverChanged: false,
+      isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+      now: '2026-07-05T00:04:00.000Z',
+    });
+    assert.equal(second.status, 'already_recorded');
+
+    commitArtifactReleaseLedgerIfNeeded(retryRoot, 'B-retry', second, (args, cwd) => git(cwd, args));
+    assert.equal(git(retryRoot, ['status', '--short', '--', ARTIFACT_RELEASE_LEDGER_REL_PATH]), '');
+    assert.ok(git(retryRoot, ['show', `HEAD:${ARTIFACT_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-retry"'));
+    const committedHead = git(retryRoot, ['rev-parse', 'HEAD']);
+
+    const third = recordArtifactReleaseForDoneMerge({
+      root: retryRoot,
+      storyId: 'B-retry',
+      mainCommit: retryHead,
+      changedPaths: retryChangedPaths,
+      runtimeSemverChanged: false,
+      isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
+      now: '2026-07-05T00:05:00.000Z',
+    });
+    assert.equal(third.status, 'already_recorded');
+    commitArtifactReleaseLedgerIfNeeded(retryRoot, 'B-retry', third, (args, cwd) => git(cwd, args));
+    assert.equal(git(retryRoot, ['rev-parse', 'HEAD']), committedHead);
   });
 
   check('empty releasable set skips without creating a ledger file', () => {
