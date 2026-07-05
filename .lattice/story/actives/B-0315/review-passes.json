@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-0315:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: story-lifecycle now clearly includes docs/CLI.md and packages/main/tests/** as bounded watched capability contract/proof inputs, the skip message names CLI/runtime or capability contract inputs, and arbitrary docs/requirements/**, experiments/**, and paper artifacts remain excluded from patch-version bump triggers.",
+      "createdAt": "2026-07-05T09:59:54.252Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-004",
+      "_hash": "31738ee74e0b7b9b5edd79454afbd689de1d4bcb70ff28a155981ba1fe4b1cf9"
+    },
+    {
+      "id": "B-0315:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs targeted re-review PASS: story-lifecycle.md clearly names watched inputs docs/CLI.md, packages/main/tests/**, and package/runtime inputs; explicitly excludes arbitrary docs/requirements/**, experiments/**, and paper artifacts; user-facing version/build skip wording now says no watched CLI/runtime or runtime/capability contract inputs changed as appropriate. Targeted built smokes passed.",
+      "createdAt": "2026-07-05T10:17:01.603Z",
+      "reviewRound": "2026-07-05T10:13:01.988Z",
+      "reviewRunId": "B-0315:RR-009",
+      "_hash": "5630f167d515f8038aeafac51d71578db45ef0e76738a89244adb1cb6dfc090c"
+    },
+    {
+      "id": "B-0315:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality re-review: verified version bump/build predicate remains bounded to packages/main runtime inputs plus docs/CLI.md and packages/main/tests/**, skip wording is synchronized in source/smokes, no broad docs/requirements or experiments trigger, and targeted built smokes pass.",
+      "createdAt": "2026-07-05T10:17:13.739Z",
+      "reviewRound": "2026-07-05T10:13:01.988Z",
+      "reviewRunId": "B-0315:RR-007",
+      "_hash": "3ac1cf9c9f6304168412b485f3cd2ca2d063274a64501faf4af62c4ae1293c04"
+    },
+    {
+      "id": "B-0315:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 targeted concept re-review: bounded version-bump policy is internally consistent. docs/CLI.md and packages/main/tests/** are watched capability contract/proof inputs; docs/requirements/**, arbitrary docs, experiments/**, and paper artifacts remain outside the bump/build boundary. Worktree-authority and DONE build smoke expectations now match the acknowledged scope expansion.",
+      "createdAt": "2026-07-05T10:17:20.403Z",
+      "reviewRound": "2026-07-05T10:13:01.988Z",
+      "reviewRunId": "B-0315:RR-010",
+      "_hash": "5fa19560a0efb6e469a6638544f1ff3e872e1b1065f58625619f4322f1f4d35e"
+    },
+    {
+      "id": "B-0315:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 targeted test-coverage re-review passed: inspected predicate/docs/smoke assertions for docs/CLI.md and packages/main/tests positives plus docs/requirements/arbitrary docs/experiments negatives, confirmed old runtime-only expectations absent, and reran build plus targeted dist smokes successfully.",
+      "createdAt": "2026-07-05T10:17:25.512Z",
+      "reviewRound": "2026-07-05T10:13:01.988Z",
+      "reviewRunId": "B-0315:RR-008",
+      "_hash": "85bf4e08bd75e39d6e0c9a42e748fb0b925aeeb0aaf43c0965e08f7fcc7406d9"
+    }
+  ]
+}

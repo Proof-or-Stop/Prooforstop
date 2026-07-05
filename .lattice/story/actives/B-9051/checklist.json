@@ -1,0 +1,146 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Review canonical source inventory",
+      "context": "Confirm the plan identifies the current Proofbound milestone ledger and milestone_status implementation anchors and does not rely on retired-root stale planning prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "A review note stating whether the implementation inventory is accurate and canonical.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The review confirms the canonical source files and docs for milestone ledger/status behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The review identifies any retired-root or stale document that must not drive implementation truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The review does not treat future-plan prose as stronger than current code and accepted lifecycle facts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Review read-only status and write boundaries",
+      "context": "Check milestone_status read-only argument gating, non-mutation behavior, and command-policy separation from milestone_ledger_set/add writes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "userSees": "A review note stating whether status reporting and ledger writes are cleanly separated.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The review confirms milestone_status rejects mutation-like inputs and writes no workflow facts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The review confirms missing-ledger status output remains diagnostic and does not repair storage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The review finds no path where milestone_status creates, overwrites, or confirms milestone ledger facts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Review missing-ledger and schema adequacy",
+      "context": "Check ordinary versus triggered missing-ledger behavior, candidate versus confirmed ledger semantics, schema fields, status values, checklist/verification bindings, and future grouped report support.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "A review note stating whether missing-ledger policy and schema are sufficient or need a follow-up implementation story.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The review confirms missing-ledger behavior distinguishes optional ordinary stories from triggered or opt-in milestone work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The review confirms candidate and confirmed milestone ledger semantics are clear enough for gates and reports.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The review identifies any schema path that could invent hidden sub-objectives or false precision from prose.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Review tests and agent capability claims",
+      "context": "Check test coverage for read-only status, missing-ledger diagnostics, ledger writes, milestone-triggered gates, and no false DONE. Also check that the agent capability impact is specific and not overclaimed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "userSees": "A review note stating whether negative controls and agent capability claims are adequate.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The review lists existing tests or concrete gaps for milestone status and ledger behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The review explains how milestone ledgers improve agent progress, handoff, and stop conditions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The review confirms the document does not claim milestone progress satisfies Story DONE, Authority DONE, or production readiness.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9051",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "lattice aux_doc_list",
+    "lattice checklist_update",
+    "lattice dispatch",
+    "lattice execution_boundary_set",
+    "lattice init_check_set",
+    "lattice milestone_ledger_get",
+    "lattice milestone_status",
+    "lattice scope_boundary_set",
+    "lattice scope_freeze_check",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice validate",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "multi-agent reviewers",
+    "read-only source inspection",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-9051",
+    "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "lattice milestone_ledger_add",
+    "lattice milestone_ledger_set",
+    "lattice release_approve_push",
+    "lattice story_advance * DONE"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/proofstory.ts"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Document-review story. Source inspection allowed; implementation edits are out of scope unless a later follow-up story is opened.",
+  "createdAt": "2026-07-05T10:48:39.678Z",
+  "updatedAt": "2026-07-05T10:48:39.678Z",
+  "_hash": "0b70dc83b4fc78c59680fb25833b5f6ed543b457bc787ce664d3cb4b24e817f6"
+}

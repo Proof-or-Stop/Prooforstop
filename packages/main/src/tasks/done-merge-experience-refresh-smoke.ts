@@ -229,8 +229,8 @@ async function assertMetadataOnlyMergeStillRefreshes(): Promise<void> {
     // predicate did NOT fire — the merge report must show the build SKIPPED. This
     // is what makes the scenario a genuine metadata-only ("not material code") merge.
     check(
-      'meta-only: packages/main build was SKIPPED (no watched runtime inputs changed)',
-      /packages\/main build skipped after DONE merge \(no watched runtime inputs changed\)/.test(report),
+      'meta-only: packages/main build was SKIPPED (no watched runtime or capability contract inputs changed)',
+      /packages\/main build skipped after DONE merge \(no watched runtime or capability contract inputs changed\)/.test(report),
       `report:\n${report}`,
     );
 

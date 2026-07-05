@@ -1,0 +1,57 @@
+{
+  "storyId": "B-0315",
+  "checkedAt": "2026-07-05T10:27:44.924Z",
+  "headHash": "e7bdebc618a17f0b81a2ddfb8835ab30d2609d48",
+  "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+  "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+  "reviewRound": "2026-07-05T10:13:01.988Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE merge watched inputs include bounded CLI/runtime or capability contract/proof inputs: packages/main/src/**, docs/CLI.md, packages/main/tests/**, package manifests, and lockfiles.",
+      "status": "verified",
+      "verifiedBy": "diff inspection, rg, direct predicate check, validation",
+      "evidence": "packages/main/src/handlers/done-effects.ts isDoneMainRuntimeBuildInput returns true for docs/CLI.md and packages/main/tests/**; lattice validate --story=B-0315 --json passed; node packages/main/dist/tasks/version-bump-smoke.js passed 74 assertions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Arbitrary requirements documents, offline experiments, paper artifacts, and broad docs edits remain outside the automatic CLI patch-version bump policy.",
+      "status": "verified",
+      "verifiedBy": "diff inspection, rg, direct predicate check",
+      "evidence": "Direct predicate check returned false for docs/requirements/decisions/story-lifecycle.md, experiments/tier-c-proof/sum.mjs, lattice-Paper/main.tex, papers/draft.md, and docs/readme.md; story-lifecycle.md line 160 states these exclusions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE and done_recover skip/build wording uses the updated runtime or capability contract language instead of the old runtime-only wording.",
+      "status": "verified",
+      "verifiedBy": "rg and targeted smokes",
+      "evidence": "rg found updated skip text in version-bump.ts, done-effects.ts, worktree-authority-smoke.ts, and done-merge-experience-refresh-smoke.ts; old runtime-only skip text was absent in recorded evidence; targeted smokes passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-0315-policy-predicate",
+      "transcript": "lattice validate --story=B-0315 --json passed all 33 configured commands, including npm --prefix packages/main run build and node packages/main/dist/tasks/version-bump-smoke.js (version-bump smoke passed: 74 assertions)."
+    },
+    {
+      "featureId": "B-0315-maintained-smokes",
+      "transcript": "node packages/main/dist/tasks/worktree-authority-smoke.js passed; node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js passed 21 checks."
+    },
+    {
+      "featureId": "B-0315-live-smoke",
+      "transcript": ".lattice/story/actives/B-0315/evidence/live-smoke-transcript.json records node packages/main/dist/tasks/version-bump-smoke.js exitCode 0 with stdout version-bump smoke passed: 74 assertions; transcript-diff.md records no expected/actual mismatch."
+    },
+    {
+      "featureId": "B-0315-exclusion-direct-check",
+      "transcript": "Direct Node predicate check passed: docs/CLI.md and packages/main/tests/foo.test.mjs true; docs/requirements/decisions/story-lifecycle.md, experiments/tier-c-proof/sum.mjs, lattice-Paper/main.tex, papers/draft.md, and docs/readme.md false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "agent=lattice-review-delivery independently reviewed the full diff vs main, docs promises, resolved findings, reviewer passes, scope warnings, validation evidence, live smoke artifacts, and targeted smoke outputs. B-0315 delivers the bounded CLI version bump/build policy without broadening to arbitrary docs, requirements, experiments, or paper artifacts."
+  },
+  "_hash": "ba4b548ce2e255f7d3466d05ec1ac8a942f78c3adb85d742e25947e68e15eb7d"
+}

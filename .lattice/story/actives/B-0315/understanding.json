@@ -1,0 +1,26 @@
+{
+  "task": "Add a bounded DONE version bump policy so CLI capability contract and proof files can trigger a patch bump.",
+  "outcome": "After a story changes docs/CLI.md or packages/main/tests/** and reaches DONE, the DONE merge treats it like a watched CLI capability input: it builds packages/main, patch-bumps the CLI version, and no longer prints the old skip message; unrelated docs/requirements and experiments/** still skip.",
+  "facts": [
+    "B-3a4d delivered a CLI capability proof but skipped version bump because only runtime/package inputs were watched.",
+    "The current DONE merge predicate is shouldBuildDoneMainPackageForChangedPaths in packages/main/src/handlers/done-effects.ts.",
+    "The same predicate controls the post-DONE packages/main build and the patch version bump decision.",
+    "version-bump-smoke already exercises the predicate and skip line semantics."
+  ],
+  "constraints": [
+    "Do not include all docs/** in the bump policy.",
+    "Do not include experiments/** or paper artifacts.",
+    "Do not manually edit package version files during DEV.",
+    "Keep the change patch-only and bounded to the declared paths."
+  ],
+  "unknowns": [
+    "Whether future policy should split build trigger from version-bump trigger is outside this story."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-07-05T09:41:55.370Z"
+}

@@ -1,0 +1,20 @@
+{
+  "storyId": "B-0315",
+  "expected": "A DONE story that changes docs/CLI.md or packages/main/tests capability proof files triggers the CLI patch version bump instead of printing the skip line.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+    "exitCode": 0,
+    "stdout": "version-bump smoke passed: 74 assertions\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-05T10:21:37.207Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "16ec51578ef3a4dc72fe586c3e3ea1e0d7935171",
+  "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b"
+}

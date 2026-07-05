@@ -40,9 +40,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T09:47:51.578Z",
+      "endTime": "2026-07-05T09:48:57.352Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Build passed and version-bump smoke passed 74 assertions, including docs/CLI.md changed-path sets returning true for the DONE version bump predicate.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:51.819Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "version-bump smoke proves packages/main/tests/** positive predicate coverage; worktree-authority-smoke now treats packages/main/tests/smoke.ts as watched and passed after reviewer finding fix.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:52.005Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Smokes passed and assert docs/requirements, arbitrary docs, metadata-only, and experiments remain non-bump/non-build inputs while packages/main/tests/** is watched.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:08:52.186Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,9 +121,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T09:49:02.576Z",
+      "endTime": "2026-07-05T09:50:36.768Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/worktree-authority-smoke.js && node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "Build and all targeted smokes passed: version-bump smoke 74 assertions, worktree-authority-smoke passed, and done-merge-experience-refresh-smoke passed 21 checks after synchronizing skip/build policy wording.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:09:05.050Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"docs/CLI\\.md|packages/main/tests/\\*\\*|docs/requirements/\\*\\*|experiments/\\*\\*|no watched CLI/runtime or capability contract inputs\" docs/requirements/decisions/story-lifecycle.md packages/main/src/core/version-bump.ts packages/main/src/handlers/done-effects.ts packages/main/src/tasks/version-bump-smoke.ts packages/main/src/tasks/worktree-authority-smoke.ts packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "result": "pass",
+          "note": "Docs, skip constants, build skip line, and maintained smokes name the bounded capability contract/proof input class and updated skip wording.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:09:05.223Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "! rg -n \"no watched runtime inputs changed|no watched CLI/runtime inputs changed\" docs/requirements/decisions/story-lifecycle.md packages/main/src/core/version-bump.ts packages/main/src/handlers/done-effects.ts packages/main/src/tasks/version-bump-smoke.ts packages/main/src/tasks/worktree-authority-smoke.ts packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "result": "pass",
+          "note": "Old runtime-only skip wording is absent from docs, core version bump, build skip path, and the maintained smokes touched by reviewer findings.",
+          "headHash": "d9dccb2c2dc5054c65ef1090b7c486a28ca40ce2",
+          "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+          "storyFilesHash": "07a606e03a925472d62aa9370d86efe04dee1e75ed111902fd8cf5f6576752ce",
+          "timestamp": "2026-07-05T10:09:05.393Z"
+        }
+      ]
     }
   ]
 }
