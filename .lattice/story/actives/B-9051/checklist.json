@@ -172,8 +172,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T11:00:51.281Z",
       "endTime": null
     },
     {
@@ -251,6 +251,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Read-only status and write boundary review completed.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:51.281Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting missing-ledger and schema adequacy review evidence capture.",
       "agent": "codex-main"
     }
   ]
