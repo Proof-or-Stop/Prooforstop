@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Use frozen closeout for DONE milestone_status",
+      "context": "When a story is DONE and milestone-closeout.json exists, milestone_status must render a stable Milestone Status table from the frozen closeout/source snapshot instead of recomputing live evidence against archived active files.",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/core/milestone-status.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE story with milestone-closeout.json renders Milestone Status with completed rows and does not show stale evidence or blocked rows after active cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Active non-DONE stories continue to use live milestone_status freshness checks, and DONE stories without closeout still fail closed rather than fabricating success.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The JSON and text outputs preserve read-only boundaries and do not mutate evidence, ledger, checklist, summary, phase, or closeout files.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Document DONE snapshot status contract",
+      "context": "Update CLI documentation to say active stories use live projection while DONE milestone_status reads the closeout snapshot when present, keeping the developer-facing three-section table stable after cleanup.",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs mention the DONE closeout-backed Milestone Status behavior and the clear status icon contract.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs keep JSON/no-ledger behavior explicit so machine output and missing ledgers are not silently changed.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not claim milestone_completion_set or completion ledger support in this story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
