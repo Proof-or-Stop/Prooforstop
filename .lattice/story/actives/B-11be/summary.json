@@ -1,0 +1,56 @@
+{
+  "storyId": "B-11be",
+  "changes": "Added m2-provider-execution-authorization.json, extended the provider execution checker, updated status/README text, and clarified the M2 provider execution plan so B-11be is metadata-only with USD 0.00 provider spend.",
+  "usage": "Run node experiments/multi-model-ablation/m2-provider-execution-check.mjs to verify the authorization metadata boundary and sequencing status before any future provider-execution story.",
+  "expectedOutcome": "Terminal output should show M2-provider authorization metadata: Done, Provider spend in B-11be: USD 0.00, Provider cells run in B-11be: none, nextPermittedFormalStep=cell-03-calibration, cell-06-a2prime-blocked, and no provider calls made.",
+  "actualTranscript": "The checker printed 493 assertions and 36 negative controls rejected, M2-provider authorization metadata: Done, Provider spend in B-11be: USD 0.00, Provider cells run in B-11be: none, nextPermittedFormalStep=cell-03-calibration, cell-06-a2prime-blocked, Cell 06 A2prime: blocked, and Provider execution remains disabled; no provider calls made; no outcome records present. lattice validate passed 34/34 commands with 9/9 verification intents covered; done_required_validate passed build and root full suite.",
+  "outcomeDiff": "No difference: actual output matched the expected metadata-only authorization boundary and preserved all non-execution constraints.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "B-11be does not run provider cells, does not produce result rows, does not unlock H-M1/H-M3/model-agnostic claims, and does not authorize cell 06; real provider execution still requires a separate story with dated snapshots and nonzero budget.",
+  "pitfalls": "Scope contract initialization was needed after DEV because the story used explicit file scopes; ProofStory metadata and a decision-doc stale-status correction required reviewer-visible scope acknowledgements. Validate took about 260 seconds per run, and done-required validation took about 115 seconds.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 602407
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 44985
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2860849
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 523137
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 955941
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 682544
+    }
+  },
+  "totalDurationMs": 5670624,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T16:07:36.196Z",
+  "updatedAt": "2026-07-05T16:07:36.196Z"
+}

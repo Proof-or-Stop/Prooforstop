@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-9e44",
+  "id": "IC-20260705151505",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "M0 = freeze protocol.json only (viability harness + producer + full-profile calibration + selfcheck + reuse-audit map) under experiments/pos-instrument-replay/. It does NOT build the tamper/replay/resume/analyze harnesses (those are M1-M4) and does NOT modify the instrument. The multi-deliverable set is the 5 checklist items, all serving the single M0 exit criterion.",
+  "acceptedInterpretationHash": "sha256:925549168affece6b2bee1e37237d7c6b37a3c49d3711bc238c298cd4c2fa4e3",
+  "notes": "Single coherent interpretation; no genuine ambiguity — the plan section 8 M0 row fixes scope. Recorded to satisfy the ProofStory collision gate.",
+  "ledgerHashBeforeDecision": "sha256:e40482173bbcd80d2d88ac361b1ac94cc4d9382b207bcf355248e7b54f9d53d6",
+  "confirmedLedgerHash": "sha256:e40482173bbcd80d2d88ac361b1ac94cc4d9382b207bcf355248e7b54f9d53d6",
+  "createdAt": "2026-07-05T15:15:05.525Z",
+  "updatedAt": "2026-07-05T15:15:05.525Z"
+}

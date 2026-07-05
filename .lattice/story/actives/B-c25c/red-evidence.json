@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-c25c",
+  "records": [
+    {
+      "id": "RED-20260705165933",
+      "trigger": "Cell 03 launch blockers are currently implicit or absent after B-11be metadata-only authorization.",
+      "acceptanceTargetRef": "REQ-CELL03-GUARDRAIL",
+      "baselineHeadHash": "dbf159cd88768e001e03cc806ee5fa59e4afe1bd",
+      "baselineMaterialHash": "a86b781e1f8fa39b01fd372c524d5851f929be97f6ae2bfd2c8d8e342c82f055",
+      "observedFailure": "Before this story, the checker output says provider execution remains disabled and cell 06 is blocked, but it has no Cell 03 launch guardrail artifact/status requiring exact budget approval and rejecting invented spend approval.",
+      "failingCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-CELL03-GUARDRAIL",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "The command exits successfully as a baseline invariant check; the red condition is the absence of the Cell 03 guardrail/status in its output and artifacts, not a crashing test.",
+      "createdAt": "2026-07-05T16:59:33.778Z"
+    },
+    {
+      "id": "RED-20260705170015",
+      "trigger": "Cell 03 launch blockers are currently implicit or absent after B-11be metadata-only authorization.",
+      "acceptanceTargetRef": "ACC-CELL03-GUARDRAIL",
+      "baselineHeadHash": "dbf159cd88768e001e03cc806ee5fa59e4afe1bd",
+      "baselineMaterialHash": "a86b781e1f8fa39b01fd372c524d5851f929be97f6ae2bfd2c8d8e342c82f055",
+      "observedFailure": "Before this story, the checker output says provider execution remains disabled and cell 06 is blocked, but it has no Cell 03 launch guardrail artifact/status requiring exact budget approval and rejecting invented spend approval.",
+      "failingCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "ACC-CELL03-GUARDRAIL",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "Acceptance-bound red evidence: baseline command is a successful invariant checker, and the red condition is the absence of the Cell 03 guardrail/status in its output/artifacts.",
+      "createdAt": "2026-07-05T17:00:15.450Z"
+    }
+  ],
+  "createdAt": "2026-07-05T16:59:33.778Z",
+  "updatedAt": "2026-07-05T17:00:15.450Z"
+}

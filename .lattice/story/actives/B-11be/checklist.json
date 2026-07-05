@@ -27,9 +27,71 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:33:11.222Z",
+      "endTime": "2026-07-05T15:37:36.938Z",
+      "userSees": "Terminal/status output contains: \"M2-provider authorization metadata: Done\", \"Provider spend in B-11be: USD 0.00\", \"Provider cells run in B-11be: none\", and \"Cell 06 A2prime: blocked\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "m2-provider-execution-authorization.json exists and records human approval, USD 0.00 provider budget cap, metadata-only scope, and cell 03 as the next formal step.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authorization artifact keeps providerCallEnabled=false, formalPhase1UseAllowed=false, and containsOutcomeData=false for B-11be.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Authorization artifact does not treat host labels as provider model snapshots and does not unblock cell 06.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker loads m2-provider-execution-authorization.json and verifies B-11be metadata authorization, human approval marker, USD 0.00 provider budget cap, and cell 03 as the next formal step.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker verifies providerCallEnabled=false, formalPhase1UseAllowed=false, containsOutcomeData=false, no result rows, no outcome records, and no provider calls for B-11be.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker rejects host-label-only snapshot acceptance, nonzero budget, providerCallEnabled=true, real provider execution, outcome records path, and cell 06 unblocking.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,9 +115,71 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:37:48.841Z",
+      "endTime": "2026-07-05T15:38:01.578Z",
+      "userSees": "Terminal/checker output contains: \"M2 provider execution checker passed\", \"nextPermittedFormalStep=cell-03-calibration\", \"cell-06-a2prime-blocked\", and \"no provider calls made\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs passes with the metadata-only authorization artifact present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Checker rejects missing required metadata fields and keeps cell 06 blocked without a real cell-03-derived budget lock.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Checker rejects host-label-only snapshots, provider fallback, providerCallEnabled runners, and outcome/result record paths in B-11be.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker passes with m2-provider-execution-authorization.json present and prints the required terminal status lines.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker keeps cell 06 blocked without a real cell-03-derived budget lock and verifies missing real execution metadata still blocks provider execution.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Checker rejects providerCallEnabled runners, host-label-only snapshots, provider fallback, nonzero budget, outcome/result record paths, and cell 06 unblocking.",
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -81,9 +205,71 @@
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:38:17.626Z",
+      "endTime": "2026-07-05T15:39:07.859Z",
+      "userSees": "The status docs visibly show: \"M2-provider authorization metadata: DONE\", \"provider spend USD 0.00\", \"no provider cells ran\", \"no result rows exist\", \"cell 03 is next\", and \"cell 06 remains blocked\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "m2-status.md and README mention the authorization artifact and show M2-provider metadata as Done/Prepared without claiming provider execution results.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs keep H-M1/H-M3, model-agnostic wording, product gates, and paper claims locked until real result rows exist.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply full Phase 1 authorization, cell 06 unblocked, provider calls made, or product-gate impact.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "command": "rg -n \"M2-provider authorization metadata: DONE|provider spend USD 0.00|no provider cells ran|no result rows exist|cell 03 is next|cell 06 remains blocked\" experiments/multi-model-ablation/m2-status.md experiments/multi-model-ablation/README.md",
+          "result": "pass",
+          "note": "Status docs and README visibly describe B-11be metadata authorization as done while showing provider spend USD 0.00, no provider cells, no result rows, cell 03 next, and cell 06 blocked.",
+          "headHash": "e150ee6f88ad7a2be4332c833f56982021e85d57",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:06.844Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Docs and checker keep H-M1/H-M3, model-agnostic wording, product gates, and paper claims locked until real provider result rows exist.",
+          "headHash": "e150ee6f88ad7a2be4332c833f56982021e85d57",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:06.844Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Decision/status docs explicitly state B-11be is metadata-only USD 0.00 and does not imply full Phase 1 authorization, cell 06 unblocked, provider calls made, result rows, or product-gate impact.",
+          "headHash": "e150ee6f88ad7a2be4332c833f56982021e85d57",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:06.844Z"
+        }
+      ]
     }
   ]
 }

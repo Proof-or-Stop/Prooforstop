@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9e44",
+  "sourceText": "现在开始验证执行这个开发计划吧，并且按照先后顺序，直到全部done完成为止 (operator directive 2026-07-05: begin executing the frozen plan in strict milestone order until all are DONE). M0 is milestone 1.",
+  "normalizedOutcome": "A frozen, hash-pinned protocol.json (with viability dispositions, per-class fingerprints, calibration, env pins, reuse-audit map) exists under experiments/pos-instrument-replay/, produced by committed deterministic scripts, ready for M1.",
+  "acceptanceClaim": "node selfcheck passes: build-protocol.mjs re-emits protocol.json byte-identical (hash stable) and every fail-closed class fingerprint carries a failure signal; git shows protocol.json + producers committed.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:a795eedbad7e60a41a69ec086d7a5fcc22e3284557003cb8b70a4673e9b3064f",
+  "createdAt": "2026-07-05T15:09:47.830Z",
+  "updatedAt": "2026-07-05T15:09:47.830Z"
+}

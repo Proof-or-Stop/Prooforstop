@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f7b3",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "grep",
+    "lattice validate",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "production deploy",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "apps",
+    "experiments",
+    "packages/preload",
+    "packages/renderer"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Material-code hardening story; build+smoke+full-suite verification. No production/deploy/push. Read-only + PLAN-only milestone contract must remain intact.",
+  "createdAt": "2026-07-05T17:16:48.850Z",
+  "updatedAt": "2026-07-05T17:16:48.850Z",
+  "_hash": "795b9c24dbf11c445e0c26d039579dbe13f389d8e4326b1a625837d806677e31"
+}

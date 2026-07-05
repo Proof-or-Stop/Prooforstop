@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-11be:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/product boundary preserved: B-11be records USD 0.00 metadata-only authorization, keeps provider calls/results disabled, cell 03 as separate future step, cell 06 blocked, and no product gate or paper claim unlock.",
+      "createdAt": "2026-07-05T15:43:20.726Z",
+      "reviewRound": "2026-07-05T15:40:17.711Z",
+      "reviewRunId": "B-11be:RR-001",
+      "_hash": "8120a312bd76d3bf022215e3642e44d5799e334edcd8f96adfc59b8f794c5827"
+    },
+    {
+      "id": "B-11be:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed m2-provider-execution-authorization.json and m2-provider-execution-check.mjs: schema stays metadata-only with USD 0.00 cap, providerExecutionAuthorized/providerCallEnabled/formalPhase1UseAllowed all false, no result/outcome row paths or artifacts found, host-label snapshots rejected, cell 03 remains next and cell 06 blocked; checker passed 493 assertions and 36 negative controls.",
+      "createdAt": "2026-07-05T15:46:03.620Z",
+      "reviewRound": "2026-07-05T15:40:17.711Z",
+      "reviewRunId": "B-11be:RR-002",
+      "_hash": "3e102422b20bf86956578f13918e161b0c145eb4a0238e31fd551733528ce800"
+    },
+    {
+      "id": "B-11be:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001/002/003 verificationIntent coverage and evidence. Fresh node experiments/multi-model-ablation/m2-provider-execution-check.mjs passed with 493 assertions and 36 negative controls rejected; output includes USD 0.00 spend, no provider cells, cell-03 next, cell-06 blocked, and no provider calls/outcome records. Docs rg check confirmed the status/README/decision-doc non-claims. No test-coverage blocker; unrelated lattice check managed-asset drift noted out of scope for this lane.",
+      "createdAt": "2026-07-05T15:49:07.776Z",
+      "reviewRound": "2026-07-05T15:40:17.711Z",
+      "reviewRunId": "B-11be:RR-003",
+      "_hash": "73613aa9223b6f637687cf6e4113c7b813f24ca327d770fd0f587e7ea4a70434"
+    },
+    {
+      "id": "B-11be:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed README.md, experiments/multi-model-ablation/m2-status.md, and docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md; docs consistently state B-11be metadata-only authorization DONE/disabled, provider spend USD 0.00, no provider cells/result rows/outcome data, cell 03 next, cell 06 blocked, and no H-M1/H-M3/model-agnostic/product-gate unlock.",
+      "createdAt": "2026-07-05T15:51:21.637Z",
+      "reviewRound": "2026-07-05T15:40:17.711Z",
+      "reviewRunId": "B-11be:RR-004",
+      "_hash": "e777c3cba07209fd4a60296794270925c12567a51461772c07dc396cb4645562"
+    }
+  ]
+}

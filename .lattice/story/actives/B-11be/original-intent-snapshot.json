@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-11be",
+  "sourceText": "User authorized continuing the Multi-Model Ablation provider-execution track and asked for visible status-table updates after each step. The task must continue safely without conflicting with other sessions.",
+  "normalizedOutcome": "B-11be records a metadata-only authorized launch boundary for Multi-Model M2 provider execution, shows the user a status table proving authorization metadata is done, keeps provider spend at USD 0.00 in this story, and leaves actual cell 03 provider execution for a later separately budgeted story.",
+  "acceptanceClaim": "The repository contains an auditable m2-provider-execution-authorization.json artifact plus checker/docs updates; local M2 checks pass; docs/status state provider calls/result rows are absent, B-11be budget cap is USD 0.00, cell 03 is next, and cell 06 remains blocked.",
+  "keyRequirementIds": [
+    "REQ-CELL03-SEQUENCING",
+    "REQ-M2-PROVIDER-AUTH-METADATA",
+    "REQ-NO-CLAIM-OVERREACH",
+    "REQ-ZERO-SPEND"
+  ],
+  "requestHash": "sha256:0e75ce90e2dc9764d89d4f1bfc98e891353d09fe06491f2e104a230c61ee08ee",
+  "createdAt": "2026-07-05T14:46:55.795Z",
+  "updatedAt": "2026-07-05T14:46:55.795Z"
+}

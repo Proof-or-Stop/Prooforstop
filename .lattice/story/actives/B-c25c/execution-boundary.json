@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c25c",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+    "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "npm test -- *",
+    "rg * experiments/multi-model-ablation docs/requirements/decisions"
+  ],
+  "allowedTools": [
+    "codex-cli",
+    "lattice-cli",
+    "local-shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "curl *provider*",
+    "gh workflow run *",
+    "git push *",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "No external provider calls or remote publish in this story; checker and docs only unless Lattice validation requires local tests.",
+  "createdAt": "2026-07-05T16:47:36.180Z",
+  "updatedAt": "2026-07-05T16:47:36.180Z",
+  "_hash": "027cbc2e4312d2691f38f0c21278d8a85ca31c9bbe76256e6a6998aa30575840"
+}

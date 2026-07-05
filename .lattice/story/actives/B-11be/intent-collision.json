@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-11be",
+  "id": "IC-20260705144611",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-11be is not the provider execution run itself. It only creates and validates a metadata-only authorized-but-bounded launch artifact and status documentation with provider budget cap USD 0.00. Real cell 03 provider execution, nonzero budget, exact model snapshot IDs, and result rows are out of scope and require a later story.",
+  "acceptedInterpretationHash": "sha256:2b547d42fa55b00f9b6fc3a39004d9bd272eadc98867ac4e98ad88d910434492",
+  "notes": "This interpretation resolves the INIT reviewer I-1 ambiguity: user authorization is captured for continuity, but B-11be cannot spend provider budget, run cells, create outcome rows, unlock H-M1/H-M3, or unblock cell 06.",
+  "createdAt": "2026-07-05T14:46:11.503Z",
+  "updatedAt": "2026-07-05T14:46:11.503Z"
+}

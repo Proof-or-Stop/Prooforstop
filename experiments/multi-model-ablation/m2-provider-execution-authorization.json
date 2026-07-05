@@ -1,0 +1,152 @@
+{
+  "artifact": "m2-provider-execution-authorization",
+  "storyId": "B-11be",
+  "status": "metadata_authorization_recorded_provider_execution_still_disabled",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "launchArtifactRef": "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "authorizationBoundary": {
+    "metadataAuthorizationRecorded": true,
+    "humanApprovalRecorded": true,
+    "approvalSource": "user-chat-authorization-2026-07-05",
+    "approvedBy": "jek",
+    "approvalDate": "2026-07-05",
+    "appliesToStoryId": "B-11be",
+    "scope": "Record provider-execution authorization metadata, checker coverage, and status documentation only.",
+    "providerBudgetCap": {
+      "currency": "USD",
+      "amount": 0,
+      "providerSpendAllowed": false
+    },
+    "providerExecutionAuthorized": false,
+    "providerCallEnabled": false,
+    "formalPhase1UseAllowed": false,
+    "phase1CampaignAuthorized": false,
+    "phase2CampaignAuthorized": false,
+    "resultRowsAllowed": false,
+    "outcomeRecordsAllowed": false,
+    "resultRowsPresent": false,
+    "outcomeRecordsPresent": false,
+    "providerFallbackAllowed": false,
+    "productGateImpact": "none"
+  },
+  "executionWindow": {
+    "startsOn": "2026-07-05",
+    "endsWhen": "B-11be reaches DONE",
+    "allowsProviderCells": false,
+    "allowsLocalChecks": true
+  },
+  "requiredFutureExecutionMetadata": [
+    {
+      "fieldId": "humanApproval",
+      "status": "recorded_for_metadata_only",
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "datedExecutorSnapshot",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "datedReviewerSnapshot",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "promptDigest",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "toolSurfaceDigest",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "runnerOwnership",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "nonzeroProviderBudgetCap",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    },
+    {
+      "fieldId": "duplicatePolicy",
+      "status": "still_required_for_real_provider_execution",
+      "value": null,
+      "blocksProviderExecution": true
+    }
+  ],
+  "sequencing": {
+    "nextPermittedFormalStep": "cell-03-calibration",
+    "nextPermittedFormalStepMode": "separate_story_required",
+    "cell03Calibration": {
+      "cellNumber": "03",
+      "protocolCellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "status": "authorized_for_future_metadata_preparation_only",
+      "providerExecutionAllowedInB11be": false,
+      "requiresSeparateProviderExecutionStory": true,
+      "requiresNonzeroBudgetApproval": true,
+      "executionEvidencePresent": false
+    },
+    "realCell03DerivedBudgetLock": {
+      "present": false,
+      "sourceCell": "03",
+      "appliesToCell": "06",
+      "m0ExampleBudgetLockAcceptedAsFormalEvidence": false
+    },
+    "cell06A2primeGate": {
+      "state": "cell-06-a2prime-blocked",
+      "cellNumber": "06",
+      "protocolCellNumber": "⑥",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "blocked": true,
+      "executionAllowed": false,
+      "blockedUntil": "real cell-03-derived budget lock exists",
+      "matchingRealBudgetLockPresent": false
+    }
+  },
+  "hostModelSeparation": {
+    "hostLabelOnlySnapshotsAccepted": false,
+    "providerFallbackAllowed": false,
+    "hostLabelsRejectedAsSnapshots": [
+      "Codex CLI",
+      "Codex App",
+      "Claude Code CLI",
+      "Antigravity CLI",
+      "agy"
+    ],
+    "snapshotFieldsStillRequiredForRealExecution": [
+      "datedExecutorSnapshot",
+      "datedReviewerSnapshot"
+    ],
+    "statement": "Host labels may identify where a runner is launched, but they do not satisfy dated provider snapshot metadata."
+  },
+  "claimBoundary": {
+    "hM1Proven": false,
+    "hM3Proven": false,
+    "phase1DirectionalReadoutPresent": false,
+    "modelAgnosticPaperClaimUnlocked": false,
+    "productGateImpact": "none"
+  }
+}

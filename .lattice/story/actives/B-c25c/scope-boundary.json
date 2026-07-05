@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c25c",
+  "mode": "feature",
+  "allowed": [
+    "Cell 03 launch authorization metadata and local checker coverage",
+    "local-only validation with no provider calls",
+    "multi-model ablation M2 status/docs for Cell 03 launch readiness"
+  ],
+  "excluded": [
+    "Actual provider API calls or nonlocal execution",
+    "Cell 02/Cell 04 execution",
+    "Cell 06 A2prime execution or budget-lock generation",
+    "paper claim unlock, product gate change, runtime/playbook behavior change",
+    "records-multi-model-ablation.jsonl or outcome/result rows",
+    "unrelated Tier-C docs or active stories"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested solving M2-a Cell 03 Provider Execution Launch Authorization until DONE on 2026-07-05; implementation remains bounded to launch prerequisites unless explicit provider execution budget/run approval is separately recorded.",
+  "createdAt": "2026-07-05T16:47:36.180Z",
+  "updatedAt": "2026-07-05T16:47:36.180Z",
+  "_hash": "e5b2f9def873287b1ee2853374a41170af50a3cead5b04a04eea2d94837c788c"
+}

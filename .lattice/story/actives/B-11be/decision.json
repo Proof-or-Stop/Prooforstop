@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Do not optimize or automate provider execution until the evidence boundary is explicit.",
+    "Only fix the real launch correctness issue: authorization metadata must be auditable and bounded.",
+    "Keep host-neutral separation between provider model snapshots and host adapter labels.",
+    "Preserve sequencing: cell 03 before any budget lock, and cell 06 only after a real cell-03-derived budget lock.",
+    "Status output must make what is done, in progress, blocked, and not started visible to the user."
+  ],
+  "drivers": [
+    "Provider execution is spend-sensitive and must not be enabled by ambiguous metadata.",
+    "B-11be is scoped to USD 0.00 provider budget and local metadata/checker/docs only.",
+    "Existing M2 checker intentionally rejects accidental providerExecutionAuthorized=true and must keep rejecting unsafe states."
+  ],
+  "options": [
+    {
+      "name": "flip-existing-launch-boolean",
+      "pros": [
+        "Smallest textual diff",
+        "Looks like authorization is done"
+      ],
+      "cons": [
+        "Would bypass the existing safety guard",
+        "Could imply provider cells may run without complete metadata",
+        "Would violate cell 03/cell 06 sequencing"
+      ]
+    },
+    {
+      "name": "metadata-only-authorized-boundary",
+      "pros": [
+        "Records user approval and budget boundary without provider spend",
+        "Lets checker distinguish safe metadata from accidental execution enablement",
+        "Keeps cell 03 as future separately budgeted step and cell 06 blocked"
+      ],
+      "cons": [
+        "Does not run provider cells in this story",
+        "Requires a later story for actual cell 03 execution"
+      ]
+    },
+    {
+      "name": "run-cell-03-now",
+      "pros": [
+        "Would begin collecting real data sooner"
+      ],
+      "cons": [
+        "Needs nonzero budget cap and exact provider snapshots not yet pinned for execution",
+        "Would exceed B-11be scope",
+        "Risks wasting provider credit before metadata guard is proven"
+      ]
+    }
+  ],
+  "chosen": "metadata-only-authorized-boundary",
+  "rationale": "Choose metadata-only authorized boundary because it resolves the real correctness issue found by INIT review while preserving the existing no-provider-spend guard and the documented cell sequencing.",
+  "preMortem": [
+    {
+      "scenario": "Checker accepts unsafe authorization",
+      "trigger": "Required metadata is missing or host labels are accepted as snapshots",
+      "consequence": "Future agents could treat invalid provider rows as formal evidence",
+      "mitigation": "Add negative controls for missing fields, host-label snapshots, provider fallback, and cell 06 enablement."
+    },
+    {
+      "scenario": "Story accidentally runs provider cells",
+      "trigger": "A command or doc path enables provider execution inside B-11be",
+      "consequence": "Budget is spent and result rows appear outside the approved scope",
+      "mitigation": "Keep provider budget cap USD 0.00, exclude provider CLI commands, and assert no records/outcome paths exist."
+    },
+    {
+      "scenario": "Docs overclaim research results",
+      "trigger": "Status docs say authorization metadata implies Phase 1 data or model-agnostic proof",
+      "consequence": "Paper/product claims become unsupported",
+      "mitigation": "Update docs to say no provider cells ran, no H-M1/H-M3 proof exists, and product gate impact is none."
+    },
+    {
+      "scenario": "Cell 06 becomes unblocked too early",
+      "trigger": "Authorization metadata is interpreted as a real cell-03-derived budget lock",
+      "consequence": "A2prime sequencing becomes invalid",
+      "mitigation": "Checker must keep cell 06 blocked until a real cell-03-derived budget lock artifact from later execution exists."
+    }
+  ],
+  "timestamp": "2026-07-05T14:45:03.004Z"
+}
