@@ -134,12 +134,12 @@
     {
       "id": "CHK-004",
       "title": "M3 open Cell 03-only execution window",
-      "context": "Record a bounded execution window for Cell 03 only. It may allow provider calls for ③ A4 E2 same-family rows only and must keep Cell 02, Cell 04, Cell 06, Phase 2, product gates, and paper claims disabled.",
+      "context": "Record a bounded execution window for Cell 03 only. It may allow provider calls for ③ A4 E2 same-family rows only and must keep Cell 02, Cell 04, Cell 06, Phase 2, product gates, and paper claims disabled. Any change to B-6529-authored launch or authorization artifacts must record B-991d execution provenance and explicit supersession semantics, preserving B-6529 as the no-provider-call readiness evidence rather than rewriting its historical claim.",
       "relatedDocs": [
         "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
         "experiments/multi-model-ablation/m2-provider-execution-launch.json"
       ],
-      "userSees": "Cell 03 execution window is open; all other cells remain disabled.",
+      "userSees": "Cell 03 execution window is open under B-991d provenance; all other cells remain disabled and B-6529 remains historical readiness evidence.",
       "excludes": [
         "Cell 06 execution",
         "Phase 2 execution",
@@ -156,19 +156,19 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Provider calls are enabled only for Cell 03 under the frozen envelope.",
+            "desc": "Provider calls are enabled only for Cell 03 under the frozen envelope and the opening artifact records B-991d provenance.",
             "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "Expired windows or model drift void affected rows.",
+            "desc": "Expired windows, model drift, or missing B-991d supersession provenance void affected rows.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "Any attempt to enable other cells fails local checks.",
+            "desc": "Any attempt to enable other cells or overwrite B-6529 no-provider-call evidence fails local checks.",
             "type": "logic"
           }
         ]
@@ -382,6 +382,53 @@
         "adversarial": [
           {
             "desc": "Runtime, product, and playbook gates remain unaffected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "M9 DONE closure with delivery check and cost/claim summary",
+      "context": "Close the Cell 03 execution story only after delivery-check verifies result rows, postflight provider-reported usage and derived cost, B-991d provenance, and claim boundaries. DONE summary must state what ran, actual usage/cost, missing or failed rows, and what remains blocked.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "experiments/multi-model-ablation/m2-status.md"
+      ],
+      "userSees": "DONE summary reports Cell 03 execution status, actual provider usage/cost, row completeness, and remaining blocked cells.",
+      "excludes": [
+        "silent paper claim upgrades",
+        "automatic Cell 06 execution",
+        "hiding failed or missing rows"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-status.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/done-summary.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE summary reports row completeness, actual usage and cost, and B-991d provenance.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial execution can close only with explicit blocked or partial status and missing-row inventory.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story cannot mark DONE while implying Cell 06, Phase 2, paper wording, product gates, or playbooks are unlocked.",
             "type": "logic"
           }
         ]
