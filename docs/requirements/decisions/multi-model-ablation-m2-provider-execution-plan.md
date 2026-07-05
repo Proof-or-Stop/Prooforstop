@@ -59,6 +59,50 @@ not final usage or launch gates. Cell 06 remains `cell-06-a2prime-blocked`.
 | M5 analysis and recompute | Pending | Analyze and independently recompute real records; explain any differences. |
 | M6 wording guard | Pending | Update paper wording only to claims supported by the locked records and recompute. |
 
+## B-991d Cell 03 Real Execution Story
+
+B-6529 is readiness and no-provider-call evidence: it freezes the Cell 03
+envelope, target declarations, prompt/tool digests, duplicate policy, output
+policy, and postflight accounting requirement while keeping provider calls
+disabled. B-991d is the separate real-execution provenance story for Cell 03
+only. Its records must identify when the Cell 03 execution window opens, which
+provider snapshots actually answered, what rows were produced or voided, and
+what provider-reported usage and cost were returned after the run.
+
+Provider calls remain disabled until B-991d opens the Cell 03 execution window
+for the frozen envelope. This plan update does not open that window. Pre-run
+dollar guesses are not launch gates; they may be retained only as diagnostics.
+Launch authority must come from the frozen envelope, dated provider target
+snapshots, explicit provider-call enablement, and the story-owned execution
+window. After execution, postflight provider-reported usage/cost accounting is
+required before any budget/usage lock can be treated as real.
+
+B-991d is host-neutral. Execution host or adapter labels may describe where a
+run was launched, but they do not substitute for dated provider executor and
+reviewer snapshots. Codex, Claude, Antigravity, or other host labels are not
+provider snapshots and must not be recorded as if they were provider model
+provenance.
+
+Cell 02, Cell 04, Cell 06, Phase 2, paper wording, product gates, and playbook
+activation remain locked and out of scope for this Cell 03 real-execution story.
+No Cell 02 or Cell 04 rows are launched, Cell 06 A2prime remains blocked behind
+a real Cell-03-derived budget/usage lock, Phase 2 remains unapproved, paper
+claims remain unchanged, product gates remain unaffected, and playbook
+activation remains disabled.
+
+| Cell 03 real-execution milestone | B-991d ledger entry | Exit evidence |
+|---|---|---|
+| M0 plan boundary | Add this bounded section without provider calls and distinguish B-6529 readiness/no-provider-call evidence from B-991d real execution provenance. | Updated execution plan only; no outcome rows, result rows, provider spend, or provider calls. |
+| M1 frozen-envelope preflight | Reconfirm the B-6529 Cell 03 envelope, 24-task inventory, 1,152 planned rows, prompt/tool digests, duplicate policy, output policy, and stop conditions before launch. | Frozen inputs are unchanged or the run stops for amendment; provider calls still disabled. |
+| M2 execution-window open | Open the Cell 03 execution window only under B-991d with explicit provider-call enablement for the frozen envelope. | Timestamped execution-window record with `providerCallEnabled=true` for Cell 03 only; pre-run dollar guesses are not launch gates. |
+| M3 provider provenance capture | Record dated provider executor and reviewer snapshots from the run context and responses; host labels remain routing context only. | Provider snapshot fields are present and are not Codex/Claude/other host-label substitutes. |
+| M4 Cell 03 provider run | Execute only E2 A4 same-family Cell 03 rows within the open window and frozen limits. | Real Cell 03 row records or void records; no Cell 02, Cell 04, Cell 06, or Phase 2 execution. |
+| M5 duplicate/retry handling | Apply the frozen retry and duplicate policy to every attempted row. | Retry, duplicate, fallback, timeout, and void decisions are recorded per policy. |
+| M6 result-row freeze | Freeze Cell 03 real result rows under the result output policy after execution completes or stops. | Cell 03 result bundle is bounded, reviewable, and traceable to the execution window. |
+| M7 postflight usage/cost accounting | Record provider-reported usage and cost from provider responses, invoices, or billing exports after the run. | Postflight provider-reported usage/cost ledger exists; estimates are diagnostic only. |
+| M8 Cell-03-derived lock candidate | Derive any budget/usage lock only from real Cell 03 rows plus provider-reported usage/cost accounting. | Candidate lock exists or is explicitly withheld; Cell 06 remains blocked until a valid lock exists. |
+| M9 closure and non-activation | Close the Cell 03 execution window and preserve all out-of-scope locks. | Window closed; Cell 02, Cell 04, Cell 06, Phase 2, paper wording, product gates, and playbook activation remain locked/out of scope. |
+
 ## Required Ordering
 
 1. Metadata authorization first: B-11be records a USD 0.00, metadata-only
