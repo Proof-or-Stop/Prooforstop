@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T17:34:07.372Z",
       "reviewRunId": "B-8128:RR-006",
       "_hash": "46030b62d5fd6255f9462a098e7e77d667910ce9f05fd062e85d8586c7a6785a"
+    },
+    {
+      "id": "B-8128:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-check of F-006 resolution. Step1 extracted ~180 symbols from git diff main...HEAD (large diff, capability-release feature); Step2 grepped docs/CLI.md + docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md + plan.md/checklist CHK-006 for playbook_promotion_status / capabilityRelease / capability_release_* references, compared ~6 paragraphs (CLI.md capability-release-ledger section incl. its command examples/renderer-format claims; exec-plan M5 milestone row + M5 detail section (lines 280-297) + Validation Checklist V1 subset; plan.md CHK-006). Verified against shipped code: packages/main/src/handlers/playbook.ts now attaches a capabilityRelease {capabilityReleaseId,capabilityId,capabilityVersion} object to each pendingLearning row (both json and text renderers), confirmed live via capability-release-invariants-smoke (M5 assertion: playbook_promotion_status surfaces a candidates capability-release lineage, text+json - PASS) and playbook-capability-lineage-smoke (6/6 PASS). capability_release_list/status handler (packages/main/src/handlers/capability-release.ts) matches docs/CLI.md exactly: --format/--limit/--storyId args, text line shape storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>, JSON plain-array for list and {storyId,count,latest,records} for status - verified live with node packages/main/dist/cli.js capability_release_list/status. All 5 mechanical registration sites (command-catalog, registry, handler, command-policy, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels) mirror the artifact_release_* pattern the doc specifies. Confirmed docs/CLI.md correctly does NOT mention playbook_promotion_status (pre-existing scoping, already validated as correct in the F-006 finding text itself) - no drift there. exec-plan doc M5 section explicit distinction between the shipped simple candidate-lineage column vs the deferred five-line unified view (runtimeVersion/artifactRelease/productCapabilityRelease/playbookCandidate/activePlaybook) is unchanged and remains internally consistent with the deferred-scope framing. No inconsistencies found; F-006 fix is fully consistent with docs. No blockers.",
+      "createdAt": "2026-07-05T17:41:24.201Z",
+      "reviewRound": "2026-07-05T17:34:07.372Z",
+      "reviewRunId": "B-8128:RR-007",
+      "_hash": "040408ad37ed0140b0a3345045f9fd2d4d23bfe36d512a6439ef2a943978e0f4"
     }
   ]
 }
