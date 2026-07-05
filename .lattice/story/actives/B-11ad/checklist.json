@@ -52,10 +52,10 @@
           "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
           "result": "pass",
           "note": "artifact-release-ledger smoke covered docs/** and experiments/** classification plus stable digest generation.",
-          "headHash": "0f37a0c87aad02bf02f8d4e917047a7e306c97cc",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:13.696Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
           "result": "pass",
           "note": "artifact-release-ledger smoke proved .lattice story metadata and packages/main runtime inputs are excluded from release paths.",
-          "headHash": "0f37a0c87aad02bf02f8d4e917047a7e306c97cc",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:13.696Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js; node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "smokes covered mixed runtime plus non-runtime changes while version-bump smoke preserved the existing semver boundary.",
-          "headHash": "0f37a0c87aad02bf02f8d4e917047a7e306c97cc",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:13.696Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         }
       ]
     },
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/cli.js artifact_release_list --format=json",
           "result": "pass",
           "note": "built CLI returned JSON [] for an empty real ledger; artifact-release smoke also covered list text/json over a seeded ledger.",
-          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:29.786Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,10 +148,10 @@
           "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
           "result": "pass",
           "note": "artifact-release-ledger smoke covered artifact_release_status filtering by story id and the no-records text path.",
-          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:29.786Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
           "result": "pass",
           "note": "artifact-release-ledger smoke proved repeated storyId+mainCommit+artifactSetDigest records return already_recorded and do not append duplicates.",
-          "headHash": "ca7ac0b8c97bfb4bd32253aff65b8c34fd39d9c4",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:29.786Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
           "result": "pass",
           "note": "build passed and the new artifact-release-ledger smoke is wired into lattice.config.json validate commands.",
-          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:45.864Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "existing version-bump smoke still proves experiments/docs do not trigger CLI semver bumps.",
-          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:45.864Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "file": "docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
           "note": "story-lifecycle.md and docs/CLI.md state artifact release rows are provenance only, not runtime activation or package semver.",
-          "headHash": "8d683505cac82d396857fa63c537c4db20826baf",
-          "materialHash": "12ab2b52ee6810c2425c8bc6898d1c5bc10c580912ad6b619a83b3ca8c320fa7",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T09:51:45.864Z"
+          "headHash": "7b8c4cb24d746e0e812afdbe5f662fea0cee1f2f",
+          "materialHash": "354bae38cda6d3833ca85d38d82593f85d43c3f0c23e30556f0915fa09beb5c9",
+          "storyFilesHash": "55c7aa33fa6505320ffe91df59b3a0608e4d3109701e97d44d64fc9dcb182602",
+          "timestamp": "2026-07-05T10:06:41.322Z"
         }
       ]
     }
