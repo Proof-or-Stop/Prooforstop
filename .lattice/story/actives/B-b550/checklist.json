@@ -42,7 +42,39 @@
       "context": "Plan M1.a-M1.f: check allowed argument keys for milestone_status; verify unexpected keys fail before story reads; verify missing ledger produces a report not a write; verify status output launches no commands or reviewers, writes no evidence or lifecycle facts, and never claims DONE or production readiness. Output: boundary finding or pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npx lattice milestone_status --storyId=B-b550 -> output contains Mode: read-only and produces status table without errors; WHY: confirms milestone_status is a functioning read-only observer",
+            "type": "cli"
+          },
+          {
+            "desc": "rg for ## M1 or Read-Only Boundary section in findings report -> section exists with finding-or-pass verdict for each M1.a-M1.f sub-objective; WHY: confirms the boundary review was completed and recorded",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run npx lattice milestone_status with an unexpected key e.g. --writeEvidence=true -> CLI rejects with an error before any story read; WHY: M1.b verifies unexpected keys are rejected early",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m1-unexpected-key-rejection.txt exists under .lattice/story/actives/B-b550/evidence/ and contains rejection output; WHY: confirms live CLI probe evidence was captured for the rejection boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg for DONE|production.ready|Authority in milestone_status output from evidence files -> status output never claims DONE or production readiness; WHY: M1.f verifies no overclaim in status output",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify evidence file m1-mutation-flag-rejection.txt exists and shows z.never mutation flag was rejected; WHY: confirms the never-mutate safety boundary was probed and holds",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
