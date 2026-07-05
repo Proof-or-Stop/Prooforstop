@@ -69,7 +69,49 @@
       "context": "packages/main/src/core/command-policy.ts: the milestone_status reason (~L237) omits Authority while milestone_closeout (~L238) includes it. Add the Authority-silence fix so both read-only commands disclaim Authority uniformly. Closes findings M6 Authority-silence note.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After the fix, an operator inspecting the command-policy reason for milestone_status (via `lattice help milestone_status`, `getCommandPolicy('milestone_status').reason`, or any surface that renders the policy reason) sees the disclaimer end with an explicit Authority disclaimer matching milestone_closeout. Concretely the milestone_status reason tail changes from \"…advances no phase, and never claims automatic DONE or production readiness.\" to \"…advances no phase, and never claims automatic DONE, production, or remote Authority readiness.\" Both read-only milestone commands (milestone_status and milestone_closeout) now literally contain the word \"Authority\" in their reason string, so a grep for the token no longer shows a gap. No behavior, phase-gating, ownershipClass, destructiveRisk, or allowedPhases changes — only the human-readable reason string gains the uniform Authority-silence disclaimer, closing the M6 Authority-silence note.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build packages/main (npm --prefix packages/main run build) then run: node -e \"const {getCommandPolicy}=require('./packages/main/dist/core/command-policy.js'); const r=getCommandPolicy('milestone_status').reason; if(!/Authority/.test(r)) throw new Error('milestone_status reason missing Authority: '+r); console.log('OK milestone_status discloses Authority');\" — exits 0 and prints OK, proving the milestone_status reason now contains the Authority disclaimer.",
+            "type": "cli"
+          },
+          {
+            "desc": "Assert uniformity across both read-only milestone commands: node -e \"const {getCommandPolicy}=require('./packages/main/dist/core/command-policy.js'); for(const c of ['milestone_status','milestone_closeout']){const r=getCommandPolicy(c).reason; if(!/Authority/.test(r)) throw new Error(c+' reason omits Authority');} console.log('both disclaim Authority');\" — exits 0, confirming milestone_status now matches milestone_closeout's Authority-silence wording.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the change is reason-only and non-behavioral: node -e \"const {getCommandPolicy}=require('./packages/main/dist/core/command-policy.js'); const p=getCommandPolicy('milestone_status'); if(p.status!=='supported'||p.ownershipClass!=='readOnly'||p.destructiveRisk!=='none'||p.allowedPhases!=='all') throw new Error('milestone_status policy fields drifted: '+JSON.stringify(p)); console.log('policy fields unchanged');\" — exits 0, proving only the reason string changed and status/ownershipClass/destructiveRisk/allowedPhases are untouched.",
+            "type": "logic"
+          },
+          {
+            "desc": "Regression: run the existing milestone-status suite (npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs) and confirm it still exits 0, verifying the reason-string edit did not break the milestone_status/milestone_closeout report builders or renderers.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prove the fix landed on the right line: run grep -n \"never claims automatic DONE or production readiness\" packages/main/src/core/command-policy.ts and assert it returns NO match (the pre-fix tail is gone), while grep -n \"never claims automatic DONE, production, or remote Authority readiness\" packages/main/src/core/command-policy.ts returns exactly one match on the milestone_status line — guards against editing the wrong line or a partial edit.",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard against corrupting the adjacent milestone_closeout line: node -e \"const {getCommandPolicy}=require('./packages/main/dist/core/command-policy.js'); const r=getCommandPolicy('milestone_closeout').reason; if(!/remote Authority readiness/.test(r)) throw new Error('milestone_closeout Authority disclaimer regressed: '+r); console.log('milestone_closeout intact');\" — exits 0, confirming the neighboring closeout reason was not corrupted by the edit.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
