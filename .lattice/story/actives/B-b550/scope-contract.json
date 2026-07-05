@@ -1,0 +1,74 @@
+{
+  "storyId": "B-b550",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/main/tests/**"
+  ],
+  "scopeChangeReason": "Docs-only review story deliverables: new findings report, plan doc status updates, NAV entry. Source and tests read-only per plan non-goals.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story dogfood artifacts: this review writes its own ProofStory milestone-ledger/proofstory/intent-collision/slice-plan/original-intent-snapshot plus evidence/*.txt live-status captures to exercise the milestone surface under review and to cite as M1/M2/M3 evidence (per the plan dogfooding note). These are Lattice story metadata, not source or test code.",
+      "timestamp": "2026-07-05T14:20:59.883Z",
+      "paths": [
+        ".lattice/story/actives/B-b550/evidence/m1-confirmed-ledger-status.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-missing-ledger-status.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+        ".lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt",
+        ".lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt",
+        ".lattice/story/actives/B-b550/intent-collision.json",
+        ".lattice/story/actives/B-b550/milestone-ledger.json",
+        ".lattice/story/actives/B-b550/original-intent-snapshot.json",
+        ".lattice/story/actives/B-b550/proofstory.json",
+        ".lattice/story/actives/B-b550/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-b550/evidence/m1-confirmed-ledger-status.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-missing-ledger-status.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt",
+        ".lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt",
+        ".lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt",
+        ".lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt",
+        ".lattice/story/actives/B-b550/intent-collision.json",
+        ".lattice/story/actives/B-b550/milestone-ledger.json",
+        ".lattice/story/actives/B-b550/original-intent-snapshot.json",
+        ".lattice/story/actives/B-b550/proofstory.json",
+        ".lattice/story/actives/B-b550/slice-plan.json"
+      ],
+      "affectedPathCount": 11,
+      "phase": "DEV",
+      "headHash": "563c6146257ce0dd04aba1a6a95bf4a78cf7e4b3",
+      "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story dogfood artifact: parent-ledger roll-up recording B-b550 self-coverage of its own M0-M7 milestones (single-story slice execution, no child stories); required to satisfy strict_milestone DONE intent-equivalence. Lattice story metadata, not source or test code.",
+      "timestamp": "2026-07-05T15:06:48.940Z",
+      "paths": [
+        ".lattice/story/actives/B-b550/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-b550/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d6cdc4e748f75630c96b14137ef0b4682fc61b84",
+      "materialHash": "2366093e810b04d3f613b3e7c12457990b01174fc23cd1cdcd4e4f083e2abbb0"
+    }
+  ],
+  "createdAt": "2026-07-05T12:18:59.827Z",
+  "updatedAt": "2026-07-05T15:06:48.940Z"
+}

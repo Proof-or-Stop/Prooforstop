@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-b550",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T15:52:15.250Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "a7208f3c57c0ca1568325d55a244e066d3c04c298232d6cf60c58ba83d41286d",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724"
+    },
+    "groups": {
+      "completed": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "876d99bfe83b6eafa5104ad7eff56ca3163e6541",
+    "materialHash": "7ca5d467ddd3fe3fe5e0c2593007479040e9ac38bbdd929cf4ae4c5174057fad",
+    "storyFilesHash": "dc1f5585c37afc005a26773cf8acffad770387554c3ade101326b214befa2cf6"
+  },
+  "rows": [
+    {
+      "milestone": "M0",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Review scope and source inventory recorded",
+      "acceptance": "Findings report contains a trusted source map: canonical root confirmation, command-surface inventory, doc inventory, test inventory, stale-doc register.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/docs_check] rg -n '^## M0. Source Inventory' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M0 Source Inventory section present with the authoritative implementation source refs",
+        "CHK-001:happy:1 [pass/docs_check] rg -n 'session_brief|canonical' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M0 records the canonical worktree root via session_brief; retired Orchestrate root excluded as truth",
+        "CHK-001:happy:2 [pass/docs_check] rg -n 'milestone_ledger_set|milestone_ledger_add|milestone_status|milestone_closeout' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=All five milestone command surfaces inventoried in M0",
+        "CHK-001:edge:0 [pass/docs_check] rg -n 'stale|retired' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M0 stale/retired-root note: no Orchestrate path treated as authoritative",
+        "CHK-001:adversarial:0 [pass/logic_test] rg -n 'Orchestrate' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M0 references Orchestrate only negatively (not authoritative); no positive authoritative citation to the retired root"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Read-only status boundary verified or gaps filed",
+      "acceptance": "Findings report M1 section records boundary finding or pass for milestone_status argument boundary, missing-ledger non-write, no launches, no evidence writes, no DONE claims.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] lattice milestone_status --storyId=B-b550 note=Live milestone_status renders Mode: read-only status table with no error",
+        "CHK-002:happy:1 [pass/docs_check] rg -n '^## M1. Read-Only Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M1 section records pass per M1.a-M1.f plus the read-only git-subprocess clarification",
+        "CHK-002:edge:0 [pass/manual_transcript] lattice milestone_status --storyId=B-b550 --writeEvidence=true file=.lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt note=Unknown key rejected before any story read; pass = the expected rejection occurred (see evidence artifact)",
+        "CHK-002:edge:1 [pass/docs_check] cat .lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt file=.lattice/story/actives/B-b550/evidence/m1-unexpected-key-rejection.txt note=Evidence artifact exists and contains the unexpected-key rejection output",
+        "CHK-002:adversarial:0 [pass/logic_test] rg -ni 'DONE|production|authority' status-output file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=Status render output makes no DONE/production/Authority claim (verified against render strings; M6 correction records the absence of an explicit disclaimer)",
+        "CHK-002:adversarial:1 [pass/docs_check] cat .lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt file=.lattice/story/actives/B-b550/evidence/m1-mutation-flag-rejection.txt note=Evidence artifact shows the mutation flag was rejected (never-mutate boundary)"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Ledger write contract verified or gaps filed",
+      "acceptance": "Findings report M2 section records write-surface finding or pass covering phase policy, ownership, hash and candidate/confirmed behavior, overwrite safety.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/docs_check] rg -n '^## M2. Ledger Write Contract' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M2 section covers M2.a-M2.f finding-or-pass plus the confirm-time hash hardening note",
+        "CHK-003:happy:1 [pass/docs_check] rg -n 'PLAN' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M2 documents PLAN-only lifecycle phase policy for milestone_ledger_set and milestone_ledger_add",
+        "CHK-003:edge:0 [pass/docs_check] rg -n 'candidate|confirmed' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M2 documents candidate vs confirmed hash-bound state behavior (M2.d)",
+        "CHK-003:edge:1 [pass/docs_check] cat .lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt file=.lattice/story/actives/B-b550/evidence/m2-confirmed-binding.txt note=Evidence artifact documents live confirmed-binding behavior for this story's ledger",
+        "CHK-003:adversarial:0 [pass/logic_test] rg -ni 'accidental|silently|gate evidence' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M2 explicitly addresses whether direct writes can accidentally become confirmed gate evidence (M2.e) — they cannot",
+        "CHK-003:adversarial:1 [pass/logic_test] review M2 sub-objective table covers M2.a-M2.f file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M2 sub-objective table addresses all six M2.a-M2.f; none silently skipped"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Missing-ledger policy verified across story classes",
+      "acceptance": "Findings report M3 section records the missing-state matrix for ordinary, triggered, candidate, and confirmed cases with DEV/REVIEW/DONE behavior.",
+      "evidence": [
+        "CHK-004:happy:0 [pass/docs_check] rg -n '^## M3. Missing-Ledger Policy' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M3 section present with the missing-state matrix",
+        "CHK-004:happy:1 [pass/docs_check] rg -ni 'ordinary|single-outcome' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M3 reviews ordinary single-outcome story behavior with no ledger (M3.a)",
+        "CHK-004:edge:0 [pass/docs_check] rg -n 'DEV|REVIEW|DONE' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M3 documents DEV/REVIEW/DONE behavior including the doneGateMode=enforce correction (M3.d/M3.e)",
+        "CHK-004:edge:1 [pass/docs_check] cat .lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt file=.lattice/story/actives/B-b550/evidence/m3-dev-admission-enforce-block.txt note=Evidence artifact shows DEV-admission enforcement behavior for missing required ledger",
+        "CHK-004:adversarial:0 [pass/logic_test] rg -ni 'non-mutating|specific|next action' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M3 verifies the missing-ledger next action is specific and non-mutating (M3.f)",
+        "CHK-004:adversarial:1 [pass/logic_test] review M3 matrix candidate vs confirmed rows file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M3 addresses candidate vs confirmed requirements as separate matrix rows, not collapsed into one verdict (M3.c)"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Schema adequacy for honest progress reporting decided",
+      "acceptance": "Findings report M4 section records schema adequacy finding covering required fields, binding refs, status values, parent/child support, prose-claim resistance.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/docs_check] rg -n '^## M4. Schema And Progress Model' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M4 Schema section present with adequacy verdict",
+        "CHK-005:happy:1 [pass/docs_check] rg -n 'doneMeans|required.evidence|sourceRequirement' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M4 reviews required MilestoneLedgerItem fields id/sourceRequirementId/claim/doneMeans/requiredEvidence (M4.a)",
+        "CHK-005:edge:0 [pass/docs_check] rg -ni 'parent|child|assigned' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M4 addresses parent/assigned-child story support (M4.d)",
+        "CHK-005:edge:1 [pass/logic_test] rg -ni 'prose|hidden|sub-objective' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M4.e: prose-only text cannot mint hidden milestone claims; rows come only from explicit ledger commands",
+        "CHK-005:adversarial:0 [pass/logic_test] rg -ni 'schema|addition|future|caveat' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M4.f: schema sufficiency explicitly decided (no addition required) plus the not_applicable self-exemption caveat; not left ambiguous"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Test and negative-control coverage mapped",
+      "acceptance": "Findings report M5 section maps existing tests to M5.a-M5.e and lists missing negative controls as findings.",
+      "evidence": [
+        "CHK-006:happy:0 [pass/docs_check] rg -n '^## M5. Test Coverage And Negative Controls' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M5 section present with the corrected coverage map and the recorded test-gap list",
+        "CHK-006:happy:1 [pass/docs_check] rg -ni 'read-only|milestone_status' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M5.a: read-only status tests listed (milestone-status.test.mjs)",
+        "CHK-006:edge:0 [pass/docs_check] rg -ni 'missing-ledger|negative control' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M5.b/M5.d: missing-ledger report tests found; missing negative controls recorded as gaps",
+        "CHK-006:edge:1 [pass/logic_test] rg -ni 'DONE|cannot' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M5.e: closeout tests prove milestone status cannot satisfy DONE by itself (stale-report conjunct corrected)",
+        "CHK-006:adversarial:0 [pass/logic_test] rg -ni 'test-gap|negative control|withdrew' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M5.f: missing negative controls (duplicate/empty/stale/suite-wiring) recorded as explicit follow-up findings, not omitted"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M6",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Agent capability impact bounded without overclaim",
+      "acceptance": "Findings report M6 section confirms capability claims (progress, admission safety, handoff) stop short of lifecycle DONE or Authority claims.",
+      "evidence": [
+        "CHK-007:happy:0 [pass/docs_check] rg -n '^## M6. Capability Impact Boundary' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M6 section present with the bounded capability-claim boundary and the disclaimer/Authority-silence correction",
+        "CHK-007:happy:1 [pass/docs_check] rg -ni 'progress reporting|structured milestone' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M6.a: structured milestone rows improve progress reporting",
+        "CHK-007:edge:0 [pass/docs_check] rg -ni 'handoff|restart' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M6.c: ledger refs improve host handoff and restart continuity",
+        "CHK-007:adversarial:0 [pass/logic_test] rg -ni 'DONE|Authority|production' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M6.d: capability stops short of DONE/Authority/production; correction notes the missing output disclaimer and Authority-silence",
+        "CHK-007:adversarial:1 [pass/logic_test] review M6 uses no 'replaces lifecycle_check/review/DONE gate' overclaim phrasing file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M6 uses only negations (does not replace); no overclaim phrasing that milestone status replaces any lifecycle/review/DONE gate"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M7",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Review outcome and next story decision recorded",
+      "acceptance": "Findings report closure section summarizes pass/finding outcomes, records the implementation decision, and plan doc statuses plus NAV are updated.",
+      "evidence": [
+        "CHK-008:happy:0 [pass/docs_check] rg -n '^## M7. Review Outcome And Decision' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M7 closure section summarizes all M0-M6 pass/finding outcomes in a closure table",
+        "CHK-008:happy:1 [pass/docs_check] rg -n 'reviewed-pass' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md file=docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md note=M7.d: plan Status columns updated planned -> reviewed outcomes for all M0-M7",
+        "CHK-008:edge:0 [pass/docs_check] rg -ni 'follow-up|story scope' docs/requirements/decisions/milestone-ledger-status-review-findings.md file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=M7.b/M7.c: a bounded follow-up hardening story scope is drafted (gaps found)",
+        "CHK-008:edge:1 [pass/docs_check] rg -n 'milestone-ledger-status-review-findings' docs/requirements/NAV.md file=docs/requirements/NAV.md note=NAV.md entry for the findings report added",
+        "CHK-008:adversarial:0 [pass/logic_test] review closure: executed-pass-with-corrections not clean pass file=docs/requirements/decisions/milestone-ledger-status-review-findings.md note=Closure marks executed-pass-with-corrections; every M0-M6 correction is resolved in-report or deferred to the M7 follow-up — no unresolved finding contradicts the verdict",
+        "CHK-008:adversarial:1 [pass/docs_check] rg -n '\\| planned \\|' docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md (expect zero matches) file=docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md note=No milestone left showing planned in the plan Status column (0 planned remain)"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

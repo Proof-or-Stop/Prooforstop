@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9e44",
+  "allowedCommands": [
+    "git *",
+    "lattice memory_playbook_baseline_generate*",
+    "lattice memory_playbook_baseline_verify*",
+    "node --version",
+    "node experiments/pos-instrument-replay/*.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "experiments/pos-instrument-replay"
+  ],
+  "excludedCommands": [
+    "curl *",
+    "npm publish*",
+    "rm -rf / *",
+    "wget *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M0 runs node harness scripts + the committed generate/verify CLI (one heavy full-profile 1,000,000-record generate+verify for cost calibration). No network. Instrument code is read/called only, never modified. Baselines are materialized in mkdtemp isolated dirs, not under source control.",
+  "createdAt": "2026-07-05T15:04:38.320Z",
+  "updatedAt": "2026-07-05T15:04:38.320Z",
+  "_hash": "a9cfab47b9a6f73d18c16cf0bff7b2f73302eb673649bf5d7026494642253943"
+}

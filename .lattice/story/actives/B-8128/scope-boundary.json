@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8128",
+  "mode": "feature",
+  "allowed": [
+    ".gitignore",
+    ".lattice/story/actives/B-8128/**",
+    "docs/CLI.md",
+    "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/core/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/command-registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/capability-release.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/capability-release-invariants-smoke.ts",
+    "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+    "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+    "packages/main/src/tasks/product-capability-release-smoke.ts"
+  ],
+  "excluded": [
+    "activating PBP-882 or any candidate",
+    "M6 candidate pending-learning exposure surfaces + exposure records (follow-up)",
+    "M7 structured-outcome/promotion command surfaces (follow-up)",
+    "runtime @lattice/core semver bump",
+    "salts and schema-id constants",
+    "standalone capability_release_backfill CLI command (follow-up story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "V1 scope per audited rev2 execution plan + operator V1 decision (2026-07-05): M0 hermetic red, M1 schema/ledger/reader, M2 classifier both DONE sites, M3 merge-stable binding, M4 optional lineage widening + enrichment, M5 read-only CLI, M6/M7 assert-invariant, hermetic backfill proof.",
+  "createdAt": "2026-07-05T15:53:04.032Z",
+  "updatedAt": "2026-07-05T15:53:04.032Z",
+  "_hash": "b5088a23a5981dbc51f5a07d27421335647600cb8c684e9e8f1c1f4d3416a8f5"
+}
