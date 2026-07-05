@@ -4,33 +4,286 @@
       "id": "CHK-001",
       "title": "Scaffold experiments/pos-instrument-replay/ and a committed viability harness (viability-check.mjs) that applies each candidate tamper class (x raw|refreshed) to an mkdtemp-isolated copy of a small baseline, runs verify, and records the observed fingerprint over the explicit domain plus a disposition (fail-closed|accepted|dropped)",
       "context": "Candidate classes from plan section 6.1: records.jsonl byte-flip / row drop / row duplicate / row reorder / field rename / truncation (raw + selected refreshed); gold-queries.json edit (raw + refreshed); manifest.json recordCount/profile/digest edit (raw only); cross-PROFILE swap. Mutation-in-isolated-copy only; never touch the source baseline. refreshManifest logic (recompute recordsDigest/goldDigest, rebuild manifestDigest) is replicated from the smoke.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:18:19.676Z",
+      "endTime": "2026-07-05T15:32:47.795Z",
+      "userSees": "node experiments/pos-instrument-replay/viability-check.mjs prints a disposition table: each candidate (class x raw|refreshed) tagged fail-closed | accepted | dropped, ending with counts e.g. 'fail-closed=15 accepted=2 dropped=0'.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node viability-check.mjs against a fresh small baseline prints a per-(class x handling) disposition table and a summary line with fail-closed/accepted/dropped counts; observed fingerprint recorded per class",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the harness only mutates mkdtemp-isolated copies; the source baseline dir digests are unchanged after a full run (no source-tree pollution)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a candidate whose mutation produces NO byte/contract difference (verify identical to clean) is classified dropped, exactly as the rev-1 seed-swap no-op would be",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/lib/instrument.mjs",
+          "experiments/pos-instrument-replay/viability-check.mjs",
+          "experiments/pos-instrument-replay/viability-results.json"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/viability-check.mjs",
+          "result": "pass",
+          "note": "viability-results.json: 27 candidates — 18 fail-closed, 2 accepted, 6 acknowledged-limitation (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids/mustnotsurface/suppressed, manifest-metadata-lie — representative of the digest-recompute blind-spot family), 1 dropped, 0 false-positive.",
+          "headHash": "661531e3f51262df93d7f896202b31ba3643bc79",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:07.580Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git status --short experiments/pos-instrument-replay/ ; grep -c mkdtemp experiments/pos-instrument-replay/viability-check.mjs",
+          "result": "pass",
+          "note": "Harness mutates only mkdtemp-isolated copies; source baseline sha256 guarded before/after; working tree clean after a full run.",
+          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:05.896Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Freeze protocol.json via a committed producer (build-protocol.mjs) that emits protocol.json + its sha256 from the viability results plus frozen constants",
       "context": "protocol.json content per plan section 7: N per scale (proposed 30 small / 3 full, full-N finalized from calibration), content-inert seed constant with contentInert:true annotation, tamper matrix split into fail-closed set (each with expected fingerprint over flags+numeric predicates) + acceptance bucket + dropped list, iterationId rule + cross-product, recordDigest preimage rule, budget caps, stop-reason enum {budget_cap,verify_crash,precondition_failed,operator_abort}, env pins {nodeVersion,platform,instrumentCommit}. Producer must be deterministic and re-emit a byte-identical protocol.json (hash reproducible).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:27:09.934Z",
+      "endTime": "2026-07-05T15:32:49.355Z",
+      "userSees": "node experiments/pos-instrument-replay/build-protocol.mjs writes protocol.json + protocol.json.sha256 and prints the frozen hash; a second run prints the identical hash (byte-identical re-emit).",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node build-protocol.mjs emits protocol.json and its sha256; running it twice yields byte-identical protocol.json (stable hash)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "protocol.json contains the fail-closed set (each with fingerprint over flags+numeric predicates), the acceptance bucket, the dropped list, N per scale, content-inert seed const, iterationId cross-product rule, recordDigest preimage rule, budget caps, stop-reason enum, and env pins",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "every class in the fail-closed set has a fingerprint with at least one required-false flag OR a failing numeric predicate (no vacuous H2 class)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/build-protocol.mjs",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/protocol.json.sha256"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/build-protocol.mjs; shasum -a 256 experiments/pos-instrument-replay/protocol.json; git checkout -- experiments/pos-instrument-replay/protocol.json",
+          "result": "pass",
+          "note": "build-protocol re-emits byte-identical; sha256 a3a781fed2814259378dae7aee80d3aa3920b5883c5d75d960509fb7901c848c stable.",
+          "headHash": "791fc945aae6a0c596027b048731461bc63727f1",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:09.295Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p),Object.keys(p.tamperMatrix),p.limitationFamily.exhaustiveness)\"",
+          "result": "pass",
+          "note": "protocol.json tamperMatrix: failClosed(18)/acceptanceBucket(2)/acknowledgedLimitations(6)/dropped(1); plus a top-level limitationFamily (exhaustiveness=representative-not-exhaustive, families oracle-weaken + manifest-metadata-lie, rootCause=digest-recompute defeats detection, scope=Tier-C/out of H2); plus N, budgetCaps, envPins, iterationIdRule, recordDigestPreimageRule, stopReasonEnum, seed, smokeOverlap.",
+          "headHash": "76c377eac0b16e326ea1bd7880235375175c4ecb",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:10.940Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail'&&f.status!=='crash'&&!Object.values(f.flags||{}).some(v=>v===false)&&!(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log(p.tamperMatrix.failClosed.length,bad.length)\"",
+          "result": "pass",
+          "note": "All 18 fail-closed classes carry a genuine failure signal (fail/crash and/or required-false flag / failing numeric predicate); 0 vacuous.",
+          "headHash": "a4734906a025992967fe187a69cdd4321827c937",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:12.593Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Run ONE full-profile (1,000,000-record) generate+verify and record the measured cost (elapsedMs, peakRssBytes) to calibrate the full budget cap and final full-N; record env pins",
       "context": "This is the sole heavy compute in M0. Capture the measured full-profile elapsed + rss into a committed calibration record that build-protocol.mjs consumes to set the budget cap and freeze full-N. Small verify measured ~7.3s hands-on.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:25:19.928Z",
+      "endTime": "2026-07-05T15:32:50.750Z",
+      "userSees": "node experiments/pos-instrument-replay/calibrate-full.mjs (or the build step) records calibration.json with measured full-profile elapsedMs + peakRssBytes + chosen full-N and env pins; prints 'full-profile: <ms>ms rss=<bytes> -> full-N=<n>'.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "one full-profile (1,000,000-record) generate+verify runs and calibration.json records elapsedMs, peakRssBytes, and the finalized full-N + budget cap",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "env pins {nodeVersion, platform, instrumentCommit} are recorded in calibration.json / protocol.json",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "if the full-profile run cannot complete within budget, an honest budget_cap/stop is recorded rather than a fabricated cost number",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/calibrate-full.mjs",
+          "experiments/pos-instrument-replay/calibration.json"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(c.fullProfile.elapsedMs,c.fullProfile.peakRssBytes,JSON.stringify(c.chosenN),c.budgetCapMsPerVerify)\"",
+          "result": "pass",
+          "note": "calibration.json (unchanged this round): full-profile elapsedMs=42739, peakRssBytes=419332096; chosenN{small:30,full:3}; budgetCapMsPerVerify=128217.",
+          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:05.896Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(JSON.stringify(c.env))\"",
+          "result": "pass",
+          "note": "env pins: instrumentCommit=6c4e7c0a4 (instrument source commit), nodeVersion=v22.13.0, platform=darwin.",
+          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:05.896Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Add a hermetic mkdtemp-isolated selfcheck runnable by node <file> for the viability harness and the protocol producer, asserting protocol.json re-emits byte-identical (hash stable) and every fail-closed class fingerprint carries a failure signal",
       "context": "Per plan section 7 selfchecks row: hermetic, mkdtemp-isolated, run by node <file>. The selfcheck guards reproducibility of the freeze and the two-pronged viability invariant.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T15:32:52.017Z",
+      "userSees": "node experiments/pos-instrument-replay/selfcheck.mjs exits 0 and prints 'selfcheck PASS' (hermetic, mkdtemp-isolated).",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck.mjs runs hermetically in mkdtemp isolation and exits 0 with a PASS line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selfcheck asserts build-protocol.mjs re-emits protocol.json byte-identical (hash stable)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selfcheck asserts the two-pronged invariant: every fail-closed class fingerprint carries a failure signal; it fails loudly if a vacuous class is present",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck.mjs; echo exit=$?",
+          "result": "pass",
+          "note": "selfcheck exits 0 with PASS (hermetic mkdtemp).",
+          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:05.896Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts protocol.json re-emit byte-identical (sha a809206a stable).",
+          "headHash": "08e74dc7aa0042a306134d68868dc4ea7ddf476a",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:05.896Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck asserts: 18 failClosed carry fail/crash signal; 2 acceptanceBucket status:pass; 6 acknowledgedLimitations malicious+pass+limitationNote; limitationFamily representative-not-exhaustive w/ 2 families both represented; 0 false-positive.",
+          "headHash": "0f1a377871827642d47ade790f88814023c27381",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:14.334Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -39,9 +292,56 @@
       "relatedDocs": [
         ".lattice/story/actives/B-9e44/background.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T15:29:36.566Z",
+      "endTime": "2026-07-05T15:32:53.308Z",
+      "userSees": "protocol.json contains a smokeOverlap {covered, smokeCase?} annotation per candidate class; grep shows net-new classes as covered:false and smoke-covered ones naming their smoke case.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "protocol.json records a smokeOverlap {covered:bool, smokeCase?:string} per candidate class (the reuse-audit map)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "classes already exercised by playbook-runtime-memory-baseline-smoke.ts are annotated covered:true with the specific smoke case name",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a net-new class (e.g. records-byte-flip) is annotated covered:false (not falsely claimed as smoke-covered)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/build-protocol.mjs",
+          "experiments/pos-instrument-replay/protocol.json"
+        ],
+        "create": [
+          "experiments/pos-instrument-replay/README.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p.smokeOverlap).length)\"",
+          "result": "pass",
+          "note": "per-class smokeOverlap map incl. the new net-new oracle-weaken + manifest-metadata-lie classes (covered:false).",
+          "headHash": "358adeaab1ca0ad0417179140e6831e3d7615ce5",
+          "materialHash": "ac130cea5f0c3d79078bb5560ffd279d8d9bfe8a1be13e1b2230df12a024b157",
+          "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5",
+          "timestamp": "2026-07-05T16:37:16.008Z"
+        }
+      ]
     }
   ]
 }

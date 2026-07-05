@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-9e44",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T17:01:57.965Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "0803afac087f270a27c8801f6a776fdf7fe5915843969404bf553a28c5efcf6b",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:e40482173bbcd80d2d88ac361b1ac94cc4d9382b207bcf355248e7b54f9d53d6"
+    },
+    "groups": {
+      "completed": [
+        "M0-A",
+        "M0-B",
+        "M0-C",
+        "M0-D",
+        "M0-E"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "c50e11f02e358c1a61f87ade2e5c920cab3ed6b5",
+    "materialHash": "839050679bb2901f20deaaa8a949ab3ac2110ccaf28f7b4059546d52583942e4",
+    "storyFilesHash": "4897773b447af19e9005b11031ac008cc3a9b7f34e83b3b81718e8082ae5f4d5"
+  },
+  "rows": [
+    {
+      "milestone": "M0-A",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A committed viability harness dispositions every candidate tamper class (class x raw|refreshed) as fail-closed|accepted|dropped with its observed fingerprint",
+      "acceptance": "node viability-check.mjs prints the disposition table + counts; viability-results.json written",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/viability-check.mjs note=viability-results.json: 27 candidates — 18 fail-closed, 2 accepted, 6 acknowledged-limitation (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids/mustnotsurface/suppressed, manifest-metadata-lie — representative of the digest-recompute blind-spot family), 1 dropped, 0 false-positive."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0-B",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "protocol.json is frozen and hash-pinned by a committed deterministic producer (fail-closed set + acceptance bucket + dropped + N + seed + iterationId + recordDigest preimage + budget caps + stop-reason enum + env pins)",
+      "acceptance": "node build-protocol.mjs re-emits protocol.json byte-identical; protocol.json.sha256 stable",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/build-protocol.mjs; shasum -a 256 experiments/pos-instrument-replay/protocol.json; git checkout -- experiments/pos-instrument-replay/protocol.json note=build-protocol re-emits byte-identical; sha256 a3a781fed2814259378dae7aee80d3aa3920b5883c5d75d960509fb7901c848c stable.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const bad=p.tamperMatrix.failClosed.filter(c=>{const f=c.fingerprint;return f.status!=='fail'&&f.status!=='crash'&&!Object.values(f.flags||{}).some(v=>v===false)&&!(f.metrics&&f.metrics.expectedIdsFoundRate<1)});console.log(p.tamperMatrix.failClosed.length,bad.length)\" note=All 18 fail-closed classes carry a genuine failure signal (fail/crash and/or required-false flag / failing numeric predicate); 0 vacuous."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0-C",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "One full-profile (1M) generate+verify calibrates the full budget cap and full-N with env pins",
+      "acceptance": "calibration.json records elapsedMs, peakRssBytes, full-N, env pins",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] node -e \"const c=require('./experiments/pos-instrument-replay/calibration.json');console.log(c.fullProfile.elapsedMs,c.fullProfile.peakRssBytes,JSON.stringify(c.chosenN),c.budgetCapMsPerVerify)\" note=calibration.json (unchanged this round): full-profile elapsedMs=42739, peakRssBytes=419332096; chosenN{small:30,full:3}; budgetCapMsPerVerify=128217."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0-D",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A hermetic mkdtemp selfcheck asserts hash-stability and the two-pronged fail-closed invariant",
+      "acceptance": "node selfcheck.mjs exits 0 with PASS",
+      "evidence": [
+        "CHK-004:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck.mjs; echo exit=$? note=selfcheck exits 0 with PASS (hermetic mkdtemp).",
+        "CHK-004:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck.mjs note=selfcheck asserts: 18 failClosed carry fail/crash signal; 2 acceptanceBucket status:pass; 6 acknowledgedLimitations malicious+pass+limitationNote; limitationFamily representative-not-exhaustive w/ 2 families both represented; 0 false-positive."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0-E",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A reuse-audit smoke-overlap map is committed per candidate class into protocol.json",
+      "acceptance": "protocol.json has smokeOverlap {covered,smokeCase?} per class",
+      "evidence": [
+        "CHK-005:happy:0 [pass/manual_transcript] node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p.smokeOverlap).length)\" note=per-class smokeOverlap map incl. the new net-new oracle-weaken + manifest-metadata-lie classes (covered:false)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

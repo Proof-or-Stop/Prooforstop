@@ -1,0 +1,136 @@
+{
+  "findings": [
+    {
+      "id": "B-9e44:F-001",
+      "desc": "[codex-host-2, verified] gold-edit[refreshed] is mislabeled benign. The frozen candidate only adds an ignored top-level field; but a SEMANTIC gold edit (weaken a gold query's expectedIds/mustNotSurfaceIds, keep query IDs present, refresh goldDigest) yields status:pass (empirically confirmed: dropping one expectedId from the host-policy query -> pass). The instrument computes expected/must-not metrics from the (mutated) gold file itself, so refreshed oracle-weakening is an undetected tamper. The matrix must enumerate a malicious gold-semantic-weaken[refreshed] class and disposition it as an acknowledged instrument blind spot (Tier-C, per claim boundary), NOT conflate the gold-refresh axis with benign row-order tolerance.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:54:58.827Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "7125ae99e82e4a96d705321022d8425e7f4317366790a5c04367a809efaa4165",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c6ac020c1. gold-edit[refreshed] renamed gold-additive-field (benign->accepted); added gold-semantic-weaken[refreshed] (malicious, passes) -> acknowledged-limitation w/ limitationNote (Tier-C scope).",
+      "resolvedAt": "2026-07-05T16:11:21.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-002",
+      "desc": "[codex-host-2, verified] Refreshed corruptRows manifest lie is missing and passes. Setting manifest.corruptRows 1->0 and recomputing manifestDigest (records/gold unchanged) yields status:pass with malformedRowsSkipped=1 (empirically confirmed) — the verifier never cross-checks malformedRowsSkipped against manifest.corruptRows. The current disposition rule would mis-classify this as 'dropped' (records/gold byte-identical) though the manifest is lying. Enumerate corruptRows-lie[refreshed] and disposition as acknowledged blind spot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:54:59.764Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "2e1605c5ebca0c4c3fb1a138dd2a46ec03e13e041fb090f7aab4e195798d9999",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c6ac020c1. Added corruptRows-lie[refreshed] (malicious, passes) -> acknowledged-limitation; the malformedRowsSkipped-vs-corruptRows blind spot is explicit, not mis-dropped.",
+      "resolvedAt": "2026-07-05T16:11:22.453Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-003",
+      "desc": "[codex-host-2, verified] In-place duplicate record ID is missing and passes. Rewriting a non-gold noise row's id to an existing gold record id (mem-host-current), keeping row/partition counts, then refreshing, yields status:pass (empirically confirmed) — the verifier stores ids in a Set/Map and never checks uniqueness. The existing records-row-duplicate class only INSERTS a row (fails by count/partition) and does not cover this id-collision. Enumerate duplicate-gold-id[refreshed] and disposition as acknowledged blind spot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:55:00.772Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "48f737309777da1cb5c6816c85750b300e66c2bc2ed0c85ed89ef2168cc234d0",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c6ac020c1. Added duplicate-gold-id[refreshed] (malicious, passes) -> acknowledged-limitation; distinct from the count/partition-failing records-row-duplicate.",
+      "resolvedAt": "2026-07-05T16:11:23.288Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-004",
+      "desc": "[codex-host-2, verified] JSON structural corruption crashes verifyDir instead of recording a verify_crash outcome. Truncating manifest.json (or gold-queries.json) to invalid JSON makes the verifier throw a JSON parse error; lib/instrument.mjs verifyDir lets execFileSync/JSON.parse abort (empirically confirmed: CRASH) rather than returning a fail-closed/stop fingerprint. The plan's stopReason enum includes verify_crash; verifyDir must catch the crash and the matrix must enumerate a structural-corruption class dispositioned fail-closed-via-crash.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T15:55:01.747Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "_hash": "5802008c0701bae2f30e0c6c0236d21c4ca5033b9b49f760cf33dd287937e0a0",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c6ac020c1. verifyDir catches the verifier crash -> {status:'crash'} sentinel; added manifest/gold-structural-corruption[raw] -> fail-closed via crash; selfcheck treats crash as a failure signal.",
+      "resolvedAt": "2026-07-05T16:11:24.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-005",
+      "desc": "[codex-host-2 re-check, verified] Oracle-weaken is under-enumerated: gold-semantic-weaken only mutates expectedIds, but the verifier derives obligations from the tampered gold file for mustNotSurfaceIds, expectedSuppressedIds, expectedDeprecatedTermHits, supersededPreference too. Empirically confirmed: weakening expectedSuppressedIds (truth-first query) and mustNotSurfaceIds (host-policy query), refresh -> status:pass. These refreshed oracle-weaken variants are malicious passes not covered. Root family = digest-recompute defeats detection (Tier-C).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T16:29:27.298Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "_hash": "a2f8c85117e8637e9f54cefbca971053eb225a064172c61291d1dffb877a42b8",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 08e74dc7. Added representative oracle-weaken classes gold-weaken-suppressed[refreshed] + gold-weaken-mustnotsurface[refreshed] (alongside gold-weaken-expectedids); protocol.limitationFamily.families[oracle-weaken] lists all 5 obligations (expectedIds/expectedSuppressedIds/mustNotSurfaceIds/expectedDeprecatedTermHits/supersededPreference) and declares the family representative-not-exhaustive, Tier-C, out of H2 scope.",
+      "resolvedAt": "2026-07-05T16:37:36.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9e44:F-006",
+      "desc": "[codex-host-2 re-check, verified] Refreshed manifest-metadata lies missing: authority, gateEvidence, schemaVersion are in the manifestDigest domain but the verify pass condition never asserts their expected VALUES (and verify hardcodes authority:non_authoritative/gateEvidence:false in its result). Empirically confirmed: manifest gateEvidence:true[refreshed] and authority:authoritative[refreshed] both -> status:pass. Malicious refreshed manifest-metadata lies not covered by corruptRows-lie alone. Same digest-recompute/Tier-C family.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T16:29:28.317Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "_hash": "3ccfb675669cd8df0789a4763631b6f3fa6fc68fc675fd4a90e45164e45179d5",
+      "files": [
+        "experiments/pos-instrument-replay/viability-check.mjs",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 08e74dc7. Added manifest-metadata-lie[refreshed] (gateEvidence:true) as acknowledged-limitation; protocol.limitationFamily.families[manifest-metadata-lie] lists the unasserted fields (corruptRows/authority/gateEvidence/schemaVersion) and declares the family representative-not-exhaustive, Tier-C, out of H2 scope. selfcheck asserts both families are represented.",
+      "resolvedAt": "2026-07-05T16:37:37.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

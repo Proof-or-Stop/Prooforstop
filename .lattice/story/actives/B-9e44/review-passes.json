@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-9e44:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion lane: this story is a pure additive scaffold under experiments/pos-instrument-replay/ (diff shows zero removed lines in that path). Verified all local imports resolve to actually-exported symbols in lib/instrument.mjs (sha256, canonicalJson, verifyDir, refreshManifest, fingerprintDomain, failureSignals). Verified packages/** references are call-only (CLI command strings memory_playbook_baseline_generate / memory_playbook_baseline_verify, both live/registered in packages/main/src/cli/command-catalog.ts) and comment-only file paths (packages/main/src/core/playbook-runtime-baseline.ts, packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts), both of which exist. No renamed/removed concept words found; no residue.",
+      "createdAt": "2026-07-05T15:44:55.815Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-001",
+      "_hash": "ce2ba084ef12817c47371098d477eabcaf127c6a8790228058cd91f994199598"
+    },
+    {
+      "id": "B-9e44:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/pos-instrument-replay/ (lib/instrument.mjs, viability-check.mjs, build-protocol.mjs, calibrate-full.mjs, selfcheck.mjs, README.md) + fix commit 7ced21e1e. No dead code. Single catch{} in viability-check.mjs:142 is a justified no-op skip during a deterministic field-rename scan, not a swallowed verify error. I/O fully mkdtemp-isolated: every mutation runs on a cpSync copy in a fresh mkdtemp dir; source clean baseline pollution is actively checked post-run (sha256 before/after) with a hard FATAL exit if violated; all three temp-dir-creating scripts (viability-check, calibrate-full, selfcheck) rmSync cleanup in finally blocks. Determinism verified: canonicalJson (sorted keys, no whitespace) used for all frozen outputs; fixed mutation indices (5, 100, 800/801); no Math.random/Date.now/hrtime anywhere; protocol.json/viability-results.json/calibration.json are single-line canonical JSON; selfcheck.mjs independently re-derives failure signals from fingerprints rather than trusting stored values. maxBuffer correctly tiered: 1<<26 (64MB) for small-profile verify calls in lib/instrument.mjs + viability-check.mjs, 1<<28 (256MB) for calibrate-full.mjs's own full-profile (1M record) generate/verify calls. 19 candidates confirmed (grep count matches viability-results.json array length, matches story description). README.md claims cross-checked against code: reproduce steps, script order, disposition rules, and smokeOverlap audit all match implementation exactly — no promised-but-undelivered gaps found.",
+      "createdAt": "2026-07-05T15:44:58.409Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-002",
+      "_hash": "448d66d62c98633618945e8ab6f7aed497fef934db039e3a39fdc5e37676082a"
+    },
+    {
+      "id": "B-9e44:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntents (CHK-001..005 happy/edge/adversarial) carry concrete, non-generic passing evidence. Independently re-ran node experiments/pos-instrument-replay/selfcheck.mjs (PASS, matches recorded evidence) and confirmed it fails under two independent tamper scenarios (sha256 mismatch and hand-edited-vs-regenerated protocol.json divergence), proving the byte-identical re-emit + failClosed-failure-signal + acceptanceBucket-status:pass invariants are genuinely exercised (re-derives failureSignals independently rather than trusting stored values). Verified the adversarial no-op-drop case live in viability-results.json (seed-swap[refreshed] status:pass fingerprint -> disposition:dropped) and the smoke-overlap covered:true/false annotations live in protocol.json (CHK-005). 4 should-priority intents lack recorded evidence (CHK-001:adversarial, CHK-003:adversarial, CHK-005:edge/adversarial) but are advisory per rule and 3 of the 4 are independently confirmed satisfied by artifact inspection; no blocker.",
+      "createdAt": "2026-07-05T15:50:40.479Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-003",
+      "_hash": "56c7d468f53f0bb4c2a51f998083331994e036641c8a924170a9ef17bb9bfc14"
+    },
+    {
+      "id": "B-9e44:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness check for c6ac020c1 rename gold-edit->gold-additive-field: grepped repo-wide (mjs/md/json/ts) for gold-edit and camelCase goldEdit. Confirmed the rename only retargets the REFRESHED/benign additive-field variant to gold-additive-field; the RAW/malicious gold-edit tamper class is intentionally retained as a distinct, still-live class (fail-closed, smokeCovered=true) to avoid colliding with the new gold-semantic-weaken class -- not a residue. No dangling addRefreshed(\"gold-edit\",...) calls, no orphaned goldEdit symbol/import (shared mutate fn correctly reused by both addRaw(gold-edit) and addRefreshed(gold-additive-field)). Remaining gold-edit hits in .lattice/story/actives/B-9e44/{findings,understanding}.json are historical audit-trail prose (finding desc + pre-fix note), not source residue. node --check passed on all touched .mjs files; ran node viability-check.mjs end-to-end -- exit 0, disposition table shows both gold-edit[raw] and gold-additive-field[refreshed] present distinctly, no crash/collision. No blocker.",
+      "createdAt": "2026-07-05T16:15:27.023Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-004",
+      "_hash": "1a77571d62b40acd262d6a6334cd65e2155abac882d89733a416369dd2541232"
+    },
+    {
+      "id": "B-9e44:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed c6ac020c1 (verifyDir crash sentinel, viability-check 4-way disposition rule, build-protocol acknowledgedLimitations bucket, selfcheck invariants). Crash sentinel handled consistently across fingerprintDomain/failureSignals/deriveFailureSignals/selfcheck (3 independent re-derivations agree). Disposition order matches spec exactly (fail/crash->fail-closed or false-positive if benign; else malicious->acknowledged-limitation; else byte-identical->dropped; else accepted), verified against live 24-candidate output. Determinism confirmed by two independent re-runs producing byte-identical viability-results.json and protocol.json (sha256 matches committed .sha256). Isolation confirmed: per-candidate mkdtemp+cpSync+finally-rmSync, plus post-run clean-baseline pollution check. Checked all 3 benign-labeled candidates against their mutation code -- correctly content-inert/correctness-inert; no malicious tamper can structurally reach dropped/accepted since disposition() routes all intent==malicious to acknowledged-limitation before the byte-identical check runs. No blockers found.",
+      "createdAt": "2026-07-05T16:16:20.437Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-005",
+      "_hash": "af520406dd7cda62cfe86d989b90a5e38d7ac6c5fa7eba8a66abe8b939f1be58"
+    },
+    {
+      "id": "B-9e44:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-audited the revised 24-candidate matrix (18 fail-closed / 2 accepted / 3 acknowledged-limitation / 1 dropped, 0 false-positive). All 11 must-priority verificationIntent entries have concrete valid verificationEvidence (validate.verificationCoverage: total 15, required 11, covered 11, missingRequired 0); 4 should-priority edge/adversarial gaps are advisory per channel=normal. selfcheck.mjs independently PASSES and its assertions genuinely cover the new bucket shape (failClosed all fail/crash + non-empty failureSignals, acceptanceBucket all pass, acknowledgedLimitations all malicious+pass+non-empty limitationNote, no false-positive). Independently reproduced corruptRows-lie (manifest.corruptRows 1->0 + digest refresh -> verify status:pass, confirming the acknowledged blind spot) and manifest-structural-corruption (invalid JSON manifest -> verify throws/crash, confirming a genuine fail-closed crash). No blocker.",
+      "createdAt": "2026-07-05T16:18:20.899Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-006",
+      "_hash": "5a905786e11f7935d870227f9d8bae5e1b838c4942ed48960a1e6bd6da4e8488"
+    },
+    {
+      "id": "B-9e44:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 08e74dc7 (experiments/pos-instrument-replay/{build-protocol,viability-check,selfcheck}.mjs, protocol.json, README.md). All 3 new mutations (gold-weaken-suppressed, gold-weaken-mustnotsurface, manifest-metadata-lie) use fixed indices/constants only (slice(0,len-1) on first-match query, fixed gateEvidence:true override) - no Math.random/Date.now/env-dependent input; confirmed the seed=42 baseline has queries with expectedSuppressedIds/mustNotSurfaceIds so the mutations are genuine (not no-ops). Re-ran build-protocol.mjs twice in the worktree: both re-emits produced protocol.json with sha256 a3a781fe... matching the committed protocol.json.sha256 exactly and byte-identical to each other (git diff clean after each run). Ran node selfcheck.mjs directly: PASS (18 failClosed, 2 acceptanceBucket, 6 acknowledgedLimitations, limitationFamily 2 families). Inspected protocol.json.tamperMatrix: all 6 malicious classes (corruptRows-lie, duplicate-gold-id, gold-weaken-expectedids, gold-weaken-mustnotsurface, gold-weaken-suppressed, manifest-metadata-lie) route correctly to acknowledgedLimitations; dropped={seed-swap} and acceptanceBucket={gold-additive-field, records-row-reorder} are unchanged benign classes - no malicious class mis-routed to accepted/dropped. limitationFamily object is well-formed (rootCause non-empty, exhaustiveness=representative-not-exhaustive, 2 families each cross-referencing real representativeClasses that exist in acknowledgedLimitations) and selfcheck's (d2) block genuinely cross-validates this against runtime-derived acknowledgedLimitations (not a hardcoded assertion). Remaining 'gold-semantic-weaken' string hits are only historical-rename comments, not dangling references. No dead code, no as-any, no empty catch introduced.",
+      "createdAt": "2026-07-05T16:39:31.038Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-008",
+      "_hash": "38c657f302765df8cad2b9408cfb659d9c34e5d2ff327754aba30dd8014f5803"
+    },
+    {
+      "id": "B-9e44:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup check for 08e74dc7: rename gold-semantic-weaken->gold-weaken-expectedids left no dangling references (grepped repo-wide *.ts/*.mjs/*.md/*.json excluding node_modules/dist/.git/@deprecated; only hits are intentional 'renamed from X' explanatory comments in viability-check.mjs + README, and historical .lattice audit-trail JSON prose, not live source residue). New classes gold-weaken-suppressed, gold-weaken-mustnotsurface, manifest-metadata-lie have no orphaned symbols/imports: consistently wired across README.md, build-protocol.mjs (LIMITATION_FAMILY), protocol.json/.sha256 (generated), viability-check.mjs (SMOKE_OVERLAP + addRefreshed tamper fns), selfcheck.mjs (MANIFEST_METADATA_LIE_CLASSES validation). node --check clean on all 3 touched .mjs files. Ran viability-check.mjs end-to-end (24 candidates incl. 3 new classes, no unexpected crash, committed viability-results.json byte-stable/no diff after rerun) and selfcheck.mjs (PASS, protocol.json re-emit byte-identical). README's new anchor #the-digest-recompute-blind-spot-family-limitationfamily resolves to a real heading. No blocker.",
+      "createdAt": "2026-07-05T16:41:45.088Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-007",
+      "_hash": "c7f687fefff48affacd64a6fdc1a2c0827478d57c037ea5c3794238ce3ecca89"
+    },
+    {
+      "id": "B-9e44:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 27-candidate matrix (18 fail-closed/2 accepted/6 acknowledged-limitation/1 dropped) independently reproduced via selfcheck.mjs PASS + direct candidate count + protocol.json sha256 match; independently reproduced a NEW blind spot (weakened mustNotSurfaceIds + refreshManifest -> verify pass) confirming limitationFamily is genuine; all 10 must-priority verificationIntents have concrete non-vacuous manual_transcript evidence naming exact counts/hashes; validate --json allPass:true. No blocker.",
+      "createdAt": "2026-07-05T16:49:42.965Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-012",
+      "_hash": "facfd8d115cc5ac4331dc706789b6112f979b43c901654763cfdb135b8635940"
+    }
+  ]
+}
