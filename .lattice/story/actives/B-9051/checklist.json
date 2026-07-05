@@ -101,8 +101,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T11:00:38.657Z",
       "endTime": null
     },
     {
@@ -196,6 +196,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Canonical source inventory review completed.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:38.657Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting read-only status and ledger write boundary review evidence capture.",
       "agent": "codex-main"
     }
   ]
