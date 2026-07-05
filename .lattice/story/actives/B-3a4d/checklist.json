@@ -54,7 +54,7 @@
       "relatedDocs": [
         "docs/CLI.md"
       ],
-      "userSees": "The regression test fails if milestone_closeout would be missing from the canonical root after DONE.",
+      "userSees": "User sees test assertions for `milestone_closeout --storyId=B-done-closeout --root <mainRoot>` returning `proofbound.milestone_closeout.v1` after DONE cleanup.",
       "files": {
         "modify": [
           "packages/main/tests/milestone-status.test.mjs"
