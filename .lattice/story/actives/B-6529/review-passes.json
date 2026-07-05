@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T22:18:14.748Z",
       "reviewRunId": "B-6529:RR-008",
       "_hash": "02445ddd599765209858d9d8c694d486ce660e2c0a7ef24f6ef8ef957b558a68"
+    },
+    {
+      "id": "B-6529:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review of F-002/F-003 clean. Verified m2-provider-execution-check.mjs loads and validates m2-provider-execution-authorization.json via validateProviderAuthorization in validateAll, including authorizationBoundary disabled semantics, historical USD 0 no-spend providerSpendBoundary, forbidden providerBudgetCap/nonzeroProviderBudgetCap, requiredFutureExecutionMetadata status/value/blocksProviderExecution semantics, Cell 03 sequencing, and Cell 06 budget/usage lock blocking. Ran node experiments/multi-model-ablation/m2-provider-execution-check.mjs (1190 assertions, 13 negative controls rejected) and node experiments/multi-model-ablation/m2-launch-readiness-check.mjs (1105 assertions, 21 negative controls rejected). Additional /tmp mutation smoke rejected 8/8 authorization-file drifts without changing implementation files.",
+      "createdAt": "2026-07-05T22:21:03.911Z",
+      "reviewRound": "2026-07-05T22:18:14.748Z",
+      "reviewRunId": "B-6529:RR-009",
+      "_hash": "62d71d1573a2df010d9420ff181275a825606c54024cb761f00aec03aeb1a9b5"
     }
   ]
 }
