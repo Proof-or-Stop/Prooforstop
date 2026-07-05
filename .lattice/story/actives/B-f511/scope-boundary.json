@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f511",
+  "mode": "feature",
+  "allowed": [
+    "experiments/pos-instrument-replay/"
+  ],
+  "excluded": [
+    "analyze-batch.mjs (M4 analyzer)",
+    "the frozen protocol.json + M0/M1 tamper/viability/build files (read-only)",
+    "the instrument core (read/called only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "M3 delivers resume-probe.mjs + selfcheck-m3.mjs + resume-reconciliation.json (new) and an ADDITIVE resume mode in run-batch.mjs (M2 file, modified) under experiments/pos-instrument-replay/, reusing lib/instrument.mjs and reading the frozen protocol.json. M4 analyzer deferred; instrument + frozen protocol untouched. Plan section 7/8.",
+  "createdAt": "2026-07-05T20:23:02.466Z",
+  "updatedAt": "2026-07-05T20:23:02.466Z",
+  "_hash": "42164ec77e921ffaf9bd2122d798b72ac4fc9ec21374427157152abee4a1c028"
+}
