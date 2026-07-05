@@ -54,7 +54,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/CLI.md"
       ],
-      "userSees": "DONE output says when an artifact release record was written, and users can inspect releases by story id or latest list.",
+      "userSees": "`lattice artifact_release_list --format=json` prints records including storyId, mainCommit, artifactSetDigest, runtimeSemverChanged, and paths; `lattice artifact_release_status --storyId=B-xxxx` prints the matching record or `No artifact release records found`.",
       "files": {
         "modify": [
           "packages/main/src/registry.ts",
