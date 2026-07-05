@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-05T19:51:59.601Z",
       "reviewRunId": "B-2a5b:RR-012",
       "_hash": "ada5759f58cef48e5998a6ce8fdf6faf19c870299245eaff719eebcc25f25428"
+    },
+    {
+      "id": "B-2a5b:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Verified commit 8513707f7 genuinely resolves F-003/F-004: (1) mkdtemp (setup) is now inside runIterations full-lifecycle try, along with generate/verify/build/append/cleanup — confirmed via git show diff and source read. (2) The end-of-run strict-multiset guard (runEndOfRunGuard) is invoked unconditionally after mains try/catch/finally (loop errors are captured not swallowed, lock release happens in finally, guard runs regardless); guard is defensively written (ledger read wrapped in try/catch -> readError forces fatal nonzero; summary printing wrapped in try/catch so a print bug cant mask exit code; loopError forces nonzero even if multiset looks complete). (3) Traced all exit paths: normal per-iteration throws (setup/generate/verify/append/cleanup) are caught by runIteration and become a best-effort verify_crash stop; the sole irreducible case (crash-stop append itself throwing) is swallowed locally but the resulting recordless iteration is caught by the top-level guard which forces a named nonzero exit — confirmed empirically via selfcheck sub-check (e) for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT injection points. Pre-existing fatal()/process.exit calls for off-enum stopReason and lock-acquire-fail are unrelated pre-iteration-loop paths (F-001/F-002 scope) and already exit nonzero. (4) No determinism/isolation regression: all fault-injection hooks (POS_FAIL_MKDTEMP_AT/POS_FAIL_APPEND_AT/POS_FAIL_GENERATE_AT/POS_SKIP_RECORD_AT/POS_BUDGET_CAP_MS) are opt-in env-var gated, default null/off, matching the pre-existing F-001 pattern; lib/instrument.mjs untouched. Ran node experiments/pos-instrument-replay/selfcheck-m2.mjs to completion: all 5 sub-checks PASS (a BUDGET_CAP, b LOCKFILE, c RECORDLESS, d GENERATE-CRASH, e PRE-BODY-CRASH x2). Working tree clean vs HEAD (only lattice test-evidence bookkeeping changed). No dead code, no as-any, no empty-catch-swallowing-errors issues found in the diffed files (all catch blocks are either best-effort cleanup with explanatory comments or deliberately convert to stop records/nonzero exits).",
+      "createdAt": "2026-07-05T20:06:05.103Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-009",
+      "_hash": "b1f8c461433a2339792e7b5a492fe3752e8cea3625d1db6dd3a96839289d39d5"
     }
   ]
 }
