@@ -202,7 +202,7 @@ export function runDoneMainPackageBuildAfterMerge(
 ): string {
   const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
   if (!shouldBuildDoneMainPackageForChangedPaths(changedPaths)) {
-    return '✓ packages/main build skipped after DONE merge (no watched runtime inputs changed)';
+    return '✓ packages/main build skipped after DONE merge (no watched runtime or capability contract inputs changed)';
   }
 
   const result = (opts.buildRunner ?? defaultDoneMainBuildRunner)(mainMergeRoot);
