@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T15:06:59.965Z",
       "reviewRunId": "B-b550:RR-007",
       "_hash": "115ab8718fa567abd67252ede651e87c1cda03378403ce6d899db02f552d40ca"
+    },
+    {
+      "id": "B-b550:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after DEV->REVIEW restart. Delta since prior clean pass is .lattice/story/actives/B-b550/parent-ledger-rollup.json plus its scope-contract acknowledgement only; the two docs (plan doc + new findings report + NAV entry) are byte-identical to the previously reviewed commit e90d08349. Checked: dead code / unused imports (none — no TS/JS touched, packages/main/** excluded by scope-contract), type safety / empty catch (n/a, docs+metadata only), I/O shell isolation (n/a), proof-metadata dual-authoring rule (n/a — no job/run/proof metadata semantics touched). Verified parent-ledger-rollup.json is CLI-authored (parent_ledger_rollup_set handler in packages/main/src/handlers/proofstory.ts, not hand-edited) and its ledgerHash (sha256:7e6ee013...) matches the confirmed milestone-ledger.json ledgerHash exactly; scope-contract.json acknowledgement correctly lists this file with matching headHash/materialHash. Working tree clean, no unstaged drift. No unsupported claims found in the docs (prior pass already verified corrections/caveats against source with concrete grep/version evidence). No findings.",
+      "createdAt": "2026-07-05T15:08:37.872Z",
+      "reviewRound": "2026-07-05T15:06:59.965Z",
+      "reviewRunId": "B-b550:RR-008",
+      "_hash": "501aa6f8ff807c5619619b952da27deded6be51330e7a8889d5f9a9115670fea"
     }
   ]
 }
