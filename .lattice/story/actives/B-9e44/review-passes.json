@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-05T16:37:18.205Z",
       "reviewRunId": "B-9e44:RR-008",
       "_hash": "38c657f302765df8cad2b9408cfb659d9c34e5d2ff327754aba30dd8014f5803"
+    },
+    {
+      "id": "B-9e44:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup check for 08e74dc7: rename gold-semantic-weaken->gold-weaken-expectedids left no dangling references (grepped repo-wide *.ts/*.mjs/*.md/*.json excluding node_modules/dist/.git/@deprecated; only hits are intentional 'renamed from X' explanatory comments in viability-check.mjs + README, and historical .lattice audit-trail JSON prose, not live source residue). New classes gold-weaken-suppressed, gold-weaken-mustnotsurface, manifest-metadata-lie have no orphaned symbols/imports: consistently wired across README.md, build-protocol.mjs (LIMITATION_FAMILY), protocol.json/.sha256 (generated), viability-check.mjs (SMOKE_OVERLAP + addRefreshed tamper fns), selfcheck.mjs (MANIFEST_METADATA_LIE_CLASSES validation). node --check clean on all 3 touched .mjs files. Ran viability-check.mjs end-to-end (24 candidates incl. 3 new classes, no unexpected crash, committed viability-results.json byte-stable/no diff after rerun) and selfcheck.mjs (PASS, protocol.json re-emit byte-identical). README's new anchor #the-digest-recompute-blind-spot-family-limitationfamily resolves to a real heading. No blocker.",
+      "createdAt": "2026-07-05T16:41:45.088Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-007",
+      "_hash": "c7f687fefff48affacd64a6fdc1a2c0827478d57c037ea5c3794238ce3ecca89"
     }
   ]
 }
