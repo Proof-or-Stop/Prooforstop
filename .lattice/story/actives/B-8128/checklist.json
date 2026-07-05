@@ -359,7 +359,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "capability-release-invariants-smoke: DONE-settlement outcome not counted as helped (green)",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A verdictSource=done-settlement outcome does not increment helped or decisiveSamples (learning-store.ts:1233-1241 gating).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A structured non-done-settlement helped outcome DOES count, confirming the gate is specific to done-settlement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decisiveSamples = helped + dismissed + harmful excludes neutral/unknown/done-settlement outcomes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-013",
