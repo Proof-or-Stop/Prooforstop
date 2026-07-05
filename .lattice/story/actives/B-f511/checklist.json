@@ -145,13 +145,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.killA.postResume.casualtyDisposition,r.killB.postResume.casualtyDisposition)\"",
+          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\"",
           "result": "pass",
-          "note": "Each mid-iteration casualty (replay/small/6 and /18) resolved to proof:pass on the clean re-run — never a silent half-record; dup=0 across both kills (the resume skips already-recorded iterationIds, the strict guard rejects any dup).",
-          "headHash": "aad1db0551c0b44d57c0728cdfed3a8b873b3cee",
+          "note": "Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills.",
+          "headHash": "7cde1268747644051b57e298428528624b1cde77",
           "materialHash": "ba6f21bfe8b202a9703dd0aa62498ac29538eca4c26c544bd4e3332e5e3f6756",
           "storyFilesHash": "2ba336106139c029c774bdb2b9ede9d110e6335bde1eb9ef0164d935516cfce0",
-          "timestamp": "2026-07-05T23:22:58.669Z"
+          "timestamp": "2026-07-05T23:23:05.192Z"
         }
       ]
     },
