@@ -47,7 +47,7 @@
       "desc": "[codex-host-2] Section 1 wording imprecise: 'a tampered corpus can still answer all 1,000 questions correctly' — 1,000 is the small-profile RECORD count; expectedIdsFoundRate is computed over the gold-query expected-ID list (playbook-runtime-baseline.ts:299,1670), not 1,000 questions. Should say: still scores a perfect expectedIdsFoundRate (1.0) over the gold queries.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T13:05:42.651Z",
@@ -57,7 +57,11 @@
         "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|md|codex-host-section",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4a4c4e543. Section 1 wording corrected: 'a tampered corpus can still answer all 1,000 questions correctly' -> 'a tampered corpus can still score a perfect expectedIdsFoundRate (1.0) over the gold queries'. This is precise: expectedIdsFoundRate is computed over the gold-query expected-ID list, not over the 1,000-record small-profile count.",
+      "resolvedAt": "2026-07-05T13:57:25.652Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
