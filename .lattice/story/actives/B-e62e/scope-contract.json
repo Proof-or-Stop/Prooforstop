@@ -30,10 +30,10 @@
     "DONE closeout completion-ledger freezing",
     "remote publish or release behavior"
   ],
-  "scopeChangeReason": "Allow the milestone-status regression hunk anchor used for six-state developer-facing display labels.",
+  "scopeChangeReason": "Allow DONE regression to read story state while proving milestone_status still prints after story_advance DONE removes the worktree.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T10:23:37.523Z",
-  "updatedAt": "2026-07-05T11:40:02.891Z",
+  "updatedAt": "2026-07-05T12:16:16.259Z",
   "fileRules": [
     {
       "path": "packages/main/src/cli-engine.ts",
@@ -69,6 +69,7 @@
       "allowedAnchors": [
         "ledger",
         "readChecklist",
+        "readStory",
         "evidence"
       ],
       "allowedChangeKinds": [
