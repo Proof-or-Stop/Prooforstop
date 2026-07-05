@@ -41,7 +41,22 @@
         "create": [],
         "test": []
       },
-      "userSees": "check: import-fence: handlers/playbook.ts imports only learning-store, types, and the context read port — PASS\ncheck: import-fence: the static scan is non-vacuous (catches a planted foreign import) — PASS"
+      "userSees": "check: import-fence: handlers/playbook.ts imports only learning-store, types, and the context read port — PASS\ncheck: import-fence: the static scan is non-vacuous (catches a planted foreign import) — PASS",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js",
+          "result": "pass",
+          "note": "Fresh-build run prints both import-fence checks PASS and 'TOTAL 31 | PASS 31 | FAIL 0 / smoke passed'.",
+          "headHash": "cdb034b971f4cdec853441625a5de2cb8a209ee3",
+          "materialHash": "7041e9cdafa2d2b9d82f278e1670dd85cceeb97c18c7803783726ec608026a86",
+          "storyFilesHash": "eda6e024cf6f420b602d2762e648a49099a2e5483311498dc5bc4da8b1aab2a6",
+          "timestamp": "2026-07-05T21:55:21.258Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
