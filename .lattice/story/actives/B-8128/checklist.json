@@ -403,7 +403,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "capability-release-invariants-smoke: fixture backfill dry-run/apply/idempotent (green)",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A hermetic B-785e-shaped fixture backfill dry-run detects exactly one eligible candidate and apply enriches exactly one with capabilityReleaseId/artifactReleaseId.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repeated apply is idempotent (no duplicate candidate); candidate stays status=candidate and usage.surfacedCount unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No helped outcome is inferred; the proof uses a mkdtemp fixture, never the live PBP-882.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
