@@ -3,9 +3,20 @@
   "mode": "enforce",
   "allowedModify": [
     "packages/main/src/cli-engine.ts",
-    "docs/CLI.md"
+    "docs/CLI.md",
+    ".lattice/story/actives/B-e62e/intent-collision.json",
+    ".lattice/story/actives/B-e62e/milestone-ledger.json",
+    ".lattice/story/actives/B-e62e/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e62e/proofstory.json",
+    ".lattice/story/actives/B-e62e/red-evidence.json"
   ],
-  "allowedCreate": [],
+  "allowedCreate": [
+    ".lattice/story/actives/B-e62e/intent-collision.json",
+    ".lattice/story/actives/B-e62e/milestone-ledger.json",
+    ".lattice/story/actives/B-e62e/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e62e/proofstory.json",
+    ".lattice/story/actives/B-e62e/red-evidence.json"
+  ],
   "allowedTest": [
     "packages/main/tests/milestone-status.test.mjs"
   ],
@@ -19,17 +30,17 @@
     "DONE closeout completion-ledger freezing",
     "remote publish or release behavior"
   ],
-  "scopeChangeReason": "Lock scope to the auto-surface milestone_status stdout consumption layer requested by the user; later completion-writer and closeout-freezing work remains excluded.",
+  "scopeChangeReason": "Align contract with the actual ProofStory metadata artifacts and semantic anchors produced by this scoped milestone-status stdout implementation.",
   "acknowledgements": [],
   "createdAt": "2026-07-05T10:23:37.523Z",
-  "updatedAt": "2026-07-05T10:23:37.523Z",
+  "updatedAt": "2026-07-05T10:39:40.028Z",
   "fileRules": [
     {
       "path": "packages/main/src/cli-engine.ts",
       "allowedAnchors": [
-        "runCli",
-        "wantsMachineJson",
-        "postCommandHumanStdout"
+        "story",
+        "root",
+        "result"
       ],
       "allowedChangeKinds": [
         "add",
@@ -45,8 +56,8 @@
     {
       "path": "packages/main/tests/milestone-status.test.mjs",
       "allowedAnchors": [
-        "cliMilestoneStatusRegression",
-        "postCommandMilestoneTableStdout"
+        "ledger",
+        "readChecklist"
       ],
       "allowedChangeKinds": [
         "add",
@@ -60,10 +71,6 @@
     },
     {
       "path": "docs/CLI.md",
-      "allowedAnchors": [
-        "MilestoneStatus",
-        "HostProgressReportingContract"
-      ],
       "allowedChangeKinds": [
         "add",
         "modify"
@@ -72,5 +79,6 @@
         "CHK-001:happy:0"
       ]
     }
-  ]
+  ],
+  "protectedAnchors": []
 }
