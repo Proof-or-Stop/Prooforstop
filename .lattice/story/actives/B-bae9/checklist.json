@@ -48,7 +48,40 @@
       "context": "This is the H2 evidence-complete gate. A mismatch (live fingerprint != frozen) means either the instrument changed or the freeze is wrong — both must fail loudly. The verdict ledger records fingerprintMatch per class so the M4 analyzer can adjudicate H2 mechanically.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "tamper.mjs exits 0 when every frozen class conforms (fail-closed -> status:fail + fingerprintMatch:true; acceptance/acknowledged-limitation -> status:pass + fingerprintMatch:true) and prints 'H2 conformance: PASS (mismatches=0)'; a mismatch prints the offending class and exits nonzero.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/tamper.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "every fail-closed class yields status:fail AND fingerprintMatch:true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch:true; tamper.mjs exits 0 with mismatches=0 (H2 evidence complete)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "numeric-metric predicates are matched via the frozen op/value (exact/threshold), not raw float equality, so no false mismatch from representation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "ANY live-vs-frozen fingerprint mismatch makes tamper.mjs exit nonzero and name the offending class (un-gameable H2 gate)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
