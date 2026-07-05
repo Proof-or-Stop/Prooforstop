@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } fr
 import { dirname, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
+import { selectArtifactReleasePathsV1 } from './artifact-release.js';
 
 export const CAPABILITY_RELEASE_LEDGER_REL_PATH = '.lattice/capability-releases.jsonl';
 export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
@@ -264,6 +265,102 @@ export function appendCapabilityReleaseRecord(
   mkdirSync(dirname(file), { recursive: true });
   appendFileSync(file, `${JSON.stringify(record)}\n`, 'utf-8');
   return { status: 'recorded', record };
+}
+
+/**
+ * PURE, deterministic capability-release classifier (M2).
+ *
+ * Reuses the artifact-release path-selection idea: from the FULL DONE-time
+ * changed-path list, select only capability-declaring paths under `docs/**`
+ * or `experiments/**`, EXCLUDING `.lattice/**`, `docs/story/**`,
+ * `packages/main/src/**`, and root manifests/locks (the exact same conservative
+ * filter as {@link selectArtifactReleasePathsV1}). If no capability-declaring
+ * path survives, returns `null` — there is NO capability release and the caller
+ * emits an advisory instead of inventing one.
+ *
+ * capabilityId is derived host-neutrally via {@link deriveCapabilityIdSlug}
+ * (shallowest shared directory slug); if that slug is null the classifier is
+ * conservative and returns `null` rather than guessing an identity.
+ *
+ * capabilityKind is chosen conservatively and deterministically:
+ * `experiment-launch-control` if ANY capability path is under `experiments/`,
+ * else `documentation-control` if all are under `docs/`, else `other`.
+ */
+export function classifyCapabilityRelease(
+  changedPaths: string[],
+  opts: { isRuntimeBuildInput?: (path: string) => boolean } = {},
+): { capabilityKind: CapabilityKind; capabilityId: string; capabilityPaths: string[] } | null {
+  const capabilityPaths = selectArtifactReleasePathsV1(changedPaths, {
+    isRuntimeBuildInput: opts.isRuntimeBuildInput,
+  });
+  if (capabilityPaths.length === 0) return null;
+
+  const capabilityId = deriveCapabilityIdSlug(capabilityPaths);
+  if (!capabilityId) return null;
+
+  const anyExperiment = capabilityPaths.some(path => path.startsWith('experiments/'));
+  const allDocs = capabilityPaths.every(path => path.startsWith('docs/'));
+  const capabilityKind: CapabilityKind = anyExperiment
+    ? 'experiment-launch-control'
+    : allDocs
+      ? 'documentation-control'
+      : 'other';
+
+  return { capabilityKind, capabilityId, capabilityPaths };
+}
+
+export interface RecordCapabilityReleaseForDoneMergeOptions {
+  /** Ledger root (already resolved to the project git root by the caller). */
+  root: string;
+  storyId: string;
+  mainCommit?: string;
+  /** FULL DONE-time changed-path list; the classifier selects the capability subset. */
+  changedPaths: string[];
+  runtimeSemverChanged: boolean;
+  /** Passed through from the artifact release when the caller recorded one. */
+  artifactReleaseId?: string;
+  /** Folded into capabilityDigest; passed through from the artifact release when available. */
+  artifactSetDigest?: string;
+  capabilityName?: string;
+  isRuntimeBuildInput?: (path: string) => boolean;
+  now?: string;
+}
+
+export interface RecordCapabilityReleaseForDoneMergeResult {
+  status: 'recorded' | 'already_recorded' | 'skipped_empty';
+  record?: ProductCapabilityReleaseRecord;
+}
+
+/**
+ * Mirrors `recordArtifactReleaseForDoneMerge`: run the pure classifier over the
+ * DONE-time changed paths; if it declines (`null`) return `skipped_empty` so the
+ * caller emits an advisory. Otherwise build a merge-stable record (passing the
+ * artifact release id/digest through, so identical content re-merged/recovered
+ * dedups) and append it (idempotent on idempotencyKey).
+ */
+export function recordCapabilityReleaseForDoneMerge(
+  opts: RecordCapabilityReleaseForDoneMergeOptions,
+): RecordCapabilityReleaseForDoneMergeResult {
+  const classified = classifyCapabilityRelease(opts.changedPaths, {
+    isRuntimeBuildInput: opts.isRuntimeBuildInput,
+  });
+  if (!classified) return { status: 'skipped_empty' };
+
+  const record = buildCapabilityReleaseRecord({
+    root: opts.root,
+    storyId: opts.storyId,
+    mainCommit: opts.mainCommit,
+    capabilityId: classified.capabilityId,
+    capabilityName: opts.capabilityName,
+    capabilityKind: classified.capabilityKind,
+    changedPaths: opts.changedPaths,
+    capabilityPaths: classified.capabilityPaths,
+    artifactReleaseId: opts.artifactReleaseId,
+    artifactSetDigest: opts.artifactSetDigest,
+    runtimeSemverChanged: opts.runtimeSemverChanged,
+    now: opts.now,
+  });
+  return appendCapabilityReleaseRecord(opts.root, record);
 }
 
 export function writeCapabilityReleaseLedgerForTest(
