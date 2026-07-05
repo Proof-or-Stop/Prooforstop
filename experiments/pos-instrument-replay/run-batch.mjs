@@ -14,14 +14,24 @@
 // Proof-or-stop discipline:
 //   - proof record  <- verify status is a normal verdict (pass|fail) AND the
 //                      verify elapsedMs is within the budget cap.
-//   - stop record   <- verify crashed (stopReason 'verify_crash'), OR verify
-//                      elapsedMs exceeded the budget cap (stopReason 'budget_cap'),
-//                      OR the lock could not be acquired (stopReason
-//                      'precondition_failed', recorded before exit).
+//   - stop record   <- generate OR verify threw/crashed (stopReason
+//                      'verify_crash'), OR verify elapsedMs exceeded the budget
+//                      cap (stopReason 'budget_cap'), OR the lock could not be
+//                      acquired (stopReason 'precondition_failed').
 //
-// Every iteration ends in exactly one record. An END-OF-RUN GUARD asserts the
-// ledger holds exactly the protocol cross-product of iterationIds for the run's
-// scales, one record each; a recordless OR duplicate iteration exits NONZERO.
+// A GENERATE-side crash is NOT bypassed: the entire per-iteration generate+verify
+// body is guarded so ANY thrown error (generate or verify) becomes a verify_crash
+// stop record — a crash never propagates uncaught and never leaves an iteration
+// recordless.
+//
+// A lock-blocked driver records its precondition_failed stop to a SEPARATE
+// blocked-ledger (batch-ledger.blocked.jsonl), NOT the shared campaign ledger,
+// so a blocked concurrent driver can never contaminate the campaign evidence.
+//
+// Every iteration ends in exactly one record. An END-OF-RUN STRICT-MULTISET
+// GUARD asserts the ledger holds EXACTLY the protocol cross-product of
+// iterationIds for the run's scales, one record each and nothing else; any
+// recordless, duplicate, OR extra/unexpected iterationId exits NONZERO.
 //
 // The instrument (packages/**, via the lattice memory_playbook_baseline_* CLI)
 // is READ / CALLED ONLY through lib/instrument.mjs. Nothing here mutates it.
@@ -43,6 +53,10 @@ import { sha256, canonicalJson, verifyDir } from './lib/instrument.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LEDGER_PATH = join(HERE, 'batch-ledger.jsonl');
+// A lock-blocked driver records its precondition_failed stop HERE, never to the
+// shared campaign ledger (F-002b: 'records precondition_failed instead of
+// corrupting the ledger', plan section 6.3). Deterministic, sibling path.
+const BLOCKED_LEDGER_PATH = join(HERE, 'batch-ledger.blocked.jsonl');
 const LOCK_DIR = join(HERE, '.batch-ledger.lock');
 const PROTOCOL_PATH = join(HERE, 'protocol.json');
 
@@ -93,9 +107,10 @@ function withDigest(record) {
   return { ...record, recordDigest: sha256(canonicalJson(preimage)) };
 }
 
-// Append one record as a single JSONL line. Append-only: never rewrites.
-function appendRecord(record) {
-  appendFileSync(LEDGER_PATH, JSON.stringify(record) + '\n');
+// Append one record as a single JSONL line to a given path. Append-only: never
+// rewrites. Defaults to the shared campaign ledger.
+function appendRecord(record, path = LEDGER_PATH) {
+  appendFileSync(path, JSON.stringify(record) + '\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -126,7 +141,15 @@ function acquireLock() {
 // GENERATION-SIDE manifest (its recordsDigest/goldDigest/manifestDigest are the
 // digests we pin on the proof record — sourced from generation, not re-derived).
 // ---------------------------------------------------------------------------
-function generateBaseline(dir, scale) {
+function generateBaseline(dir, scale, iterationId) {
+  // Fault injection (generate-crash test): force an uncaught generate-side
+  // failure for the matching iterationId, so the selfcheck can prove a generate
+  // crash becomes a verify_crash STOP record (not a raw uncaught crash, not a
+  // recordless iteration). The per-iteration try/catch below sentinels it.
+  const failGenerateAt = process.env.POS_FAIL_GENERATE_AT || null;
+  if (failGenerateAt && iterationId === failGenerateAt) {
+    throw new Error(`[fault-injection] forced generate failure at ${iterationId}`);
+  }
   execFileSync(
     'lattice',
     [
@@ -184,11 +207,40 @@ function runIteration(scale, index, budgetCapMs) {
   const iterationId = `replay/${scale}/${index}`;
   const env = recordEnv();
   const dir = mkdtempSync(join(tmpdir(), `pos-replay-${scale}-${index}-`));
+
+  // A stop record for a thrown fault. `phase` names where it threw (generate |
+  // verify). Uses the frozen 'verify_crash' reason (cycle-execution-failure) —
+  // do NOT invent a new stopReason; the enum is frozen in protocol.json.
+  const crashStop = (err, phase) => ({
+    iterationId,
+    record: withDigest({
+      iterationId,
+      arm: 'replay',
+      scale,
+      index,
+      stopReason: 'verify_crash',
+      rawError: `[${phase}] ${String((err && err.message) || err)}`.slice(0, 400),
+      env,
+    }),
+  });
+
   try {
-    const manifest = generateBaseline(dir, scale);
+    // F-001: the ENTIRE generate+verify body is guarded. verifyDir sentinels a
+    // verify crash into {status:'crash'} (handled below as verify_crash), but a
+    // GENERATE-side failure (e.g. execFileSync throwing) propagates as a real
+    // thrown error — the catch converts ANY such throw into a verify_crash STOP
+    // record so a crash can never propagate uncaught or leave the iteration
+    // recordless.
+    let manifest;
+    try {
+      manifest = generateBaseline(dir, scale, iterationId);
+    } catch (e) {
+      return crashStop(e, 'generate');
+    }
+
     const v = verifyDir(dir);
 
-    // Crash -> verify_crash stop.
+    // Verify crash sentinel -> verify_crash stop.
     if (v.status === 'crash') {
       return {
         iterationId,
@@ -198,7 +250,7 @@ function runIteration(scale, index, budgetCapMs) {
           scale,
           index,
           stopReason: 'verify_crash',
-          rawError: String(v.error || 'verify crashed').slice(0, 400),
+          rawError: `[verify] ${String(v.error || 'verify crashed')}`.slice(0, 400),
           env,
         }),
       };
@@ -244,6 +296,11 @@ function runIteration(scale, index, budgetCapMs) {
         env,
       }),
     };
+  } catch (e) {
+    // Any other throw in the guarded body (never a verify sentinel — those
+    // return, they don't throw) is also a verify_crash STOP record, never an
+    // uncaught propagation and never a recordless iteration.
+    return crashStop(e, 'verify');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -329,8 +386,11 @@ function main() {
   // Acquire the exclusive lock BEFORE touching the ledger.
   const release = acquireLock();
   if (release === null) {
-    // Lock held by another driver: record a precondition_failed stop and exit
-    // nonzero. This append is the ONLY ledger write on this path.
+    // Lock held by another driver: record a precondition_failed stop to the
+    // SEPARATE blocked-ledger (F-002b) and exit nonzero. This blocked driver
+    // must NEVER touch the shared campaign ledger — appending here would
+    // contaminate it with an unexpected iterationId. It records
+    // precondition_failed to its own deterministic path instead.
     const stop = withDigest({
       iterationId: 'replay/precondition/lock',
       stopReason: 'precondition_failed',
@@ -340,7 +400,7 @@ function main() {
     if (!STOP_REASONS.has(stop.stopReason)) {
       fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
     }
-    appendRecord(stop);
+    appendRecord(stop, BLOCKED_LEDGER_PATH);
     fatal('run-batch: could not acquire batch-ledger lock (another driver holds it)', 3);
   }
 
@@ -374,9 +434,13 @@ function main() {
   }
 
   // -----------------------------------------------------------------------
-  // END-OF-RUN GUARD: the ledger must contain exactly the expected set of
-  // iterationIds for this run's scales, one record each. Zero (recordless) OR
-  // duplicate => nonzero exit naming the offender.
+  // END-OF-RUN GUARD (F-002a: STRICT EXACT-MULTISET). The ledger must contain
+  // EXACTLY the expected identity multiset for this run's scales — one record
+  // per expected iterationId, and NOTHING ELSE. Any MISSING (recordless),
+  // DUPLICATE, OR EXTRA/unexpected iterationId => nonzero exit naming the
+  // offenders. An extra id (e.g. a leaked precondition/lock stop, or a
+  // cross-run record contaminating the shared ledger) is a loud failure, not a
+  // silent pass.
   // -----------------------------------------------------------------------
   const counts = new Map();
   if (existsSync(LEDGER_PATH)) {
@@ -392,12 +456,18 @@ function main() {
     }
   }
 
+  const expectedSet = new Set(expectedIds);
   const recordless = [];
   const duplicated = [];
   for (const id of expectedIds) {
     const c = counts.get(id) || 0;
     if (c === 0) recordless.push(id);
     else if (c > 1) duplicated.push(`${id} (x${c})`);
+  }
+  // EXTRA: any observed iterationId that is not in the expected multiset.
+  const extra = [];
+  for (const [id, c] of counts) {
+    if (!expectedSet.has(id)) extra.push(c > 1 ? `${id} (x${c})` : id);
   }
 
   // Print evidence summaries regardless (operator visibility), then decide exit.
@@ -417,8 +487,16 @@ function main() {
       1,
     );
   }
+  if (extra.length > 0) {
+    fatal(
+      `run-batch FAIL: ${extra.length} extra/unexpected iteration(s) in ledger: ${extra.join(', ')}`,
+      1,
+    );
+  }
 
-  console.log(`campaign complete: ${expectedIds.length} records, 0 recordless`);
+  console.log(
+    `campaign complete: ${expectedIds.length} records (exact multiset), 0 recordless, 0 extra`,
+  );
   process.exit(0);
 }
 

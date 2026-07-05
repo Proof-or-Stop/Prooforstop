@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // M2 hermetic selfcheck (B-2a5b CHK-003).
 //
-// Run by: node selfcheck-m2.mjs   (exit 0 iff all three guards pass)
+// Run by: node selfcheck-m2.mjs   (exit 0 iff all four guards pass)
 //
-// Guards run-batch.mjs's three load-bearing properties WITHOUT touching the
+// Guards run-batch.mjs's four load-bearing properties WITHOUT touching the
 // committed batch-ledger.jsonl (all work happens in mkdtemp sandbox copies of
 // run-batch.mjs + lib/instrument.mjs + protocol.json). SMALL scale only, for
 // speed:
@@ -14,14 +14,24 @@
 //       budget_cap stop path fires (H4 mechanism), NOT a tautology.
 //
 //   (b) LOCKFILE: pre-acquire the lock in the sandbox (mkdir the lock dir), then
-//       run run-batch.mjs -> assert it appends a precondition_failed stop record
-//       AND exits NONZERO. Proves a concurrent second driver cannot corrupt the
-//       ledger; it records precondition_failed instead.
+//       run run-batch.mjs -> assert it records a precondition_failed stop AND
+//       exits NONZERO, AND that the stop lands in the SEPARATE blocked-ledger
+//       (batch-ledger.blocked.jsonl) while the shared batch-ledger.jsonl is NOT
+//       contaminated. Proves a blocked second driver cannot corrupt the campaign
+//       ledger; it records precondition_failed to its own path instead.
 //
 //   (c) RECORDLESS: run run-batch.mjs --scale=small with POS_SKIP_RECORD_AT set
 //       to a real iterationId (replay/small/1) -> assert run-batch exits NONZERO
 //       and names the recordless iteration. Proves the end-of-run guard catches
 //       a missing record.
+//
+//   (d) GENERATE-CRASH: run run-batch.mjs --scale=small with POS_FAIL_GENERATE_AT
+//       set to a real iterationId (replay/small/1), forcing a GENERATE-side
+//       throw for that iteration -> assert run-batch produces a verify_crash STOP
+//       record for exactly that iterationId (not an uncaught crash, not
+//       recordless), the ledger holds exactly one record for it, and run-batch
+//       still exits 0 (a crash is a clean stop, not a recordless failure).
+//       Proves a generate crash cannot bypass proof-or-stop (F-001).
 //
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json. run-batch is
@@ -44,6 +54,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LEDGER_NAME = 'batch-ledger.jsonl';
+const BLOCKED_LEDGER_NAME = 'batch-ledger.blocked.jsonl';
 const LOCK_NAME = '.batch-ledger.lock';
 
 function fail(msg) {
@@ -61,10 +72,20 @@ function makeSandbox(tag) {
   return sandbox;
 }
 
+/** Parse a JSONL ledger file at `path` into records (or [] if absent). */
+function readLedger(path) {
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8')
+    .split('\n')
+    .filter((l) => l.trim())
+    .map((l) => JSON.parse(l));
+}
+
 /**
- * Run run-batch.mjs in the sandbox. Returns { code, stdout, stderr, records }
- * where records is the parsed sandbox ledger (or [] if not produced). Never
- * throws on a nonzero exit — the caller inspects code.
+ * Run run-batch.mjs in the sandbox. Returns { code, stdout, stderr, records,
+ * blockedRecords } where records is the parsed shared campaign ledger and
+ * blockedRecords is the parsed SEPARATE blocked-ledger (each [] if not
+ * produced). Never throws on a nonzero exit — the caller inspects code.
  */
 function runBatch(sandbox, { args = [], env = {} } = {}) {
   let stdout = '';
@@ -82,15 +103,9 @@ function runBatch(sandbox, { args = [], env = {} } = {}) {
     stdout = e.stdout ? e.stdout.toString() : '';
     stderr = e.stderr ? e.stderr.toString() : '';
   }
-  const ledgerPath = join(sandbox, LEDGER_NAME);
-  let records = [];
-  if (existsSync(ledgerPath)) {
-    records = readFileSync(ledgerPath, 'utf8')
-      .split('\n')
-      .filter((l) => l.trim())
-      .map((l) => JSON.parse(l));
-  }
-  return { code, stdout, stderr, records };
+  const records = readLedger(join(sandbox, LEDGER_NAME));
+  const blockedRecords = readLedger(join(sandbox, BLOCKED_LEDGER_NAME));
+  return { code, stdout, stderr, records, blockedRecords };
 }
 
 // ---------------------------------------------------------------------------
@@ -128,35 +143,41 @@ function checkBudgetCap() {
 
 // ---------------------------------------------------------------------------
 // (b) LOCKFILE: pre-hold the lock -> the driver must record precondition_failed
-// and exit nonzero (a concurrent second driver cannot corrupt the ledger).
+// to the SEPARATE blocked-ledger, exit nonzero, and leave the shared campaign
+// ledger UNCONTAMINATED (a blocked second driver cannot corrupt the campaign).
 // ---------------------------------------------------------------------------
 function checkLockfile() {
   const sandbox = makeSandbox('lock');
   try {
     // Simulate a first driver already holding the lock by creating the lock dir.
     mkdirSync(join(sandbox, LOCK_NAME));
-    const { code, records } = runBatch(sandbox, { args: ['--scale=small'] });
+    const { code, records, blockedRecords } = runBatch(sandbox, { args: ['--scale=small'] });
     if (code === 0) {
       fail(`(b) LOCKFILE: expected NONZERO exit when the lock is held, got exit 0`);
     }
-    const preconditionStops = records.filter(
+    // The precondition_failed stop must land in the SEPARATE blocked-ledger.
+    const blockedStops = blockedRecords.filter(
       (r) => r.stopReason === 'precondition_failed',
     );
-    if (preconditionStops.length !== 1) {
+    if (blockedRecords.length !== 1 || blockedStops.length !== 1) {
       fail(
-        `(b) LOCKFILE: expected exactly 1 precondition_failed stop record, got ` +
-          `${preconditionStops.length} (ledger had ${records.length} records)`,
+        `(b) LOCKFILE: expected exactly 1 precondition_failed record in the SEPARATE ` +
+          `blocked-ledger (${BLOCKED_LEDGER_NAME}), got ${blockedRecords.length} records ` +
+          `(${blockedStops.length} precondition_failed)`,
       );
     }
-    // The lock-held path must NOT run any iterations (no proof/other records).
-    if (records.length !== 1) {
+    // The SHARED campaign ledger must NOT be contaminated at all — a blocked
+    // driver must never write to it.
+    if (records.length !== 0) {
       fail(
-        `(b) LOCKFILE: expected ONLY the precondition_failed record (no iteration ran), ` +
-          `got ${records.length} records — the driver may have corrupted the ledger`,
+        `(b) LOCKFILE: the shared ${LEDGER_NAME} must be UNCONTAMINATED when the driver is ` +
+          `lock-blocked, but it holds ${records.length} record(s): ` +
+          `${records.map((r) => r.iterationId).join(', ')} — the driver corrupted the campaign ledger`,
       );
     }
     console.log(
-      `  (b) LOCKFILE PASS: driver recorded precondition_failed and exited ${code} (nonzero)`,
+      `  (b) LOCKFILE PASS: driver recorded precondition_failed to the separate blocked-ledger, ` +
+        `left the campaign ledger clean, and exited ${code} (nonzero)`,
     );
   } finally {
     rmSync(sandbox, { recursive: true, force: true });
@@ -195,11 +216,70 @@ function checkRecordless() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (d) GENERATE-CRASH: force a GENERATE-side throw for one iteration -> the
+// driver must sentinel it into a verify_crash STOP record for that exact
+// iterationId (not an uncaught crash, not recordless), keep exactly one record
+// for it, and still exit 0 (a clean stop, not a recordless failure). Proves a
+// generate crash cannot bypass proof-or-stop (F-001).
+// ---------------------------------------------------------------------------
+function checkGenerateCrash() {
+  const sandbox = makeSandbox('generate-crash');
+  const crashId = 'replay/small/1';
+  try {
+    const { code, stdout, stderr, records } = runBatch(sandbox, {
+      args: ['--scale=small'],
+      env: { POS_FAIL_GENERATE_AT: crashId },
+    });
+    const combined = stdout + '\n' + stderr;
+    if (code !== 0) {
+      fail(
+        `(d) GENERATE-CRASH: expected exit 0 (a generate crash is a clean verify_crash STOP, ` +
+          `not a recordless failure), got exit ${code}:\n${combined.slice(-600)}`,
+      );
+    }
+    const forId = records.filter((r) => r.iterationId === crashId);
+    if (forId.length !== 1) {
+      fail(
+        `(d) GENERATE-CRASH: expected EXACTLY one ledger record for ${crashId}, got ${forId.length} ` +
+          `(a generate crash must be neither recordless nor duplicated)`,
+      );
+    }
+    const rec = forId[0];
+    if (rec.stopReason !== 'verify_crash') {
+      fail(
+        `(d) GENERATE-CRASH: expected ${crashId} to be a verify_crash STOP record, got ` +
+          `${rec.stopReason ? `stop:${rec.stopReason}` : `proof:${rec.verifyStatus}`} ` +
+          `(the generate crash was not sentinelled into a stop)`,
+      );
+    }
+    // The stop must be exactly stop (not proof), i.e. no verifyStatus leaked on.
+    if (rec.verifyStatus !== undefined) {
+      fail(`(d) GENERATE-CRASH: ${crashId} record is not exactly a stop (verifyStatus present)`);
+    }
+    // Every other iteration must still have produced its own single record (the
+    // crash of one iteration does not abort the run).
+    if (records.length !== 30) {
+      fail(
+        `(d) GENERATE-CRASH: expected the full small multiset (30 records) with ${crashId} as a ` +
+          `verify_crash stop, got ${records.length} records`,
+      );
+    }
+    console.log(
+      `  (d) GENERATE-CRASH PASS: forced generate throw at ${crashId} became a verify_crash STOP ` +
+        `record (1 record, not recordless), run exited ${code}`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
 function main() {
-  console.log('selfcheck-m2: running 3 hermetic sub-checks (small scale)...');
+  console.log('selfcheck-m2: running 4 hermetic sub-checks (small scale)...');
   checkBudgetCap();
   checkLockfile();
   checkRecordless();
+  checkGenerateCrash();
   console.log('selfcheck-m2 PASS');
   process.exit(0);
 }
