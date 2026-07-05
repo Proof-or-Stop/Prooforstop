@@ -1,12 +1,15 @@
 {
   "artifact": "m2-cell03-provider-launch-authorization",
-  "storyId": "B-c25c",
-  "status": "cell03_launch_guardrail_recorded_exact_budget_approval_absent",
+  "storyId": "B-6529",
+  "status": "authorization_ready_execution_not_run",
   "preparedOn": "2026-07-05",
   "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
   "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
   "launchArtifactRef": "experiments/multi-model-ablation/m2-provider-execution-launch.json",
   "priorMetadataAuthorizationRef": "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+  "executionEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+  "usageAccountingPolicyRef": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+  "resultWritePolicyRef": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
   "researchBoundary": {
     "providerCallsMade": false,
     "containsOutcomeData": false,
@@ -15,13 +18,15 @@
   },
   "guardrailBoundary": {
     "guardrailRecorded": true,
-    "appliesToStoryId": "B-c25c",
+    "appliesToStoryId": "B-6529",
     "appliesToCellNumber": "03",
     "protocolCellNumber": "③",
     "arm": "A4",
     "executorFamily": "E2",
     "reviewerFamily": "same",
-    "exactBudgetApprovalStatus": "absent",
+    "executionEnvelopeFrozen": true,
+    "preRunDollarGuessRequired": false,
+    "preRunDollarCapAsSoleGateAllowed": false,
     "providerSpendAllowed": false,
     "providerExecutionAuthorized": false,
     "providerCallEnabled": false,
@@ -35,132 +40,157 @@
     "providerFallbackAllowed": false,
     "productGateImpact": "none"
   },
-  "exactBudgetApproval": {
-    "status": "absent",
-    "nonzeroBudgetApprovalPresent": false,
+  "executionEnvelope": {
+    "status": "frozen",
+    "artifactRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+    "cellNumber": "03",
+    "protocolCellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "taskCount": 24,
+    "scenarioSlots": 16,
+    "repeatSlots": 3,
+    "plannedRows": 1152,
+    "maxAttemptsPerCellKey": 2,
+    "maxRetriesPerCellKey": 1,
+    "maxWallClockHours": 24,
+    "maxInputTokensPerAttempt": 12000,
+    "maxOutputTokensPerAttempt": 6000,
+    "maxTotalOutputRows": 1152,
+    "promptDigest": "sha256:b1f7c70a48cf2f2c12b99bedb0f0d4259bfe334276ebf27cd1164903d33a5fa6",
+    "toolSurfaceDigest": "sha256:c42696e2c4b36d0d1a85656000a0fc63bc5aee7158361a1f4da1279afc50beb9"
+  },
+  "preRunDollarBudget": {
+    "guessRequired": false,
+    "dollarApprovalRequiredAsLaunchGate": false,
     "amount": null,
     "currency": null,
-    "approvalSource": null,
-    "approvedBy": null,
-    "approvalDate": null,
-    "providerSpendAllowed": false,
-    "providerCallEnabled": false,
-    "requirement": "Nonzero Cell 03 budget approval requires exact amount, currency, approvalSource, approvedBy, and approvalDate before provider spend or calls can be enabled.",
-    "requiredForSpendApproval": [
-      {
-        "fieldId": "amount",
-        "status": "required_absent",
-        "value": null,
-        "blocksProviderExecution": true
-      },
-      {
-        "fieldId": "currency",
-        "status": "required_absent",
-        "value": null,
-        "blocksProviderExecution": true
-      },
-      {
-        "fieldId": "approvalSource",
-        "status": "required_absent",
-        "value": null,
-        "blocksProviderExecution": true
-      },
-      {
-        "fieldId": "approvedBy",
-        "status": "required_absent",
-        "value": null,
-        "blocksProviderExecution": true
-      },
-      {
-        "fieldId": "approvalDate",
-        "status": "required_absent",
-        "value": null,
-        "blocksProviderExecution": true
-      }
-    ]
+    "estimateAllowed": true,
+    "estimateUse": "diagnostic_only",
+    "estimateMayBeFinalUsage": false,
+    "estimateMayGateLaunch": false
+  },
+  "postflightUsageAccounting": {
+    "providerReportedUsageRequiredAfterExecution": true,
+    "finalUsageSource": "provider_reported_usage",
+    "estimateAllowed": true,
+    "estimateUse": "diagnostic_only",
+    "estimateMayBeFinalUsage": false,
+    "estimateMayGateLaunch": false,
+    "missingProviderReportedUsageEffect": "future_execution_rows_not_formally_usable"
   },
   "requiredMetadata": [
     {
-      "fieldId": "humanApprovalExactBudget",
-      "status": "absent",
-      "value": null,
-      "blocksProviderExecution": true
+      "fieldId": "frozenExecutionEnvelope",
+      "status": "present",
+      "value": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+      "blocksProviderExecution": false
     },
     {
-      "fieldId": "datedExecutorSnapshot",
-      "status": "absent",
-      "value": null,
-      "blocksProviderExecution": true
+      "fieldId": "datedExecutorTargetSnapshot",
+      "status": "present",
+      "value": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "blocksProviderExecution": false
     },
     {
-      "fieldId": "datedReviewerSnapshot",
-      "status": "absent",
-      "value": null,
-      "blocksProviderExecution": true
+      "fieldId": "datedReviewerTargetSnapshot",
+      "status": "present",
+      "value": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "blocksProviderExecution": false
     },
     {
       "fieldId": "promptDigest",
-      "status": "absent",
-      "value": null,
-      "blocksProviderExecution": true
+      "status": "present",
+      "value": "sha256:b1f7c70a48cf2f2c12b99bedb0f0d4259bfe334276ebf27cd1164903d33a5fa6",
+      "blocksProviderExecution": false
     },
     {
       "fieldId": "toolSurfaceDigest",
-      "status": "absent",
-      "value": null,
-      "blocksProviderExecution": true
+      "status": "present",
+      "value": "sha256:c42696e2c4b36d0d1a85656000a0fc63bc5aee7158361a1f4da1279afc50beb9",
+      "blocksProviderExecution": false
     },
     {
       "fieldId": "runnerOwnership",
-      "status": "pending",
-      "value": null,
-      "blocksProviderExecution": true
+      "status": "present",
+      "value": "m2-future-cell-03-e2-a4-same owns ③|A4|E2|same",
+      "blocksProviderExecution": false
     },
     {
       "fieldId": "duplicatePolicy",
-      "status": "absent",
-      "value": null,
+      "status": "present",
+      "value": "duplicates rejected; retry replacement requires explicit supersession",
+      "blocksProviderExecution": false
+    },
+    {
+      "fieldId": "resultOutputPolicy",
+      "status": "present",
+      "value": "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+      "blocksProviderExecution": false
+    },
+    {
+      "fieldId": "postflightUsageAccountingPolicy",
+      "status": "present",
+      "value": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+      "blocksProviderExecution": false
+    },
+    {
+      "fieldId": "providerCallEnablement",
+      "status": "disabled_by_this_story",
+      "value": false,
       "blocksProviderExecution": true
     }
   ],
   "snapshotMetadata": {
-    "datedExecutorSnapshot": {
-      "status": "absent",
-      "value": null,
+    "datedExecutorTargetSnapshot": {
+      "status": "present",
+      "value": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotDate": "2026-07-05",
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
       "hostLabelAccepted": false,
-      "blocksProviderExecution": true
+      "providerRunMetadataPresent": false,
+      "blocksProviderExecution": false
     },
-    "datedReviewerSnapshot": {
-      "status": "absent",
-      "value": null,
+    "datedReviewerTargetSnapshot": {
+      "status": "present",
+      "value": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+      "snapshotDate": "2026-07-05",
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
       "hostLabelAccepted": false,
-      "blocksProviderExecution": true
+      "providerRunMetadataPresent": false,
+      "blocksProviderExecution": false
     }
   },
   "runnerOwnershipGuard": {
-    "ownershipRecorded": false,
+    "ownershipRecorded": true,
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "ownershipKey": "③|A4|E2|same",
     "duplicateOwnershipAllowed": false,
     "extraOwnershipAllowed": false,
     "expectedRunnerIds": [
-      "m2-future-cell-03-e2-a4-same",
-      "m2-future-cell-06-e2-a2prime",
-      "m2-future-cell-02-e1-a4-cross",
-      "m2-future-cell-04-e2-a4-cross"
+      "m2-future-cell-03-e2-a4-same"
     ]
   },
   "sequencing": {
     "nextPermittedFormalStep": "cell-03-calibration",
-    "nextPermittedFormalStepMode": "planning_only",
+    "nextPermittedFormalStepMode": "authorization_ready_execution_not_run",
     "cell03Calibration": {
       "cellNumber": "03",
       "protocolCellNumber": "③",
       "arm": "A4",
       "executorFamily": "E2",
       "reviewerFamily": "same",
-      "status": "guardrail_recorded_not_authorized",
+      "status": "authorization_ready_execution_not_run",
       "providerExecutionAllowed": false,
       "executionEvidencePresent": false,
-      "exactSpendApprovalPresent": false
+      "executionEnvelopeFrozen": true
     },
     "cell06A2primeGate": {
       "state": "cell-06-a2prime-blocked",
@@ -171,8 +201,9 @@
       "reviewerFamily": "not_applicable",
       "blocked": true,
       "executionAllowed": false,
-      "blockedUntil": "real cell-03-derived budget lock exists",
-      "matchingRealBudgetLockPresent": false
+      "blockedUntil": "real cell-03-derived budget/usage lock exists after execution",
+      "matchingRealBudgetLockPresent": false,
+      "matchingRealUsageLockPresent": false
     }
   },
   "hostModelSeparation": {
@@ -186,8 +217,8 @@
       "agy"
     ],
     "snapshotFields": [
-      "datedExecutorSnapshot",
-      "datedReviewerSnapshot"
+      "datedExecutorTargetSnapshot",
+      "datedReviewerTargetSnapshot"
     ],
     "statement": "Host labels may identify where Cell 03 would be launched, but they do not satisfy dated provider snapshot metadata."
   },

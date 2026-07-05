@@ -56,6 +56,19 @@
     "cellKeyFamilyFormat": "cellNumber|arm|{taskId}|{scenarioSlot}|{repeatSlot}|executorFamily|reviewerFamily",
     "duplicateOwnershipPolicy": "one runner owner per cell key family; duplicate rows require pre-registered duplicate handling in the future execution story"
   },
+  "cell03ExecutionEnvelopeBinding": {
+    "storyId": "B-6529",
+    "status": "authorization_ready_execution_not_run",
+    "artifactRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "cellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "plannedRows": 1152,
+    "providerCallEnabled": false,
+    "eligibleForResultRows": false
+  },
   "dimensions": {
     "taskDirectories": 24,
     "scenarioSlots": 16,
@@ -82,7 +95,8 @@
       "rows": 1152,
       "runnerId": "m2-future-cell-03-e2-a4-same",
       "cellKeyFamily": "③|A4|{taskId}|{scenarioSlot}|{repeatSlot}|E2|same",
-      "executionStatus": "pending_provider_execution_authorization",
+      "executionStatus": "authorization_ready_execution_not_run",
+      "executionEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
       "providerExecutionAllowedInM2": false,
       "isA4CalibrationSource": true
     },

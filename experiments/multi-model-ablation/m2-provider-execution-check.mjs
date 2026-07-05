@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,42 +11,20 @@ const CHECKER_RESEARCH_BOUNDARY = Object.freeze({
   productGateImpact: "none",
 });
 
-const REQUIRED_AUTHORIZATION_FIELDS = Object.freeze([
-  "humanApproval",
-  "datedExecutorSnapshot",
-  "datedReviewerSnapshot",
-  "promptDigest",
-  "toolSurfaceDigest",
-  "runnerOwnership",
-  "budgetCap",
-  "duplicatePolicy",
-]);
-
-const CELL03_GUARDRAIL_ARTIFACT_REF =
-  "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json";
-const REQUIRED_CELL03_BUDGET_APPROVAL_FIELDS = Object.freeze([
-  "amount",
-  "currency",
-  "approvalSource",
-  "approvedBy",
-  "approvalDate",
-]);
-const REQUIRED_CELL03_METADATA_FIELDS = Object.freeze([
-  "humanApprovalExactBudget",
-  "datedExecutorSnapshot",
-  "datedReviewerSnapshot",
-  "promptDigest",
-  "toolSurfaceDigest",
-  "runnerOwnership",
-  "duplicatePolicy",
-]);
-
 const HOST_LABELS = Object.freeze([
   "Codex CLI",
   "Codex App",
   "Claude Code CLI",
   "Antigravity CLI",
   "agy",
+]);
+
+const FORBIDDEN_BUDGET_GATE_KEYS = Object.freeze([
+  "budgetcap",
+  "exactbudgetapproval",
+  "exactbudgetapprovalstatus",
+  "requiresexactnonzerobudgetapproval",
+  "requiredapprovalfields",
 ]);
 
 const FORBIDDEN_RECORDS_FILE = "records-multi-model-ablation.jsonl";
@@ -69,69 +48,33 @@ const FORBIDDEN_RECORD_PATH_KEYS = Object.freeze([
   "phase1resultspath",
   "phase2resultspath",
 ]);
-const PROVIDER_LAUNCH_RUNNER_BINDINGS = Object.freeze([
-  Object.freeze({
-    runnerId: "m2-future-cell-03-e2-a4-same",
-    cellNumber: "03",
-    protocolCellNumber: "③",
-    arm: "A4",
-    providerModelFamily: "E2",
-    reviewerFamily: "same",
-    reviewerSnapshotFamily: "E2",
-    phase1Status: "required",
-    requiredForLaunchReadiness: true,
-    optional: false,
-  }),
-  Object.freeze({
-    runnerId: "m2-future-cell-06-e2-a2prime",
-    cellNumber: "06",
-    protocolCellNumber: "⑥",
-    arm: "A2prime",
-    providerModelFamily: "E2",
-    reviewerFamily: "not_applicable",
-    reviewerSnapshotFamily: "not_applicable",
-    phase1Status: "required",
-    requiredForLaunchReadiness: true,
-    optional: false,
-  }),
-  Object.freeze({
-    runnerId: "m2-future-cell-02-e1-a4-cross",
-    cellNumber: "02",
-    protocolCellNumber: "②",
-    arm: "A4",
-    providerModelFamily: "E1",
-    reviewerFamily: "cross",
-    reviewerSnapshotFamily: "E2",
-    phase1Status: "required",
-    requiredForLaunchReadiness: true,
-    optional: false,
-  }),
-  Object.freeze({
-    runnerId: "m2-future-cell-04-e2-a4-cross",
-    cellNumber: "04",
-    protocolCellNumber: "④",
-    arm: "A4",
-    providerModelFamily: "E2",
-    reviewerFamily: "cross",
-    reviewerSnapshotFamily: "E1",
-    phase1Status: "optional_budget_permitting",
-    requiredForLaunchReadiness: false,
-    optional: true,
-  }),
-]);
+
+const EXPECTED_PROMPT_DIGEST = "sha256:b1f7c70a48cf2f2c12b99bedb0f0d4259bfe334276ebf27cd1164903d33a5fa6";
+const EXPECTED_TOOL_SURFACE_DIGEST =
+  "sha256:c42696e2c4b36d0d1a85656000a0fc63bc5aee7158361a1f4da1279afc50beb9";
+const CELL03_ENVELOPE_REF = "experiments/multi-model-ablation/m2-cell03-execution-envelope.json";
+const CELL03_USAGE_POLICY_REF =
+  "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json";
+const CELL03_RESULT_POLICY_REF =
+  "experiments/multi-model-ablation/m2-cell03-result-write-policy.json";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, "..", "..");
 
 const paths = Object.freeze({
   m2LaunchReadiness: "m2-launch-readiness.json",
   snapshots: "model-snapshot-lock.m2.json",
-  inventory: "task-inventory.m2.json",
   runnerManifest: "phase1-runner-manifest.m2.json",
   phase1Readiness: "phase1-launch-readiness.m2.json",
   providerLaunch: "m2-provider-execution-launch.json",
   providerAuthorization: "m2-provider-execution-authorization.json",
   cell03LaunchGuardrail: "m2-cell03-provider-launch-authorization.json",
+  cell03Envelope: "m2-cell03-execution-envelope.json",
+  usagePolicy: "m2-cell03-usage-accounting-policy.json",
+  prompt: "m2-cell03-execution-prompt.md",
+  toolSurface: "m2-cell03-tool-surface.json",
+  resultWritePolicy: "m2-cell03-result-write-policy.json",
   status: "m2-status.md",
 });
 
@@ -159,18 +102,22 @@ function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function byId(entries, key) {
-  return new Map((entries || []).map((entry) => [entry[key], entry]));
+function sha256Text(text) {
+  return `sha256:${crypto.createHash("sha256").update(text).digest("hex")}`;
 }
 
 function normalizeKey(key) {
   return String(key).replace(/[^a-z0-9]/gi, "").toLowerCase();
 }
 
+function byId(entries, key) {
+  return new Map((entries || []).map((entry) => [entry[key], entry]));
+}
+
 function isHostLabel(value) {
   if (typeof value !== "string") return false;
   const normalized = value.trim().toLowerCase();
-  return HOST_LABELS.some((label) => label.toLowerCase() === normalized) || /\b(cli|host|adapter)\b/i.test(value);
+  return HOST_LABELS.some((label) => label.toLowerCase() === normalized) || /\b(cli|host|adapter|app)\b/i.test(value);
 }
 
 function assertBoundary(doc, name) {
@@ -218,658 +165,393 @@ function assertNoRecordsFileExists() {
   );
 }
 
-function assertMissingAuthorizationField(field) {
-  assert(field && typeof field === "object", "authorization field entry missing");
-  assert(field.status === "missing", `${field.fieldId} must remain missing in disabled launch state`);
-  assert(field.value === null, `${field.fieldId} value must remain null in disabled launch state`);
-  assert(field.blocksProviderExecution === true, `${field.fieldId} must block provider execution`);
-}
-
-function assertBlockedAbsentMetadataField(field, label, allowedStatuses = ["absent"]) {
-  assert(field && typeof field === "object", `${label} field entry missing`);
-  assert(allowedStatuses.includes(field.status), `${label} must remain absent or pending`);
-  assert(field.value === null, `${label} value must remain null`);
-  assert(field.blocksProviderExecution === true, `${label} must block provider execution`);
-}
-
-function assertSnapshotValueIsNotHostLabel(value, label) {
-  if (value === null || value === undefined) return;
-  assert(typeof value === "string", `${label} must be a string when present`);
-  assert(!isHostLabel(value), `${label} must not be a host label`);
-}
-
-function mapByRequiredId(entries, key, label) {
-  assert(Array.isArray(entries), `${label} must be an array`);
-  const mapped = new Map();
-  entries.forEach((entry, index) => {
-    assert(entry && typeof entry === "object", `${label}[${index}] missing entry`);
-    const id = entry[key];
-    assert(typeof id === "string" && id.length > 0, `${label}[${index}] missing ${key}`);
-    assert(!mapped.has(id), `${label} duplicate ${key}: ${id}`);
-    mapped.set(id, entry);
-  });
-  return mapped;
-}
-
-function assertOptionalFieldMatches(entry, field, expected, label) {
-  if (!Object.prototype.hasOwnProperty.call(entry, field)) return;
-  assert(entry[field] === expected, `${label} ${field} mismatch`);
-}
-
-function assertManifestCellMatchesBinding(cell, binding, label) {
-  assert(cell.cellNumber === binding.protocolCellNumber, `${label} manifest cellNumber mismatch`);
-  assert(cell.arm === binding.arm, `${label} manifest arm mismatch`);
-  assert(cell.executorFamily === binding.providerModelFamily, `${label} manifest executorFamily mismatch`);
-  assert(cell.reviewerFamily === binding.reviewerFamily, `${label} manifest reviewerFamily mismatch`);
-  assert(cell.phase1Status === binding.phase1Status, `${label} manifest phase1Status mismatch`);
-  assert(
-    cell.requiredForLaunchReadiness === binding.requiredForLaunchReadiness,
-    `${label} manifest requiredForLaunchReadiness mismatch`,
-  );
-  assert(cell.providerExecutionAllowedInM2 === false, `${label} manifest provider execution must stay disabled`);
-  assert(
-    cell.cellKeyFamily ===
-      `${binding.protocolCellNumber}|${binding.arm}|{taskId}|{scenarioSlot}|{repeatSlot}|${binding.providerModelFamily}|${binding.reviewerFamily}`,
-    `${label} manifest cellKeyFamily mismatch`,
-  );
-
-  const m1Binding = cell.m1CellMatrixBinding || {};
-  assert(m1Binding.cellNumber === binding.protocolCellNumber, `${label} M1 cell binding number mismatch`);
-  assert(m1Binding.arm === binding.arm, `${label} M1 cell binding arm mismatch`);
-  assert(m1Binding.executorFamily === binding.providerModelFamily, `${label} M1 cell binding executorFamily mismatch`);
-  assert(m1Binding.reviewerFamily === binding.reviewerFamily, `${label} M1 cell binding reviewerFamily mismatch`);
-  assert(m1Binding.providerExecutionAllowedInM1 === false, `${label} M1 cell binding provider execution must stay disabled`);
-}
-
-function validateProviderLaunchRunnerBindings(launch, runnerManifest) {
-  const expectedByRunnerId = new Map(PROVIDER_LAUNCH_RUNNER_BINDINGS.map((binding) => [binding.runnerId, binding]));
-  const expectedByProtocolCellNumber = new Map(
-    PROVIDER_LAUNCH_RUNNER_BINDINGS.map((binding) => [binding.protocolCellNumber, binding]),
-  );
-  const expectedOwnershipKeys = new Set(
-    PROVIDER_LAUNCH_RUNNER_BINDINGS.map(
-      (binding) => `${binding.protocolCellNumber}|${binding.arm}|${binding.providerModelFamily}|${binding.reviewerFamily}`,
-    ),
-  );
-  const launchRunnerById = mapByRequiredId(
-    launch.runnerAuthorization?.runners,
-    "runnerId",
-    "provider launch runnerAuthorization.runners",
-  );
-  const manifestRunnerById = mapByRequiredId(runnerManifest.runners, "runnerId", "phase1 runner manifest runners");
-  const manifestCellByRunnerId = mapByRequiredId(
-    runnerManifest.phase1Cells,
-    "runnerId",
-    "phase1 runner manifest phase1Cells",
-  );
-  const ownershipByRunnerId = mapByRequiredId(
-    runnerManifest.cellOwnership,
-    "runnerId",
-    "phase1 runner manifest cellOwnership",
-  );
-  const ownershipByKey = mapByRequiredId(
-    runnerManifest.cellOwnership,
-    "ownershipKey",
-    "phase1 runner manifest cellOwnership",
-  );
-
-  for (const binding of PROVIDER_LAUNCH_RUNNER_BINDINGS) {
-    assert(launchRunnerById.has(binding.runnerId), `provider launch missing runner ${binding.runnerId}`);
-    assert(manifestRunnerById.has(binding.runnerId), `phase1 manifest missing runner ${binding.runnerId}`);
-    assert(manifestCellByRunnerId.has(binding.runnerId), `phase1 manifest missing cell for runner ${binding.runnerId}`);
-    assert(ownershipByRunnerId.has(binding.runnerId), `phase1 manifest missing ownership for runner ${binding.runnerId}`);
+function assertNoOldBudgetGateKeys(value, location = "document") {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoOldBudgetGateKeys(item, `${location}[${index}]`));
+    return;
   }
-  for (const runnerId of launchRunnerById.keys()) {
-    assert(expectedByRunnerId.has(runnerId), `provider launch has extra runner ${runnerId}`);
-  }
-  for (const runnerId of manifestRunnerById.keys()) {
-    assert(expectedByRunnerId.has(runnerId), `phase1 manifest has extra runner ${runnerId}`);
-  }
-  for (const runnerId of manifestCellByRunnerId.keys()) {
-    assert(expectedByRunnerId.has(runnerId), `phase1 manifest has extra cell runner ${runnerId}`);
-  }
-  for (const runnerId of ownershipByRunnerId.keys()) {
-    assert(expectedByRunnerId.has(runnerId), `phase1 manifest has extra ownership runner ${runnerId}`);
-  }
-  for (const ownershipKey of ownershipByKey.keys()) {
-    assert(expectedOwnershipKeys.has(ownershipKey), `phase1 manifest has extra ownership key ${ownershipKey}`);
-  }
-  assert(
-    launchRunnerById.size === expectedByRunnerId.size,
-    "provider launch runner count must match phase1 manifest bindings",
-  );
-  assert(manifestRunnerById.size === expectedByRunnerId.size, "phase1 manifest runner count must match launch bindings");
-  assert(manifestCellByRunnerId.size === expectedByRunnerId.size, "phase1 manifest cell count must match launch bindings");
-  assert(ownershipByRunnerId.size === expectedByRunnerId.size, "phase1 manifest ownership count must match launch bindings");
-
-  for (const binding of PROVIDER_LAUNCH_RUNNER_BINDINGS) {
-    const label = `cell ${binding.cellNumber} runner ${binding.runnerId}`;
-    const launchRunner = launchRunnerById.get(binding.runnerId);
-    const manifestRunner = manifestRunnerById.get(binding.runnerId);
-    const manifestCell = manifestCellByRunnerId.get(binding.runnerId);
-    const ownership = ownershipByRunnerId.get(binding.runnerId);
-
-    assert(launchRunner.cellNumber === binding.cellNumber, `${label} launch cellNumber mismatch`);
-    assert(launchRunner.protocolCellNumber === binding.protocolCellNumber, `${label} launch protocolCellNumber mismatch`);
-    assert(launchRunner.providerCallEnabled === false, `${label} launch provider calls must stay disabled`);
-    assert(launchRunner.eligibleForResultRows === false, `${label} launch result rows must stay disabled`);
-    if (binding.optional) {
-      assert(launchRunner.optional === true, `${label} launch optional flag mismatch`);
-    } else {
-      assert(launchRunner.optional !== true, `${label} launch optional flag mismatch`);
+  if (!value || typeof value !== "object") return;
+  for (const [key, child] of Object.entries(value)) {
+    const normalizedKey = normalizeKey(key);
+    assert(!FORBIDDEN_BUDGET_GATE_KEYS.includes(normalizedKey), `${location} contains old budget gate key ${key}`);
+    if (normalizedKey === "fieldid") {
+      const normalizedValue = normalizeKey(child);
+      assert(!FORBIDDEN_BUDGET_GATE_KEYS.includes(normalizedValue), `${location} contains old budget gate field ${child}`);
     }
-    assertOptionalFieldMatches(launchRunner, "arm", binding.arm, label);
-    assertOptionalFieldMatches(launchRunner, "providerModelFamily", binding.providerModelFamily, label);
-    assertOptionalFieldMatches(launchRunner, "executorFamily", binding.providerModelFamily, label);
-    assertOptionalFieldMatches(launchRunner, "reviewerFamily", binding.reviewerFamily, label);
-
-    assertManifestCellMatchesBinding(manifestCell, binding, label);
-    assert(manifestRunner.providerModelFamily === binding.providerModelFamily, `${label} providerModelFamily mismatch`);
-    assert(manifestRunner.executorSnapshotFamily === binding.providerModelFamily, `${label} executorSnapshotFamily mismatch`);
-    assert(
-      manifestRunner.reviewerSnapshotFamily === binding.reviewerSnapshotFamily,
-      `${label} reviewerSnapshotFamily mismatch`,
-    );
-    assert(manifestRunner.providerCallEnabled === false, `${label} manifest provider calls must stay disabled`);
-    assert(manifestRunner.eligibleForResultRows === false, `${label} manifest result rows must stay disabled`);
-
-    assert(ownership.cellNumber === binding.protocolCellNumber, `${label} ownership cellNumber mismatch`);
-    assert(
-      ownership.ownershipKey ===
-        `${binding.protocolCellNumber}|${binding.arm}|${binding.providerModelFamily}|${binding.reviewerFamily}`,
-      `${label} ownershipKey mismatch`,
-    );
-    assert(ownership.duplicateOwnershipAllowed === false, `${label} duplicate ownership must stay disabled`);
+    assertNoOldBudgetGateKeys(child, `${location}.${key}`);
   }
-
-  const cell03 = expectedByProtocolCellNumber.get("③");
-  const launchCell03 = launch.sequencing?.cell03Calibration || {};
-  assert(launchCell03.cellNumber === cell03.cellNumber, "cell 03 sequencing cellNumber mismatch");
-  assert(launchCell03.protocolCellNumber === cell03.protocolCellNumber, "cell 03 sequencing protocolCellNumber mismatch");
-  assert(launchCell03.arm === cell03.arm, "cell 03 sequencing arm mismatch");
-  assert(launchCell03.executorFamily === cell03.providerModelFamily, "cell 03 sequencing executorFamily mismatch");
-  assert(launchCell03.reviewerFamily === cell03.reviewerFamily, "cell 03 sequencing reviewerFamily mismatch");
-
-  const cell06 = expectedByProtocolCellNumber.get("⑥");
-  const launchCell06 = launch.sequencing?.cell06A2primeGate || {};
-  assert(launchCell06.cellNumber === cell06.cellNumber, "cell 06 sequencing cellNumber mismatch");
-  assert(launchCell06.protocolCellNumber === cell06.protocolCellNumber, "cell 06 sequencing protocolCellNumber mismatch");
-  assert(launchCell06.arm === cell06.arm, "cell 06 sequencing arm mismatch");
-  assert(launchCell06.executorFamily === cell06.providerModelFamily, "cell 06 sequencing executorFamily mismatch");
-  assert(launchCell06.reviewerFamily === cell06.reviewerFamily, "cell 06 sequencing reviewerFamily mismatch");
 }
 
-function validateProviderLaunch(launch) {
+function assertNoEnabledProviderCalls(value, location = "document") {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoEnabledProviderCalls(item, `${location}[${index}]`));
+    return;
+  }
+  if (!value || typeof value !== "object") return;
+  for (const [key, child] of Object.entries(value)) {
+    const normalizedKey = normalizeKey(key);
+    if (
+      [
+        "providercallenabled",
+        "providerexecutionauthorized",
+        "formalphase1useallowed",
+        "phase1campaignauthorized",
+        "phase2campaignauthorized",
+        "providerspendallowed",
+      ].includes(normalizedKey)
+    ) {
+      assert(child === false, `${location}.${key} must remain false`);
+    }
+    assertNoEnabledProviderCalls(child, `${location}.${key}`);
+  }
+}
+
+function assertHostLabelsRejected(doc, location) {
+  assert(doc.hostModelSeparation?.hostLabelOnlySnapshotsAccepted === false, `${location} must reject host-label snapshots`);
+  for (const label of HOST_LABELS) {
+    assert(
+      doc.hostModelSeparation?.hostLabelsRejectedAsSnapshots?.includes(label),
+      `${location} must reject host label as snapshot: ${label}`,
+    );
+  }
+}
+
+function assertTargetSnapshot(snapshot, label) {
+  assert(snapshot?.familyId === "E2", `${label} must target E2`);
+  assert(snapshot.providerFamily === "OpenAI GPT", `${label} provider family mismatch`);
+  assert(snapshot.snapshotId === "openai-gpt-family-readiness-2026-07-05", `${label} snapshot id mismatch`);
+  assert(snapshot.hostLabelAccepted === false, `${label} must reject host labels`);
+  assert(snapshot.providerRunMetadataPresent === false, `${label} must not claim provider run metadata`);
+  for (const value of [snapshot.providerFamily, snapshot.snapshotId]) {
+    assert(!isHostLabel(value), `${label} must not be a host label`);
+  }
+}
+
+function validateEnvelope(envelope, promptText, toolSurfaceText) {
+  assert(envelope.artifact === "m2-cell03-execution-envelope", "Cell 03 envelope artifact mismatch");
+  assert(envelope.storyId === "B-6529", "Cell 03 envelope storyId must be B-6529");
+  assert(envelope.status === "authorization_ready_execution_not_run", "Cell 03 envelope status mismatch");
+  assertBoundary(envelope, "Cell 03 execution envelope");
+  assert(envelope.executionState?.envelopeFrozen === true, "Cell 03 execution envelope must be frozen");
+  assert(envelope.executionState?.providerExecutionAuthorized === false, "envelope must not authorize provider execution");
+  assert(envelope.executionState?.providerCallEnabled === false, "envelope must keep provider calls disabled");
+  assert(envelope.executionState?.formalPhase1UseAllowed === false, "envelope must keep formal Phase 1 disabled");
+  assert(envelope.executionState?.providerCallsFromThisStory === "disabled", "provider calls from this story must be disabled");
+
+  const scope = envelope.cellScope || {};
+  assert(scope.cellNumber === "03", "envelope cell number mismatch");
+  assert(scope.protocolCellNumber === "③", "envelope protocol cell mismatch");
+  assert(scope.arm === "A4", "envelope arm mismatch");
+  assert(scope.executorFamily === "E2", "envelope executor family mismatch");
+  assert(scope.reviewerFamily === "same", "envelope reviewer family mismatch");
+  assert(scope.runnerId === "m2-future-cell-03-e2-a4-same", "envelope runner mismatch");
+  assert(scope.taskCount === 24, "envelope task count must be 24");
+  assert(scope.scenarioSlots === 16, "envelope scenario slots must be 16");
+  assert(scope.repeatSlots === 3, "envelope repeat slots must be 3");
+  assert(scope.plannedRows === 1152, "envelope planned rows must be 1152");
+  for (const excluded of ["02", "04", "06", "Phase 2"]) {
+    assert(scope.otherCellsExcluded?.includes(excluded), `envelope must exclude ${excluded}`);
+  }
+
+  const limits = envelope.limits || {};
+  assert(limits.maxProviderCalls === 1152, "envelope max provider calls must be bounded to 1152");
+  assert(limits.maxAttemptsPerCellKey === 2, "envelope max attempts per cell key mismatch");
+  assert(limits.maxRetriesPerCellKey === 1, "envelope max retries per cell key mismatch");
+  assert(limits.maxWallClockHours === 24, "envelope wall-clock bound mismatch");
+  assert(limits.maxInputTokensPerAttempt === 12000, "envelope input token bound mismatch");
+  assert(limits.maxOutputTokensPerAttempt === 6000, "envelope output token bound mismatch");
+  assert(limits.maxTotalOutputRows === 1152, "envelope output row bound mismatch");
+  assert(limits.preRunDollarGuessRequired === false, "pre-run dollar guess must not be required");
+  assert(limits.preRunDollarCapRequired === false, "pre-run dollar cap must not be required");
+  assert(limits.preRunDollarAmount === null, "pre-run dollar amount must stay null");
+
+  for (const phrase of [
+    "providerCallEnabled is false",
+    "provider fallback occurs",
+    "host label",
+    "provider-reported usage",
+  ]) {
+    assert(
+      (envelope.stopConditions || []).some((condition) => condition.includes(phrase)),
+      `envelope missing stop condition containing ${phrase}`,
+    );
+  }
+
+  assert(envelope.targetSnapshots?.hostLabelOnlySnapshotsAccepted === false, "target snapshots must reject host labels");
+  assertTargetSnapshot(envelope.targetSnapshots?.executorTargetSnapshot, "envelope executor target snapshot");
+  assertTargetSnapshot(envelope.targetSnapshots?.reviewerTargetSnapshot, "envelope reviewer target snapshot");
+
+  assert(envelope.promptArtifact?.path === "experiments/multi-model-ablation/m2-cell03-execution-prompt.md", "prompt path mismatch");
+  assert(envelope.promptArtifact?.sha256 === EXPECTED_PROMPT_DIGEST, "prompt digest mismatch in envelope");
+  assert(envelope.promptArtifact?.sha256 === sha256Text(promptText), "prompt digest must match file bytes");
+  assert(envelope.toolSurfaceArtifact?.path === "experiments/multi-model-ablation/m2-cell03-tool-surface.json", "tool path mismatch");
+  assert(envelope.toolSurfaceArtifact?.sha256 === EXPECTED_TOOL_SURFACE_DIGEST, "tool-surface digest mismatch in envelope");
+  assert(envelope.toolSurfaceArtifact?.sha256 === sha256Text(toolSurfaceText), "tool-surface digest must match file bytes");
+
+  assert(envelope.usageAccountingPolicyRef === CELL03_USAGE_POLICY_REF, "usage accounting policy ref mismatch");
+  assert(envelope.resultWritePolicyRef === CELL03_RESULT_POLICY_REF, "result write policy ref mismatch");
+  assert(envelope.runnerOwnership?.ownerRecorded === true, "runner ownership must be recorded");
+  assert(envelope.runnerOwnership?.runnerId === "m2-future-cell-03-e2-a4-same", "runner ownership id mismatch");
+  assert(envelope.runnerOwnership?.ownershipKey === "③|A4|E2|same", "runner ownership key mismatch");
+  assert(envelope.runnerOwnership?.duplicateOwnershipAllowed === false, "duplicate ownership must be rejected");
+  assert(envelope.duplicatePolicy?.duplicateCellKeysAllowed === false, "duplicate cell keys must be rejected");
+  assert(envelope.postflightUsageAccounting?.providerReportedUsageRequiredAfterExecution === true, "postflight provider usage must be required");
+  assert(envelope.postflightUsageAccounting?.estimateUse === "diagnostic_only", "estimate use must be diagnostic only");
+  assert(envelope.postflightUsageAccounting?.estimateMayBeFinalUsage === false, "estimate must not be final usage");
+  assert(envelope.postflightUsageAccounting?.estimateMayGateLaunch === false, "estimate must not gate launch");
+  assertCell06Blocked(envelope.cell06A2primeGate, "envelope Cell 06 gate");
+}
+
+function assertCell06Blocked(gate, label) {
+  assert(gate?.state === "cell-06-a2prime-blocked", `${label} state mismatch`);
+  assert(gate.blocked === true, `${label} must be blocked`);
+  assert(gate.executionAllowed === false, `${label} execution must be disabled`);
+  assert(gate.matchingRealBudgetLockPresent !== true, `${label} must not claim a real budget lock`);
+  assert(gate.matchingRealUsageLockPresent !== true, `${label} must not claim a real usage lock`);
+}
+
+function validateUsagePolicy(policy) {
+  assert(policy.artifact === "m2-cell03-usage-accounting-policy", "usage policy artifact mismatch");
+  assert(policy.storyId === "B-6529", "usage policy storyId mismatch");
+  assert(policy.status === "postflight_provider_reported_usage_required", "usage policy status mismatch");
+  assert(policy.appliesToEnvelopeRef === CELL03_ENVELOPE_REF, "usage policy envelope ref mismatch");
+  assert(policy.providerCallEnabled === false, "usage policy provider calls must be disabled");
+  assert(policy.preRunDollarGuessRequired === false, "usage policy must not require a pre-run dollar guess");
+  assert(policy.preRunDollarCapAsLaunchGate === false, "usage policy must not use a dollar cap as launch gate");
+  const accounting = policy.postflightUsageAccounting || {};
+  assert(accounting.requiredAfterFutureExecution === true, "postflight usage must be required");
+  assert(accounting.finalUsageSource === "provider_reported_usage", "final usage source must be provider reported");
+  assert(accounting.providerReportedUsageRequired === true, "provider-reported usage must be required");
+  assert(accounting.estimateUse === "diagnostic_only", "estimate must be diagnostic only");
+  assert(accounting.estimateMayBeFinalUsage === false, "estimate must not be final usage");
+  assert(accounting.estimateMayGateLaunch === false, "estimate must not gate launch");
+  assert(policy.cell06Dependency?.blocked === true, "usage policy must keep Cell 06 blocked");
+  assert(policy.cell06Dependency?.matchingRealBudgetOrUsageLockPresent === false, "usage policy must not claim Cell 06 lock");
+}
+
+function validateResultPolicy(policy) {
+  assert(policy.artifact === "m2-cell03-result-write-policy", "result write policy artifact mismatch");
+  assert(policy.storyId === "B-6529", "result write policy storyId mismatch");
+  assert(policy.appliesToEnvelopeRef === CELL03_ENVELOPE_REF, "result write policy envelope ref mismatch");
+  assert(policy.providerCallEnabled === false, "result write policy provider calls must be disabled");
+  assert(policy.resultRowsAllowedInThisStory === false, "result rows must not be allowed in this story");
+  assert(policy.outcomeRecordsAllowedInThisStory === false, "outcome records must not be allowed in this story");
+  assert(policy.futureResultOutputPolicy?.rowCountExpectedAfterFutureExecution === 1152, "future result row count mismatch");
+  assert(policy.futureResultOutputPolicy?.mustIncludeProviderReportedUsage === true, "future rows must include provider usage");
+  assert(policy.duplicatePolicy?.duplicateCellKeysAllowed === false, "result write duplicate cell keys must be rejected");
+}
+
+function validateToolSurface(toolSurface) {
+  assert(toolSurface.artifact === "m2-cell03-tool-surface", "tool surface artifact mismatch");
+  assert(toolSurface.storyId === "B-6529", "tool surface storyId mismatch");
+  assert(toolSurface.status === "frozen_execution_not_run", "tool surface status mismatch");
+  assert(toolSurface.appliesToEnvelopeRef === CELL03_ENVELOPE_REF, "tool surface envelope ref mismatch");
+  assert(toolSurface.providerCallsFromThisStory === "disabled", "tool surface must disable provider calls from this story");
+  assert(toolSurface.providerCallEnabled === false, "tool surface provider calls must be disabled");
+  assert(toolSurface.formalPhase1UseAllowed === false, "tool surface formal Phase 1 use must be disabled");
+  assert(toolSurface.toolSurface?.futureProviderInvocation?.allowedOnlyAfterSeparateExecutionAuthorization === true, "future provider invocation must require separate authorization");
+  assert(toolSurface.toolSurface?.futureProviderInvocation?.runnerId === "m2-future-cell-03-e2-a4-same", "tool surface runner mismatch");
+  assert(toolSurface.toolSurface?.writePolicyRef === CELL03_RESULT_POLICY_REF, "tool surface write policy ref mismatch");
+  assert((toolSurface.toolSurface?.forbiddenInThisStory || []).includes("provider API calls"), "tool surface must forbid provider API calls in this story");
+  assertHostLabelsRejected(toolSurface, "tool surface");
+}
+
+function validateProviderLaunch(launch, envelope) {
   assert(launch.artifact === "m2-provider-execution-launch", "provider launch artifact mismatch");
-  assert(launch.storyId === "B-785e", "provider launch storyId must be B-785e");
-  assertBoundary(launch, "m2 provider execution launch");
+  assert(launch.storyId === "B-6529", "provider launch storyId mismatch");
+  assert(launch.status === "authorization_ready_execution_not_run", "provider launch status mismatch");
+  assertBoundary(launch, "provider launch");
+  assert(launch.launchState?.mode === "authorization_ready_execution_not_run", "provider launch mode mismatch");
+  assert(launch.launchState?.cell03ExecutionEnvelopeFrozen === true, "provider launch must freeze Cell 03 envelope");
+  assert(launch.authorization?.allRequiredMetadataPresent === true, "provider launch metadata must be ready");
+  assert(launch.authorization?.preRunDollarGuessRequired === false, "provider launch must not require a pre-run dollar guess");
+  assert(launch.authorization?.preRunDollarCapAsSoleGateAllowed === false, "provider launch must reject dollar cap as sole gate");
+  assert(launch.authorization?.providerCallsFromThisAuthorizationStory === "disabled", "provider calls from this story must be disabled");
 
-  assert(launch.launchState?.mode === "planning_only", "provider launch must remain planning-only");
-  assert(launch.launchState?.defaultProviderExecutionState === "disabled", "provider execution must be disabled by default");
-  assert(launch.providerExecutionAuthorized !== true, "top-level provider execution must not be accidentally authorized");
-  assert(launch.launchState?.providerExecutionAuthorized === false, "providerExecutionAuthorized must be false");
-  assert(launch.authorization?.providerExecutionAuthorized === false, "authorization providerExecutionAuthorized must be false");
-  assert(launch.launchState?.providerCallEnabled === false, "provider calls must remain disabled");
-  assert(launch.launchState?.formalPhase1UseAllowed === false, "formal Phase 1 use must remain disabled");
-  assert(launch.launchState?.phase1CampaignAuthorized === false, "Phase 1 campaign must not be authorized");
-  assert(launch.launchState?.phase2CampaignAuthorized === false, "Phase 2 campaign must not be authorized");
-  assert(launch.launchState?.outcomeRecordsPresent === false, "outcome records must remain absent");
-  assert(launch.launchState?.resultRowsPresent === false, "result rows must remain absent");
-  assert(launch.launchState?.productGateImpact === "none", "provider launch must have no product gate impact");
-  assert(launch.authorization?.providerFallbackAllowed === false, "provider fallback must be rejected");
-
-  const required = byId(launch.authorization?.required, "fieldId");
-  for (const fieldId of REQUIRED_AUTHORIZATION_FIELDS) {
-    assert(required.has(fieldId), `provider launch missing authorization field ${fieldId}`);
-    assertMissingAuthorizationField(required.get(fieldId));
+  const fields = byId(launch.authorization?.required, "fieldId");
+  for (const fieldId of [
+    "frozenExecutionEnvelope",
+    "datedExecutorTargetSnapshot",
+    "datedReviewerTargetSnapshot",
+    "promptDigest",
+    "toolSurfaceDigest",
+    "runnerOwnership",
+    "duplicatePolicy",
+    "resultOutputPolicy",
+    "postflightUsageAccountingPolicy",
+    "providerCallEnablement",
+  ]) {
+    assert(fields.has(fieldId), `provider launch missing authorization field ${fieldId}`);
   }
-  assert(launch.authorization?.allRequiredMetadataPresent === false, "required authorization metadata must be incomplete");
+  assert(fields.get("frozenExecutionEnvelope")?.value === CELL03_ENVELOPE_REF, "launch envelope field mismatch");
+  assert(fields.get("promptDigest")?.value === EXPECTED_PROMPT_DIGEST, "launch prompt digest field mismatch");
+  assert(fields.get("toolSurfaceDigest")?.value === EXPECTED_TOOL_SURFACE_DIGEST, "launch tool digest field mismatch");
+  assert(fields.get("providerCallEnablement")?.status === "disabled_by_this_story", "provider call enablement must be disabled");
+  assert(fields.get("providerCallEnablement")?.blocksProviderExecution === true, "provider call enablement must block execution");
 
-  const allRequiredPresent = REQUIRED_AUTHORIZATION_FIELDS.every(
-    (fieldId) => required.get(fieldId)?.status === "present" && required.get(fieldId)?.value,
-  );
-  const providerExecutionRequested =
-    launch.launchState?.providerExecutionAuthorized === true ||
-    launch.authorization?.providerExecutionAuthorized === true ||
-    launch.launchState?.providerCallEnabled === true ||
-    (launch.runnerAuthorization?.runners || []).some((runner) => runner.providerCallEnabled === true);
-  assert(!providerExecutionRequested || allRequiredPresent, "provider execution cannot be authorized without required metadata");
+  assert(launch.executionEnvelope?.recorded === true, "launch must record execution envelope");
+  assert(launch.executionEnvelope?.artifactRef === CELL03_ENVELOPE_REF, "launch execution envelope ref mismatch");
+  assert(launch.executionEnvelope?.taskCount === envelope.cellScope.taskCount, "launch envelope task count mismatch");
+  assert(launch.executionEnvelope?.plannedRows === envelope.cellScope.plannedRows, "launch envelope row count mismatch");
+  assert(launch.executionEnvelope?.promptDigest === EXPECTED_PROMPT_DIGEST, "launch envelope prompt digest mismatch");
+  assert(launch.executionEnvelope?.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, "launch envelope tool digest mismatch");
+  assert(launch.executionEnvelope?.preRunDollarGuessRequired === false, "launch envelope must not require pre-run dollar guess");
+  assert(launch.executionEnvelope?.providerCallEnabled === false, "launch envelope must keep provider calls disabled");
 
-  assert(launch.launchState?.cell03LaunchGuardrailRecorded === true, "Cell 03 launch guardrail must be recorded");
-  const cell03GuardrailRef = launch.guardrails?.cell03ProviderLaunchAuthorization;
-  assert(cell03GuardrailRef && typeof cell03GuardrailRef === "object", "missing Cell 03 launch guardrail reference");
-  assert(cell03GuardrailRef.recorded === true, "Cell 03 launch guardrail reference must be recorded");
-  assert(
-    cell03GuardrailRef.artifactRef === CELL03_GUARDRAIL_ARTIFACT_REF,
-    "Cell 03 launch guardrail artifactRef mismatch",
-  );
-  assert(cell03GuardrailRef.storyId === "B-c25c", "Cell 03 launch guardrail storyId mismatch");
-  assert(
-    cell03GuardrailRef.status === "cell03_launch_guardrail_recorded_exact_budget_approval_absent",
-    "Cell 03 launch guardrail status mismatch",
-  );
-  assert(cell03GuardrailRef.exactBudgetApprovalStatus === "absent", "exact Cell 03 budget approval must be absent");
-  assert(cell03GuardrailRef.providerSpendAllowed === false, "Cell 03 provider spend must remain disabled");
-  assert(cell03GuardrailRef.providerCallEnabled === false, "Cell 03 provider calls must remain disabled");
-  assert(
-    cell03GuardrailRef.requiresExactNonzeroBudgetApproval === true,
-    "Cell 03 must require exact nonzero budget approval",
-  );
-  const approvalFields = cell03GuardrailRef.requiredApprovalFields || [];
-  for (const fieldId of REQUIRED_CELL03_BUDGET_APPROVAL_FIELDS) {
-    assert(approvalFields.includes(fieldId), `Cell 03 launch guardrail reference missing approval field ${fieldId}`);
-  }
+  assert(launch.usageAccounting?.policyRef === CELL03_USAGE_POLICY_REF, "launch usage policy ref mismatch");
+  assert(launch.usageAccounting?.postflightProviderReportedUsageRequired === true, "launch must require postflight usage");
+  assert(launch.usageAccounting?.estimateUse === "diagnostic_only", "launch estimate use must be diagnostic only");
+  assert(launch.usageAccounting?.estimateMayBeFinalUsage === false, "launch estimate must not be final usage");
+  assert(launch.usageAccounting?.estimateMayGateLaunch === false, "launch estimate must not gate launch");
 
-  assert(launch.sequencing?.nextPermittedFormalStep === "cell-03-calibration", "cell 03 must be the next permitted formal step");
-  assert(launch.sequencing?.nextPermittedFormalStepMode === "planning_only", "cell 03 must remain planning-only");
+  const guardrailRef = launch.guardrails?.cell03ProviderLaunchAuthorization || {};
+  assert(guardrailRef.storyId === "B-6529", "Cell 03 guardrail story ref mismatch");
+  assert(guardrailRef.status === "authorization_ready_execution_not_run", "Cell 03 guardrail ref status mismatch");
+  assert(guardrailRef.executionEnvelopeFrozen === true, "Cell 03 guardrail ref must freeze envelope");
+  assert(guardrailRef.preRunDollarGuessRequired === false, "Cell 03 guardrail ref must not require pre-run dollar guess");
+  assert(guardrailRef.postflightProviderReportedUsageRequired === true, "Cell 03 guardrail ref must require postflight usage");
+  assert(launch.sequencing?.nextPermittedFormalStep === "cell-03-calibration", "cell 03 must be next formal step");
+  assert(launch.sequencing?.nextPermittedFormalStepMode === "authorization_ready_execution_not_run", "cell 03 must remain execution-not-run");
+  assert(launch.sequencing?.cell03Calibration?.status === "authorization_ready_execution_not_run", "cell 03 sequencing status mismatch");
   assert(launch.sequencing?.cell03Calibration?.providerExecutionAllowed === false, "cell 03 provider execution must be disabled");
-  assert(launch.sequencing?.cell03Calibration?.executionEvidencePresent === false, "cell 03 must have no execution evidence");
-  assert(launch.sequencing?.realCell03DerivedBudgetLock?.present === false, "real cell-03-derived budget lock must be absent");
-  assert(
-    launch.sequencing?.realCell03DerivedBudgetLock?.m0ExampleBudgetLockAcceptedAsFormalEvidence === false,
-    "M0 example budget lock must not count as formal evidence",
-  );
-  assert(launch.sequencing?.cell06A2primeGate?.state === "cell-06-a2prime-blocked", "cell 06 blocked state mismatch");
-  assert(launch.sequencing?.cell06A2primeGate?.blocked === true, "cell 06 must be blocked");
-  assert(launch.sequencing?.cell06A2primeGate?.executionAllowed === false, "cell 06 execution must be disabled");
-  assert(
-    launch.sequencing?.cell06A2primeGate?.matchingRealBudgetLockPresent === false,
-    "cell 06 must not claim a matching real budget lock",
-  );
+  assert(launch.sequencing?.realCell03DerivedBudgetLock?.present === false, "real Cell 03-derived budget lock must be absent");
+  assertCell06Blocked(launch.sequencing?.cell06A2primeGate, "launch Cell 06 gate");
 
   assert(launch.runnerAuthorization?.providerCallEnabledRunnerCount === 0, "no provider-call enabled runners are allowed");
   assert(launch.runnerAuthorization?.resultRowsEnabledRunnerCount === 0, "no result-row enabled runners are allowed");
   for (const runner of launch.runnerAuthorization?.runners || []) {
-    assert(runner.providerCallEnabled === false, `runner provider calls must be disabled: ${runner.runnerId}`);
-    assert(runner.eligibleForResultRows === false, `runner result rows must be disabled: ${runner.runnerId}`);
-    assertSnapshotValueIsNotHostLabel(runner.executorSnapshot, `${runner.runnerId}.executorSnapshot`);
-    assertSnapshotValueIsNotHostLabel(runner.reviewerSnapshot, `${runner.runnerId}.reviewerSnapshot`);
+    assert(runner.providerCallEnabled === false, `runner provider calls must stay disabled: ${runner.runnerId}`);
+    assert(runner.eligibleForResultRows === false, `runner result rows must stay disabled: ${runner.runnerId}`);
+    if (runner.runnerId === "m2-future-cell-03-e2-a4-same") {
+      assert(runner.executorSnapshot === "openai-gpt-family-readiness-2026-07-05", "Cell 03 runner executor snapshot mismatch");
+      assert(runner.reviewerSnapshot === "openai-gpt-family-readiness-2026-07-05", "Cell 03 runner reviewer snapshot mismatch");
+      assert(runner.promptDigest === EXPECTED_PROMPT_DIGEST, "Cell 03 runner prompt digest mismatch");
+      assert(runner.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, "Cell 03 runner tool digest mismatch");
+    }
+    assert(!isHostLabel(runner.executorSnapshot), `${runner.runnerId}.executorSnapshot must not be a host label`);
+    assert(!isHostLabel(runner.reviewerSnapshot), `${runner.runnerId}.reviewerSnapshot must not be a host label`);
   }
-
-  assert(launch.hostModelSeparation?.hostLabelOnlySnapshotsAccepted === false, "host-label-only snapshots must be rejected");
-  assert(launch.hostModelSeparation?.providerFallbackAllowed === false, "host/model separation must reject provider fallback");
-  for (const label of HOST_LABELS) {
-    assert(
-      launch.hostModelSeparation?.hostLabelsRejectedAsSnapshots?.includes(label),
-      `host label must be explicitly rejected as snapshot: ${label}`,
-    );
-  }
-
-  assert(launch.claimBoundary?.hM1Proven === false, "provider launch must not prove H-M1");
-  assert(launch.claimBoundary?.hM3Proven === false, "provider launch must not prove H-M3");
-  assert(
-    launch.claimBoundary?.phase1DirectionalReadoutPresent === false,
-    "provider launch must not claim a Phase 1 directional readout",
-  );
-  assert(
-    launch.claimBoundary?.modelAgnosticPaperClaimUnlocked === false,
-    "provider launch must not unlock model-agnostic wording",
-  );
-  assert(launch.claimBoundary?.productGateImpact === "none", "provider launch must not affect product gates");
+  assertHostLabelsRejected(launch, "provider launch");
 }
 
-function validateProviderAuthorization(authorization, launch) {
-  assert(
-    authorization.artifact === "m2-provider-execution-authorization",
-    "provider authorization artifact mismatch",
-  );
-  assert(authorization.storyId === "B-11be", "provider authorization storyId must be B-11be");
-  assert(
-    authorization.status === "metadata_authorization_recorded_provider_execution_still_disabled",
-    "provider authorization status mismatch",
-  );
-  assertBoundary(authorization, "m2 provider execution authorization");
-  assert(
-    authorization.launchArtifactRef === "experiments/multi-model-ablation/m2-provider-execution-launch.json",
-    "provider authorization launchArtifactRef mismatch",
-  );
+function validateCell03Guardrail(guardrail, envelope) {
+  assert(guardrail.artifact === "m2-cell03-provider-launch-authorization", "Cell 03 guardrail artifact mismatch");
+  assert(guardrail.storyId === "B-6529", "Cell 03 guardrail storyId mismatch");
+  assert(guardrail.status === "authorization_ready_execution_not_run", "Cell 03 guardrail status mismatch");
+  assertBoundary(guardrail, "Cell 03 guardrail");
+  assert(guardrail.executionEnvelopeRef === CELL03_ENVELOPE_REF, "Cell 03 guardrail envelope ref mismatch");
+  assert(guardrail.usageAccountingPolicyRef === CELL03_USAGE_POLICY_REF, "Cell 03 guardrail usage policy ref mismatch");
+  assert(guardrail.resultWritePolicyRef === CELL03_RESULT_POLICY_REF, "Cell 03 guardrail result policy ref mismatch");
+  assert(guardrail.guardrailBoundary?.executionEnvelopeFrozen === true, "Cell 03 guardrail must freeze envelope");
+  assert(guardrail.guardrailBoundary?.preRunDollarGuessRequired === false, "Cell 03 guardrail must not require a pre-run dollar guess");
+  assert(guardrail.guardrailBoundary?.preRunDollarCapAsSoleGateAllowed === false, "Cell 03 guardrail must reject dollar cap as sole gate");
+  assert(guardrail.executionEnvelope?.status === "frozen", "Cell 03 embedded envelope status mismatch");
+  assert(guardrail.executionEnvelope?.artifactRef === CELL03_ENVELOPE_REF, "Cell 03 embedded envelope ref mismatch");
+  assert(guardrail.executionEnvelope?.taskCount === envelope.cellScope.taskCount, "Cell 03 envelope task count mismatch");
+  assert(guardrail.executionEnvelope?.plannedRows === envelope.cellScope.plannedRows, "Cell 03 envelope planned rows mismatch");
+  assert(guardrail.executionEnvelope?.maxTotalOutputRows === envelope.limits.maxTotalOutputRows, "Cell 03 envelope output bound mismatch");
+  assert(guardrail.executionEnvelope?.promptDigest === EXPECTED_PROMPT_DIGEST, "Cell 03 prompt digest mismatch");
+  assert(guardrail.executionEnvelope?.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, "Cell 03 tool digest mismatch");
 
-  const boundary = authorization.authorizationBoundary || {};
-  assert(boundary.metadataAuthorizationRecorded === true, "metadata authorization must be recorded");
-  assert(boundary.humanApprovalRecorded === true, "human approval must be recorded");
-  assert(boundary.approvalSource === "user-chat-authorization-2026-07-05", "approval source mismatch");
-  assert(boundary.appliesToStoryId === "B-11be", "approval must apply to B-11be");
-  assert(boundary.providerBudgetCap?.currency === "USD", "provider budget currency must be USD");
-  assert(boundary.providerBudgetCap?.amount === 0, "provider budget cap must be USD 0.00");
-  assert(boundary.providerBudgetCap?.providerSpendAllowed === false, "provider spend must not be allowed");
-  assert(boundary.providerExecutionAuthorized === false, "provider execution must remain unauthorized");
-  assert(boundary.providerCallEnabled === false, "provider calls must remain disabled");
-  assert(boundary.formalPhase1UseAllowed === false, "formal Phase 1 must remain disabled");
-  assert(boundary.phase1CampaignAuthorized === false, "Phase 1 campaign must remain unauthorized");
-  assert(boundary.phase2CampaignAuthorized === false, "Phase 2 campaign must remain unauthorized");
-  assert(boundary.resultRowsAllowed === false, "result rows must not be allowed");
-  assert(boundary.outcomeRecordsAllowed === false, "outcome records must not be allowed");
-  assert(boundary.resultRowsPresent === false, "result rows must remain absent");
-  assert(boundary.outcomeRecordsPresent === false, "outcome records must remain absent");
-  assert(boundary.providerFallbackAllowed === false, "provider fallback must be rejected");
-  assert(boundary.productGateImpact === "none", "provider authorization must have no product gate impact");
+  const preRun = guardrail.preRunDollarBudget || {};
+  assert(preRun.guessRequired === false, "Cell 03 pre-run dollar guess must not be required");
+  assert(preRun.dollarApprovalRequiredAsLaunchGate === false, "Cell 03 dollar approval must not be a launch gate");
+  assert(preRun.amount === null, "Cell 03 pre-run dollar amount must remain null");
+  assert(preRun.currency === null, "Cell 03 pre-run dollar currency must remain null");
+  assert(preRun.estimateUse === "diagnostic_only", "Cell 03 estimate use must be diagnostic only");
+  assert(preRun.estimateMayBeFinalUsage === false, "Cell 03 estimate must not be final usage");
+  assert(preRun.estimateMayGateLaunch === false, "Cell 03 estimate must not gate launch");
 
-  assert(authorization.executionWindow?.allowsProviderCells === false, "B-11be execution window must not allow provider cells");
-  assert(authorization.executionWindow?.allowsLocalChecks === true, "B-11be execution window must allow local checks");
+  const usage = guardrail.postflightUsageAccounting || {};
+  assert(usage.providerReportedUsageRequiredAfterExecution === true, "Cell 03 provider-reported usage must be required");
+  assert(usage.finalUsageSource === "provider_reported_usage", "Cell 03 final usage source mismatch");
+  assert(usage.estimateMayBeFinalUsage === false, "Cell 03 postflight estimate must not be final usage");
+  assert(usage.estimateMayGateLaunch === false, "Cell 03 postflight estimate must not gate launch");
 
-  const futureFields = byId(authorization.requiredFutureExecutionMetadata, "fieldId");
-  assert(
-    futureFields.get("humanApproval")?.status === "recorded_for_metadata_only",
-    "human approval must be metadata-only",
-  );
+  const fields = byId(guardrail.requiredMetadata, "fieldId");
   for (const fieldId of [
-    "datedExecutorSnapshot",
-    "datedReviewerSnapshot",
+    "frozenExecutionEnvelope",
+    "datedExecutorTargetSnapshot",
+    "datedReviewerTargetSnapshot",
     "promptDigest",
     "toolSurfaceDigest",
     "runnerOwnership",
-    "nonzeroProviderBudgetCap",
     "duplicatePolicy",
+    "resultOutputPolicy",
+    "postflightUsageAccountingPolicy",
+    "providerCallEnablement",
   ]) {
-    const field = futureFields.get(fieldId);
-    assert(field, `provider authorization missing future execution field ${fieldId}`);
-    assert(
-      field.status === "still_required_for_real_provider_execution",
-      `${fieldId} must remain required for real provider execution`,
-    );
-    assert(field.value === null, `${fieldId} value must remain null`);
-    assert(field.blocksProviderExecution === true, `${fieldId} must block provider execution`);
+    assert(fields.has(fieldId), `Cell 03 guardrail missing metadata ${fieldId}`);
   }
+  assert(fields.get("providerCallEnablement")?.status === "disabled_by_this_story", "Cell 03 provider call enablement must be disabled");
+  assert(fields.get("providerCallEnablement")?.blocksProviderExecution === true, "Cell 03 provider call enablement must block execution");
 
-  assert(
-    authorization.sequencing?.nextPermittedFormalStep === "cell-03-calibration",
-    "authorization must keep cell 03 as next permitted formal step",
-  );
-  assert(
-    authorization.sequencing?.nextPermittedFormalStepMode === "separate_story_required",
-    "authorization must require a separate provider-execution story",
-  );
-  assert(
-    authorization.sequencing?.cell03Calibration?.providerExecutionAllowedInB11be === false,
-    "cell 03 provider execution must not be allowed in B-11be",
-  );
-  assert(
-    authorization.sequencing?.cell03Calibration?.requiresSeparateProviderExecutionStory === true,
-    "cell 03 must require a separate provider-execution story",
-  );
-  assert(
-    authorization.sequencing?.cell03Calibration?.requiresNonzeroBudgetApproval === true,
-    "cell 03 must require nonzero budget approval before real execution",
-  );
-  assert(
-    authorization.sequencing?.cell03Calibration?.executionEvidencePresent === false,
-    "cell 03 execution evidence must remain absent",
-  );
-  assert(
-    authorization.sequencing?.realCell03DerivedBudgetLock?.present === false,
-    "authorization must not claim a real cell-03-derived budget lock",
-  );
-  assert(
-    authorization.sequencing?.realCell03DerivedBudgetLock?.m0ExampleBudgetLockAcceptedAsFormalEvidence === false,
-    "authorization must not accept M0 example budget lock as formal evidence",
-  );
-  assert(
-    authorization.sequencing?.cell06A2primeGate?.state === "cell-06-a2prime-blocked",
-    "authorization cell 06 blocked state mismatch",
-  );
-  assert(authorization.sequencing?.cell06A2primeGate?.blocked === true, "authorization must keep cell 06 blocked");
-  assert(
-    authorization.sequencing?.cell06A2primeGate?.executionAllowed === false,
-    "authorization must keep cell 06 execution disabled",
-  );
-  assert(
-    authorization.sequencing?.cell06A2primeGate?.matchingRealBudgetLockPresent === false,
-    "authorization must not claim a matching real budget lock",
-  );
-
-  assert(
-    authorization.hostModelSeparation?.hostLabelOnlySnapshotsAccepted === false,
-    "authorization must reject host-label-only snapshots",
-  );
-  assert(
-    authorization.hostModelSeparation?.providerFallbackAllowed === false,
-    "authorization must reject provider fallback",
-  );
-  for (const label of HOST_LABELS) {
-    assert(
-      authorization.hostModelSeparation?.hostLabelsRejectedAsSnapshots?.includes(label),
-      `authorization must explicitly reject host label as snapshot: ${label}`,
-    );
-  }
-  for (const field of authorization.hostModelSeparation?.snapshotFieldsStillRequiredForRealExecution || []) {
-    assert(!isHostLabel(field), `authorization snapshot field name must not be a host label: ${field}`);
-  }
-
-  assert(authorization.claimBoundary?.hM1Proven === false, "authorization must not prove H-M1");
-  assert(authorization.claimBoundary?.hM3Proven === false, "authorization must not prove H-M3");
-  assert(
-    authorization.claimBoundary?.phase1DirectionalReadoutPresent === false,
-    "authorization must not claim a Phase 1 directional readout",
-  );
-  assert(
-    authorization.claimBoundary?.modelAgnosticPaperClaimUnlocked === false,
-    "authorization must not unlock model-agnostic wording",
-  );
-  assert(authorization.claimBoundary?.productGateImpact === "none", "authorization must not affect product gates");
-
-  assert(launch.launchState?.providerCallEnabled === false, "authorization must not override disabled launch state");
-  assert(
-    launch.sequencing?.cell06A2primeGate?.blocked === true,
-    "authorization must not override launch cell 06 blocked state",
-  );
+  assertTargetSnapshot(guardrail.snapshotMetadata?.datedExecutorTargetSnapshot, "Cell 03 executor target snapshot");
+  assertTargetSnapshot(guardrail.snapshotMetadata?.datedReviewerTargetSnapshot, "Cell 03 reviewer target snapshot");
+  assert(guardrail.runnerOwnershipGuard?.ownershipRecorded === true, "Cell 03 runner ownership must be recorded");
+  assert(guardrail.runnerOwnershipGuard?.runnerId === "m2-future-cell-03-e2-a4-same", "Cell 03 runner ownership mismatch");
+  assert(guardrail.runnerOwnershipGuard?.duplicateOwnershipAllowed === false, "Cell 03 duplicate ownership must be rejected");
+  assert(guardrail.sequencing?.nextPermittedFormalStep === "cell-03-calibration", "Cell 03 guardrail next step mismatch");
+  assert(guardrail.sequencing?.cell03Calibration?.status === "authorization_ready_execution_not_run", "Cell 03 guardrail sequencing status mismatch");
+  assert(guardrail.sequencing?.cell03Calibration?.providerExecutionAllowed === false, "Cell 03 guardrail must keep execution disabled");
+  assertCell06Blocked(guardrail.sequencing?.cell06A2primeGate, "Cell 03 guardrail Cell 06 gate");
+  assertHostLabelsRejected(guardrail, "Cell 03 guardrail");
 }
 
-function validateCell03LaunchGuardrail(guardrail, launch) {
-  assert(
-    guardrail.artifact === "m2-cell03-provider-launch-authorization",
-    "Cell 03 launch guardrail artifact mismatch",
-  );
-  assert(guardrail.storyId === "B-c25c", "Cell 03 launch guardrail storyId must be B-c25c");
-  assert(
-    guardrail.status === "cell03_launch_guardrail_recorded_exact_budget_approval_absent",
-    "Cell 03 launch guardrail status mismatch",
-  );
-  assertBoundary(guardrail, "Cell 03 launch guardrail");
-  assert(
-    guardrail.launchArtifactRef === "experiments/multi-model-ablation/m2-provider-execution-launch.json",
-    "Cell 03 launch guardrail launchArtifactRef mismatch",
-  );
-  assert(
-    launch.guardrails?.cell03ProviderLaunchAuthorization?.artifactRef === CELL03_GUARDRAIL_ARTIFACT_REF,
-    "missing Cell 03 launch guardrail reference",
-  );
-
-  const boundary = guardrail.guardrailBoundary || {};
-  assert(boundary.guardrailRecorded === true, "Cell 03 launch guardrail must be recorded");
-  assert(boundary.appliesToStoryId === "B-c25c", "Cell 03 guardrail appliesToStoryId mismatch");
-  assert(boundary.appliesToCellNumber === "03", "Cell 03 guardrail must apply to cell 03");
-  assert(boundary.protocolCellNumber === "③", "Cell 03 guardrail protocol cell mismatch");
-  assert(boundary.arm === "A4", "Cell 03 guardrail arm mismatch");
-  assert(boundary.executorFamily === "E2", "Cell 03 guardrail executor family mismatch");
-  assert(boundary.reviewerFamily === "same", "Cell 03 guardrail reviewer family mismatch");
-  assert(boundary.exactBudgetApprovalStatus === "absent", "exact Cell 03 budget approval must be absent");
-  assert(boundary.providerSpendAllowed === false, "Cell 03 provider spend must remain disabled");
-  assert(boundary.providerExecutionAuthorized === false, "Cell 03 provider execution must remain unauthorized");
-  assert(boundary.providerCallEnabled === false, "Cell 03 provider calls must remain disabled");
-  assert(boundary.formalPhase1UseAllowed === false, "Cell 03 formal Phase 1 use must remain disabled");
-  assert(boundary.phase1CampaignAuthorized === false, "Cell 03 Phase 1 campaign must remain unauthorized");
-  assert(boundary.phase2CampaignAuthorized === false, "Cell 03 Phase 2 campaign must remain unauthorized");
-  assert(boundary.resultRowsAllowed === false, "Cell 03 result rows must not be allowed");
-  assert(boundary.outcomeRecordsAllowed === false, "Cell 03 outcome records must not be allowed");
-  assert(boundary.resultRowsPresent === false, "Cell 03 result rows must remain absent");
-  assert(boundary.outcomeRecordsPresent === false, "Cell 03 outcome records must remain absent");
-  assert(boundary.providerFallbackAllowed === false, "Cell 03 provider fallback must be rejected");
-  assert(boundary.productGateImpact === "none", "Cell 03 guardrail must have no product gate impact");
-
-  const budget = guardrail.exactBudgetApproval || {};
-  assert(budget.status === "absent", "exact Cell 03 budget approval must be absent");
-  assert(budget.nonzeroBudgetApprovalPresent === false, "nonzero Cell 03 budget approval must be absent");
-  assert(budget.amount === null, "Cell 03 budget amount must remain absent");
-  assert(budget.currency === null, "Cell 03 budget currency must remain absent");
-  assert(budget.approvalSource === null, "Cell 03 approvalSource must remain absent");
-  assert(budget.approvedBy === null, "Cell 03 approvedBy must remain absent");
-  assert(budget.approvalDate === null, "Cell 03 approvalDate must remain absent");
-  assert(budget.providerSpendAllowed === false, "Cell 03 provider spend must remain disabled");
-  assert(budget.providerCallEnabled === false, "Cell 03 provider calls must remain disabled");
-  for (const phrase of ["exact amount", "currency", "approvalSource", "approvedBy", "approvalDate"]) {
-    assert(
-      typeof budget.requirement === "string" && budget.requirement.includes(phrase),
-      `Cell 03 budget requirement must mention ${phrase}`,
-    );
-  }
-
-  const requiredSpendFields = byId(budget.requiredForSpendApproval, "fieldId");
-  for (const fieldId of REQUIRED_CELL03_BUDGET_APPROVAL_FIELDS) {
-    const field = requiredSpendFields.get(fieldId);
-    assert(field, `Cell 03 missing required spend approval field ${fieldId}`);
-    assertBlockedAbsentMetadataField(field, `Cell 03 ${fieldId}`, ["required_absent"]);
-  }
-
-  const requiredMetadata = byId(guardrail.requiredMetadata, "fieldId");
-  for (const fieldId of REQUIRED_CELL03_METADATA_FIELDS) {
-    const field = requiredMetadata.get(fieldId);
-    assert(field, `Cell 03 launch guardrail missing required metadata ${fieldId}`);
-    assertBlockedAbsentMetadataField(field, `Cell 03 ${fieldId}`, ["absent", "pending"]);
-  }
-
-  for (const [fieldId, snapshot] of Object.entries(guardrail.snapshotMetadata || {})) {
-    assert(["datedExecutorSnapshot", "datedReviewerSnapshot"].includes(fieldId), `unexpected snapshot field ${fieldId}`);
-    assertBlockedAbsentMetadataField(snapshot, `Cell 03 ${fieldId}`, ["absent"]);
-    assert(snapshot.hostLabelAccepted === false, `Cell 03 ${fieldId} must reject host labels`);
-    assertSnapshotValueIsNotHostLabel(snapshot.value, `Cell 03 ${fieldId}`);
-  }
-  assert(
-    Object.prototype.hasOwnProperty.call(guardrail.snapshotMetadata || {}, "datedExecutorSnapshot"),
-    "Cell 03 guardrail missing datedExecutorSnapshot placeholder",
-  );
-  assert(
-    Object.prototype.hasOwnProperty.call(guardrail.snapshotMetadata || {}, "datedReviewerSnapshot"),
-    "Cell 03 guardrail missing datedReviewerSnapshot placeholder",
-  );
-
-  const runnerGuard = guardrail.runnerOwnershipGuard || {};
-  assert(runnerGuard.ownershipRecorded === false, "Cell 03 runner ownership must remain unrecorded");
-  assert(runnerGuard.duplicateOwnershipAllowed === false, "Cell 03 duplicate runner ownership must be disabled");
-  assert(runnerGuard.extraOwnershipAllowed === false, "Cell 03 extra runner ownership must be disabled");
-  const expectedRunnerIds = new Set(PROVIDER_LAUNCH_RUNNER_BINDINGS.map((binding) => binding.runnerId));
-  const guardRunnerIds = new Set(runnerGuard.expectedRunnerIds || []);
-  assert(guardRunnerIds.size === expectedRunnerIds.size, "Cell 03 runner ownership guard runner count mismatch");
-  for (const runnerId of expectedRunnerIds) {
-    assert(guardRunnerIds.has(runnerId), `Cell 03 runner ownership guard missing runner ${runnerId}`);
-  }
-
-  assert(
-    guardrail.sequencing?.nextPermittedFormalStep === "cell-03-calibration",
-    "Cell 03 guardrail must keep cell 03 as next formal step",
-  );
-  assert(
-    guardrail.sequencing?.nextPermittedFormalStepMode === "planning_only",
-    "Cell 03 guardrail must remain planning-only",
-  );
-  assert(
-    guardrail.sequencing?.cell03Calibration?.providerExecutionAllowed === false,
-    "Cell 03 guardrail must keep cell 03 execution disabled",
-  );
-  assert(
-    guardrail.sequencing?.cell03Calibration?.executionEvidencePresent === false,
-    "Cell 03 guardrail must keep cell 03 execution evidence absent",
-  );
-  assert(
-    guardrail.sequencing?.cell03Calibration?.exactSpendApprovalPresent === false,
-    "Cell 03 exact spend approval must remain absent",
-  );
-  assert(
-    guardrail.sequencing?.cell06A2primeGate?.state === "cell-06-a2prime-blocked",
-    "Cell 03 guardrail cell 06 blocked state mismatch",
-  );
-  assert(guardrail.sequencing?.cell06A2primeGate?.blocked === true, "Cell 03 guardrail must keep cell 06 blocked");
-  assert(
-    guardrail.sequencing?.cell06A2primeGate?.executionAllowed === false,
-    "Cell 03 guardrail must keep cell 06 execution disabled",
-  );
-  assert(
-    guardrail.sequencing?.cell06A2primeGate?.matchingRealBudgetLockPresent === false,
-    "Cell 03 guardrail must not claim a matching real budget lock",
-  );
-
-  assert(
-    guardrail.hostModelSeparation?.hostLabelOnlySnapshotsAccepted === false,
-    "Cell 03 guardrail must reject host-label-only snapshots",
-  );
-  assert(
-    guardrail.hostModelSeparation?.providerFallbackAllowed === false,
-    "Cell 03 guardrail must reject provider fallback",
-  );
-  for (const label of HOST_LABELS) {
-    assert(
-      guardrail.hostModelSeparation?.hostLabelsRejectedAsSnapshots?.includes(label),
-      `Cell 03 guardrail must explicitly reject host label as snapshot: ${label}`,
-    );
-  }
-
-  assert(guardrail.claimBoundary?.hM1Proven === false, "Cell 03 guardrail must not prove H-M1");
-  assert(guardrail.claimBoundary?.hM3Proven === false, "Cell 03 guardrail must not prove H-M3");
-  assert(
-    guardrail.claimBoundary?.phase1DirectionalReadoutPresent === false,
-    "Cell 03 guardrail must not claim a Phase 1 directional readout",
-  );
-  assert(
-    guardrail.claimBoundary?.modelAgnosticPaperClaimUnlocked === false,
-    "Cell 03 guardrail must not unlock model-agnostic wording",
-  );
-  assert(guardrail.claimBoundary?.productGateImpact === "none", "Cell 03 guardrail must not affect product gates");
-
-  assert(launch.launchState?.providerCallEnabled === false, "Cell 03 guardrail must not override provider calls");
-  assert(launch.launchState?.resultRowsPresent === false, "Cell 03 guardrail must not create result rows");
-  assert(launch.launchState?.outcomeRecordsPresent === false, "Cell 03 guardrail must not create outcome records");
-}
-
-function validateExistingM2Artifacts(artifacts) {
-  for (const [name, doc] of Object.entries({
-    m2LaunchReadiness: artifacts.m2LaunchReadiness,
-    snapshots: artifacts.snapshots,
-    inventory: artifacts.inventory,
-    runnerManifest: artifacts.runnerManifest,
-    phase1Readiness: artifacts.phase1Readiness,
-  })) {
-    assertBoundary(doc, name);
-    assertNoOutcomeOrRecordsPath(doc, name);
-  }
-
-  assert(artifacts.m2LaunchReadiness.authorizationBoundary?.providerExecutionAuthorized === false, "M2 readiness must not authorize provider execution");
-  assert(artifacts.m2LaunchReadiness.authorizationBoundary?.providerCallEnabled === false, "M2 readiness must keep provider calls disabled");
-
-  for (const family of artifacts.snapshots.modelFamilies || []) {
-    assert(!isHostLabel(family.providerFamily), `${family.familyId} providerFamily must not be a host label`);
-    assert(family.hostKindIsModelFamily === false, `${family.familyId} must not treat hostKind as model family`);
+function validateSnapshotLock(snapshotLock) {
+  assertBoundary(snapshotLock, "snapshot lock");
+  assert(snapshotLock.snapshotReadinessBoundary?.providerExecutionLocked === false, "snapshot lock must not claim provider execution lock");
+  assert(snapshotLock.snapshotReadinessBoundary?.providerRunMetadataPresent === false, "snapshot lock must not claim provider run metadata");
+  for (const family of snapshotLock.modelFamilies || []) {
+    assert(!isHostLabel(family.providerFamily), `${family.familyId} provider family must not be a host label`);
+    assert(family.hostKindIsModelFamily === false, `${family.familyId} host kind must not be model family`);
     assert(family.providerCallsEnabled === false, `${family.familyId} provider calls must be disabled`);
-    assert(family.formalPhase1UseAllowed === false, `${family.familyId} formal Phase 1 use must be disabled`);
+    assert(family.formalPhase1UseAllowed === false, `${family.familyId} formal Phase 1 must be disabled`);
   }
-  assert(artifacts.snapshots.snapshotReadinessBoundary?.providerFallbackAllowed === false, "snapshot readiness must reject provider fallback");
-  assert(
-    artifacts.snapshots.separationAssertion?.hostKindMayNotSubstituteForProviderFamily === true,
-    "snapshot readiness must reject hostKind as provider family",
-  );
+  const target = snapshotLock.cell03ExecutionTargetSnapshots || {};
+  assert(target.status === "target_snapshots_frozen_execution_not_run", "Cell 03 target snapshot status mismatch");
+  assert(target.appliesToEnvelopeRef === CELL03_ENVELOPE_REF, "Cell 03 target snapshot envelope ref mismatch");
+  assertTargetSnapshot(target.executorTargetSnapshot, "snapshot lock Cell 03 executor target");
+  assertTargetSnapshot(target.reviewerTargetSnapshot, "snapshot lock Cell 03 reviewer target");
+}
 
-  for (const runner of artifacts.runnerManifest.runners || []) {
-    assert(runner.providerCallEnabled === false, `M2 runner provider calls must be disabled: ${runner.runnerId}`);
-    assert(runner.eligibleForResultRows === false, `M2 runner result rows must be disabled: ${runner.runnerId}`);
-    assert(!isHostLabel(runner.providerModelFamily), `runner providerModelFamily must not be a host label: ${runner.runnerId}`);
+function validateRunnerManifest(manifest) {
+  assertBoundary(manifest, "runner manifest");
+  const binding = manifest.cell03ExecutionEnvelopeBinding || {};
+  assert(binding.status === "authorization_ready_execution_not_run", "runner manifest Cell 03 envelope status mismatch");
+  assert(binding.artifactRef === CELL03_ENVELOPE_REF, "runner manifest Cell 03 envelope ref mismatch");
+  assert(binding.runnerId === "m2-future-cell-03-e2-a4-same", "runner manifest Cell 03 runner mismatch");
+  assert(binding.plannedRows === 1152, "runner manifest Cell 03 rows mismatch");
+  assert(binding.providerCallEnabled === false, "runner manifest Cell 03 provider calls must be disabled");
+  assert(binding.eligibleForResultRows === false, "runner manifest Cell 03 result rows must be disabled");
+  const cell03 = (manifest.phase1Cells || []).find((cell) => cell.runnerId === "m2-future-cell-03-e2-a4-same");
+  assert(cell03?.executionStatus === "authorization_ready_execution_not_run", "Cell 03 manifest execution status mismatch");
+  assert(cell03?.executionEnvelopeRef === CELL03_ENVELOPE_REF, "Cell 03 manifest envelope ref mismatch");
+  const cell06 = (manifest.phase1Cells || []).find((cell) => cell.runnerId === "m2-future-cell-06-e2-a2prime");
+  assert(cell06?.executionStatus === "blocked_until_real_③_A4_budget_lock", "Cell 06 must remain blocked in manifest");
+  assert(cell06?.providerExecutionAllowedInM2 === false, "Cell 06 provider execution must remain disabled");
+  for (const runner of manifest.runners || []) {
+    assert(runner.providerCallEnabled === false, `manifest runner provider calls must be disabled: ${runner.runnerId}`);
+    assert(runner.eligibleForResultRows === false, `manifest runner result rows must be disabled: ${runner.runnerId}`);
+    assert(!isHostLabel(runner.providerModelFamily), `manifest runner provider family must not be host label: ${runner.runnerId}`);
   }
+  assert(manifest.a2PrimeGateBinding?.currentlyBlocked === true, "manifest A2prime must remain blocked");
+  assert(manifest.a2PrimeGateBinding?.executionAllowedBeforeBudgetLock === false, "manifest A2prime execution must stay disabled");
+  assert(manifest.a2PrimeGateBinding?.matchingBudgetLockPresent === false, "manifest A2prime must not claim budget lock");
+}
 
-  const readinessChecks = byId(artifacts.phase1Readiness.readinessChecks, "checkId");
+function validateExistingReadiness(launchReadiness, phase1Readiness) {
+  assert(launchReadiness.authorizationBoundary?.providerExecutionAuthorized === false, "M2 readiness must not authorize provider execution");
+  assert(launchReadiness.authorizationBoundary?.providerCallEnabled === false, "M2 readiness must keep provider calls disabled");
+  const readinessChecks = byId(phase1Readiness.readinessChecks, "checkId");
   const calibration = readinessChecks.get("③-a4-calibration");
-  assert(calibration?.cellNumber === "③", "phase1 readiness must identify cell 03 calibration");
-  assert(calibration?.status === "pending_execution", "cell 03 calibration must remain pending execution");
-  assert(calibration?.executionEvidencePresent === false, "cell 03 calibration must not have execution evidence");
-  assert(calibration?.blocksA2prime === true, "cell 03 calibration must block A2prime");
-
+  assert(calibration?.status === "pending_execution", "Cell 03 calibration must remain pending execution");
+  assert(calibration?.executionEvidencePresent === false, "Cell 03 calibration must not have execution evidence");
   const budgetLock = readinessChecks.get("real-budget-lock");
   assert(budgetLock?.realBudgetLockPresent === false, "real budget lock must remain absent");
-  assert(
-    budgetLock?.m0ExampleBudgetLockAcceptedAsFormalEvidence === false,
-    "example budget lock must not be accepted as formal evidence",
-  );
-
   const a2prime = readinessChecks.get("⑥-a2prime-sequencing");
-  assert(a2prime?.status === "blocked_until_real_budget_lock", "cell 06 must remain blocked until real budget lock");
-  assert(a2prime?.executionAllowed === false, "cell 06 execution must not be allowed");
-  assert(a2prime?.matchingRealBudgetLockPresent === false, "cell 06 must not claim a matching real budget lock");
+  assert(a2prime?.status === "blocked_until_real_budget_lock", "Cell 06 must remain blocked in readiness");
+  assert(a2prime?.executionAllowed === false, "Cell 06 execution must remain disabled in readiness");
 }
 
 function validateStatus(statusText) {
@@ -877,60 +559,91 @@ function validateStatus(statusText) {
     assert(statusText.includes(`${key}=${JSON.stringify(value)}`), `status missing ${key}=${JSON.stringify(value)}`);
   }
   for (const requiredLine of [
-    "| M2-provider authorization metadata | DONE |",
     "| M2 provider execution launch gate | PREPARED |",
-    "| M2 provider execution checker | PREPARED |",
+    "| Cell 03 execution envelope | FROZEN |",
+    "| Cell 03 usage accounting | POSTFLIGHT REQUIRED |",
     "| Cell 03 launch guardrail | RECORDED |",
     "| Formal M2 execution | NOT STARTED |",
     "| ③ A4 calibration | PENDING EXECUTION |",
     "| ⑥ A2prime | BLOCKED |",
+    "Cell 03 execution envelope: frozen",
+    "Pre-run dollar guess: not required",
+    "Provider calls from this authorization story: disabled",
+    "Postflight usage accounting: provider-reported usage required after execution",
+    "Cell 06 A2prime: blocked",
   ]) {
-    assert(statusText.includes(requiredLine), `status missing row: ${requiredLine}`);
+    assert(statusText.includes(requiredLine), `status missing text: ${requiredLine}`);
   }
   assert(statusText.includes("providerExecutionAuthorized=false"), "status must report providerExecutionAuthorized=false");
-  assert(statusText.includes("Cell 03 launch guardrail: RECORDED"), "status must report Cell 03 launch guardrail recorded");
-  assert(
-    statusText.includes("Exact Cell 03 budget approval: absent; provider calls disabled"),
-    "status must report exact Cell 03 budget approval absent and provider calls disabled",
-  );
-  assert(statusText.includes("m2-cell03-provider-launch-authorization.json"), "status must mention Cell 03 guardrail artifact");
-  assert(statusText.includes("M2-provider authorization metadata: DONE"), "status must report authorization metadata done");
-  assert(statusText.includes("provider spend USD 0.00"), "status must report provider spend USD 0.00");
-  assert(statusText.includes("no provider cells ran"), "status must report no provider cells ran");
-  assert(statusText.includes("no result rows exist"), "status must report no result rows exist");
-  assert(statusText.includes("cell 03 is next"), "status must report cell 03 is next");
-  assert(statusText.includes("cell 06 remains blocked"), "status must report cell 06 remains blocked");
-  assert(statusText.includes("nextPermittedFormalStep=cell-03-calibration"), "status must report cell 03 as next permitted step");
-  assert(statusText.includes("cell-06-a2prime-blocked"), "status must report cell 06 blocked state");
-  assert(/no claim unlock/i.test(statusText), "status must state no claim unlock");
-  assert(/no product gate impact/i.test(statusText), "status must state no product gate impact");
+  assert(statusText.includes("providerCallEnabled=false"), "status must report providerCallEnabled=false");
+  assert(statusText.includes("no claim unlock"), "status must state no claim unlock");
+  assert(statusText.includes("no product gate impact"), "status must state no product gate impact");
+}
+
+function validateAll(artifacts) {
+  for (const [name, doc] of Object.entries({
+    m2LaunchReadiness: artifacts.m2LaunchReadiness,
+    snapshots: artifacts.snapshots,
+    runnerManifest: artifacts.runnerManifest,
+    phase1Readiness: artifacts.phase1Readiness,
+    providerLaunch: artifacts.providerLaunch,
+    cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
+    cell03Envelope: artifacts.cell03Envelope,
+  })) {
+    assertBoundary(doc, name);
+    assertNoOutcomeOrRecordsPath(doc, name);
+  }
+  for (const [name, doc] of Object.entries({
+    providerLaunch: artifacts.providerLaunch,
+    cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
+    cell03Envelope: artifacts.cell03Envelope,
+  })) {
+    assertNoOldBudgetGateKeys(doc, name);
+  }
+  for (const [name, doc] of Object.entries({
+    providerLaunch: artifacts.providerLaunch,
+    cell03LaunchGuardrail: artifacts.cell03LaunchGuardrail,
+    cell03Envelope: artifacts.cell03Envelope,
+    usagePolicy: artifacts.usagePolicy,
+    resultWritePolicy: artifacts.resultWritePolicy,
+    toolSurface: artifacts.toolSurface,
+    runnerManifest: artifacts.runnerManifest,
+  })) {
+    assertNoEnabledProviderCalls(doc, name);
+    assertNoOutcomeOrRecordsPath(doc, name);
+  }
+  assertNoRecordsFileExists();
+  validateEnvelope(artifacts.cell03Envelope, artifacts.promptText, artifacts.toolSurfaceText);
+  validateUsagePolicy(artifacts.usagePolicy);
+  validateResultPolicy(artifacts.resultWritePolicy);
+  validateToolSurface(artifacts.toolSurface);
+  validateProviderLaunch(artifacts.providerLaunch, artifacts.cell03Envelope);
+  validateCell03Guardrail(artifacts.cell03LaunchGuardrail, artifacts.cell03Envelope);
+  validateSnapshotLock(artifacts.snapshots);
+  validateRunnerManifest(artifacts.runnerManifest);
+  validateExistingReadiness(artifacts.m2LaunchReadiness, artifacts.phase1Readiness);
+  validateStatus(artifacts.status);
 }
 
 function loadArtifacts() {
+  const promptText = readText(paths.prompt);
+  const toolSurfaceText = readText(paths.toolSurface);
   return {
     m2LaunchReadiness: readJson(paths.m2LaunchReadiness),
     snapshots: readJson(paths.snapshots),
-    inventory: readJson(paths.inventory),
     runnerManifest: readJson(paths.runnerManifest),
     phase1Readiness: readJson(paths.phase1Readiness),
     providerLaunch: readJson(paths.providerLaunch),
     providerAuthorization: readJson(paths.providerAuthorization),
     cell03LaunchGuardrail: readJson(paths.cell03LaunchGuardrail),
+    cell03Envelope: readJson(paths.cell03Envelope),
+    usagePolicy: readJson(paths.usagePolicy),
+    promptText,
+    toolSurfaceText,
+    toolSurface: JSON.parse(toolSurfaceText),
+    resultWritePolicy: readJson(paths.resultWritePolicy),
     status: readText(paths.status),
   };
-}
-
-function validateAll(artifacts) {
-  validateExistingM2Artifacts(artifacts);
-  validateProviderLaunch(artifacts.providerLaunch);
-  validateProviderAuthorization(artifacts.providerAuthorization, artifacts.providerLaunch);
-  validateCell03LaunchGuardrail(artifacts.cell03LaunchGuardrail, artifacts.providerLaunch);
-  validateProviderLaunchRunnerBindings(artifacts.providerLaunch, artifacts.runnerManifest);
-  assertNoOutcomeOrRecordsPath(artifacts.providerLaunch, "providerLaunch");
-  assertNoOutcomeOrRecordsPath(artifacts.providerAuthorization, "providerAuthorization");
-  assertNoOutcomeOrRecordsPath(artifacts.cell03LaunchGuardrail, "cell03LaunchGuardrail");
-  assertNoRecordsFileExists();
-  validateStatus(artifacts.status);
 }
 
 function expectReject(label, mutate, pattern) {
@@ -956,449 +669,93 @@ const baseArtifacts = loadArtifacts();
 validateAll(baseArtifacts);
 
 expectReject(
-  "Cell 03 launch guardrail reference missing",
+  "missing envelope bounds",
   (artifacts) => {
-    delete artifacts.providerLaunch.guardrails.cell03ProviderLaunchAuthorization;
+    delete artifacts.cell03Envelope.limits.maxTotalOutputRows;
   },
-  /missing Cell 03 launch guardrail reference/,
+  /output row bound/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail invented nonzero budget approval",
+  "pre-run dollar cap as sole gate",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.status = "present";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.nonzeroBudgetApprovalPresent = true;
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.amount = 25;
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.currency = "USD";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.approvalSource = "invented-chat-approval";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.approvedBy = "invented";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.approvalDate = "2026-07-05";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.providerSpendAllowed = true;
+    artifacts.providerLaunch.authorization.preRunDollarCapAsSoleGateAllowed = true;
   },
-  /exact Cell 03 budget approval must be absent|Cell 03 provider spend must remain disabled/,
+  /dollar cap as sole gate/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail unbound budget amount",
+  "old exact budget gate restored",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.amount = 25;
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.currency = "USD";
+    artifacts.cell03LaunchGuardrail.exactBudgetApproval = { status: "present", amount: 25, currency: "USD" };
   },
-  /Cell 03 budget amount must remain absent/,
+  /old budget gate key exactBudgetApproval/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail zero budget marked spend allowed",
+  "estimate treated as final usage",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.amount = 0;
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.currency = "USD";
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.providerSpendAllowed = true;
+    artifacts.usagePolicy.postflightUsageAccounting.estimateMayBeFinalUsage = true;
   },
-  /Cell 03 budget amount must remain absent|Cell 03 provider spend must remain disabled/,
+  /estimate must not be final usage/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail missing approval source field",
+  "provider calls enabled in this story",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.exactBudgetApproval.requiredForSpendApproval =
-      artifacts.cell03LaunchGuardrail.exactBudgetApproval.requiredForSpendApproval.filter(
-        (field) => field.fieldId !== "approvalSource",
-      );
+    artifacts.providerLaunch.launchState.providerCallEnabled = true;
   },
-  /Cell 03 missing required spend approval field approvalSource/,
+  /providerCallEnabled must remain false/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail host-label executor snapshot",
+  "host label snapshot in envelope",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.snapshotMetadata.datedExecutorSnapshot.value = "Codex CLI";
+    artifacts.cell03Envelope.targetSnapshots.executorTargetSnapshot.snapshotId = "Codex CLI";
   },
-  /datedExecutorSnapshot value must remain null|datedExecutorSnapshot must not be a host label/,
+  /must not be a host label|snapshot id mismatch/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail provider fallback allowed",
+  "Cell 06 unblocked",
   (artifacts) => {
-    artifacts.cell03LaunchGuardrail.guardrailBoundary.providerFallbackAllowed = true;
+    artifacts.providerLaunch.sequencing.cell06A2primeGate.state = "ready";
+    artifacts.providerLaunch.sequencing.cell06A2primeGate.blocked = false;
+    artifacts.providerLaunch.sequencing.cell06A2primeGate.executionAllowed = true;
   },
-  /Cell 03 provider fallback must be rejected/,
+  /Cell 06 gate state mismatch|must be blocked|execution must be disabled/,
 );
 
 expectReject(
-  "Cell 03 launch guardrail result rows added",
+  "prompt digest drift",
+  (artifacts) => {
+    artifacts.cell03Envelope.promptArtifact.sha256 = "sha256:" + "0".repeat(64);
+  },
+  /prompt digest/,
+);
+
+expectReject(
+  "tool-surface digest drift",
+  (artifacts) => {
+    artifacts.cell03Envelope.toolSurfaceArtifact.sha256 = "sha256:" + "0".repeat(64);
+  },
+  /tool-surface digest/,
+);
+
+expectReject(
+  "result rows added",
   (artifacts) => {
     artifacts.cell03LaunchGuardrail.resultRows = [{ score: 1 }];
   },
   /forbidden result\/outcome data field/,
 );
 
-expectReject(
-  "Cell 03 launch guardrail outcome records added",
-  (artifacts) => {
-    artifacts.cell03LaunchGuardrail.outcomeRecords = [{ cell: "03" }];
-  },
-  /forbidden result\/outcome data field/,
-);
-
-expectReject(
-  "Cell 03 launch guardrail cell 06 unblocked",
-  (artifacts) => {
-    artifacts.cell03LaunchGuardrail.sequencing.cell06A2primeGate.state = "ready";
-    artifacts.cell03LaunchGuardrail.sequencing.cell06A2primeGate.blocked = false;
-    artifacts.cell03LaunchGuardrail.sequencing.cell06A2primeGate.executionAllowed = true;
-  },
-  /Cell 03 guardrail cell 06 blocked state mismatch|Cell 03 guardrail must keep cell 06 blocked|Cell 03 guardrail must keep cell 06 execution disabled/,
-);
-
-expectReject(
-  "accidental provider authorization without required metadata",
-  (artifacts) => {
-    artifacts.providerLaunch.launchState.providerExecutionAuthorized = true;
-    artifacts.providerLaunch.authorization.providerExecutionAuthorized = true;
-  },
-  /providerExecutionAuthorized must be false|cannot be authorized without required metadata/,
-);
-
-expectReject(
-  "provider-call enabled runner without authorization metadata",
-  (artifacts) => {
-    const runner = artifacts.providerLaunch.runnerAuthorization.runners[0];
-    runner.providerCallEnabled = true;
-    artifacts.providerLaunch.runnerAuthorization.providerCallEnabledRunnerCount = 1;
-  },
-  /provider execution cannot be authorized without required metadata|no provider-call enabled runners|provider calls must be disabled/,
-);
-
-expectReject(
-  "host-label-only executor snapshot",
-  (artifacts) => {
-    const runner = artifacts.providerLaunch.runnerAuthorization.runners[0];
-    runner.executorSnapshot = "Codex CLI";
-  },
-  /executorSnapshot must not be a host label/,
-);
-
-expectReject(
-  "host-label-only reviewer snapshot",
-  (artifacts) => {
-    const runner = artifacts.providerLaunch.runnerAuthorization.runners[0];
-    runner.reviewerSnapshot = "Claude Code CLI";
-  },
-  /reviewerSnapshot must not be a host label/,
-);
-
-expectReject(
-  "snapshot lock provider family replaced by host label",
-  (artifacts) => {
-    artifacts.snapshots.modelFamilies.find((family) => family.familyId === "E2").providerFamily = "Codex CLI";
-  },
-  /providerFamily must not be a host label/,
-);
-
-expectReject(
-  "provider fallback allowed",
-  (artifacts) => {
-    artifacts.providerLaunch.authorization.providerFallbackAllowed = true;
-  },
-  /provider fallback must be rejected/,
-);
-
-expectReject(
-  "authorization provider budget made nonzero",
-  (artifacts) => {
-    artifacts.providerAuthorization.authorizationBoundary.providerBudgetCap.amount = 1;
-    artifacts.providerAuthorization.authorizationBoundary.providerBudgetCap.providerSpendAllowed = true;
-  },
-  /provider budget cap must be USD 0\.00|provider spend must not be allowed/,
-);
-
-expectReject(
-  "authorization provider calls enabled",
-  (artifacts) => {
-    artifacts.providerAuthorization.authorizationBoundary.providerCallEnabled = true;
-  },
-  /provider calls must remain disabled/,
-);
-
-expectReject(
-  "authorization real provider execution enabled",
-  (artifacts) => {
-    artifacts.providerAuthorization.authorizationBoundary.providerExecutionAuthorized = true;
-  },
-  /provider execution must remain unauthorized/,
-);
-
-expectReject(
-  "authorization missing future executor snapshot blocker",
-  (artifacts) => {
-    artifacts.providerAuthorization.requiredFutureExecutionMetadata =
-      artifacts.providerAuthorization.requiredFutureExecutionMetadata.filter(
-        (field) => field.fieldId !== "datedExecutorSnapshot",
-      );
-  },
-  /missing future execution field datedExecutorSnapshot/,
-);
-
-expectReject(
-  "authorization host label accepted as snapshot",
-  (artifacts) => {
-    artifacts.providerAuthorization.hostModelSeparation.hostLabelOnlySnapshotsAccepted = true;
-  },
-  /reject host-label-only snapshots/,
-);
-
-expectReject(
-  "authorization host label rejection list missing Codex CLI",
-  (artifacts) => {
-    artifacts.providerAuthorization.hostModelSeparation.hostLabelsRejectedAsSnapshots =
-      artifacts.providerAuthorization.hostModelSeparation.hostLabelsRejectedAsSnapshots.filter(
-        (label) => label !== "Codex CLI",
-      );
-  },
-  /explicitly reject host label as snapshot: Codex CLI/,
-);
-
-expectReject(
-  "authorization cell 03 execution allowed in B-11be",
-  (artifacts) => {
-    artifacts.providerAuthorization.sequencing.cell03Calibration.providerExecutionAllowedInB11be = true;
-  },
-  /cell 03 provider execution must not be allowed in B-11be/,
-);
-
-expectReject(
-  "authorization cell 06 unblocked",
-  (artifacts) => {
-    artifacts.providerAuthorization.sequencing.cell06A2primeGate.state = "ready";
-    artifacts.providerAuthorization.sequencing.cell06A2primeGate.blocked = false;
-    artifacts.providerAuthorization.sequencing.cell06A2primeGate.executionAllowed = true;
-  },
-  /authorization cell 06 blocked state mismatch|authorization must keep cell 06 blocked|authorization must keep cell 06 execution disabled/,
-);
-
-expectReject(
-  "authorization outcome records path added",
-  (artifacts) => {
-    artifacts.providerAuthorization.authorizationBoundary.outcomeRecordsPath = "records-multi-model-ablation.jsonl";
-  },
-  /forbidden records path field|contains forbidden records path/,
-);
-
-expectReject(
-  "cell 03 no longer next formal step",
-  (artifacts) => {
-    artifacts.providerLaunch.sequencing.nextPermittedFormalStep = "cell-06-a2prime";
-  },
-  /cell 03 must be the next permitted formal step/,
-);
-
-expectReject(
-  "cell 06 unblocked without real budget lock",
-  (artifacts) => {
-    artifacts.providerLaunch.sequencing.cell06A2primeGate.state = "ready";
-    artifacts.providerLaunch.sequencing.cell06A2primeGate.blocked = false;
-    artifacts.providerLaunch.sequencing.cell06A2primeGate.executionAllowed = true;
-  },
-  /cell 06 blocked state mismatch|cell 06 must be blocked|cell 06 execution must be disabled/,
-);
-
-expectReject(
-  "real budget lock falsely present",
-  (artifacts) => {
-    artifacts.providerLaunch.sequencing.realCell03DerivedBudgetLock.present = true;
-  },
-  /real cell-03-derived budget lock must be absent/,
-);
-
-expectReject(
-  "outcome data accidentally added",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.runners[0].outcome = "amplified";
-  },
-  /forbidden outcome field/,
-);
-
-expectReject(
-  "result rows accidentally added",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.runners[0].resultRows = [{ score: 1 }];
-  },
-  /forbidden result\/outcome data field/,
-);
-
-expectReject(
-  "outcome records accidentally added",
-  (artifacts) => {
-    artifacts.providerLaunch.outcomeRecords = [{ cell: "03" }];
-  },
-  /forbidden result\/outcome data field/,
-);
-
-expectReject(
-  "phase 1 results accidentally added",
-  (artifacts) => {
-    artifacts.providerLaunch.phase1Results = [{ cell: "03" }];
-  },
-  /forbidden result\/outcome data field/,
-);
-
-expectReject(
-  "phase 2 results accidentally added",
-  (artifacts) => {
-    artifacts.providerLaunch.phase2Results = [{ cell: "phase2" }];
-  },
-  /forbidden result\/outcome data field/,
-);
-
-expectReject(
-  "result rows presence flag flipped",
-  (artifacts) => {
-    artifacts.providerLaunch.launchState.resultRowsPresent = true;
-  },
-  /result\/outcome data present|result rows must remain absent/,
-);
-
-expectReject(
-  "outcome records presence flag flipped",
-  (artifacts) => {
-    artifacts.providerLaunch.launchState.outcomeRecordsPresent = true;
-  },
-  /result\/outcome data present|outcome records must remain absent/,
-);
-
-expectReject(
-  "contains outcome data flag flipped outside researchBoundary",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.containsOutcomeData = true;
-  },
-  /result\/outcome data present/,
-);
-
-expectReject(
-  "provider launch missing runner",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.runners = artifacts.providerLaunch.runnerAuthorization.runners.filter(
-      (runner) => runner.runnerId !== "m2-future-cell-03-e2-a4-same",
-    );
-  },
-  /provider launch missing runner/,
-);
-
-expectReject(
-  "provider launch extra runner",
-  (artifacts) => {
-    const extraRunner = deepClone(artifacts.providerLaunch.runnerAuthorization.runners[0]);
-    extraRunner.runnerId = "m2-future-cell-99-extra";
-    extraRunner.cellNumber = "99";
-    extraRunner.protocolCellNumber = "⑨";
-    artifacts.providerLaunch.runnerAuthorization.runners.push(extraRunner);
-  },
-  /provider launch has extra runner/,
-);
-
-expectReject(
-  "phase1 manifest duplicate runner ownership",
-  (artifacts) => {
-    const duplicateOwnership = deepClone(artifacts.runnerManifest.cellOwnership[0]);
-    duplicateOwnership.runnerId = "m2-future-cell-03-duplicate-owner";
-    artifacts.runnerManifest.cellOwnership.push(duplicateOwnership);
-  },
-  /duplicate ownershipKey|extra ownership runner|ownership count must match/,
-);
-
-expectReject(
-  "phase1 manifest extra runner ownership",
-  (artifacts) => {
-    const extraOwnership = deepClone(artifacts.runnerManifest.cellOwnership[0]);
-    extraOwnership.runnerId = "m2-future-cell-99-extra-owner";
-    extraOwnership.ownershipKey = "⑨|A4|E2|same";
-    extraOwnership.cellNumber = "⑨";
-    artifacts.runnerManifest.cellOwnership.push(extraOwnership);
-  },
-  /extra ownership runner|extra ownership key|ownership count must match/,
-);
-
-expectReject(
-  "provider launch runner cell number drift",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.runners.find(
-      (runner) => runner.runnerId === "m2-future-cell-03-e2-a4-same",
-    ).cellNumber = "06";
-  },
-  /cell 03 runner .* launch cellNumber mismatch/,
-);
-
-expectReject(
-  "provider launch runner protocol cell drift",
-  (artifacts) => {
-    artifacts.providerLaunch.runnerAuthorization.runners.find(
-      (runner) => runner.runnerId === "m2-future-cell-06-e2-a2prime",
-    ).protocolCellNumber = "③";
-  },
-  /cell 06 runner .* launch protocolCellNumber mismatch/,
-);
-
-expectReject(
-  "cell 03 manifest arm binding drift",
-  (artifacts) => {
-    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-03-e2-a4-same").arm =
-      "A2prime";
-  },
-  /cell 03 runner .* manifest arm mismatch/,
-);
-
-expectReject(
-  "cell 06 manifest reviewer binding drift",
-  (artifacts) => {
-    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-06-e2-a2prime").reviewerFamily =
-      "same";
-  },
-  /cell 06 runner .* manifest reviewerFamily mismatch/,
-);
-
-expectReject(
-  "cell 02 provider model family binding drift",
-  (artifacts) => {
-    artifacts.runnerManifest.runners.find((runner) => runner.runnerId === "m2-future-cell-02-e1-a4-cross").providerModelFamily =
-      "E2";
-  },
-  /cell 02 runner .* providerModelFamily mismatch/,
-);
-
-expectReject(
-  "cell 04 manifest reviewer binding drift",
-  (artifacts) => {
-    artifacts.runnerManifest.phase1Cells.find((cell) => cell.runnerId === "m2-future-cell-04-e2-a4-cross").reviewerFamily =
-      "same";
-  },
-  /cell 04 runner .* manifest reviewerFamily mismatch/,
-);
-
-expectReject(
-  "cell 03 sequencing arm binding drift",
-  (artifacts) => {
-    artifacts.providerLaunch.sequencing.cell03Calibration.arm = "A2prime";
-  },
-  /cell 03 sequencing arm mismatch/,
-);
-
-expectReject(
-  "cell 06 sequencing protocol binding drift",
-  (artifacts) => {
-    artifacts.providerLaunch.sequencing.cell06A2primeGate.protocolCellNumber = "③";
-  },
-  /cell 06 sequencing protocolCellNumber mismatch/,
-);
-
 console.log(
   `M2 provider execution checker passed: ${assertionCount} assertions; ${negativeControlRejectCount} negative controls rejected`,
 );
-console.log("M2-provider authorization metadata: Done");
-console.log("Cell 03 launch guardrail: recorded");
-console.log("Exact Cell 03 budget approval: absent; provider calls disabled");
-console.log("Provider spend in B-11be: USD 0.00");
-console.log("Provider cells run in B-11be: none");
-console.log("nextPermittedFormalStep=cell-03-calibration");
-console.log("cell-06-a2prime-blocked");
+console.log("Cell 03 execution envelope: frozen");
+console.log("Pre-run dollar guess: not required");
+console.log("Provider calls from this authorization story: disabled");
+console.log("Postflight usage accounting: provider-reported usage required after execution");
 console.log("Cell 06 A2prime: blocked");
 console.log("Provider execution remains disabled; no provider calls made; no outcome records present");
