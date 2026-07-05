@@ -119,7 +119,49 @@
       "context": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts has zero duplicat* coverage (grep = 0 hits, the withdrawn M5 claim). Add an assertion that milestone_ledger_set/buildMilestoneLedger with two rows sharing an id is rejected or de-duplicated. Closes findings M5 test-gap #1.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running `node dist/tasks/proofstory-intent-hardening-smoke.js` (or the wired `npm test` entry that includes it) prints `ProofStory intent hardening smoke passed` and exits 0, now with new negative-control assertions exercised. If the ledger builder ever stops de-duplicating, the run instead fails with an assertion like `AssertionError [ERR_ASSERTION]: milestone_ledger_set with two rows sharing an id M1 is rejected` and a nonzero exit. Concretely, invoking `lattice milestone_ledger_set '{\"storyId\":\"B-proofstory\",\"milestones\":[{\"id\":\"M1\",...},{\"id\":\"M1\",...}]}'` (two rows sharing id M1) exits nonzero and prints `duplicate milestone id: M1`; the same duplicate id fed to `milestone_ledger_add` (adding an id already present) exits nonzero and prints `duplicate milestone id: M1`, and neither call writes a corrupted milestone-ledger.json.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In proofstory-intent-hardening-smoke.ts add an assertion that `run(root, 'milestone_ledger_set', { storyId, milestones: [rowM1, rowM1dup] }, true)` (two normalized rows both with id 'M1') matches /duplicate milestone id/i, then build and run `node dist/tasks/proofstory-intent-hardening-smoke.js` and confirm it prints 'ProofStory intent hardening smoke passed' and exits 0.",
+            "type": "logic"
+          },
+          {
+            "desc": "Unit-assert against the pure builder: `buildMilestoneLedger({ storyId:'B-x', milestones:[{id:'M1',sourceRequirementId:'REQ-001',claim:'c',doneMeans:'d'},{id:'M1',sourceRequirementId:'REQ-001',claim:'c2',doneMeans:'d2'}] })` throws an Error whose message contains 'duplicate milestone id: M1' (matches the throw at proofstory.ts:330).",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Add an assertion that `run(root, 'milestone_ledger_add', { storyId, milestone: rowWithExistingId }, true)` — appending a milestone whose id already exists in the persisted ledger (e.g. 'M1' after milestone_ledger_set wrote M1..M5) — matches /duplicate milestone id/i, exercising the addMilestoneToLedger de-dup path (proofstory.ts:358-360) distinctly from the set path.",
+            "type": "logic"
+          },
+          {
+            "desc": "Assert that after the rejected duplicate `milestone_ledger_set`/`milestone_ledger_add` calls, `jsonRun(root, 'milestone_ledger_get', { storyId })` still returns the prior valid ledger (milestones.length unchanged, no duplicate id present), proving the failed write did not corrupt or partially persist milestone-ledger.json.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Logic check that de-dup is by exact id and not silently coalesced: `buildMilestoneLedger` with two rows sharing id 'M1' but differing claim/doneMeans throws (rejected) rather than merging into a single row or keeping the last-writer — confirm the error is raised BEFORE computeMilestoneLedgerHash so no ledger object with length 1 is ever returned for a 2-row duplicate input.",
+            "type": "logic"
+          },
+          {
+            "desc": "CLI adversarial: run `node dist/tasks/proofstory-intent-hardening-smoke.js`; temporarily neutralize the duplicate guard in proofstory.ts (comment out the `if (ids.has(milestone.id)) throw` block) and confirm the newly added negative-control assertion FAILS with a nonzero exit (the test is un-gameable / actually detects a regressed builder), then restore the guard and confirm the suite passes again.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
