@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: packages/main/src/core/capability-release.ts:1 imports execFileSync from node:child_process but never calls it anywhere in the file (verified via grep - only the import line references the name).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T17:23:51.954Z",
@@ -13,7 +13,9 @@
       "reviewRunId": "B-8128:RR-002",
       "_hash": "0cf9e1e9d196c8c19f006c4516abaeb440320eeed6eaf75f0e204b3312b2bbfb",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the unused execFileSync import from core/capability-release.ts (commit in DEV re-round).",
+      "resolvedAt": "2026-07-05T17:34:29.890Z"
     },
     {
       "id": "B-8128:F-002",
