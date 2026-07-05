@@ -47,10 +47,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
           "result": "pass",
           "note": "Hermetic red smoke now passes via the real M4 enrichment path, proving the gap is closed on the fixture.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,10 +58,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
           "result": "pass",
           "note": "Smoke uses a mkdtemp fixture, reads no live repo-root .lattice, and is re-runnable.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
           "result": "pass",
           "note": "Expected PCR id is produced by the real M1 builder; red before M4, green after — a genuine red->green pin.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Deterministic merge-stable capabilityDigest, PCR-<24hex> id, digest-derived version, capabilityId slug — all green.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Fail-closed reader throws on authority/gateEvidence/malformed rows; artifact-less digest stable.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "idempotencyKey excludes mainCommit (recovery -> same id); gate-import guard proves no gate module imports the reader.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -204,10 +204,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Pure classifyCapabilityRelease returns experiment-launch-control for B-785e-like paths + the capability path subset.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -215,10 +215,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Typo-doc -> documentation-control; runtime src / .lattice metadata -> no capability release.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,10 +226,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Both DONE sites (done-effects.ts:1167, done-recover.ts:116) import the same core classifier.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.087Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -281,10 +281,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "DONE records one PCR row binding storyId/mainCommit/artifact ids/changedPaths.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -292,10 +292,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Re-run with a different mainCommit returns already_recorded; no duplicate row.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -303,10 +303,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Ledger committed via git add -f + .gitignore un-ignore -> tracked cross-host source of truth.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -361,10 +361,10 @@
           "command": "node packages/main/dist/tasks/playbook-capability-lineage-smoke.js",
           "result": "pass",
           "note": "Candidate ingest attaches capabilityReleaseId/capabilityId/version/artifactReleaseId when a capability release exists.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -372,10 +372,10 @@
           "command": "node packages/main/dist/tasks/playbook-capability-lineage-smoke.js",
           "result": "pass",
           "note": "Pre-existing 3-field lineage still parses; re-apply is a no-op keyed on the canonical source key.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -383,10 +383,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
           "result": "pass",
           "note": "Enrichment recomputes proposal/playbook digests without tripping stale-proposal; the M0 red fixture flips green.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -445,10 +445,10 @@
           "command": "node packages/main/dist/cli.js capability_release_list --format=json",
           "result": "pass",
           "note": "capability_release_list/status render the ledger read-only (json/text), cloned from artifact-release.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -456,10 +456,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Registered across six sites (catalog, registry, handler, command-policy readOnly/none/all, config DEFAULT_PHASE_TOOLS wildcard, process-fact L0).",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -467,10 +467,10 @@
           "command": "node packages/main/dist/tasks/product-capability-release-smoke.js",
           "result": "pass",
           "note": "Read-only: byte-identical ledger before/after; distinct capability_release_* namespace, not the host capability_list/probe/claim family.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -522,10 +522,10 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "tsc build clean and all four new capability smokes run green under node dist/tasks.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -533,10 +533,10 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "lattice validate --json returns status=pass with the four capability smokes in the suite; M0 red test now green.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
@@ -544,10 +544,10 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "No unrelated smoke in the curated validate suite regresses.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -601,10 +601,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "A status=candidate capability playbook is excluded by matchRuntimePlaybooks / MemoryFreshnessPack.results.playbookIds.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -612,10 +612,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "Candidate does not enter active playbookIds.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-011:adversarial:0",
@@ -623,10 +623,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "Flipping the same playbook to status=active surfaces it, proving the status===active guard is the gate.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -680,10 +680,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "isPositiveHelpedPlaybookOutcome false for verdictSource=done-settlement.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-012:edge:0",
@@ -691,10 +691,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "A structured non-done-settlement helped outcome counts as helped.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-012:adversarial:0",
@@ -702,10 +702,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "aggregatePlaybookPromotion.decisiveSamples excludes done-settlement/neutral/unknown.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     },
@@ -759,10 +759,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "Fixture backfill dry-run detects exactly one eligible seed; apply enriches exactly one.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-013:edge:0",
@@ -770,10 +770,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "Second apply is a byte-identical no-op; candidate stays status=candidate; surfacedCount unchanged.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         },
         {
           "intentRef": "CHK-013:adversarial:0",
@@ -781,10 +781,10 @@
           "command": "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
           "result": "pass",
           "note": "No helped outcome inferred; the proof uses a mkdtemp fixture, never the live PBP-882.",
-          "headHash": "fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8",
-          "materialHash": "7ad514ee5a535ea227ac1cd0579af1aef24c822b86d5b1cde5f1b457c8d0425b",
-          "storyFilesHash": "8e73a7ef19b74e4fec9ee8c65f1efb350f74c19dbac174bf00369739066b8537",
-          "timestamp": "2026-07-05T17:18:56.088Z"
+          "headHash": "38db1db96d3edb231e71dba1c9870e2afd2a4adb",
+          "materialHash": "4a7edf69023db180c50f6d3602418b3dd4a5828932dc242235f0c13212ad0d89",
+          "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+          "timestamp": "2026-07-05T17:42:36.112Z"
         }
       ]
     }
