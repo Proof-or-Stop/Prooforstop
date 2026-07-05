@@ -30,7 +30,7 @@
       "desc": "m2-provider-execution-check.mjs loads m2-provider-execution-authorization.json but never validates it: providerAuthorization is returned from loadArtifacts() at lines 636-638, yet validateAll() only checks providerLaunch, Cell 03 guardrail/envelope, policies, tool surface, runner manifest, readiness, and status at lines 583-625. README line 232 promises the checker records/validates the B-11be metadata authorization with USD 0.00 spend. As written, mutations to m2-provider-execution-authorization.json authorizationBoundary, provider spend, required metadata blockers, or sequencing would not fail the provider execution check, leaving a silent coverage hole for the full B-6529 change.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-05T22:05:19.500Z",
@@ -43,7 +43,11 @@
         "experiments/multi-model-ablation/README.md"
       ],
       "signatureTag": "missing|mjs|provider-execution-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits c0ffd8d5f and ea7fde6e2. m2-provider-execution-check.mjs now calls validateProviderAuthorization(), validates the B-11be authorization artifact, rejects providerBudgetCap/nonzeroProviderBudgetCap drift, validates required future metadata blocker semantics, and preserves no pre-run dollar amount/cap as a launch condition. Verified by node experiments/multi-model-ablation/m2-provider-execution-check.mjs: 1190 assertions / 13 negative controls; m2-launch-readiness-check.mjs: 1105 assertions / 21 negative controls.",
+      "resolvedAt": "2026-07-05T22:18:53.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6529:F-003",
