@@ -1,0 +1,50 @@
+{
+  "storyId": "B-e62e",
+  "checkedAt": "2026-07-05T12:02:14.202Z",
+  "headHash": "90f8a2fc0e8491d77b27a00a8d1e50076815cd37",
+  "materialHash": "d7576a5a3cc816a9c47197c5728a433ccd945ce79b4df3f24d73c207f868e529",
+  "storyFilesHash": "ce85ec0092b67f113e18724835a41e5d7ef43cceaf740ccc720f33a2063c5561",
+  "reviewRound": "2026-07-05T11:59:11.671Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "After a successful state change, stdout shows the command result and then `Milestone Status - B-demo` with `Completed`, `Current`, and `Remaining` table sections.",
+      "status": "verified",
+      "verifiedBy": "source, docs, and focused regression review",
+      "evidence": "packages/main/src/cli-engine.ts appends shared milestone_status output for supported human-output story mutations. node packages/main/tests/milestone-status.test.mjs passed locally and checks emitted table headings. docs/CLI.md documents automatic append behavior."
+    },
+    {
+      "docPath": "packages/main/tests/milestone-status.test.mjs",
+      "promise": "The regression test fails unless CLI stdout for a representative mutation includes `Milestone Status - B-post-progress`, `Completed`, `Current`, and `Remaining`.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/tests/milestone-status.test.mjs",
+      "evidence": "The regression uses a representative story and asserts the auto-appended stdout contains Milestone Status plus Completed, Current, and Remaining sections. Local run returned ok milestone-status."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001:happy:0",
+      "transcript": "node packages/main/tests/milestone-status.test.mjs passed locally. The test exercises checklist_update on a ledger-backed temporary story and asserts the command result is followed by Milestone Status with Completed, Current, and Remaining sections."
+    },
+    {
+      "featureId": "CHK-001:edge:0",
+      "transcript": "node packages/main/tests/milestone-status.test.mjs passed locally and asserts --json output remains parseable without an appended milestone table."
+    },
+    {
+      "featureId": "CHK-001:edge:1",
+      "transcript": "node packages/main/tests/milestone-status.test.mjs passed locally and asserts a story without milestone-ledger.json does not receive a fabricated milestone status table after mutation."
+    },
+    {
+      "featureId": "docs-check",
+      "transcript": "rg -n for the six status labels and the Not Started versus Failed warning in docs/CLI.md passed locally, matching the recorded docs_check evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS for B-e62e delivery-check scope: docs promises are verified, focused regression and docs grep passed locally, validation and DONE-required evidence are recorded PASS, JSON and no-ledger edge cases are covered, and no unresolved TODOs were found in the reviewed diff. Separate DONE closure still needs the independent review assurance floor satisfied."
+  },
+  "_hash": "7441eb7717ee85a7bd72b904608c38e0578c7bddc026722f6ced6a942538c5b8"
+}
