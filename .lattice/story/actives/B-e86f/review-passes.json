@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T12:59:18.692Z",
       "reviewRunId": "B-e86f:RR-002",
       "_hash": "dca3af2905eccc7506742a50aa8a160421d7d3cacce860d55eca1183dabe2b41"
+    },
+    {
+      "id": "B-e86f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change (single new file: docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md, 383 lines added; .lattice/* are standard story metadata). No code touched, so dead-code/type-safety/I-O-shell-isolation/proof-metadata checks are N/A. Verified the two load-bearing factual claims against actual source: buildBaselineRows(profile) in packages/main/src/core/playbook-runtime-baseline.ts:733 takes only profile (no seed param), confirming the seed-content-inert claim; refreshManifest exists in packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts:29 with call sites at :65/:79/:195, confirming the manifest-refreshed smoke-coverage claim. Header-count claim verified: 12 top-level ## sections + 5 ### 6.x subsections = 17. No TODO/FIXME/TBD markers, no malformed tables/tabs. No dead code, no promised-but-undelivered CLI examples/handler fields/env vars (this is a plan document describing future M0-M4 work, not asserting present-tense implemented behavior).",
+      "createdAt": "2026-07-05T13:00:29.589Z",
+      "reviewRound": "2026-07-05T12:59:18.692Z",
+      "reviewRunId": "B-e86f:RR-001",
+      "_hash": "34d6b0a660c855b986b8e87fce48c55c4b46a7ff0de2e6d1c99e66796bd96538"
     }
   ]
 }
