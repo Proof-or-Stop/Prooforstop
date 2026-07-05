@@ -4,7 +4,7 @@
   "title": "Prepare Multi-Model Ablation M2 provider execution launch and cell 03 calibration plan",
   "description": "Turn the provider-free M2 readiness artifacts into a concrete, auditable launch story for real provider execution. The story must not fabricate Phase 1 outcome data; it should define the execution document, authorization boundary, dated snapshot lock, cell 03 calibration order, and the real budget-lock path before A2prime can run.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-request-2026-07-05",
   "keywords": [
@@ -28,6 +28,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-bc4fe748793b1c50",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:51:45.521Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-785e",
+    "branch": "story/B-785e",
+    "createdAt": "2026-07-05T11:51:44.409Z"
+  }
 }
