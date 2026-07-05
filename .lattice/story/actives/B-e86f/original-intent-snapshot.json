@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e86f",
+  "sourceText": "Operator (2026-07-05): approved starting the proof-or-stop evidence-instrument replay & tamper campaign, with the instruction to first write a supporting document stating milestones, purpose, what is proven, evidence, and why — then land it and begin implementation. Operator also decided the cross-vendor question: Codex serves as red-team/audit/replication, never as outcome judge (deterministic code judges).",
+  "normalizedOutcome": "The reviewed rev 3 execution plan (5 core milestones M0-M4 + optional M5, three-state hypotheses H1-H4, tamper fingerprint discipline, cross-vendor section 6.5, no-overclaim rule) is committed at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md as the campaign's pre-registration, doc-only.",
+  "acceptanceClaim": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md matches the reviewed rev 3 text (sha256 == recorded backup digest), contains sections 1-12 incl. 6.5 and the M0-M5 milestone table, and git diff main...HEAD touches exactly that one path.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:be06d861b75d154530d01b8201b853ad799784d85d0f1f86daf63e0be80f2019",
+  "createdAt": "2026-07-05T12:49:15.613Z",
+  "updatedAt": "2026-07-05T12:49:15.613Z"
+}
