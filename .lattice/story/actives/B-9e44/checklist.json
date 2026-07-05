@@ -248,7 +248,20 @@
         "test": [
           "experiments/pos-instrument-replay/selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck.mjs; echo exit=$?",
+          "result": "pass",
+          "note": "node selfcheck.mjs runs hermetically (mkdtemp) and exits 0 with 'selfcheck PASS'.",
+          "headHash": "5d484e1d57bd4912f18365b8ff8151427c2bfb93",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:42:23.398Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
