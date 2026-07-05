@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T18:56:06.177Z",
       "reviewRunId": "B-2a5b:RR-004",
       "_hash": "63cfe4f49511c25aedee7935432f386fff399fc0501523387e5c820248b46974"
+    },
+    {
+      "id": "B-2a5b:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed commit 2285816b1 (run-batch.mjs + selfcheck-m2.mjs, F-001/F-002 fix). No dangling refs or dead code: BLOCKED_LEDGER_PATH/BLOCKED_LEDGER_NAME consistently defined+used in both files and cross-referenced in findings.json/checklist.json; precondition_failed remains a valid frozen enum value (build-protocol.mjs, untouched) now correctly routed to the separate batch-ledger.blocked.jsonl instead of being deleted/replaced as a concept. git diff main...HEAD on protocol.json, lib/instrument.mjs, tamper.mjs is empty -- M0/M1 untouched. Re-run batch-ledger.jsonl has 33 unique iterationIds, 0 duplicates, matching the strict exact-multiset claim. batch-ledger.blocked.jsonl correctly not committed (ephemeral, not campaign evidence). node --check passes on both modified files. F-001 and F-002 both marked resolved in findings.json. No concept deletion/replacement this round; residue check complete, no blocker.",
+      "createdAt": "2026-07-05T19:23:48.177Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "reviewRunId": "B-2a5b:RR-005",
+      "_hash": "48d84816ec1153aacdb5b54c2612c5584e004493ff555e37cfc716ab6f4fcb95"
     }
   ]
 }
