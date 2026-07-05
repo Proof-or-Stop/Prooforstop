@@ -6,7 +6,49 @@
       "context": "Add a mechanical post-command output path so commands like checklist_update, verification_evidence_batch_add, verification_evidence_refresh_stale, story_advance, delivery_check_save, summary_set, and milestone_ledger_set/add append the same human table as `lattice milestone_status --storyId=<id>` when the story has a milestone ledger.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "After a successful state change, stdout shows the command result and then `Milestone Status - B-demo` with `Completed`, `Current`, and `Remaining` table sections.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A representative state-changing command for a story with milestone-ledger.json appends the consumed milestone_status Markdown table to stdout.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The post-command table is skipped for commands using --json or --format=json so machine-readable stdout remains parseable JSON.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A story without milestone-ledger.json does not receive a fabricated milestone progress table after mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The appended table must be produced by the same milestone_status renderer and include `Milestone Status - <storyId>`, `Completed`, `Current`, and `Remaining`, not a bespoke summary string.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
