@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T15:43:22.404Z",
       "reviewRunId": "B-9e44:RR-002",
       "_hash": "448d66d62c98633618945e8ab6f7aed497fef934db039e3a39fdc5e37676082a"
+    },
+    {
+      "id": "B-9e44:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntents (CHK-001..005 happy/edge/adversarial) carry concrete, non-generic passing evidence. Independently re-ran node experiments/pos-instrument-replay/selfcheck.mjs (PASS, matches recorded evidence) and confirmed it fails under two independent tamper scenarios (sha256 mismatch and hand-edited-vs-regenerated protocol.json divergence), proving the byte-identical re-emit + failClosed-failure-signal + acceptanceBucket-status:pass invariants are genuinely exercised (re-derives failureSignals independently rather than trusting stored values). Verified the adversarial no-op-drop case live in viability-results.json (seed-swap[refreshed] status:pass fingerprint -> disposition:dropped) and the smoke-overlap covered:true/false annotations live in protocol.json (CHK-005). 4 should-priority intents lack recorded evidence (CHK-001:adversarial, CHK-003:adversarial, CHK-005:edge/adversarial) but are advisory per rule and 3 of the 4 are independently confirmed satisfied by artifact inspection; no blocker.",
+      "createdAt": "2026-07-05T15:50:40.479Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-003",
+      "_hash": "56c7d468f53f0bb4c2a51f998083331994e036641c8a924170a9ef17bb9bfc14"
     }
   ]
 }
