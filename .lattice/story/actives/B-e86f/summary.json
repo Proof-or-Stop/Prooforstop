@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e86f",
+  "changes": "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md: landed the rev-3 campaign pre-registration and resolved all four REVIEW findings. F-002/F-001: §6.1 now defines the H2 fingerprint over an EXPLICIT DOMAIN (boolean flag vector + numeric-metric predicates over gold metrics) and makes M0 viability TWO-PRONGED — a class enters the H2 fail-closed set only if its fingerprint carries a failure signal; self-consistent manifest-refreshed variants that legitimately verify-accept (e.g. row-reorder refreshed) are dispositioned into a separate ACCEPTED-BEHAVIOR acceptance bucket and excluded from H2, so they cannot spuriously falsify it. Propagated across §3 claim boundary, §4 H2 row, §7 artifacts, §8 M0/M1, §9 verification matrix, §12 DoD. F-003: §1 wording corrected to 'perfect expectedIdsFoundRate (1.0) over the gold queries'. Provenance changelog extended to record the rev-3 H2 sharpening. F-004: all 9 CHK-001 verification-intent evidence entries re-recorded against current HEAD.",
+  "usage": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md renders the plan. It is the frozen pre-registration that the M0-M5 implementation stories execute against; protocol.json is frozen at M0 per §7 before any scored run.",
+  "expectedOutcome": "The committed doc renders the rev-3 plan: 'Status: DRAFT rev 3'; 12 top-level sections + subsections 6.1-6.5; three-state hypotheses H1-H4 with H2 scoped to the fail-closed set over an explicit fingerprint domain; accepted-behavior acceptance bucket carve-out; doc-only diff vs main.",
+  "actualTranscript": "git show HEAD:...plan.md renders all 12 sections; committed blob sha256 68451936c2378fdc... == refreshed rev-3 backup (verbatim-in-substance); grep -cE '^## ' = 12 and '^### 6.' = 5; git diff main...HEAD --name-only (excl .lattice) = the single plan .md; seed-swap appears historical-only; all four findings F-001..F-004 status=resolved; 4 reviewer lanes PASS; lattice validate allPass=true.",
+  "outcomeDiff": "No difference — expected == actual. The committed content matches the reviewed rev-3 text and every verification intent holds against current HEAD.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Pre-registration document only — no harness/campaign code is implemented here (that is milestones M0-M5, each a separate story). Claim scope is bounded per §3/§10: ledger integrity detects only accidental corruption + naive edits (adversarial re-digest is Tier-C, out of scope); determinism binds to the recorded environment; the tamper matrix is a coverage list, not a security proof.",
+  "pitfalls": "1) verification_evidence_refresh_stale re-stamps storyFilesHash freshness but does NOT re-run the command or update the recorded note — so after story-owned (doc) content changes, the note keeps asserting the OLD digest. The test-coverage lane caught this as F-004 (high). Fix: genuinely re-record via verification_evidence_add against current HEAD, do not rely on refresh_stale for content drift. 2) Any doc edit to resolve a finding changes storyFilesHash, which stales ALL review-lane passes and forces a DEV->REVIEW round restart (the gate refuses in-round re-binding) — batch every doc edit before re-review to avoid extra rounds. 3) When re-recording the content-integrity intent, refresh the scratchpad backup file to the new committed content FIRST so the digest-match holds. 4) In this harness the shell cwd intermittently resets to the parent repo between bash calls — always cd into the worktree at the top of each call. 5) A stale validation-execution-lock (dead pid) under .lattice/locks/validation blocked the first TEST validate; it auto-cleared (staleMs=120s) — just re-run validate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 118027
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15460
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 523745
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 558556
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 4738014
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 91633
+    }
+  },
+  "totalDurationMs": 6046092,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T14:24:36.916Z",
+  "updatedAt": "2026-07-05T14:24:36.916Z"
+}

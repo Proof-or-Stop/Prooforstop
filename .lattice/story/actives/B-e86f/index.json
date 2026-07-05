@@ -4,7 +4,7 @@
   "title": "Docs: land the proof-or-stop evidence-instrument replay & tamper campaign execution plan (rev 3)",
   "description": "The paper's thesis (trust the evidence, not the agent) rests on evidence-chain primitives whose own trust story is only anecdotal: the memory/playbook runtime baseline instrument (1k/1M gold-checked corpus, digest-bound verifier) has a single-shot smoke and one manual demo, but no systematic replay-determinism, tamper-matrix, or unattended-campaign proof. The operator approved (2026-07-05) landing the reviewed execution plan as the pre-registration for a 5-milestone deterministic campaign (M0 protocol freeze -> M1 tamper matrix -> M2 replay driver+ledger -> M3 resume probe -> M4 offline verdict, M5 optional cross-vendor babysitter-scoring pilot). This docs story commits the plan document only; implementation follows as per-milestone stories.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "proof-or-stop",
@@ -101,6 +101,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-05T14:10:23.721Z",
+      "branch": "story/B-e86f",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T14:23:05.283Z",
       "branch": "story/B-e86f",
       "user": "Harmonygo",
       "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
