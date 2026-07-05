@@ -66,7 +66,7 @@
       "desc": "F-001 residual: mkdtempSync (run-batch.mjs:209) executes BEFORE the per-iteration try block starts (try opens at line 227), so a throw from mkdtempSync (e.g. ENOSPC/EMFILE/tmpdir permission failure) is NOT caught by runIteration and propagates uncaught out of main()'s for-loop (line 411), which has only a finally (release()) and no catch (lines 408-434). This crashes the whole node process with NO verify_crash record written for that iteration, and none of the remaining scheduled iterations execute either -- exactly the uncaught/recordless failure mode F-001 was meant to close. The commit message and in-code comments (run-batch.mjs:22-25, 228-233) claim the ENTIRE per-iteration generate+verify body is in a try/catch so ANY throw becomes a verify_crash STOP, which is not accurate: mkdtempSync sits outside that guarded body. The selfcheck (d) GENERATE-CRASH sub-check only fault-injects a throw INSIDE generateBaseline (already inside the try), so it does not exercise this gap. Fix: move the mkdtempSync call inside the try, or wrap it separately so a mkdtemp failure also produces a verify_crash stop record with iterationId populated.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T19:30:27.737Z",
@@ -74,7 +74,11 @@
       "reviewRunId": "B-2a5b:RR-006",
       "_hash": "30e85555ce1682719ca2642e4727131fbd95e7d0505921ba30ae06b8290b7500",
       "signatureTag": "edge|unknown|residual-mkdtempsync-batch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8513707f7 (same structural fix as F-003). The mkdtemp-before-try gap is closed: the per-iteration try now wraps the full lifecycle including setup, and the finally-backstop guard guarantees no silent exit-0 with a missing iteration. selfcheck (e) PRE-BODY-CRASH exercises the mkdtemp-setup failure path (verify_crash stop, no silent miss).",
+      "resolvedAt": "2026-07-05T19:52:17.259Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
