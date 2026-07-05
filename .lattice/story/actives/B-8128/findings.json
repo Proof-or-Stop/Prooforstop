@@ -111,7 +111,7 @@
       "desc": "All 30 must-priority verificationIntent entries across all 10 checklist items (CHK-001..CHK-006,CHK-010..CHK-013) are STALE: lattice validate reports \"Verification intent coverage: 0/30 covered (29 required missing)\" because every recorded verificationEvidence row is pinned to headHash=fe54462fab1ff7aeaf4ba174a28eded6d4f4d0a8 / an old materialHash, while current HEAD is 36645e829c65 after the F-001..F-006 round-2 fix commits (73b7db62c, 17698cb4c, f28c7bc60, 44abee7dd, 8c88a1ddb) rewrote the very files the smokes test (capability-release.ts, done-effects.ts, playbook.ts, capability-release-invariants-smoke.ts, playbook-capability-lineage-smoke.ts, product-capability-release-smoke.ts). The 4 smokes and lattice validate genuinely PASS when re-run live, so this is a re-stamping gap, not a logic gap: verification_evidence_add / a fresh lattice validate re-stamp must be run against current HEAD so headHash/materialHash on all 30 verificationEvidence rows match current material before this can be treated as covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-05T17:39:35.317Z",
@@ -127,7 +127,9 @@
         "packages/main/src/tasks/product-capability-release-smoke.ts"
       ],
       "signatureTag": "missing|ts|priority-verificationintent-entries",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-stamped all 30 stale verificationEvidence items via verification_evidence_refresh_stale (30/30 refreshed against current HEAD; commands re-run). Test logic was already sound; this was purely a re-stamp gap after the round-1 fix commits.",
+      "resolvedAt": "2026-07-05T17:43:05.753Z"
     }
   ]
 }
