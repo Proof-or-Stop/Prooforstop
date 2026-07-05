@@ -4,11 +4,11 @@
   "id": "IC-20260705121840",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Execute the 8-milestone document review exactly as written in the plan; produce findings report + plan status updates + NAV entry; draft follow-up story scope only inside the findings report if M7 finds gaps.",
-  "acceptedInterpretationHash": "sha256:2055ef89204b353cc2e1a8e6abfefc62842d95d20e4c96737acc846f8da81899",
-  "notes": "Confirms the candidate milestone ledger for this review story; dogfoods the candidate-to-confirmed flow under review in M2.",
-  "ledgerHashBeforeDecision": "sha256:b4f9700cbf287ba62badb73e405ff63eb79f026d9dad2d9a06892c6a3ff5aaed",
-  "confirmedLedgerHash": "sha256:b4f9700cbf287ba62badb73e405ff63eb79f026d9dad2d9a06892c6a3ff5aaed",
+  "acceptedInterpretation": "Execute the 8-milestone document review exactly as written in the plan; produce findings report + plan status updates + NAV entry; draft follow-up story scope only inside the findings report if M7 finds gaps. Rebound after ledger rows gained verificationIntentRefs and aligned sourceRequirementIds.",
+  "acceptedInterpretationHash": "sha256:e43dc30cce0df653b848a8a154a7d4f74161c0b42edcb9a0365785569b6c1680",
+  "notes": "Re-confirmation after milestone_ledger_set overwrite demoted the ledger to candidate (observed M2.f safe-demotion behavior; previous binding IC-20260705121840 was dropped with the old hash).",
+  "ledgerHashBeforeDecision": "sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724",
+  "confirmedLedgerHash": "sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724",
   "createdAt": "2026-07-05T12:18:40.402Z",
-  "updatedAt": "2026-07-05T12:18:40.402Z"
+  "updatedAt": "2026-07-05T12:24:35.862Z"
 }

@@ -4,7 +4,7 @@
   "title": "Execute the milestone ledger status review and hardening plan (M0-M7)",
   "description": "Story B-9051 delivered docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md but only authored the plan document; all 8 milestones and 43 sub-objectives are still in planned status. This story executes the truth-first document review itself: it audits whether the existing milestone_ledger_set/add/get, milestone_status, and milestone_closeout implementation matches the intended safety boundary, records per-milestone finding-or-pass outcomes in a findings report, updates the plan milestone statuses, and closes with an explicit M7 decision (clean pass or a bounded follow-up story proposal).",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "milestone-ledger",
@@ -45,6 +45,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-05T12:16:48.609Z",
+      "branch": "story/B-b550",
+      "user": "Harmonygo",
+      "sessionId": "1b908de7-9c48-4daf-9792-5f4a14562ca3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T12:25:01.639Z",
       "branch": "story/B-b550",
       "user": "Harmonygo",
       "sessionId": "1b908de7-9c48-4daf-9792-5f4a14562ca3",
