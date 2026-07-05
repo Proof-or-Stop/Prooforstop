@@ -18,8 +18,25 @@
       },
       "note": "Red state at HEAD c4749c335: the M0 deliverables are absent. Green after DEV: the selfcheck exits 0, asserting protocol.json re-emits byte-identical and every fail-closed class fingerprint carries a failure signal.",
       "createdAt": "2026-07-05T15:12:51.555Z"
+    },
+    {
+      "id": "RED-20260705151531",
+      "trigger": "M0 material-code feature: freeze protocol.json via a committed viability harness + hermetic selfcheck; none exists yet.",
+      "acceptanceTargetRef": "CHK-004:happy:0",
+      "baselineHeadHash": "c833e89b310ef39dc0462484ca5d925e600d518f",
+      "baselineMaterialHash": "1b7cfaef0cac92cc1170611bbf53436edc619e5796fb0d8a8a18c3f5e4538899",
+      "observedFailure": "node experiments/pos-instrument-replay/selfcheck.mjs fails with ERR_MODULE_NOT_FOUND: selfcheck/harness/producer/protocol.json all absent, so hash-stability and the two-pronged fail-closed invariant cannot be checked.",
+      "failingCommand": "node experiments/pos-instrument-replay/selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/pos-instrument-replay/selfcheck.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-004:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/pos-instrument-replay/selfcheck.mjs"
+      },
+      "note": "Re-bound at current HEAD (prior record staled when metadata commits advanced HEAD). Green after DEV: selfcheck exits 0.",
+      "createdAt": "2026-07-05T15:15:31.508Z"
     }
   ],
   "createdAt": "2026-07-05T15:12:51.555Z",
-  "updatedAt": "2026-07-05T15:12:51.555Z"
+  "updatedAt": "2026-07-05T15:15:31.508Z"
 }
