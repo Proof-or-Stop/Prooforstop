@@ -194,7 +194,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' (hermetic mkdtemp, small): boundary-kill+resume, mid-run-crash+resume, fresh-additivity, resume-no-ledger, truncated-tail-repair all pass.",
+          "headHash": "066baff577f22653c34292f735e03bea9ac8d95c",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:09:34.796Z"
+        }
+      ]
     }
   ]
 }
