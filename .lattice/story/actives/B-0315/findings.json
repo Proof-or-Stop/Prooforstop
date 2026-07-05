@@ -5,7 +5,7 @@
       "desc": "B-0315 changes the DONE build/version-bump gate so packages/main/tests/** is a watched capability-proof input (done-effects.ts returns true and version-bump-smoke asserts that positive case), but worktree-authority-smoke still keeps packages/main/tests/smoke.ts in the skipped set and asserts isDoneMainRuntimeBuildInput(path) === false. That leaves a core authority smoke encoding the opposite product boundary from this story, so the bounded strategy is not consistently reflected and will fail or mislead gate verification when that smoke runs.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-05T09:59:45.561Z",
@@ -18,7 +18,11 @@
         "packages/main/src/tasks/version-bump-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|0315-changes-build",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved packages/main/tests/smoke.ts from skipped to watched in worktree-authority-smoke; npm build, version-bump-smoke, worktree-authority-smoke, and done-merge-experience-refresh-smoke all passed after the fix.",
+      "resolvedAt": "2026-07-05T10:13:35.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0315:F-002",
