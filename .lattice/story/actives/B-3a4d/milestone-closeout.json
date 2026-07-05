@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-3a4d",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T02:53:30.707Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "8b13f1e67ce0c75b6d9d00000db7257673896ca59dfd46db3517b13286de8528",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:52361ef20b8bcfbe518db64a7ee9e99e5d55d252f2780acddd4ce890ad4754d5"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    }
+  },
+  "bindings": {
+    "headHash": "23d429756ddbe1b8061bdd3ecce73a08c53e3bfc",
+    "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+    "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DONE closeout snapshot is persisted through the DONE merge and cleanup boundary.",
+      "acceptance": "After a real DONE transition, canonical story metadata contains milestone-closeout.json and the story worktree can be removed without losing it.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Build passed and milestone-status regression passed. The new B-done-closeout-worktree fixture creates a real git worktree, advances DONE, removes the story worktree, then reads proofbound.milestone_closeout.v1 from canonical main.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The worktree fixture asserts the story worktree no longer exists before canonical main Store and CLI milestone_closeout read the snapshot, so a transient worktree-only file cannot satisfy the test; existing missing-ledger cases also still pass."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Regression coverage proves canonical-root milestone_closeout succeeds after DONE cleanup.",
+      "acceptance": "The focused test fails if closeout is only written in the worktree or deleted during cleanup, and passes only when canonical root can read proofbound.milestone_closeout.v1.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The regression runs a full enough DONE path through createStoryAdvanceHandlers from a linked story worktree and verifies canonical-root milestone_closeout returns proofbound.milestone_closeout.v1 after cleanup.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The regression distinguishes canonical-root persistence from worktree-local writes by instantiating a new StoryStore at mainRoot after worktree deletion and reading milestone-closeout.json there.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=If DONE cleanup deletes the only closeout copy or fails to merge it into canonical metadata, the mainRoot Store/CLI assertions in the regression fail."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Stories without milestone ledgers still do not fabricate closeout snapshots.",
+      "acceptance": "Missing-ledger DONE stories keep the existing missing/not-applicable diagnostic rather than writing false completed closeout rows.",
+      "evidence": [
+        "CHK-001:edge:0 [pass/docs_check] rg -n \"canonical main root can still|story worktree DONE path|merge cleanup\" docs/CLI.md file=docs/CLI.md note=docs/CLI.md lines 353-355 state that a story worktree DONE closeout is committed before removal and remains readable from canonical main after merge cleanup.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The worktree fixture asserts the story worktree no longer exists before canonical main Store and CLI milestone_closeout read the snapshot, so a transient worktree-only file cannot satisfy the test; existing missing-ledger cases also still pass."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
