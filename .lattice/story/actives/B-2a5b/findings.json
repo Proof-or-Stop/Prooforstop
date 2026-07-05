@@ -45,7 +45,7 @@
       "desc": "[codex-host-2 re-check, verified] F-001 fix is incomplete: exceptions OUTSIDE the guarded generate+verify body can still leave an iteration with no record AND skip the end-of-run guard. Scenario: mkdtempSync fails, the record appendFileSync fails after runIteration returns, or the rmSync cleanup throws -> the exception escapes the crash->verify_crash-stop conversion, the driver crashes mid-loop before reaching the end-of-run guard, so there is neither a stop record nor a recordless-nonzero-exit. This violates the claimed 'ANY throw becomes exactly one stop record / the driver never exits 0 with a missing record' guarantee. Structural fix: run the end-of-run STRICT-multiset guard in a finally (or top-level try/finally over the whole campaign) so it ALWAYS executes even if the loop throws uncaught — any recordless iteration then still forces a named nonzero exit; and widen the per-iteration try to include mkdtemp + append + cleanup (best-effort stop record).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T19:27:55.224Z",
@@ -55,7 +55,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8513707f7. runIteration now guards the ENTIRE per-iteration lifecycle (mkdtemp+generate+verify+build+append+cleanup) so any throw becomes a best-effort verify_crash stop; main() runs the STRICT exact-multiset end-of-run guard in a finally/top-level backstop that ALWAYS executes even on an uncaught loop crash -> a recordless escaped iteration forces a named NONZERO exit; the guard is computed defensively so it cannot throw/mask the exit code. The driver NEVER exits 0 with a missing record. selfcheck (e) proves both a pre-body mkdtemp crash and a post-body append crash are handled.",
+      "resolvedAt": "2026-07-05T19:52:16.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2a5b:F-004",
