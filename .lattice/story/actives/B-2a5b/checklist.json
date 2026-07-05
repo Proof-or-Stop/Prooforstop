@@ -183,7 +183,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "node selfcheck-m2.mjs exits 0 with 'selfcheck-m2 PASS' (hermetic mkdtemp, small scale): (a) budget_cap, (b) lockfile, (c) recordless all pass.",
+          "headHash": "211654860fd684505450ec44ff28c7b7e75c68c7",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:55:52.107Z"
+        }
+      ]
     }
   ]
 }
