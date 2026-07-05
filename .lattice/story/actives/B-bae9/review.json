@@ -169,6 +169,29 @@
         }
       ],
       "_hash": "c7b6dc57aeaf50c843e2a73561454a87cf972a55bd17067babafb0512e870d59"
+    },
+    {
+      "timestamp": "2026-07-05T17:11:26.299Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "a7356b09d8dc33565ae7c09cf6c10ff3a2a1e4a1f46184755cc8450b08fecab2"
     }
   ]
 }
