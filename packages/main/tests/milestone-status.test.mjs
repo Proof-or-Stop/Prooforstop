@@ -93,23 +93,6 @@ function ledger(milestones, storyId = 'B-7ba7') {
   };
 }
 
-function milestone(overrides) {
-  return {
-    id: 'M-default',
-    sourceRequirementId: 'REQ-default',
-    claim: 'Default claim',
-    doneMeans: 'Default done means',
-    checklistRefs: [],
-    verificationIntentRefs: [],
-    status: 'planned',
-    ...overrides,
-  };
-}
-
-function writeJson(path, value) {
-  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
 function writeTestConfig(root) {
   writeJson(join(root, 'lattice.config.json'), {
     scanRoot: '.',
@@ -127,8 +110,10 @@ function writeTestConfig(root) {
   const markerChecklist = {
     items: [
       checklistItem('CHK-MARKER-DONE', 'done', [evidence('CHK-MARKER-DONE:happy:0')], intent('marker completed intent')),
+      checklistItem('CHK-MARKER-REVIEW', 'done', [evidence('CHK-MARKER-REVIEW:happy:0')], intent('marker review intent')),
       checklistItem('CHK-MARKER-CURRENT', 'in_progress', [], intent('marker current intent')),
       checklistItem('CHK-MARKER-REMAINING', 'pending', [], intent('marker remaining intent')),
+      checklistItem('CHK-MARKER-FAILED', 'done', [evidence('CHK-MARKER-FAILED:happy:0', 'fail')], intent('marker failed intent')),
     ],
   };
   const markerLedger = ledger([
@@ -141,6 +126,16 @@ function writeTestConfig(root) {
       checklistRefs: ['CHK-MARKER-DONE'],
       verificationIntentRefs: ['CHK-MARKER-DONE:happy:0'],
       status: 'done',
+    }),
+    milestone({
+      id: 'M-marker-review',
+      sourceRequirementId: 'REQ-marker-review',
+      claim: 'Marker pending review milestone',
+      doneMeans: 'Covered rows awaiting final ledger acceptance show pending review',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-REVIEW'],
+      verificationIntentRefs: ['CHK-MARKER-REVIEW:happy:0'],
+      status: 'covered',
     }),
     milestone({
       id: 'M-marker-current',
@@ -162,6 +157,26 @@ function writeTestConfig(root) {
       verificationIntentRefs: ['CHK-MARKER-REMAINING:happy:0'],
       status: 'planned',
     }),
+    milestone({
+      id: 'M-marker-blocked',
+      sourceRequirementId: 'REQ-marker-blocked',
+      claim: 'Marker blocked milestone',
+      doneMeans: 'Missing refs show the blocked marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-MISSING'],
+      verificationIntentRefs: ['CHK-MARKER-MISSING:happy:0'],
+      status: 'planned',
+    }),
+    milestone({
+      id: 'M-marker-failed',
+      sourceRequirementId: 'REQ-marker-failed',
+      claim: 'Marker failed milestone',
+      doneMeans: 'Failing evidence shows the failed marker',
+      requiredEvidence: [],
+      checklistRefs: ['CHK-MARKER-FAILED'],
+      verificationIntentRefs: ['CHK-MARKER-FAILED:happy:0'],
+      status: 'done',
+    }),
   ], markerStoryId);
   const markerReport = buildMilestoneStatusReport({
     story: story(markerStoryId),
@@ -169,23 +184,28 @@ function writeTestConfig(root) {
     milestoneLedger: markerLedger,
   });
   const markerText = renderMilestoneStatusReport(markerReport);
-  assert.match(markerText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
-  assert.match(markerText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
-  assert.match(markerText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
-  assert.match(markerText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
-  assert.match(markerText, /⏳ CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
-  assert.match(markerText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
-  assert.match(markerText, /✅ CHK-MARKER-DONE:happy:0 \[covered\]/);
-  assert.match(markerText, /✅ CHK-MARKER-DONE:happy:0 \[pass\/logic_test\]/);
+  assert.match(markerText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+  assert.match(markerText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+  assert.match(markerText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+  assert.match(markerText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+  assert.match(markerText, /⏳ In Progress CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+  assert.match(markerText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+  assert.match(markerText, /🔴 Blocked CHK-MARKER-MISSING \[missing\] CHK-MARKER-MISSING/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE:happy:0 \[covered\]/);
+  assert.match(markerText, /✅ Done CHK-MARKER-DONE:happy:0 \[pass\/logic_test\]/);
+  assert.match(markerText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
 
   const missingText = renderMilestoneStatusReport(buildMilestoneStatusReport({
     story: story('B-marker-missing-ledger'),
     checklist: { items: [] },
     milestoneLedger: null,
   }));
-  assert.match(missingText, /\| ledger \| milestone ledger required \| ❌ blocked \|/);
+  assert.match(missingText, /\| ledger \| milestone ledger required \| 🔴 Blocked \(ledger=missing\) \|/);
   assert.match(missingText, /\| none \| none \| none \| none \| none \| none \| none \|/);
-  assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳❌] none \|/, 'placeholder none rows stay unmarked');
+  assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳🟡⬜🔴❌] none \|/, 'placeholder none rows stay unmarked');
 
   const cliMarkerStoryId = 'B-cli-marker-icons';
   const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
@@ -205,12 +225,17 @@ function writeTestConfig(root) {
       '--storyId',
       cliMarkerStoryId,
     ], { cwd: root, encoding: 'utf8' });
-    assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
-    assert.match(cliText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
-    assert.match(cliText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
-    assert.match(cliText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
-    assert.match(cliText, /⏳ CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
-    assert.match(cliText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+    assert.match(cliText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(cliText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+    assert.match(cliText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+    assert.match(cliText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(cliText, /⏳ In Progress CHK-MARKER-CURRENT \[in_progress\] CHK-MARKER-CURRENT title/);
+    assert.match(cliText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(cliText, /🔴 Blocked CHK-MARKER-MISSING \[missing\] CHK-MARKER-MISSING/);
+    assert.match(cliText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
 
     const autoAppendText = execFileSync(process.execPath, [
       cliPath,
@@ -225,12 +250,16 @@ function writeTestConfig(root) {
       'pending',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
-    assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ completed \(/);
-    assert.match(autoAppendText, /\| M-marker-current \| Marker current milestone \| ⏳ current \(/);
-    assert.match(autoAppendText, /\| M-marker-remaining \| Marker remaining milestone \| ❌ remaining \(/);
-    assert.match(autoAppendText, /✅ CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
-    assert.match(autoAppendText, /❌ CHK-MARKER-CURRENT \[pending\] CHK-MARKER-CURRENT title/);
-    assert.match(autoAppendText, /❌ CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
+    assert.match(autoAppendText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
+    assert.match(autoAppendText, /\| M-marker-current \| Marker current milestone \| ⏳ In Progress \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-remaining \| Marker remaining milestone \| ⬜ Not Started \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-blocked \| Marker blocked milestone \| 🔴 Blocked \(ledger=planned;/);
+    assert.match(autoAppendText, /\| M-marker-failed \| Marker failed milestone \| ❌ Failed \(ledger=done;/);
+    assert.match(autoAppendText, /✅ Done CHK-MARKER-DONE \[done\] CHK-MARKER-DONE title/);
+    assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-CURRENT \[pending\] CHK-MARKER-CURRENT title/);
+    assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
+    assert.match(autoAppendText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
 
     const noLedgerStoryId = 'B-cli-marker-no-ledger';
     const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
@@ -294,6 +323,23 @@ function writeTestConfig(root) {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+function milestone(overrides) {
+  return {
+    id: 'M-default',
+    sourceRequirementId: 'REQ-default',
+    claim: 'Default claim',
+    doneMeans: 'Default done means',
+    checklistRefs: [],
+    verificationIntentRefs: [],
+    status: 'planned',
+    ...overrides,
+  };
+}
+
+function writeJson(path, value) {
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
 function assertTextContract(text) {

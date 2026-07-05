@@ -854,26 +854,36 @@ function formatCell(value: string): string {
   return value.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 }
 
-type StatusMarker = '✅' | '⏳' | '❌';
+type DisplayStatus = 'done' | 'inProgress' | 'pendingReview' | 'notStarted' | 'blocked' | 'failed';
 
-function milestoneStatusMarker(status: MilestoneProgressStatus): StatusMarker {
-  if (status === 'completed') return '✅';
-  if (status === 'current') return '⏳';
-  return '❌';
+const DISPLAY_STATUSES: Record<DisplayStatus, { icon: string; label: string }> = {
+  done: { icon: '✅', label: 'Done' },
+  inProgress: { icon: '⏳', label: 'In Progress' },
+  pendingReview: { icon: '🟡', label: 'Pending Review' },
+  notStarted: { icon: '⬜', label: 'Not Started' },
+  blocked: { icon: '🔴', label: 'Blocked' },
+  failed: { icon: '❌', label: 'Failed' },
+};
+
+function displayStatusText(status: DisplayStatus, detail?: string): string {
+  const display = DISPLAY_STATUSES[status];
+  return `${display.icon} ${display.label}${detail ? ` (${detail})` : ''}`;
 }
 
-function detailStatusMarker(status: string): StatusMarker {
-  const normalized = status.trim().toLowerCase().replace(/[\s-]+/g, '_');
+function normalizeDisplayStatus(status: string): string {
+  return status.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function detailDisplayStatus(status: string): DisplayStatus {
+  const normalized = normalizeDisplayStatus(status);
+  const failedStatuses = new Set(['fail', 'failed', 'not_passing']);
   const inProgressStatuses = new Set(['in_progress', 'current', 'running', 'active', 'actively_being_developed']);
   const completedStatuses = new Set(['done', 'covered', 'pass', 'passed', 'success', 'complete', 'completed', 'not_applicable', 'mapped', 'waived']);
-  const incompleteStatuses = new Set([
-    'pending',
+  const notStartedStatuses = new Set(['pending', 'planned', 'remaining', 'not_started', 'todo', 'queued']);
+  const blockedStatuses = new Set([
     'missing',
-    'fail',
-    'failed',
     'blocked',
     'incomplete',
-    'not_passing',
     'missing_result',
     'stale_evidence',
     'ambiguous_intent',
@@ -883,30 +893,81 @@ function detailStatusMarker(status: string): StatusMarker {
     'unmapped',
   ]);
 
-  if (inProgressStatuses.has(normalized)) return '⏳';
-  if (completedStatuses.has(normalized)) return '✅';
-  if (incompleteStatuses.has(normalized)) return '❌';
-  if (normalized.includes('current') || normalized.includes('running')) return '⏳';
+  if (failedStatuses.has(normalized)) return 'failed';
+  if (inProgressStatuses.has(normalized)) return 'inProgress';
+  if (completedStatuses.has(normalized)) return 'done';
+  if (notStartedStatuses.has(normalized)) return 'notStarted';
+  if (blockedStatuses.has(normalized)) return 'blocked';
+  if (normalized.includes('fail') || normalized.includes('not_passing')) return 'failed';
+  if (normalized.includes('current') || normalized.includes('running') || normalized.includes('progress')) return 'inProgress';
+  if (normalized.includes('pending') || normalized.includes('planned') || normalized.includes('remaining')) return 'notStarted';
   if (
     normalized.includes('missing')
-    || normalized.includes('fail')
     || normalized.includes('blocked')
     || normalized.includes('incomplete')
-    || normalized.includes('not_passing')
     || normalized.includes('stale')
     || normalized.includes('ambiguous')
     || normalized.includes('unmapped')
-  ) return '❌';
-  return '❌';
+  ) return 'blocked';
+  return 'blocked';
+}
+
+function rowHasFailedEvidence(row: MilestoneStatusRow): boolean {
+  return row.evidenceRefs.some((evidence) => detailDisplayStatus(evidence.status) === 'failed')
+    || row.subObjectives.some((sub) => detailDisplayStatus(sub.status) === 'failed')
+    || /\bevidence=not-passing\b/.test(row.statusDetail);
+}
+
+function rowHasBlockingGap(row: MilestoneStatusRow): boolean {
+  return row.subObjectives.some((sub) => {
+    const normalized = normalizeDisplayStatus(sub.status);
+    return normalized === 'ambiguous_intent'
+      || normalized === 'missing_intent'
+      || normalized === 'missing_evidence_kind'
+      || normalized === 'unmapped';
+  })
+    || /\bchecklist=missing\b/.test(row.statusDetail)
+    || /\brequiredEvidence=missing\b/.test(row.statusDetail)
+    || /\bevidence=stale\b/.test(row.statusDetail)
+    || row.risks.some((risk) =>
+      /no verificationIntentRefs mapped|not present|ambiguous|not linked|no checklistRefs mapped|required evidence kind/i.test(risk)
+    );
+}
+
+function rowAppearsPendingReview(row: MilestoneStatusRow): boolean {
+  return (row.ledgerStatus === 'covered' && row.risks.length === 0)
+    || (
+      row.status !== 'completed'
+      && /\bchecklist=complete\b/.test(row.statusDetail)
+      && /\bevidence=covered\b/.test(row.statusDetail)
+      && /\brequiredEvidence=covered\b/.test(row.statusDetail)
+    );
+}
+
+function milestoneDisplayStatus(row: MilestoneStatusRow): DisplayStatus {
+  if (rowHasFailedEvidence(row)) return 'failed';
+  if (rowAppearsPendingReview(row)) return 'pendingReview';
+  if (rowHasBlockingGap(row)) return 'blocked';
+  if (row.status === 'completed') return 'done';
+  if (row.status === 'current') return 'inProgress';
+  return 'notStarted';
+}
+
+function formatDetailStatus(status: string): string {
+  return displayStatusText(detailDisplayStatus(status));
+}
+
+function formatMilestoneStatus(row: MilestoneStatusRow): string {
+  return displayStatusText(milestoneDisplayStatus(row), row.statusDetail);
 }
 
 function renderTableRow(row: MilestoneStatusRow): string {
   const cells = [
     row.id,
     row.claim,
-    `${milestoneStatusMarker(row.status)} ${row.status} (${row.statusDetail})`,
-    formatList(row.subObjectives.map((sub) => `${detailStatusMarker(sub.status)} ${sub.id} [${sub.status}] ${sub.label}`)),
-    formatList(row.evidenceRefs.map((evidence) => `${detailStatusMarker(evidence.status)} ${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
+    formatMilestoneStatus(row),
+    formatList(row.subObjectives.map((sub) => `${formatDetailStatus(sub.status)} ${sub.id} [${sub.status}] ${sub.label}`)),
+    formatList(row.evidenceRefs.map((evidence) => `${formatDetailStatus(evidence.status)} ${evidence.intentRef} [${evidence.status}/${evidence.kind}]${evidence.command ? ` ${evidence.command}` : ''}`)),
     formatList(row.risks),
     row.nextAction,
   ].map(formatCell);
@@ -946,7 +1007,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
       'Current',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',
       '|---|---|---|---|---|---|---|',
-      `| ledger | milestone ledger required | ❌ blocked | milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
+      `| ledger | milestone ledger required | ${displayStatusText('blocked', 'ledger=missing')} | ${displayStatusText('blocked')} milestone ledger missing | none | ${formatCell(formatList(report.risks))} | ${formatCell(formatList(report.nextActions))} |`,
       '',
       'Remaining',
       '| Milestone | Purpose | Status: | Sub-objectives: | Evidence: | Risks: | Next action: |',
