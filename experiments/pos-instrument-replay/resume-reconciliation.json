@@ -1,6 +1,6 @@
 {
   "hypothesis": "H3",
-  "description": "interrupt/resume idempotence — a deterministic mid-iteration kill leaves a recordless casualty; a --resume restart skips the already-recorded iterations, re-runs the casualty and the rest, and the strict exact-multiset guard reconciles the final ledger to the protocol replay/small cross-product with 0 dup / 0 gap and exactly one record per iterationId.",
+  "description": "interrupt/resume idempotence — a deterministic mid-iteration kill leaves a recordless casualty; a --resume restart skips the already-recorded iterations, re-runs the casualty and the rest, and the strict exact-multiset guard reconciles the final ledger to the protocol replay/small cross-product with 0 dup / 0 gap and exactly one record per iterationId. killC additionally proves resume SKIPS an ALREADY-RECORDED verify_crash STOP (does not re-run it into a proof, no dup / no gap, the stop record preserved byte-identical).",
   "scale": "small",
   "protocolReplaySmallCount": 30,
   "killA": {
@@ -18,6 +18,19 @@
     "postResume": {
       "dup": 0,
       "gap": 0,
+      "casualtyDisposition": "proof:pass"
+    }
+  },
+  "killC": {
+    "mechanism": "POS_FAIL_APPEND_AT",
+    "stoppedId": "replay/small/3",
+    "casualtyId": "replay/small/12",
+    "recordedBeforeKill": 11,
+    "postResume": {
+      "dup": 0,
+      "gap": 0,
+      "stoppedDisposition": "stop:verify_crash (preserved, skipped on resume)",
+      "stoppedRecordPreserved": true,
       "casualtyDisposition": "proof:pass"
     }
   },

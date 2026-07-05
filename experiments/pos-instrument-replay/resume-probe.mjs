@@ -264,6 +264,137 @@ function killTrial(tag, crashIndex) {
 }
 
 /**
+ * A STOP-RECORD-RESUME trial (F-004). Unlike killTrial's recordless casualty
+ * (POS_CRASH_BEFORE_APPEND_AT), this uses POS_FAIL_APPEND_AT to make one
+ * EARLIER iteration (stopIndex) throw in its append phase, which the driver's
+ * full-lifecycle guard catches and records as a verify_crash STOP record — so
+ * that iteration IS recorded (as a stop), not recordless. A LATER iteration
+ * (crashIndex) uses the hard-crash hook to halt the run recordless, leaving the
+ * remaining iterations un-run. On --resume the driver must SKIP the already
+ * recorded stop (NOT re-run it into a proof: no dup, no gap, disposition stays
+ * stop:verify_crash), re-run the recordless casualty + the rest, and reconcile
+ * to the exact multiset. This exercises resume's handling of an already-recorded
+ * STOP — the path killTrial (recordless-only) never touched.
+ * Returns the reconciliation summary object incl. the preserved-stop check.
+ */
+function stopRecordResumeTrial(tag, stopIndex, crashIndex) {
+  if (!(stopIndex < crashIndex)) {
+    die(`${tag}: stopIndex (${stopIndex}) must be < crashIndex (${crashIndex})`);
+  }
+  const stoppedId = `replay/small/${stopIndex}`;
+  const casualtyId = `replay/small/${crashIndex}`;
+  const sandbox = makeSandbox(tag);
+  try {
+    // ---- KILL: record a verify_crash STOP at stopIndex (POS_FAIL_APPEND_AT),
+    // then hard-crash recordless at the LATER crashIndex to halt the run. ----
+    const killRun = runBatch(sandbox, {
+      args: ['--scale=small'],
+      env: {
+        POS_FAIL_APPEND_AT: stoppedId,
+        POS_CRASH_BEFORE_APPEND_AT: casualtyId,
+      },
+    });
+    if (killRun.code === 0) {
+      die(`${tag}: expected a NONZERO exit from the hard-crash kill at ${casualtyId}, got exit 0`);
+    }
+    const partial = readLedger(sandbox);
+    // Iterations 1..(crashIndex-1) are recorded; crashIndex is recordless.
+    if (partial.length !== crashIndex - 1) {
+      die(
+        `${tag}: expected exactly ${crashIndex - 1} record(s) before the hard-crash at ` +
+          `${casualtyId}, got ${partial.length}`,
+      );
+    }
+    // The stopIndex iteration must be recorded AS A STOP (verify_crash), not a proof.
+    const stopRecs = partial.filter((r) => r.iterationId === stoppedId);
+    if (stopRecs.length !== 1) {
+      die(`${tag}: expected exactly one record for ${stoppedId} before resume, got ${stopRecs.length}`);
+    }
+    if (stopRecs[0].stopReason !== 'verify_crash') {
+      die(
+        `${tag}: ${stoppedId} must be recorded as a verify_crash STOP before resume, got ` +
+          `stopReason=${stopRecs[0].stopReason} verifyStatus=${stopRecs[0].verifyStatus}`,
+      );
+    }
+    // The crashIndex casualty must be RECORDLESS after the kill.
+    if (partial.some((r) => r.iterationId === casualtyId)) {
+      die(`${tag}: the hard-crash casualty ${casualtyId} must be RECORDLESS after the kill`);
+    }
+    const stopDigestBeforeResume = stopRecs[0].recordDigest;
+
+    // ---- RESUME: must SKIP the recorded stop (preserve it, not re-run into a
+    // proof), re-run the recordless casualty + the rest, reconcile exactly. ----
+    const resumeRun = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    const finalRecords = readLedger(sandbox);
+    const rec = reconcile(finalRecords);
+    if (resumeRun.code !== 0) {
+      die(
+        `${tag}: resume exited ${resumeRun.code} (nonzero); the strict end-of-run guard rejected the ` +
+          `final ledger.\n${(resumeRun.stdout + '\n' + resumeRun.stderr).slice(-800)}`,
+      );
+    }
+    if (!rec.match || rec.dup !== 0 || rec.gap !== 0) {
+      die(
+        `${tag}: post-resume reconciliation is not clean — dup=${rec.dup} ` +
+          `[${rec.dupIds.join(', ')}], gap=${rec.gap} [${rec.gapIds.join(', ')}], ` +
+          `extra=${rec.extra} [${rec.extraIds.join(', ')}]`,
+      );
+    }
+    // CORE F-004 ASSERTION: the already-recorded stop was SKIPPED on resume —
+    // exactly one record, still a verify_crash STOP (not re-run into a proof),
+    // byte-identical to the pre-resume record (append-only, not rewritten).
+    const finalStopRecs = finalRecords.filter((r) => r.iterationId === stoppedId);
+    if (finalStopRecs.length !== 1) {
+      die(
+        `${tag}: after resume ${stoppedId} must have EXACTLY ONE record (the preserved stop), got ` +
+          `${finalStopRecs.length} (a dup would mean resume re-ran an already-recorded stop)`,
+      );
+    }
+    if (finalStopRecs[0].stopReason !== 'verify_crash' || finalStopRecs[0].verifyStatus !== undefined) {
+      die(
+        `${tag}: after resume ${stoppedId} must STILL be a verify_crash STOP (resume must not re-run ` +
+          `an already-recorded stop into a proof), got stopReason=${finalStopRecs[0].stopReason} ` +
+          `verifyStatus=${finalStopRecs[0].verifyStatus}`,
+      );
+    }
+    if (finalStopRecs[0].recordDigest !== stopDigestBeforeResume) {
+      die(
+        `${tag}: the preserved stop record for ${stoppedId} changed across resume ` +
+          `(append-only violated: the pre-existing stop line was rewritten)`,
+      );
+    }
+    // The recordless casualty resolves to exactly one record (proof or stop).
+    const casualtyDisp = casualtyDisposition(finalRecords, casualtyId);
+    // Belt-and-suspenders: exactly one record per expected iterationId.
+    const cnts = iterationIdCounts(finalRecords);
+    for (const id of expectedSmallIds()) {
+      if ((cnts.get(id) || 0) !== 1) {
+        die(`${tag}: iteration ${id} does not have exactly one record post-resume`);
+      }
+    }
+    console.log(
+      `  ${tag}: stopped=${stoppedId} (verify_crash, PRESERVED + skipped on resume), ` +
+        `casualty=${casualtyId} -> ${casualtyDisp}; post-resume dup=${rec.dup} gap=${rec.gap}`,
+    );
+    return {
+      mechanism: 'POS_FAIL_APPEND_AT',
+      stoppedId,
+      casualtyId,
+      recordedBeforeKill: partial.length,
+      postResume: {
+        dup: rec.dup,
+        gap: rec.gap,
+        stoppedDisposition: 'stop:verify_crash (preserved, skipped on resume)',
+        stoppedRecordPreserved: true,
+        casualtyDisposition: casualtyDisp,
+      },
+    };
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
+/**
  * Secondary, INFORMATIONAL external-SIGKILL trial (does not gate H3). Spawns a
  * fresh --scale=small run and sends SIGKILL after the ledger reaches K records,
  * then resumes. Records whether the resume reconciled cleanly. Best-effort:
@@ -344,11 +475,20 @@ async function main() {
   // mid-iteration casualty path again distinctly. This is the SCORED second kill.
   const killB = killTrial('killB-crash', 18);
 
+  // KILL C (F-004, STOP-RECORD-RESUME): record a verify_crash STOP at an EARLIER
+  // iteration via POS_FAIL_APPEND_AT (a caught append-phase throw), then hard-
+  // crash recordless at a LATER iteration to halt the run. On resume the driver
+  // must SKIP the already-recorded stop (NOT re-run it into a proof), re-run the
+  // recordless casualty + the rest, and reconcile to 0 dup / 0 gap. Exercises
+  // resume's handling of an ALREADY-RECORDED stop — the path the recordless-only
+  // kills above never touched. SCORED (gates H3).
+  const killC = stopRecordResumeTrial('killC-stop-record', 3, 12);
+
   // Secondary informational external-SIGKILL trial (non-gating).
   const killBSigkill = await externalSigkillTrial(3);
 
-  const dupTotal = killA.postResume.dup + killB.postResume.dup;
-  const gapTotal = killA.postResume.gap + killB.postResume.gap;
+  const dupTotal = killA.postResume.dup + killB.postResume.dup + killC.postResume.dup;
+  const gapTotal = killA.postResume.gap + killB.postResume.gap + killC.postResume.gap;
   const finalMultisetMatch = dupTotal === 0 && gapTotal === 0;
 
   if (!finalMultisetMatch) {
@@ -361,11 +501,14 @@ async function main() {
       'interrupt/resume idempotence — a deterministic mid-iteration kill leaves a recordless ' +
       'casualty; a --resume restart skips the already-recorded iterations, re-runs the casualty ' +
       'and the rest, and the strict exact-multiset guard reconciles the final ledger to the ' +
-      'protocol replay/small cross-product with 0 dup / 0 gap and exactly one record per iterationId.',
+      'protocol replay/small cross-product with 0 dup / 0 gap and exactly one record per iterationId. ' +
+      'killC additionally proves resume SKIPS an ALREADY-RECORDED verify_crash STOP (does not re-run ' +
+      'it into a proof, no dup / no gap, the stop record preserved byte-identical).',
     scale: 'small',
     protocolReplaySmallCount: N_SMALL,
     killA,
     killB,
+    killC,
     killBSigkill,
     finalMultisetMatch,
     dupTotal,

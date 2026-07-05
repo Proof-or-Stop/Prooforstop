@@ -37,13 +37,33 @@
 //       to 0 dup / 0 gap with exactly one record per iterationId. Proves the
 //       truncated-trailing-line repair path.
 //
+//   (F) STOP-RECORD-RESUME (F-004): a run records a verify_crash STOP at an
+//       EARLIER iteration (POS_FAIL_APPEND_AT — a caught append-phase throw),
+//       then hard-crashes recordless at a LATER iteration. On --resume the driver
+//       must SKIP the already-recorded stop (NOT re-run it into a proof — the
+//       stop record is preserved byte-identical), re-run the recordless casualty
+//       + the rest, and reconcile to 0 dup / 0 gap. Proves resume's handling of
+//       an ALREADY-RECORDED stop, which (A)/(B) (recordless-only) never touched.
+//
+//   (G) VALID-FINAL-RECORD-PRESERVED (F-002/F-003): a ledger whose LAST line is a
+//       COMPLETE valid record that merely lost its trailing newline at EOF must
+//       be PRESERVED on resume (its iteration counted as recorded, NOT dropped),
+//       so that iteration does NOT become a spurious re-run/GAP. Reconciles to
+//       0 dup / 0 gap. Proves parse-before-drop never deletes a complete record.
+//
+//   (H) LIVE-LOCK-NOT-BROKEN (F-001): a --resume run must REFUSE to break a lock
+//       whose holder process is still ALIVE (a genuine concurrent driver). A live
+//       holder is spawned holding the lock; a --resume attempt must exit nonzero
+//       with precondition_failed (recorded to the blocked-ledger) and must NOT
+//       remove the lock. Proves resume cannot clobber a live driver's lock.
+//
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json, run with
 // cwd=sandbox so its ledger + lock live in the sandbox. The generate/verify CLI
 // IS invoked (a live baseline per iteration) but only frozen protocol.json is
 // read, never rewritten.
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import {
   appendFileSync,
   cpSync,
@@ -344,7 +364,307 @@ function checkTruncatedTailRepair() {
   }
 }
 
-function main() {
+// ---------------------------------------------------------------------------
+// (F) STOP-RECORD-RESUME (F-004): a verify_crash STOP recorded at an EARLIER
+// iteration (POS_FAIL_APPEND_AT) must be SKIPPED on resume — preserved as a stop,
+// NOT re-run into a proof, 0 dup / 0 gap. A LATER hard-crash halts the run
+// recordless so resume has remaining work and encounters the recorded stop.
+// ---------------------------------------------------------------------------
+function checkStopRecordResume() {
+  const label = 'F-stop-record-resume';
+  const stopIndex = 3; // POS_FAIL_APPEND_AT -> verify_crash STOP recorded here
+  const crashIndex = 12; // hard-crash recordless here (LATER), halts the run
+  const stoppedId = `replay/small/${stopIndex}`;
+  const casualtyId = `replay/small/${crashIndex}`;
+  const sandbox = makeSandbox(label);
+  try {
+    // KILL: record a verify_crash STOP at stopIndex, then hard-crash at crashIndex.
+    const killRun = runBatch(sandbox, {
+      args: ['--scale=small'],
+      env: { POS_FAIL_APPEND_AT: stoppedId, POS_CRASH_BEFORE_APPEND_AT: casualtyId },
+    });
+    if (killRun.code === 0) {
+      fail(`${label}: expected a NONZERO exit from the hard-crash at ${casualtyId}, got exit 0`);
+    }
+    const partial = readLedger(sandbox);
+    if (partial.length !== crashIndex - 1) {
+      fail(
+        `${label}: expected exactly ${crashIndex - 1} record(s) before the hard-crash at ` +
+          `${casualtyId}, got ${partial.length}`,
+      );
+    }
+    const stopRecs = partial.filter((r) => r.iterationId === stoppedId);
+    if (stopRecs.length !== 1 || stopRecs[0].stopReason !== 'verify_crash') {
+      fail(
+        `${label}: ${stoppedId} must be recorded as a single verify_crash STOP before resume ` +
+          `(got count=${stopRecs.length}, stopReason=${stopRecs[0] && stopRecs[0].stopReason})`,
+      );
+    }
+    if (partial.some((r) => r.iterationId === casualtyId)) {
+      fail(`${label}: the hard-crash casualty ${casualtyId} must be RECORDLESS after the kill`);
+    }
+    const stopDigestBefore = stopRecs[0].recordDigest;
+
+    // RESUME: must SKIP the recorded stop (preserve it), re-run the casualty + rest.
+    const resumeRun = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (resumeRun.code !== 0) {
+      fail(
+        `${label}: resume exited ${resumeRun.code} (nonzero); the strict end-of-run guard rejected ` +
+          `the final ledger.\n${(resumeRun.stdout + '\n' + resumeRun.stderr).slice(-800)}`,
+      );
+    }
+    const finalRecords = readLedger(sandbox);
+    assertExactSmallMultiset(label, finalRecords);
+    // CORE F-004 ASSERTION: the stop was SKIPPED — one record, still a stop, byte-
+    // identical (append-only: not re-run into a proof, not rewritten).
+    const finalStopRecs = finalRecords.filter((r) => r.iterationId === stoppedId);
+    if (finalStopRecs.length !== 1) {
+      fail(
+        `${label}: after resume ${stoppedId} must have EXACTLY ONE record (the preserved stop), got ` +
+          `${finalStopRecs.length} (a dup means resume re-ran an already-recorded stop)`,
+      );
+    }
+    if (finalStopRecs[0].stopReason !== 'verify_crash' || finalStopRecs[0].verifyStatus !== undefined) {
+      fail(
+        `${label}: after resume ${stoppedId} must STILL be a verify_crash STOP (resume must not re-run ` +
+          `an already-recorded stop into a proof), got stopReason=${finalStopRecs[0].stopReason} ` +
+          `verifyStatus=${finalStopRecs[0].verifyStatus}`,
+      );
+    }
+    if (finalStopRecs[0].recordDigest !== stopDigestBefore) {
+      fail(`${label}: the preserved stop record for ${stoppedId} changed across resume (append-only violated)`);
+    }
+    const disp = assertCasualtyResolved(label, finalRecords, casualtyId);
+    console.log(
+      `  ${label} PASS: stop at ${stoppedId} recorded (verify_crash), resume SKIPPED it ` +
+        `(preserved, not re-run into a proof), casualty ${casualtyId} -> ${disp}, exact 30 multiset, ` +
+        `0 dup / 0 gap`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (G) VALID-FINAL-RECORD-PRESERVED (F-002/F-003): a ledger whose trailing line is
+// a COMPLETE record missing only its newline must be PRESERVED on resume (its
+// iteration counted as recorded, NOT dropped) — no spurious re-run / GAP.
+// ---------------------------------------------------------------------------
+function checkValidFinalRecordPreserved() {
+  const label = 'G-valid-final-record-preserved';
+  const K = 4;
+  const casualtyId = `replay/small/${K + 1}`;
+  const sandbox = makeSandbox(label);
+  try {
+    // Produce exactly K clean records via a hard-crash at K+1 (recordless).
+    const killRun = runBatch(sandbox, {
+      args: ['--scale=small'],
+      env: { POS_CRASH_BEFORE_APPEND_AT: casualtyId },
+    });
+    if (killRun.code === 0) {
+      fail(`${label}: expected NONZERO exit from the seeding hard-crash at ${casualtyId}`);
+    }
+    const seeded = readLedger(sandbox);
+    if (seeded.length !== K) {
+      fail(`${label}: seeding produced ${seeded.length} records, expected ${K}`);
+    }
+    // The K clean records were written WITH trailing newlines. Strip the final
+    // newline from the file so the LAST record's line is complete-but-unterminated
+    // (a real record that merely lost its trailing \n at EOF — NOT a truncation).
+    const raw = readFileSync(ledgerPath(sandbox), 'utf8');
+    if (!raw.endsWith('\n')) {
+      fail(`${label}: test setup error — the seeded ledger did not end with a newline`);
+    }
+    const withoutFinalNewline = raw.slice(0, -1);
+    // Sanity: the trailing line MUST parse to a complete record (this is the whole
+    // point — it is a real record, not a partial write).
+    const lines = withoutFinalNewline.split('\n');
+    const lastLine = lines[lines.length - 1];
+    let lastRec;
+    try {
+      lastRec = JSON.parse(lastLine);
+    } catch {
+      fail(`${label}: test setup error — the trailing line is not parseable (should be a complete record)`);
+    }
+    if (typeof lastRec.iterationId !== 'string') {
+      fail(`${label}: test setup error — the trailing line is not a ledger record`);
+    }
+    const preservedId = lastRec.iterationId;
+    const preservedDigest = lastRec.recordDigest;
+    // Write the file back WITHOUT the trailing newline (simulate the record whose
+    // last append landed the bytes but the process died before the '\n').
+    rmSync(ledgerPath(sandbox));
+    appendFileSync(ledgerPath(sandbox), withoutFinalNewline); // no trailing newline
+
+    // RESUME: must PRESERVE the complete trailing record (count it as recorded,
+    // NOT drop it), re-run only the recordless casualty + the rest.
+    const resumeRun = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (resumeRun.code !== 0) {
+      fail(
+        `${label}: resume over a complete-final-record-without-newline ledger exited ` +
+          `${resumeRun.code} (nonzero).\n${(resumeRun.stdout + '\n' + resumeRun.stderr).slice(-800)}`,
+      );
+    }
+    const finalRecords = readLedger(sandbox);
+    assertExactSmallMultiset(label, finalRecords);
+    // CORE F-002/F-003 ASSERTION: the preserved record is NOT dropped/re-run — it
+    // still has exactly one record, byte-identical (same recordDigest).
+    const preservedRecs = finalRecords.filter((r) => r.iterationId === preservedId);
+    if (preservedRecs.length !== 1) {
+      fail(
+        `${label}: the complete trailing record ${preservedId} must have EXACTLY ONE record after ` +
+          `resume (it must NOT be dropped-and-re-run), got ${preservedRecs.length}`,
+      );
+    }
+    if (preservedRecs[0].recordDigest !== preservedDigest) {
+      fail(
+        `${label}: the complete trailing record ${preservedId} was NOT preserved verbatim — its ` +
+          `recordDigest changed (parse-before-drop must never delete + re-run a complete record)`,
+      );
+    }
+    console.log(
+      `  ${label} PASS: a complete trailing record (${preservedId}) missing only its newline was ` +
+        `PRESERVED verbatim on resume (not dropped into a GAP); exact 30 multiset, 0 dup / 0 gap`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (H) LIVE-LOCK-NOT-BROKEN (F-001): a --resume run must REFUSE to break a lock
+// whose holder process is ALIVE. We create the lock dir with a holder.json whose
+// pid is a LIVE long-lived child process, then attempt a --resume run and assert
+// it exits nonzero (precondition_failed to the blocked-ledger) and did NOT remove
+// the lock. Then we kill the holder and confirm resume DOES break the now-stale
+// lock (dead pid) — proving the liveness check is discriminating, not a blanket
+// refusal.
+// ---------------------------------------------------------------------------
+function lockDirPath(sandbox) {
+  return join(sandbox, '.batch-ledger.lock');
+}
+function holderPath(sandbox) {
+  return join(lockDirPath(sandbox), 'holder.json');
+}
+function blockedLedgerPath(sandbox) {
+  return join(sandbox, 'batch-ledger.blocked.jsonl');
+}
+
+// Short blocking sleep for a bounded liveness poll, WITHOUT spawning a process
+// and WITHOUT the banned foreground `sleep`. Uses Atomics.wait on a throwaway
+// SharedArrayBuffer (blocks the current thread for `ms` with no busy-spin).
+function blockMs(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+async function checkLiveLockNotBroken() {
+  const label = 'H-live-lock-not-broken';
+  const sandbox = makeSandbox(label);
+  // Spawn a long-lived holder process; its pid is the live lock holder. Node
+  // assigns child.pid synchronously once the process is spawned.
+  const holder = spawn('node', ['-e', 'setInterval(() => {}, 1e9)'], {
+    stdio: 'ignore',
+    detached: false,
+  });
+  try {
+    if (!(typeof holder.pid === 'number' && holder.pid > 0)) {
+      fail(`${label}: holder process failed to spawn (no pid)`);
+    }
+    const livePid = holder.pid;
+    // Manually create a lock dir with a LIVE holder pid (mimic a concurrent driver
+    // that acquired the lock and stamped holder.json).
+    mkdirSync(lockDirPath(sandbox), { recursive: true });
+    appendFileSync(holderPath(sandbox), JSON.stringify({ pid: livePid }) + '\n');
+
+    // ATTEMPT RESUME: must REFUSE to break the live lock.
+    const resumeRun = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (resumeRun.code === 0) {
+      fail(
+        `${label}: --resume broke a LIVE lock (exit 0) — two writers could corrupt the ledger. ` +
+          `The live-holder liveness check failed.\n${(resumeRun.stdout + '\n' + resumeRun.stderr).slice(-800)}`,
+      );
+    }
+    // The lock dir + holder must still be present (NOT removed).
+    if (!existsSync(lockDirPath(sandbox)) || !existsSync(holderPath(sandbox))) {
+      fail(`${label}: --resume removed a LIVE lock's dir/holder — it must be left intact`);
+    }
+    // A precondition_failed stop must be recorded to the BLOCKED ledger, and the
+    // shared campaign ledger must NOT have been touched.
+    if (!existsSync(blockedLedgerPath(sandbox))) {
+      fail(`${label}: --resume did not record precondition_failed to the blocked-ledger`);
+    }
+    const blocked = readFileSync(blockedLedgerPath(sandbox), 'utf8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+    if (!blocked.some((r) => r.stopReason === 'precondition_failed')) {
+      fail(`${label}: blocked-ledger has no precondition_failed record after the refused resume`);
+    }
+    if (existsSync(ledgerPath(sandbox))) {
+      fail(`${label}: --resume wrote to the shared campaign ledger while refusing a live lock`);
+    }
+    console.log(
+      `  ${label} PASS: --resume REFUSED to break a LIVE lock (holder pid ${livePid} alive) — ` +
+        `exit ${resumeRun.code}, precondition_failed to blocked-ledger, campaign ledger untouched`,
+    );
+
+    // DISCRIMINATION CHECK: kill the holder, then resume must now BREAK the stale
+    // lock (dead pid) and complete cleanly — proving the check is not a blanket
+    // refusal. Remove the blocked-ledger first so we assert on the fresh run only.
+    // Wait for the holder to actually EXIT (Node reaps it once 'exit' fires, so
+    // the pid stops responding to the liveness probe as a zombie). Bounded.
+    const exited = await new Promise((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        resolve(true);
+      };
+      holder.once('exit', finish);
+      if (holder.exitCode !== null || holder.signalCode !== null) finish();
+      holder.kill('SIGKILL');
+      setTimeout(() => resolve(done), 5000);
+    });
+    if (!exited) fail(`${label}: holder pid ${livePid} did not exit within 5s`);
+    // Belt-and-suspenders: confirm the probe now sees the pid as dead. (A short
+    // block covers the tiny window between the 'exit' event and OS reaping.)
+    let dead = false;
+    const killStart = Date.now();
+    while (!dead) {
+      try {
+        process.kill(livePid, 0);
+      } catch {
+        dead = true; // ESRCH -> the holder is gone
+        break;
+      }
+      if (Date.now() - killStart > 5000) fail(`${label}: holder pid ${livePid} still alive 5s after exit`);
+      blockMs(25);
+    }
+    rmSync(blockedLedgerPath(sandbox), { force: true });
+    const resumeAfterDeath = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (resumeAfterDeath.code !== 0) {
+      fail(
+        `${label}: after the holder DIED, --resume must break the now-stale lock and complete (exit 0), ` +
+          `got ${resumeAfterDeath.code}.\n${(resumeAfterDeath.stdout + '\n' + resumeAfterDeath.stderr).slice(-800)}`,
+      );
+    }
+    const finalRecords = readLedger(sandbox);
+    assertExactSmallMultiset(label, finalRecords);
+    console.log(
+      `  ${label} PASS (discrimination): after the holder DIED, --resume broke the now-stale lock ` +
+        `and completed the exact ${N_SMALL}-record multiset (the liveness check is discriminating)`,
+    );
+  } finally {
+    try {
+      holder.kill('SIGKILL');
+    } catch {
+      /* already gone */
+    }
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
+async function main() {
   console.log('selfcheck-m3: running hermetic resume/idempotence guards (small scale)...');
   // (A) clean-boundary kill at K+1 with K=5 (casualty replay/small/6).
   killResumeTrial('A-boundary-kill', 6);
@@ -356,8 +676,18 @@ function main() {
   checkResumeNoLedger();
   // (E) truncated-trailing-line repair on resume.
   checkTruncatedTailRepair();
+  // (F) STOP-RECORD-RESUME (F-004): resume SKIPS an already-recorded stop.
+  checkStopRecordResume();
+  // (G) VALID-FINAL-RECORD-PRESERVED (F-002/F-003): a complete trailing record
+  //     missing only its newline is preserved (not dropped into a GAP).
+  checkValidFinalRecordPreserved();
+  // (H) LIVE-LOCK-NOT-BROKEN (F-001): resume refuses to break a live lock.
+  await checkLiveLockNotBroken();
   console.log('selfcheck-m3 PASS');
   process.exit(0);
 }
 
-main();
+main().catch((e) => {
+  console.error('selfcheck-m3 FAIL: uncaught: ' + String((e && e.stack) || e));
+  process.exit(1);
+});
