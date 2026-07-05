@@ -14,6 +14,25 @@
       "_hash": "e3a7fa1bdbb1a644869f370f6ed997545273654d6cce2dc435d30169c4f95e69",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-11ad:F-002",
+      "desc": "packages/main/src/core/artifact-release.ts:181 and packages/main/src/handlers/done-effects.ts:241 make artifact-release idempotency stop before durable commit: if DONE appends .lattice/artifact-releases.jsonl but commitArtifactReleaseLedgerIfNeeded fails or the process dies before the git commit, a retry reads the dirty ledger as already_recorded and returns without staging/committing it. This can leave DONE reporting an already-recorded artifact release with no committed provenance row.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T09:58:03.115Z",
+      "reviewRound": "2026-07-05T09:55:02.266Z",
+      "reviewRunId": "B-11ad:RR-002",
+      "_hash": "5c206321ccf8ab56d7a81e05ea5230703c914974a37cf1e546de0e964c340791",
+      "files": [
+        "packages/main/src/core/artifact-release.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
