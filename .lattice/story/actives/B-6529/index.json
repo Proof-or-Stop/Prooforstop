@@ -4,7 +4,7 @@
   "title": "Unlock Cell 03 provider execution with frozen execution bounds and postflight usage accounting",
   "description": "Cell 03 is the next formal M2-a provider execution step, but current artifacts keep providerExecutionAuthorized=false because dated model snapshots, prompt/tool digests, runner ownership, duplicate policy, result write policy, execution window, Cell 03-only scope, and usage accounting are not yet bound. This story removes arbitrary dollar guessing as a launch blocker and instead requires a frozen execution envelope before the run plus provider-reported usage and cost comparison after the run.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-request-2026-07-05-cell03-provider-execution-prerequisites",
   "keywords": [
@@ -55,11 +55,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-0bf38b81c756d794",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:56:57.655Z",
+      "branch": "story/B-6529",
+      "user": "Harmonygo",
+      "sessionId": "sess-0bf38b81c756d794",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-6529",
     "branch": "story/B-6529",
     "createdAt": "2026-07-05T21:31:12.897Z"
-  }
+  },
+  "currentReviewRound": "2026-07-05T21:56:57.655Z"
 }
