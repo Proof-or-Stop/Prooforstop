@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/artifact-release.ts:181 and packages/main/src/handlers/done-effects.ts:241 make artifact-release idempotency stop before durable commit: if DONE appends .lattice/artifact-releases.jsonl but commitArtifactReleaseLedgerIfNeeded fails or the process dies before the git commit, a retry reads the dirty ledger as already_recorded and returns without staging/committing it. This can leave DONE reporting an already-recorded artifact release with no committed provenance row.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T09:58:03.115Z",
@@ -36,7 +36,11 @@
         "packages/main/src/handlers/done-effects.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b70d2738 with the same durability repair: already_recorded no longer suppresses a needed ledger commit. The smoke now simulates an appended-but-uncommitted row, retries through already_recorded, commits it, and proves a clean retry does not add another commit.",
+      "resolvedAt": "2026-07-05T10:02:04.321Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
